@@ -1,0 +1,78 @@
+import SwiftTreeSitter
+
+public enum BinaryOperator {
+  case plus
+  case minus
+  case mul
+  case div
+  case modulo
+  case equalsEquals
+  case notEquals
+  case gt
+  case lt
+  case ge
+  case le
+  case IN
+  case notIn
+  case or
+  case and
+
+  static func fromString(str: String) -> BinaryOperator? {
+    switch str {
+    case "+":
+      return .plus
+    case "-":
+      return .minus
+    case "*":
+      return .mul
+    case "/":
+      return .div
+    case "%":
+      return .modulo
+    case "==":
+      return .equalsEquals
+    case "!=":
+      return .notEquals
+    case ">":
+      return .gt
+    case "<":
+      return .lt
+    case ">=":
+      return .ge
+    case "<=":
+      return .le
+    case "in":
+      return .IN
+    case "not in":
+      return .notIn
+    case "and":
+      return .and
+    case "or":
+      return .or
+    default:
+      return nil
+    }
+  }
+}
+
+public class BinaryExpression: Statement {
+  public let file: MesonSourceFile
+  public let lhs: Node
+  public let rhs: Node
+  public let op: BinaryOperator?
+
+  init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
+    self.file = file
+    self.lhs = from_tree(file: file, tree: node.namedChild(at: 0))!
+    self.rhs = from_tree(file: file, tree: node.namedChild(at: node.namedChildCount == 2 ? 1 : 2))!
+    let opNode = node.namedChildCount == 2 ? node.child(at: 1) : node.namedChild(at: 1)
+    self.op = BinaryOperator.fromString(str: string_value(file: file, node: opNode!))
+  }
+  public func visit(visitor: CodeVisitor) {
+    visitor.visitBinaryExpression(node: self)
+  }
+  public func visitChildren(visitor: CodeVisitor) {
+    self.lhs.visit(visitor: visitor)
+    self.rhs.visit(visitor: visitor)
+  }
+}
