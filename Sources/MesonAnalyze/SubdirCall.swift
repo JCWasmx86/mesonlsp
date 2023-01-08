@@ -10,10 +10,10 @@ public class SubdirCall: FunctionExpression {
     self.argumentList = node.argumentList
   }
   public override func visit(visitor: CodeVisitor) {
-  	if visitor is ExtendedCodeVisitor {
-  		(visitor as! ExtendedCodeVisitor).visitSubdirCall(node: self)
-  	} else {
-    	visitor.visitFunctionExpression(node: self)
+    if visitor is ExtendedCodeVisitor {
+      (visitor as! ExtendedCodeVisitor).visitSubdirCall(node: self)
+    } else {
+      visitor.visitFunctionExpression(node: self)
     }
   }
   public override func visitChildren(visitor: CodeVisitor) {

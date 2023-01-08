@@ -2,11 +2,11 @@ import LanguageServerProtocol
 import MesonAnalyze
 
 public final class MesonServer: LanguageServer {
-  var onExit: () -> ()
+  var onExit: () -> Void
   var path: String?
   var tree: MesonTree?
 
-  public init(client: Connection, onExit: @escaping () -> () = {}) {
+  public init(client: Connection, onExit: @escaping () -> Void = {}) {
     self.onExit = onExit
 
     super.init(client: client)
@@ -25,11 +25,12 @@ public final class MesonServer: LanguageServer {
   }
 
   func capabilities() -> ServerCapabilities {
-		return ServerCapabilities(
-      textDocumentSync: .options(TextDocumentSyncOptions(
-        openClose: true,
-        change: .full
-      )),
+    return ServerCapabilities(
+      textDocumentSync: .options(
+        TextDocumentSyncOptions(
+          openClose: true,
+          change: .full
+        )),
       hoverProvider: .bool(true),
       definitionProvider: .bool(true),
       documentHighlightProvider: .bool(true),
@@ -40,15 +41,15 @@ public final class MesonServer: LanguageServer {
   }
 
   func initialize(_ req: Request<InitializeRequest>) {
-  	let p = req.params
-  	if p.rootPath == nil {
-  		fatalError("Nothing else supported other than using rootPath")
-  	}
-  	self.path = p.rootPath
-  	queue.async {
-			self.tree = try! MesonTree(file: self.path! + "/meson.build")
-  	}
-  	req.reply(InitializeResult(capabilities: self.capabilities()))
+    let p = req.params
+    if p.rootPath == nil {
+      fatalError("Nothing else supported other than using rootPath")
+    }
+    self.path = p.rootPath
+    queue.async {
+      self.tree = try! MesonTree(file: self.path! + "/meson.build")
+    }
+    req.reply(InitializeResult(capabilities: self.capabilities()))
   }
 
   func clientInitialized(_: Notification<InitializedNotification>) {
