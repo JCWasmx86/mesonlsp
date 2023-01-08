@@ -1,12 +1,15 @@
 import LanguageServerProtocol
 import MesonAnalyze
 
+// There seem to be some name collisions
+public typealias MesonVoid = ()
+
 public final class MesonServer: LanguageServer {
-  var onExit: () -> ()
+  var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
 
-  public init(client: Connection, onExit: @escaping () -> ()) {
+  public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
 
     super.init(client: client)

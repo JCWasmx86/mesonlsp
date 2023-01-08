@@ -43,6 +43,7 @@ public struct MesonLSP: ParsableCommand {
       client: clientConnection,
       onExit: {
         clientConnection.close()
+        return
       })
     clientConnection.start(
       receiveHandler: server,
