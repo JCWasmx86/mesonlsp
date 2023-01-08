@@ -11,7 +11,7 @@ public class SubdirCall: FunctionExpression {
   }
   public override func visit(visitor: CodeVisitor) {
   	if visitor is ExtendedCodeVisitor {
-  		(visitor as! ExtendedCodeVisitor).visitSubdirCall(node: self);
+  		(visitor as! ExtendedCodeVisitor).visitSubdirCall(node: self)
   	} else {
     	visitor.visitFunctionExpression(node: self)
     }
