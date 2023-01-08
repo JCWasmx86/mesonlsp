@@ -34,7 +34,11 @@ public class Meson: AbstractObject {
         returnTypes: [
           Str()
         ]),
-      Method(name: "get_compiler", parent: self),
+      Method(
+        name: "get_compiler", parent: self,
+        returnTypes: [
+          Compiler()
+        ]),
       Method(
         name: "get_cross_property", parent: self,
         returnTypes: [
