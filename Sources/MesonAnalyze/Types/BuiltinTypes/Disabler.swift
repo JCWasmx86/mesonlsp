@@ -3,5 +3,13 @@ public class Disabler: AbstractObject {
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  public init() {
+    self.methods = [
+      Method(
+        name: "found", parent: self,
+        returnTypes: [
+          BoolType()
+        ])
+    ]
+  }
 }

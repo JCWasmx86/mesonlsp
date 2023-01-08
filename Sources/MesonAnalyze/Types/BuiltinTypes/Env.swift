@@ -3,5 +3,11 @@ public class Env: AbstractObject {
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  public init() {
+    self.methods = [
+      Method(name: "append", parent: self),
+      Method(name: "prepend", parent: self),
+      Method(name: "set", parent: self),
+    ]
+  }
 }

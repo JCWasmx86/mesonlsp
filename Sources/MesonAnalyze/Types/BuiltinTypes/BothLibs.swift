@@ -4,6 +4,17 @@ public class BothLibs: AbstractObject {
   public var methods: [Method] = []
 
   public init() {
-    self.methods = []
+    self.methods = [
+      Method(
+        name: "get_shared_lib", parent: self,
+        returnTypes: [
+          Lib()
+        ]),
+      Method(
+        name: "get_static_lib", parent: self,
+        returnTypes: [
+          Lib()
+        ]),
+    ]
   }
 }

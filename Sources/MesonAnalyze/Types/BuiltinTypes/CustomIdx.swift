@@ -3,5 +3,13 @@ public class CustomIdx: AbstractObject {
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  public init() {
+    self.methods = [
+      Method(
+        name: "full_path", parent: self,
+        returnTypes: [
+          Str()
+        ])
+    ]
+  }
 }
