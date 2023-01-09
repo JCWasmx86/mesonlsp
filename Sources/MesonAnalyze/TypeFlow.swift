@@ -1,16 +1,16 @@
 import MesonAST
 
 public class TypeFlow: ExtendedCodeVisitor {
-	let scope: Scope = Scope()
+  let scope: Scope = Scope()
 
   public func visitSourceFile(file: SourceFile) {
     file.visitChildren(visitor: self)
   }
 
   public func visitBuildDefinition(node: BuildDefinition) {
-  	for s in node.stmts {
+    for s in node.stmts {
 
-  	}
+    }
     node.visitChildren(visitor: self)
   }
 

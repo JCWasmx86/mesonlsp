@@ -7,7 +7,7 @@ public class TypeNamespace {
       "any": `Any`(),
       "bool": BoolType(),
       "build_machine": BuildMachine(),
-      "dict": Dict(),
+      "dict": Dict(types: []),
       "host_machine": HostMachine(),
       "int": IntType(),
       "list": ListType(types: []),

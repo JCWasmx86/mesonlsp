@@ -36,15 +36,15 @@ public class MesonTree {
   }
 
   public func analyzeTypes() {
-		let root = Scope()
-		root.variables.updateValue([Meson()], forKey: "meson")
-		root.variables.updateValue([BuildMachine()], forKey: "build_machine")
-		root.variables.updateValue([HostMachine()], forKey: "host_machine")
-		root.variables.updateValue([TargetMachine()], forKey: "target_machine")
-		let flow = TypeFlow()
-		if let node = self.ast {
-			node.visit(visitor: flow)
-		}
+    let root = Scope()
+    root.variables.updateValue([Meson()], forKey: "meson")
+    root.variables.updateValue([BuildMachine()], forKey: "build_machine")
+    root.variables.updateValue([HostMachine()], forKey: "host_machine")
+    root.variables.updateValue([TargetMachine()], forKey: "target_machine")
+    let flow = TypeFlow()
+    if let node = self.ast {
+      node.visit(visitor: flow)
+    }
   }
 
 }

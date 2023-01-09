@@ -1,8 +1,10 @@
 public class Dict: Type {
   public let name: String = "dict"
   public var methods: [Method] = []
+  public var types: [Type]
 
-  public init() {
+  public init(types: [Type]) {
+    self.types = types
     self.methods = [
       Method(
         name: "get", parent: self,
