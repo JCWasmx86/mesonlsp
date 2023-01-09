@@ -17,22 +17,22 @@ public class Str: Type {
       Method(
         name: "format", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "join", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "replace", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "split", parent: self,
         returnTypes: [
-          ListType(types: [Str()])
+          ListType(types: [self])
         ]),
       Method(
         name: "startswith", parent: self,
@@ -42,12 +42,12 @@ public class Str: Type {
       Method(
         name: "strip", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "substring", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "to_int", parent: self,
@@ -57,17 +57,17 @@ public class Str: Type {
       Method(
         name: "to_lower", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "to_upper", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "underscorify", parent: self,
         returnTypes: [
-          Str()
+          self
         ]),
       Method(
         name: "version_compare", parent: self,

@@ -17,7 +17,7 @@ public class `IntType`: Type {
       Method(
         name: "to_string", parent: self,
         returnTypes: [
-          Str()
+          // Str()
         ]),
     ]
   }

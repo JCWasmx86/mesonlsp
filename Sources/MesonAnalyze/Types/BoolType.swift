@@ -7,12 +7,12 @@ public class `BoolType`: Type {
       Method(
         name: "to_int", parent: self,
         returnTypes: [
-          `IntType`()
+          LazyType(name: "int")
         ]),
       Method(
         name: "to_string", parent: self,
         returnTypes: [
-          Str()
+          LazyType(name: "str")
         ]),
     ]
   }

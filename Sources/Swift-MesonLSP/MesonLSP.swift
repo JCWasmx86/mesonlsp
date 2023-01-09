@@ -21,7 +21,8 @@ public struct MesonLSP: ParsableCommand {
 
   public mutating func run() throws {
     if !lsp {
-      try MesonTree(file: self.path)
+      let t = try MesonTree(file: self.path)
+      t.analyzeTypes()
       return
     }
     let realStdout = dup(STDOUT_FILENO)

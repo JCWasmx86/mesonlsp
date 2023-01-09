@@ -8,12 +8,12 @@ public class Dep: AbstractObject {
       Method(
         name: "as_link_whole", parent: self,
         returnTypes: [
-          Dep()
+          self
         ]),
       Method(
         name: "as_system", parent: self,
         returnTypes: [
-          Dep()
+          self
         ]),
       Method(
         name: "found", parent: self,
@@ -48,7 +48,7 @@ public class Dep: AbstractObject {
       Method(
         name: "partial_dependency", parent: self,
         returnTypes: [
-          Dep()
+          self
         ]),
       Method(
         name: "type_name", parent: self,
