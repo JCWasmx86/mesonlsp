@@ -8,9 +8,6 @@ public class TypeFlow: ExtendedCodeVisitor {
   }
 
   public func visitBuildDefinition(node: BuildDefinition) {
-    for s in node.stmts {
-
-    }
     node.visitChildren(visitor: self)
   }
 
