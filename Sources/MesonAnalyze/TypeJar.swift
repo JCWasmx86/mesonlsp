@@ -1,3 +1,5 @@
+import MesonAST
+
 public enum Mode {
   case add
   case overwrite
