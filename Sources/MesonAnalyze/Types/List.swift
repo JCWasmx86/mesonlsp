@@ -10,11 +10,30 @@ public class ListType: Type {
         name: "contains", parent: self,
         returnTypes: [
           BoolType()
+        ],
+        args: [
+          PositionalArgument(
+            name: "item",
+            types: [
+              `Any`()
+            ])
         ]),
       Method(
         name: "get", parent: self,
         returnTypes: [
           `Any`()
+        ],
+        args: [
+          PositionalArgument(
+            name: "index",
+            types: [
+              `IntType`()
+            ]),
+          PositionalArgument(
+            name: "fallback", opt: true,
+            types: [
+              `Any`()
+            ]),
         ]),
       Method(
         name: "length", parent: self,
