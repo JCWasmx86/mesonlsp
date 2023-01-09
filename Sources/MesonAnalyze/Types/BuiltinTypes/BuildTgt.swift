@@ -9,11 +9,26 @@ public class BuildTgt: AbstractObject {
         name: "extract_all_objects", parent: self,
         returnTypes: [
           ExtractedObj()
+        ],
+        args: [
+          Kwarg(
+            name: "recursive", opt: true,
+            types: [
+              ExtractedObj()
+            ])
         ]),
       Method(
         name: "extract_objects", parent: self,
         returnTypes: [
           ExtractedObj()
+        ],
+        args: [
+          PositionalArgument(
+            name: "source", varargs: true, opt: true,
+            types: [
+              Str(),
+              File(),
+            ])
         ]),
       Method(
         name: "found", parent: self,
