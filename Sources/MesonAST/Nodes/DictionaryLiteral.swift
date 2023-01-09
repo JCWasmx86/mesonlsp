@@ -3,6 +3,7 @@ import SwiftTreeSitter
 public class DictionaryLiteral: Expression {
   public let file: MesonSourceFile
   public let values: [Node]
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

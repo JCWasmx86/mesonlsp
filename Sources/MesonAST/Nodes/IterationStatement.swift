@@ -5,6 +5,7 @@ public class IterationStatement: Statement {
   public let ids: [Node]
   public let expression: Node
   public var block: [Node]
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

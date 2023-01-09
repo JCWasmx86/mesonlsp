@@ -33,6 +33,7 @@ public class AssignmentStatement: Statement {
   public let lhs: Node
   public let rhs: Node
   public let op: AssignmentOperator?
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

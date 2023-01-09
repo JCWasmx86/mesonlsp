@@ -5,6 +5,7 @@ public class SelectionStatement: Statement {
   public let ifCondition: Node
   public let conditions: [Node]
   public var blocks: [[Node]]
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

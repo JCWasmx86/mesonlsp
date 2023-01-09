@@ -4,6 +4,7 @@ public class SubscriptExpression: Expression {
   public let file: MesonSourceFile
   public let outer: Node
   public let inner: Node
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

@@ -3,6 +3,7 @@ import SwiftTreeSitter
 public class BuildDefinition: Node {
   public let file: MesonSourceFile
   public var stmts: [Node]
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

@@ -4,6 +4,7 @@ public class KeyValueItem: Expression {
   public let file: MesonSourceFile
   public let key: Node
   public let value: Node
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

@@ -3,6 +3,7 @@ import SwiftTreeSitter
 public class ArgumentList: Expression {
   public let file: MesonSourceFile
   public let args: [Node]
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

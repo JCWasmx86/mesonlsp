@@ -1,8 +1,11 @@
 import Foundation
 import SwiftTreeSitter
 
+// There seem to be some name collisions
+public typealias MesonVoid = ()
+
 extension SwiftTreeSitter.Node {
-  public func enumerateNamedChildren(block: (SwiftTreeSitter.Node) -> Void) {
+  public func enumerateNamedChildren(block: (SwiftTreeSitter.Node) -> MesonVoid) {
     for i in 0..<namedChildCount {
       let n = namedChild(at: i)!
       block(n)

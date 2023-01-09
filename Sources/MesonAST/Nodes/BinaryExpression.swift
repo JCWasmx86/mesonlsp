@@ -60,6 +60,7 @@ public class BinaryExpression: Statement {
   public let lhs: Node
   public let rhs: Node
   public let op: BinaryOperator?
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

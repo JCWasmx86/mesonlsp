@@ -3,6 +3,7 @@ import SwiftTreeSitter
 public class IntegerLiteral: Expression {
   public let file: MesonSourceFile
   public let value: String
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

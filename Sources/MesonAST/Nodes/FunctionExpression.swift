@@ -4,6 +4,7 @@ open class FunctionExpression: Expression {
   public var file: MesonSourceFile
   public var id: Node
   public var argumentList: Node?
+  public var types: [Type] = []
 
   public init() {
     self.file = MesonSourceFile(file: "/dev/stdin")

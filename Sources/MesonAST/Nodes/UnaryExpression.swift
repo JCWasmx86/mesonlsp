@@ -21,6 +21,7 @@ public class UnaryExpression: Expression {
   public let file: MesonSourceFile
   public let expression: Node
   public let op: UnaryOperator?
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

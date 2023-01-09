@@ -3,6 +3,7 @@ import SwiftTreeSitter
 public class ErrorNode: Node {
   public let file: MesonSourceFile
   public let message: String
+  public var types: [Type] = []
 
   init(file: MesonSourceFile, msg: String) {
     self.file = file
