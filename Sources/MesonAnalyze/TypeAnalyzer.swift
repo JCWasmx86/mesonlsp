@@ -13,12 +13,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
-    var subtree = self.tree.findSubdirTree(
+    let subtree = self.tree.findSubdirTree(
       file: node.file.file + "/../" + node.subdirname + "/meson.build")
-    var tmp = self.scope
-    var tmptree = self.tree
+    let tmptree = self.tree
     self.tree = subtree!
-    self.scope = Scope(parent: tmp)
+    self.scope = Scope(parent: self.scope)
     subtree?.ast?.visit(visitor: self)
     self.tree = tmptree
   }
@@ -47,6 +46,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     for b in node.block {
       b.visit(visitor: self)
     }
+    tmp.merge(other: self.scope)
     self.scope = tmp
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
@@ -269,57 +269,56 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func joinTypes(types: [Type]) -> String {
     return types.map({ $0.toString() }).joined(separator: "|")
   }
-
-  public func dedup(types: [Type]) -> [Type] {
-    var listtypes: [Type] = []
-    var dicttypes: [Type] = []
-    var hasAny: Bool = false
-    var hasBool: Bool = false
-    var hasInt: Bool = false
-    var hasStr: Bool = false
-    var objs: [String: Type] = [:]
-    var gotList: Bool = false
-    for t in types {
-      if t is `Any` {
-        hasAny = true
-      }
-      if t is BoolType {
-        hasBool = true
-      } else if t is `IntType` {
-        hasInt = true
-      } else if t is Str {
-        hasStr = true
-      } else if t is Dict {
-        dicttypes += (t as! Dict).types
-      } else if t is ListType {
-        listtypes += (t as! ListType).types
-        gotList = true
-      } else if t is `Void` {
-        // Do nothing
-      } else {
-        objs[t.name] = t
-      }
+}
+public func dedup(types: [Type]) -> [Type] {
+  var listtypes: [Type] = []
+  var dicttypes: [Type] = []
+  var hasAny: Bool = false
+  var hasBool: Bool = false
+  var hasInt: Bool = false
+  var hasStr: Bool = false
+  var objs: [String: Type] = [:]
+  var gotList: Bool = false
+  for t in types {
+    if t is `Any` {
+      hasAny = true
     }
-    var ret: [Type] = []
-    if listtypes.count != 0 || gotList {
-      ret.append(ListType(types: dedup(types: listtypes)))
+    if t is BoolType {
+      hasBool = true
+    } else if t is `IntType` {
+      hasInt = true
+    } else if t is Str {
+      hasStr = true
+    } else if t is Dict {
+      dicttypes += (t as! Dict).types
+    } else if t is ListType {
+      listtypes += (t as! ListType).types
+      gotList = true
+    } else if t is `Void` {
+      // Do nothing
+    } else {
+      objs[t.name] = t
     }
-    if dicttypes.count != 0 {
-      ret.append(Dict(types: dedup(types: dicttypes)))
-    }
-    if hasAny {
-      ret.append(`Any`())
-    }
-    if hasBool {
-      ret.append(`BoolType`())
-    }
-    if hasInt {
-      ret.append(`IntType`())
-    }
-    if hasStr {
-      ret.append(Str())
-    }
-    ret += objs.values
-    return ret
   }
+  var ret: [Type] = []
+  if listtypes.count != 0 || gotList {
+    ret.append(ListType(types: dedup(types: listtypes)))
+  }
+  if dicttypes.count != 0 {
+    ret.append(Dict(types: dedup(types: dicttypes)))
+  }
+  if hasAny {
+    ret.append(`Any`())
+  }
+  if hasBool {
+    ret.append(`BoolType`())
+  }
+  if hasInt {
+    ret.append(`IntType`())
+  }
+  if hasStr {
+    ret.append(Str())
+  }
+  ret += objs.values
+  return ret
 }
