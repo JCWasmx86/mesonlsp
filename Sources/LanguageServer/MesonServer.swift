@@ -25,6 +25,23 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.cancelRequest)
     _register(MesonServer.shutdown)
     _register(MesonServer.exit)
+    _register(MesonServer.openDocument)
+    _register(MesonServer.closeDocument)
+    _register(MesonServer.changeDocument)
+  }
+
+  func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
+
+  }
+
+  func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
+
+  }
+
+  func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
+    queue.async {
+      self.tree = try! MesonTree(file: self.path! + "/meson.build")
+    }
   }
 
   func capabilities() -> ServerCapabilities {
