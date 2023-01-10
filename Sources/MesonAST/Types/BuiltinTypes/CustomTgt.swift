@@ -1,5 +1,5 @@
 public class CustomTgt: AbstractObject {
-  public let name: String = "compiler"
+  public let name: String = "custom_tgt"
   public var methods: [Method] = []
   public let parent: AbstractObject? = Tgt()
 

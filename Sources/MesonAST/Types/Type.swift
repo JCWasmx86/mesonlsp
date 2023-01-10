@@ -12,6 +12,9 @@ extension Type {
         return m
       }
     }
+    if self is AbstractObject && (self as! AbstractObject).parent != nil {
+      return (self as! AbstractObject).parent?.getMethod(name: name)
+    }
     return nil
   }
 }

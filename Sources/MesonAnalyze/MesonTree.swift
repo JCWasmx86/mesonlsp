@@ -41,10 +41,24 @@ public class MesonTree {
     root.variables.updateValue([BuildMachine()], forKey: "build_machine")
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
-    let t = TypeAnalyzer(parent: root)
+    let t = TypeAnalyzer(parent: root, tree: self)
     self.ast!.visit(visitor: t)
   }
 
+  public func findSubdirTree(file: String) -> MesonTree? {
+    let p = Path(file).normalize().absolute().description
+    for t in self.subfiles {
+      if t.file == p {
+        return t
+      }
+    }
+    for t in self.subfiles {
+      if let m = t.findSubdirTree(file: p) {
+        return m
+      }
+    }
+    return nil
+  }
 }
 
 extension String {

@@ -2,8 +2,9 @@ import MesonAST
 import SwiftTreeSitter
 
 public class SubdirCall: FunctionExpression {
-
+  public var subdirname: String
   init(file: MesonSourceFile, node: FunctionExpression) {
+    self.subdirname = ((node.argumentList! as! ArgumentList).args[0] as! StringLiteral).contents()
     super.init()
     self.file = file
     self.id = node.id

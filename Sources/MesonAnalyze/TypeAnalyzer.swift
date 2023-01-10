@@ -4,13 +4,23 @@ import MesonAST
 public class TypeAnalyzer: ExtendedCodeVisitor {
   var scope: Scope
   var t: TypeNamespace = TypeNamespace()
+  var tree: MesonTree
 
-  public init(parent: Scope) {
+  public init(parent: Scope, tree: MesonTree) {
     self.scope = parent
+    self.tree = tree
   }
 
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
+    var subtree = self.tree.findSubdirTree(
+      file: node.file.file + "/../" + node.subdirname + "/meson.build")
+    var tmp = self.scope
+    var tmptree = self.tree
+    self.tree = subtree!
+    self.scope = Scope(parent: tmp)
+    subtree?.ast?.visit(visitor: self)
+    self.tree = tmptree
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
@@ -22,11 +32,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
-    let tmp = self.scope
+    var tmp = self.scope
     let iterTypes = node.expression.types
     let childScope = Scope(parent: self.scope)
     if node.ids.count == 1 {
-      node.ids[0].types = (iterTypes[0] as! ListType).types
+      node.ids[0].types = iterTypes[0] is ListType ? (iterTypes[0] as! ListType).types : [`Any`()]
     } else {
       node.ids[0].types = [Str()]
       node.ids[1].types = iterTypes
@@ -37,6 +47,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     for b in node.block {
       b.visit(visitor: self)
     }
+    self.scope = tmp
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
@@ -105,7 +116,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
     print(
-      (node.lhs as! IdExpression).id, "is a", self.scope.variables[(node.lhs as! IdExpression).id]!)
+      (node.lhs as! IdExpression).id, "is a",
+      joinTypes(types: self.scope.variables[(node.lhs as! IdExpression).id]!))
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
@@ -248,7 +260,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       t += elem.types
     }
     node.types = dedup(types: t)
-    print("Dict:" + node.types.debugDescription)
   }
   public func visitKeyValueItem(node: KeyValueItem) {
     node.visitChildren(visitor: self)
