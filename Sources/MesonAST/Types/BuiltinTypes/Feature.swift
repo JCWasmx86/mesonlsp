@@ -18,7 +18,7 @@ public class Feature: AbstractObject {
       Method(
         name: "disable_auto_if", parent: self,
         returnTypes: [
-          Feature()
+          self
         ]),
       Method(
         name: "disabled", parent: self,
@@ -33,7 +33,7 @@ public class Feature: AbstractObject {
       Method(
         name: "require", parent: self,
         returnTypes: [
-          Feature()
+          self
         ]),
     ]
   }

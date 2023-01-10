@@ -5,7 +5,7 @@ public class KeywordItem: Expression {
   public let key: Node
   public let value: Node
   public var types: [Type] = []
-  
+
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
     self.key = from_tree(file: file, tree: node.namedChild(at: 0))!

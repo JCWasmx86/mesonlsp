@@ -41,6 +41,8 @@ public class MesonTree {
     root.variables.updateValue([BuildMachine()], forKey: "build_machine")
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
+    let t = TypeAnalyzer(parent: root)
+    self.ast!.visit(visitor: t)
   }
 
 }

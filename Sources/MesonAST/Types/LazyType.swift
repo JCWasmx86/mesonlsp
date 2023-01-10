@@ -6,4 +6,8 @@ public class LazyType: Type {
     self.name = name
     self.methods = []
   }
+
+  public func toString() -> String {
+    return self.name
+  }
 }

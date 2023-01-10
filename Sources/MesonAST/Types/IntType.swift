@@ -21,4 +21,7 @@ public class `IntType`: Type {
         ]),
     ]
   }
+  public func toString() -> String {
+    return "int"
+  }
 }

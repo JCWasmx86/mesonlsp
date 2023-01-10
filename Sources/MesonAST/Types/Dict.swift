@@ -42,4 +42,7 @@ public class Dict: Type {
         ]),
     ]
   }
+  public func toString() -> String {
+    return "dict(" + self.types.map { $0.toString() }.joined(separator: "|") + ")"
+  }
 }

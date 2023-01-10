@@ -16,4 +16,7 @@ public class `BoolType`: Type {
         ]),
     ]
   }
+  public func toString() -> String {
+    return "bool"
+  }
 }

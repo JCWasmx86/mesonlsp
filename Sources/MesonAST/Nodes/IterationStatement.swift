@@ -2,7 +2,7 @@ import SwiftTreeSitter
 
 public class IterationStatement: Statement {
   public let file: MesonSourceFile
-  public let ids: [Node]
+  public var ids: [Node]
   public let expression: Node
   public var block: [Node]
   public var types: [Type] = []

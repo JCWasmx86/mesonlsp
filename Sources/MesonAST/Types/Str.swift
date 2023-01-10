@@ -166,4 +166,7 @@ public class Str: Type {
         ]),
     ]
   }
+  public func toString() -> String {
+    return "str"
+  }
 }

@@ -42,4 +42,8 @@ public class ListType: Type {
         ]),
     ]
   }
+
+  public func toString() -> String {
+    return "list(" + self.types.map { $0.toString() }.joined(separator: "|") + ")"
+  }
 }
