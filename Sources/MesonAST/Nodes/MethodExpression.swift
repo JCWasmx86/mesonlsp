@@ -7,6 +7,7 @@ public class MethodExpression: Expression {
   public let argumentList: Node?
   public var types: [Type] = []
   public let location: Location
+  public var method: Method?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

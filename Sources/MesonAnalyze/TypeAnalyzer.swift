@@ -5,14 +5,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   var scope: Scope
   var t: TypeNamespace = TypeNamespace()
   var tree: MesonTree
+  var metadata: MesonMetadata
 
   public init(parent: Scope, tree: MesonTree) {
     self.scope = parent
     self.tree = tree
+    self.metadata = MesonMetadata()
   }
 
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
+    self.metadata.registerSubdirCall(call: node)
     let subtree = self.tree.findSubdirTree(
       file: node.file.file + "/../" + node.subdirname + "/meson.build")
     if let st = subtree {
@@ -68,6 +71,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         arr = [Dict(types: [])]
       }
       self.scope.variables[(node.lhs as! IdExpression).id] = arr
+      (node.lhs as! IdExpression).types = arr
     } else {
       var newTypes: [Type] = []
       for l in node.lhs.types {
@@ -109,15 +113,21 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           deduped = dedup(types: self.scope.variables[(node.lhs as! IdExpression).id]!)
         }
       }
+      (node.lhs as! IdExpression).types = deduped
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
+    self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
     print(
       (node.lhs as! IdExpression).id, "is a",
       joinTypes(types: self.scope.variables[(node.lhs as! IdExpression).id]!))
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
-    node.types = self.t.lookupFunction(name: (node.id as! IdExpression).id)!.returnTypes
+    if let fn = self.t.lookupFunction(name: (node.id as! IdExpression).id) {
+      node.types = fn.returnTypes
+      node.function = fn
+      self.metadata.registerFunctionCall(call: node)
+    }
   }
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
   public func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
@@ -154,6 +164,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     for t in types {
       if let m = t.getMethod(name: (node.id as! IdExpression).id) {
         ownResultTypes += m.returnTypes
+        node.method = m
+        self.metadata.registerMethodCall(call: node)
       }
     }
     node.types = dedup(types: ownResultTypes)
@@ -161,6 +173,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitIdExpression(node: IdExpression) {
     node.types = dedup(types: scope.variables[node.id] ?? [])
     node.visitChildren(visitor: self)
+    self.metadata.registerIdentifier(id: node)
   }
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)

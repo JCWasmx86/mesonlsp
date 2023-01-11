@@ -6,6 +6,7 @@ open class FunctionExpression: Expression {
   public var argumentList: Node?
   public var types: [Type] = []
   public var location: Location
+  public var function: Function?
 
   public init() {
     self.file = MesonSourceFile(file: "/dev/stdin")

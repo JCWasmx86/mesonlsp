@@ -34,18 +34,35 @@ public final class MesonServer: LanguageServer {
   }
 
   func hover(_ req: Request<HoverRequest>) {
+    let location = req.params.position
+    let file = req.params.textDocument.uri.fileURL?.path
+    var content: String? = nil
+    if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
+      if m.method != nil { content = m.method!.parent.toString() + "." + m.method!.name }
+    }
+    if content == nil,
+      let f = self.tree!.metadata!.findFunctionCallAt(file!, location.line, location.utf16index)
+    {
+      if f.function != nil { content = f.function!.name }
+    }
+    if content == nil,
+      let f = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index)
+    {
+      if !f.types.isEmpty { content = f.types.map({ $0.toString() }).joined(separator: "|") }
+    }
     req.reply(
       HoverResponse(
-        contents: .markupContent(MarkupContent(kind: .markdown, value: "FOO")), range: nil))
+        contents: .markupContent(MarkupContent(kind: .markdown, value: content ?? "FOO")),
+        range: nil))
   }
 
   func declaration(_ req: Request<DeclarationRequest>) {
-    let range = Range(Position(line: 0, utf16index: 0))
+    let range = Range(LanguageServerProtocol.Position(line: 0, utf16index: 0))
     req.reply(.locations([.init(uri: req.params.textDocument.uri, range: range)]))
   }
 
   func definition(_ req: Request<DefinitionRequest>) {
-    let range = Range(Position(line: 0, utf16index: 0))
+    let range = Range(LanguageServerProtocol.Position(line: 0, utf16index: 0))
     req.reply(.locations([.init(uri: req.params.textDocument.uri, range: range)]))
   }
 

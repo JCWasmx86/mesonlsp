@@ -10,6 +10,7 @@ public class MesonTree {
   var subfiles: [MesonTree] = []
   var depth: Int
   var options: OptionState?
+  public var metadata: MesonMetadata?
 
   public init(file: String, depth: Int = 0) throws {
     self.file = Path(file).normalize().description
@@ -34,18 +35,17 @@ public class MesonTree {
       let tree = try MesonTree(file: f, depth: depth + 1)
       self.subfiles.append(tree)
     }
-    if self.depth == 0 {
-      let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
-      if !f.exists { self.options = nil }
-      if let text = try? NSString(
-        contentsOfFile: f.description as String, encoding: String.Encoding.utf8.rawValue)
-      {
-        let tree = p.parse(text.description)
-        let root = tree!.rootNode
-        let visitor = OptionsExtractor()
-        from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
-        self.options = OptionState(options: visitor.options)
-      }
+    if self.depth != 0 { return }
+    let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
+    if !f.exists { self.options = nil }
+    if let text = try? NSString(
+      contentsOfFile: f.description as String, encoding: String.Encoding.utf8.rawValue)
+    {
+      let tree = p.parse(text.description)
+      let root = tree!.rootNode
+      let visitor = OptionsExtractor()
+      from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
+      self.options = OptionState(options: visitor.options)
     }
   }
 
@@ -55,8 +55,11 @@ public class MesonTree {
     root.variables.updateValue([BuildMachine()], forKey: "build_machine")
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
-    let t = TypeAnalyzer(parent: root, tree: self)
-    if self.ast != nil { self.ast!.visit(visitor: t) }
+    if self.ast != nil {
+      let t = TypeAnalyzer(parent: root, tree: self)
+      self.ast!.visit(visitor: t)
+      self.metadata = t.metadata
+    }
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {
