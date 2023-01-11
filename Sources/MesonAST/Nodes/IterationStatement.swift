@@ -6,9 +6,11 @@ public class IterationStatement: Statement {
   public let expression: Node
   public var block: [Node]
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     var idx = 2
     let idList = node.namedChild(at: 0)!
     var tmpIds: [Node] = []

@@ -9,6 +9,7 @@ public class MesonTree {
   public var ast: MesonAST.Node?
   var subfiles: [MesonTree] = []
   var depth: Int
+  var options: OptionState?
 
   public init(file: String, depth: Int = 0) throws {
     self.file = Path(file).normalize().description
@@ -32,6 +33,19 @@ public class MesonTree {
         .description
       let tree = try MesonTree(file: f, depth: depth + 1)
       self.subfiles.append(tree)
+    }
+    if self.depth == 0 {
+      let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
+      if !f.exists { self.options = nil }
+      if let text = try? NSString(
+        contentsOfFile: f.description as String, encoding: String.Encoding.utf8.rawValue)
+      {
+        let tree = p.parse(text.description)
+        let root = tree!.rootNode
+        let visitor = OptionsExtractor()
+        from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
+        self.options = OptionState(options: visitor.options)
+      }
     }
   }
 

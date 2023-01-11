@@ -4,13 +4,16 @@ public class ErrorNode: Node {
   public let file: MesonSourceFile
   public let message: String
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, msg: String) {
     self.file = file
     self.message = msg
+    self.location = Location()
   }
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node, msg: String) {
     self.file = file
+    self.location = Location(node: node)
     self.message = msg
   }
   public func visit(visitor: CodeVisitor) { visitor.visitErrorNode(node: self) }

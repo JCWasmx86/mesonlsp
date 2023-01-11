@@ -45,9 +45,11 @@ public class BinaryExpression: Statement {
   public let rhs: Node
   public let op: BinaryOperator?
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     self.lhs = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.rhs = from_tree(file: file, tree: node.namedChild(at: node.namedChildCount == 2 ? 1 : 2))!
     let opNode = node.namedChildCount == 2 ? node.child(at: 1) : node.namedChild(at: 1)

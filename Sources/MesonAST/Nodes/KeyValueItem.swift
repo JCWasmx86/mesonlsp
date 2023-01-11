@@ -5,9 +5,11 @@ public class KeyValueItem: Expression {
   public let key: Node
   public let value: Node
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     self.key = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.value = from_tree(file: file, tree: node.namedChild(at: 1))!
   }

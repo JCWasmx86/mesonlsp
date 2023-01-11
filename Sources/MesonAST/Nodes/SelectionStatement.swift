@@ -6,9 +6,11 @@ public class SelectionStatement: Statement {
   public let conditions: [Node]
   public var blocks: [[Node]]
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     var idx = 0
     var tmp: [Node] = []
     var bb: [[Node]] = []

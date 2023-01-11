@@ -6,9 +6,11 @@ public class MethodExpression: Expression {
   public let id: Node
   public let argumentList: Node?
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     self.obj = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.id = from_tree(file: file, tree: node.namedChild(at: 1))!
     self.argumentList =

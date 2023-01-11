@@ -4,9 +4,11 @@ public class BuildDefinition: Node {
   public let file: MesonSourceFile
   public var stmts: [Node]
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     var s: [Node] = []
     node.enumerateNamedChildren(block: {
       if let n1 = from_tree(file: file, tree: $0) {

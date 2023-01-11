@@ -8,6 +8,7 @@ public class SubdirCall: FunctionExpression {
     super.init()
     self.file = file
     self.id = node.id
+    self.location = node.location
     self.argumentList = node.argumentList
   }
   public override func visit(visitor: CodeVisitor) {

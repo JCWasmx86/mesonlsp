@@ -27,9 +27,11 @@ public class AssignmentStatement: Statement {
   public let rhs: Node
   public let op: AssignmentOperator?
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     self.lhs = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.rhs = from_tree(file: file, tree: node.namedChild(at: 2))!
     self.op = AssignmentOperator.fromString(

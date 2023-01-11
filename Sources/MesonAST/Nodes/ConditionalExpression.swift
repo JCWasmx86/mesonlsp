@@ -6,9 +6,11 @@ public class ConditionalExpression: Expression {
   public let ifTrue: Node
   public let ifFalse: Node
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     self.condition = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.ifTrue = from_tree(file: file, tree: node.namedChild(at: 1))!
     self.ifFalse = from_tree(file: file, tree: node.namedChild(at: 1))!

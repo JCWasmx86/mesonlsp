@@ -15,11 +15,13 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     let subtree = self.tree.findSubdirTree(
       file: node.file.file + "/../" + node.subdirname + "/meson.build")
-    let tmptree = self.tree
-    self.tree = subtree!
-    self.scope = Scope(parent: self.scope)
-    subtree?.ast?.visit(visitor: self)
-    self.tree = tmptree
+    if let st = subtree {
+      let tmptree = self.tree
+      self.tree = st
+      self.scope = Scope(parent: self.scope)
+      subtree?.ast?.visit(visitor: self)
+      self.tree = tmptree
+    }
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
@@ -31,7 +33,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
-    var tmp = self.scope
+    let tmp = self.scope
     let iterTypes = node.expression.types
     let childScope = Scope(parent: self.scope)
     if node.ids.count == 1 {

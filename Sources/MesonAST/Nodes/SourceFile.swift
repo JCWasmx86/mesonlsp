@@ -4,9 +4,11 @@ public class SourceFile: Node {
   public let file: MesonSourceFile
   public let build_definition: Node
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     if node.namedChildCount == 0 {
       self.build_definition = ErrorNode(
         file: file, node: node, msg: "Expected build_definition, got nothing!")

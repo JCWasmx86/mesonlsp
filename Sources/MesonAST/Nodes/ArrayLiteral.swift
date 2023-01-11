@@ -4,9 +4,11 @@ public class ArrayLiteral: Expression {
   public let file: MesonSourceFile
   public let args: [Node]
   public var types: [Type] = []
+  public let location: Location
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
+    self.location = Location(node: node)
     var bb: [Node] = []
     node.enumerateNamedChildren(block: { bb.append(from_tree(file: file, tree: $0)!) })
     self.args = bb
