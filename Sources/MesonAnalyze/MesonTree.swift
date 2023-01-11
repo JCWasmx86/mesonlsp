@@ -56,7 +56,7 @@ public class MesonTree {
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
     let t = TypeAnalyzer(parent: root, tree: self)
-    self.ast!.visit(visitor: t)
+    if self.ast != nil { self.ast!.visit(visitor: t) }
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {
