@@ -47,16 +47,8 @@ public class MesonTree {
 
   public func findSubdirTree(file: String) -> MesonTree? {
     let p = Path(file).normalize().absolute().description
-    for t in self.subfiles {
-      if t.file == p {
-        return t
-      }
-    }
-    for t in self.subfiles {
-      if let m = t.findSubdirTree(file: p) {
-        return m
-      }
-    }
+    for t in self.subfiles where t.file == p { return t }
+    for t in self.subfiles { if let m = t.findSubdirTree(file: p) { return m } }
     return nil
   }
 }
@@ -65,10 +57,7 @@ extension String {
   subscript(_ range: CountableRange<Int>) -> String {
     let start = index(startIndex, offsetBy: max(0, range.lowerBound))
     let end = index(
-      start,
-      offsetBy: min(
-        self.count - range.lowerBound,
-        range.upperBound - range.lowerBound))
+      start, offsetBy: min(self.count - range.lowerBound, range.upperBound - range.lowerBound))
     return String(self[start..<end])
   }
 

@@ -5,16 +5,8 @@ public class BothLibs: AbstractObject {
 
   public init() {
     self.methods = [
-      Method(
-        name: "get_shared_lib", parent: self,
-        returnTypes: [
-          Lib()
-        ]),
-      Method(
-        name: "get_static_lib", parent: self,
-        returnTypes: [
-          Lib()
-        ]),
+      Method(name: "get_shared_lib", parent: self, returnTypes: [Lib()]),
+      Method(name: "get_static_lib", parent: self, returnTypes: [Lib()]),
     ]
   }
 }

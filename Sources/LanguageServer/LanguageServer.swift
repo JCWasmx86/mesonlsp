@@ -64,9 +64,7 @@ open class LanguageServerEndpoint {
   /// Register handlers for all known requests and notifications. *Subclasses must override*.
   ///
   /// - returns: true if this server expects to handle all messages in the message registry.
-  open func _registerBuiltinHandlers() {
-    fatalError("subclass must override")
-  }
+  open func _registerBuiltinHandlers() { fatalError("subclass must override") }
 
   /// Handle an unknown request.
   ///
@@ -194,10 +192,7 @@ extension LanguageServerEndpoint: MessageHandler {
 
       let request = Request(
         params, id: id, clientID: clientID, cancellation: cancellationToken,
-        reply: { [weak self] result in
-          self?.queue.async {
-            self?.requestCancellation[key] = nil
-          }
+        reply: { [weak self] result in self?.queue.async { self?.requestCancellation[key] = nil }
           reply(result)
           self?._logResponse(result, id: id, method: R.method)
         })

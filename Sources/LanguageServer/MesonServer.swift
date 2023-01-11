@@ -39,36 +39,22 @@ public final class MesonServer: LanguageServer {
   }
 
   func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
-    queue.async {
-      self.tree = try! MesonTree(file: self.path! + "/meson.build")
-    }
+    queue.async { self.tree = try! MesonTree(file: self.path! + "/meson.build") }
   }
 
   func capabilities() -> ServerCapabilities {
     return ServerCapabilities(
-      textDocumentSync: .options(
-        TextDocumentSyncOptions(
-          openClose: true,
-          change: .full
-        )),
-      hoverProvider: .bool(true),
-      definitionProvider: .bool(true),
-      documentHighlightProvider: .bool(true),
-      documentSymbolProvider: .bool(true),
-      workspaceSymbolProvider: .bool(true),
-      declarationProvider: .bool(true)
-    )
+      textDocumentSync: .options(TextDocumentSyncOptions(openClose: true, change: .full)),
+      hoverProvider: .bool(true), definitionProvider: .bool(true),
+      documentHighlightProvider: .bool(true), documentSymbolProvider: .bool(true),
+      workspaceSymbolProvider: .bool(true), declarationProvider: .bool(true))
   }
 
   func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
-    if p.rootPath == nil {
-      fatalError("Nothing else supported other than using rootPath")
-    }
+    if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
-    queue.async {
-      self.tree = try! MesonTree(file: self.path! + "/meson.build")
-    }
+    queue.async { self.tree = try! MesonTree(file: self.path! + "/meson.build") }
     req.reply(InitializeResult(capabilities: self.capabilities()))
   }
 

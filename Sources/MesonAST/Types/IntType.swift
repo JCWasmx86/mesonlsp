@@ -4,16 +4,8 @@ public class `IntType`: Type {
 
   public init() {
     self.methods = [
-      Method(
-        name: "is_even", parent: self,
-        returnTypes: [
-          BoolType()
-        ]),
-      Method(
-        name: "is_odd", parent: self,
-        returnTypes: [
-          BoolType()
-        ]),
+      Method(name: "is_even", parent: self, returnTypes: [BoolType()]),
+      Method(name: "is_odd", parent: self, returnTypes: [BoolType()]),
       Method(
         name: "to_string", parent: self,
         returnTypes: [
@@ -21,7 +13,5 @@ public class `IntType`: Type {
         ]),
     ]
   }
-  public func toString() -> String {
-    return "int"
-  }
+  public func toString() -> String { return "int" }
 }

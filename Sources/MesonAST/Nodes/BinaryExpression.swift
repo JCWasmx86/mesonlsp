@@ -19,38 +19,22 @@ public enum BinaryOperator {
 
   static func fromString(str: String) -> BinaryOperator? {
     switch str {
-    case "+":
-      return .plus
-    case "-":
-      return .minus
-    case "*":
-      return .mul
-    case "/":
-      return .div
-    case "%":
-      return .modulo
-    case "==":
-      return .equalsEquals
-    case "!=":
-      return .notEquals
-    case ">":
-      return .gt
-    case "<":
-      return .lt
-    case ">=":
-      return .ge
-    case "<=":
-      return .le
-    case "in":
-      return .IN
-    case "not in":
-      return .notIn
-    case "and":
-      return .and
-    case "or":
-      return .or
-    default:
-      return nil
+    case "+": return .plus
+    case "-": return .minus
+    case "*": return .mul
+    case "/": return .div
+    case "%": return .modulo
+    case "==": return .equalsEquals
+    case "!=": return .notEquals
+    case ">": return .gt
+    case "<": return .lt
+    case ">=": return .ge
+    case "<=": return .le
+    case "in": return .IN
+    case "not in": return .notIn
+    case "and": return .and
+    case "or": return .or
+    default: return nil
     }
   }
 }
@@ -69,9 +53,7 @@ public class BinaryExpression: Statement {
     let opNode = node.namedChildCount == 2 ? node.child(at: 1) : node.namedChild(at: 1)
     self.op = BinaryOperator.fromString(str: string_value(file: file, node: opNode!))
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitBinaryExpression(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitBinaryExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
     self.lhs.visit(visitor: visitor)
     self.rhs.visit(visitor: visitor)

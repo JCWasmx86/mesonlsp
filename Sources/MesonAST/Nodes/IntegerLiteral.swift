@@ -9,9 +9,6 @@ public class IntegerLiteral: Expression {
     self.file = file
     self.value = string_value(file: file, node: node)
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitIntegerLiteral(node: self)
-  }
-  public func visitChildren(visitor: CodeVisitor) {
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitIntegerLiteral(node: self) }
+  public func visitChildren(visitor: CodeVisitor) {}
 }

@@ -5,9 +5,27 @@ public class Env: AbstractObject {
 
   public init() {
     self.methods = [
-      Method(name: "append", parent: self),
-      Method(name: "prepend", parent: self),
-      Method(name: "set", parent: self),
+      Method(
+        name: "append", parent: self,
+        args: [
+          PositionalArgument(name: "variable", types: [Str()]),
+          PositionalArgument(name: "value", varargs: true, opt: true, types: [Str()]),
+          Kwarg(name: "separator", opt: true, types: [Str()]),
+        ]),
+      Method(
+        name: "prepend", parent: self,
+        args: [
+          PositionalArgument(name: "variable", types: [Str()]),
+          PositionalArgument(name: "value", varargs: true, opt: true, types: [Str()]),
+          Kwarg(name: "separator", opt: true, types: [Str()]),
+        ]),
+      Method(
+        name: "set", parent: self,
+        args: [
+          PositionalArgument(name: "variable", types: [Str()]),
+          PositionalArgument(name: "value", varargs: true, opt: true, types: [Str()]),
+          Kwarg(name: "separator", opt: true, types: [Str()]),
+        ]),
     ]
   }
 }

@@ -17,7 +17,5 @@ public class SubdirCall: FunctionExpression {
       visitor.visitFunctionExpression(node: self)
     }
   }
-  public override func visitChildren(visitor: CodeVisitor) {
-    super.visitChildren(visitor: visitor)
-  }
+  public override func visitChildren(visitor: CodeVisitor) { super.visitChildren(visitor: visitor) }
 }

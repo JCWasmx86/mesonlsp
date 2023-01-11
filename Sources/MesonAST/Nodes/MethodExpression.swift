@@ -14,9 +14,7 @@ public class MethodExpression: Expression {
     self.argumentList =
       node.namedChildCount == 2 ? nil : from_tree(file: file, tree: node.namedChild(at: 3))
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitMethodExpression(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitMethodExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
     self.obj.visit(visitor: visitor)
     self.id.visit(visitor: visitor)

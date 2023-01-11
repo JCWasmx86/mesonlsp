@@ -13,9 +13,6 @@ public class ErrorNode: Node {
     self.file = file
     self.message = msg
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitErrorNode(node: self)
-  }
-  public func visitChildren(visitor: CodeVisitor) {
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitErrorNode(node: self) }
+  public func visitChildren(visitor: CodeVisitor) {}
 }

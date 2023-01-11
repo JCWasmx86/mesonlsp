@@ -18,9 +18,7 @@ open class FunctionExpression: Expression {
     self.argumentList =
       node.namedChildCount == 1 ? nil : from_tree(file: file, tree: node.namedChild(at: 1))
   }
-  open func visit(visitor: CodeVisitor) {
-    visitor.visitFunctionExpression(node: self)
-  }
+  open func visit(visitor: CodeVisitor) { visitor.visitFunctionExpression(node: self) }
   open func visitChildren(visitor: CodeVisitor) {
     self.id.visit(visitor: visitor)
     self.argumentList?.visit(visitor: visitor)

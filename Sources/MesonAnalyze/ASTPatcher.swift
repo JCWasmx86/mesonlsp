@@ -3,16 +3,10 @@ import MesonAST
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []
   func isSubdirCall(node: Node) -> Bool {
-    if !(node is FunctionExpression) {
-      return false
-    }
+    if !(node is FunctionExpression) { return false }
     let f = node as! FunctionExpression
-    if (f.id as! IdExpression).id != "subdir" {
-      return false
-    }
-    if f.argumentList == nil || !(f.argumentList! is ArgumentList) {
-      return false
-    }
+    if (f.id as! IdExpression).id != "subdir" { return false }
+    if f.argumentList == nil || !(f.argumentList! is ArgumentList) { return false }
     let args = (f.argumentList! as! ArgumentList).args
     for a in args where a is StringLiteral {
       subdirs.append((a as! StringLiteral).id)
@@ -20,16 +14,12 @@ class ASTPatcher: CodeVisitor {
     }
     return false
   }
-  func visitSourceFile(file: SourceFile) {
-    file.visitChildren(visitor: self)
-  }
+  func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   func visitBuildDefinition(node: BuildDefinition) {
     var idx = 0
     var idxes: [Int] = []
     for stmt in node.stmts {
-      if self.isSubdirCall(node: stmt) {
-        idxes.append(idx)
-      }
+      if self.isSubdirCall(node: stmt) { idxes.append(idx) }
       idx += 1
     }
     for x in idxes {
@@ -60,9 +50,7 @@ class ASTPatcher: CodeVisitor {
     var idx = 0
     var idxes: [Int] = []
     for stmt in node.block {
-      if self.isSubdirCall(node: stmt) {
-        idxes.append(idx)
-      }
+      if self.isSubdirCall(node: stmt) { idxes.append(idx) }
       idx += 1
     }
     for x in idxes {

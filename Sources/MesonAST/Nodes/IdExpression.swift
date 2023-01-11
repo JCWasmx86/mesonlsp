@@ -9,9 +9,6 @@ public class IdExpression: Expression {
     self.file = file
     self.id = string_value(file: file, node: node)
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitIdExpression(node: self)
-  }
-  public func visitChildren(visitor: CodeVisitor) {
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitIdExpression(node: self) }
+  public func visitChildren(visitor: CodeVisitor) {}
 }

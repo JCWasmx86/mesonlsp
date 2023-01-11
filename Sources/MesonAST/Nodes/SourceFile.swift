@@ -26,10 +26,6 @@ public class SourceFile: Node {
         msg: "Expected build_definition, got \(nodeType!)")
     }
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitSourceFile(file: self)
-  }
-  public func visitChildren(visitor: CodeVisitor) {
-    self.build_definition.visit(visitor: visitor)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitSourceFile(file: self) }
+  public func visitChildren(visitor: CodeVisitor) { self.build_definition.visit(visitor: visitor) }
 }

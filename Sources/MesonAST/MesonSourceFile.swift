@@ -11,9 +11,7 @@ public class MesonSourceFile {
 
   }
   public func contents() throws -> String {
-    if self.cached {
-      return self._contents
-    }
+    if self.cached { return self._contents }
     self.cached = true
     self._contents = try NSString(
       contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue

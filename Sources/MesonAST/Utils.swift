@@ -15,9 +15,7 @@ extension SwiftTreeSitter.Node {
 
 func string_value(file: MesonSourceFile, node: SwiftTreeSitter.Node) -> String {
   if let text = try? file.contents() {
-    return text.substring(
-      with: node.range
-    ).trimmingCharacters(in: .whitespacesAndNewlines)
+    return text.substring(with: node.range).trimmingCharacters(in: .whitespacesAndNewlines)
   }
   return ""
 }

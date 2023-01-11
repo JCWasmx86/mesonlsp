@@ -13,9 +13,7 @@ public class ConditionalExpression: Expression {
     self.ifTrue = from_tree(file: file, tree: node.namedChild(at: 1))!
     self.ifFalse = from_tree(file: file, tree: node.namedChild(at: 1))!
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitConditionalExpression(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitConditionalExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
     self.condition.visit(visitor: visitor)
     self.ifTrue.visit(visitor: visitor)

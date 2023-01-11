@@ -9,9 +9,6 @@ public class BooleanLiteral: Expression {
     self.file = file
     self.value = string_value(file: file, node: node) == "true"
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitBooleanLiteral(node: self)
-  }
-  public func visitChildren(visitor: CodeVisitor) {
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitBooleanLiteral(node: self) }
+  public func visitChildren(visitor: CodeVisitor) {}
 }

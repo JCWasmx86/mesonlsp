@@ -7,7 +7,5 @@ public class LazyType: Type {
     self.methods = []
   }
 
-  public func toString() -> String {
-    return self.name
-  }
+  public func toString() -> String { return self.name }
 }

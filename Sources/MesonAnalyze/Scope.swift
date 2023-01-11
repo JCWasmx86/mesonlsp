@@ -8,9 +8,7 @@ public class Scope {
   }
 
   public init(parent: Scope) {
-    for v in parent.variables {
-      self.variables[v.key] = v.value.compactMap { $0 }
-    }
+    for v in parent.variables { self.variables[v.key] = v.value.compactMap { $0 } }
   }
 
   public func merge(other: Scope) {
@@ -24,12 +22,8 @@ public class Scope {
           break
         }
       }
-      if !added {
-        keysToAdd.append(o.key)
-      }
+      if !added { keysToAdd.append(o.key) }
     }
-    for k in keysToAdd {
-      self.variables[k] = other.variables[k]
-    }
+    for k in keysToAdd { self.variables[k] = other.variables[k] }
   }
 }

@@ -7,11 +7,7 @@ public protocol Type {
 
 extension Type {
   public func getMethod(name: String) -> Method? {
-    for m in self.methods {
-      if m.name == name {
-        return m
-      }
-    }
+    for m in self.methods where m.name == name { return m }
     if self is AbstractObject && (self as! AbstractObject).parent != nil {
       return (self as! AbstractObject).parent?.getMethod(name: name)
     }
@@ -19,12 +15,6 @@ extension Type {
   }
 }
 
-extension AbstractObject {
-  public func toString() -> String {
-    return self.name
-  }
-}
+extension AbstractObject { public func toString() -> String { return self.name } }
 
-public protocol AbstractObject: Type {
-  var parent: AbstractObject? { get }
-}
+public protocol AbstractObject: Type { var parent: AbstractObject? { get } }

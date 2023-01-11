@@ -17,12 +17,8 @@ public class BuildDefinition: Node {
     })
     self.stmts = s
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitBuildDefinition(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitBuildDefinition(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
-    for arg in self.stmts {
-      arg.visit(visitor: visitor)
-    }
+    for arg in self.stmts { arg.visit(visitor: visitor) }
   }
 }

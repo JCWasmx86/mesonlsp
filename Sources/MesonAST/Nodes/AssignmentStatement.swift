@@ -10,20 +10,13 @@ public enum AssignmentOperator {
 
   static func fromString(str: String) -> AssignmentOperator? {
     switch str {
-    case "=":
-      return .equals
-    case "*=":
-      return .mulequals
-    case "/=":
-      return .divequals
-    case "%=":
-      return .modequals
-    case "+=":
-      return .plusequals
-    case "-=":
-      return .minusequals
-    default:
-      return nil
+    case "=": return .equals
+    case "*=": return .mulequals
+    case "/=": return .divequals
+    case "%=": return .modequals
+    case "+=": return .plusequals
+    case "-=": return .minusequals
+    default: return nil
     }
   }
 }
@@ -42,9 +35,7 @@ public class AssignmentStatement: Statement {
     self.op = AssignmentOperator.fromString(
       str: string_value(file: file, node: node.namedChild(at: 1)!))
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitAssignmentStatement(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitAssignmentStatement(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
     self.lhs.visit(visitor: visitor)
     self.rhs.visit(visitor: visitor)

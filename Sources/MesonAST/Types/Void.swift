@@ -4,7 +4,5 @@ public class `Void`: Type {
 
   public init() {}
 
-  public func toString() -> String {
-    return "void"
-  }
+  public func toString() -> String { return "void" }
 }

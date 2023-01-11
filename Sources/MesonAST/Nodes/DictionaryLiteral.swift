@@ -8,17 +8,11 @@ public class DictionaryLiteral: Expression {
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
     var bb: [Node] = []
-    node.enumerateNamedChildren(block: {
-      bb.append(from_tree(file: file, tree: $0)!)
-    })
+    node.enumerateNamedChildren(block: { bb.append(from_tree(file: file, tree: $0)!) })
     self.values = bb
   }
-  public func visit(visitor: CodeVisitor) {
-    visitor.visitDictionaryLiteral(node: self)
-  }
+  public func visit(visitor: CodeVisitor) { visitor.visitDictionaryLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
-    for arg in self.values {
-      arg.visit(visitor: visitor)
-    }
+    for arg in self.values { arg.visit(visitor: visitor) }
   }
 }
