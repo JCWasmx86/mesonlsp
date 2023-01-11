@@ -2,3 +2,4 @@ disabled_rules:
   - identifier_name
   - type_name
   - opening_brace
+  - trailing_comma
