@@ -36,7 +36,7 @@ public final class MesonServer: LanguageServer {
   func hover(_ req: Request<HoverRequest>) {
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
-    var content: String? = nil
+    var content: String?
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
       if m.method != nil { content = m.method!.parent.toString() + "." + m.method!.name }
     }
@@ -52,8 +52,9 @@ public final class MesonServer: LanguageServer {
     }
     req.reply(
       HoverResponse(
-        contents: .markupContent(MarkupContent(kind: .markdown, value: content ?? "FOO")),
-        range: nil))
+        contents: content == nil
+          ? .markedStrings([])
+          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "FOO")), range: nil))
   }
 
   func declaration(_ req: Request<DeclarationRequest>) {
