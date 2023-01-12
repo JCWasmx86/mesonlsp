@@ -5,6 +5,7 @@ public class ErrorNode: Node {
   public let message: String
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, msg: String) {
     self.file = file
@@ -18,4 +19,8 @@ public class ErrorNode: Node {
   }
   public func visit(visitor: CodeVisitor) { visitor.visitErrorNode(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}
+  public func setParents() {
+
+  }
+
 }

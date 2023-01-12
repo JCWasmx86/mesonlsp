@@ -2,9 +2,10 @@ import SwiftTreeSitter
 
 public class ArrayLiteral: Expression {
   public let file: MesonSourceFile
-  public let args: [Node]
+  public var args: [Node]
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -16,5 +17,12 @@ public class ArrayLiteral: Expression {
   public func visit(visitor: CodeVisitor) { visitor.visitArrayLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
     for arg in self.args { arg.visit(visitor: visitor) }
+  }
+
+  public func setParents() {
+    for var arg in self.args {
+      arg.parent = self
+      arg.setParents()
+    }
   }
 }

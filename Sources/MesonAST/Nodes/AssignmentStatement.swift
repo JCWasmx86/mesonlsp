@@ -23,11 +23,12 @@ public enum AssignmentOperator {
 
 public class AssignmentStatement: Statement {
   public let file: MesonSourceFile
-  public let lhs: Node
-  public let rhs: Node
+  public var lhs: Node
+  public var rhs: Node
   public let op: AssignmentOperator?
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -41,5 +42,12 @@ public class AssignmentStatement: Statement {
   public func visitChildren(visitor: CodeVisitor) {
     self.lhs.visit(visitor: visitor)
     self.rhs.visit(visitor: visitor)
+  }
+
+  public func setParents() {
+    self.lhs.parent = self
+    self.rhs.parent = self
+    self.rhs.setParents()
+    self.lhs.setParents()
   }
 }

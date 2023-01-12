@@ -27,13 +27,16 @@ public class MesonTree {
     }
     let astPatcher = ASTPatcher()
     self.ast?.visit(visitor: astPatcher)
+    var idx = 0
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
       print("Subtree:", sd1)
       let f = Path(Path(self.file).parent().description + "/" + sd1 + "/meson.build").normalize()
         .description
       let tree = try MesonTree(file: f, depth: depth + 1)
+      tree.ast!.parent = astPatcher.subdirNodes[idx]
       self.subfiles.append(tree)
+      idx += 1
     }
     if self.depth != 0 { return }
     let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()

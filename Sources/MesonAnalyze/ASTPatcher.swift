@@ -2,6 +2,8 @@ import MesonAST
 
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []
+  public var subdirNodes: [SubdirCall] = []
+
   func isSubdirCall(node: Node) -> Bool {
     if !(node is FunctionExpression) { return false }
     let f = node as! FunctionExpression
@@ -25,6 +27,8 @@ class ASTPatcher: CodeVisitor {
     for x in idxes {
       let stmt = node.stmts[x]
       node.stmts[x] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.stmts[x].parent = node
+      subdirNodes.append(node.stmts[x] as! SubdirCall)
     }
     node.visitChildren(visitor: self)
   }
@@ -37,6 +41,8 @@ class ASTPatcher: CodeVisitor {
         if self.isSubdirCall(node: b) {
           let stmt = node.blocks[bidx][idx]
           node.blocks[bidx][idx] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+          node.blocks[bidx][idx].parent = node
+          subdirNodes.append(node.blocks[bidx][idx] as! SubdirCall)
         }
         idx += 1
       }
@@ -56,6 +62,8 @@ class ASTPatcher: CodeVisitor {
     for x in idxes {
       let stmt = node.block[x]
       node.block[x] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.block[x].parent = node
+      subdirNodes.append(node.block[x] as! SubdirCall)
     }
     node.visitChildren(visitor: self)
   }

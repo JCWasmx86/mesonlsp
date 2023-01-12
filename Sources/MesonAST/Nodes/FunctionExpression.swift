@@ -7,6 +7,7 @@ open class FunctionExpression: Expression {
   public var types: [Type] = []
   public var location: Location
   public var function: Function?
+  public var parent: Node?
 
   public init() {
     self.file = MesonSourceFile(file: "/dev/stdin")
@@ -32,4 +33,11 @@ open class FunctionExpression: Expression {
     if self.id is IdExpression { return (self.id as! IdExpression).id }
     return "<<Error>>"
   }
+  public func setParents() {
+    self.id.parent = self
+    self.id.setParents()
+    self.argumentList?.parent = self
+    self.argumentList?.setParents()
+  }
+
 }

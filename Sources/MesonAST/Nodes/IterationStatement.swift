@@ -3,10 +3,11 @@ import SwiftTreeSitter
 public class IterationStatement: Statement {
   public let file: MesonSourceFile
   public var ids: [Node]
-  public let expression: Node
+  public var expression: Node
   public var block: [Node]
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -31,4 +32,18 @@ public class IterationStatement: Statement {
     self.expression.visit(visitor: visitor)
     for arg in self.block { arg.visit(visitor: visitor) }
   }
+
+  public func setParents() {
+    for var arg in self.ids {
+      arg.parent = self
+      arg.setParents()
+    }
+    self.expression.parent = self
+    self.expression.setParents()
+    for var arg in self.block {
+      arg.parent = self
+      arg.setParents()
+    }
+  }
+
 }

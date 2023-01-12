@@ -2,10 +2,11 @@ import SwiftTreeSitter
 
 public class KeywordItem: Expression {
   public let file: MesonSourceFile
-  public let key: Node
-  public let value: Node
+  public var key: Node
+  public var value: Node
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -17,5 +18,11 @@ public class KeywordItem: Expression {
   public func visitChildren(visitor: CodeVisitor) {
     self.key.visit(visitor: visitor)
     self.value.visit(visitor: visitor)
+  }
+  public func setParents() {
+    self.key.parent = self
+    self.key.setParents()
+    self.value.parent = self
+    self.value.setParents()
   }
 }

@@ -5,6 +5,7 @@ public class BuildDefinition: Node {
   public var stmts: [Node]
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -23,4 +24,11 @@ public class BuildDefinition: Node {
   public func visitChildren(visitor: CodeVisitor) {
     for arg in self.stmts { arg.visit(visitor: visitor) }
   }
+  public func setParents() {
+    for var arg in self.stmts {
+      arg.parent = self
+      arg.setParents()
+    }
+  }
+
 }

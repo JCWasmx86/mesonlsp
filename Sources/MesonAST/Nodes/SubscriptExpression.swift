@@ -2,10 +2,11 @@ import SwiftTreeSitter
 
 public class SubscriptExpression: Expression {
   public let file: MesonSourceFile
-  public let outer: Node
-  public let inner: Node
+  public var outer: Node
+  public var inner: Node
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -17,5 +18,12 @@ public class SubscriptExpression: Expression {
   public func visitChildren(visitor: CodeVisitor) {
     self.outer.visit(visitor: visitor)
     self.inner.visit(visitor: visitor)
+  }
+
+  public func setParents() {
+    self.inner.parent = self
+    self.outer.parent = self
+    self.inner.setParents()
+    self.outer.setParents()
   }
 }

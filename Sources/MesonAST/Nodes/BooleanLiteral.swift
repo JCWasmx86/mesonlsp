@@ -5,6 +5,7 @@ public class BooleanLiteral: Expression {
   public let value: Bool
   public var types: [Type] = [BoolType()]
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -13,4 +14,7 @@ public class BooleanLiteral: Expression {
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBooleanLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}
+  public func setParents() {
+
+  }
 }

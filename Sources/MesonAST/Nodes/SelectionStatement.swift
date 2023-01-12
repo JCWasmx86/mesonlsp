@@ -2,11 +2,12 @@ import SwiftTreeSitter
 
 public class SelectionStatement: Statement {
   public let file: MesonSourceFile
-  public let ifCondition: Node
+  public var ifCondition: Node
   public let conditions: [Node]
   public var blocks: [[Node]]
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -52,5 +53,20 @@ public class SelectionStatement: Statement {
     self.ifCondition.visit(visitor: visitor)
     for c in self.conditions { c.visit(visitor: visitor) }
     for b in self.blocks { for bb in b { bb.visit(visitor: visitor) } }
+  }
+
+  public func setParents() {
+    self.ifCondition.parent = self
+    self.ifCondition.setParents()
+    for var c in self.conditions {
+      c.parent = self
+      c.setParents()
+    }
+    for b in self.blocks {
+      for var bb in b {
+        bb.parent = self
+        bb.setParents()
+      }
+    }
   }
 }

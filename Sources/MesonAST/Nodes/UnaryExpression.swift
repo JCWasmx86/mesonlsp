@@ -15,10 +15,11 @@ public enum UnaryOperator {
 }
 public class UnaryExpression: Expression {
   public let file: MesonSourceFile
-  public let expression: Node
+  public var expression: Node
   public let op: UnaryOperator?
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -28,4 +29,9 @@ public class UnaryExpression: Expression {
   }
   public func visit(visitor: CodeVisitor) { visitor.visitUnaryExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) { self.expression.visit(visitor: visitor) }
+
+  public func setParents() {
+    self.expression.parent = self
+    self.expression.setParents()
+  }
 }

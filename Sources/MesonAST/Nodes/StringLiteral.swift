@@ -6,6 +6,7 @@ public class StringLiteral: Expression {
   public let id: String
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -16,6 +17,10 @@ public class StringLiteral: Expression {
   public func visitChildren(visitor: CodeVisitor) {}
 
   public func contents() -> String { return self.id[1..<self.id.count - 1] }
+
+  public func setParents() {
+
+  }
 }
 extension String {
   subscript(_ range: CountableRange<Int>) -> String {

@@ -2,12 +2,13 @@ import SwiftTreeSitter
 
 public class MethodExpression: Expression {
   public let file: MesonSourceFile
-  public let obj: Node
-  public let id: Node
-  public let argumentList: Node?
+  public var obj: Node
+  public var id: Node
+  public var argumentList: Node?
   public var types: [Type] = []
   public let location: Location
   public var method: Method?
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -22,5 +23,14 @@ public class MethodExpression: Expression {
     self.obj.visit(visitor: visitor)
     self.id.visit(visitor: visitor)
     self.argumentList?.visit(visitor: visitor)
+  }
+
+  public func setParents() {
+    self.obj.parent = self
+    self.obj.setParents()
+    self.id.parent = self
+    self.id.setParents()
+    self.argumentList?.parent = self
+    self.argumentList?.setParents()
   }
 }

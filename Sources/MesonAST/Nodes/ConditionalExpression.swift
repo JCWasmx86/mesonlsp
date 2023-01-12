@@ -2,11 +2,12 @@ import SwiftTreeSitter
 
 public class ConditionalExpression: Expression {
   public let file: MesonSourceFile
-  public let condition: Node
-  public let ifTrue: Node
-  public let ifFalse: Node
+  public var condition: Node
+  public var ifTrue: Node
+  public var ifFalse: Node
   public var types: [Type] = []
   public let location: Location
+  public var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
@@ -21,4 +22,13 @@ public class ConditionalExpression: Expression {
     self.ifTrue.visit(visitor: visitor)
     self.ifFalse.visit(visitor: visitor)
   }
+  public func setParents() {
+    self.condition.parent = self
+    self.condition.setParents()
+    self.ifTrue.parent = self
+    self.ifTrue.setParents()
+    self.ifFalse.parent = self
+    self.ifFalse.setParents()
+  }
+
 }
