@@ -1,3 +1,4 @@
+import Foundation
 import LanguageServerProtocol
 import MesonAnalyze
 
@@ -58,13 +59,51 @@ public final class MesonServer: LanguageServer {
   }
 
   func declaration(_ req: Request<DeclarationRequest>) {
-    let range = Range(LanguageServerProtocol.Position(line: 0, utf16index: 0))
-    req.reply(.locations([.init(uri: req.params.textDocument.uri, range: range)]))
+    let location = req.params.position
+    let file = req.params.textDocument.uri.fileURL?.path
+    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
+      if let t = findDeclaration(node: i) {
+        let newFile = t.0
+        let line = t.1
+        let column = t.2
+        let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
+        print("Found declaration")
+        req.reply(
+          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+      } else {
+        print("Found identifier")
+        req.reply(.locations([]))
+        return
+      }
+    } else {
+      print("Found no declaration")
+      req.reply(.locations([]))
+      return
+    }
   }
 
   func definition(_ req: Request<DefinitionRequest>) {
-    let range = Range(LanguageServerProtocol.Position(line: 0, utf16index: 0))
-    req.reply(.locations([.init(uri: req.params.textDocument.uri, range: range)]))
+    let location = req.params.position
+    let file = req.params.textDocument.uri.fileURL?.path
+    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
+      if let t = findDeclaration(node: i) {
+        let newFile = t.0
+        let line = t.1
+        let column = t.2
+        let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
+        print("Found definition")
+        req.reply(
+          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+      } else {
+        print("Found identifier (definition)")
+        req.reply(.locations([]))
+        return
+      }
+    } else {
+      print("Found no definition")
+      req.reply(.locations([]))
+      return
+    }
   }
 
   func rebuildTree() {

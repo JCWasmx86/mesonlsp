@@ -62,6 +62,7 @@ public class MesonTree {
       let t = TypeAnalyzer(parent: root, tree: self)
       self.ast!.visit(visitor: t)
       self.metadata = t.metadata
+      self.ast!.setParents()
     }
   }
 

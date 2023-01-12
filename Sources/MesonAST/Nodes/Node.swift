@@ -8,6 +8,17 @@ public protocol Node {
   func setParents()
 }
 
+extension Node {
+  public func equals(right: Node) -> Bool {
+    let left = self
+    return left.file.file == right.file.file && left.location.startLine == right.location.startLine
+      && left.location.endLine == right.location.endLine
+      && left.location.startColumn == right.location.startColumn
+      && left.location.endColumn == right.location.endColumn
+  }
+
+}
+
 public protocol Statement: Node {
 
 }
