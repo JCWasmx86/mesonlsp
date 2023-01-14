@@ -27,7 +27,7 @@ public class OptionsExtractor: CodeVisitor {
         let name = (nameNode as! StringLiteral).contents()
         if let type = al.getKwarg(name: "type") {
           if let sl = type as? StringLiteral {
-            var description: String? = nil
+            var description: String?
             if let descNode = al.getKwarg(name: "description") {
               if let descLiteral = descNode as? StringLiteral {
                 description = descLiteral.contents()
