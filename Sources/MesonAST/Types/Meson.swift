@@ -1,4 +1,4 @@
-public class Meson: AbstractObject {
+public struct Meson: AbstractObject {
   public let name: String = "meson"
   public let parent: AbstractObject? = nil
   public var methods: [Method] = []

@@ -1,4 +1,4 @@
-public class LazyType: Type {
+public struct LazyType: Type {
   public let name: String
   public let methods: [Method]
 

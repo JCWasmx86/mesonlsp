@@ -1,4 +1,4 @@
-public class Disabler: AbstractObject {
+public struct Disabler: AbstractObject {
   public let name: String = "disabler"
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil

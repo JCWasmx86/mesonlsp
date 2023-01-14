@@ -18,8 +18,13 @@ import TreeSitterMeson
 
   public mutating func run() throws {
     if !lsp {
-      let t = try MesonTree(file: self.path)
+      var t = try MesonTree(file: self.path)
       t.analyzeTypes()
+      while true {
+        readLine()
+        t = try MesonTree(file: self.path)
+        t.analyzeTypes()
+      }
       return
     }
     let realStdout = dup(STDOUT_FILENO)

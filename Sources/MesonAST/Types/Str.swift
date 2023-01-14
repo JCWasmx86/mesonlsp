@@ -1,4 +1,4 @@
-public class Str: Type {
+public struct Str: Type {
   public let name: String = "str"
   public var methods: [Method] = []
 

@@ -1,4 +1,4 @@
-public class `Void`: Type {
+public struct `Void`: Type {
   public let name: String = "void"
   public var methods: [Method] = []
 

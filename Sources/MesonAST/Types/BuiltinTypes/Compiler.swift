@@ -1,4 +1,4 @@
-public class Compiler: AbstractObject {
+public struct Compiler: AbstractObject {
   public let name: String = "compiler"
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil

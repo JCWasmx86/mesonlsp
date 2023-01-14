@@ -1,4 +1,4 @@
-public class Inc: AbstractObject {
+public struct Inc: AbstractObject {
   public let name: String = "inc"
   public var methods: [Method] = []
   public let parent: AbstractObject? = nil

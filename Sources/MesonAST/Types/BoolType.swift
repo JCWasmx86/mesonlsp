@@ -1,4 +1,4 @@
-public class `BoolType`: Type {
+public struct `BoolType`: Type {
   public let name: String = "bool"
   public var methods: [Method] = []
 

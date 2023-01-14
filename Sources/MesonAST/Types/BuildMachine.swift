@@ -1,4 +1,4 @@
-public class BuildMachine: AbstractObject {
+public struct BuildMachine: AbstractObject {
   public let name: String = "build_machine"
   public let parent: AbstractObject? = nil
   public var methods: [Method] = []

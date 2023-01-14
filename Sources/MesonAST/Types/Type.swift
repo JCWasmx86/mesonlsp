@@ -1,4 +1,4 @@
-public protocol Type: AnyObject {
+public protocol Type {
   var name: String { get }
   var methods: [Method] { get }
   func getMethod(name: String) -> Method?
