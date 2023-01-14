@@ -1,4 +1,4 @@
-public protocol Node {
+public protocol Node : AnyObject {
   var file: MesonSourceFile { get }
   var types: [Type] { get set }
   var location: Location { get }

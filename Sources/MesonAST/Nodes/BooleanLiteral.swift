@@ -5,7 +5,7 @@ public class BooleanLiteral: Expression {
   public let value: Bool
   public var types: [Type] = [BoolType()]
   public let location: Location
-  public var parent: Node?
+  public weak var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

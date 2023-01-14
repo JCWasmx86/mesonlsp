@@ -19,4 +19,11 @@ public class SubdirCall: FunctionExpression {
     }
   }
   public override func visitChildren(visitor: CodeVisitor) { super.visitChildren(visitor: visitor) }
+
+  public override func setParents() {
+    self.id.parent = self
+    self.id.setParents()
+    self.argumentList?.parent = self
+    self.argumentList?.setParents()
+  }
 }

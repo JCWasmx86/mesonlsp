@@ -63,6 +63,7 @@ public class MesonTree {
       self.ast!.visit(visitor: t)
       self.metadata = t.metadata
       self.ast!.setParents()
+      self.subfiles.forEach({ $0.analyzeTypes() })
     }
   }
 

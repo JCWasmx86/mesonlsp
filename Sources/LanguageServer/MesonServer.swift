@@ -39,7 +39,7 @@ public final class MesonServer: LanguageServer {
     let file = req.params.textDocument.uri.fileURL?.path
     var content: String?
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
-      if m.method != nil { content = m.method!.parent.toString() + "." + m.method!.name }
+      if m.method != nil { content = m.method!.parent!.toString() + "." + m.method!.name }
     }
     if content == nil,
       let f = self.tree!.metadata!.findFunctionCallAt(file!, location.line, location.utf16index)

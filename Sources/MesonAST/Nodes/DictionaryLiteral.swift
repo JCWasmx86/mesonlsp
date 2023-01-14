@@ -5,7 +5,7 @@ public class DictionaryLiteral: Expression {
   public let values: [Node]
   public var types: [Type] = []
   public let location: Location
-  public var parent: Node?
+  public weak var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file

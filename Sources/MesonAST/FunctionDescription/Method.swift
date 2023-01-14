@@ -1,5 +1,5 @@
 public class Method: Function {
-  public let parent: Type
+  public weak var parent: (Type)?
 
   init(name: String, parent: Type, returnTypes: [Type] = [`Void`()], args: [Argument] = []) {
     self.parent = parent

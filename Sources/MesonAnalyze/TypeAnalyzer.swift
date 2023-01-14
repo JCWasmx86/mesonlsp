@@ -40,19 +40,20 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     let iterTypes = node.expression.types
     let childScope = Scope(parent: self.scope)
     if node.ids.count == 1 {
-      if iterTypes[0] is ListType {
+      if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
-      } else if iterTypes[0] is Range {
+      } else if iterTypes.count > 0 && iterTypes[0] is Range {
         node.ids[0].types = [`IntType`()]
       } else {
         node.ids[0].types = [`Any`()]
       }
-    } else {
+      childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
+    } else if node.ids.count == 2 {
       node.ids[0].types = [Str()]
       node.ids[1].types = iterTypes
       childScope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
+      childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
     }
-    childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
     self.scope = childScope
     for b in node.block { b.visit(visitor: self) }
     tmp.merge(other: self.scope)
@@ -107,7 +108,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       }
       var deduped = dedup(types: newTypes)
       if deduped.isEmpty {
-        if node.rhs.types.count == 0
+        if node.rhs.types.count == 0 && self.scope.variables[(node.lhs as! IdExpression).id] != nil
           && self.scope.variables[(node.lhs as! IdExpression).id]!.count != 0
         {
           deduped = dedup(types: self.scope.variables[(node.lhs as! IdExpression).id]!)

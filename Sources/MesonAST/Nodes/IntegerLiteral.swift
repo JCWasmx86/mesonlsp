@@ -5,7 +5,7 @@ public class IntegerLiteral: Expression {
   public let value: String
   public var types: [Type] = []
   public let location: Location
-  public var parent: Node?
+  public weak var parent: Node?
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
