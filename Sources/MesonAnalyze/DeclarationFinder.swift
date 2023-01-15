@@ -108,7 +108,8 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       return makeTuple(x)
     }
   } else if parent is SourceFile {
-    print(parent, parent.parent)
+    print("Parent is sourcefile", parent, parent.parent)
+    print(parent.file.file, parent.location.format())
     if parent.parent != nil && parent.parent is SubdirCall {
       print("SubdirCall")
       return findDeclaration2(name: name, node: parent.parent!, parent: parent.parent!.parent!)

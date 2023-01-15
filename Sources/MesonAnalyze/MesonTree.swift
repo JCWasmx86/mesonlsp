@@ -35,6 +35,7 @@ public class MesonTree {
         .description
       let tree = try MesonTree(file: f, depth: depth + 1)
       tree.ast!.parent = astPatcher.subdirNodes[idx]
+      tree.ast!.setParents()
       assert(tree.ast!.parent != nil)
       self.subfiles.append(tree)
       idx += 1
@@ -64,6 +65,7 @@ public class MesonTree {
       self.ast!.visit(visitor: t)
       self.metadata = t.metadata
       self.ast!.setParents()
+      for s in self.subfiles { assert(s.ast!.parent is SubdirCall) }
       assert(self.subfiles.filter({ $0.ast != nil && $0.ast!.parent == nil }).count == 0)
       // self.subfiles.forEach({ $0.analyzeTypes() })
     }

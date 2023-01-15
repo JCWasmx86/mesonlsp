@@ -22,6 +22,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       let tmptree = self.tree
       self.tree = st
       self.scope = Scope(parent: self.scope)
+      subtree?.ast?.setParents()
+      subtree?.ast?.parent = node
       subtree?.ast?.visit(visitor: self)
       self.tree = tmptree
     }
