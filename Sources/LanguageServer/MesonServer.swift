@@ -131,7 +131,9 @@ public final class MesonServer: LanguageServer {
         if self.tree!.metadata!.diagnostics[k] == nil { continue }
         var arr: [Diagnostic] = []
         let diags = self.tree!.metadata!.diagnostics[k]!
+        print("Publishing \(diags.count) diagnostics for \(k)")
         for diag in diags {
+        	print(">>", diag.message)
           let s = LanguageServerProtocol.Position(
             line: Int(diag.startLine), utf16index: Int(diag.startColumn))
           let e = LanguageServerProtocol.Position(
@@ -139,7 +141,6 @@ public final class MesonServer: LanguageServer {
           let sev: DiagnosticSeverity = diag.severity == .error ? .error : .warning
           arr.append(Diagnostic(range: s..<e, severity: sev, source: nil, message: diag.message))
         }
-        print("Publishing \(diags.count) diagnostics for \(k)")
         self.client.send(
           PublishDiagnosticsNotification(
             uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr))

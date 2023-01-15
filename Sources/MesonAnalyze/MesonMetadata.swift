@@ -18,7 +18,7 @@ public class MesonMetadata {
   }
 
   public func registerDiagnostic(node: Node, diag: MesonDiagnostic) {
-    if self.subdirCalls[node.file.file] == nil {
+    if self.diagnostics[node.file.file] == nil {
       self.diagnostics.updateValue([diag], forKey: node.file.file)
     } else {
       self.diagnostics[node.file.file]!.append(diag)
