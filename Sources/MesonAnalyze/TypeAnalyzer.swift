@@ -3,15 +3,18 @@ import MesonAST
 // TODO: Type derivation based on the options
 public class TypeAnalyzer: ExtendedCodeVisitor {
   var scope: Scope
-  var t: TypeNamespace = TypeNamespace()
+  var t: TypeNamespace?
   var tree: MesonTree
   var metadata: MesonMetadata
 
   public init(parent: Scope, tree: MesonTree) {
     self.scope = parent
     self.tree = tree
+    self.t = tree.ns
     self.metadata = MesonMetadata()
   }
+
+  deinit { self.t = nil }
 
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
@@ -44,7 +47,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     if node.ids.count == 1 {
       if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
-      } else if iterTypes.count > 0 && iterTypes[0] is Range {
+      } else if iterTypes.count > 0 && iterTypes[0] is RangeType {
         node.ids[0].types = [`IntType`()]
       } else {
         node.ids[0].types = [`Any`()]
@@ -126,7 +129,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
-    if let fn = self.t.lookupFunction(name: (node.id as! IdExpression).id) {
+    if let fn = self.t!.lookupFunction(name: (node.id as! IdExpression).id) {
       node.types = fn.returnTypes
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
@@ -255,42 +258,45 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func joinTypes(types: [Type]) -> String {
     return types.map({ $0.toString() }).joined(separator: "|")
   }
-}
-public func dedup(types: [Type]) -> [Type] {
-  var listtypes: [Type] = []
-  var dicttypes: [Type] = []
-  var hasAny: Bool = false
-  var hasBool: Bool = false
-  var hasInt: Bool = false
-  var hasStr: Bool = false
-  var objs: [String: Type] = [:]
-  var gotList: Bool = false
-  for t in types {
-    if t is `Any` { hasAny = true }
-    if t is BoolType {
-      hasBool = true
-    } else if t is `IntType` {
-      hasInt = true
-    } else if t is Str {
-      hasStr = true
-    } else if t is Dict {
-      dicttypes += (t as! Dict).types
-    } else if t is ListType {
-      listtypes += (t as! ListType).types
-      gotList = true
-    } else if t is `Void` {
-      // Do nothing
-    } else {
-      objs[t.name] = t
+
+  public func dedup(types: [Type]) -> [Type] {
+    var listtypes: [Type] = []
+    var dicttypes: [Type] = []
+    var hasAny: Bool = false
+    var hasBool: Bool = false
+    var hasInt: Bool = false
+    var hasStr: Bool = false
+    var objs: [String: Type] = [:]
+    var gotList: Bool = false
+    var gotDict: Bool = false
+    for t in types {
+      if t is `Any` { hasAny = true }
+      if t is BoolType {
+        hasBool = true
+      } else if t is `IntType` {
+        hasInt = true
+      } else if t is Str {
+        hasStr = true
+      } else if t is Dict {
+        dicttypes += (t as! Dict).types
+        gotDict = true
+      } else if t is ListType {
+        listtypes += (t as! ListType).types
+        gotList = true
+      } else if t is `Void` {
+        // Do nothing
+      } else {
+        objs[t.name] = t
+      }
     }
+    var ret: [Type] = []
+    if listtypes.count != 0 || gotList { ret.append(ListType(types: dedup(types: listtypes))) }
+    if dicttypes.count != 0 || gotDict { ret.append(Dict(types: dedup(types: dicttypes))) }
+    if hasAny { ret.append(self.t!.types["any"]!) }
+    if hasBool { ret.append(self.t!.types["bool"]!) }
+    if hasInt { ret.append(self.t!.types["int"]!) }
+    if hasStr { ret.append(self.t!.types["str"]!) }
+    ret += objs.values
+    return ret
   }
-  var ret: [Type] = []
-  if listtypes.count != 0 || gotList { ret.append(ListType(types: dedup(types: listtypes))) }
-  if dicttypes.count != 0 { ret.append(Dict(types: dedup(types: dicttypes))) }
-  if hasAny { ret.append(`Any`()) }
-  if hasBool { ret.append(`BoolType`()) }
-  if hasInt { ret.append(`IntType`()) }
-  if hasStr { ret.append(Str()) }
-  ret += objs.values
-  return ret
 }

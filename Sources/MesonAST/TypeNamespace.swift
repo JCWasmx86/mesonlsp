@@ -12,7 +12,7 @@ public class TypeNamespace {
       "custom_tgt": CustomTgt(), "dep": Dep(), "disabler": Disabler(), "env": Env(), "exe": Exe(),
       "external_program": ExternalProgram(), "extracted_obj": ExtractedObj(), "feature": Feature(),
       "file": File(), "generated_list": GeneratedList(), "inc": Inc(), "jar": Jar(), "lib": Lib(),
-      "module": Module(), "range": Range(), "runresult": RunResult(), "run_tgt": RunTgt(),
+      "module": Module(), "range": RangeType(), "runresult": RunResult(), "run_tgt": RunTgt(),
       "structured_src": StructuredSrc(), "subproject": Subproject(), "tgt": Tgt(),
     ]
     self.functions = [
@@ -702,7 +702,7 @@ public class TypeNamespace {
           Kwarg(name: "version", opt: true, types: [Str(), File()]),
         ]),
       Function(
-        name: "range", returnTypes: [Range()],
+        name: "range", returnTypes: [RangeType()],
         args: [
           PositionalArgument(name: "start", opt: true, types: [`IntType`()]),
           PositionalArgument(name: "stop", opt: true, types: [`IntType`()]),

@@ -18,11 +18,12 @@ import TreeSitterMeson
 
   public mutating func run() throws {
     if !lsp {
-      var t = try MesonTree(file: self.path)
+      let ns = TypeNamespace()
+      var t = try MesonTree(file: self.path, ns: ns)
       t.analyzeTypes()
       while true {
         readLine()
-        t = try MesonTree(file: self.path)
+        t = try MesonTree(file: self.path, ns: ns)
         t.analyzeTypes()
       }
       return

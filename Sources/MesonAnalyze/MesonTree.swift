@@ -10,9 +10,11 @@ public class MesonTree {
   var subfiles: [MesonTree] = []
   var depth: Int
   var options: OptionState?
+  public let ns: TypeNamespace
   public var metadata: MesonMetadata?
 
-  public init(file: String, depth: Int = 0) throws {
+  public init(file: String, ns: TypeNamespace, depth: Int = 0) throws {
+    self.ns = ns
     self.file = Path(file).normalize().description
     self.ast = nil
     self.depth = depth
@@ -33,7 +35,7 @@ public class MesonTree {
       print("Subtree:", sd1)
       let f = Path(Path(self.file).parent().description + "/" + sd1 + "/meson.build").normalize()
         .description
-      let tree = try MesonTree(file: f, depth: depth + 1)
+      let tree = try MesonTree(file: f, ns: ns, depth: depth + 1)
       tree.ast!.parent = astPatcher.subdirNodes[idx]
       tree.ast!.setParents()
       assert(tree.ast!.parent != nil)
@@ -55,20 +57,17 @@ public class MesonTree {
   }
 
   public func analyzeTypes() {
+    if self.ast == nil { return }
     let root = Scope()
     root.variables.updateValue([Meson()], forKey: "meson")
     root.variables.updateValue([BuildMachine()], forKey: "build_machine")
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
-    if self.ast != nil {
-      let t = TypeAnalyzer(parent: root, tree: self)
-      self.ast!.visit(visitor: t)
-      self.metadata = t.metadata
-      self.ast!.setParents()
-      for s in self.subfiles { assert(s.ast!.parent is SubdirCall) }
-      assert(self.subfiles.filter({ $0.ast != nil && $0.ast!.parent == nil }).count == 0)
-      // self.subfiles.forEach({ $0.analyzeTypes() })
-    }
+    let t = TypeAnalyzer(parent: root, tree: self)
+    self.ast!.visit(visitor: t)
+    self.metadata = t.metadata
+    self.ast!.setParents()
+    for s in self.subfiles { assert(s.ast!.parent is SubdirCall) }
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {

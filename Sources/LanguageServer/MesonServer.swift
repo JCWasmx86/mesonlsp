@@ -1,5 +1,6 @@
 import Foundation
 import LanguageServerProtocol
+import MesonAST
 import MesonAnalyze
 import PathKit
 
@@ -10,9 +11,11 @@ public final class MesonServer: LanguageServer {
   var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
+  var ns: TypeNamespace
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
+    self.ns = TypeNamespace()
 
     super.init(client: client)
   }
@@ -121,7 +124,7 @@ public final class MesonServer: LanguageServer {
 
   func rebuildTree() {
     queue.async {
-      self.tree = try! MesonTree(file: self.path! + "/meson.build")
+      self.tree = try! MesonTree(file: self.path! + "/meson.build", ns: self.ns)
       self.tree!.analyzeTypes()
     }
   }
