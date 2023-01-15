@@ -22,7 +22,7 @@ import TreeSitterMeson
       var t = try MesonTree(file: self.path, ns: ns)
       t.analyzeTypes()
       while true {
-        readLine()
+        _ = readLine()
         t = try MesonTree(file: self.path, ns: ns)
         t.analyzeTypes()
       }

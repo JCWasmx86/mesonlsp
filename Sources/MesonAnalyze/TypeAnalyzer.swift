@@ -1,4 +1,5 @@
 import MesonAST
+import PathKit
 
 // TODO: Type derivation based on the options
 public class TypeAnalyzer: ExtendedCodeVisitor {
@@ -19,9 +20,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
     self.metadata.registerSubdirCall(call: node)
-    let subtree = self.tree.findSubdirTree(
-      file: node.file.file + "/../" + node.subdirname + "/meson.build")
+    let newPath = Path(
+      Path(node.file.file).absolute().parent().description + "/" + node.subdirname + "/meson.build"
+    ).description
+    let subtree = self.tree.findSubdirTree(file: newPath)
     if let st = subtree {
+      print("Entering subdir")
       let tmptree = self.tree
       self.tree = st
       self.scope = Scope(parent: self.scope)
@@ -29,6 +33,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       subtree?.ast?.parent = node
       subtree?.ast?.visit(visitor: self)
       self.tree = tmptree
+    } else {
+      print("Not found", node.subdirname)
     }
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }

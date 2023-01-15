@@ -33,8 +33,8 @@ public class MesonTree {
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
       print("Subtree:", sd1)
-      let f = Path(Path(self.file).parent().description + "/" + sd1 + "/meson.build").normalize()
-        .description
+      let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
+        .normalize().description
       let tree = try MesonTree(file: f, ns: ns, depth: depth + 1)
       tree.ast!.parent = astPatcher.subdirNodes[idx]
       tree.ast!.setParents()
