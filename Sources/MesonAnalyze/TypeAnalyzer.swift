@@ -54,13 +54,13 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
       } else if iterTypes.count > 0 && iterTypes[0] is RangeType {
-        node.ids[0].types = [`IntType`()]
+        node.ids[0].types = [self.t!.types["int"]!]
       } else {
         node.ids[0].types = [`Any`()]
       }
       childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
     } else if node.ids.count == 2 {
-      node.ids[0].types = [Str()]
+      node.ids[0].types = [self.t!.types["str"]!]
       node.ids[1].types = iterTypes
       childScope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
       childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
@@ -91,18 +91,21 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           switch node.op {
           case .divequals:
             if l is `IntType` && r is `IntType` {
-              newTypes.append(`IntType`())
+              newTypes.append(self.t!.types["int"]!)
             } else if l is Str && r is Str {
-              newTypes.append(Str())
+              newTypes.append(self.t!.types["str"]!)
             }
-          case .minusequals: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
-          case .modequals: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
-          case .mulequals: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
+          case .minusequals:
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+          case .modequals:
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+          case .mulequals:
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
           case .plusequals:
             if l is `IntType` && r is `IntType` {
-              newTypes.append(`IntType`())
+              newTypes.append(self.t!.types["int"]!)
             } else if l is Str && r is Str {
-              newTypes.append(Str())
+              newTypes.append(self.t!.types["str"]!)
             } else if l is ListType && r is ListType {
               newTypes.append(
                 ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types)))
@@ -150,9 +153,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)
     switch node.op! {
-    case .minus: node.types = [`IntType`()]
-    case .not: node.types = [BoolType()]
-    case .exclamationMark: node.types = [BoolType()]
+    case .minus: node.types = [self.t!.types["int"]!]
+    case .not: node.types = [self.t!.types["bool"]!]
+    case .exclamationMark: node.types = [self.t!.types["bool"]!]
     }
   }
   public func visitSubscriptExpression(node: SubscriptExpression) {
@@ -164,7 +167,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else if t is ListType {
         newTypes += (t as! ListType).types
       } else if t is Str {
-        newTypes += [Str()]
+        newTypes += [self.t!.types["str"]!]
       }
     }
     node.types = dedup(types: newTypes)
@@ -193,30 +196,30 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     for l in node.lhs.types {
       for r in node.rhs.types {
         switch node.op! {
-        case .and: newTypes.append(BoolType())
+        case .and: newTypes.append(self.t!.types["bool"]!)
         case .div:
           if l is `IntType` && r is `IntType` {
-            newTypes.append(`IntType`())
+            newTypes.append(self.t!.types["int"]!)
           } else if l is Str && r is Str {
-            newTypes.append(Str())
+            newTypes.append(self.t!.types["str"]!)
           }
-        case .equalsEquals: newTypes.append(BoolType())
-        case .ge: newTypes.append(BoolType())
-        case .gt: newTypes.append(BoolType())
-        case .IN: newTypes.append(BoolType())
-        case .le: newTypes.append(BoolType())
-        case .lt: newTypes.append(BoolType())
-        case .minus: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
-        case .modulo: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
-        case .mul: if l is `IntType` && r is `IntType` { newTypes.append(`IntType`()) }
-        case .notEquals: newTypes.append(BoolType())
-        case .notIn: newTypes.append(BoolType())
-        case .or: newTypes.append(BoolType())
+        case .equalsEquals: newTypes.append(self.t!.types["bool"]!)
+        case .ge: newTypes.append(self.t!.types["bool"]!)
+        case .gt: newTypes.append(self.t!.types["bool"]!)
+        case .IN: newTypes.append(self.t!.types["bool"]!)
+        case .le: newTypes.append(self.t!.types["bool"]!)
+        case .lt: newTypes.append(self.t!.types["bool"]!)
+        case .minus: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+        case .modulo: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+        case .mul: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+        case .notEquals: newTypes.append(self.t!.types["bool"]!)
+        case .notIn: newTypes.append(self.t!.types["bool"]!)
+        case .or: newTypes.append(self.t!.types["bool"]!)
         case .plus:
           if l is `IntType` && r is `IntType` {
-            newTypes.append(`IntType`())
+            newTypes.append(self.t!.types["int"]!)
           } else if l is Str && r is Str {
-            newTypes.append(Str())
+            newTypes.append(self.t!.types["str"]!)
           } else if l is ListType && r is ListType {
             newTypes.append(
               ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types)))
@@ -233,7 +236,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
   public func visitStringLiteral(node: StringLiteral) {
-    node.types = [Str()]
+    node.types = [self.t!.types["str"]!]
     node.visitChildren(visitor: self)
   }
   public func visitArrayLiteral(node: ArrayLiteral) {
@@ -243,11 +246,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = [ListType(types: dedup(types: t))]
   }
   public func visitBooleanLiteral(node: BooleanLiteral) {
-    node.types = [BoolType()]
+    node.types = [self.t!.types["bool"]!]
     node.visitChildren(visitor: self)
   }
   public func visitIntegerLiteral(node: IntegerLiteral) {
-    node.types = [`IntType`()]
+    node.types = [self.t!.types["int"]!]
     node.visitChildren(visitor: self)
   }
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
