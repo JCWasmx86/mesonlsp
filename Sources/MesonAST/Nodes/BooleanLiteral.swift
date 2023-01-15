@@ -17,4 +17,6 @@ public class BooleanLiteral: Expression {
   public func setParents() {
 
   }
+
+  public var description: String { return "(BooleanLiteral \(value))" }
 }

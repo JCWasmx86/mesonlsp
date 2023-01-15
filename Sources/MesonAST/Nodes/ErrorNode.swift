@@ -22,5 +22,5 @@ public class ErrorNode: Node {
   public func setParents() {
 
   }
-
+  public var description: String { return "(ErrorNode \(message))" }
 }

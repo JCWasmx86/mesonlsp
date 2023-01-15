@@ -30,5 +30,7 @@ public class ConditionalExpression: Expression {
     self.ifFalse.parent = self
     self.ifFalse.setParents()
   }
-
+  public var description: String {
+    return "(ConditionalExpression \(condition) ? \(ifTrue) : \(ifFalse))"
+  }
 }

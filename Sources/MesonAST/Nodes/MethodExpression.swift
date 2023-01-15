@@ -15,8 +15,9 @@ public class MethodExpression: Expression {
     self.location = Location(node: node)
     self.obj = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.id = from_tree(file: file, tree: node.namedChild(at: 1))!
-    self.argumentList =
-      node.namedChildCount == 2 ? nil : from_tree(file: file, tree: node.namedChild(at: 3))
+    if let nc = node.child(at: 4), nc.nodeType != ")" {
+      self.argumentList = from_tree(file: file, tree: nc)
+    }
   }
   public func visit(visitor: CodeVisitor) { visitor.visitMethodExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {
@@ -33,4 +34,5 @@ public class MethodExpression: Expression {
     self.argumentList?.parent = self
     self.argumentList?.setParents()
   }
+  public var description: String { return "(MethodExpression \(obj).\(id) \(argumentList))" }
 }

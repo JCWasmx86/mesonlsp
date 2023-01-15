@@ -50,4 +50,6 @@ public class ArgumentList: Expression {
     }
     return nil
   }
+
+  public var description: String { return "(ArgumentList \(args))" }
 }

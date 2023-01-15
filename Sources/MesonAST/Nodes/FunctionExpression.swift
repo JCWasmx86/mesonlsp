@@ -39,5 +39,5 @@ open class FunctionExpression: Expression {
     self.argumentList?.parent = self
     self.argumentList?.setParents()
   }
-
+  public var description: String { return "(FunctionExpression \(id) \(self.argumentList))" }
 }

@@ -17,5 +17,5 @@ public class IdExpression: Expression {
   public func setParents() {
 
   }
-
+  public var description: String { return "(IdExpression \(id))" }
 }

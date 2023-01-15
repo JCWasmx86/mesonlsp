@@ -1,4 +1,4 @@
-public protocol Node: AnyObject {
+public protocol Node: AnyObject, CustomStringConvertible {
   var file: MesonSourceFile { get }
   var types: [Type] { get set }
   var location: Location { get }
@@ -16,7 +16,7 @@ extension Node {
       && left.location.startColumn == right.location.startColumn
       && left.location.endColumn == right.location.endColumn
   }
-
+  public var description: String { return "<<>>" }
 }
 
 public protocol Statement: Node {

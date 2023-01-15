@@ -25,4 +25,6 @@ public class KeywordItem: Expression {
     self.value.parent = self
     self.value.setParents()
   }
+
+  public var description: String { return "(KeywordItem \(key): \(value))" }
 }

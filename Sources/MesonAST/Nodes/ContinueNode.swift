@@ -15,5 +15,5 @@ public class ContinueNode: Statement {
   public func setParents() {
 
   }
-
+  public var description: String { return "(ContinueNode)" }
 }

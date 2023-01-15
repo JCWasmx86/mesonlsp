@@ -21,6 +21,8 @@ public class StringLiteral: Expression {
   public func setParents() {
 
   }
+
+  public var description: String { return "(StringLiteral \(id))" }
 }
 extension String {
   subscript(_ range: CountableRange<Int>) -> String {

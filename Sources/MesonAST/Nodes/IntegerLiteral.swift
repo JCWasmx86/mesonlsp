@@ -17,5 +17,5 @@ public class IntegerLiteral: Expression {
   public func setParents() {
 
   }
-
+  public var description: String { return "(IntegerLiteral \(value))" }
 }

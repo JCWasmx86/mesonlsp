@@ -101,7 +101,7 @@ public final class MesonServer: LanguageServer {
         let line = t.1
         let column = t.2
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        print("Found declaration")
+        print("Found definition")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
         return
@@ -117,7 +117,7 @@ public final class MesonServer: LanguageServer {
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       return
     }
-    print("Found no declaration")
+    print("Found no definition")
     req.reply(.locations([]))
     return
   }
