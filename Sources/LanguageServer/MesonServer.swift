@@ -1,6 +1,7 @@
 import Foundation
 import LanguageServerProtocol
 import MesonAnalyze
+import PathKit
 
 // There seem to be some name collisions
 public typealias MesonVoid = ()
@@ -70,16 +71,22 @@ public final class MesonServer: LanguageServer {
         print("Found declaration")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+        return
       } else {
         print("Found identifier")
-        req.reply(.locations([]))
-        return
       }
-    } else {
-      print("Found no declaration")
-      req.reply(.locations([]))
+    }
+
+    if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
+      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
+        .description
+      let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
+      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       return
     }
+    print("Found no declaration")
+    req.reply(.locations([]))
+    return
   }
 
   func definition(_ req: Request<DefinitionRequest>) {
@@ -91,19 +98,25 @@ public final class MesonServer: LanguageServer {
         let line = t.1
         let column = t.2
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        print("Found definition")
+        print("Found declaration")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
-      } else {
-        print("Found identifier (definition)")
-        req.reply(.locations([]))
         return
+      } else {
+        print("Found identifier")
       }
-    } else {
-      print("Found no definition")
-      req.reply(.locations([]))
+    }
+
+    if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
+      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
+        .description
+      let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
+      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       return
     }
+    print("Found no declaration")
+    req.reply(.locations([]))
+    return
   }
 
   func rebuildTree() {

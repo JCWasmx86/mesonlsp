@@ -68,4 +68,11 @@ public class MesonMetadata {
     }
     return nil
   }
+
+  public func findSubdirCallAt(_ path: String, _ line: Int, _ column: Int) -> SubdirCall? {
+    if let arr = self.subdirCalls[path] {
+      for f in arr where self.contains(f.id, line, column) { return f }
+    }
+    return nil
+  }
 }
