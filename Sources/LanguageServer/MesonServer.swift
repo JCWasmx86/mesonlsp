@@ -126,6 +126,24 @@ public final class MesonServer: LanguageServer {
     queue.async {
       self.tree = try! MesonTree(file: self.path! + "/meson.build", ns: self.ns)
       self.tree!.analyzeTypes()
+      if self.tree == nil || self.tree!.metadata == nil { return }
+      for k in self.tree!.metadata!.diagnostics.keys {
+        if self.tree!.metadata!.diagnostics[k] == nil { continue }
+        var arr: [Diagnostic] = []
+        let diags = self.tree!.metadata!.diagnostics[k]!
+        for diag in diags {
+          let s = LanguageServerProtocol.Position(
+            line: Int(diag.startLine), utf16index: Int(diag.startColumn))
+          let e = LanguageServerProtocol.Position(
+            line: Int(diag.endLine), utf16index: Int(diag.endColumn))
+          let sev: DiagnosticSeverity = diag.severity == .error ? .error : .warning
+          arr.append(Diagnostic(range: s..<e, severity: sev, source: nil, message: diag.message))
+        }
+        print("Publishing \(diags.count) diagnostics for \(k)")
+        self.client.send(
+          PublishDiagnosticsNotification(
+            uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr))
+      }
     }
   }
 

@@ -5,6 +5,7 @@ public class MesonMetadata {
   public var methodCalls: [String: [MethodExpression]] = [:]
   public var functionCalls: [String: [FunctionExpression]] = [:]
   public var identifiers: [String: [IdExpression]] = [:]
+  public var diagnostics: [String: [MesonDiagnostic]] = [:]
 
   public init() {}
 
@@ -13,6 +14,14 @@ public class MesonMetadata {
       self.subdirCalls.updateValue([call], forKey: call.file.file)
     } else {
       self.subdirCalls[call.file.file]!.append(call)
+    }
+  }
+
+  public func registerDiagnostic(node: Node, diag: MesonDiagnostic) {
+    if self.subdirCalls[node.file.file] == nil {
+      self.diagnostics.updateValue([diag], forKey: node.file.file)
+    } else {
+      self.diagnostics[node.file.file]!.append(diag)
     }
   }
 

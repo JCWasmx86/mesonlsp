@@ -34,12 +34,20 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       subtree?.ast?.visit(visitor: self)
       self.tree = tmptree
     } else {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error, node: node, message: "Unable to find subdir \(node.subdirname)"))
       print("Not found", node.subdirname)
     }
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
-  public func visitErrorNode(node: ErrorNode) { node.visitChildren(visitor: self) }
+  public func visitErrorNode(node: ErrorNode) {
+    node.visitChildren(visitor: self)
+    self.metadata.registerDiagnostic(
+      node: node, diag: MesonDiagnostic(sev: .error, node: node, message: node.message))
+  }
   public func visitSelectionStatement(node: SelectionStatement) {
     node.visitChildren(visitor: self)
   }
@@ -138,10 +146,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
-    if let fn = self.t!.lookupFunction(name: (node.id as! IdExpression).id) {
+    let funcName = (node.id as! IdExpression).id
+    if let fn = self.t!.lookupFunction(name: funcName) {
       node.types = fn.returnTypes
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
+    } else {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)"))
     }
   }
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
@@ -176,14 +189,24 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     let types = node.obj.types
     var ownResultTypes: [Type] = []
+    var found = false
+    let methodName = (node.id as! IdExpression).id
     for t in types {
-      if let m = t.getMethod(name: (node.id as! IdExpression).id) {
+      if let m = t.getMethod(name: methodName) {
         ownResultTypes += m.returnTypes
         node.method = m
         self.metadata.registerMethodCall(call: node)
+        found = true
       }
     }
     node.types = dedup(types: ownResultTypes)
+    if !found {
+      let types = joinTypes(types: types)
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error, node: node, message: "No method \(methodName) found for types `\(types)'"))
+    }
   }
   public func visitIdExpression(node: IdExpression) {
     node.types = dedup(types: scope.variables[node.id] ?? [])
