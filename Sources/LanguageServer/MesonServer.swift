@@ -12,6 +12,7 @@ public final class MesonServer: LanguageServer {
   var path: String?
   var tree: MesonTree?
   var ns: TypeNamespace
+  var memfiles: [String: String] = [:]
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -33,6 +34,7 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.openDocument)
     _register(MesonServer.closeDocument)
     _register(MesonServer.changeDocument)
+    _register(MesonServer.saveDocument)
     _register(MesonServer.hover)
     _register(MesonServer.declaration)
     _register(MesonServer.definition)
@@ -124,7 +126,17 @@ public final class MesonServer: LanguageServer {
 
   func rebuildTree() {
     queue.async {
-      self.tree = try! MesonTree(file: self.path! + "/meson.build", ns: self.ns)
+      if self.tree != nil && self.tree!.metadata != nil {
+        for k in self.tree!.metadata!.diagnostics.keys {
+          if self.tree!.metadata!.diagnostics[k] == nil { continue }
+          let arr: [Diagnostic] = []
+          self.client.send(
+            PublishDiagnosticsNotification(
+              uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr))
+        }
+      }
+      self.tree = try! MesonTree(
+        file: self.path! + "/meson.build", ns: self.ns, memfiles: self.memfiles)
       self.tree!.analyzeTypes()
       if self.tree == nil || self.tree!.metadata == nil { return }
       for k in self.tree!.metadata!.diagnostics.keys {
@@ -133,7 +145,7 @@ public final class MesonServer: LanguageServer {
         let diags = self.tree!.metadata!.diagnostics[k]!
         print("Publishing \(diags.count) diagnostics for \(k)")
         for diag in diags {
-        	print(">>", diag.message)
+          print(">>", diag.message)
           let s = LanguageServerProtocol.Position(
             line: Int(diag.startLine), utf16index: Int(diag.startColumn))
           let e = LanguageServerProtocol.Position(
@@ -148,13 +160,32 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) { self.rebuildTree() }
-
-  func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
+  func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
 
   }
 
+  func saveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
+    let file = note.params.textDocument.uri.fileURL?.path
+    // Either the saves were changed or dropped, so use the contents
+    // of the file
+    self.memfiles.removeValue(forKey: file!)
+    self.rebuildTree()
+  }
+
+  func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
+    let file = note.params.textDocument.uri.fileURL?.path
+    // Either the saves were changed or dropped, so use the contents
+    // of the file
+    self.memfiles.removeValue(forKey: file!)
+    self.rebuildTree()
+  }
+
   func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
+    let file = note.params.textDocument.uri.fileURL?.path
+    // Either the saves were changed or dropped, so use the contents
+    // of the file
+    print("Adding", file!, "to memcache")
+    self.memfiles[file!] = note.params.contentChanges[0].text
     self.rebuildTree()
   }
 

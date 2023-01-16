@@ -13,19 +13,28 @@ public class MesonTree {
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
 
-  public init(file: String, ns: TypeNamespace, depth: Int = 0) throws {
+  public init(file: String, ns: TypeNamespace, depth: Int = 0, memfiles: [String: String] = [:])
+    throws
+  {
     self.ns = ns
     self.file = Path(file).normalize().description
     self.ast = nil
     self.depth = depth
     let p = Parser()
     try p.setLanguage(tree_sitter_meson())
-    if let text = try? NSString(
-      contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue)
-    {
-      let tree = p.parse(text.description)
+    if memfiles[self.file] == nil {
+      if let text = try? NSString(
+        contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue)
+      {
+        let tree = p.parse(text.description)
+        let root = tree!.rootNode
+        self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+      }
+    } else {
+      let tree = p.parse(memfiles[self.file]!.description)
       let root = tree!.rootNode
-      self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+      self.ast = from_tree(
+        file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description), tree: root)
     }
     let astPatcher = ASTPatcher()
     self.ast?.visit(visitor: astPatcher)
@@ -35,7 +44,7 @@ public class MesonTree {
       print("Subtree:", sd1)
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
-      let tree = try MesonTree(file: f, ns: ns, depth: depth + 1)
+      let tree = try MesonTree(file: f, ns: ns, depth: depth + 1, memfiles: memfiles)
       tree.ast!.parent = astPatcher.subdirNodes[idx]
       tree.ast!.setParents()
       assert(tree.ast!.parent != nil)
