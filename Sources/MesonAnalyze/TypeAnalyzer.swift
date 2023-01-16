@@ -181,6 +181,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         newTypes += (t as! ListType).types
       } else if t is Str {
         newTypes += [self.t!.types["str"]!]
+      } else if t is CustomTgt {
+        newTypes += [self.t!.types["custom_idx"]!]
       }
     }
     node.types = dedup(types: newTypes)
