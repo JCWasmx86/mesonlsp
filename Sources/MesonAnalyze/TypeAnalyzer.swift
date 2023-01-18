@@ -7,6 +7,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   var t: TypeNamespace?
   var tree: MesonTree
   var metadata: MesonMetadata
+  let checkerState: CheckerState = CheckerState()
 
   public init(parent: Scope, tree: MesonTree) {
     self.scope = parent
@@ -151,6 +152,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node.types = fn.returnTypes
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
+      checkerState.apply(node: node, metadata: self.metadata, f: fn)
     } else {
       self.metadata.registerDiagnostic(
         node: node,
@@ -199,6 +201,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         node.method = m
         self.metadata.registerMethodCall(call: node)
         found = true
+        checkerState.apply(node: node, metadata: self.metadata, f: m)
       }
     }
     node.types = dedup(types: ownResultTypes)

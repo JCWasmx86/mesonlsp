@@ -5,4 +5,5 @@ public class Method: Function {
     self.parent = parent
     super.init(name: name, returnTypes: returnTypes, args: args)
   }
+  public override func id() -> String { return self.parent.name + "." + self.name }
 }

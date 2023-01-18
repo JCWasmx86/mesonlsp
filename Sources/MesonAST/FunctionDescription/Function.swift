@@ -8,4 +8,5 @@ public class Function {
     self.args = args
     self.returnTypes = returnTypes
   }
+  public func id() -> String { return self.name }
 }
