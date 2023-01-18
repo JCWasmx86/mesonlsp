@@ -68,16 +68,28 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         node.ids[0].types = [`Any`()]
       }
       childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
+      self.checkIdentifier(node.ids[0] as! IdExpression)
     } else if node.ids.count == 2 {
       node.ids[0].types = [self.t!.types["str"]!]
       node.ids[1].types = iterTypes
       childScope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
       childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
+      self.checkIdentifier(node.ids[0] as! IdExpression)
+      self.checkIdentifier(node.ids[1] as! IdExpression)
     }
     self.scope = childScope
     for b in node.block { b.visit(visitor: self) }
     tmp.merge(other: self.scope)
     self.scope = tmp
+  }
+
+  func checkIdentifier(_ node: IdExpression) {
+    if !isSnakeCase(str: node.id) {
+      // TODO: For assignments, too
+      self.metadata.registerDiagnostic(
+        node: node, diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
+      )
+    }
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
@@ -290,6 +302,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitKeyValueItem(node: KeyValueItem) {
     node.visitChildren(visitor: self)
     node.types = node.value.types
+  }
+
+  func isSnakeCase(str: String) -> Bool {
+    for s in str where s.isUppercase { return false }
+    return true
   }
 
   public func joinTypes(types: [Type]) -> String {
