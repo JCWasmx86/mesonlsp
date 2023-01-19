@@ -72,7 +72,9 @@ public class MesonTree {
     root.variables.updateValue([BuildMachine()], forKey: "build_machine")
     root.variables.updateValue([HostMachine()], forKey: "host_machine")
     root.variables.updateValue([TargetMachine()], forKey: "target_machine")
-    let t = TypeAnalyzer(parent: root, tree: self)
+    var options: [MesonOption] = []
+    if let o = self.options { options = Array(o.opts.values) }
+    let t = TypeAnalyzer(parent: root, tree: self, options: options)
     self.ast!.visit(visitor: t)
     self.metadata = t.metadata
     self.ast!.setParents()

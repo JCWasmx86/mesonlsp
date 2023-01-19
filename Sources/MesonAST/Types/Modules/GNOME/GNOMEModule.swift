@@ -49,7 +49,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "fatal_warnings", opt: true, types: [BoolType()]),
         ]),
       Method(
-        name: "mkenum", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "mkenums", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
@@ -72,7 +72,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "vtail", opt: true, types: [Str()]),
         ]),
       Method(
-        name: "mkenum_simple", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "mkenums_simple", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),

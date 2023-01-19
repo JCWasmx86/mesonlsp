@@ -8,11 +8,14 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   var tree: MesonTree
   var metadata: MesonMetadata
   let checkerState: CheckerState = CheckerState()
+  let typeanalyzersState: TypeAnalyzersState = TypeAnalyzersState()
+  let options: [MesonOption]
 
-  public init(parent: Scope, tree: MesonTree) {
+  public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
     self.tree = tree
     self.t = tree.ns
+    self.options = options
     self.metadata = MesonMetadata()
   }
 
@@ -161,7 +164,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     let funcName = (node.id as! IdExpression).id
     if let fn = self.t!.lookupFunction(name: funcName) {
-      node.types = fn.returnTypes
+      node.types = self.typeanalyzersState.apply(
+        node: node, options: self.options, f: fn, ns: self.t!)
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
