@@ -43,6 +43,8 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
           && (s as! AssignmentStatement).op == .equals
         {
           return makeTuple((s as! AssignmentStatement).lhs)
+        } else if s is IterationStatement || s is SelectionStatement {
+          if let r = searchExtended(name: name, node: s) { return r }
         }
       }
     }
@@ -66,6 +68,8 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
           && (s as! AssignmentStatement).op == .equals
         {
           return makeTuple((s as! AssignmentStatement).lhs)
+        } else if s is IterationStatement || s is SelectionStatement {
+          if let r = searchExtended(name: name, node: s) { return r }
         }
       }
       if node.parent == nil { return nil }
@@ -91,6 +95,8 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
           && (s as! AssignmentStatement).op == .equals
         {
           return makeTuple((s as! AssignmentStatement).lhs)
+        } else if s is IterationStatement || s is SelectionStatement {
+          if let r = searchExtended(name: name, node: s) { return r }
         }
       }
     }
@@ -108,6 +114,36 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
   return nil
 }
 
+func searchExtended(name: String, node: Node) -> (String, UInt32, UInt32)? {
+  if node is IterationStatement {
+    let its = (node as! IterationStatement)
+    for s in its.block.reversed() {
+      if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
+        && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
+        && (s as! AssignmentStatement).op == .equals
+      {
+        return makeTuple(s)
+      } else if s is IterationStatement || s is SelectionStatement {
+        if let r = searchExtended(name: name, node: s) { return r }
+      }
+    }
+  } else if node is SelectionStatement {
+    let ses = node as! SelectionStatement
+    for block in ses.blocks.reversed() {
+      for s in block.reversed() {
+        if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
+          && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
+          && (s as! AssignmentStatement).op == .equals
+        {
+          return makeTuple(s)
+        } else if s is IterationStatement || s is SelectionStatement {
+          if let r = searchExtended(name: name, node: s) { return r }
+        }
+      }
+    }
+  }
+  return nil
+}
 func makeTuple(_ node: Node) -> (String, UInt32, UInt32) {
   let file = node.file.file
   let line = node.location.startLine
