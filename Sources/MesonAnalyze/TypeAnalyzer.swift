@@ -156,9 +156,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
     self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
-    print(
+    /*print(
       (node.lhs as! IdExpression).id, "is a",
-      joinTypes(types: self.scope.variables[(node.lhs as! IdExpression).id]!))
+      joinTypes(types: self.scope.variables[(node.lhs as! IdExpression).id]!))*/
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)

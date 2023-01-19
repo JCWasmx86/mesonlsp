@@ -9,6 +9,7 @@ let package = Package(
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
     .library(name: "MesonAST", targets: ["MesonAST"]),
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
+    .library(name: "Timing", targets: ["Timing"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
@@ -16,19 +17,23 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.3"),
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
+    .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
   ],
   targets: [
     .target(name: "MesonAnalyze", dependencies: ["SwiftTreeSitter", "MesonAST", "PathKit"]),
+    .target(name: "Timing", dependencies: []),
     .target(name: "MesonAST", dependencies: ["SwiftTreeSitter"]),
     .target(
       name: "LanguageServer",
       dependencies: [
+      	"Timing",
+      	.product(name: "Swifter", package: "swifter"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
       ]),
     .executableTarget(
       name: "Swift-MesonLSP",
       dependencies: [
-        "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer",
+        "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
