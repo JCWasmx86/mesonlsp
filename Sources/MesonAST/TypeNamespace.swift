@@ -16,6 +16,7 @@ public class TypeNamespace {
       "structured_src": StructuredSrc(), "subproject": Subproject(), "tgt": Tgt(),
       "cmake_module": CMakeModule(), "cmake_subproject": CMakeSubproject(),
       "cmake_subprojectoptions": CMakeSubprojectOptions(), "cmake_tgt": CMakeTarget(),
+      "fs_module": FSModule(), "i18n_module": I18nModule(), "gnome_module": GNOMEModule(),
     ]
     self.functions = [
       Function(
