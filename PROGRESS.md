@@ -1,0 +1,43 @@
+## Version 1.0
+- [x] Language Server scaffolding
+- [ ] Hover
+  - [ ] Basic hovering
+    - [x] Functions
+    - [x] Methods
+    - [x] Identifiers
+    - [ ] Kwargs
+  - [ ] Docs on hover
+- [x] Symbol resolving
+- [x] Basic diagnostics
+- [ ] Full type definitions
+  - [x] Functions
+  - [x] Builtin objects
+  - [ ] Modules
+    - [x] CMake
+    - [ ] CUDA
+    - [ ] Dlang
+    - [ ] External Project
+    - [x] Filesystem
+    - [x] GNOME
+    - [ ] Hotdoc
+    - [ ] i18n
+    - [ ] Icestorm
+    - [ ] Java
+    - [ ] Keyval
+    - [ ] Python 3
+    - [ ] Python
+    - [ ] Qt4
+    - [ ] Qt5
+    - [ ] Qt6
+    - [ ] Rust
+    - [ ] Simd
+    - [ ] SourceSet
+    - [ ] Wayland
+    - [ ] Windows
+## Version 2.0
+- [ ] Autocompletion
+- [ ] More diagnostics
+- [ ] Full Wrap/Subproject support
+## Version 3.0
+- [ ] Renaming
+- [ ] Code actions
