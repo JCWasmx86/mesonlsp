@@ -5,14 +5,10 @@ public class OptionTypeAnalyzer: MesonTypeAnalyzer {
   {
     print("Running OptionTypeAnalyzer")
     if let fe = node as? FunctionExpression {
-      print("Is FunctionExpression")
       if (fe.id as! IdExpression).id != "get_option" { return fn.returnTypes }
       if let alo = fe.argumentList {
-        print("Has ArgumentList")
         if let al = alo as? ArgumentList {
-          print("Has ArgumentList II")
           if al.args.count > 0 {
-            print("Has args")
             let arg0 = al.args[0]
             if arg0 is StringLiteral {
               let t = (arg0 as! StringLiteral).contents()
