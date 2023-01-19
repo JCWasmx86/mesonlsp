@@ -2,7 +2,6 @@ import Foundation
 import MesonAST
 
 public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
-  print("findDeclaration -", node.id, node.file.file, node.location.format())
   if let p = node.parent {
     if p is AssignmentStatement && (p as! AssignmentStatement).lhs.equals(right: node)
       && (p as! AssignmentStatement).op == .equals
@@ -16,9 +15,6 @@ public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
 }
 
 public func findDeclaration2(name: String, node: Node, parent: Node) -> (String, UInt32, UInt32)? {
-  print(
-    "findDeclaration2 -", name, node, node.file.file, node.location.format(), parent,
-    parent.file.file, parent.location.format())
   if parent is SelectionStatement {
     let sst = (parent as! SelectionStatement)
     var block_idx = 0
@@ -42,7 +38,6 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = sst.blocks[block_idx][ridx]
-        print("SST: ", s, s.location.format())
         if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
           && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
           && (s as! AssignmentStatement).op == .equals
@@ -66,7 +61,6 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = bd.stmts[ridx]
-        print("BD: ", s, s.location.format())
         if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
           && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
           && (s as! AssignmentStatement).op == .equals
@@ -92,7 +86,6 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = its.block[ridx]
-        print("IS: ", s, s.location.format())
         if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
           && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
           && (s as! AssignmentStatement).op == .equals
@@ -106,7 +99,6 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
     }
   } else if parent is SourceFile {
     if parent.parent != nil && parent.parent is SubdirCall {
-      print("Moving from", parent.file.file, "to", parent.parent!.file.file)
       return findDeclaration2(name: name, node: parent.parent!, parent: parent.parent!.parent!)
     }
   }
