@@ -213,7 +213,7 @@ public struct Compiler: AbstractObject {
           Kwarg(name: "name", opt: true, types: [Str()]),
           Kwarg(name: "no_builtin_args", opt: true, types: [BoolType()]),
         ]), Method(name: "symbols_have_underscore_prefix", parent: self, returnTypes: [BoolType()]),
-      Method(name: "version", parent: self, returnTypes: [BoolType()]),
+      Method(name: "version", parent: self, returnTypes: [Str()]),
     ]
   }
 }
