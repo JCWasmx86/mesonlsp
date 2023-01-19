@@ -14,6 +14,8 @@ public class TypeNamespace {
       "file": File(), "generated_list": GeneratedList(), "inc": Inc(), "jar": Jar(), "lib": Lib(),
       "module": Module(), "range": RangeType(), "runresult": RunResult(), "run_tgt": RunTgt(),
       "structured_src": StructuredSrc(), "subproject": Subproject(), "tgt": Tgt(),
+      "cmake_module": CMakeModule(), "cmake_subproject": CMakeSubproject(),
+      "cmake_subprojectoptions": CMakeSubprojectOptions(), "cmake_tgt": CMakeTarget(),
     ]
     self.functions = [
       Function(
