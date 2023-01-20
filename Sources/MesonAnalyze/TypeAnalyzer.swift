@@ -29,7 +29,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     ).description
     let subtree = self.tree.findSubdirTree(file: newPath)
     if let st = subtree {
-      print("Entering subdir")
       let tmptree = self.tree
       self.tree = st
       self.scope = Scope(parent: self.scope)

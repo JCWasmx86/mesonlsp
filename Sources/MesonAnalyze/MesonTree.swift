@@ -2,6 +2,7 @@ import Foundation
 import MesonAST
 import PathKit
 import SwiftTreeSitter
+import Timing
 import TreeSitterMeson
 
 public class MesonTree {
@@ -26,15 +27,29 @@ public class MesonTree {
       if let text = try? NSString(
         contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue)
       {
+        let beginParsing = clock()
         let tree = p.parse(text.description)
+        let endParsing = clock()
+        Timing.INSTANCE.registerMeasurement(
+          name: "parsing", begin: Int(beginParsing), end: Int(endParsing))
         let root = tree!.rootNode
         self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+        let endBuildingAst = clock()
+        Timing.INSTANCE.registerMeasurement(
+          name: "buildingAST", begin: Int(endParsing), end: Int(endBuildingAst))
       }
     } else {
+      let beginParsing = clock()
       let tree = p.parse(memfiles[self.file]!.description)
+      let endParsing = clock()
+      Timing.INSTANCE.registerMeasurement(
+        name: "parsing", begin: Int(beginParsing), end: Int(endParsing))
       let root = tree!.rootNode
       self.ast = from_tree(
         file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description), tree: root)
+      let endBuildingAst = clock()
+      Timing.INSTANCE.registerMeasurement(
+        name: "buildingAST", begin: Int(endParsing), end: Int(endBuildingAst))
     }
     let astPatcher = ASTPatcher()
     self.ast?.visit(visitor: astPatcher)

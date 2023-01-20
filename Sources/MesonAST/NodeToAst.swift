@@ -35,7 +35,7 @@ public func from_tree(file: MesonSourceFile, tree: SwiftTreeSitter.Node?) -> Nod
       case "dictionary_literal": return DictionaryLiteral(file: file, node: t)
       case "key_value_item": return KeyValueItem(file: file, node: t)
       case "ERROR": return ErrorNode(file: file, node: t, msg: "Failed to parse")
-      default: fatalError(type)
+      default: return ErrorNode(file: file, node: t, msg: "Failed to parse: " + t.nodeType!)
       }
     }
   }

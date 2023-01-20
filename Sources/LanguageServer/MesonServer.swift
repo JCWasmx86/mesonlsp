@@ -176,7 +176,7 @@ public final class MesonServer: LanguageServer {
         file: self.path! + "/meson.build", ns: self.ns, memfiles: self.memfiles)
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "parsingEntireTeee", begin: Int(endClearing), end: Int(endParsingEntireTree))
+        name: "parsingEntireTree", begin: Int(endClearing), end: Int(endParsingEntireTree))
       self.tree!.analyzeTypes()
       let endAnalyzingTypes = clock()
       Timing.INSTANCE.registerMeasurement(

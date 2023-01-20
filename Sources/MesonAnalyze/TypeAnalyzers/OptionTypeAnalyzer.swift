@@ -3,7 +3,6 @@ import MesonAST
 public class OptionTypeAnalyzer: MesonTypeAnalyzer {
   public func derive(node: Node, fn: Function, options: [MesonOption], ns: TypeNamespace) -> [Type]
   {
-    print("Running OptionTypeAnalyzer")
     if let fe = node as? FunctionExpression {
       if (fe.id as! IdExpression).id != "get_option" { return fn.returnTypes }
       if let alo = fe.argumentList {
