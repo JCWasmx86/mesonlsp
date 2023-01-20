@@ -172,25 +172,25 @@ public final class MesonServer: LanguageServer {
       let endClearing = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "clearingDiagnostics", begin: Int(beginRebuilding), end: Int(endClearing))
-      self.tree = try! MesonTree(
+      let tmptree = try! MesonTree(
         file: self.path! + "/meson.build", ns: self.ns, memfiles: self.memfiles)
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "parsingEntireTree", begin: Int(endClearing), end: Int(endParsingEntireTree))
-      self.tree!.analyzeTypes()
+      tmptree.analyzeTypes()
       let endAnalyzingTypes = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "analyzingTypes", begin: Int(endParsingEntireTree), end: Int(endAnalyzingTypes))
-      if self.tree == nil || self.tree!.metadata == nil {
+      if tmptree.metadata == nil {
         let endRebuilding = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endRebuilding))
         return
       }
-      for k in self.tree!.metadata!.diagnostics.keys {
-        if self.tree!.metadata!.diagnostics[k] == nil { continue }
+      for k in tmptree.metadata!.diagnostics.keys {
+        if tmptree.metadata!.diagnostics[k] == nil { continue }
         var arr: [Diagnostic] = []
-        let diags = self.tree!.metadata!.diagnostics[k]!
+        let diags = tmptree.metadata!.diagnostics[k]!
         print("Publishing \(diags.count) diagnostics for \(k)")
         for diag in diags {
           print(">>", diag.message)
@@ -210,6 +210,7 @@ public final class MesonServer: LanguageServer {
         name: "sendingDiagnostics", begin: Int(endAnalyzingTypes), end: Int(endSendingDiagnostics))
       Timing.INSTANCE.registerMeasurement(
         name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endSendingDiagnostics))
+      self.tree = tmptree
     }
   }
 
