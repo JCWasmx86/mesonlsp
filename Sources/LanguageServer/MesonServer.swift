@@ -279,6 +279,7 @@ public final class MesonServer: LanguageServer {
       		<!DOCTYPE html>
       		<html>
       		<head>
+      		<meta http-equiv="refresh" content="5" />
       		<style>
       		table {
       			font-family: arial, sans-serif;
