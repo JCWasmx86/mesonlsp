@@ -314,8 +314,9 @@ public final class MesonServer: LanguageServer {
     var str = ""
     for t in Timing.INSTANCE.timings() {
       str.append(
-        "<tr><td>\(t.name)</td><td>\(t.min())</td><td>\(t.max())</td><td>\(t.median())</td><td>\(t.average())</td><td>\(t.stddev())</td></tr>"
-      )
+        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.min().round(to: 2))</td>"
+          + "<td>\(t.max().round(to: 2))</td>" + "<td>\(t.median().round(to: 2))</td>"
+          + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td></tr>")
     }
     let footer = """
       		</table>
@@ -324,5 +325,12 @@ public final class MesonServer: LanguageServer {
       		</html>
       	"""
     return header + str + footer
+  }
+}
+
+extension Double {
+  func round(to places: Int) -> Double {
+    let divisor = pow(10.0, Double(places))
+    return (self * divisor).rounded() / divisor
   }
 }
