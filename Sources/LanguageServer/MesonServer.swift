@@ -208,9 +208,8 @@ public final class MesonServer: LanguageServer {
       let endSendingDiagnostics = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "sendingDiagnostics", begin: Int(endAnalyzingTypes), end: Int(endSendingDiagnostics))
-      let endRebuilding = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endRebuilding))
+        name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endSendingDiagnostics))
     }
   }
 
