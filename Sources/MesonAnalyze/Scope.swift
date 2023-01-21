@@ -14,13 +14,16 @@ public class Scope {
   }
 
   public func merge(other: Scope) {
-    var begin = clock()
+    let begin = clock()
     var keysToAdd: [String] = []
     for o in other.variables {
       var added = false
       for s in self.variables {
         if s.key == o.key {
+          let begin1 = clock()
           self.variables[s.key] = dedup(types: s.value + o.value)
+          Timing.INSTANCE.registerMeasurement(
+            name: "mergeScope - dedup", begin: Int(begin1), end: Int(clock()))
           added = true
           break
         }

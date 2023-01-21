@@ -311,6 +311,7 @@ public final class MesonServer: LanguageServer {
       				<th>Median</th>
       				<th>Average</th>
       				<th>Standard deviation</th>
+      				<th>Sum</th>
       			</tr>
       	"""
     var str = ""
@@ -318,7 +319,8 @@ public final class MesonServer: LanguageServer {
       str.append(
         "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.min().round(to: 2))</td>"
           + "<td>\(t.max().round(to: 2))</td>" + "<td>\(t.median().round(to: 2))</td>"
-          + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td></tr>")
+          + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td>"
+          + "<td>\(t.sum().round(to: 2))</td></tr>")
     }
     let footer = """
       		</table>

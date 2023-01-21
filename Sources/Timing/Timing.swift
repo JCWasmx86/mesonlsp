@@ -35,6 +35,8 @@ public class TimingInformation {
   public func median() -> Double { return self.values.median() }
 
   public func stddev() -> Double { return self.values.std() }
+
+  public func sum() -> Double { return self.values.sum() }
 }
 
 extension Array where Element == Double {

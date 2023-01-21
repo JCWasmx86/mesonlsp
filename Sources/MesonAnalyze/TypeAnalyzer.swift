@@ -59,9 +59,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
     for id in node.ids { id.visit(visitor: self) }
-    let tmp = self.scope
     let iterTypes = node.expression.types
-    let childScope = Scope(parent: self.scope)
     if node.ids.count == 1 {
       if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
@@ -70,7 +68,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else {
         node.ids[0].types = [`Any`()]
       }
-      childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
+      self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
     } else if node.ids.count == 2 {
       node.ids[0].types = [self.t!.types["str"]!]
@@ -79,15 +77,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else {
         node.ids[1].types = []
       }
-      childScope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
-      childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
+      self.scope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
+      self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
       self.checkIdentifier(node.ids[1] as! IdExpression)
     }
-    self.scope = childScope
     for b in node.block { b.visit(visitor: self) }
-    tmp.merge(other: self.scope)
-    self.scope = tmp
   }
 
   func checkIdentifier(_ node: IdExpression) {
