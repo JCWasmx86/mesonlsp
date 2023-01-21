@@ -21,8 +21,7 @@ import TreeSitterMeson
       let ns = TypeNamespace()
       var t = try MesonTree(file: self.path, ns: ns)
       t.analyzeTypes()
-      while true {
-        _ = readLine()
+      for _ in 0..<15 {
         t = try MesonTree(file: self.path, ns: ns)
         t.analyzeTypes()
       }

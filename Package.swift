@@ -20,9 +20,9 @@ let package = Package(
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
   ],
   targets: [
-    .target(name: "MesonAnalyze", dependencies: ["SwiftTreeSitter", "MesonAST", "PathKit"]),
+    .target(name: "MesonAnalyze", dependencies: ["Timing", "SwiftTreeSitter", "MesonAST", "PathKit"]),
     .target(name: "Timing", dependencies: []),
-    .target(name: "MesonAST", dependencies: ["SwiftTreeSitter"]),
+    .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
     .target(
       name: "LanguageServer",
       dependencies: [

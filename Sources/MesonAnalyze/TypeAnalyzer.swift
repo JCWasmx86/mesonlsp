@@ -58,6 +58,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
+    for id in node.ids { id.visit(visitor: self) }
     let tmp = self.scope
     let iterTypes = node.expression.types
     let childScope = Scope(parent: self.scope)
@@ -73,7 +74,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.checkIdentifier(node.ids[0] as! IdExpression)
     } else if node.ids.count == 2 {
       node.ids[0].types = [self.t!.types["str"]!]
-      node.ids[1].types = iterTypes
+      if let d = iterTypes.filter({ $0 is Dict }).first {
+        node.ids[1].types = (d as! Dict).types
+      } else {
+        node.ids[1].types = []
+      }
       childScope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
       childScope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
@@ -231,6 +236,13 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitIdExpression(node: IdExpression) {
     node.types = dedup(types: scope.variables[node.id] ?? [])
     node.visitChildren(visitor: self)
+    if (node.parent is FunctionExpression
+      && (node.parent as! FunctionExpression).id.equals(right: node))
+      || (node.parent is MethodExpression
+        && (node.parent as! MethodExpression).id.equals(right: node))
+    {
+      return
+    }
     self.metadata.registerIdentifier(id: node)
   }
   public func visitBinaryExpression(node: BinaryExpression) {
@@ -300,7 +312,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     var t: [Type] = []
     for elem in node.values { t += elem.types }
-    node.types = dedup(types: t)
+    node.types = [Dict(types: dedup(types: t))]
   }
   public func visitKeyValueItem(node: KeyValueItem) {
     node.visitChildren(visitor: self)
@@ -317,6 +329,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func dedup(types: [Type]) -> [Type] {
+    if types.count <= 0 { return types }
     var listtypes: [Type] = []
     var dicttypes: [Type] = []
     var hasAny: Bool = false

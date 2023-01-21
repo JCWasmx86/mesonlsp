@@ -1,4 +1,6 @@
+import Glibc
 import MesonAST
+import Timing
 
 public class Scope {
   public var variables: [String: [Type]] = [:]
@@ -12,6 +14,7 @@ public class Scope {
   }
 
   public func merge(other: Scope) {
+    var begin = clock()
     var keysToAdd: [String] = []
     for o in other.variables {
       var added = false
@@ -25,10 +28,12 @@ public class Scope {
       if !added { keysToAdd.append(o.key) }
     }
     for k in keysToAdd { self.variables[k] = other.variables[k] }
+    Timing.INSTANCE.registerMeasurement(name: "mergeScope", begin: Int(begin), end: Int(clock()))
   }
 }
 
 func dedup(types: [Type]) -> [Type] {
+  if types.count <= 0 { return types }
   var listtypes: [Type] = []
   var dicttypes: [Type] = []
   var hasAny: Bool = false

@@ -30,7 +30,7 @@ public final class MesonServer: LanguageServer {
       } catch {}
     }
     super.init(client: client)
-    self.server["/"] = { request in return HttpResponse.ok(.text(self.generateHTML())) }
+    self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
   }
 
   public func prepareForExit() {
