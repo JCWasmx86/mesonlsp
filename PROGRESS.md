@@ -29,7 +29,7 @@
     - [ ] Qt4
     - [ ] Qt5
     - [ ] Qt6
-    - [ ] Rust
+    - [x] Rust
     - [ ] Simd
     - [ ] SourceSet
     - [ ] Wayland
