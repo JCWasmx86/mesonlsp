@@ -55,7 +55,7 @@ public class MesonTree {
     let astPatcher = ASTPatcher()
     self.ast?.visit(visitor: astPatcher)
     Timing.INSTANCE.registerMeasurement(
-        name: "patchingAST", begin: Int(beginPatching), end: Int(clock()))
+      name: "patchingAST", begin: Int(beginPatching), end: Int(clock()))
     var idx = 0
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]

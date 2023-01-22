@@ -16,6 +16,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "fs": return [ns.types["fs_module"]!]
               case "gnome": return [ns.types["gnome_module"]!]
               case "i18n": return [ns.types["i18n_module"]!]
+              case "rust": return [ns.types["rust_module"]!]
               default: return fn.returnTypes
               }
             }

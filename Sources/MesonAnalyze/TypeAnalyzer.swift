@@ -1,7 +1,7 @@
+import Glibc
 import MesonAST
 import PathKit
 import Timing
-import Glibc
 
 // TODO: Type derivation based on the options
 public class TypeAnalyzer: ExtendedCodeVisitor {
@@ -88,14 +88,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   func checkIdentifier(_ node: IdExpression) {
-  	let begin = clock()
+    let begin = clock()
     if !isSnakeCase(str: node.id) {
       // TODO: For assignments, too
       self.metadata.registerDiagnostic(
         node: node, diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
       )
     }
-		Timing.INSTANCE.registerMeasurement(name: "checkIdentifier", begin: Int(begin), end: Int(clock()))
+    Timing.INSTANCE.registerMeasurement(
+      name: "checkIdentifier", begin: Int(begin), end: Int(clock()))
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
