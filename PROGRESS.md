@@ -24,7 +24,7 @@
     - [ ] Icestorm
     - [ ] Java
     - [ ] Keyval
-    - [ ] Python 3
+    - [x] Python 3
     - [x] Python
     - [ ] Qt4
     - [ ] Qt5

@@ -18,7 +18,7 @@ public class TypeNamespace {
       "cmake_subprojectoptions": CMakeSubprojectOptions(), "cmake_tgt": CMakeTarget(),
       "fs_module": FSModule(), "i18n_module": I18nModule(), "gnome_module": GNOMEModule(),
       "rust_module": RustModule(), "python_module": PythonModule(),
-      "python_installatioN": PythonInstallation(),
+      "python_installation": PythonInstallation(), "python3_module": Python3Module(),
     ]
     self.functions = [
       Function(
