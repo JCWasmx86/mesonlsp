@@ -17,8 +17,10 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "gnome": return [ns.types["gnome_module"]!]
               case "i18n": return [ns.types["i18n_module"]!]
               case "rust": return [ns.types["rust_module"]!]
+              case "unstable-rust": return [ns.types["rust_module"]!]
               case "python": return [ns.types["python_module"]!]
               case "python3": return [ns.types["python3_module"]!]
+              case "pkgconfig": return [ns.types["pkgconfig_module"]!]
               default: return fn.returnTypes
               }
             }
