@@ -25,7 +25,7 @@
     - [ ] Java
     - [ ] Keyval
     - [ ] Python 3
-    - [ ] Python
+    - [x] Python
     - [ ] Qt4
     - [ ] Qt5
     - [ ] Qt6
