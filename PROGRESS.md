@@ -6,38 +6,40 @@
     - [x] Methods
     - [x] Identifiers
     - [ ] Kwargs
-  - [ ] Docs on hover
+  - [ ] Limited docs on hover
 - [x] Symbol resolving
 - [x] Basic diagnostics
-- [ ] Full type definitions
+- [ ] Type definitions for the most used modules/builtins
   - [x] Functions
   - [x] Builtin objects
   - [ ] Modules
     - [x] CMake
-    - [ ] CUDA
     - [ ] Dlang
     - [ ] External Project
     - [x] Filesystem
     - [x] GNOME
     - [ ] Hotdoc
     - [x] i18n
-    - [ ] Icestorm
     - [ ] Java
     - [x] Keyval
     - [x] Python 3
     - [x] Python
-    - [ ] Qt4
-    - [ ] Qt5
-    - [ ] Qt6
     - [x] Rust
-    - [ ] Simd
-    - [ ] SourceSet
-    - [ ] Wayland
     - [ ] Windows
 ## Version 2.0
 - [ ] Autocompletion
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
+- [ ] Full type definitions
+    - [ ] Modules:
+      - [ ] CUDA
+      - [ ] Icestorm
+      - [ ] Qt4
+      - [ ] Qt5
+      - [ ] Qt6
+      - [ ] Simd
+      - [ ] SourceSet
+      - [ ] Wayland
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
