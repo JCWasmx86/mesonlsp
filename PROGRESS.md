@@ -20,7 +20,7 @@
     - [x] Filesystem
     - [x] GNOME
     - [ ] Hotdoc
-    - [ ] i18n
+    - [x] i18n
     - [ ] Icestorm
     - [ ] Java
     - [ ] Keyval
