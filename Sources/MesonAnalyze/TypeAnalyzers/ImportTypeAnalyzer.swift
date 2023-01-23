@@ -24,6 +24,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "keyval": return [ns.types["keyval_module"]!]
               case "dlang": return [ns.types["dlang_module"]!]
               case "unstable-external_project": return [ns.types["external_project_module"]!]
+              case "hotdoc": return [ns.types["hotdoc_module"]!]
               default: return fn.returnTypes
               }
             }

@@ -21,7 +21,8 @@ public class TypeNamespace {
       "python_installation": PythonInstallation(), "python3_module": Python3Module(),
       "pkgconfig_module": PkgconfigModule(), "keyval_module": KeyvalModule(),
       "dlang_module": DlangModule(), "external_project_module": ExternalProjectModule(),
-      "external_project": ExternalProject(),
+      "external_project": ExternalProject(), "hotdoc_module": HotdocModule(),
+      "hotdoc_target": HotdocTarget(),
     ]
     self.functions = [
       Function(

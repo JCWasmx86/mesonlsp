@@ -18,7 +18,7 @@
     - [x] External Project
     - [x] Filesystem
     - [x] GNOME
-    - [ ] Hotdoc
+    - [x] Hotdoc
     - [x] i18n
     - [ ] Java
     - [x] Keyval
