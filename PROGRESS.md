@@ -23,7 +23,7 @@
     - [x] i18n
     - [ ] Icestorm
     - [ ] Java
-    - [ ] Keyval
+    - [x] Keyval
     - [x] Python 3
     - [x] Python
     - [ ] Qt4

@@ -19,7 +19,7 @@ public class TypeNamespace {
       "fs_module": FSModule(), "i18n_module": I18nModule(), "gnome_module": GNOMEModule(),
       "rust_module": RustModule(), "python_module": PythonModule(),
       "python_installation": PythonInstallation(), "python3_module": Python3Module(),
-      "pkgconfig_module": PkgconfigModule(),
+      "pkgconfig_module": PkgconfigModule(), "keyval_module": KeyvalModule(),
     ]
     self.functions = [
       Function(
