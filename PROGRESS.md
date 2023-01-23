@@ -15,7 +15,7 @@
   - [ ] Modules
     - [x] CMake
     - [x] Dlang
-    - [ ] External Project
+    - [x] External Project
     - [x] Filesystem
     - [x] GNOME
     - [ ] Hotdoc

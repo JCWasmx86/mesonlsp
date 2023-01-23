@@ -20,7 +20,8 @@ public class TypeNamespace {
       "rust_module": RustModule(), "python_module": PythonModule(),
       "python_installation": PythonInstallation(), "python3_module": Python3Module(),
       "pkgconfig_module": PkgconfigModule(), "keyval_module": KeyvalModule(),
-      "dlang_module": DlangModule(),
+      "dlang_module": DlangModule(), "external_project_module": ExternalProjectModule(),
+      "external_project": ExternalProject(),
     ]
     self.functions = [
       Function(

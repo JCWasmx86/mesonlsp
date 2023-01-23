@@ -23,6 +23,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "pkgconfig": return [ns.types["pkgconfig_module"]!]
               case "keyval": return [ns.types["keyval_module"]!]
               case "dlang": return [ns.types["dlang_module"]!]
+              case "unstable-external_project": return [ns.types["external_project_module"]!]
               default: return fn.returnTypes
               }
             }
