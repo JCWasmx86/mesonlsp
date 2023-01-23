@@ -22,6 +22,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "python3": return [ns.types["python3_module"]!]
               case "pkgconfig": return [ns.types["pkgconfig_module"]!]
               case "keyval": return [ns.types["keyval_module"]!]
+              case "dlang": return [ns.types["dlang_module"]!]
               default: return fn.returnTypes
               }
             }

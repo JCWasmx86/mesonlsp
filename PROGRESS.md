@@ -14,7 +14,7 @@
   - [x] Builtin objects
   - [ ] Modules
     - [x] CMake
-    - [ ] Dlang
+    - [x] Dlang
     - [ ] External Project
     - [x] Filesystem
     - [x] GNOME
