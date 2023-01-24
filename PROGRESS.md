@@ -9,10 +9,10 @@
   - [ ] Limited docs on hover
 - [x] Symbol resolving
 - [x] Basic diagnostics
-- [ ] Type definitions for the most used modules/builtins
+- [x] Type definitions for the most used modules/builtins
   - [x] Functions
   - [x] Builtin objects
-  - [ ] Modules
+  - [x] Modules
     - [x] CMake
     - [x] Dlang
     - [x] External Project
