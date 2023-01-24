@@ -20,14 +20,14 @@ let package = Package(
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
   ],
   targets: [
-    .target(name: "MesonAnalyze", dependencies: ["Timing", "SwiftTreeSitter", "MesonAST", "PathKit"]),
+    .target(
+      name: "MesonAnalyze", dependencies: ["Timing", "SwiftTreeSitter", "MesonAST", "PathKit"]),
     .target(name: "Timing", dependencies: []),
     .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
     .target(
       name: "LanguageServer",
       dependencies: [
-      	"Timing",
-      	.product(name: "Swifter", package: "swifter"),
+        "Timing", .product(name: "Swifter", package: "swifter"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
       ]),
     .executableTarget(
@@ -37,9 +37,5 @@ let package = Package(
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
-      ]),
-    .testTarget(
-      name: "Swift-MesonLSPTests",
-      dependencies: ["Swift-MesonLSP"]),
-  ]
-)
+      ]), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
+  ])
