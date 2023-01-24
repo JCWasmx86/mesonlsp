@@ -242,6 +242,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         && (node.parent as! MethodExpression).id.equals(right: node))
     {
       return
+    } else if node.parent is KeywordItem && (node.parent as! KeywordItem).key.equals(right: node) {
+      return
     }
     self.metadata.registerIdentifier(id: node)
   }
