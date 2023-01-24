@@ -25,7 +25,7 @@
     - [x] Python 3
     - [x] Python
     - [x] Rust
-    - [ ] Windows
+    - [x] Windows
 ## Version 2.0
 - [ ] Autocompletion
 - [ ] More diagnostics

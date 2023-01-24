@@ -23,6 +23,7 @@ public class TypeNamespace {
       "dlang_module": DlangModule(), "external_project_module": ExternalProjectModule(),
       "external_project": ExternalProject(), "hotdoc_module": HotdocModule(),
       "hotdoc_target": HotdocTarget(), "java_module": JavaModule(),
+      "windows_module": WindowsModule(),
     ]
     self.functions = [
       Function(
