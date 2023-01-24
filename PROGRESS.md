@@ -20,7 +20,7 @@
     - [x] GNOME
     - [x] Hotdoc
     - [x] i18n
-    - [ ] Java
+    - [x] Java
     - [x] Keyval
     - [x] Python 3
     - [x] Python

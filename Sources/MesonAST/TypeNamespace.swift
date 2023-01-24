@@ -22,7 +22,7 @@ public class TypeNamespace {
       "pkgconfig_module": PkgconfigModule(), "keyval_module": KeyvalModule(),
       "dlang_module": DlangModule(), "external_project_module": ExternalProjectModule(),
       "external_project": ExternalProject(), "hotdoc_module": HotdocModule(),
-      "hotdoc_target": HotdocTarget(),
+      "hotdoc_target": HotdocTarget(), "java_module": JavaModule(),
     ]
     self.functions = [
       Function(
