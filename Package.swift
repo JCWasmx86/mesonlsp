@@ -10,6 +10,7 @@ let package = Package(
     .library(name: "MesonAST", targets: ["MesonAST"]),
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
     .library(name: "Timing", targets: ["Timing"]),
+    .library(name: "MesonDocs", targets: ["MesonDocs"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
@@ -22,7 +23,7 @@ let package = Package(
   targets: [
     .target(
       name: "MesonAnalyze", dependencies: ["Timing", "SwiftTreeSitter", "MesonAST", "PathKit"]),
-    .target(name: "Timing", dependencies: []),
+    .target(name: "Timing", dependencies: []), .target(name: "MesonDocs", dependencies: []),
     .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
     .target(
       name: "LanguageServer",
