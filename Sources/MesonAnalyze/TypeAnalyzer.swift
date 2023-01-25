@@ -270,6 +270,14 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)
     var newTypes: [Type] = []
+    if node.op == nil {
+      // Emergency fix
+      node.types = dedup(types: node.lhs.types + node.rhs.types)
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator"))
+      return
+    }
     for l in node.lhs.types {
       for r in node.rhs.types {
         switch node.op! {
