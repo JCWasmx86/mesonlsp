@@ -26,9 +26,9 @@
     - [x] Keyval
     - [x] Python 3
     - [x] Python
-    - [ ] Qt4
-    - [ ] Qt5
-    - [ ] Qt6
+    - [x] Qt4
+    - [x] Qt5
+    - [x] Qt6
     - [ ] Simd
     - [ ] SourceSet
     - [x] Rust
