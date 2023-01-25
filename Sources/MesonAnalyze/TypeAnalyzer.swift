@@ -245,7 +245,27 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     } else if node.parent is KeywordItem && (node.parent as! KeywordItem).key.equals(right: node) {
       return
     }
+    if !isKnownId(id: node) {
+      self.metadata.registerDiagnostic(
+        node: node, diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier"))
+    }
     self.metadata.registerIdentifier(id: node)
+  }
+
+  func isKnownId(id: IdExpression) -> Bool {
+    if let a = id.parent as? AssignmentStatement, let b = a.lhs as? IdExpression {
+      if b.id == id.id && a.op == .equals { return true }
+    } else if let i = id.parent as? IterationStatement {
+      for idd in i.ids { if let l = idd as? IdExpression, id.id == l.id { return true } }
+    } else if let kw = id.parent as? KeywordItem, let b = kw.key as? IdExpression {
+      if id.id == b.id { return true }
+    } else if let fe = id.parent as? FunctionExpression, let b = fe.id as? IdExpression {
+      if id.id == b.id { return true }
+    } else if let me = id.parent as? MethodExpression, let b = me.id as? IdExpression {
+      if id.id == b.id { return true }
+    }
+
+    return self.scope.variables[id.id] != nil
   }
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)

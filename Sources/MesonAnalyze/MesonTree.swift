@@ -93,9 +93,9 @@ public class MesonTree {
     var options: [MesonOption] = []
     if let o = self.options { options = Array(o.opts.values) }
     let t = TypeAnalyzer(parent: root, tree: self, options: options)
+    self.ast!.setParents()
     self.ast!.visit(visitor: t)
     self.metadata = t.metadata
-    self.ast!.setParents()
     for s in self.subfiles { assert(s.ast!.parent is SubdirCall) }
   }
 
