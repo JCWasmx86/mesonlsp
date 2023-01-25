@@ -28,7 +28,7 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "Timing", .product(name: "Swifter", package: "swifter"),
+        "Timing", .product(name: "Swifter", package: "swifter"), "MesonDocs",
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
       ]),
     .executableTarget(

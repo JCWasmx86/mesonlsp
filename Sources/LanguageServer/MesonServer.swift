@@ -2,6 +2,7 @@ import Foundation
 import LanguageServerProtocol
 import MesonAST
 import MesonAnalyze
+import MesonDocs
 import PathKit
 import Swifter
 import Timing
@@ -16,6 +17,7 @@ public final class MesonServer: LanguageServer {
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
   var server: HttpServer
+  var docs: MesonDocs = MesonDocs()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -57,6 +59,7 @@ public final class MesonServer: LanguageServer {
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
     var content: String?
+    var requery = true
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
       if m.method != nil { content = m.method!.parent.toString() + "." + m.method!.name }
     }
@@ -68,13 +71,18 @@ public final class MesonServer: LanguageServer {
     if content == nil,
       let f = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index)
     {
-      if !f.types.isEmpty { content = f.types.map({ $0.toString() }).joined(separator: "|") }
+      if !f.types.isEmpty {
+        content = f.types.map({ $0.toString() }).joined(separator: "|")
+
+        requery = false
+      }
     }
+    if content != nil && requery { content = self.docs.find_docs(id: content!) }
     req.reply(
       HoverResponse(
         contents: content == nil
           ? .markedStrings([])
-          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "FOO")), range: nil))
+          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "")), range: nil))
     let endHover = clock()
     Timing.INSTANCE.registerMeasurement(name: "hover", begin: Int(beginHover), end: Int(endHover))
   }
