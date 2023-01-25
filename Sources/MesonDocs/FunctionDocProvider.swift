@@ -3,7 +3,7 @@ class FunctionDocProvider: DocProvider {
     dict["add_global_arguments"] = "Add global arguments to the compiler command line."
     dict["add_global_link_arguments"] = "Add global arguments to the linker command line."
     dict["add_languages"] = "Add programming languages used by the project."
-    dict["add_project_argument"] = "Add project specific arguments to the compiler command line."
+    dict["add_project_arguments"] = "Add project specific arguments to the compiler command line."
     dict["add_project_dependencies"] =
       "Adds arguments to the compiler and linker command line, so that the given set of dependencies is included in all build products for this project."
     dict["add_project_link_arguments"] = "Adds global arguments to the linker command line."
