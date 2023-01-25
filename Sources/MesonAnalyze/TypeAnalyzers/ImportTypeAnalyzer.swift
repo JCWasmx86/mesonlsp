@@ -29,6 +29,8 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "windows": return [ns.types["windows_module"]!]
               case "cuda": return [ns.types["cuda_module"]!]
               case "unstable-cuda": return [ns.types["cuda_module"]!]
+              case "icestorm": return [ns.types["icestorm_module"]!]
+              case "unstable-icestorm": return [ns.types["icestorm_module"]!]
               default: return fn.returnTypes
               }
             }

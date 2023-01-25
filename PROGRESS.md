@@ -21,7 +21,7 @@
     - [x] GNOME
     - [x] Hotdoc
     - [x] i18n
-    - [ ] Icestorm
+    - [x] Icestorm
     - [x] Java
     - [x] Keyval
     - [x] Python 3

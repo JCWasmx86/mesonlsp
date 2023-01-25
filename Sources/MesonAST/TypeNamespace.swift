@@ -24,6 +24,7 @@ public class TypeNamespace {
       "external_project": ExternalProject(), "hotdoc_module": HotdocModule(),
       "hotdoc_target": HotdocTarget(), "java_module": JavaModule(),
       "windows_module": WindowsModule(), "cuda_module": CudaModule(),
+      "icestorm_module": IcestormModule(),
     ]
     self.functions = [
       Function(
