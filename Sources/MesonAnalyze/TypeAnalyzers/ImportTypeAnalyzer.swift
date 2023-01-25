@@ -27,6 +27,8 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "hotdoc": return [ns.types["hotdoc_module"]!]
               case "java": return [ns.types["java_module"]!]
               case "windows": return [ns.types["windows_module"]!]
+              case "cuda": return [ns.types["cuda_module"]!]
+              case "unstable-cuda": return [ns.types["cuda_module"]!]
               default: return fn.returnTypes
               }
             }

@@ -14,7 +14,7 @@
   - [x] Builtin objects
   - [ ] Modules
     - [x] CMake
-    - [ ] CUDA
+    - [x] CUDA
     - [x] Dlang
     - [x] External Project
     - [x] Filesystem
