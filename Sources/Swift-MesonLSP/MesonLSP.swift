@@ -14,15 +14,24 @@ import TreeSitterMeson
 
   }
   @Option var path: String = "./meson.build"
+  @ArgumentParser.Argument var paths: [String]
   @Flag var lsp: Bool = false
 
   public mutating func run() throws {
-    if !lsp {
+    if !lsp && paths.isEmpty {
       let ns = TypeNamespace()
       var t = try MesonTree(file: self.path, ns: ns)
       t.analyzeTypes()
       for _ in 0..<100 {
         t = try MesonTree(file: self.path, ns: ns)
+        t.analyzeTypes()
+      }
+      return
+    } else if !lsp && !paths.isEmpty {
+      let ns = TypeNamespace()
+      print("Parsing", paths.count, "projects")
+      for p in self.paths {
+        let t = try MesonTree(file: p, ns: ns)
         t.analyzeTypes()
       }
       return
