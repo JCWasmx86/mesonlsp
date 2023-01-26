@@ -14,7 +14,7 @@ import TreeSitterMeson
 
   }
   @Option var path: String = "./meson.build"
-  @ArgumentParser.Argument var paths: [String]
+  @ArgumentParser.Argument var paths: [String] = []
   @Flag var lsp: Bool = false
 
   public mutating func run() throws {
