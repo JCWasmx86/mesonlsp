@@ -9,10 +9,10 @@
   - [ ] Limited docs on hover
 - [x] Symbol resolving
 - [x] Basic diagnostics
-- [ ] Type definitions for the most used modules/builtins
+- [x] Type definitions for all modules/builtins
   - [x] Functions
   - [x] Builtin objects
-  - [ ] Modules
+  - [x] Modules
     - [x] CMake
     - [x] CUDA
     - [x] Dlang
@@ -30,7 +30,7 @@
     - [x] Qt5
     - [x] Qt6
     - [x] Simd
-    - [ ] SourceSet
+    - [x] SourceSet
     - [x] Rust
     - [x] Wayland
     - [x] Windows
