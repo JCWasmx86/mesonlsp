@@ -32,7 +32,7 @@
     - [ ] Simd
     - [ ] SourceSet
     - [x] Rust
-    - [ ] Wayland
+    - [x] Wayland
     - [x] Windows
 ## Version 2.0
 - [ ] Autocompletion
