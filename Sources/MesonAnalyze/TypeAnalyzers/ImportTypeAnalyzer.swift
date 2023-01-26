@@ -35,6 +35,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
               case "qt5": return [ns.types["qt5_module"]!]
               case "qt6": return [ns.types["qt6_module"]!]
               case "unstable-wayland": return [ns.types["wayland_module"]!]
+              case "unstable-simd": return [ns.types["simd_module"]!]
               default: return fn.returnTypes
               }
             }

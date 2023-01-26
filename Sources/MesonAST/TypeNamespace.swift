@@ -25,7 +25,7 @@ public class TypeNamespace {
       "hotdoc_target": HotdocTarget(), "java_module": JavaModule(),
       "windows_module": WindowsModule(), "cuda_module": CudaModule(),
       "icestorm_module": IcestormModule(), "qt4_module": Qt4Module(), "qt5_module": Qt5Module(),
-      "qt6_module": Qt6Module(), "wayland_module": WaylandModule(),
+      "qt6_module": Qt6Module(), "wayland_module": WaylandModule(), "simd_module": SIMDModule(),
     ]
     self.functions = [
       Function(
