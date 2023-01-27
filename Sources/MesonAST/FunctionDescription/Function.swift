@@ -9,4 +9,12 @@ public class Function {
     self.returnTypes = returnTypes
   }
   public func id() -> String { return self.name }
+
+  public func minPosArgs() -> Int {
+    var x = 0
+    for arg in args {
+      if let pa = arg as? PositionalArgument { if pa.opt { return x } else { x += 1 } }
+    }
+    return x
+  }
 }

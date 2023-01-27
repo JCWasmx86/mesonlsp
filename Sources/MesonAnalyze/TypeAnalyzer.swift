@@ -173,7 +173,18 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
-      if let args = node.argumentList, args is ArgumentList { self.checkCall(node: node) }
+      if let args = node.argumentList, args is ArgumentList {
+        self.checkCall(node: node)
+      } else if node.argumentList == nil {
+        if node.function!.minPosArgs() != 0 {
+          self.metadata.registerDiagnostic(
+            node: node,
+            diag: MesonDiagnostic(
+              sev: .error, node: node,
+              message: "Expected " + String(node.function!.minPosArgs())
+                + " positional arguments, but got none!"))
+        }
+      }
       if node.argumentList != nil, node.argumentList is ArgumentList {
         for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: fn)
@@ -238,7 +249,18 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(
           sev: .error, node: node, message: "No method \(methodName) found for types `\(types)'"))
     } else {
-      if let args = node.argumentList, args is ArgumentList { self.checkCall(node: node) }
+      if let args = node.argumentList, args is ArgumentList {
+        self.checkCall(node: node)
+      } else if node.argumentList == nil {
+        if node.method!.minPosArgs() != 0 {
+          self.metadata.registerDiagnostic(
+            node: node,
+            diag: MesonDiagnostic(
+              sev: .error, node: node,
+              message: "Expected " + String(node.method!.minPosArgs())
+                + " positional arguments, but got none!"))
+        }
+      }
       if node.argumentList != nil, node.argumentList is ArgumentList {
         for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: node.method!)
@@ -250,9 +272,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   func checkCall(node: Expression) {
     let begin = clock()
     let args: [Node]
+    let fn: Function
     if node is FunctionExpression {
+      fn = (node as! FunctionExpression).function!
       args = ((node as! FunctionExpression).argumentList! as! ArgumentList).args
     } else {
+      fn = (node as! MethodExpression).method!
       args = ((node as! MethodExpression).argumentList! as! ArgumentList).args
     }
     var kwargsOnly = false
@@ -268,6 +293,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else if arg is KeywordItem {
         kwargsOnly = true
       }
+    }
+    var nKwargs = 0
+    var nPos = 0
+    for arg in args { if arg is Kwarg { nKwargs += 1 } else { nPos += 1 } }
+    if nPos < fn.minPosArgs() {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error, node: node,
+          message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
+            + String(nPos) + "!"))
     }
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
