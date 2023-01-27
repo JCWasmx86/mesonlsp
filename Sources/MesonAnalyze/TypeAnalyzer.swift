@@ -305,6 +305,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
             + String(nPos) + "!"))
     }
+    for arg in args where arg is KeywordItem {
+      let k = (arg as! KeywordItem).key
+      if let kId = k as? IdExpression {
+        if !fn.hasKwarg(name: kId.id) {
+          self.metadata.registerDiagnostic(
+            node: node,
+            diag: MesonDiagnostic(
+              sev: .error, node: node, message: "Unknown key word argument '" + kId.id + "'!"))
+        }
+      }
+    }
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
   public func visitIdExpression(node: IdExpression) {
