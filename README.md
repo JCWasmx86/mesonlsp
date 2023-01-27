@@ -16,7 +16,7 @@ I have chosen the latter because I wanted to learn Swift.
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
-swift build -c release
+swift build -c release --static-swift-stdlib
 sudo cp .build/release/Swift-MesonLSP /usr/local/bin
 ```
 #### GNOME Builder plugin (Requires GNOME Builder Nightly)
