@@ -1,7 +1,637 @@
 class BuiltinKwargDocProvider: DocProvider {
-  // TODO: both_libraries, build_target, executable, jar, library
-  // shared_library, shared_module, static_library
   func addToDict(dict: inout [String: String]) {
+    dict["both_libraries<c_args>"] = "Compiler flags for C"
+    dict["both_libraries<cpp_args>"] = "Compiler flags for C++"
+    dict["both_libraries<cs_args>"] = "Compiler flags for C#"
+    dict["both_libraries<d_args>"] = "Compiler flags for D"
+    dict["both_libraries<fortran_args>"] = "Compiler flags for Fortran"
+    dict["both_libraries<java_args>"] = "Compiler flags for Java"
+    dict["both_libraries<objc_args>"] = "Compiler flags for Objective-C"
+    dict["both_libraries<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["both_libraries<rust_args>"] = "Compiler flags for Rust"
+    dict["both_libraries<vala_args>"] = "Compiler flags for Vala"
+    dict["both_libraries<cython_args>"] = "Compiler flags for Cython"
+    dict["both_libraries<nasm_args>"] = "Compiler flags for NASM"
+    dict["both_libraries<masm_args>"] = "Compiler flags for MASM"
+    dict["both_libraries<c_pch>"] = "Precompiled header file to use for C"
+    dict["both_libraries<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["both_libraries<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["both_libraries<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["both_libraries<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["both_libraries<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["both_libraries<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["both_libraries<d_unittest>"] =
+      "When set to true, the D modules are compiled in debug mode."
+    dict["both_libraries<darwin_versions>"] =
+      "Defines the compatibility version and current version for the dylib on macOS. If a list is specified, it must be either zero, one, or two elements. If only one element is specified or if it's not a list, the specified value will be used for setting both compatibility version and current version. If unspecified, the soversion will be used as per the aforementioned rules."
+    dict["both_libraries<dependencies>"] = "One or more dependency objects"
+    dict["both_libraries<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["both_libraries<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["both_libraries<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["both_libraries<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["both_libraries<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["both_libraries<install>"] = "When set to true, this executable should be installed."
+    dict["both_libraries<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["both_libraries<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["both_libraries<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["both_libraries<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["both_libraries<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["both_libraries<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["both_libraries<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["both_libraries<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["both_libraries<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["both_libraries<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["both_libraries<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["both_libraries<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["both_libraries<objects>"] = "List of object files that should be linked in this target."
+    dict["both_libraries<pic>"] =
+      "Builds the library as positional independent code (so it can be linked into a shared library). This option has no effect on Windows and OS X since it doesn't make sense on Windows and PIC cannot be disabled on OS X."
+    dict["both_libraries<prelink>"] =
+      "If true the object files in the target will be prelinked, meaning that it will contain only one prelinked object file rather than the individual object files."
+    dict["both_libraries<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["both_libraries<sources>"] = "Additional source files. Same as the source varargs."
+    dict["both_libraries<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["both_libraries<version>"] =
+      "A string specifying the version of this shared library, such as 1.1.0. On Linux and OS X, this is used to set the shared library version in the filename, such as libfoo.so.1.1.0 and libfoo.1.1.0.dylib. If this is not specified, soversion is used instead."
+    dict["both_libraries<vs_module_defs>"] =
+      "Specify a Microsoft module definition file for controlling symbol exports, etc., on platforms where that is possible (e.g. Windows)."
+    dict["both_libraries<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["build_target<c_args>"] = "Compiler flags for C"
+    dict["build_target<cpp_args>"] = "Compiler flags for C++"
+    dict["build_target<cs_args>"] = "Compiler flags for C#"
+    dict["build_target<d_args>"] = "Compiler flags for D"
+    dict["build_target<fortran_args>"] = "Compiler flags for Fortran"
+    dict["build_target<java_args>"] = "Compiler flags for Java"
+    dict["build_target<objc_args>"] = "Compiler flags for Objective-C"
+    dict["build_target<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["build_target<rust_args>"] = "Compiler flags for Rust"
+    dict["build_target<vala_args>"] = "Compiler flags for Vala"
+    dict["build_target<cython_args>"] = "Compiler flags for Cython"
+    dict["build_target<nasm_args>"] = "Compiler flags for NASM"
+    dict["build_target<masm_args>"] = "Compiler flags for MASM"
+    dict["build_target<c_pch>"] = "Precompiled header file to use for C"
+    dict["build_target<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["build_target<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["build_target<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["build_target<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["build_target<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["build_target<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["build_target<d_unittest>"] = "When set to true, the D modules are compiled in debug mode."
+    dict["build_target<darwin_versions>"] =
+      "Defines the compatibility version and current version for the dylib on macOS. If a list is specified, it must be either zero, one, or two elements. If only one element is specified or if it's not a list, the specified value will be used for setting both compatibility version and current version. If unspecified, the soversion will be used as per the aforementioned rules."
+    dict["build_target<dependencies>"] = "One or more dependency objects"
+    dict["build_target<export_dynamic>"] =
+      "when set to true causes the target's symbols to be dynamically exported, allowing modules built using the `shared_module()` function to refer to functions, variables and other symbols defined in the executable itself. Implies the implib argument."
+    dict["build_target<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["build_target<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["build_target<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["build_target<implib>"] =
+      "When set to true, an import library is generated for the executable (the name of the import library is based on exe_name). Alternatively, when set to a string, that gives the base name for the import library. The import library is used when the returned build target object appears in link_with: elsewhere. Only has any effect on platforms where that is meaningful (e.g. Windows). Implies the export_dynamic argument."
+    dict["build_target<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["build_target<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["build_target<install>"] = "When set to true, this executable should be installed."
+    dict["build_target<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["build_target<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["build_target<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["build_target<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["build_target<java_resources>"] = "Resources to be added to the jar"
+    dict["build_target<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["build_target<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["build_target<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["build_target<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["build_target<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["build_target<main_class>"] = "Main class for running the built jar"
+    dict["build_target<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["build_target<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["build_target<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["build_target<objects>"] = "List of object files that should be linked in this target."
+    dict["build_target<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["build_target<pic>"] =
+      "Builds the library as positional independent code (so it can be linked into a shared library). This option has no effect on Windows and OS X since it doesn't make sense on Windows and PIC cannot be disabled on OS X."
+    dict["build_target<pie>"] = "Build a position-independent executable."
+    dict["build_target<prelink>"] =
+      "If true the object files in the target will be prelinked, meaning that it will contain only one prelinked object file rather than the individual object files."
+    dict["build_target<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["build_target<sources>"] = "Additional source files. Same as the source varargs."
+    dict["build_target<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["build_target<target_type>"] = "The actual target to build"
+    dict["build_target<version>"] =
+      "A string specifying the version of this shared library, such as 1.1.0. On Linux and OS X, this is used to set the shared library version in the filename, such as libfoo.so.1.1.0 and libfoo.1.1.0.dylib. If this is not specified, soversion is used instead."
+    dict["build_target<vs_module_defs>"] =
+      "Specify a Microsoft module definition file for controlling symbol exports, etc., on platforms where that is possible (e.g. Windows)."
+    dict["build_target<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["executable<c_args>"] = "Compiler flags for C"
+    dict["executable<cpp_args>"] = "Compiler flags for C++"
+    dict["executable<cs_args>"] = "Compiler flags for C#"
+    dict["executable<d_args>"] = "Compiler flags for D"
+    dict["executable<fortran_args>"] = "Compiler flags for Fortran"
+    dict["executable<java_args>"] = "Compiler flags for Java"
+    dict["executable<objc_args>"] = "Compiler flags for Objective-C"
+    dict["executable<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["executable<rust_args>"] = "Compiler flags for Rust"
+    dict["executable<vala_args>"] = "Compiler flags for Vala"
+    dict["executable<cython_args>"] = "Compiler flags for Cython"
+    dict["executable<nasm_args>"] = "Compiler flags for NASM"
+    dict["executable<masm_args>"] = "Compiler flags for MASM"
+    dict["executable<c_pch>"] = "Precompiled header file to use for C"
+    dict["executable<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["executable<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["executable<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["executable<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["executable<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["executable<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["executable<d_unittest>"] = "When set to true, the D modules are compiled in debug mode."
+    dict["executable<dependencies>"] = "One or more dependency objects"
+    dict["executable<export_dynamic>"] =
+      "when set to true causes the target's symbols to be dynamically exported, allowing modules built using the `shared_module()` function to refer to functions, variables and other symbols defined in the executable itself. Implies the implib argument."
+    dict["executable<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["executable<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["executable<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["executable<implib>"] =
+      "When set to true, an import library is generated for the executable (the name of the import library is based on exe_name). Alternatively, when set to a string, that gives the base name for the import library. The import library is used when the returned build target object appears in link_with: elsewhere. Only has any effect on platforms where that is meaningful (e.g. Windows). Implies the export_dynamic argument."
+    dict["executable<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["executable<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["executable<install>"] = "When set to true, this executable should be installed."
+    dict["executable<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["executable<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["executable<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["executable<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["executable<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["executable<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["executable<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["executable<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["executable<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["executable<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["executable<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["executable<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["executable<objects>"] = "List of object files that should be linked in this target."
+    dict["executable<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["executable<pie>"] = "Build a position-independent executable."
+    dict["executable<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["executable<sources>"] = "Additional source files. Same as the source varargs."
+    dict["executable<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["jar<c_args>"] = "Compiler flags for C"
+    dict["jar<cpp_args>"] = "Compiler flags for C++"
+    dict["jar<cs_args>"] = "Compiler flags for C#"
+    dict["jar<d_args>"] = "Compiler flags for D"
+    dict["jar<fortran_args>"] = "Compiler flags for Fortran"
+    dict["jar<java_args>"] = "Compiler flags for Java"
+    dict["jar<objc_args>"] = "Compiler flags for Objective-C"
+    dict["jar<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["jar<rust_args>"] = "Compiler flags for Rust"
+    dict["jar<vala_args>"] = "Compiler flags for Vala"
+    dict["jar<cython_args>"] = "Compiler flags for Cython"
+    dict["jar<nasm_args>"] = "Compiler flags for NASM"
+    dict["jar<masm_args>"] = "Compiler flags for MASM"
+    dict["jar<c_pch>"] = "Precompiled header file to use for C"
+    dict["jar<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["jar<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["jar<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["jar<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["jar<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["jar<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["jar<d_unittest>"] = "When set to true, the D modules are compiled in debug mode."
+    dict["jar<dependencies>"] = "One or more dependency objects"
+    dict["jar<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["jar<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["jar<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["jar<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["jar<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["jar<install>"] = "When set to true, this executable should be installed."
+    dict["jar<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["jar<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["jar<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["jar<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["jar<java_resources>"] = "Resources to be added to the jar"
+    dict["jar<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["jar<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["jar<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["jar<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["jar<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["jar<main_class>"] = "Main class for running the built jar"
+    dict["jar<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["jar<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["jar<native>"] = "Controls whether the target is compiled for the build or host machines."
+    dict["jar<objects>"] = "List of object files that should be linked in this target."
+    dict["jar<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["jar<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["jar<sources>"] = "Additional source files. Same as the source varargs."
+    dict["jar<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["jar<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["library<c_args>"] = "Compiler flags for C"
+    dict["library<cpp_args>"] = "Compiler flags for C++"
+    dict["library<cs_args>"] = "Compiler flags for C#"
+    dict["library<d_args>"] = "Compiler flags for D"
+    dict["library<fortran_args>"] = "Compiler flags for Fortran"
+    dict["library<java_args>"] = "Compiler flags for Java"
+    dict["library<objc_args>"] = "Compiler flags for Objective-C"
+    dict["library<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["library<rust_args>"] = "Compiler flags for Rust"
+    dict["library<vala_args>"] = "Compiler flags for Vala"
+    dict["library<cython_args>"] = "Compiler flags for Cython"
+    dict["library<nasm_args>"] = "Compiler flags for NASM"
+    dict["library<masm_args>"] = "Compiler flags for MASM"
+    dict["library<c_pch>"] = "Precompiled header file to use for C"
+    dict["library<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["library<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["library<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["library<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["library<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["library<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["library<d_unittest>"] = "When set to true, the D modules are compiled in debug mode."
+    dict["library<darwin_versions>"] =
+      "Defines the compatibility version and current version for the dylib on macOS. If a list is specified, it must be either zero, one, or two elements. If only one element is specified or if it's not a list, the specified value will be used for setting both compatibility version and current version. If unspecified, the soversion will be used as per the aforementioned rules."
+    dict["library<dependencies>"] = "One or more dependency objects"
+    dict["library<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["library<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["library<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["library<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["library<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["library<install>"] = "When set to true, this executable should be installed."
+    dict["library<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["library<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["library<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["library<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["library<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["library<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["library<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["library<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["library<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["library<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["library<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["library<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["library<objects>"] = "List of object files that should be linked in this target."
+    dict["library<pic>"] =
+      "Builds the library as positional independent code (so it can be linked into a shared library). This option has no effect on Windows and OS X since it doesn't make sense on Windows and PIC cannot be disabled on OS X."
+    dict["library<prelink>"] =
+      "If true the object files in the target will be prelinked, meaning that it will contain only one prelinked object file rather than the individual object files."
+    dict["library<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["library<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["library<sources>"] = "Additional source files. Same as the source varargs."
+    dict["library<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["library<version>"] =
+      "A string specifying the version of this shared library, such as 1.1.0. On Linux and OS X, this is used to set the shared library version in the filename, such as libfoo.so.1.1.0 and libfoo.1.1.0.dylib. If this is not specified, soversion is used instead."
+    dict["library<vs_module_defs>"] =
+      "Specify a Microsoft module definition file for controlling symbol exports, etc., on platforms where that is possible (e.g. Windows)."
+    dict["library<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["shared_library<c_args>"] = "Compiler flags for C"
+    dict["shared_library<cpp_args>"] = "Compiler flags for C++"
+    dict["shared_library<cs_args>"] = "Compiler flags for C#"
+    dict["shared_library<d_args>"] = "Compiler flags for D"
+    dict["shared_library<fortran_args>"] = "Compiler flags for Fortran"
+    dict["shared_library<java_args>"] = "Compiler flags for Java"
+    dict["shared_library<objc_args>"] = "Compiler flags for Objective-C"
+    dict["shared_library<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["shared_library<rust_args>"] = "Compiler flags for Rust"
+    dict["shared_library<vala_args>"] = "Compiler flags for Vala"
+    dict["shared_library<cython_args>"] = "Compiler flags for Cython"
+    dict["shared_library<nasm_args>"] = "Compiler flags for NASM"
+    dict["shared_library<masm_args>"] = "Compiler flags for MASM"
+    dict["shared_library<c_pch>"] = "Precompiled header file to use for C"
+    dict["shared_library<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["shared_library<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["shared_library<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["shared_library<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["shared_library<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["shared_library<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["shared_library<d_unittest>"] =
+      "When set to true, the D modules are compiled in debug mode."
+    dict["shared_library<darwin_versions>"] =
+      "Defines the compatibility version and current version for the dylib on macOS. If a list is specified, it must be either zero, one, or two elements. If only one element is specified or if it's not a list, the specified value will be used for setting both compatibility version and current version. If unspecified, the soversion will be used as per the aforementioned rules."
+    dict["shared_library<dependencies>"] = "One or more dependency objects"
+    dict["shared_library<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["shared_library<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["shared_library<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["shared_library<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["shared_library<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["shared_library<install>"] = "When set to true, this executable should be installed."
+    dict["shared_library<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["shared_library<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["shared_library<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["shared_library<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["shared_library<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["shared_library<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["shared_library<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["shared_library<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["shared_library<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["shared_library<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["shared_library<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["shared_library<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["shared_library<objects>"] = "List of object files that should be linked in this target."
+    dict["shared_library<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["shared_library<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["shared_library<sources>"] = "Additional source files. Same as the source varargs."
+    dict["shared_library<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["shared_library<version>"] =
+      "A string specifying the version of this shared library, such as 1.1.0. On Linux and OS X, this is used to set the shared library version in the filename, such as libfoo.so.1.1.0 and libfoo.1.1.0.dylib. If this is not specified, soversion is used instead."
+    dict["shared_library<vs_module_defs>"] =
+      "Specify a Microsoft module definition file for controlling symbol exports, etc., on platforms where that is possible (e.g. Windows)."
+    dict["shared_library<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["shared_module<c_args>"] = "Compiler flags for C"
+    dict["shared_module<cpp_args>"] = "Compiler flags for C++"
+    dict["shared_module<cs_args>"] = "Compiler flags for C#"
+    dict["shared_module<d_args>"] = "Compiler flags for D"
+    dict["shared_module<fortran_args>"] = "Compiler flags for Fortran"
+    dict["shared_module<java_args>"] = "Compiler flags for Java"
+    dict["shared_module<objc_args>"] = "Compiler flags for Objective-C"
+    dict["shared_module<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["shared_module<rust_args>"] = "Compiler flags for Rust"
+    dict["shared_module<vala_args>"] = "Compiler flags for Vala"
+    dict["shared_module<cython_args>"] = "Compiler flags for Cython"
+    dict["shared_module<nasm_args>"] = "Compiler flags for NASM"
+    dict["shared_module<masm_args>"] = "Compiler flags for MASM"
+    dict["shared_module<c_pch>"] = "Precompiled header file to use for C"
+    dict["shared_module<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["shared_module<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["shared_module<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["shared_module<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["shared_module<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["shared_module<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["shared_module<d_unittest>"] =
+      "When set to true, the D modules are compiled in debug mode."
+    dict["shared_module<dependencies>"] = "One or more dependency objects"
+    dict["shared_module<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["shared_module<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["shared_module<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["shared_module<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["shared_module<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["shared_module<install>"] = "When set to true, this executable should be installed."
+    dict["shared_module<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["shared_module<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["shared_module<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["shared_module<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["shared_module<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["shared_module<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["shared_module<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["shared_module<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["shared_module<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["shared_module<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["shared_module<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["shared_module<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["shared_module<objects>"] = "List of object files that should be linked in this target."
+    dict["shared_module<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["shared_module<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["shared_module<sources>"] = "Additional source files. Same as the source varargs."
+    dict["shared_module<soversion>"] =
+      "A string or integer specifying the soversion of this shared library, such as 0. On Linux and Windows this is used to set the soversion (or equivalent) in the filename. For example, if soversion is 4, a Windows DLL will be called foo-4.dll and one of the aliases of the Linux shared library would be libfoo.so.4. If this is not specified, the first part of version is used instead (see below). For example, if version is 3.6.0 and soversion is not defined, it is set to 3."
+    dict["shared_module<version>"] =
+      "A string specifying the version of this shared library, such as 1.1.0. On Linux and OS X, this is used to set the shared library version in the filename, such as libfoo.so.1.1.0 and libfoo.1.1.0.dylib. If this is not specified, soversion is used instead."
+    dict["shared_module<vs_module_defs>"] =
+      "Specify a Microsoft module definition file for controlling symbol exports, etc., on platforms where that is possible (e.g. Windows)."
+    dict["shared_module<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
+    dict["static_library<c_args>"] = "Compiler flags for C"
+    dict["static_library<cpp_args>"] = "Compiler flags for C++"
+    dict["static_library<cs_args>"] = "Compiler flags for C#"
+    dict["static_library<d_args>"] = "Compiler flags for D"
+    dict["static_library<fortran_args>"] = "Compiler flags for Fortran"
+    dict["static_library<java_args>"] = "Compiler flags for Java"
+    dict["static_library<objc_args>"] = "Compiler flags for Objective-C"
+    dict["static_library<objcpp_args>"] = "Compiler flags for Objective-C++"
+    dict["static_library<rust_args>"] = "Compiler flags for Rust"
+    dict["static_library<vala_args>"] = "Compiler flags for Vala"
+    dict["static_library<cython_args>"] = "Compiler flags for Cython"
+    dict["static_library<nasm_args>"] = "Compiler flags for NASM"
+    dict["static_library<masm_args>"] = "Compiler flags for MASM"
+    dict["static_library<c_pch>"] = "Precompiled header file to use for C"
+    dict["static_library<cpp_pch>"] = "Precompiled header file to use for C++"
+    dict["static_library<build_by_default>"] =
+      "Causes, when set to true, to have this target be built by default. This means it will be built when meson compile is called without any arguments. The default value is true for all built target types."
+    dict["static_library<build_rpath>"] =
+      "A string to add to target's rpath definition in the build dir, but which will be removed on install"
+    dict["static_library<d_debug>"] =
+      "The D version identifiers to add during the compilation of D source files."
+    dict["static_library<d_import_dirs>"] =
+      "List of directories to look in for string imports used in the D programming language."
+    dict["static_library<d_module_versions>"] =
+      "List of module version identifiers set when compiling D sources."
+    dict["static_library<d_unittest>"] =
+      "When set to true, the D modules are compiled in debug mode."
+    dict["static_library<dependencies>"] = "One or more dependency objects"
+    dict["static_library<extra_files>"] =
+      "Not used for the build itself but are shown as source files in IDEs that group files by targets (such as Visual Studio)"
+    dict["static_library<gnu_symbol_visibility>"] =
+      "Specifies how symbols should be exported: default/internal/hidden/protected/inlineshidden"
+    dict["static_library<gui_app>"] =
+      "When set to true flags this target as a GUI application on platforms where this makes a differerence, deprecated since 0.56.0, use win_subsystem instead."
+    dict["static_library<implicit_include_directories>"] =
+      "Controls whether Meson adds the current source and build directories to the include path"
+    dict["static_library<include_directories>"] =
+      "One or more objects created with the include_directories() function, or (since 0.50.0) strings, which will be transparently expanded to include directory objects"
+    dict["static_library<install>"] = "When set to true, this executable should be installed."
+    dict["static_library<install_dir>"] =
+      "Override install directory for this file. If the value is a relative path, it will be considered relative the prefix option"
+    dict["static_library<install_mode>"] =
+      "Specify the file mode in symbolic format and optionally the owner/uid and group/gid for the installed files."
+    dict["static_library<install_rpath>"] =
+      "A string to set the target's rpath to after install (but not before that). On Windows, this argument has no effect."
+    dict["static_library<install_tag>"] =
+      "A string used by the `meson install --tags` command to install only a subset of the files. By default all build targets have the tag runtime except for static libraries that have the devel tag."
+    dict["static_library<link_args>"] =
+      "Flags to use during linking. You can use UNIX-style flags here for all platforms."
+    dict["static_library<link_depends>"] =
+      "Strings, files, or custom targets the link step depends on such as a symbol visibility map. The purpose is to automatically trigger a re-link (but not a re-compile) of the target when this file changes."
+    dict["static_library<link_language>"] =
+      "Makes the linker for this target be for the specified language. It is generally unnecessary to set this, as Meson will detect the right linker to use in most cases. There are only two cases where this is needed. One, your main function in an executable is not in the language Meson picked, or second you want to force a library to use only one ABI."
+    dict["static_library<link_whole>"] =
+      "Links all contents of the given static libraries whether they are used by not, equivalent to the -Wl,--whole-archive argument flag of GCC."
+    dict["static_library<link_with>"] =
+      "One or more shared or static libraries (built by this project) that this target should be linked with. (since 0.41.0) If passed a list this list will be flattened. (since 0.51.0) The arguments can also be custom targets. In this case Meson will assume that merely adding the output file in the linker command line is sufficient to make linking work. If this is not sufficient, then the build system writer must write all other steps manually."
+    dict["static_library<name_prefix>"] =
+      "The string that will be used as the prefix for the target output filename by overriding the default (only used for libraries). By default this is lib on all platforms and compilers, except for MSVC shared libraries where it is omitted to follow convention, and Cygwin shared libraries where it is cyg."
+    dict["static_library<name_suffix>"] =
+      "The string that will be used as the extension for the target by overriding the default. By default on Windows this is exe for executables and on other platforms it is omitted."
+    dict["static_library<native>"] =
+      "Controls whether the target is compiled for the build or host machines."
+    dict["static_library<objects>"] = "List of object files that should be linked in this target."
+    dict["static_library<pic>"] =
+      "Builds the library as positional independent code (so it can be linked into a shared library). This option has no effect on Windows and OS X since it doesn't make sense on Windows and PIC cannot be disabled on OS X."
+    dict["static_library<prelink>"] =
+      "If true the object files in the target will be prelinked, meaning that it will contain only one prelinked object file rather than the individual object files."
+    dict["static_library<override_options>"] =
+      "takes an array of strings in the same format as project's `default_options` overriding the values of these options for this target only."
+    dict["static_library<rust_crate_type>"] =
+      "Set the specific type of rust crate to compile (when compiling rust)."
+    dict["static_library<sources>"] = "Additional source files. Same as the source varargs."
+    dict["static_library<win_subsystem>"] =
+      "Specifies the subsystem type to use on the Windows platform. Typical values include console for text mode programs and windows for gui apps. The value can also contain version specification such as windows,6.0"
     dict["add_global_arguments<language>"] =
       "Specifies the language(s) that the arguments should be"
     dict["add_global_arguments<native>"] = "A boolean specifying whether the arguments should be"
@@ -286,7 +916,6 @@ class BuiltinKwargDocProvider: DocProvider {
       "Message / Comment that will be written in the result file. The replacement assumes a file with C syntax. If your generated file is source code in some other language, you probably don't want to add a description field because it most likely will cause a syntax error."
     dict["cfg_data.set_quoted<description>"] =
       "Message / Comment that will be written in the result file. The replacement assumes a file with C syntax. If your generated file is source code in some other language, you probably don't want to add a description field because it most likely will cause a syntax error."
-    // TODO: compiler
     dict["compiler.alignment<args>"] =
       "Used to pass a list of compiler arguments. Defining include paths for headers not in the default include path via -Isome/path/to/header is generally supported, however, usually not recommended."
     dict["compiler.alignment<dependencies>"] =
