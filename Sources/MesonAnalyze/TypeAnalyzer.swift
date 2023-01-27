@@ -173,6 +173,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
+      if let args = node.argumentList, args is ArgumentList { self.checkCall(node: node) }
       if node.argumentList != nil, node.argumentList is ArgumentList {
         for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: fn)
@@ -237,12 +238,38 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(
           sev: .error, node: node, message: "No method \(methodName) found for types `\(types)'"))
     } else {
+      if let args = node.argumentList, args is ArgumentList { self.checkCall(node: node) }
       if node.argumentList != nil, node.argumentList is ArgumentList {
         for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: node.method!)
         }
       }
     }
+  }
+
+  func checkCall(node: Expression) {
+    let begin = clock()
+    let args: [Node]
+    if node is FunctionExpression {
+      args = ((node as! FunctionExpression).argumentList! as! ArgumentList).args
+    } else {
+      args = ((node as! MethodExpression).argumentList! as! ArgumentList).args
+    }
+    var kwargsOnly = false
+    for arg in args {
+      if kwargsOnly {
+        if arg is KeywordItem { continue }
+        self.metadata.registerDiagnostic(
+          node: arg,
+          diag: MesonDiagnostic(
+            sev: .error, node: arg,
+            message: "Unexpected positional argument after a keyword argument"))
+        continue
+      } else if arg is KeywordItem {
+        kwargsOnly = true
+      }
+    }
+    Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
   public func visitIdExpression(node: IdExpression) {
     node.types = dedup(types: scope.variables[node.id] ?? [])
