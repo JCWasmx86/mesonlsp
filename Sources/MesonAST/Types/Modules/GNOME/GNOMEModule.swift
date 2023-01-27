@@ -49,6 +49,23 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "fatal_warnings", opt: true, types: [BoolType()]),
         ]),
       Method(
+        name: "genmarshal", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        args: [
+          PositionalArgument(name: "basename", types: [Str()]),
+          Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
+          Kwarg(name: "depend_files", opt: true, types: [Str(), File()]),
+          Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
+          Kwarg(name: "install_dir", opt: true, types: [Str()]),
+          Kwarg(name: "install_header", opt: true, types: [BoolType()]),
+          Kwarg(name: "internal", opt: true, types: [BoolType()]),
+          Kwarg(name: "nostdinc", opt: true, types: [BoolType()]),
+          Kwarg(name: "prefix", types: [ListType(types: [Str()])]),
+          Kwarg(name: "skip_source", opt: true, types: [BoolType()]),
+          Kwarg(name: "sources", types: [ListType(types: [Str(), File()])]),
+          Kwarg(name: "stdinc", opt: true, types: [BoolType()]),
+          Kwarg(name: "valist_marshallers", opt: true, types: [BoolType()]),
+        ]),
+      Method(
         name: "mkenums", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
