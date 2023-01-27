@@ -73,7 +73,6 @@ public final class MesonServer: LanguageServer {
     {
       if !f.types.isEmpty {
         content = f.types.map({ $0.toString() }).joined(separator: "|")
-
         requery = false
       }
     }
