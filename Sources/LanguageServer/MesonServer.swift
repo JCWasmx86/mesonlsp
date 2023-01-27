@@ -77,7 +77,10 @@ public final class MesonServer: LanguageServer {
         requery = false
       }
     }
-    if content != nil && requery { content = self.docs.find_docs(id: content!) }
+    if content != nil && requery {
+      let d = self.docs.find_docs(id: content!)
+      content = d ?? content!
+    }
     req.reply(
       HoverResponse(
         contents: content == nil
