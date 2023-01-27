@@ -202,6 +202,16 @@ class BuiltinKwargDocProvider: DocProvider {
       "A string used by the meson install --tags command to install only a subset of the files. By default these files have no install tag which means they are not being installed when --tags argument is specified."
     dict["install_symlink<pointing_to>"] =
       "Target to point the link to. Can be absolute or relative and that will be respected when creating the link."
+    dict["project<default_options>"] =
+      "Accecpts strings in the form key=value which have the same format as options to meson configure"
+    dict["project<license>"] =
+      "Takes a string or array of strings describing the license(s) the code is under."
+    dict["project<meson_version>"] =
+      "Takes a string describing which Meson version the project requires. Usually something like `>=0.28.0`."
+    dict["project<subproject_dir>"] =
+      "Specifies the top level directory name that holds Meson subprojects. This is only meant as a compatibility option for existing code bases that house their embedded source code in a custom directory. All new projects should not set this but instead use the default value. It should be noted that this keyword argument is ignored inside subprojects. There can be only one subproject dir and it is set in the top level Meson file."
+    dict["project<version>"] =
+      "A free form string describing the version of this project. You can access the value in your Meson build files with `meson.project_version()`. This can also be a file object pointing to a file that contains exactly one line of text."
     dict["run_command<capture>"] =
       "If true, any output generated on stdout will be captured and returned by the .stdout() method. If it is false, then .stdout() will return an empty string."
     dict["run_command<check>"] =
