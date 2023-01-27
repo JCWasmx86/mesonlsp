@@ -76,6 +76,13 @@ public final class MesonServer: LanguageServer {
         requery = false
       }
     }
+    if content == nil,
+      let tuple = self.tree!.metadata!.findKwargAt(file!, location.line, location.utf16index)
+    {
+      let kw = tuple.0
+      let f = tuple.1
+      if let k = kw.key as? IdExpression { content = f.id() + "<" + k.id + ">" }
+    }
     if content != nil && requery {
       let d = self.docs.find_docs(id: content!)
       content = d ?? content!

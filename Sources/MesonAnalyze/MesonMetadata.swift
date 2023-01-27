@@ -5,6 +5,7 @@ public class MesonMetadata {
   public var methodCalls: [String: [MethodExpression]] = [:]
   public var functionCalls: [String: [FunctionExpression]] = [:]
   public var identifiers: [String: [IdExpression]] = [:]
+  public var kwargs: [String: [(KeywordItem, Function)]] = [:]
   public var diagnostics: [String: [MesonDiagnostic]] = [:]
 
   public init() {}
@@ -49,6 +50,14 @@ public class MesonMetadata {
     }
   }
 
+  public func registerKwarg(item: KeywordItem, f: Function) {
+    if self.kwargs[item.file.file] == nil {
+      self.kwargs.updateValue([(item, f)], forKey: item.file.file)
+    } else {
+      self.kwargs[item.file.file]!.append((item, f))
+    }
+  }
+
   func contains(_ node: Node, _ line: Int, _ column: Int) -> Bool {
     if node.location.startLine <= line && node.location.endLine >= line {
       if node.location.startColumn <= column && node.location.endColumn >= column { return true }
@@ -81,6 +90,12 @@ public class MesonMetadata {
   public func findSubdirCallAt(_ path: String, _ line: Int, _ column: Int) -> SubdirCall? {
     if let arr = self.subdirCalls[path] {
       for f in arr where self.contains(f.id, line, column) { return f }
+    }
+    return nil
+  }
+  public func findKwargAt(_ path: String, _ line: Int, _ column: Int) -> (KeywordItem, Function)? {
+    if let arr = self.kwargs[path] {
+      for f in arr where self.contains(f.0.key, line, column) { return f }
     }
     return nil
   }

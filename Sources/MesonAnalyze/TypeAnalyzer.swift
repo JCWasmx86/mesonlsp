@@ -173,6 +173,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
+      if node.argumentList != nil, node.argumentList is ArgumentList {
+        for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
+          self.metadata.registerKwarg(item: a as! KeywordItem, f: fn)
+        }
+      }
     } else {
       self.metadata.registerDiagnostic(
         node: node,
@@ -231,6 +236,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         node: node,
         diag: MesonDiagnostic(
           sev: .error, node: node, message: "No method \(methodName) found for types `\(types)'"))
+    } else {
+      if node.argumentList != nil, node.argumentList is ArgumentList {
+        for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
+          self.metadata.registerKwarg(item: a as! KeywordItem, f: node.method!)
+        }
+      }
     }
   }
   public func visitIdExpression(node: IdExpression) {
