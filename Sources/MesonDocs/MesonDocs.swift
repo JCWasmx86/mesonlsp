@@ -12,6 +12,7 @@ public class MesonDocs {
     HostMachineDocProvider().addToDict(dict: &self.docs)
     TargetMachineDocProvider().addToDict(dict: &self.docs)
     MesonDocProvider().addToDict(dict: &self.docs)
+    ObjectDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
