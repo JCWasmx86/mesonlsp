@@ -66,6 +66,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitSelectionStatement(node: SelectionStatement) {
     self.stack.append([:])
     node.visitChildren(visitor: self)
+    let begin = clock()
     let types = self.stack.removeLast()
     for k in types.keys {
       // TODO: This leaks some overwritten types
@@ -79,6 +80,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       let l = dedup(types: (self.scope.variables[k] ?? []) + types[k]!)
       self.scope.variables[k] = l
     }
+    Timing.INSTANCE.registerMeasurement(
+      name: "SelectionStatementTypeMerge", begin: begin, end: clock())
   }
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
