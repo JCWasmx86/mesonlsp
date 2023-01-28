@@ -16,6 +16,7 @@ public class MesonDocs {
     BuiltinKwargDocProvider().addToDict(dict: &self.docs)
     CMakeDocProvider().addToDict(dict: &self.docs)
     CudaDocProvider().addToDict(dict: &self.docs)
+    DlangDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
