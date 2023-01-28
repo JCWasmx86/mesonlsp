@@ -27,6 +27,7 @@ public class MesonDocs {
     KeyvalDocProvider().addToDict(dict: &self.docs)
     PkgconfigDocProvider().addToDict(dict: &self.docs)
     PythonDocProvider().addToDict(dict: &self.docs)
+    QtDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
