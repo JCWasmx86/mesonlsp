@@ -29,6 +29,7 @@ public class MesonDocs {
     PythonDocProvider().addToDict(dict: &self.docs)
     QtDocProvider().addToDict(dict: &self.docs)
     RustDocProvider().addToDict(dict: &self.docs)
+    SimdDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
