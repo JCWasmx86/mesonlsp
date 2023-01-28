@@ -22,6 +22,7 @@ public class MesonDocs {
     GnomeDocProvider().addToDict(dict: &self.docs)
     HotdocDocProvider().addToDict(dict: &self.docs)
     I18nDocProvider().addToDict(dict: &self.docs)
+    IcestormDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
