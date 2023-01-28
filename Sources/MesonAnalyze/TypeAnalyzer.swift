@@ -365,6 +365,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           sev: .error, node: node,
           message: "Missing required key word argument '" + requiredKwarg + "'!"))
     }
+    // TODO: Type checking for each argument
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
   public func visitIdExpression(node: IdExpression) {
