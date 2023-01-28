@@ -37,6 +37,8 @@ public class TimingInformation {
   public func stddev() -> Double { return self.values.std() }
 
   public func sum() -> Double { return self.values.sum() }
+
+  public func hits() -> Int { return self.values.count }
 }
 
 extension Array where Element == Double {

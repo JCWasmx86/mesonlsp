@@ -323,6 +323,7 @@ public final class MesonServer: LanguageServer {
       		<table>
       			<tr>
       				<th>Identifier</th>
+      				<th>Hits</th>
       				<th>Min</th>
       				<th>Max</th>
       				<th>Median</th>
@@ -334,7 +335,7 @@ public final class MesonServer: LanguageServer {
     var str = ""
     for t in Timing.INSTANCE.timings() {
       str.append(
-        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.min().round(to: 2))</td>"
+        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>" + "<td>\(t.min().round(to: 2))</td>"
           + "<td>\(t.max().round(to: 2))</td>" + "<td>\(t.median().round(to: 2))</td>"
           + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td>"
           + "<td>\(t.sum().round(to: 2))</td></tr>")
