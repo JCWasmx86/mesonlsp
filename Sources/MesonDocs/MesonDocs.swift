@@ -19,6 +19,7 @@ public class MesonDocs {
     DlangDocProvider().addToDict(dict: &self.docs)
     ExternalProjectDocProvider().addToDict(dict: &self.docs)
     FsDocProvider().addToDict(dict: &self.docs)
+    GnomeDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
