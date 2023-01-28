@@ -30,21 +30,21 @@ public struct CfgData: AbstractObject {
         args: [
           PositionalArgument(name: "varname", types: [Str()]),
           PositionalArgument(name: "value", types: [Str(), `IntType`(), BoolType()]),
-          Kwarg(name: "varname", opt: true, types: [`IntType`(), BoolType()]),
+          Kwarg(name: "description", opt: true, types: [Str()]),
         ]),
       Method(
         name: "set10", parent: self,
         args: [
           PositionalArgument(name: "varname", types: [Str()]),
           PositionalArgument(name: "value", types: [Str(), `IntType`(), BoolType()]),
-          Kwarg(name: "varname", opt: true, types: [`IntType`(), BoolType()]),
+          Kwarg(name: "description", opt: true, types: [Str()]),
         ]),
       Method(
         name: "set_quoted", parent: self,
         args: [
           PositionalArgument(name: "varname", types: [Str()]),
           PositionalArgument(name: "value", types: [Str(), `IntType`(), BoolType()]),
-          Kwarg(name: "varname", opt: true, types: [`IntType`(), BoolType()]),
+          Kwarg(name: "description", opt: true, types: [Str()]),
         ]),
     ]
   }

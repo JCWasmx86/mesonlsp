@@ -212,6 +212,7 @@ public struct Compiler: AbstractObject {
           Kwarg(name: "include_directories", opt: true, types: [ListType(types: [Inc()]), Inc()]),
           Kwarg(name: "name", opt: true, types: [Str()]),
           Kwarg(name: "no_builtin_args", opt: true, types: [BoolType()]),
+          Kwarg(name: "prefix", opt: true, types: [ListType(types: [Str()]), Str()]),
         ]), Method(name: "symbols_have_underscore_prefix", parent: self, returnTypes: [BoolType()]),
       Method(name: "version", parent: self, returnTypes: [Str()]),
     ]
