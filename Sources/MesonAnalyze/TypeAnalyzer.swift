@@ -68,6 +68,14 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     let types = self.stack.removeLast()
     for k in types.keys {
+      // TODO: This leaks some overwritten types
+      // x = 'Foo'
+      // if bar
+      //   x = 2
+      // else
+      //   x = true
+      // endif
+      // x is now str|int|bool instead of int|bool
       let l = dedup(types: (self.scope.variables[k] ?? []) + types[k]!)
       self.scope.variables[k] = l
     }
