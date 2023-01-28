@@ -17,6 +17,8 @@ public class MesonDocs {
     CMakeDocProvider().addToDict(dict: &self.docs)
     CudaDocProvider().addToDict(dict: &self.docs)
     DlangDocProvider().addToDict(dict: &self.docs)
+    ExternalProjectDocProvider().addToDict(dict: &self.docs)
+    FsDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
