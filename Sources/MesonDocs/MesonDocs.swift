@@ -20,6 +20,7 @@ public class MesonDocs {
     ExternalProjectDocProvider().addToDict(dict: &self.docs)
     FsDocProvider().addToDict(dict: &self.docs)
     GnomeDocProvider().addToDict(dict: &self.docs)
+    HotdocDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
