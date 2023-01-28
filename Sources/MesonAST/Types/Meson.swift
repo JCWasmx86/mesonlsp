@@ -71,10 +71,11 @@ public struct Meson: AbstractObject {
         args: [
           PositionalArgument(name: "propname", types: [Str()]),
           Kwarg(name: "native", opt: true, types: [BoolType()]),
-        ]), Method(name: "install_dependency_manifest", parent: self),
+        ]),
       Method(
-        name: "is_cross_build", parent: self, returnTypes: [BoolType()],
+        name: "install_dependency_manifest", parent: self,
         args: [PositionalArgument(name: "output_name", types: [Str()])]),
+      Method(name: "is_cross_build", parent: self, returnTypes: [BoolType()]),
       Method(name: "is_subproject", parent: self, returnTypes: [BoolType()]),
       Method(name: "is_unity", parent: self, returnTypes: [BoolType()]),
       Method(

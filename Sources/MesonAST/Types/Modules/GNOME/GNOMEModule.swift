@@ -38,6 +38,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "identifier_prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "includes", opt: true, types: [ListType(types: [Str(), CustomTgt()])]),
           Kwarg(name: "header", opt: true, types: [ListType(types: [Str()])]),
+          Kwarg(name: "symbol_prefix", opt: true, types: [Str()]),
           Kwarg(name: "include_directories", opt: true, types: [ListType(types: [Str(), Inc()])]),
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "install_gir", opt: true, types: [BoolType()]),
@@ -190,7 +191,7 @@ public struct GNOMEModule: AbstractObject {
         name: "post_install", parent: self, returnTypes: [],
         args: [
           Kwarg(name: "glib_compile_schemas", opt: true, types: [BoolType()]),
-          Kwarg(name: "update_icon_cache", opt: true, types: [BoolType()]),
+          Kwarg(name: "gtk_update_icon_cache", opt: true, types: [BoolType()]),
           Kwarg(name: "update_desktop_database", opt: true, types: [BoolType()]),
           Kwarg(name: "update_mime_database", opt: true, types: [BoolType()]),
           Kwarg(name: "gio_querymodules", opt: true, types: [ListType(types: [Str()])]),

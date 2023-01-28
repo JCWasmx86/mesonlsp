@@ -18,6 +18,7 @@ public struct PkgconfigModule: AbstractObject {
           Kwarg(name: "extra_cflags", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "filebase", opt: true, types: [Str()]),
           Kwarg(name: "subdirs", opt: true, types: [ListType(types: [Str()])]),
+          Kwarg(name: "name", opt: true, types: [Str()]),
           Kwarg(name: "url", opt: true, types: [Str()]),
           Kwarg(name: "version", opt: true, types: [Str()]),
           Kwarg(
@@ -34,7 +35,12 @@ public struct PkgconfigModule: AbstractObject {
           Kwarg(
             name: "libraries", opt: true,
             types: [ListType(types: [Str(), Dep(), Lib(), CustomTgt(), CustomIdx()])]),
+          Kwarg(
+            name: "libraries_private", opt: true,
+            types: [ListType(types: [Str(), Dep(), Lib(), CustomTgt(), CustomIdx()])]),
           Kwarg(name: "requires", opt: true, types: [ListType(types: [Str(), Dep(), Lib()])]),
+          Kwarg(
+            name: "requires_private", opt: true, types: [ListType(types: [Str(), Dep(), Lib()])]),
         ])
     ]
   }
