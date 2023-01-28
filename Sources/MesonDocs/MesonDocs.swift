@@ -31,6 +31,7 @@ public class MesonDocs {
     RustDocProvider().addToDict(dict: &self.docs)
     SimdDocProvider().addToDict(dict: &self.docs)
     SourceSetDocProvider().addToDict(dict: &self.docs)
+    WaylandDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
