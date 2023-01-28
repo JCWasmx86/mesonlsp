@@ -24,6 +24,7 @@ public class MesonDocs {
     I18nDocProvider().addToDict(dict: &self.docs)
     IcestormDocProvider().addToDict(dict: &self.docs)
     JavaDocProvider().addToDict(dict: &self.docs)
+    KeyvalDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
