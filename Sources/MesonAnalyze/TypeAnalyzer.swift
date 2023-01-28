@@ -12,6 +12,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   let checkerState: CheckerState = CheckerState()
   let typeanalyzersState: TypeAnalyzersState = TypeAnalyzersState()
   let options: [MesonOption]
+  var stack: [[String: [Type]]] = []
 
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
@@ -46,6 +47,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       print("Not found", node.subdirname)
     }
   }
+
+  public func applyToStack(_ name: String, _ types: [Type]) {
+    if self.stack.isEmpty { return }
+    if self.stack[self.stack.count - 1][name] == nil {
+      self.stack[self.stack.count - 1][name] = types
+    } else {
+      self.stack[self.stack.count - 1][name]! += types
+    }
+  }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
   public func visitErrorNode(node: ErrorNode) {
@@ -54,7 +64,13 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node: node, diag: MesonDiagnostic(sev: .error, node: node, message: node.message))
   }
   public func visitSelectionStatement(node: SelectionStatement) {
+    self.stack.append([:])
     node.visitChildren(visitor: self)
+    let types = self.stack.removeLast()
+    for k in types.keys {
+      let l = dedup(types: (self.scope.variables[k] ?? []) + types[k]!)
+      self.scope.variables[k] = l
+    }
   }
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
@@ -70,6 +86,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else {
         node.ids[0].types = [`Any`()]
       }
+      self.applyToStack((node.ids[0] as! IdExpression).id, node.ids[0].types)
       self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
     } else if node.ids.count == 2 {
@@ -79,6 +96,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else {
         node.ids[1].types = []
       }
+      self.applyToStack((node.ids[1] as! IdExpression).id, node.ids[0].types)
+      self.applyToStack((node.ids[1] as! IdExpression).id, node.ids[0].types)
       self.scope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
       self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
@@ -110,6 +129,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       {
         arr = [Dict(types: [])]
       }
+      self.applyToStack((node.lhs as! IdExpression).id, arr)
       self.scope.variables[(node.lhs as! IdExpression).id] = arr
       (node.lhs as! IdExpression).types = arr
     } else {
@@ -157,6 +177,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
       (node.lhs as! IdExpression).types = deduped
+      self.applyToStack((node.lhs as! IdExpression).id, deduped)
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
     self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
