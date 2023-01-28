@@ -328,13 +328,21 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     }
     var nKwargs = 0
     var nPos = 0
-    for arg in args { if arg is Kwarg { nKwargs += 1 } else { nPos += 1 } }
+    for arg in args { if arg is KeywordItem { nKwargs += 1 } else { nPos += 1 } }
     if nPos < fn.minPosArgs() {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
           sev: .error, node: node,
           message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
+            + String(nPos) + "!"))
+    }
+    if nPos > fn.maxPosArgs() {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error, node: node,
+          message: "Expected " + String(fn.maxPosArgs()) + " positional arguments, but got "
             + String(nPos) + "!"))
     }
     var usedKwargs: [String: KeywordItem] = [:]

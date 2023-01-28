@@ -89,7 +89,8 @@ public struct Compiler: AbstractObject {
         ]),
       Method(
         name: "get_supported_function_attributes", parent: self,
-        returnTypes: [ListType(types: [Str()])]),
+        returnTypes: [ListType(types: [Str()])],
+        args: [PositionalArgument(name: "attribs", varargs: true, opt: true, types: [Str()])]),
       Method(
         name: "get_supported_link_arguments", parent: self, returnTypes: [ListType(types: [Str()])],
         args: [PositionalArgument(name: "arg", varargs: true, opt: true, types: [Str()])]),

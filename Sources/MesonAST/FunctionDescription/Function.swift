@@ -20,6 +20,17 @@ public class Function {
     return x
   }
 
+  public func maxPosArgs() -> Int {
+    var x = 0
+    for arg in args {
+      if let pa = arg as? PositionalArgument {
+        x += 1
+        if pa.varargs { return Int.max }
+      }
+    }
+    return x
+  }
+
   public func hasKwarg(name: String) -> Bool { return self.kwargs[name] != nil }
 
   public func requiredKwargs() -> [String] {
