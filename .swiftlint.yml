@@ -4,3 +4,4 @@ disabled_rules:
   - opening_brace
   - trailing_comma
   - force_cast
+  - line_length
