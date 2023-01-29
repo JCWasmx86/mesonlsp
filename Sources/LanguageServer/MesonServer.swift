@@ -239,6 +239,7 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
+    print("Dropping", file!, "from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
@@ -247,6 +248,7 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
+    print("Dropping", file!, "from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
