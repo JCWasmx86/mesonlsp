@@ -25,37 +25,55 @@ public class MesonTree {
     try p.setLanguage(tree_sitter_meson())
     if memfiles[self.file] == nil {
       if let text = try? NSString(
-        contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue)
-      {
+        contentsOfFile: self.file as String,
+        encoding: String.Encoding.utf8.rawValue
+      ) {
         let beginParsing = clock()
         let tree = p.parse(text.description)
         let endParsing = clock()
         Timing.INSTANCE.registerMeasurement(
-          name: "parsing", begin: Int(beginParsing), end: Int(endParsing))
+          name: "parsing",
+          begin: Int(beginParsing),
+          end: Int(endParsing)
+        )
         let root = tree!.rootNode
         self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
         let endBuildingAst = clock()
         Timing.INSTANCE.registerMeasurement(
-          name: "buildingAST", begin: Int(endParsing), end: Int(endBuildingAst))
+          name: "buildingAST",
+          begin: Int(endParsing),
+          end: Int(endBuildingAst)
+        )
       }
     } else {
       let beginParsing = clock()
       let tree = p.parse(memfiles[self.file]!.description)
       let endParsing = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "parsing", begin: Int(beginParsing), end: Int(endParsing))
+        name: "parsing",
+        begin: Int(beginParsing),
+        end: Int(endParsing)
+      )
       let root = tree!.rootNode
       self.ast = from_tree(
-        file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description), tree: root)
+        file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description),
+        tree: root
+      )
       let endBuildingAst = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "buildingAST", begin: Int(endParsing), end: Int(endBuildingAst))
+        name: "buildingAST",
+        begin: Int(endParsing),
+        end: Int(endBuildingAst)
+      )
     }
     let beginPatching = clock()
     let astPatcher = ASTPatcher()
     self.ast?.visit(visitor: astPatcher)
     Timing.INSTANCE.registerMeasurement(
-      name: "patchingAST", begin: Int(beginPatching), end: Int(clock()))
+      name: "patchingAST",
+      begin: Int(beginPatching),
+      end: Int(clock())
+    )
     var idx = 0
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
@@ -73,8 +91,9 @@ public class MesonTree {
     let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
     if !f.exists { self.options = nil }
     if let text = try? NSString(
-      contentsOfFile: f.description as String, encoding: String.Encoding.utf8.rawValue)
-    {
+      contentsOfFile: f.description as String,
+      encoding: String.Encoding.utf8.rawValue
+    ) {
       let tree = p.parse(text.description)
       let root = tree!.rootNode
       let visitor = OptionsExtractor()
@@ -111,7 +130,9 @@ extension String {
   subscript(_ range: CountableRange<Int>) -> String {
     let start = index(startIndex, offsetBy: max(0, range.lowerBound))
     let end = index(
-      start, offsetBy: min(self.count - range.lowerBound, range.upperBound - range.lowerBound))
+      start,
+      offsetBy: min(self.count - range.lowerBound, range.upperBound - range.lowerBound)
+    )
     return String(self[start..<end])
   }
 

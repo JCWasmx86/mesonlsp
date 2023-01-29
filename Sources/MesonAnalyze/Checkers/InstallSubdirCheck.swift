@@ -5,6 +5,10 @@ public class InstallSubdirCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Use `install_emptydir` instead"))
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Use `install_emptydir` instead"
+      )
+    )
   }
 }

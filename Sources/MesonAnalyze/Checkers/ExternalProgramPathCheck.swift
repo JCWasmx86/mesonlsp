@@ -5,6 +5,10 @@ public class ExternalProgramPathCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Use `external_program.full_path` instead"))
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Use `external_program.full_path` instead"
+      )
+    )
   }
 }

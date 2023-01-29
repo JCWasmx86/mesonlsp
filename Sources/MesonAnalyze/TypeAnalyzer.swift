@@ -43,7 +43,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
-          sev: .error, node: node, message: "Unable to find subdir \(node.subdirname)"))
+          sev: .error,
+          node: node,
+          message: "Unable to find subdir \(node.subdirname)"
+        )
+      )
       print("Not found", node.subdirname)
     }
   }
@@ -61,7 +65,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitErrorNode(node: ErrorNode) {
     node.visitChildren(visitor: self)
     self.metadata.registerDiagnostic(
-      node: node, diag: MesonDiagnostic(sev: .error, node: node, message: node.message))
+      node: node,
+      diag: MesonDiagnostic(sev: .error, node: node, message: node.message)
+    )
   }
   public func visitSelectionStatement(node: SelectionStatement) {
     self.stack.append([:])
@@ -81,7 +87,10 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[k] = l
     }
     Timing.INSTANCE.registerMeasurement(
-      name: "SelectionStatementTypeMerge", begin: begin, end: clock())
+      name: "SelectionStatementTypeMerge",
+      begin: begin,
+      end: clock()
+    )
   }
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
@@ -122,11 +131,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     if !isSnakeCase(str: node.id) {
       // TODO: For assignments, too
       self.metadata.registerDiagnostic(
-        node: node, diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
+        node: node,
+        diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
       )
     }
     Timing.INSTANCE.registerMeasurement(
-      name: "checkIdentifier", begin: Int(begin), end: Int(clock()))
+      name: "checkIdentifier",
+      begin: Int(begin),
+      end: Int(clock())
+    )
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
@@ -167,7 +180,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
               newTypes.append(self.t!.types["str"]!)
             } else if l is ListType && r is ListType {
               newTypes.append(
-                ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types)))
+                ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types))
+              )
             } else if l is ListType {
               newTypes.append(ListType(types: dedup(types: (l as! ListType).types + [r])))
             } else if l is Dict && r is Dict {
@@ -201,7 +215,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     let funcName = (node.id as! IdExpression).id
     if let fn = self.t!.lookupFunction(name: funcName) {
       node.types = self.typeanalyzersState.apply(
-        node: node, options: self.options, f: fn, ns: self.t!)
+        node: node,
+        options: self.options,
+        f: fn,
+        ns: self.t!
+      )
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
@@ -212,9 +230,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           self.metadata.registerDiagnostic(
             node: node,
             diag: MesonDiagnostic(
-              sev: .error, node: node,
+              sev: .error,
+              node: node,
               message: "Expected " + String(node.function!.minPosArgs())
-                + " positional arguments, but got none!"))
+                + " positional arguments, but got none!"
+            )
+          )
         }
       }
       if node.argumentList != nil, node.argumentList is ArgumentList {
@@ -225,7 +246,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     } else {
       self.metadata.registerDiagnostic(
         node: node,
-        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)"))
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)")
+      )
     }
   }
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
@@ -272,7 +294,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       }
       if let m = t.getMethod(name: methodName) {
         ownResultTypes += self.typeanalyzersState.apply(
-          node: node, options: self.options, f: m, ns: self.t!)
+          node: node,
+          options: self.options,
+          f: m,
+          ns: self.t!
+        )
         node.method = m
         self.metadata.registerMethodCall(call: node)
         found = true
@@ -287,7 +313,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       if let guessedM = guessedMethod {
         print("Guessed method", guessedM.id(), "at", node.file.file, node.location.format())
         ownResultTypes += self.typeanalyzersState.apply(
-          node: node, options: self.options, f: guessedM, ns: self.t!)
+          node: node,
+          options: self.options,
+          f: guessedM,
+          ns: self.t!
+        )
         node.method = guessedM
         self.metadata.registerMethodCall(call: node)
         found = true
@@ -299,7 +329,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
-          sev: .error, node: node, message: "No method \(methodName) found for types `\(types)'"))
+          sev: .error,
+          node: node,
+          message: "No method \(methodName) found for types `\(types)'"
+        )
+      )
     } else {
       if let args = node.argumentList, args is ArgumentList {
         self.checkCall(node: node)
@@ -308,9 +342,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           self.metadata.registerDiagnostic(
             node: node,
             diag: MesonDiagnostic(
-              sev: .error, node: node,
+              sev: .error,
+              node: node,
               message: "Expected " + String(node.method!.minPosArgs())
-                + " positional arguments, but got none!"))
+                + " positional arguments, but got none!"
+            )
+          )
         }
       }
       if node.argumentList != nil, node.argumentList is ArgumentList {
@@ -339,8 +376,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         self.metadata.registerDiagnostic(
           node: arg,
           diag: MesonDiagnostic(
-            sev: .error, node: arg,
-            message: "Unexpected positional argument after a keyword argument"))
+            sev: .error,
+            node: arg,
+            message: "Unexpected positional argument after a keyword argument"
+          )
+        )
         continue
       } else if arg is KeywordItem {
         kwargsOnly = true
@@ -353,17 +393,23 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
-          sev: .error, node: node,
+          sev: .error,
+          node: node,
           message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
-            + String(nPos) + "!"))
+            + String(nPos) + "!"
+        )
+      )
     }
     if nPos > fn.maxPosArgs() {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
-          sev: .error, node: node,
+          sev: .error,
+          node: node,
           message: "Expected " + String(fn.maxPosArgs()) + " positional arguments, but got "
-            + String(nPos) + "!"))
+            + String(nPos) + "!"
+        )
+      )
     }
     var usedKwargs: [String: KeywordItem] = [:]
     for arg in args where arg is KeywordItem {
@@ -374,7 +420,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           self.metadata.registerDiagnostic(
             node: arg,
             diag: MesonDiagnostic(
-              sev: .error, node: arg, message: "Unknown key word argument '" + kId.id + "'!"))
+              sev: .error,
+              node: arg,
+              message: "Unknown key word argument '" + kId.id + "'!"
+            )
+          )
         }
       }
     }
@@ -382,8 +432,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
-          sev: .error, node: node,
-          message: "Missing required key word argument '" + requiredKwarg + "'!"))
+          sev: .error,
+          node: node,
+          message: "Missing required key word argument '" + requiredKwarg + "'!"
+        )
+      )
     }
     // TODO: Type checking for each argument
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
@@ -402,7 +455,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     }
     if node.id != "break" && node.id != "continue" && !isKnownId(id: node) {
       self.metadata.registerDiagnostic(
-        node: node, diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier"))
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier")
+      )
     }
     if node.id != "break" && node.id != "continue" { self.metadata.registerIdentifier(id: node) }
   }
@@ -430,7 +485,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       node.types = dedup(types: node.lhs.types + node.rhs.types)
       self.metadata.registerDiagnostic(
         node: node,
-        diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator"))
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator")
+      )
       return
     }
     for l in node.lhs.types {
@@ -462,7 +518,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             newTypes.append(self.t!.types["str"]!)
           } else if l is ListType && r is ListType {
             newTypes.append(
-              ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types)))
+              ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types))
+            )
           } else if l is ListType {
             newTypes.append(ListType(types: dedup(types: (l as! ListType).types + [r])))
           } else if l is Dict && r is Dict {

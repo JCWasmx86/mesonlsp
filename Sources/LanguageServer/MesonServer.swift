@@ -26,7 +26,10 @@ public final class MesonServer: LanguageServer {
     for i in 65000...65550 {
       do {
         try self.server.start(
-          in_port_t(i), forceIPv4: false, priority: DispatchQoS.QoSClass.background)
+          in_port_t(i),
+          forceIPv4: false,
+          priority: DispatchQoS.QoSClass.background
+        )
         print("Port:", i)
         break
       } catch {}
@@ -91,7 +94,10 @@ public final class MesonServer: LanguageServer {
       HoverResponse(
         contents: content == nil
           ? .markedStrings([])
-          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "")), range: nil))
+          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "")),
+        range: nil
+      )
+    )
     let endHover = clock()
     Timing.INSTANCE.registerMeasurement(name: "hover", begin: Int(beginHover), end: Int(endHover))
   }
@@ -108,10 +114,14 @@ public final class MesonServer: LanguageServer {
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
         print("Found declaration")
         req.reply(
-          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
+        )
         let endDeclaration = clock()
         Timing.INSTANCE.registerMeasurement(
-          name: "declaration", begin: Int(beginDeclaration), end: Int(endDeclaration))
+          name: "declaration",
+          begin: Int(beginDeclaration),
+          end: Int(endDeclaration)
+        )
         return
       } else {
         print("Found identifier")
@@ -125,14 +135,20 @@ public final class MesonServer: LanguageServer {
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       let endDeclaration = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "declaration", begin: Int(beginDeclaration), end: Int(endDeclaration))
+        name: "declaration",
+        begin: Int(beginDeclaration),
+        end: Int(endDeclaration)
+      )
       return
     }
     print("Found no declaration")
     req.reply(.locations([]))
     let endDeclaration = clock()
     Timing.INSTANCE.registerMeasurement(
-      name: "declaration", begin: Int(beginDeclaration), end: Int(endDeclaration))
+      name: "declaration",
+      begin: Int(beginDeclaration),
+      end: Int(endDeclaration)
+    )
   }
 
   func definition(_ req: Request<DefinitionRequest>) {
@@ -147,10 +163,14 @@ public final class MesonServer: LanguageServer {
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
         print("Found definition")
         req.reply(
-          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
+        )
         let endDefinition = clock()
         Timing.INSTANCE.registerMeasurement(
-          name: "definition", begin: Int(beginDefinition), end: Int(endDefinition))
+          name: "definition",
+          begin: Int(beginDefinition),
+          end: Int(endDefinition)
+        )
         return
       } else {
         print("Found identifier")
@@ -164,14 +184,20 @@ public final class MesonServer: LanguageServer {
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       let endDefinition = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "definition", begin: Int(beginDefinition), end: Int(endDefinition))
+        name: "definition",
+        begin: Int(beginDefinition),
+        end: Int(endDefinition)
+      )
       return
     }
     print("Found no definition")
     req.reply(.locations([]))
     let endDefinition = clock()
     Timing.INSTANCE.registerMeasurement(
-      name: "definition", begin: Int(beginDefinition), end: Int(endDefinition))
+      name: "definition",
+      begin: Int(beginDefinition),
+      end: Int(endDefinition)
+    )
   }
 
   func rebuildTree() {
@@ -183,25 +209,43 @@ public final class MesonServer: LanguageServer {
           let arr: [Diagnostic] = []
           self.client.send(
             PublishDiagnosticsNotification(
-              uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr))
+              uri: DocumentURI(URL(fileURLWithPath: k)),
+              diagnostics: arr
+            )
+          )
         }
       }
       let endClearing = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "clearingDiagnostics", begin: Int(beginRebuilding), end: Int(endClearing))
+        name: "clearingDiagnostics",
+        begin: Int(beginRebuilding),
+        end: Int(endClearing)
+      )
       let tmptree = try! MesonTree(
-        file: self.path! + "/meson.build", ns: self.ns, memfiles: self.memfiles)
+        file: self.path! + "/meson.build",
+        ns: self.ns,
+        memfiles: self.memfiles
+      )
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "parsingEntireTree", begin: Int(endClearing), end: Int(endParsingEntireTree))
+        name: "parsingEntireTree",
+        begin: Int(endClearing),
+        end: Int(endParsingEntireTree)
+      )
       tmptree.analyzeTypes()
       let endAnalyzingTypes = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "analyzingTypes", begin: Int(endParsingEntireTree), end: Int(endAnalyzingTypes))
+        name: "analyzingTypes",
+        begin: Int(endParsingEntireTree),
+        end: Int(endAnalyzingTypes)
+      )
       if tmptree.metadata == nil {
         let endRebuilding = clock()
         Timing.INSTANCE.registerMeasurement(
-          name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endRebuilding))
+          name: "rebuildTree",
+          begin: Int(beginRebuilding),
+          end: Int(endRebuilding)
+        )
         return
       }
       for k in tmptree.metadata!.diagnostics.keys {
@@ -212,21 +256,34 @@ public final class MesonServer: LanguageServer {
         for diag in diags {
           print(">>", diag.message)
           let s = LanguageServerProtocol.Position(
-            line: Int(diag.startLine), utf16index: Int(diag.startColumn))
+            line: Int(diag.startLine),
+            utf16index: Int(diag.startColumn)
+          )
           let e = LanguageServerProtocol.Position(
-            line: Int(diag.endLine), utf16index: Int(diag.endColumn))
+            line: Int(diag.endLine),
+            utf16index: Int(diag.endColumn)
+          )
           let sev: DiagnosticSeverity = diag.severity == .error ? .error : .warning
           arr.append(Diagnostic(range: s..<e, severity: sev, source: nil, message: diag.message))
         }
         self.client.send(
           PublishDiagnosticsNotification(
-            uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr))
+            uri: DocumentURI(URL(fileURLWithPath: k)),
+            diagnostics: arr
+          )
+        )
       }
       let endSendingDiagnostics = clock()
       Timing.INSTANCE.registerMeasurement(
-        name: "sendingDiagnostics", begin: Int(endAnalyzingTypes), end: Int(endSendingDiagnostics))
+        name: "sendingDiagnostics",
+        begin: Int(endAnalyzingTypes),
+        end: Int(endSendingDiagnostics)
+      )
       Timing.INSTANCE.registerMeasurement(
-        name: "rebuildTree", begin: Int(beginRebuilding), end: Int(endSendingDiagnostics))
+        name: "rebuildTree",
+        begin: Int(beginRebuilding),
+        end: Int(endSendingDiagnostics)
+      )
       self.tree = tmptree
     }
   }
@@ -265,9 +322,13 @@ public final class MesonServer: LanguageServer {
   func capabilities() -> ServerCapabilities {
     return ServerCapabilities(
       textDocumentSync: .options(TextDocumentSyncOptions(openClose: true, change: .full)),
-      hoverProvider: .bool(true), definitionProvider: .bool(true),
-      documentHighlightProvider: .bool(true), documentSymbolProvider: .bool(true),
-      workspaceSymbolProvider: .bool(true), declarationProvider: .bool(true))
+      hoverProvider: .bool(true),
+      definitionProvider: .bool(true),
+      documentHighlightProvider: .bool(true),
+      documentSymbolProvider: .bool(true),
+      workspaceSymbolProvider: .bool(true),
+      declarationProvider: .bool(true)
+    )
   }
 
   func initialize(_ req: Request<InitializeRequest>) {
@@ -340,7 +401,8 @@ public final class MesonServer: LanguageServer {
         "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>" + "<td>\(t.min().round(to: 2))</td>"
           + "<td>\(t.max().round(to: 2))</td>" + "<td>\(t.median().round(to: 2))</td>"
           + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td>"
-          + "<td>\(t.sum().round(to: 2))</td></tr>")
+          + "<td>\(t.sum().round(to: 2))</td></tr>"
+      )
     }
     let footer = """
       		</table>

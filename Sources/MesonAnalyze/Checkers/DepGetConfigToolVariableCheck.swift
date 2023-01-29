@@ -5,6 +5,10 @@ public class DepGetConfigToolVariableCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Use `dep.get_variable` instead."))
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Use `dep.get_variable` instead."
+      )
+    )
   }
 }

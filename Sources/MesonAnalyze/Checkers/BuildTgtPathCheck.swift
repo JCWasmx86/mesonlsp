@@ -5,6 +5,10 @@ public class BuildTgtPathCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Use `build_tgt.full_path` instead"))
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Use `build_tgt.full_path` instead"
+      )
+    )
   }
 }

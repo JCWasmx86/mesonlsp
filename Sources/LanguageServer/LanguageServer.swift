@@ -37,7 +37,9 @@ open class LanguageServerEndpoint {
   ///
   /// All incoming requests start on this queue, but should reply or move to another queue as soon as possible to avoid blocking.
   public let queue: DispatchQueue = DispatchQueue(
-    label: "language-server-queue", qos: .userInitiated)
+    label: "language-server-queue",
+    qos: .userInitiated
+  )
 
   private var requestHandlers: [ObjectIdentifier: Any] = [:]
 
@@ -179,7 +181,9 @@ extension LanguageServerEndpoint: MessageHandler {
   }
 
   public func handle<R>(
-    _ params: R, id: RequestID, from clientID: ObjectIdentifier,
+    _ params: R,
+    id: RequestID,
+    from clientID: ObjectIdentifier,
     reply: @escaping (LSPResult<R.Response>) -> Void
   ) where R: RequestType {
 
@@ -191,11 +195,15 @@ extension LanguageServerEndpoint: MessageHandler {
       self.requestCancellation[key] = cancellationToken
 
       let request = Request(
-        params, id: id, clientID: clientID, cancellation: cancellationToken,
+        params,
+        id: id,
+        clientID: clientID,
+        cancellation: cancellationToken,
         reply: { [weak self] result in self?.queue.async { self?.requestCancellation[key] = nil }
           reply(result)
           self?._logResponse(result, id: id, method: R.method)
-        })
+        }
+      )
 
       self._logRequest(request)
 

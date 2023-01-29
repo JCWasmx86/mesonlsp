@@ -44,21 +44,26 @@ import TreeSitterMeson
     let realStdoutHandle = FileHandle(fileDescriptor: realStdout, closeOnDealloc: false)
 
     let clientConnection = JSONRPCConnection(
-      protocol: MessageRegistry.lspProtocol, inFD: FileHandle.standardInput,
-      outFD: realStdoutHandle, syncRequests: false)
+      protocol: MessageRegistry.lspProtocol,
+      inFD: FileHandle.standardInput,
+      outFD: realStdoutHandle,
+      syncRequests: false
+    )
     let server = MesonServer(
       client: clientConnection,
       onExit: {
         clientConnection.close()
         return
-      })
+      }
+    )
     clientConnection.start(
       receiveHandler: server,
       closeHandler: {
         server.prepareForExit()
         withExtendedLifetime(realStdoutHandle) {}
         _Exit(0)
-      })
+      }
+    )
     dispatchMain()
   }
 }

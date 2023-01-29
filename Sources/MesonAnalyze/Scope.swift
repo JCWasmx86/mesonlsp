@@ -23,7 +23,10 @@ public class Scope {
           let begin1 = clock()
           self.variables[s.key] = dedup(types: s.value + o.value)
           Timing.INSTANCE.registerMeasurement(
-            name: "mergeScope - dedup", begin: Int(begin1), end: Int(clock()))
+            name: "mergeScope - dedup",
+            begin: Int(begin1),
+            end: Int(clock())
+          )
           added = true
           break
         }

@@ -6,15 +6,21 @@ public struct IcestormModule: AbstractObject {
   public init() {
     self.methods = [
       Method(
-        name: "project", parent: self, returnTypes: [ListType(types: [RunTgt(), CustomTgt()])],
+        name: "project",
+        parent: self,
+        returnTypes: [ListType(types: [RunTgt(), CustomTgt()])],
         args: [
           PositionalArgument(name: "project_name", types: [Str()]),
           PositionalArgument(
-            name: "files", types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]),
+            name: "files",
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]
+          ),
           Kwarg(
             name: "constraint_file",
-            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]),
-        ])
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]
+          ),
+        ]
+      )
     ]
   }
 }

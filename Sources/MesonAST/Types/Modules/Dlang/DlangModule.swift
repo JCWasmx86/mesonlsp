@@ -6,11 +6,14 @@ public struct DlangModule: AbstractObject {
   public init() {
     self.methods = [
       Method(
-        name: "generate_dub_file", parent: self, returnTypes: [],
+        name: "generate_dub_file",
+        parent: self,
+        returnTypes: [],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           PositionalArgument(name: "source", types: [Str()]),
-        ])
+        ]
+      )
     ]
   }
 }

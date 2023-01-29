@@ -6,11 +6,14 @@ public class ExternalProject: AbstractObject {
   public init() {
     self.methods = [
       Method(
-        name: "dependency", parent: self, returnTypes: [Dep()],
+        name: "dependency",
+        parent: self,
+        returnTypes: [Dep()],
         args: [
           PositionalArgument(name: "subdir", types: [Str()]),
           Kwarg(name: "subdir", opt: true, types: [Str()]),
-        ])
+        ]
+      )
     ]
   }
 }

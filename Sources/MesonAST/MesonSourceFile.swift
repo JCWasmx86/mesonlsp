@@ -15,7 +15,8 @@ open class MesonSourceFile {
     if self._cached { return self._contents }
     self._cached = true
     self._contents = try NSString(
-      contentsOfFile: self.file as String, encoding: String.Encoding.utf8.rawValue
+      contentsOfFile: self.file as String,
+      encoding: String.Encoding.utf8.rawValue
     ).description
     return self._contents
   }

@@ -5,7 +5,10 @@ public class MesonGetCrossPropertyCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Replaced by `meson.get_external_property`")
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Replaced by `meson.get_external_property`"
+      )
     )
   }
 }

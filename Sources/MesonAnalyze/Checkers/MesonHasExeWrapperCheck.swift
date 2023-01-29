@@ -5,7 +5,10 @@ public class MesonHasExeWrapperCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node, message: "Deprecated. Replaced by `meson.can_run_host_binaries`")
+        sev: .warning,
+        node: node,
+        message: "Deprecated. Replaced by `meson.can_run_host_binaries`"
+      )
     )
   }
 }

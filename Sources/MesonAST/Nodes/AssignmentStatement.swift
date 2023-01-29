@@ -36,7 +36,8 @@ public class AssignmentStatement: Statement {
     self.lhs = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.rhs = from_tree(file: file, tree: node.namedChild(at: 2))!
     self.op = AssignmentOperator.fromString(
-      str: string_value(file: file, node: node.namedChild(at: 1)!))
+      str: string_value(file: file, node: node.namedChild(at: 1)!)
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitAssignmentStatement(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

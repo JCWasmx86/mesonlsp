@@ -6,7 +6,8 @@ public struct I18nModule: AbstractObject {
   public init() {
     self.methods = [
       Method(
-        name: "gettext", parent: self,
+        name: "gettext",
+        parent: self,
         returnTypes: [ListType(types: [ListType(types: [CustomTgt()]), RunTgt()])],
         args: [
           PositionalArgument(name: "packagename", types: [Str()]),
@@ -15,9 +16,12 @@ public struct I18nModule: AbstractObject {
           Kwarg(name: "preset", opt: true, types: [Str()]),
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "merge_file", parent: self, returnTypes: [CustomTgt()],
+        name: "merge_file",
+        parent: self,
+        returnTypes: [CustomTgt()],
         args: [
           Kwarg(name: "output", types: [Str()]),
           Kwarg(name: "args", opt: true, types: [ListType(types: [Str()])]),
@@ -27,16 +31,21 @@ public struct I18nModule: AbstractObject {
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_tag", opt: true, types: [Str()]),
           Kwarg(
-            name: "input", opt: true,
+            name: "input",
+            opt: true,
             types: [
               ListType(types: [
                 Str(), File(), ExternalProgram(), BuildTgt(), CustomTgt(), CustomIdx(),
                 ExtractedObj(), GeneratedList(),
               ])
-            ]),
-        ]),
+            ]
+          ),
+        ]
+      ),
       Method(
-        name: "itstool_join", parent: self, returnTypes: [CustomTgt()],
+        name: "itstool_join",
+        parent: self,
+        returnTypes: [CustomTgt()],
         args: [
           Kwarg(name: "output", types: [Str()]),
           Kwarg(name: "args", opt: true, types: [ListType(types: [Str()])]),
@@ -48,14 +57,17 @@ public struct I18nModule: AbstractObject {
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_tag", opt: true, types: [Str()]),
           Kwarg(
-            name: "input", opt: true,
+            name: "input",
+            opt: true,
             types: [
               ListType(types: [
                 Str(), File(), ExternalProgram(), BuildTgt(), CustomTgt(), CustomIdx(),
                 ExtractedObj(), GeneratedList(),
               ])
-            ]),
-        ]),
+            ]
+          ),
+        ]
+      ),
     ]
   }
 }

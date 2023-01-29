@@ -7,11 +7,14 @@ public struct Subproject: AbstractObject {
     self.methods = [
       Method(name: "found", parent: self, returnTypes: [BoolType()]),
       Method(
-        name: "get_variable", parent: self, returnTypes: [`Any`()],
+        name: "get_variable",
+        parent: self,
+        returnTypes: [`Any`()],
         args: [
           PositionalArgument(name: "var_name", types: [Str()]),
           PositionalArgument(name: "fallback", opt: true, types: [`Any`()]),
-        ]),
+        ]
+      ),
     ]
   }
 }

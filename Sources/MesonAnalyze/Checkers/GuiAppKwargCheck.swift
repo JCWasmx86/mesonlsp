@@ -9,7 +9,11 @@ public class GuiAppKwargCheck: MesonChecker {
             metadata.registerDiagnostic(
               node: node,
               diag: MesonDiagnostic(
-                sev: .warning, node: node, message: "Deprecated. Use `win_subsystem` instead"))
+                sev: .warning,
+                node: node,
+                message: "Deprecated. Use `win_subsystem` instead"
+              )
+            )
             break
           }
         }

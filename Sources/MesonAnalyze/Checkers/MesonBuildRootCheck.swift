@@ -5,9 +5,11 @@ public class MesonBuildRootCheck: MesonChecker {
     metadata.registerDiagnostic(
       node: node,
       diag: MesonDiagnostic(
-        sev: .warning, node: node,
+        sev: .warning,
+        node: node,
         message:
           "Deprecated. Try one of: `meson.current_build_dir`, `meson.project_build_root` or `meson.global_build_root`"
-      ))
+      )
+    )
   }
 }

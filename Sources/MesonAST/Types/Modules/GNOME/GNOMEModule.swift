@@ -6,35 +6,42 @@ public struct GNOMEModule: AbstractObject {
   public init() {
     self.methods = [
       Method(
-        name: "compile_resources", parent: self, returnTypes: [ListType(types: [BuildTgt()])],
+        name: "compile_resources",
+        parent: self,
+        returnTypes: [ListType(types: [BuildTgt()])],
         args: [
           PositionalArgument(name: "id", types: [Str()]),
           PositionalArgument(
             name: "input",
-            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]),
-          Kwarg(name: "c_name", opt: true, types: [Str()]),
+            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]
+          ), Kwarg(name: "c_name", opt: true, types: [Str()]),
           Kwarg(
-            name: "dependencies", opt: true,
-            types: [ListType(types: [File(), CustomTgt(), CustomIdx()])]),
-          Kwarg(name: "export", opt: true, types: [BoolType()]),
+            name: "dependencies",
+            opt: true,
+            types: [ListType(types: [File(), CustomTgt(), CustomIdx()])]
+          ), Kwarg(name: "export", opt: true, types: [BoolType()]),
           Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "gresource_bundle", opt: true, types: [BoolType()]),
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_header", opt: true, types: [BoolType()]),
           Kwarg(name: "source_dir", opt: true, types: [ListType(types: [Str()])]),
-        ]),
+        ]
+      ),
       Method(
-        name: "generate_gir", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "generate_gir",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "file", varargs: true, types: [Exe(), Lib()]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "export_packages", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(
-            name: "sources", opt: true,
-            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx()])]),
-          Kwarg(name: "nsversion", types: [Str()]), Kwarg(name: "namespace", types: [Str()]),
+            name: "sources",
+            opt: true,
+            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx()])]
+          ), Kwarg(name: "nsversion", types: [Str()]), Kwarg(name: "namespace", types: [Str()]),
           Kwarg(name: "identifier_prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "includes", opt: true, types: [ListType(types: [Str(), CustomTgt()])]),
           Kwarg(name: "header", opt: true, types: [ListType(types: [Str()])]),
@@ -48,9 +55,12 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "link_with", opt: true, types: [ListType(types: [Lib()])]),
           Kwarg(name: "symbok_prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "fatal_warnings", opt: true, types: [BoolType()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "genmarshal", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "genmarshal",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "basename", types: [Str()]),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
@@ -65,17 +75,20 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "sources", types: [ListType(types: [Str(), File()])]),
           Kwarg(name: "stdinc", opt: true, types: [BoolType()]),
           Kwarg(name: "valist_marshallers", opt: true, types: [BoolType()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "mkenums", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "mkenums",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_header", opt: true, types: [BoolType()]),
           Kwarg(
             name: "sources",
-            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]),
-          Kwarg(name: "symbol_prefix", opt: true, types: [Str()]),
+            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]
+          ), Kwarg(name: "symbol_prefix", opt: true, types: [Str()]),
           Kwarg(name: "identifier_prefix", opt: true, types: [Str()]),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
           Kwarg(name: "c_template", opt: true, types: [File(), Str()]),
@@ -88,52 +101,70 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "vhead", opt: true, types: [Str()]),
           Kwarg(name: "vprod", opt: true, types: [Str()]),
           Kwarg(name: "vtail", opt: true, types: [Str()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "mkenums_simple", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "mkenums_simple",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_header", opt: true, types: [BoolType()]),
           Kwarg(
             name: "sources",
-            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]),
-          Kwarg(name: "symbol_prefix", opt: true, types: [Str()]),
+            types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()])]
+          ), Kwarg(name: "symbol_prefix", opt: true, types: [Str()]),
           Kwarg(name: "identifier_prefix", opt: true, types: [Str()]),
           Kwarg(name: "body_prefix", opt: true, types: [Str()]),
           Kwarg(name: "decorator", opt: true, types: [Str()]),
           Kwarg(name: "function_prefix", opt: true, types: [Str()]),
           Kwarg(name: "header_prefix", opt: true, types: [Str()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "compile_schemas", parent: self, returnTypes: [CustomTgt()],
+        name: "compile_schemas",
+        parent: self,
+        returnTypes: [CustomTgt()],
         args: [
           Kwarg(name: "build_by_default", opt: true, types: [BoolType()]),
           Kwarg(name: "depend_files", opt: true, types: [Str(), File()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "gdbus_codegen", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "gdbus_codegen",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           PositionalArgument(
-            name: "file", varargs: true, opt: true,
-            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]),
-          Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
+            name: "file",
+            varargs: true,
+            opt: true,
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]
+          ), Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "interface_prefix", opt: true, types: [Str()]),
           Kwarg(name: "namespace", opt: true, types: [Str()]),
           Kwarg(name: "object_manager", opt: true, types: [BoolType()]),
           Kwarg(
-            name: "annotations", opt: true, types: [ListType(types: [ListType(types: [Str()])])]),
-          Kwarg(name: "install_header", opt: true, types: [BoolType()]),
+            name: "annotations",
+            opt: true,
+            types: [ListType(types: [ListType(types: [Str()])])]
+          ), Kwarg(name: "install_header", opt: true, types: [BoolType()]),
           Kwarg(name: "docbook", opt: true, types: [Str()]),
           Kwarg(name: "autocleanup", opt: true, types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(
-            name: "sources", opt: true,
-            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]),
-        ]),
+            name: "sources",
+            opt: true,
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]
+          ),
+        ]
+      ),
       Method(
-        name: "generate_vapi", parent: self, returnTypes: [Dep()],
+        name: "generate_vapi",
+        parent: self,
+        returnTypes: [Dep()],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
@@ -143,9 +174,12 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "metadata_dirs", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "gir_dirs", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "packages", opt: true, types: [ListType(types: [Str(), Dep()])]),
-        ]),
+        ]
+      ),
       Method(
-        name: "yelp", parent: self, returnTypes: [],
+        name: "yelp",
+        parent: self,
+        returnTypes: [],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           PositionalArgument(name: "file", varargs: true, opt: true, types: [Str()]),
@@ -153,20 +187,26 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "media", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "sources", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "symlink_media", opt: true, types: [BoolType()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "gtkdoc", parent: self, returnTypes: [ListType(types: [CustomTgt()])],
+        name: "gtkdoc",
+        parent: self,
+        returnTypes: [ListType(types: [CustomTgt()])],
         args: [
           PositionalArgument(name: "name", types: [Str()]),
           Kwarg(name: "c_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "check", opt: true, types: [BoolType()]),
           Kwarg(
-            name: "content_files", opt: true,
-            types: [ListType(types: [Str(), File(), GeneratedList(), CustomTgt(), CustomIdx()])]),
-          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep(), Lib()])]),
+            name: "content_files",
+            opt: true,
+            types: [ListType(types: [Str(), File(), GeneratedList(), CustomTgt(), CustomIdx()])]
+          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep(), Lib()])]),
           Kwarg(
-            name: "expand_content_files", opt: true, types: [ListType(types: [Str(), File()])]),
-          Kwarg(name: "fixref_args", opt: true, types: [ListType(types: [Str()])]),
+            name: "expand_content_files",
+            opt: true,
+            types: [ListType(types: [Str(), File()])]
+          ), Kwarg(name: "fixref_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "gobject_typesfile", opt: true, types: [ListType(types: [Str(), File()])]),
           Kwarg(name: "html_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "html_assets", opt: true, types: [ListType(types: [Str(), File()])]),
@@ -183,19 +223,26 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "scan_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "scanobj_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "src_dir", opt: true, types: [ListType(types: [Str(), Inc()])]),
-        ]),
+        ]
+      ),
       Method(
-        name: "gtkdoc_html_dir", parent: self, returnTypes: [Str()],
-        args: [PositionalArgument(name: "name", types: [Str()])]),
+        name: "gtkdoc_html_dir",
+        parent: self,
+        returnTypes: [Str()],
+        args: [PositionalArgument(name: "name", types: [Str()])]
+      ),
       Method(
-        name: "post_install", parent: self, returnTypes: [],
+        name: "post_install",
+        parent: self,
+        returnTypes: [],
         args: [
           Kwarg(name: "glib_compile_schemas", opt: true, types: [BoolType()]),
           Kwarg(name: "gtk_update_icon_cache", opt: true, types: [BoolType()]),
           Kwarg(name: "update_desktop_database", opt: true, types: [BoolType()]),
           Kwarg(name: "update_mime_database", opt: true, types: [BoolType()]),
           Kwarg(name: "gio_querymodules", opt: true, types: [ListType(types: [Str()])]),
-        ]),
+        ]
+      ),
     ]
   }
 }

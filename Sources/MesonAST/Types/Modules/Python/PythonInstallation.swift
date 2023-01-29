@@ -7,13 +7,17 @@ public struct PythonInstallation: AbstractObject {
     self.methods = [
       Method(name: "path", parent: self, returnTypes: [Str()], args: []),
       Method(
-        name: "extension_module", parent: self, returnTypes: [BuildTgt()],
+        name: "extension_module",
+        parent: self,
+        returnTypes: [BuildTgt()],
         args: [
           PositionalArgument(name: "target_name", types: [Str()]),
           PositionalArgument(
-            name: "source", varargs: true, opt: true,
-            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]),
-          Kwarg(name: "c_args", opt: true, types: [ListType(types: [Str()])]),
+            name: "source",
+            varargs: true,
+            opt: true,
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList()]
+          ), Kwarg(name: "c_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "cpp_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "cs_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "d_args", opt: true, types: [ListType(types: [Str()])]),
@@ -33,8 +37,10 @@ public struct PythonInstallation: AbstractObject {
           Kwarg(name: "d_debug", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "d_import_dirs", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(
-            name: "d_module_versions", opt: true, types: [ListType(types: [Str(), `IntType`()])]),
-          Kwarg(name: "d_unittest", opt: true, types: [BoolType()]),
+            name: "d_module_versions",
+            opt: true,
+            types: [ListType(types: [Str(), `IntType`()])]
+          ), Kwarg(name: "d_unittest", opt: true, types: [BoolType()]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [Str(), File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: [Str()]),
@@ -50,26 +56,38 @@ public struct PythonInstallation: AbstractObject {
           Kwarg(name: "link_depends", opt: true, types: [Str(), File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "link_language", opt: true, types: [Str()]),
           Kwarg(
-            name: "link_whole", opt: true,
-            types: [ListType(types: [Lib(), CustomTgt(), CustomIdx()])]),
+            name: "link_whole",
+            opt: true,
+            types: [ListType(types: [Lib(), CustomTgt(), CustomIdx()])]
+          ),
           Kwarg(
-            name: "link_with", opt: true,
-            types: [ListType(types: [Lib(), CustomTgt(), CustomIdx()])]),
-          Kwarg(name: "native", opt: true, types: [BoolType()]),
+            name: "link_with",
+            opt: true,
+            types: [ListType(types: [Lib(), CustomTgt(), CustomIdx()])]
+          ), Kwarg(name: "native", opt: true, types: [BoolType()]),
           Kwarg(
-            name: "objects", opt: true, types: [ListType(types: [ExtractedObj(), File(), Str()])]),
-          Kwarg(name: "override_options", opt: true, types: [ListType(types: [Str()])]),
+            name: "objects",
+            opt: true,
+            types: [ListType(types: [ExtractedObj(), File(), Str()])]
+          ), Kwarg(name: "override_options", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "rust_crate_type", opt: true, types: [Str()]),
           Kwarg(
-            name: "sources", opt: true,
-            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]),
+            name: "sources",
+            opt: true,
+            types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
+          ),
           Kwarg(
-            name: "vs_module_defs", opt: true, types: [Str(), File(), CustomTgt(), CustomIdx()]),
-          Kwarg(name: "win_subsystem", opt: true, types: [Str()]),
+            name: "vs_module_defs",
+            opt: true,
+            types: [Str(), File(), CustomTgt(), CustomIdx()]
+          ), Kwarg(name: "win_subsystem", opt: true, types: [Str()]),
           Kwarg(name: "subdir", opt: true, types: [Str()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "dependency", parent: self, returnTypes: [Dep()],
+        name: "dependency",
+        parent: self,
+        returnTypes: [Dep()],
         args: [
           Kwarg(name: "allow_fallback", opt: true, types: [BoolType()]),
           Kwarg(name: "default_options", opt: true, types: [ListType(types: [Str()])]),
@@ -85,9 +103,12 @@ public struct PythonInstallation: AbstractObject {
           Kwarg(name: "version", opt: true, types: [Str()]),
           Kwarg(name: "disabler", opt: true, types: [BoolType()]),
           Kwarg(name: "embed", opt: true, types: [BoolType()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "install_sources", parent: self, returnTypes: [],
+        name: "install_sources",
+        parent: self,
+        returnTypes: [],
         args: [
           PositionalArgument(name: "file", varargs: true, opt: true, types: [Str(), File()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
@@ -98,31 +119,47 @@ public struct PythonInstallation: AbstractObject {
           Kwarg(name: "sources", opt: true, types: [ListType(types: [File(), Str()])]),
           Kwarg(name: "pure", opt: true, types: [BoolType()]),
           Kwarg(name: "subdir", opt: true, types: [Str()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "get_install_dir", parent: self, returnTypes: [Str()],
+        name: "get_install_dir",
+        parent: self,
+        returnTypes: [Str()],
         args: [
           Kwarg(name: "pure", opt: true, types: [BoolType()]),
           Kwarg(name: "subdir", opt: true, types: [Str()]),
-        ]), Method(name: "language_version", parent: self, returnTypes: [Str()], args: []),
+        ]
+      ), Method(name: "language_version", parent: self, returnTypes: [Str()], args: []),
       Method(
-        name: "get_path", parent: self, returnTypes: [Str()],
+        name: "get_path",
+        parent: self,
+        returnTypes: [Str()],
         args: [
           PositionalArgument(name: "path_name", types: [Str()]),
           PositionalArgument(name: "fallback", opt: true, types: [`Any`()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "has_path", parent: self, returnTypes: [BoolType()],
-        args: [PositionalArgument(name: "path_name", types: [Str()])]),
+        name: "has_path",
+        parent: self,
+        returnTypes: [BoolType()],
+        args: [PositionalArgument(name: "path_name", types: [Str()])]
+      ),
       Method(
-        name: "get_variable", parent: self, returnTypes: [`Any`()],
+        name: "get_variable",
+        parent: self,
+        returnTypes: [`Any`()],
         args: [
           PositionalArgument(name: "variable_name", types: [Str()]),
           PositionalArgument(name: "fallback", opt: true, types: [`Any`()]),
-        ]),
+        ]
+      ),
       Method(
-        name: "has_variable", parent: self, returnTypes: [BoolType()],
-        args: [PositionalArgument(name: "variable_name", types: [Str()])]),
+        name: "has_variable",
+        parent: self,
+        returnTypes: [BoolType()],
+        args: [PositionalArgument(name: "variable_name", types: [Str()])]
+      ),
     ]
   }
 }

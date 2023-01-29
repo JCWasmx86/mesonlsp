@@ -7,10 +7,17 @@ public struct SourceFiles: AbstractObject {
     self.methods = [
 
       Method(
-        name: "sources", parent: self, returnTypes: [ListType(types: [Str(), File()])], args: []),
+        name: "sources",
+        parent: self,
+        returnTypes: [ListType(types: [Str(), File()])],
+        args: []
+      ),
       Method(
-        name: "dependencies", parent: self, returnTypes: [ListType(types: [Str(), File()])],
-        args: []),
+        name: "dependencies",
+        parent: self,
+        returnTypes: [ListType(types: [Str(), File()])],
+        args: []
+      ),
     ]
   }
 }

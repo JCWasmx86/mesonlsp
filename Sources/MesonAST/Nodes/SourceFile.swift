@@ -13,7 +13,10 @@ public class SourceFile: Node {
     self.location = Location(node: node)
     if node.namedChildCount == 0 {
       self.build_definition = ErrorNode(
-        file: file, node: node, msg: "Expected build_definition, got nothing!")
+        file: file,
+        node: node,
+        msg: "Expected build_definition, got nothing!"
+      )
       return
     }
     if node.namedChildCount == 1 && node.namedChild(at: 0)?.nodeType == "build_definition" {
@@ -26,7 +29,8 @@ public class SourceFile: Node {
         self.build_definition = BuildDefinition(file: file, node: node.namedChild(at: n)!)
       } else {
         self.errs.append(
-          ErrorNode(file: file, node: node.namedChild(at: n)!, msg: "Unexpected child"))
+          ErrorNode(file: file, node: node.namedChild(at: n)!, msg: "Unexpected child")
+        )
       }
     }
   }
