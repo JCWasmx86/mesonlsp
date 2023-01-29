@@ -69,5 +69,6 @@ ninja -j $(nproc) install
 ### Version 3.0
 - Renaming
 - Code actions
+- Inlay Hints (*)
 
 (*) Depending on the progress of inlay hints in GNOME-Builder (See [here](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/1317) for progress)
