@@ -57,7 +57,6 @@ ninja -j $(nproc) install
 - Hovering
 - Symbol resolving
 - Diagnostics
-- Inlay Hints (*)
 - A limited set of diagnostics
 
 ### Version 2.0
