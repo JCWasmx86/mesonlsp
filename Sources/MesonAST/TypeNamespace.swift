@@ -1045,4 +1045,18 @@ public class TypeNamespace {
     for f in self.functions where f.name == name { return f }
     return nil
   }
+
+  public func lookupMethod(name: String) -> Method? {
+    // TODO: Check what arguments/kwargs are given
+    for o in self.types {
+      if let obj = o.value as? AbstractObject, obj.parent != nil { continue }
+      for m in o.value.methods { if m.name == name { return m } }
+    }
+    for o in self.types {
+      if o.value as? AbstractObject == nil { continue }
+      if let obj = o.value as? AbstractObject, obj.parent == nil { continue }
+      for m in o.value.methods { if m.name == name { return m } }
+    }
+    return nil
+  }
 }

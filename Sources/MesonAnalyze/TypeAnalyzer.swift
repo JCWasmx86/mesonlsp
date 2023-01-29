@@ -264,7 +264,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     var ownResultTypes: [Type] = []
     var found = false
     let methodName = (node.id as! IdExpression).id
+    var nAny = 0
     for t in types {
+      if t is `Any` {
+        nAny += 1
+        continue
+      }
       if let m = t.getMethod(name: methodName) {
         ownResultTypes += self.typeanalyzersState.apply(
           node: node, options: self.options, f: m, ns: self.t!)
@@ -275,6 +280,20 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     node.types = dedup(types: ownResultTypes)
+    if !found && nAny == types.count {
+      let begin = clock()
+      let guessedMethod = self.t!.lookupMethod(name: methodName)
+      Timing.INSTANCE.registerMeasurement(name: "guessingMethod", begin: begin, end: clock())
+      if let guessedM = guessedMethod {
+        print("Guessed method", guessedM.id(), "at", node.file.file, node.location.format())
+        ownResultTypes += self.typeanalyzersState.apply(
+          node: node, options: self.options, f: guessedM, ns: self.t!)
+        node.method = guessedM
+        self.metadata.registerMethodCall(call: node)
+        found = true
+        checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
+      }
+    }
     if !found {
       let types = joinTypes(types: types)
       self.metadata.registerDiagnostic(
