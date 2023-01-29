@@ -3,3 +3,4 @@ disabled_rules:
   - type_name
   - opening_brace
   - trailing_comma
+  - force_cast
