@@ -38,6 +38,7 @@
 - [ ] Autocompletion
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
+- [ ] Formatting
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
