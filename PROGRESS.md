@@ -1,12 +1,12 @@
 ## Version 1.0
 - [x] Language Server scaffolding
-- [ ] Hover
-  - [ ] Basic hovering
+- [x] Hover
+  - [x] Basic hovering
     - [x] Functions
     - [x] Methods
     - [x] Identifiers
-    - [ ] Kwargs
-  - [ ] Limited docs on hover
+    - [x] Kwargs
+  - [x] Limited docs on hover
 - [x] Symbol resolving
 - [x] Basic diagnostics
 - [x] Type definitions for all modules/builtins
