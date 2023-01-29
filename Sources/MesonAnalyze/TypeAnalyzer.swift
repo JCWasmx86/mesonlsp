@@ -266,7 +266,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     let methodName = (node.id as! IdExpression).id
     for t in types {
       if let m = t.getMethod(name: methodName) {
-        ownResultTypes += m.returnTypes
+        ownResultTypes += self.typeanalyzersState.apply(
+          node: node, options: self.options, f: m, ns: self.t!)
         node.method = m
         self.metadata.registerMethodCall(call: node)
         found = true
