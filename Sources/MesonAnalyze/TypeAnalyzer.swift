@@ -220,6 +220,22 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         f: fn,
         ns: self.t!
       )
+      if fn.name == "get_variable" && node.argumentList != nil, node.argumentList is ArgumentList {
+        let args = (node.argumentList as! ArgumentList).args
+        if args.count != 0 && args[0] is StringLiteral {
+          let varname = (args[0] as! StringLiteral).contents()
+          var types: [Type] = []
+          if let sv = self.scope.variables[varname] {
+            types += sv
+          } else {
+            types.append(self.t!.types["any"]!)
+          }
+          if args.count >= 2 { types += args[1].types }
+          self.scope.variables[varname] = types
+          self.applyToStack(varname, types)
+          print("get_variable: ", varname, self.joinTypes(types: types))
+        }
+      }
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
@@ -241,6 +257,16 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       if node.argumentList != nil, node.argumentList is ArgumentList {
         for a in (node.argumentList as! ArgumentList).args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: fn)
+        }
+        if node.function!.name == "set_variable" {
+          let args = (node.argumentList as! ArgumentList).args
+          if args.count > 1 && args[0] is StringLiteral {
+            let varname = (args[0] as! StringLiteral).contents()
+            let types = args[1].types
+            self.scope.variables[varname] = types
+            self.applyToStack(varname, types)
+            print("set_variable: ", varname, self.joinTypes(types: types))
+          }
         }
       }
     } else {
