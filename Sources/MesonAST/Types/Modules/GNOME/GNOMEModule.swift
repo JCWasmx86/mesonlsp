@@ -216,6 +216,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "main_sgml", opt: true, types: [Str()]),
           Kwarg(name: "main_xml", opt: true, types: [Str()]),
+          Kwarg(name: "fixxref_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "mkdb_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "mode", opt: true, types: [Str()]),
           Kwarg(name: "module_version", opt: true, types: [Str()]),
