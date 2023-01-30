@@ -3,14 +3,15 @@
 A reimplementation of my Meson language server in Swift.
 
 ## Limitations
-- No support for anything regarding `set_variable`/`get_variable`
+- Only very partial for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
 - Non constant `subdir`-calls are not supported
 - Type deduction is not 100% correct yet
 
 ```
-set_variable('foo', 1)
-x = foo # Unknown identifier 'foo'
+some_var = foo
+set_variable('foo' + some_var, 1)
+x = foo_foo # Unknown identifier 'foo_foo'
 foreach backend : backends
   # The file backend-$backend/meson.build
   # won't be parsed
