@@ -6,7 +6,7 @@ public class DictGetTypeAnalyzer: MesonTypeAnalyzer {
     if let me = node as? MethodExpression {
       let parentTypes = me.obj.types
       let extraTypes: [Type]
-      if let al = me.argumentList, let argList = al as? ArgumentList, argList.args.count > 2 {
+      if let al = me.argumentList, let argList = al as? ArgumentList, argList.args.count > 1 {
         extraTypes = argList.args[1].types
       } else {
         extraTypes = []

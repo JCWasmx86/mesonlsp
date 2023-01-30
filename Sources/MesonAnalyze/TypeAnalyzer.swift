@@ -503,6 +503,10 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
 
     return self.scope.variables[id.id] != nil
   }
+
+  func isType(_ type: Type, _ name: String) -> Bool {
+    return type.name == name || type.name == "any"
+  }
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)
     var newTypes: [Type] = []
@@ -515,32 +519,109 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       )
       return
     }
+    var nErrors = 0
+    let nTimes = node.lhs.types.count * node.rhs.types.count
     for l in node.lhs.types {
       for r in node.rhs.types {
+        // Theoretically not an error (yet),
+        // but practically better safe than sorry.
+        if r.name == "any" && l.name == "any" {
+          nErrors += 1
+          continue
+        }
         switch node.op! {
-        case .and: newTypes.append(self.t!.types["bool"]!)
-        case .div:
-          if l is `IntType` && r is `IntType` {
-            newTypes.append(self.t!.types["int"]!)
-          } else if l is Str && r is Str {
-            newTypes.append(self.t!.types["str"]!)
+        case .and:
+          if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
           }
-        case .equalsEquals: newTypes.append(self.t!.types["bool"]!)
-        case .ge: newTypes.append(self.t!.types["bool"]!)
-        case .gt: newTypes.append(self.t!.types["bool"]!)
-        case .IN: newTypes.append(self.t!.types["bool"]!)
-        case .le: newTypes.append(self.t!.types["bool"]!)
-        case .lt: newTypes.append(self.t!.types["bool"]!)
-        case .minus: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
-        case .modulo: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
-        case .mul: if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
-        case .notEquals: newTypes.append(self.t!.types["bool"]!)
-        case .notIn: newTypes.append(self.t!.types["bool"]!)
-        case .or: newTypes.append(self.t!.types["bool"]!)
-        case .plus:
-          if l is `IntType` && r is `IntType` {
+        case .div:
+          if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["int"]!)
-          } else if l is Str && r is Str {
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t!.types["str"]!)
+          } else {
+            nErrors += 1
+          }
+        case .equalsEquals:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .ge:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .gt:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .IN: newTypes.append(self.t!.types["bool"]!)
+        case .le:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .lt:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .minus:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["int"]!)
+          } else {
+            nErrors += 1
+          }
+        case .modulo:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["int"]!)
+          } else {
+            nErrors += 1
+          }
+        case .mul:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["int"]!)
+          } else {
+            nErrors += 1
+          }
+        case .notEquals:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "dict") && isType(r, "dict") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "list") && isType(r, "list") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .notIn: newTypes.append(self.t!.types["bool"]!)
+        case .or:
+          if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .plus:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["int"]!)
+          } else if isType(l, "str") && isType(r, "str") {
             newTypes.append(self.t!.types["str"]!)
           } else if l is ListType && r is ListType {
             newTypes.append(
@@ -552,9 +633,22 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             newTypes.append(Dict(types: dedup(types: (l as! Dict).types + (r as! Dict).types)))
           } else if l is Dict {
             newTypes.append(Dict(types: dedup(types: (l as! Dict).types + [r])))
+          } else {
+            nErrors += 1
           }
         }
       }
+    }
+    if nTimes != 0 && nErrors == nTimes && (!node.lhs.types.isEmpty) && (!node.rhs.types.isEmpty) {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error,
+          node: node,
+          message:
+            "Unable to apply operator `\(node.op!)` to types \(self.joinTypes(types: node.lhs.types)) and \(self.joinTypes(types: node.rhs.types))"
+        )
+      )
     }
     node.types = dedup(types: newTypes)
   }
