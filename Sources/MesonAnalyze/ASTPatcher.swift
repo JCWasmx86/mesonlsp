@@ -1,8 +1,10 @@
 import MesonAST
+import PathKit
 
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []
   public var subdirNodes: [SubdirCall] = []
+  private var parent: String = ""
 
   func isSubdirCall(node: Node) -> Bool {
     if !(node is FunctionExpression) { return false }
@@ -11,12 +13,18 @@ class ASTPatcher: CodeVisitor {
     if f.argumentList == nil || !(f.argumentList! is ArgumentList) { return false }
     let args = (f.argumentList! as! ArgumentList).args
     for a in args where a is StringLiteral {
+      if !Path(parent + "/" + (a as! StringLiteral).contents() + "/meson.build").exists {
+        return false
+      }
       subdirs.append((a as! StringLiteral).id)
       return true
     }
     return false
   }
-  func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
+  func visitSourceFile(file: SourceFile) {
+    self.parent = Path(file.file.file).parent().description
+    file.visitChildren(visitor: self)
+  }
   func visitBuildDefinition(node: BuildDefinition) {
     var idx = 0
     var idxes: [Int] = []

@@ -235,6 +235,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           self.applyToStack(varname, types)
           print("get_variable: ", varname, self.joinTypes(types: types))
         }
+      } else if fn.name == "subdir" && node.argumentList != nil, node.argumentList is ArgumentList {
+        if (node.argumentList as! ArgumentList).args[0] is StringLiteral {
+          let sl = (node.argumentList as! ArgumentList).args[0] as! StringLiteral
+          let s = sl.contents()
+          self.metadata.registerDiagnostic(
+            node: node,
+            diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
+          )
+        }
       }
       node.function = fn
       self.metadata.registerFunctionCall(call: node)

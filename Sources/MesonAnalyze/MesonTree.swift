@@ -18,12 +18,13 @@ public class MesonTree {
     throws
   {
     self.ns = ns
-    self.file = Path(file).normalize().description
+    let pkp = Path(file).normalize()
+    self.file = pkp.description
     self.ast = nil
     self.depth = depth
     let p = Parser()
     try p.setLanguage(tree_sitter_meson())
-    if memfiles[self.file] == nil {
+    if memfiles[self.file] == nil && pkp.exists {
       if let text = try? NSString(
         contentsOfFile: self.file as String,
         encoding: String.Encoding.utf8.rawValue
@@ -45,7 +46,7 @@ public class MesonTree {
           end: Int(endBuildingAst)
         )
       }
-    } else {
+    } else if memfiles[self.file] != nil {
       let beginParsing = clock()
       let tree = p.parse(memfiles[self.file]!.description)
       let endParsing = clock()
@@ -65,6 +66,8 @@ public class MesonTree {
         begin: Int(endParsing),
         end: Int(endBuildingAst)
       )
+    } else {
+      print("No file found:", self.file)
     }
     let beginPatching = clock()
     let astPatcher = ASTPatcher()
@@ -81,9 +84,11 @@ public class MesonTree {
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
       let tree = try MesonTree(file: f, ns: ns, depth: depth + 1, memfiles: memfiles)
-      tree.ast!.parent = astPatcher.subdirNodes[idx]
-      tree.ast!.setParents()
-      assert(tree.ast!.parent != nil)
+      if tree.ast != nil {
+        tree.ast!.parent = astPatcher.subdirNodes[idx]
+        tree.ast!.setParents()
+        assert(tree.ast!.parent != nil)
+      }
       self.subfiles.append(tree)
       idx += 1
     }
@@ -115,7 +120,7 @@ public class MesonTree {
     self.ast!.setParents()
     self.ast!.visit(visitor: t)
     self.metadata = t.metadata
-    for s in self.subfiles { assert(s.ast!.parent is SubdirCall) }
+    for s in self.subfiles where s.ast != nil { assert(s.ast!.parent is SubdirCall) }
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {
