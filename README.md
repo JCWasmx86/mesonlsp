@@ -17,6 +17,13 @@ foreach backend : backends
   # won't be parsed
   subdir('backend-' + backend)
 endforeach
+foo = some_str
+if something
+  foo = some_str != 'foo'
+else
+  # Error can't apply `!=` to bool and str
+  foo = foo != 'bar'
+endif
 ```
 
 ## Why a reimplementation?
