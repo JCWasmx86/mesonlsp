@@ -61,7 +61,10 @@ import TreeSitterMeson
     let realStdoutHandle = FileHandle(fileDescriptor: realStdout, closeOnDealloc: false)
 
     let clientConnection = JSONRPCConnection(
-      protocol: MessageRegistry.lspProtocol,
+      protocol: MessageRegistry(
+        requests: builtinRequests,
+        notifications: builtinNotifications + [DidSaveTextDocumentNotification.self]
+      ),
       inFD: FileHandle.standardInput,
       outFD: realStdoutHandle,
       syncRequests: false

@@ -53,7 +53,7 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.openDocument)
     _register(MesonServer.closeDocument)
     _register(MesonServer.changeDocument)
-    _register(MesonServer.saveDocument)
+    _register(MesonServer.didSaveDocument)
     _register(MesonServer.hover)
     _register(MesonServer.declaration)
     _register(MesonServer.definition)
@@ -343,11 +343,11 @@ public final class MesonServer: LanguageServer {
 
   }
 
-  func saveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
+  func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    MesonServer.LOG.info("Dropping \(file!) from memcache")
+    MesonServer.LOG.info("[Save] Dropping \(file!) from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
@@ -356,21 +356,23 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    MesonServer.LOG.info("Dropping \(file!) from memcache")
+    MesonServer.LOG.info("[Close] Dropping \(file!) from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
 
   func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
-    MesonServer.LOG.info("Adding \(file!) to memcache")
+    MesonServer.LOG.info("[Change] Adding \(file!) to memcache")
     self.memfiles[file!] = note.params.contentChanges[0].text
     self.rebuildTree()
   }
 
   func capabilities() -> ServerCapabilities {
     return ServerCapabilities(
-      textDocumentSync: .options(TextDocumentSyncOptions(openClose: true, change: .full)),
+      textDocumentSync: .options(
+        TextDocumentSyncOptions(openClose: true, change: .full, save: .bool(true))
+      ),
       hoverProvider: .bool(true),
       definitionProvider: .bool(true),
       documentHighlightProvider: .bool(true),
