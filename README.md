@@ -75,13 +75,14 @@ ninja -j $(nproc) install
 - Symbol resolving
 - Diagnostics
 - A limited set of diagnostics
+- Formatting
+- Symboltree
 
 ### Version 2.0
 - Autocompletion
 - More diagnostics
 - Inlay Hints (*)
 - Full Wrap/Subproject support
-- Formatting
 
 ### Version 3.0
 - Renaming
