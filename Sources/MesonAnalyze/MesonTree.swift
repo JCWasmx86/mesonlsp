@@ -127,6 +127,7 @@ public class MesonTree {
 
   public func findSubdirTree(file: String) -> MesonTree? {
     let p = Path(file).normalize().absolute().description
+    if p == self.file { return self }
     for t in self.subfiles where t.file == p { return t }
     for t in self.subfiles { if let m = t.findSubdirTree(file: p) { return m } }
     return nil
