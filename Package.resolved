@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "console-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/console-kit.git",
+      "state" : {
+        "revision" : "447f1046fb4e9df40973fe426ecb24a6f0e8d3b4",
+        "version" : "4.6.0"
+      }
+    },
+    {
       "identity" : "indexstore-db",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/indexstore-db.git",
@@ -79,6 +88,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "d6fd136c0785f05f0508e9509e349773e987c67c"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
       }
     },
     {

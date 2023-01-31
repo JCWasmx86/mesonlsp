@@ -19,6 +19,8 @@ let package = Package(
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
+    .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
+    .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
   ],
   targets: [
     .target(
@@ -37,6 +39,8 @@ let package = Package(
       name: "Swift-MesonLSP",
       dependencies: [
         "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
+        .product(name: "ConsoleKit", package: "console-kit"),
+        .product(name: "Logging", package: "swift-log"),
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
