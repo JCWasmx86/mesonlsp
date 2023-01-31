@@ -58,6 +58,13 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.declaration)
     _register(MesonServer.definition)
     _register(MesonServer.formatting)
+    _register(MesonServer.documentSymbol)
+  }
+
+  func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
+    let begin = clock()
+    req.reply(.symbolInformation([]))
+    Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
   }
 
   func formatting(_ req: Request<DocumentFormattingRequest>) {
