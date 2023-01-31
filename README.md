@@ -17,13 +17,6 @@ foreach backend : backends
   # won't be parsed
   subdir('backend-' + backend)
 endforeach
-foo = some_str
-if something
-  foo = some_str != 'foo'
-else
-  # Error can't apply `!=` to bool and str
-  foo = foo != 'bar'
-endif
 ```
 
 ## Why a reimplementation?
@@ -116,5 +109,6 @@ got fully parsed 35 times.
 - `clearingDiagnostics` is the section in that all diagnostics are cleared before rebuilding the tree.
 - `checkIdentifier` checks, if an identifier follows `snake_case`
 - `guessingMethod` is a method that attempts to deduce the possible methods that are called on an `any` object.
+- `evalStack` is responsible for getting types of variables that were overwritten in previous branches of selection statements.
 
 In this example, it took around half-second to parse the entire mesa meson files, deduce the types and emit diagnostics.

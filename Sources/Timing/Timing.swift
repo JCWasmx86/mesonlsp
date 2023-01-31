@@ -24,7 +24,10 @@ public class TimingInformation {
   public let name: String
   internal var values: [Double] = []
   internal init(name: String) { self.name = name }
-  internal func append(value: Double) { self.values.append(value) }
+  internal func append(value: Double) {
+    self.values.append(value)
+    if self.values.count > 50000 { self.values.removeFirst(30000) }
+  }
 
   public func min() -> Double { return self.values.sorted().first! }
 

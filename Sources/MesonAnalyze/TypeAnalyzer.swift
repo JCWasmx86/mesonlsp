@@ -15,6 +15,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   let typeanalyzersState: TypeAnalyzersState = TypeAnalyzersState()
   let options: [MesonOption]
   var stack: [[String: [Type]]] = []
+  var overriddenVariables: [[String: [Type]]] = []
 
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
@@ -56,6 +57,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func applyToStack(_ name: String, _ types: [Type]) {
     if self.stack.isEmpty { return }
+    if self.scope.variables[name] != nil {
+      if self.overriddenVariables[self.overriddenVariables.count - 1][name] == nil {
+        self.overriddenVariables[self.overriddenVariables.count - 1][name] = self.scope.variables[
+          name
+        ]!
+      } else {
+        self.overriddenVariables[self.overriddenVariables.count - 1][name]! += self.scope.variables[
+          name
+        ]!
+      }
+    }
     if self.stack[self.stack.count - 1][name] == nil {
       self.stack[self.stack.count - 1][name] = types
     } else {
@@ -73,6 +85,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
   public func visitSelectionStatement(node: SelectionStatement) {
     self.stack.append([:])
+    self.overriddenVariables.append([:])
     node.visitChildren(visitor: self)
     let begin = clock()
     let types = self.stack.removeLast()
@@ -88,6 +101,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       let l = dedup(types: (self.scope.variables[k] ?? []) + types[k]!)
       self.scope.variables[k] = l
     }
+    self.overriddenVariables.removeLast()
     Timing.INSTANCE.registerMeasurement(
       name: "SelectionStatementTypeMerge",
       begin: begin,
@@ -477,8 +491,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     // TODO: Type checking for each argument
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
+
+  public func evalStack(name: String) -> [Type] {
+    var ret: [Type] = []
+    for ov in self.overriddenVariables where ov[name] != nil { ret += ov[name]! }
+    return ret
+  }
   public func visitIdExpression(node: IdExpression) {
-    node.types = dedup(types: scope.variables[node.id] ?? [])
+    let begin = clock()
+    let s = self.evalStack(name: node.id)
+    Timing.INSTANCE.registerMeasurement(name: "evalStack", begin: begin, end: clock())
+    node.types = dedup(types: s + (scope.variables[node.id] ?? []))
     node.visitChildren(visitor: self)
     if (node.parent is FunctionExpression
       && (node.parent as! FunctionExpression).id.equals(right: node))
