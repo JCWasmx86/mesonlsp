@@ -1,5 +1,6 @@
 import Foundation
 import LanguageServerProtocol
+import Logging
 import MesonAST
 import MesonAnalyze
 import MesonDocs
@@ -11,6 +12,7 @@ import Timing
 public typealias MesonVoid = ()
 
 public final class MesonServer: LanguageServer {
+  static let LOG = Logger(label: "LanguageServer::MesonServer")
   var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
@@ -30,7 +32,7 @@ public final class MesonServer: LanguageServer {
           forceIPv4: false,
           priority: DispatchQoS.QoSClass.background
         )
-        print("Port:", i)
+        MesonServer.LOG.info("Port: \(i)")
         break
       } catch {}
     }
@@ -112,7 +114,7 @@ public final class MesonServer: LanguageServer {
         let line = t.1
         let column = t.2
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        print("Found declaration")
+        MesonServer.LOG.info("Found declaration")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
         )
@@ -124,7 +126,7 @@ public final class MesonServer: LanguageServer {
         )
         return
       } else {
-        print("Found identifier")
+        MesonServer.LOG.info("Found identifier")
       }
     }
 
@@ -141,7 +143,7 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    print("Found no declaration")
+    MesonServer.LOG.warning("Found no declaration")
     req.reply(.locations([]))
     let endDeclaration = clock()
     Timing.INSTANCE.registerMeasurement(
@@ -161,7 +163,7 @@ public final class MesonServer: LanguageServer {
         let line = t.1
         let column = t.2
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        print("Found definition")
+        MesonServer.LOG.info("Found definition")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
         )
@@ -173,7 +175,7 @@ public final class MesonServer: LanguageServer {
         )
         return
       } else {
-        print("Found identifier")
+        MesonServer.LOG.info("Found identifier")
       }
     }
 
@@ -190,7 +192,7 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    print("Found no definition")
+    MesonServer.LOG.warning("Found no definition")
     req.reply(.locations([]))
     let endDefinition = clock()
     Timing.INSTANCE.registerMeasurement(
@@ -252,9 +254,13 @@ public final class MesonServer: LanguageServer {
         if tmptree.metadata!.diagnostics[k] == nil { continue }
         var arr: [Diagnostic] = []
         let diags = tmptree.metadata!.diagnostics[k]!
-        print("Publishing \(diags.count) diagnostics for \(k)")
+        MesonServer.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
         for diag in diags {
-          print(">>", diag.message)
+          if diag.severity == .error {
+            MesonServer.LOG.error("\(diag.message)")
+          } else {
+            MesonServer.LOG.warning("\(diag.message)")
+          }
           let s = LanguageServerProtocol.Position(
             line: Int(diag.startLine),
             utf16index: Int(diag.startColumn)
@@ -296,7 +302,7 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    print("Dropping", file!, "from memcache")
+    MesonServer.LOG.info("Dropping \(file!) from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
@@ -305,16 +311,14 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    print("Dropping", file!, "from memcache")
+    MesonServer.LOG.info("Dropping \(file!) from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
 
   func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
-    // Either the saves were changed or dropped, so use the contents
-    // of the file
-    print("Adding", file!, "to memcache")
+    MesonServer.LOG.info("Adding \(file!) to memcache")
     self.memfiles[file!] = note.params.contentChanges[0].text
     self.rebuildTree()
   }

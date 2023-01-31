@@ -24,8 +24,12 @@ import TreeSitterMeson
     // LSP-Logging
     Logger.shared.currentLevel = .info
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in ConsoleLogger(label: label, console: console) })
+    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     if !lsp && paths.isEmpty {
+      LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
+        cl.logLevel = .trace
+        return cl
+      })
       let ns = TypeNamespace()
       var t = try MesonTree(file: self.path, ns: ns)
       t.analyzeTypes()
@@ -35,15 +39,19 @@ import TreeSitterMeson
       }
       return
     } else if !lsp && !paths.isEmpty {
+      LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
+        cl.logLevel = .trace
+        return cl
+      })
       let ns = TypeNamespace()
-      print("Parsing", paths.count, "projects")
+      logger.info("Parsing \(paths.count) projects")
       for p in self.paths {
         let t = try MesonTree(file: p, ns: ns)
         t.analyzeTypes()
       }
       return
     }
-    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
+    LoggingSystem.bootstrap({ label in ConsoleLogger(label: label, console: console) })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     logger.info("Duplicating STDOUT_FILENO")

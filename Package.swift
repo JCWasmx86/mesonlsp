@@ -25,7 +25,10 @@ let package = Package(
   targets: [
     .target(
       name: "MesonAnalyze",
-      dependencies: ["Timing", "SwiftTreeSitter", "MesonAST", "PathKit"]
+      dependencies: [
+        "Timing", "SwiftTreeSitter", "MesonAST", "PathKit",
+        .product(name: "Logging", package: "swift-log"),
+      ]
     ), .target(name: "Timing", dependencies: []), .target(name: "MesonDocs", dependencies: []),
     .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
     .target(
@@ -33,6 +36,7 @@ let package = Package(
       dependencies: [
         "Timing", .product(name: "Swifter", package: "swifter"), "MesonDocs",
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
+        .product(name: "Logging", package: "swift-log"),
       ]
     ),
     .executableTarget(

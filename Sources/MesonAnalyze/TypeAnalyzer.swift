@@ -1,10 +1,12 @@
 import Glibc
+import Logging
 import MesonAST
 import PathKit
 import Timing
 
 // TODO: Type derivation based on the options
 public class TypeAnalyzer: ExtendedCodeVisitor {
+  static let LOG = Logger(label: "MesonAnalyze::TypeAnalyzer")
   var scope: Scope
   var t: TypeNamespace?
   var tree: MesonTree
@@ -48,7 +50,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           message: "Unable to find subdir \(node.subdirname)"
         )
       )
-      print("Not found", node.subdirname)
+      TypeAnalyzer.LOG.warning("Not found: \(node.subdirname)")
     }
   }
 
@@ -206,9 +208,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
     self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
-    /*print(
-      (node.lhs as! IdExpression).id, "is a",
-      joinTypes(types: self.scope.variables[(node.lhs as! IdExpression).id]!))*/
   }
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
@@ -233,7 +232,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           if args.count >= 2 { types += args[1].types }
           self.scope.variables[varname] = types
           self.applyToStack(varname, types)
-          print("get_variable: ", varname, self.joinTypes(types: types))
+          TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
         }
       } else if fn.name == "subdir" && node.argumentList != nil, node.argumentList is ArgumentList {
         if (node.argumentList as! ArgumentList).args[0] is StringLiteral {
@@ -274,7 +273,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             let types = args[1].types
             self.scope.variables[varname] = types
             self.applyToStack(varname, types)
-            print("set_variable: ", varname, self.joinTypes(types: types))
+            TypeAnalyzer.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
           }
         }
       }
@@ -346,7 +345,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       let guessedMethod = self.t!.lookupMethod(name: methodName)
       Timing.INSTANCE.registerMeasurement(name: "guessingMethod", begin: begin, end: clock())
       if let guessedM = guessedMethod {
-        print("Guessed method", guessedM.id(), "at", node.file.file, node.location.format())
+        TypeAnalyzer.LOG.info(
+          "Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())"
+        )
         ownResultTypes += self.typeanalyzersState.apply(
           node: node,
           options: self.options,

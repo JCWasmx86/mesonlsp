@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import MesonAST
 import PathKit
 import SwiftTreeSitter
@@ -6,6 +7,7 @@ import Timing
 import TreeSitterMeson
 
 public class MesonTree {
+  static let LOG = Logger(label: "MesonAnalyze::MesonTree")
   public let file: String
   public var ast: MesonAST.Node?
   var subfiles: [MesonTree] = []
@@ -67,7 +69,7 @@ public class MesonTree {
         end: Int(endBuildingAst)
       )
     } else {
-      print("No file found:", self.file)
+      MesonTree.LOG.warning("No file found: \(self.file)")
     }
     let beginPatching = clock()
     let astPatcher = ASTPatcher()
@@ -80,7 +82,7 @@ public class MesonTree {
     var idx = 0
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
-      print("Subtree:", sd1)
+      MesonTree.LOG.debug("Subtree: \(sd1)")
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
       let tree = try MesonTree(file: f, ns: ns, depth: depth + 1, memfiles: memfiles)
