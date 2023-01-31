@@ -57,6 +57,51 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.hover)
     _register(MesonServer.declaration)
     _register(MesonServer.definition)
+    _register(MesonServer.formatting)
+  }
+
+  func formatting(_ req: Request<DocumentFormattingRequest>) {
+    let begin = clock()
+    do {
+      MesonServer.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
+      if let contents = self.getContents(file: req.params.textDocument.uri.fileURL!.path) {
+        if let formatted = try formatFile(content: contents, params: req.params.options) {
+          // TODO: Do this better
+          let range = Position(line: 0, utf16index: 0)..<Position(line: 5_000_000, utf16index: 2048)
+          let edit = TextEdit(range: range, newText: formatted)
+          req.reply([edit])
+          Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
+          return
+        } else {
+          MesonServer.LOG.error("Unable to format file")
+        }
+      } else {
+        MesonServer.LOG.error("Unable to read file")
+      }
+    } catch {
+      MesonServer.LOG.error("Error formatting file \(error)")
+      req.reply(
+        Result.failure(
+          ResponseError(code: .internalError, message: "Unable to format using muon: \(error)")
+        )
+      )
+      Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
+      return
+    }
+    req.reply(
+      Result.failure(
+        ResponseError(
+          code: .internalError,
+          message: "Either failed to read the input file or to format using muon"
+        )
+      )
+    )
+    Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
+  }
+
+  func getContents(file: String) -> String? {
+    if let sf = self.memfiles[file] { return sf }
+    return try? String(contentsOfFile: file)
   }
 
   func hover(_ req: Request<HoverRequest>) {
@@ -331,6 +376,7 @@ public final class MesonServer: LanguageServer {
       documentHighlightProvider: .bool(true),
       documentSymbolProvider: .bool(true),
       workspaceSymbolProvider: .bool(true),
+      documentFormattingProvider: .bool(true),
       declarationProvider: .bool(true)
     )
   }

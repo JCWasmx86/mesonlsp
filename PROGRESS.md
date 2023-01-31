@@ -34,7 +34,7 @@
     - [x] Rust
     - [x] Wayland
     - [x] Windows
-- [ ] Formatting
+- [x] Formatting
 - [ ] Symboltree
 ## Version 2.0
 - [ ] Autocompletion
