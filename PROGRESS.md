@@ -35,7 +35,7 @@
     - [x] Wayland
     - [x] Windows
 - [x] Formatting
-- [ ] Symboltree
+- [x] Symboltree
 ## Version 2.0
 - [ ] Autocompletion
 - [ ] More diagnostics
