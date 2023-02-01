@@ -77,9 +77,10 @@ ninja -j $(nproc) install
 - A limited set of diagnostics
 - Formatting
 - Symboltree
+- Rudimentary autocompletion
 
 ### Version 2.0
-- Autocompletion
+- Full autocompletion
 - More diagnostics
 - Inlay Hints (*)
 - Full Wrap/Subproject support

@@ -36,8 +36,9 @@
     - [x] Windows
 - [x] Formatting
 - [x] Symboltree
+- [ ] Rudimentary autocompletion
 ## Version 2.0
-- [ ] Autocompletion
+- [ ] Full autocompletion
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
 ## Version 3.0

@@ -59,6 +59,16 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.definition)
     _register(MesonServer.formatting)
     _register(MesonServer.documentSymbol)
+    _register(MesonServer.complete)
+  }
+
+  func complete(_ req: Request<CompletionRequest>) {
+    let begin = clock()
+    if let t = self.tree {
+
+    }
+    req.reply(CompletionList(isIncomplete: false, items: []))
+    Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
   }
 
   func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
@@ -409,6 +419,9 @@ public final class MesonServer: LanguageServer {
         TextDocumentSyncOptions(openClose: true, change: .full, save: .bool(true))
       ),
       hoverProvider: .bool(true),
+      completionProvider: .some(
+        CompletionOptions(resolveProvider: false, triggerCharacters: ["."])
+      ),
       definitionProvider: .bool(true),
       documentHighlightProvider: .bool(true),
       documentSymbolProvider: .bool(true),
