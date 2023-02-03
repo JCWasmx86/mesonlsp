@@ -72,10 +72,27 @@ public class MesonMetadata {
     return nil
   }
 
+  public func findFullMethodCallAt(_ path: String, _ line: Int, _ column: Int) -> MethodExpression?
+  {
+    if let arr = self.methodCalls[path] {
+      for m in arr where self.contains(m, line, column) { return m }
+    }
+    return nil
+  }
+
   public func findFunctionCallAt(_ path: String, _ line: Int, _ column: Int) -> FunctionExpression?
   {
     if let arr = self.functionCalls[path] {
       for f in arr where self.contains(f.id, line, column) { return f }
+    }
+    return nil
+  }
+
+  public func findFullFunctionCallAt(_ path: String, _ line: Int, _ column: Int)
+    -> FunctionExpression?
+  {
+    if let arr = self.functionCalls[path] {
+      for f in arr where self.contains(f, line, column) { return f }
     }
     return nil
   }

@@ -73,21 +73,51 @@ public final class MesonServer: LanguageServer {
           let pos = req.params.position
           let line = pos.line
           let column = pos.utf16index
-          let lines = content.split(whereSeparator: \.isNewline)
+          let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+          MesonServer.LOG.info("Completion at: [\(line):\(column)]")
           if line < lines.count {
             let str = lines[line]
             let prev = str.prefix(column + 1).description.trimmingCharacters(
               in: NSCharacterSet.whitespaces
             )
-            MesonServer.LOG.info("Prev: \(prev)")
             if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
               if let idexpr = md.findIdentifierAt(
                 req.params.textDocument.uri.fileURL!.path,
                 line,
                 column - 1
               ) {
-                MesonServer.LOG.info("Found idexpr: \(idexpr.id)")
+                MesonServer.LOG.info("Found id expr: \(idexpr.id)")
                 let types = idexpr.types
+                var s: Set<String> = []
+                for t in types {
+                  for m in t.methods {
+                    MesonServer.LOG.info("Inserting completion: \(m.name)")
+                    s.insert(m.name)
+                  }
+                }
+                for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
+              } else if let fc = md.findFullFunctionCallAt(
+                req.params.textDocument.uri.fileURL!.path,
+                line,
+                column - 1
+              ), fc.function != nil {
+                MesonServer.LOG.info("Found function expr: \(fc.functionName())")
+                let types = fc.types
+                var s: Set<String> = []
+                for t in types {
+                  for m in t.methods {
+                    MesonServer.LOG.info("Inserting completion: \(m.name)")
+                    s.insert(m.name)
+                  }
+                }
+                for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
+              } else if let me = md.findFullMethodCallAt(
+                req.params.textDocument.uri.fileURL!.path,
+                line,
+                column - 1
+              ), me.method != nil {
+                MesonServer.LOG.info("Found method expr: \(me.method!.id())")
+                let types = me.types
                 var s: Set<String> = []
                 for t in types {
                   for m in t.methods {
@@ -100,7 +130,7 @@ public final class MesonServer: LanguageServer {
             }
           } else {
             MesonServer.LOG.error("Line out of bounds: \(line) > \(lines.count)")
-          }// 1. Get the nearest node
+          }  // 1. Get the nearest node
           // 2. If it is an identifier and parent is build_definition/iterS/selectS
           // 2.1. Calculate function names
           // 2.2. Calculate matching identifier names
