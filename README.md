@@ -36,6 +36,16 @@ cd Swift-MesonLSP
 swift build -c release --static-swift-stdlib
 sudo cp .build/release/Swift-MesonLSP /usr/local/bin
 ```
+Or you can use podman (Maybe even docker, but only podman is tested):
+```
+DOCKER_BUILDKIT=1 podman build --file Dockerfile --output out --no-cache .
+```
+This will place a file "Fedora37.zip" in the directory `out`. It contains
+two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
+
+A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
+to `Swift-MesonLSP` and copy it to the right destination.
+
 #### GNOME Builder plugin (Requires GNOME Builder Nightly)
 ```
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
