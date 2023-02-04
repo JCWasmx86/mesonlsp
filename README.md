@@ -7,6 +7,9 @@ A reimplementation of my Meson language server in Swift.
 - No wrap/subproject support
 - Non constant `subdir`-calls are not supported
 - Type deduction is not 100% correct yet
+- Type definitions may have minor errors regarding:
+  - Is this argument optional?
+  - What is the type of the argument?
 
 ```
 some_var = foo
