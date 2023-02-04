@@ -263,7 +263,6 @@ public final class MesonServer: LanguageServer {
             }
           }
           if function!.returnTypes.count > 0
-            && !(function!.returnTypes.count == 1 && function!.returnTypes[0] is `Void`)
           {
             str +=
               "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")

@@ -771,8 +771,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else if t is ListType {
         listtypes += (t as! ListType).types
         gotList = true
-      } else if t is `Void` {
-        // Do nothing
       } else {
         objs[t.name] = t
       }
