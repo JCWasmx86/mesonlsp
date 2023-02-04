@@ -6,12 +6,12 @@ public class TypeNamespace {
     types = [
       "any": `Any`(), "bool": BoolType(), "build_machine": BuildMachine(), "dict": Dict(types: []),
       "host_machine": HostMachine(), "int": IntType(), "list": ListType(types: []),
-      "meson": Meson(), "str": Str(), "target_machine": TargetMachine(),
-      "alias_tgt": AliasTgt(), "both_libs": BothLibs(), "build_tgt": BuildTgt(),
-      "cfg_data": CfgData(), "compiler": Compiler(), "custom_idx": CustomIdx(),
-      "custom_tgt": CustomTgt(), "dep": Dep(), "disabler": Disabler(), "env": Env(), "exe": Exe(),
-      "external_program": ExternalProgram(), "extracted_obj": ExtractedObj(), "feature": Feature(),
-      "file": File(), "generated_list": GeneratedList(), "inc": Inc(), "jar": Jar(), "lib": Lib(),
+      "meson": Meson(), "str": Str(), "target_machine": TargetMachine(), "alias_tgt": AliasTgt(),
+      "both_libs": BothLibs(), "build_tgt": BuildTgt(), "cfg_data": CfgData(),
+      "compiler": Compiler(), "custom_idx": CustomIdx(), "custom_tgt": CustomTgt(), "dep": Dep(),
+      "disabler": Disabler(), "env": Env(), "exe": Exe(), "external_program": ExternalProgram(),
+      "extracted_obj": ExtractedObj(), "feature": Feature(), "file": File(),
+      "generated_list": GeneratedList(), "inc": Inc(), "jar": Jar(), "lib": Lib(),
       "module": Module(), "range": RangeType(), "runresult": RunResult(), "run_tgt": RunTgt(),
       "structured_src": StructuredSrc(), "subproject": Subproject(), "tgt": Tgt(),
       "cmake_module": CMakeModule(), "cmake_subproject": CMakeSubproject(),
@@ -446,10 +446,7 @@ public class TypeNamespace {
           PositionalArgument(
             name: "env",
             opt: true,
-            types: [
-              Str(), ListType(types: [Str()]), Dict(types: [Str()]),
-              Dict(types: [strlist]),
-            ]
+            types: [Str(), ListType(types: [Str()]), Dict(types: [Str()]), Dict(types: [strlist])]
           ), Kwarg(name: "method", opt: true, types: [Str()]),
           Kwarg(name: "separator", opt: true, types: [Str()]),
         ]

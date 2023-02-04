@@ -99,6 +99,16 @@ public final class MesonServer: LanguageServer {
                     MesonServer.LOG.info("Inserting completion: \(m.name)")
                     s.insert(m.name)
                   }
+                  if t is AbstractObject {
+                    var p = (t as! AbstractObject).parent
+                    while p != nil {
+                      for m in p!.methods {
+                        MesonServer.LOG.info("Inserting completion: \(m.name)")
+                        s.insert(m.name)
+                      }
+                      p = p!.parent
+                    }
+                  }
                 }
                 for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
               }
@@ -262,8 +272,7 @@ public final class MesonServer: LanguageServer {
               str += "\n"
             }
           }
-          if function!.returnTypes.count > 0
-          {
+          if function!.returnTypes.count > 0 {
             str +=
               "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
           }
