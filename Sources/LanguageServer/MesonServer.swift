@@ -204,13 +204,20 @@ public final class MesonServer: LanguageServer {
     let file = req.params.textDocument.uri.fileURL?.path
     var content: String?
     var requery = true
+    var function: Function?
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
-      if m.method != nil { content = m.method!.parent.toString() + "." + m.method!.name }
+      if m.method != nil {
+        function = m.method!
+        content = m.method!.parent.toString() + "." + m.method!.name
+      }
     }
     if content == nil,
       let f = self.tree!.metadata!.findFunctionCallAt(file!, location.line, location.utf16index)
     {
-      if f.function != nil { content = f.function!.name }
+      if f.function != nil {
+        function = f.function!
+        content = f.function!.name
+      }
     }
     if content == nil,
       let f = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index)
@@ -228,8 +235,22 @@ public final class MesonServer: LanguageServer {
       if let k = kw.key as? IdExpression { content = f.id() + "<" + k.id + ">" }
     }
     if content != nil && requery {
-      let d = self.docs.find_docs(id: content!)
-      content = d ?? content!
+      if function == nil {  // Kwarg docs
+        let d = self.docs.find_docs(id: content!)
+        content = d ?? content!
+      } else {
+        let d = self.docs.find_docs(id: content!)
+        if let mdocs = d {
+          var str = "`" + content! + "`\n\n" + mdocs + "\n"
+          if function!.returnTypes.count > 0
+            && !(function!.returnTypes.count == 1 && function!.returnTypes[0] is `Void`)
+          {
+            str +=
+              "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
+          }
+          content = str
+        }
+      }
     }
     req.reply(
       HoverResponse(
