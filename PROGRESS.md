@@ -7,7 +7,7 @@
     - [x] Identifiers
     - [x] Kwargs
   - [x] Limited docs on hover
-  - [ ] Improve docs on functions/methods regarding arguments and return types
+  - [x] Improve docs on functions/methods regarding arguments and return types
 - [x] Symbol resolving
 - [x] Basic diagnostics
 - [x] Type definitions for all modules/builtins
