@@ -99,6 +99,7 @@ ninja -j $(nproc) install
 - More diagnostics
 - Inlay Hints (*)
 - Full Wrap/Subproject support
+- Don't reparse project on each change
 
 ### Version 3.0
 - Renaming
