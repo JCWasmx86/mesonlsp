@@ -66,10 +66,9 @@ public final class MesonServer: LanguageServer {
     let begin = clock()
     var arr: [CompletionItem] = []
     if let t = self.tree {
-      if let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path) {
-        if let ast = mt.ast,
-          let content = self.getContents(file: req.params.textDocument.uri.fileURL!.path)
-        {
+      let fp = req.params.textDocument.uri.fileURL!.path
+      if let mt = t.findSubdirTree(file: fp) {
+        if let ast = mt.ast, let content = self.getContents(file: fp) {
           let pos = req.params.position
           let line = pos.line
           let column = pos.utf16index
@@ -81,44 +80,20 @@ public final class MesonServer: LanguageServer {
               in: NSCharacterSet.whitespaces
             )
             if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
-              if let idexpr = md.findIdentifierAt(
-                req.params.textDocument.uri.fileURL!.path,
-                line,
-                column - 1
-              ) {
+              var exprTypes: [Type]?
+              var s: Set<String> = []
+              if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
                 MesonServer.LOG.info("Found id expr: \(idexpr.id)")
-                let types = idexpr.types
-                var s: Set<String> = []
-                for t in types {
-                  for m in t.methods {
-                    MesonServer.LOG.info("Inserting completion: \(m.name)")
-                    s.insert(m.name)
-                  }
-                }
-                for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
-              } else if let fc = md.findFullFunctionCallAt(
-                req.params.textDocument.uri.fileURL!.path,
-                line,
-                column - 1
-              ), fc.function != nil {
+                exprTypes = idexpr.types
+              } else if let fc = md.findFullFunctionCallAt(fp, line, column - 1), fc.function != nil
+              {
                 MesonServer.LOG.info("Found function expr: \(fc.functionName())")
-                let types = fc.types
-                var s: Set<String> = []
-                for t in types {
-                  for m in t.methods {
-                    MesonServer.LOG.info("Inserting completion: \(m.name)")
-                    s.insert(m.name)
-                  }
-                }
-                for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
-              } else if let me = md.findFullMethodCallAt(
-                req.params.textDocument.uri.fileURL!.path,
-                line,
-                column - 1
-              ), me.method != nil {
+                exprTypes = fc.types
+              } else if let me = md.findFullMethodCallAt(fp, line, column - 1), me.method != nil {
                 MesonServer.LOG.info("Found method expr: \(me.method!.id())")
-                let types = me.types
-                var s: Set<String> = []
+                exprTypes = me.types
+              }
+              if let types = exprTypes {
                 for t in types {
                   for m in t.methods {
                     MesonServer.LOG.info("Inserting completion: \(m.name)")
