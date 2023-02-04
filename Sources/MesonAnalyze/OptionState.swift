@@ -45,7 +45,7 @@ public class OptionState {
     self.append(option: ComboOption("b_lto_mode", nil))
     self.append(option: BoolOption("b_thinlto_cache", nil))
     self.append(option: StringOption("b_thinlto_cache_dir", nil))
-    self.append(option: BoolOption("b_ndebug", nil))
+    self.append(option: ComboOption("b_ndebug", nil))
     self.append(option: BoolOption("b_pch", nil))
     self.append(option: BoolOption("b_pgo", nil))
     self.append(option: ComboOption("b_sanitize", nil))

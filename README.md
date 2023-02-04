@@ -33,9 +33,9 @@ will just traverse the ast and check what subdirs are included.
   - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
   - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
   - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
+  - [Systemd](https://github.com/systemd/systemd)
 - Somewhat working:
   - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
-  - [Systemd](https://github.com/systemd/systemd)
   - [QEMU](https://gitlab.com/qemu-project/qemu)
 - Very flaky:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
