@@ -328,6 +328,22 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: newTypes)
   }
+  func verify(types: [Type]) -> [Type] {
+    let deduped = dedup(types: types)
+    var ret: [Type] = []
+    for d in deduped {
+      if d is AbstractObject {
+        ret += [self.t!.types[d.name]!]
+      } else if d is Dict {
+        ret += [Dict(types: verify(types: (d as! Dict).types))]
+      } else if d is ListType {
+        ret += [ListType(types: verify(types: (d as! ListType).types))]
+      } else {
+        ret += [d]
+      }
+    }
+    return ret
+  }
   public func visitMethodExpression(node: MethodExpression) {
     node.visitChildren(visitor: self)
     let types = node.obj.types
@@ -341,11 +357,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         continue
       }
       if let m = t.getMethod(name: methodName) {
-        ownResultTypes += self.typeanalyzersState.apply(
-          node: node,
-          options: self.options,
-          f: m,
-          ns: self.t!
+        ownResultTypes += verify(
+          types: self.typeanalyzersState.apply(node: node, options: self.options, f: m, ns: self.t!)
         )
         node.method = m
         self.metadata.registerMethodCall(call: node)
@@ -375,13 +388,17 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     if !found {
-      let types = joinTypes(types: types)
+      let t = joinTypes(types: types)
+      for tt in types {
+        TypeAnalyzer.LOG.info("\(tt.name)::\(tt.methods.count)")
+        for m in tt.methods { TypeAnalyzer.LOG.info("\(tt.name)::\(m.name)") }
+      }
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
           sev: .error,
           node: node,
-          message: "No method \(methodName) found for types `\(types)'"
+          message: "No method \(methodName) found for types `\(t)'"
         )
       )
     } else {
@@ -466,7 +483,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       let k = (arg as! KeywordItem).key
       if let kId = k as? IdExpression {
         usedKwargs[kId.id] = (arg as! KeywordItem)
-        if !fn.hasKwarg(name: kId.id) {
+        // TODO: What is this kwargs kwarg? Can it be applied everywhere?
+        if !fn.hasKwarg(name: kId.id) && kId.id != "kwargs" {
           self.metadata.registerDiagnostic(
             node: arg,
             diag: MesonDiagnostic(

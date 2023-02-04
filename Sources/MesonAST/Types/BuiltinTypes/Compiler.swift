@@ -67,6 +67,7 @@ public struct Compiler: AbstractObject {
           PositionalArgument(name: "libname", types: [Str()]),
           Kwarg(name: "dirs", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "disabler", opt: true, types: [BoolType()]),
+          Kwarg(name: "has_headers", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "header_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "header_dependencies", opt: true, types: [ListType(types: [Dep()]), Dep()]),
           Kwarg(

@@ -1,6 +1,6 @@
 public protocol Type {
   var name: String { get }
-  var methods: [Method] { get }
+  var methods: [Method] { get set }
   func getMethod(name: String) -> Method?
   func toString() -> String
 }

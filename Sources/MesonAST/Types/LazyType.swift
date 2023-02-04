@@ -1,6 +1,6 @@
 public struct LazyType: Type {
   public let name: String
-  public let methods: [Method]
+  public var methods: [Method]
 
   public init(name: String) {
     self.name = name
