@@ -607,17 +607,25 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             newTypes.append(self.t!.types["bool"]!)
           } else if isType(l, "bool") && isType(r, "bool") {
             newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "dict") && isType(r, "dict") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "list") && isType(r, "list") {
+            newTypes.append(self.t!.types["bool"]!)
           } else {
             nErrors += 1
           }
         case .ge:
           if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t!.types["bool"]!)
           } else {
             nErrors += 1
           }
         case .gt:
           if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
             newTypes.append(self.t!.types["bool"]!)
           } else {
             nErrors += 1
@@ -626,11 +634,15 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         case .le:
           if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t!.types["bool"]!)
           } else {
             nErrors += 1
           }
         case .lt:
           if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t!.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
             newTypes.append(self.t!.types["bool"]!)
           } else {
             nErrors += 1
