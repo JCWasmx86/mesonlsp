@@ -23,8 +23,8 @@ public class OptionsExtractor: CodeVisitor {
     if !(node.argumentList is ArgumentList) { return }
     let al = (node.argumentList as! ArgumentList)
     if let nameNode = al.getPositionalArg(idx: 0) {
-      if nameNode is StringLiteral {
-        let name = (nameNode as! StringLiteral).contents()
+      if let nameN = nameNode as? StringLiteral {
+        let name = nameN.contents()
         if let type = al.getKwarg(name: "type") {
           if let sl = type as? StringLiteral {
             var description: String?
