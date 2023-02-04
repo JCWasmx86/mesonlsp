@@ -1285,12 +1285,12 @@ public class TypeNamespace {
     // TODO: Check what arguments/kwargs are given
     for o in self.types {
       if let obj = o.value as? AbstractObject, obj.parent != nil { continue }
-      for m in o.value.methods { if m.name == name { return m } }
+      for m in o.value.methods where m.name == name { return m }
     }
     for o in self.types {
       if o.value as? AbstractObject == nil { continue }
       if let obj = o.value as? AbstractObject, obj.parent == nil { continue }
-      for m in o.value.methods { if m.name == name { return m } }
+      for m in o.value.methods where m.name == name { return m }
     }
     return nil
   }

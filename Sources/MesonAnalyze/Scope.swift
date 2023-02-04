@@ -18,18 +18,16 @@ public class Scope {
     var keysToAdd: [String] = []
     for o in other.variables {
       var added = false
-      for s in self.variables {
-        if s.key == o.key {
-          let begin1 = clock()
-          self.variables[s.key] = dedup(types: s.value + o.value)
-          Timing.INSTANCE.registerMeasurement(
-            name: "mergeScope - dedup",
-            begin: Int(begin1),
-            end: Int(clock())
-          )
-          added = true
-          break
-        }
+      for s in self.variables where s.key == o.key {
+        let begin1 = clock()
+        self.variables[s.key] = dedup(types: s.value + o.value)
+        Timing.INSTANCE.registerMeasurement(
+          name: "mergeScope - dedup",
+          begin: Int(begin1),
+          end: Int(clock())
+        )
+        added = true
+        break
       }
       if !added { keysToAdd.append(o.key) }
     }
