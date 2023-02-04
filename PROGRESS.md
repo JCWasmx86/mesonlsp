@@ -36,7 +36,7 @@
     - [x] Windows
 - [x] Formatting
 - [x] Symboltree
-- [ ] Rudimentary autocompletion
+- [x] Rudimentary autocompletion
 ## Version 2.0
 - [ ] Full autocompletion
 - [ ] More diagnostics
