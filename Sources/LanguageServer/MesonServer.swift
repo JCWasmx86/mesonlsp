@@ -241,7 +241,27 @@ public final class MesonServer: LanguageServer {
       } else {
         let d = self.docs.find_docs(id: content!)
         if let mdocs = d {
-          var str = "`" + content! + "`\n\n" + mdocs + "\n"
+          var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
+          for arg in function!.args {
+            if let pa = arg as? PositionalArgument {
+              str += "- "
+              if pa.opt { str += "\\[" }
+              str += "`" + pa.name + "`"
+              str += " "
+              str += pa.types.map({ $0.toString() }).joined(separator: "|")
+              if pa.varargs { str += "..." }
+              if pa.opt { str += "\\]" }
+              str += "\n"
+            } else if let kw = arg as? Kwarg {
+              str += "- "
+              if kw.opt { str += "\\[" }
+              str += "`" + kw.name + "`"
+              str += ": "
+              str += kw.types.map({ $0.toString() }).joined(separator: "|")
+              if kw.opt { str += "\\]" }
+              str += "\n"
+            }
+          }
           if function!.returnTypes.count > 0
             && !(function!.returnTypes.count == 1 && function!.returnTypes[0] is `Void`)
           {

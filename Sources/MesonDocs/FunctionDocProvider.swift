@@ -31,7 +31,7 @@ class FunctionDocProvider: DocProvider {
       "Creates a new executable. The first argument specifies its name and the remaining positional arguments define the input files to use."
     dict["files"] =
       "This command takes the strings given to it in arguments and returns corresponding File objects that you can use as sources for build targets. The difference is that file objects remember the subdirectory they were defined in and can be used anywhere in the source tree."
-    dict["find_program"] = "Find an in `PATH` etc."
+    dict["find_program"] = "Find an external program in `PATH` etc."
     dict["generator"] =
       "This function creates a `generator` object that can be used to run custom compilation commands."
     dict["get_option"] =
