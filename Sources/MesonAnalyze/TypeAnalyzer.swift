@@ -334,6 +334,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
   func verify(types: [Type]) -> [Type] {
+  	let begin = clock()
     let deduped = dedup(types: types)
     var ret: [Type] = []
     for d in deduped {
@@ -347,6 +348,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         ret += [d]
       }
     }
+    Timing.INSTANCE.registerMeasurement(name: "verify", begin: begin, end: clock())
     return ret
   }
   public func visitMethodExpression(node: MethodExpression) {
