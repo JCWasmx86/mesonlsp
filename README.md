@@ -23,6 +23,24 @@ foreach backend : backends
   subdir('backend-' + backend)
 endforeach
 ```
+A majority of these limitations come from the fact that Swift-MesonLSP won't interpret the code, but instead
+will just traverse the ast and check what subdirs are included.
+
+### Projects I tested the language server with
+- Working fine:
+  - [GNOME Builder](https://gitlab.gnome.org/GNOME/gnome-builder)
+  - [GNOME Builder Plugins](https://github.com/JCWasmx86/GNOME-Builder-Plugins)
+  - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
+  - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
+  - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
+- Somewhat working:
+  - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
+  - [Systemd](https://github.com/systemd/systemd)
+  - [QEMU](https://gitlab.com/qemu-project/qemu)
+- Very flaky:
+  - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
+  - [GTK](https://gitlab.gnome.org/GNOME/gtk)
+  - [GLib](https://gitlab.gnome.org/GNOME/glib)
 
 ## Why a reimplementation?
 The first version, written in Vala, had some code maintenance problems because basically everything was done in one file.
