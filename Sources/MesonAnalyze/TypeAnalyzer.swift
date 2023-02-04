@@ -28,6 +28,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   deinit { self.t = nil }
 
   public func visitSubdirCall(node: SubdirCall) {
+    let begin = clock()
     node.visitChildren(visitor: self)
     self.metadata.registerSubdirCall(call: node)
     let newPath = Path(
@@ -53,10 +54,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       )
       TypeAnalyzer.LOG.warning("Not found: \(node.subdirname)")
     }
+    Timing.INSTANCE.registerMeasurement(name: "visitSubdirCall", begin: begin, end: clock())
   }
 
   public func applyToStack(_ name: String, _ types: [Type]) {
     if self.stack.isEmpty { return }
+    let begin = clock()
     if self.scope.variables[name] != nil {
       if self.overriddenVariables[self.overriddenVariables.count - 1][name] == nil {
         self.overriddenVariables[self.overriddenVariables.count - 1][name] = self.scope.variables[
@@ -73,6 +76,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     } else {
       self.stack[self.stack.count - 1][name]! += types
     }
+    Timing.INSTANCE.registerMeasurement(name: "applyToStack", begin: begin, end: clock())
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
@@ -84,6 +88,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     )
   }
   public func visitSelectionStatement(node: SelectionStatement) {
+    let begin1 = clock()
     self.stack.append([:])
     self.overriddenVariables.append([:])
     node.visitChildren(visitor: self)
@@ -107,10 +112,16 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       begin: begin,
       end: clock()
     )
+    Timing.INSTANCE.registerMeasurement(
+      name: "visitSelectionStatement",
+      begin: begin1,
+      end: clock()
+    )
   }
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   public func visitIterationStatement(node: IterationStatement) {
+    let begin = clock()
     node.expression.visit(visitor: self)
     for id in node.ids { id.visit(visitor: self) }
     let iterTypes = node.expression.types
@@ -140,6 +151,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.checkIdentifier(node.ids[1] as! IdExpression)
     }
     for b in node.block { b.visit(visitor: self) }
+    Timing.INSTANCE.registerMeasurement(name: "visitIterationStatement", begin: begin, end: clock())
   }
 
   func checkIdentifier(_ node: IdExpression) {
@@ -158,6 +170,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     )
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
+    let begin = clock()
     node.visitChildren(visitor: self)
     if node.op == .equals {
       var arr = node.rhs.types
@@ -222,8 +235,14 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[(node.lhs as! IdExpression).id] = deduped
     }
     self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
+    Timing.INSTANCE.registerMeasurement(
+      name: "visitAssignmentStatement",
+      begin: begin,
+      end: clock()
+    )
   }
   public func visitFunctionExpression(node: FunctionExpression) {
+    let begin = clock()
     node.visitChildren(visitor: self)
     let funcName = (node.id as! IdExpression).id
     if let fn = self.t!.lookupFunction(name: funcName) {
@@ -302,6 +321,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)")
       )
     }
+    Timing.INSTANCE.registerMeasurement(name: "visitFunctionExpression", begin: begin, end: clock())
   }
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
   public func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
@@ -334,7 +354,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
   func verify(types: [Type]) -> [Type] {
-  	let begin = clock()
+    let begin = clock()
     let deduped = dedup(types: types)
     var ret: [Type] = []
     for d in deduped {
@@ -352,6 +372,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     return ret
   }
   public func visitMethodExpression(node: MethodExpression) {
+    let begin = clock()
     node.visitChildren(visitor: self)
     let types = node.obj.types
     var ownResultTypes: [Type] = []
@@ -430,6 +451,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
+    Timing.INSTANCE.registerMeasurement(name: "visitMethodExpression", begin: begin, end: clock())
   }
 
   func checkCall(node: Expression) {
@@ -566,6 +588,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     return type.name == name || type.name == "any"
   }
   public func visitBinaryExpression(node: BinaryExpression) {
+    let begin = clock()
     node.visitChildren(visitor: self)
     var newTypes: [Type] = []
     if node.op == nil {
@@ -575,6 +598,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         node: node,
         diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator")
       )
+      Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
       return
     }
     var nErrors = 0
@@ -721,6 +745,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     node.types = dedup(types: newTypes)
+    Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
   }
   public func visitStringLiteral(node: StringLiteral) {
     node.types = [self.t!.types["str"]!]
@@ -761,7 +786,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func dedup(types: [Type]) -> [Type] {
-    if types.count <= 0 { return types }
+    if types.count == 0 { return types }
+    let begin = clock()
     var listtypes: [Type] = []
     var dicttypes: [Type] = []
     var hasAny: Bool = false
@@ -797,6 +823,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     if hasInt { ret.append(self.t!.types["int"]!) }
     if hasStr { ret.append(self.t!.types["str"]!) }
     ret += objs.values
+    Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
   }
 }
