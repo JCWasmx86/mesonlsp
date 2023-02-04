@@ -34,6 +34,7 @@ will just traverse the ast and check what subdirs are included.
   - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
   - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
   - [Systemd](https://github.com/systemd/systemd)
+  - [GitG](https://gitlab.gnome.org/GNOME/gitg)
 - Somewhat working:
   - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
   - [QEMU](https://gitlab.com/qemu-project/qemu)
