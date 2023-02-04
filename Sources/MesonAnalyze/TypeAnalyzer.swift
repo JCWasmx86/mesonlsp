@@ -247,6 +247,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           self.scope.variables[varname] = types
           self.applyToStack(varname, types)
           TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
+        } else if args.count != 0 {
+          var types: [Type] = [self.t!.types["any"]!]
+          if args.count >= 2 { types += args[1].types }
+          node.types = self.dedup(types: types)
+          TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
         }
       } else if fn.name == "subdir" && node.argumentList != nil, node.argumentList is ArgumentList {
         if (node.argumentList as! ArgumentList).args[0] is StringLiteral {
