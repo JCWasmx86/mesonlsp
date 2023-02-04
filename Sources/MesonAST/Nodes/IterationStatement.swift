@@ -34,13 +34,13 @@ public class IterationStatement: Statement {
   }
 
   public func setParents() {
-    for var arg in self.ids {
+    for arg in self.ids {
       arg.parent = self
       arg.setParents()
     }
     self.expression.parent = self
     self.expression.setParents()
-    for var arg in self.block {
+    for arg in self.block {
       arg.parent = self
       arg.setParents()
     }

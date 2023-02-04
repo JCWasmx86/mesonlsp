@@ -68,7 +68,7 @@ public final class MesonServer: LanguageServer {
     if let t = self.tree {
       let fp = req.params.textDocument.uri.fileURL!.path
       if let mt = t.findSubdirTree(file: fp) {
-        if let ast = mt.ast, let content = self.getContents(file: fp) {
+        if mt.ast != nil, let content = self.getContents(file: fp) {
           let pos = req.params.position
           let line = pos.line
           let column = pos.utf16index

@@ -20,7 +20,7 @@ public class DictionaryLiteral: Expression {
   }
 
   public func setParents() {
-    for var arg in self.values {
+    for arg in self.values {
       arg.parent = self
       arg.setParents()
     }

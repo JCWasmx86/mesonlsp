@@ -51,5 +51,7 @@ public class AssignmentStatement: Statement {
     self.rhs.setParents()
     self.lhs.setParents()
   }
-  public var description: String { return "(AssignmentStatement \(lhs) \(op) \(rhs))" }
+  public var description: String {
+    return "(AssignmentStatement \(lhs) \(String(describing: op)) \(rhs))"
+  }
 }

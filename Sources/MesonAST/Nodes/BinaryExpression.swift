@@ -69,5 +69,7 @@ public class BinaryExpression: Statement {
     self.lhs.setParents()
   }
 
-  public var description: String { return "(BinaryExpression \(lhs) \(op) \(rhs))" }
+  public var description: String {
+    return "(BinaryExpression \(lhs) \(String(describing: op)) \(rhs))"
+  }
 }

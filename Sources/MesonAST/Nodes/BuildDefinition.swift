@@ -25,7 +25,7 @@ public class BuildDefinition: Node {
     for arg in self.stmts { arg.visit(visitor: visitor) }
   }
   public func setParents() {
-    for var arg in self.stmts {
+    for arg in self.stmts {
       arg.parent = self
       arg.setParents()
     }

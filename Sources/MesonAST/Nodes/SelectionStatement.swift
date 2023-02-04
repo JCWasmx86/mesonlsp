@@ -58,12 +58,12 @@ public class SelectionStatement: Statement {
   public func setParents() {
     self.ifCondition.parent = self
     self.ifCondition.setParents()
-    for var c in self.conditions {
+    for c in self.conditions {
       c.parent = self
       c.setParents()
     }
     for b in self.blocks {
-      for var bb in b {
+      for bb in b {
         bb.parent = self
         bb.setParents()
       }

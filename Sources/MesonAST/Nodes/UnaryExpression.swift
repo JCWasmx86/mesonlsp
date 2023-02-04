@@ -34,5 +34,7 @@ public class UnaryExpression: Expression {
     self.expression.parent = self
     self.expression.setParents()
   }
-  public var description: String { return "(UnaryExpression \(op) \(expression))" }
+  public var description: String {
+    return "(UnaryExpression \(String(describing: op)) \(expression))"
+  }
 }

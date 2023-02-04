@@ -20,7 +20,7 @@ public class ArgumentList: Expression {
   }
 
   public func setParents() {
-    for var arg in self.args {
+    for arg in self.args {
       arg.parent = self
       arg.setParents()
     }
