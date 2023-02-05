@@ -11,7 +11,7 @@ sudo dnf install -y swift-lang \
 	libadwaita-devel \
 	libpeas-devel \
 	template-glib-devel \
-	g++ libsoup3-devel
+	g++ libsoup3-devel libstdc++-static
 swift build -c release --static-swift-stdlib
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins || exit 1

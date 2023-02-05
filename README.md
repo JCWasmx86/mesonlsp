@@ -54,7 +54,7 @@ I have chosen the latter because I wanted to learn Swift.
 
 ## Installation
 ### Requirements
-- Language Server: `sudo dnf install swift-lang`
+- Language Server: `sudo dnf install swift-lang libstdc++-static`
 - GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 ### Installation
 #### Notes
