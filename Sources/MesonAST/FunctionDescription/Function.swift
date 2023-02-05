@@ -2,7 +2,7 @@ public class Function {
   public let name: String
   public let returnTypes: [Type]
   public let args: [Argument]
-  var kwargs: [String: Kwarg] = [:]
+  public var kwargs: [String: Kwarg] = [:]
 
   public init(name: String, returnTypes: [Type] = [], args: [Argument] = []) {
     self.name = name

@@ -243,6 +243,7 @@ public final class MesonServer: LanguageServer {
     var content: String?
     var requery = true
     var function: Function?
+    var kwargTypes: String? = nil
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
       if m.method != nil {
         function = m.method!
@@ -270,13 +271,24 @@ public final class MesonServer: LanguageServer {
     {
       let kw = tuple.0
       let f = tuple.1
-      if let k = kw.key as? IdExpression { content = f.id() + "<" + k.id + ">" }
+      var fun: Function?
+      if kw.parent!.parent is MethodExpression {
+        fun = ((kw.parent!.parent!) as! MethodExpression).method
+      } else if kw.parent!.parent is FunctionExpression {
+        fun = ((kw.parent!.parent!) as! FunctionExpression).function
+      }
+      if let k = kw.key as? IdExpression {
+        content = f.id() + "<" + k.id + ">"
+        if fun != nil, let f = fun!.kwargs[k.id] {
+          kwargTypes = f.types.map({ $0.toString() }).joined(separator: "|")
+        }
+      }
     }
     if content != nil && requery {
       if function == nil {  // Kwarg docs
         let d = self.docs.find_docs(id: content!)
-        content = d ?? content!
-      } else {
+        content = (d ?? content!) + "\n\n*Types:*`" + (kwargTypes ?? "???") + "`"
+      } else if function != nil {
         let d = self.docs.find_docs(id: content!)
         if let mdocs = d {
           var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
