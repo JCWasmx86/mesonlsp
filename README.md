@@ -159,3 +159,15 @@ got fully parsed 35 times.
 - `evalStack` is responsible for getting types of variables that were overwritten in previous branches of selection statements.
 
 In this example, it took around half-second to parse the entire mesa meson files, deduce the types and emit diagnostics.
+
+## References
+- [gnome-builder#629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629) An issue somewhat related to this project.
+### Dependencies
+- [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
+- [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
+- [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
+- [PathKit](https://github.com/kylef/PathKit) - Effortless path operations in Swift
+- [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
+- [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
+- [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
+- [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
