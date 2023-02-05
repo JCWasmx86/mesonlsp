@@ -1,6 +1,6 @@
 ## Version 1.0
 - [x] Language Server scaffolding
-- [ ] Hover
+- [x] Hover
   - [x] Basic hovering
     - [x] Functions
     - [x] Methods
@@ -43,6 +43,7 @@
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
+- [ ] Cache tree from tree-sitter
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions

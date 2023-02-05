@@ -4,8 +4,7 @@ import MesonAST
 import PathKit
 import Timing
 
-// TODO: Type derivation based on the options
-public class TypeAnalyzer: ExtendedCodeVisitor {
+public final class TypeAnalyzer: ExtendedCodeVisitor {
   static let LOG = Logger(label: "MesonAnalyze::TypeAnalyzer")
   var scope: Scope
   var t: TypeNamespace
