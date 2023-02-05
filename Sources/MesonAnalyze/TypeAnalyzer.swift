@@ -333,8 +333,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     switch node.op! {
     case .minus: node.types = [self.t!.types["int"]!]
-    case .not: node.types = [self.t!.types["bool"]!]
-    case .exclamationMark: node.types = [self.t!.types["bool"]!]
+    case .not, .exclamationMark: node.types = [self.t!.types["bool"]!]
     }
   }
   public func visitSubscriptExpression(node: SubscriptExpression) {
