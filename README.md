@@ -14,8 +14,8 @@ A reimplementation of my Meson language server in Swift.
   - What is the type of the argument?
 
 ```
-some_var = foo
-set_variable('foo' + some_var, 1)
+some_var = 'foo'
+set_variable('foo_' + some_var, 1)
 x = foo_foo # Unknown identifier 'foo_foo'
 foreach backend : backends
   # The file backend-$backend/meson.build
