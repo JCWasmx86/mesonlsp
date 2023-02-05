@@ -112,6 +112,35 @@ public final class MesonServer: LanguageServer {
                 }
                 for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
               }
+            } else if let t = self.tree, let md = t.metadata {
+              MesonServer.LOG.info("\(column) \(column - 3)")
+              if let idexpr = md.findIdentifierAt(fp, line, column), idexpr.parent is ArgumentList {
+                let callExpr = idexpr.parent!.parent!
+                var usedKwargs: Set<String> = []
+                for arg in (idexpr.parent as! ArgumentList).args where arg is Kwarg {
+                  MesonServer.LOG.info("Found already used kwarg: \((arg as! Kwarg).name)")
+                  usedKwargs.insert((arg as! Kwarg).name)
+                }
+                var s: Set<String> = []
+                if callExpr is FunctionExpression,
+                  let f = (callExpr as! FunctionExpression).function
+                {
+                  for arg in f.args where arg is Kwarg {
+                    MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+                    s.insert((arg as! Kwarg).name)
+                  }
+                } else if callExpr is MethodExpression,
+                  let m = (callExpr as! MethodExpression).method
+                {
+                  for arg in m.args where arg is Kwarg {
+                    MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+                    s.insert((arg as! Kwarg).name)
+                  }
+                }
+                for c in s where !usedKwargs.contains(c) {
+                  arr.append(CompletionItem(label: c, kind: .keyword, insertText: "\(c): "))
+                }
+              }
             }
           } else {
             MesonServer.LOG.error("Line out of bounds: \(line) > \(lines.count)")
