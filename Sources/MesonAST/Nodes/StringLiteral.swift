@@ -14,9 +14,9 @@ public class StringLiteral: Expression {
     self.location = Location(node: node)
     self.id = string_value(file: file, node: node)
     if self.id != "''" && self.id != "" && 1 <= self.id.count - 1 {
-    	self.cache = self.id[1..<self.id.count - 1]
+      self.cache = self.id[1..<self.id.count - 1]
     } else {
-    	self.cache = ""
+      self.cache = ""
     }
   }
   public func visit(visitor: CodeVisitor) { visitor.visitStringLiteral(node: self) }
