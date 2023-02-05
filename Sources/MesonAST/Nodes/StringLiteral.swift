@@ -7,16 +7,18 @@ public class StringLiteral: Expression {
   public var types: [Type] = []
   public let location: Location
   public weak var parent: Node?
+  private let cache: String
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.file = file
     self.location = Location(node: node)
     self.id = string_value(file: file, node: node)
+    self.cache = self.id[1..<self.id.count - 1]
   }
   public func visit(visitor: CodeVisitor) { visitor.visitStringLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}
 
-  public func contents() -> String { return self.id[1..<self.id.count - 1] }
+  public func contents() -> String { return self.cache }
 
   public func setParents() {
 
