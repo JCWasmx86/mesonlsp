@@ -6,9 +6,8 @@ RUN dnf install zip swift-lang git -y &&\
 WORKDIR /app/Swift-MesonLSP
 RUN swift build -c release --static-swift-stdlib &&\
     swift build -c debug --static-swift-stdlib &&\
-    mkdir /app &&\
     cp .build/release/Swift-MesonLSP /app &&\
-    cp .build/debug/Swift-MesonLSP /app/Swift-MesonLSP.debug &&\
+    cp .build/debug/Swift-MesonLSP /app/Swift-MesonLSP.debug
 WORKDIR /app
 RUN zip -9 Fedora37.zip Swift-MesonLSP.debug Swift-MesonLSP
 
