@@ -353,6 +353,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: newTypes)
   }
+  // TODO: In 2.0 fix this by making all types
+  // classes
   func verify(types: [Type]) -> [Type] {
     let begin = clock()
     let deduped = dedup(types: types)
