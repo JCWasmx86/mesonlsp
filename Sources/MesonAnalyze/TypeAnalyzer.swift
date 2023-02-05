@@ -614,7 +614,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           continue
         }
         switch node.op! {
-        case .and:
+        case .and, .or:
           if isType(l, "bool") && isType(r, "bool") {
             newTypes.append(self.t!.types["bool"]!)
           } else {
@@ -642,15 +642,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           } else {
             nErrors += 1
           }
-        case .ge:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .gt:
+        case .ge, .gt, .le, .lt:
           if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["bool"]!)
           } else if isType(l, "str") && isType(r, "str") {
@@ -659,35 +651,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             nErrors += 1
           }
         case .IN: newTypes.append(self.t!.types["bool"]!)
-        case .le:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .lt:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .minus:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["int"]!)
-          } else {
-            nErrors += 1
-          }
-        case .modulo:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["int"]!)
-          } else {
-            nErrors += 1
-          }
-        case .mul:
+        case .minus, .modulo, .mul:
           if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["int"]!)
           } else {
@@ -708,12 +672,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
             nErrors += 1
           }
         case .notIn: newTypes.append(self.t!.types["bool"]!)
-        case .or:
-          if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t!.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
         case .plus:
           if isType(l, "int") && isType(r, "int") {
             newTypes.append(self.t!.types["int"]!)
