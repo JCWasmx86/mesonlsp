@@ -243,7 +243,7 @@ public final class MesonServer: LanguageServer {
     var content: String?
     var requery = true
     var function: Function?
-    var kwargTypes: String? = nil
+    var kwargTypes: String?
     if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
       if m.method != nil {
         function = m.method!
