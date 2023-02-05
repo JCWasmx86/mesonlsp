@@ -53,6 +53,8 @@ I have chosen the latter because I wanted to learn Swift.
 - Language Server: `sudo dnf install swift-lang`
 - GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 ### Installation
+#### Notes
+On Fedora, you can use the `install.sh` script.
 #### Language Server
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
