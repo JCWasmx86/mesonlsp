@@ -8,7 +8,7 @@ import Timing
 public class TypeAnalyzer: ExtendedCodeVisitor {
   static let LOG = Logger(label: "MesonAnalyze::TypeAnalyzer")
   var scope: Scope
-  var t: TypeNamespace?
+  var t: TypeNamespace
   var tree: MesonTree
   var metadata: MesonMetadata
   let checkerState: CheckerState = CheckerState()
@@ -24,8 +24,6 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     self.options = options
     self.metadata = MesonMetadata()
   }
-
-  deinit { self.t = nil }
 
   public func visitSubdirCall(node: SubdirCall) {
     let begin = clock()
@@ -129,7 +127,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
       } else if iterTypes.count > 0 && iterTypes[0] is RangeType {
-        node.ids[0].types = [self.t!.types["int"]!]
+        node.ids[0].types = [self.t.types["int"]!]
       } else {
         node.ids[0].types = [`Any`()]
       }
@@ -137,7 +135,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
       self.checkIdentifier(node.ids[0] as! IdExpression)
     } else if node.ids.count == 2 {
-      node.ids[0].types = [self.t!.types["str"]!]
+      node.ids[0].types = [self.t.types["str"]!]
       if let d = iterTypes.filter({ $0 is Dict }).first {
         node.ids[1].types = (d as! Dict).types
       } else {
@@ -192,21 +190,21 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           switch node.op {
           case .divequals:
             if l is `IntType` && r is `IntType` {
-              newTypes.append(self.t!.types["int"]!)
+              newTypes.append(self.t.types["int"]!)
             } else if l is Str && r is Str {
-              newTypes.append(self.t!.types["str"]!)
+              newTypes.append(self.t.types["str"]!)
             }
           case .minusequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
           case .modequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
           case .mulequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t!.types["int"]!) }
+            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
           case .plusequals:
             if l is `IntType` && r is `IntType` {
-              newTypes.append(self.t!.types["int"]!)
+              newTypes.append(self.t.types["int"]!)
             } else if l is Str && r is Str {
-              newTypes.append(self.t!.types["str"]!)
+              newTypes.append(self.t.types["str"]!)
             } else if l is ListType && r is ListType {
               newTypes.append(
                 ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types))
@@ -245,12 +243,12 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     let begin = clock()
     node.visitChildren(visitor: self)
     let funcName = (node.id as! IdExpression).id
-    if let fn = self.t!.lookupFunction(name: funcName) {
+    if let fn = self.t.lookupFunction(name: funcName) {
       node.types = self.typeanalyzersState.apply(
         node: node,
         options: self.options,
         f: fn,
-        ns: self.t!
+        ns: self.t
       )
       if fn.name == "get_variable" && node.argumentList != nil, node.argumentList is ArgumentList {
         let args = (node.argumentList as! ArgumentList).args
@@ -260,14 +258,14 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           if let sv = self.scope.variables[varname] {
             types += sv
           } else {
-            types.append(self.t!.types["any"]!)
+            types.append(self.t.types["any"]!)
           }
           if args.count >= 2 { types += args[1].types }
           self.scope.variables[varname] = types
           self.applyToStack(varname, types)
           TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
         } else if args.count != 0 {
-          var types: [Type] = [self.t!.types["any"]!]
+          var types: [Type] = [self.t.types["any"]!]
           if args.count >= 2 { types += args[1].types }
           node.types = self.dedup(types: types)
           TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
@@ -332,8 +330,8 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)
     switch node.op! {
-    case .minus: node.types = [self.t!.types["int"]!]
-    case .not, .exclamationMark: node.types = [self.t!.types["bool"]!]
+    case .minus: node.types = [self.t.types["int"]!]
+    case .not, .exclamationMark: node.types = [self.t.types["bool"]!]
     }
   }
   public func visitSubscriptExpression(node: SubscriptExpression) {
@@ -345,9 +343,9 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       } else if t is ListType {
         newTypes += (t as! ListType).types
       } else if t is Str {
-        newTypes += [self.t!.types["str"]!]
+        newTypes += [self.t.types["str"]!]
       } else if t is CustomTgt {
-        newTypes += [self.t!.types["custom_idx"]!]
+        newTypes += [self.t.types["custom_idx"]!]
       }
     }
     node.types = dedup(types: newTypes)
@@ -360,7 +358,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     var ret: [Type] = []
     for d in deduped {
       if d is AbstractObject {
-        ret += [self.t!.types[d.name]!]
+        ret += [self.t.types[d.name]!]
       } else if d is Dict {
         ret += [Dict(types: verify(types: (d as! Dict).types))]
       } else if d is ListType {
@@ -387,7 +385,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
       }
       if let m = t.getMethod(name: methodName) {
         ownResultTypes += verify(
-          types: self.typeanalyzersState.apply(node: node, options: self.options, f: m, ns: self.t!)
+          types: self.typeanalyzersState.apply(node: node, options: self.options, f: m, ns: self.t)
         )
         node.method = m
         self.metadata.registerMethodCall(call: node)
@@ -398,7 +396,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: ownResultTypes)
     if !found && nAny == types.count {
       let begin = clock()
-      let guessedMethod = self.t!.lookupMethod(name: methodName)
+      let guessedMethod = self.t.lookupMethod(name: methodName)
       Timing.INSTANCE.registerMeasurement(name: "guessingMethod", begin: begin, end: clock())
       if let guessedM = guessedMethod {
         TypeAnalyzer.LOG.info(
@@ -408,7 +406,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
           node: node,
           options: self.options,
           f: guessedM,
-          ns: self.t!
+          ns: self.t
         )
         node.method = guessedM
         self.metadata.registerMethodCall(call: node)
@@ -615,67 +613,67 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
         switch node.op! {
         case .and, .or:
           if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
           }
         case .div:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["int"]!)
+            newTypes.append(self.t.types["int"]!)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["str"]!)
+            newTypes.append(self.t.types["str"]!)
           } else {
             nErrors += 1
           }
         case .equalsEquals:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
           }
         case .ge, .gt, .le, .lt:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
           }
-        case .IN: newTypes.append(self.t!.types["bool"]!)
+        case .IN: newTypes.append(self.t.types["bool"]!)
         case .minus, .modulo, .mul:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["int"]!)
+            newTypes.append(self.t.types["int"]!)
           } else {
             nErrors += 1
           }
         case .notEquals:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t!.types["bool"]!)
+            newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
           }
-        case .notIn: newTypes.append(self.t!.types["bool"]!)
+        case .notIn: newTypes.append(self.t.types["bool"]!)
         case .plus:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t!.types["int"]!)
+            newTypes.append(self.t.types["int"]!)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t!.types["str"]!)
+            newTypes.append(self.t.types["str"]!)
           } else if l is ListType && r is ListType {
             newTypes.append(
               ListType(types: dedup(types: (l as! ListType).types + (r as! ListType).types))
@@ -707,7 +705,7 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
   }
   public func visitStringLiteral(node: StringLiteral) {
-    node.types = [self.t!.types["str"]!]
+    node.types = [self.t.types["str"]!]
     node.visitChildren(visitor: self)
   }
   public func visitArrayLiteral(node: ArrayLiteral) {
@@ -717,11 +715,11 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = [ListType(types: dedup(types: t))]
   }
   public func visitBooleanLiteral(node: BooleanLiteral) {
-    node.types = [self.t!.types["bool"]!]
+    node.types = [self.t.types["bool"]!]
     node.visitChildren(visitor: self)
   }
   public func visitIntegerLiteral(node: IntegerLiteral) {
-    node.types = [self.t!.types["int"]!]
+    node.types = [self.t.types["int"]!]
     node.visitChildren(visitor: self)
   }
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
@@ -777,10 +775,10 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     var ret: [Type] = []
     if listtypes.count != 0 || gotList { ret.append(ListType(types: dedup(types: listtypes))) }
     if dicttypes.count != 0 || gotDict { ret.append(Dict(types: dedup(types: dicttypes))) }
-    if hasAny { ret.append(self.t!.types["any"]!) }
-    if hasBool { ret.append(self.t!.types["bool"]!) }
-    if hasInt { ret.append(self.t!.types["int"]!) }
-    if hasStr { ret.append(self.t!.types["str"]!) }
+    if hasAny { ret.append(self.t.types["any"]!) }
+    if hasBool { ret.append(self.t.types["bool"]!) }
+    if hasInt { ret.append(self.t.types["int"]!) }
+    if hasStr { ret.append(self.t.types["str"]!) }
     ret += objs.values
     Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
