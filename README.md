@@ -58,7 +58,8 @@ I have chosen the latter because I wanted to learn Swift.
 - GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 ### Installation
 #### Notes
-On Fedora, you can use the `install.sh` script.
+On Fedora, you can use the `install.sh` script. It will automatically install all dependencies. (It will ask you for
+your root password using `sudo`, but don't execute the script using `sudo`)
 #### Language Server
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
