@@ -26,7 +26,11 @@ endforeach
 A majority of these limitations come from the fact that Swift-MesonLSP won't interpret the code, but instead
 will just traverse the ast and check what subdirs are included.
 
-### Projects I tested the language server with
+## Contact
+I made a matrix channel: [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org) Feel free to join
+in case you want to ask questions, get support or contribute.
+
+## Projects I tested the language server with
 - Working fine:
   - [GNOME Builder](https://gitlab.gnome.org/GNOME/gnome-builder)
   - [GNOME Builder Plugins](https://github.com/JCWasmx86/GNOME-Builder-Plugins)
