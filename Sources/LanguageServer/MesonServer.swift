@@ -113,7 +113,6 @@ public final class MesonServer: LanguageServer {
                 for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
               }
             } else if let t = self.tree, let md = t.metadata {
-              MesonServer.LOG.info("\(column) \(column - 3)")
               if let idexpr = md.findIdentifierAt(fp, line, column), idexpr.parent is ArgumentList {
                 let callExpr = idexpr.parent!.parent!
                 var usedKwargs: Set<String> = []
