@@ -105,6 +105,10 @@ cd _build
 ninja -j $(nproc) install
 ```
 
+## Want to contribute?
+Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
+free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
+
 ## Expected feature set
 ### Version 1.0
 - Hovering
