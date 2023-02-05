@@ -561,13 +561,13 @@ public class TypeAnalyzer: ExtendedCodeVisitor {
     } else if node.parent is KeywordItem && (node.parent as! KeywordItem).key.equals(right: node) {
       return
     }
-    if node.id != "break" && node.id != "continue" && !isKnownId(id: node) {
+    if !isKnownId(id: node) {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier")
       )
     }
-    if node.id != "break" && node.id != "continue" { self.metadata.registerIdentifier(id: node) }
+    self.metadata.registerIdentifier(id: node)
   }
 
   func isKnownId(id: IdExpression) -> Bool {
