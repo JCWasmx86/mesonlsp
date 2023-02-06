@@ -14,7 +14,7 @@ A reimplementation of my Meson language server in Swift.
 
 ## Limitations
 - Not implemented inefficiently: On each `textDocument/didChange` notification, the entire tree is rebuilt.
-- Only very partial for anything regarding `set_variable`/`get_variable`
+- Only very partial support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
 - Non constant `subdir`-calls are not supported
 - Type deduction is not 100% correct yet
