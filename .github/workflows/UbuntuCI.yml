@@ -1,4 +1,4 @@
-name: CI
+name: Ubuntu-CI
 on:
   push:
     branches: [ "master" ]
@@ -19,14 +19,8 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile --output out .
-          sudo cp out/Fedora37.zip /Fedora37.zip
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu --output out2 .
-          sudo cp out2/Ubuntu22.04.zip /Ubuntu22.04.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Fedora37.zip
-          path: /Fedora37.zip
+          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu --output out .
+          sudo cp out/Ubuntu22.04.zip /Ubuntu22.04.zip
       - uses: actions/upload-artifact@v3
         with:
           name: Ubuntu22.04.zip
