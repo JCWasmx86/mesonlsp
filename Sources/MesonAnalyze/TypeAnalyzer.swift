@@ -154,7 +154,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   func checkIdentifier(_ node: IdExpression) {
     let begin = clock()
     if !isSnakeCase(str: node.id) {
-      // TODO: For assignments, too
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
@@ -179,6 +178,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       {
         arr = [Dict(types: [])]
       }
+      if node.lhs is IdExpression { self.checkIdentifier(node.lhs as! IdExpression) }
       self.applyToStack((node.lhs as! IdExpression).id, arr)
       self.scope.variables[(node.lhs as! IdExpression).id] = arr
       (node.lhs as! IdExpression).types = arr
