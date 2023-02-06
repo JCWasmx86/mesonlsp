@@ -67,95 +67,111 @@ public final class MesonServer: LanguageServer {
   func complete(_ req: Request<CompletionRequest>) {
     let begin = clock()
     var arr: [CompletionItem] = []
-    if let t = self.tree {
-      let fp = req.params.textDocument.uri.fileURL!.path
-      if let mt = t.findSubdirTree(file: fp) {
-        if mt.ast != nil, let content = self.getContents(file: fp) {
-          let pos = req.params.position
-          let line = pos.line
-          let column = pos.utf16index
-          let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
-          MesonServer.LOG.info("Completion at: [\(line):\(column)]")
-          if line < lines.count {
-            let str = lines[line]
-            let prev = str.prefix(column + 1).description.trimmingCharacters(
-              in: NSCharacterSet.whitespaces
-            )
-            if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
-              var exprTypes: [Type]?
-              var s: Set<String> = []
-              if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
-                MesonServer.LOG.info("Found id expr: \(idexpr.id)")
-                exprTypes = idexpr.types
-              } else if let fc = md.findFullFunctionCallAt(fp, line, column - 1), fc.function != nil
-              {
-                MesonServer.LOG.info("Found function expr: \(fc.functionName())")
-                exprTypes = fc.types
-              } else if let me = md.findFullMethodCallAt(fp, line, column - 1), me.method != nil {
-                MesonServer.LOG.info("Found method expr: \(me.method!.id())")
-                exprTypes = me.types
-              }
-              if let types = exprTypes {
-                for t in types {
-                  for m in t.methods {
-                    MesonServer.LOG.info("Inserting completion: \(m.name)")
-                    s.insert(m.name)
-                  }
-                  if let t1 = t as? AbstractObject {
-                    var p = t1.parent
-                    while p != nil {
-                      for m in p!.methods {
-                        MesonServer.LOG.info("Inserting completion: \(m.name)")
-                        s.insert(m.name)
-                      }
-                      p = p!.parent
-                    }
-                  }
-                }
-                for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
-              }
-            } else if let t = self.tree, let md = t.metadata {
-              if let idexpr = md.findIdentifierAt(fp, line, column),
-                let al = idexpr.parent as? ArgumentList
-              {
-                let callExpr = idexpr.parent!.parent!
-                var usedKwargs: Set<String> = []
-                for arg in al.args where arg is Kwarg {
-                  MesonServer.LOG.info("Found already used kwarg: \((arg as! Kwarg).name)")
-                  usedKwargs.insert((arg as! Kwarg).name)
-                }
-                var s: Set<String> = []
-                if let fe = callExpr as? FunctionExpression, let f = fe.function {
-                  for arg in f.args where arg is Kwarg {
-                    MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
-                    s.insert((arg as! Kwarg).name)
-                  }
-                } else if let me = callExpr as? MethodExpression, let m = me.method {
-                  for arg in m.args where arg is Kwarg {
-                    MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
-                    s.insert((arg as! Kwarg).name)
-                  }
-                }
-                for c in s where !usedKwargs.contains(c) {
-                  arr.append(CompletionItem(label: c, kind: .keyword, insertText: "\(c): "))
-                }
-              }
+    let fp = req.params.textDocument.uri.fileURL!.path
+    if let t = self.tree, let mt = t.findSubdirTree(file: fp), mt.ast != nil,
+      let content = self.getContents(file: fp)
+    {
+      let pos = req.params.position
+      let line = pos.line
+      let column = pos.utf16index
+      let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+      MesonServer.LOG.info("Completion at: [\(line):\(column)]")
+      if line < lines.count {
+        let str = lines[line]
+        let prev = str.prefix(column + 1).description.trimmingCharacters(
+          in: NSCharacterSet.whitespaces
+        )
+        if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
+          let exprTypes = self.afterDotCompletion(md, fp, line, column)
+          if let types = exprTypes {
+            let s: Set<String> = self.fillTypes(types)
+            for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
+          }
+        } else if let t = self.tree, let md = t.metadata {
+          if let idexpr = md.findIdentifierAt(fp, line, column),
+            let al = idexpr.parent as? ArgumentList
+          {
+            let callExpr = idexpr.parent!.parent!
+            let usedKwargs: Set<String> = self.enumerateUsedKwargs(al)
+            let s: Set<String> = self.fillKwargs(callExpr)
+            for c in s where !usedKwargs.contains(c) {
+              arr.append(CompletionItem(label: c, kind: .keyword, insertText: "\(c): "))
             }
-          } else {
-            MesonServer.LOG.error("Line out of bounds: \(line) > \(lines.count)")
-          }  // 1. Get the nearest node
-          // 2. If it is an identifier and parent is build_definition/iterS/selectS
-          // 2.1. Calculate function names
-          // 2.2. Calculate matching identifier names
-          // 3. If it is an identifier and parent is keyworditem/methodcall/functionexpression
-          // 3.1. Calculate, whether it matches kwargs
-          // 4. If it is an expression like this "<sth>.", attempt to deduce the methods
-          // of <sth>
+          }
         }
-      }
+      } else {
+        MesonServer.LOG.error("Line out of bounds: \(line) > \(lines.count)")
+      }  // 1. Get the nearest node
+      // 2. If it is an identifier and parent is build_definition/iterS/selectS
+      // 2.1. Calculate function names
+      // 2.2. Calculate matching identifier names
+      // 3. If it is an identifier and parent is keyworditem/methodcall/functionexpression
+      // 3.1. Calculate, whether it matches kwargs
+      // 4. If it is an expression like this "<sth>.", attempt to deduce the methods
+      // of <sth>
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+  }
+
+  func fillTypes(_ types: [Type]) -> Set<String> {
+    var s: Set<String> = []
+    for t in types {
+      for m in t.methods {
+        MesonServer.LOG.info("Inserting completion: \(m.name)")
+        s.insert(m.name)
+      }
+      if let t1 = t as? AbstractObject {
+        var p = t1.parent
+        while p != nil {
+          for m in p!.methods {
+            MesonServer.LOG.info("Inserting completion: \(m.name)")
+            s.insert(m.name)
+          }
+          p = p!.parent
+        }
+      }
+    }
+    return s
+  }
+  func fillKwargs(_ callExpr: Node) -> Set<String> {
+    var s: Set<String> = []
+    if let fe = callExpr as? FunctionExpression, let f = fe.function {
+      for arg in f.args where arg is Kwarg {
+        MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+        s.insert((arg as! Kwarg).name)
+      }
+    } else if let me = callExpr as? MethodExpression, let m = me.method {
+      for arg in m.args where arg is Kwarg {
+        MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+        s.insert((arg as! Kwarg).name)
+      }
+    }
+    return s
+  }
+
+  func enumerateUsedKwargs(_ al: ArgumentList) -> Set<String> {
+    var usedKwargs: Set<String> = []
+    for arg in al.args where arg is Kwarg {
+      MesonServer.LOG.info("Found already used kwarg: \((arg as! Kwarg).name)")
+      usedKwargs.insert((arg as! Kwarg).name)
+    }
+    return usedKwargs
+  }
+
+  func afterDotCompletion(_ md: MesonMetadata, _ fp: String, _ line: Int, _ column: Int) -> [Type]?
+  {
+    if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
+      MesonServer.LOG.info("Found id expr: \(idexpr.id)")
+      return idexpr.types
+    } else if let fc = md.findFullFunctionCallAt(fp, line, column - 1), fc.function != nil {
+      MesonServer.LOG.info("Found function expr: \(fc.functionName())")
+      return fc.types
+    } else if let me = md.findFullMethodCallAt(fp, line, column - 1), me.method != nil {
+      MesonServer.LOG.info("Found method expr: \(me.method!.id())")
+      return me.types
+    }
+    return nil
   }
 
   func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
@@ -236,6 +252,40 @@ public final class MesonServer: LanguageServer {
     return try? String(contentsOfFile: file)
   }
 
+  func hoverFindCallable(
+    _ file: String,
+    _ line: Int,
+    _ column: Int,
+    _ function: inout Function?,
+    _ content: inout String?
+  ) {
+    if let m = self.tree!.metadata!.findMethodCallAt(file, line, column) {
+      if m.method != nil {
+        function = m.method!
+        content = m.method!.parent.toString() + "." + m.method!.name
+      }
+    }
+    if content == nil, let f = self.tree!.metadata!.findFunctionCallAt(file, line, column) {
+      if f.function != nil {
+        function = f.function!
+        content = f.function!.name
+      }
+    }
+  }
+  func hoverFindIdentifier(
+    _ file: String,
+    _ line: Int,
+    _ column: Int,
+    _ content: inout String?,
+    _ requery: inout Bool
+  ) {
+    if content == nil, let f = self.tree!.metadata!.findIdentifierAt(file, line, column) {
+      if !f.types.isEmpty {
+        content = f.types.map({ $0.toString() }).joined(separator: "|")
+        requery = false
+      }
+    }
+  }
   func hover(_ req: Request<HoverRequest>) {
     let beginHover = clock()
     let location = req.params.position
@@ -244,28 +294,8 @@ public final class MesonServer: LanguageServer {
     var requery = true
     var function: Function?
     var kwargTypes: String?
-    if let m = self.tree!.metadata!.findMethodCallAt(file!, location.line, location.utf16index) {
-      if m.method != nil {
-        function = m.method!
-        content = m.method!.parent.toString() + "." + m.method!.name
-      }
-    }
-    if content == nil,
-      let f = self.tree!.metadata!.findFunctionCallAt(file!, location.line, location.utf16index)
-    {
-      if f.function != nil {
-        function = f.function!
-        content = f.function!.name
-      }
-    }
-    if content == nil,
-      let f = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index)
-    {
-      if !f.types.isEmpty {
-        content = f.types.map({ $0.toString() }).joined(separator: "|")
-        requery = false
-      }
-    }
+    self.hoverFindCallable(file!, location.line, location.utf16index, &function, &content)
+    self.hoverFindIdentifier(file!, location.line, location.utf16index, &content, &requery)
     if content == nil,
       let tuple = self.tree!.metadata!.findKwargAt(file!, location.line, location.utf16index)
     {
@@ -291,32 +321,7 @@ public final class MesonServer: LanguageServer {
       } else if function != nil {
         let d = self.docs.find_docs(id: content!)
         if let mdocs = d {
-          var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
-          for arg in function!.args {
-            if let pa = arg as? PositionalArgument {
-              str += "- "
-              if pa.opt { str += "\\[" }
-              str += "`" + pa.name + "`"
-              str += " "
-              str += pa.types.map({ $0.toString() }).joined(separator: "|")
-              if pa.varargs { str += "..." }
-              if pa.opt { str += "\\]" }
-              str += "\n"
-            } else if let kw = arg as? Kwarg {
-              str += "- "
-              if kw.opt { str += "\\[" }
-              str += "`" + kw.name + "`"
-              str += ": "
-              str += kw.types.map({ $0.toString() }).joined(separator: "|")
-              if kw.opt { str += "\\]" }
-              str += "\n"
-            }
-          }
-          if !function!.returnTypes.isEmpty {
-            str +=
-              "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
-          }
-          content = str
+          content = self.callHover(content: content, mdocs: mdocs, function: function)
         }
       }
     }
@@ -330,6 +335,34 @@ public final class MesonServer: LanguageServer {
     )
     let endHover = clock()
     Timing.INSTANCE.registerMeasurement(name: "hover", begin: Int(beginHover), end: Int(endHover))
+  }
+
+  func callHover(content: String?, mdocs: String, function: Function?) -> String {
+    var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
+    for arg in function!.args {
+      if let pa = arg as? PositionalArgument {
+        str += "- "
+        if pa.opt { str += "\\[" }
+        str += "`" + pa.name + "`"
+        str += " "
+        str += pa.types.map({ $0.toString() }).joined(separator: "|")
+        if pa.varargs { str += "..." }
+        if pa.opt { str += "\\]" }
+        str += "\n"
+      } else if let kw = arg as? Kwarg {
+        str += "- "
+        if kw.opt { str += "\\[" }
+        str += "`" + kw.name + "`"
+        str += ": "
+        str += kw.types.map({ $0.toString() }).joined(separator: "|")
+        if kw.opt { str += "\\]" }
+        str += "\n"
+      }
+    }
+    if !function!.returnTypes.isEmpty {
+      str += "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
+    }
+    return str
   }
 
   func declaration(_ req: Request<DeclarationRequest>) {

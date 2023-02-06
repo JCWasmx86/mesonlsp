@@ -170,6 +170,46 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       end: Int(clock())
     )
   }
+
+  // swiftlint:disable cyclomatic_complexity
+  func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type] {
+    var newTypes: [Type] = []
+    for l in lhs {
+      for r in rhs {
+        switch op {
+        case .divequals:
+          if l is `IntType` && r is `IntType` {
+            newTypes.append(self.t.types["int"]!)
+          } else if l is Str && r is Str {
+            newTypes.append(self.t.types["str"]!)
+          }
+        case .minusequals:
+          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
+        case .modequals:
+          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
+        case .mulequals:
+          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
+        case .plusequals:
+          if l is `IntType` && r is `IntType` {
+            newTypes.append(self.t.types["int"]!)
+          } else if l is Str && r is Str {
+            newTypes.append(self.t.types["str"]!)
+          } else if let ll = l as? ListType, let lr = r as? ListType {
+            newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
+          } else if let ll = l as? ListType {
+            newTypes.append(ListType(types: dedup(types: ll.types + [r])))
+          } else if let dl = l as? Dict, let dr = r as? Dict {
+            newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
+          } else if let dl = l as? Dict {
+            newTypes.append(Dict(types: dedup(types: dl.types + [r])))
+          }
+        default: _ = 1
+        }
+      }
+    }
+    return newTypes
+  }
+  // swiftlint:enable cyclomatic_complexity
   public func visitAssignmentStatement(node: AssignmentStatement) {
     let begin = clock()
     node.visitChildren(visitor: self)
@@ -194,45 +234,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if arr.isEmpty, let dictLit = node.rhs as? DictionaryLiteral, dictLit.values.isEmpty {
         arr = [Dict(types: [])]
       }
-      if node.lhs is IdExpression { self.checkIdentifier(lhsIdExpr) }
+      self.checkIdentifier(lhsIdExpr)
       self.applyToStack(lhsIdExpr.id, arr)
       self.scope.variables[lhsIdExpr.id] = arr
       lhsIdExpr.types = arr
     } else {
-      var newTypes: [Type] = []
-      for l in node.lhs.types {
-        for r in node.rhs.types {
-          switch node.op {
-          case .divequals:
-            if l is `IntType` && r is `IntType` {
-              newTypes.append(self.t.types["int"]!)
-            } else if l is Str && r is Str {
-              newTypes.append(self.t.types["str"]!)
-            }
-          case .minusequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-          case .modequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-          case .mulequals:
-            if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-          case .plusequals:
-            if l is `IntType` && r is `IntType` {
-              newTypes.append(self.t.types["int"]!)
-            } else if l is Str && r is Str {
-              newTypes.append(self.t.types["str"]!)
-            } else if let ll = l as? ListType, let lr = r as? ListType {
-              newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
-            } else if let ll = l as? ListType {
-              newTypes.append(ListType(types: dedup(types: ll.types + [r])))
-            } else if let dl = l as? Dict, let dr = r as? Dict {
-              newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
-            } else if let dl = l as? Dict {
-              newTypes.append(Dict(types: dedup(types: dl.types + [r])))
-            }
-          default: _ = 1
-          }
-        }
-      }
+      let newTypes = evalAssignment(node.op!, node.lhs.types, node.rhs.types)
       var deduped = dedup(types: newTypes)
       if deduped.isEmpty && node.rhs.types.isEmpty && self.scope.variables[lhsIdExpr.id] != nil
         && !self.scope.variables[lhsIdExpr.id]!.isEmpty
@@ -250,6 +257,41 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       end: clock()
     )
   }
+  func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
+    if fn.name == "get_variable" && node.argumentList != nil,
+      let al = node.argumentList as? ArgumentList
+    {
+      let args = al.args
+      if !args.isEmpty, let sl = args[0] as? StringLiteral {
+        let varname = sl.contents()
+        var types: [Type] = []
+        if let sv = self.scope.variables[varname] {
+          types += sv
+        } else {
+          types.append(self.t.types["any"]!)
+        }
+        if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
+        self.scope.variables[varname] = types
+        self.applyToStack(varname, types)
+        TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
+      } else if !args.isEmpty {
+        var types: [Type] = [self.t.types["any"]!]
+        if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
+        node.types = self.dedup(types: types)
+        TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
+      }
+    } else if fn.name == "subdir" && node.argumentList != nil,
+      let al = node.argumentList as? ArgumentList
+    {
+      if let sl = al.args[0] as? StringLiteral {
+        let s = sl.contents()
+        self.metadata.registerDiagnostic(
+          node: node,
+          diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
+        )
+      }
+    }
+  }
   public func visitFunctionExpression(node: FunctionExpression) {
     let begin = clock()
     node.visitChildren(visitor: self)
@@ -262,39 +304,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         f: fn,
         ns: self.t
       )
-      if fn.name == "get_variable" && node.argumentList != nil,
-        let al = node.argumentList as? ArgumentList
-      {
-        let args = al.args
-        if !args.isEmpty, let sl = args[0] as? StringLiteral {
-          let varname = sl.contents()
-          var types: [Type] = []
-          if let sv = self.scope.variables[varname] {
-            types += sv
-          } else {
-            types.append(self.t.types["any"]!)
-          }
-          if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
-          self.scope.variables[varname] = types
-          self.applyToStack(varname, types)
-          TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
-        } else if !args.isEmpty {
-          var types: [Type] = [self.t.types["any"]!]
-          if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
-          node.types = self.dedup(types: types)
-          TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
-        }
-      } else if fn.name == "subdir" && node.argumentList != nil,
-        let al = node.argumentList as? ArgumentList
-      {
-        if let sl = al.args[0] as? StringLiteral {
-          let s = sl.contents()
-          self.metadata.registerDiagnostic(
-            node: node,
-            diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
-          )
-        }
-      }
+      self.specialFunctionCallHandling(node, fn)
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
       checkerState.apply(node: node, metadata: self.metadata, f: fn)
@@ -385,6 +395,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     Timing.INSTANCE.registerMeasurement(name: "verify", begin: begin, end: clock())
     return ret
   }
+  // swiftlint:disable cyclomatic_complexity
   public func visitMethodExpression(node: MethodExpression) {
     let begin = clock()
     node.visitChildren(visitor: self)
@@ -432,10 +443,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     if !found {
       let t = joinTypes(types: types)
-      for tt in types {
-        TypeAnalyzer.LOG.info("\(tt.name)::\(tt.methods.count)")
-        for m in tt.methods { TypeAnalyzer.LOG.info("\(tt.name)::\(m.name)") }
-      }
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
@@ -468,7 +475,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     Timing.INSTANCE.registerMeasurement(name: "visitMethodExpression", begin: begin, end: clock())
   }
+  // swiftlint:enable cyclomatic_complexity
 
+  // swiftlint:disable cyclomatic_complexity
   func checkCall(node: Expression) {
     let begin = clock()
     let args: [Node]
@@ -555,11 +564,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     // TODO: Type checking for each argument
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
   }
+  // swiftlint:enable cyclomatic_complexity
 
   public func evalStack(name: String) -> [Type] {
     var ret: [Type] = []
     for ov in self.overriddenVariables where ov[name] != nil { ret += ov[name]! }
     return ret
+  }
+  func ignoreIdExpression(node: IdExpression) -> Bool {
+    let parent = node.parent
+    return (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
+      || (parent is MethodExpression && (parent as! MethodExpression).id.equals(right: node))
+      || (parent is KeywordItem && (parent as! KeywordItem).key.equals(right: node))
   }
   public func visitIdExpression(node: IdExpression) {
     let begin = clock()
@@ -567,13 +583,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     Timing.INSTANCE.registerMeasurement(name: "evalStack", begin: begin, end: clock())
     node.types = dedup(types: s + (scope.variables[node.id] ?? []))
     node.visitChildren(visitor: self)
-    let parent = node.parent
-    if (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
-      || (parent is MethodExpression && (parent as! MethodExpression).id.equals(right: node))
-      || (parent is KeywordItem && (parent as! KeywordItem).key.equals(right: node))
-    {
-      return
-    }
+    if self.ignoreIdExpression(node: node) { return }
     if !isKnownId(id: node) {
       self.metadata.registerDiagnostic(
         node: node,
@@ -589,12 +599,13 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if b.id == id.id && a.op == .equals { return true }
     } else if let i = parent as? IterationStatement {
       for idd in i.ids { if let l = idd as? IdExpression, id.id == l.id { return true } }
-    } else if let kw = parent as? KeywordItem, let b = kw.key as? IdExpression {
-      if id.id == b.id { return true }
-    } else if let fe = parent as? FunctionExpression, let b = fe.id as? IdExpression {
-      if id.id == b.id { return true }
-    } else if let me = parent as? MethodExpression, let b = me.id as? IdExpression {
-      if id.id == b.id { return true }
+    } else if let kw = parent as? KeywordItem, let b = kw.key as? IdExpression, id.id == b.id {
+      return true
+    } else if let fe = parent as? FunctionExpression, let b = fe.id as? IdExpression, id.id == b.id
+    {
+      return true
+    } else if let me = parent as? MethodExpression, let b = me.id as? IdExpression, id.id == b.id {
+      return true
     }
 
     return self.scope.variables[id.id] != nil
@@ -603,31 +614,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   func isType(_ type: Type, _ name: String) -> Bool {
     return type.name == name || type.name == "any"
   }
-  public func visitBinaryExpression(node: BinaryExpression) {
-    let begin = clock()
-    node.visitChildren(visitor: self)
+  // swiftlint:disable cyclomatic_complexity
+  func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (Int, [Type]) {
     var newTypes: [Type] = []
-    if node.op == nil {
-      // Emergency fix
-      node.types = dedup(types: node.lhs.types + node.rhs.types)
-      self.metadata.registerDiagnostic(
-        node: node,
-        diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator")
-      )
-      Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
-      return
-    }
     var nErrors = 0
-    let nTimes = node.lhs.types.count * node.rhs.types.count
-    for l in node.lhs.types {
-      for r in node.rhs.types {
+    for l in lhs {
+      for r in rhs {
         // Theoretically not an error (yet),
         // but practically better safe than sorry.
         if r.name == "any" && l.name == "any" {
           nErrors += 1
           continue
         }
-        switch node.op! {
+        switch op {
         case .and, .or:
           if isType(l, "bool") && isType(r, "bool") {
             newTypes.append(self.t.types["bool"]!)
@@ -705,6 +704,25 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
+    return (nErrors, newTypes)
+  }
+  // swiftlint:enable cyclomatic_complexity
+
+  public func visitBinaryExpression(node: BinaryExpression) {
+    let begin = clock()
+    node.visitChildren(visitor: self)
+    if node.op == nil {
+      // Emergency fix
+      node.types = dedup(types: node.lhs.types + node.rhs.types)
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator")
+      )
+      Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
+      return
+    }
+    let (nErrors, newTypes) = self.evalBinaryExpression(node.op!, node.lhs.types, node.rhs.types)
+    let nTimes = node.lhs.types.count * node.rhs.types.count
     if nTimes != 0 && nErrors == nTimes && (!node.lhs.types.isEmpty) && (!node.rhs.types.isEmpty) {
       self.metadata.registerDiagnostic(
         node: node,
@@ -756,7 +774,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func joinTypes(types: [Type]) -> String {
     return types.map({ $0.toString() }).joined(separator: "|")
   }
-
+  // swiftlint:disable cyclomatic_complexity
   public func dedup(types: [Type]) -> [Type] {
     if types.isEmpty { return types }
     let begin = clock()
@@ -797,5 +815,5 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     ret += objs.values
     Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
-  }
+  }  // swiftlint:enable cyclomatic_complexity
 }

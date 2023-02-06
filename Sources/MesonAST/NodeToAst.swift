@@ -1,3 +1,4 @@
+// swiftlint:disable cyclomatic_complexity
 import SwiftTreeSitter
 
 public func from_tree(file: MesonSourceFile, tree: SwiftTreeSitter.Node?) -> Node? {

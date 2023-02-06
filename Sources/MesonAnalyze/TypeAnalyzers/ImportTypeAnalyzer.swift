@@ -9,37 +9,30 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
         let arg0 = al.args[0]
         if let sl = arg0 as? StringLiteral {
           let t = sl.contents()
-          switch t {
-          case "cmake": return [ns.types["cmake_module"]!]
-          case "fs": return [ns.types["fs_module"]!]
-          case "gnome": return [ns.types["gnome_module"]!]
-          case "i18n": return [ns.types["i18n_module"]!]
-          case "rust": return [ns.types["rust_module"]!]
-          case "unstable-rust": return [ns.types["rust_module"]!]
-          case "python": return [ns.types["python_module"]!]
-          case "python3": return [ns.types["python3_module"]!]
-          case "pkgconfig": return [ns.types["pkgconfig_module"]!]
-          case "keyval": return [ns.types["keyval_module"]!]
-          case "dlang": return [ns.types["dlang_module"]!]
-          case "unstable-external_project": return [ns.types["external_project_module"]!]
-          case "hotdoc": return [ns.types["hotdoc_module"]!]
-          case "java": return [ns.types["java_module"]!]
-          case "windows": return [ns.types["windows_module"]!]
-          case "cuda": return [ns.types["cuda_module"]!]
-          case "unstable-cuda": return [ns.types["cuda_module"]!]
-          case "icestorm": return [ns.types["icestorm_module"]!]
-          case "unstable-icestorm": return [ns.types["icestorm_module"]!]
-          case "qt4": return [ns.types["qt4_module"]!]
-          case "qt5": return [ns.types["qt5_module"]!]
-          case "qt6": return [ns.types["qt6_module"]!]
-          case "unstable-wayland": return [ns.types["wayland_module"]!]
-          case "unstable-simd": return [ns.types["simd_module"]!]
-          case "sourceset": return [ns.types["sourceset_module"]!]
-          default: return fn.returnTypes
-          }
+          if let ret = self.nameToModule(name: t, ns: ns) { return ret }
         }
       }
     }
     return fn.returnTypes
+  }
+  func nameToModule(name: String, ns: TypeNamespace) -> [Type]? {
+    let mapping = [
+      "cmake": ns.types["cmake_module"]!, "fs": ns.types["fs_module"]!,
+      "gnome": ns.types["gnome_module"]!, "i18n": ns.types["i18n_module"]!,
+      "rust": ns.types["rust_module"]!, "unstable-rust": ns.types["rust_module"]!,
+      "python": ns.types["python_module"]!, "python3": ns.types["python3_module"]!,
+      "pkgconfig": ns.types["pkgconfig_module"]!, "keyval": ns.types["keyval_module"]!,
+      "dlang": ns.types["dlang_module"]!,
+      "unstable-external_project": ns.types["external_project_module"]!,
+      "hotdoc": ns.types["hotdoc_module"]!, "java": ns.types["java_module"]!,
+      "windows": ns.types["windows_module"]!, "cuda": ns.types["cuda_module"]!,
+      "unstable-cuda": ns.types["cuda_module"]!, "icestorm": ns.types["icestorm_module"]!,
+      "unstable-icestorm": ns.types["icestorm_module"]!, "qt4": ns.types["qt4_module"]!,
+      "qt5": ns.types["qt5_module"]!, "qt6": ns.types["qt6_module"]!,
+      "unstable-wayland": ns.types["wayland_module"]!, "unstable-simd": ns.types["simd_module"]!,
+      "sourceset": ns.types["sourceset_module"]!,
+    ]
+    if let r = mapping[name] { return [r] }
+    return nil
   }
 }

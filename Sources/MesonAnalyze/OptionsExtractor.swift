@@ -31,17 +31,20 @@ public class OptionsExtractor: CodeVisitor {
           if let descNode = al.getKwarg(name: "description") {
             if let descLiteral = descNode as? StringLiteral { description = descLiteral.contents() }
           }
-          switch sl.contents() {
-          case "array": self.options.append(ArrayOption(name, description))
-          case "boolean": self.options.append(BoolOption(name, description))
-          case "int": self.options.append(IntOption(name, description))
-          case "string": self.options.append(StringOption(name, description))
-          case "combo": self.options.append(ComboOption(name, description))
-          case "feature": self.options.append(FeatureOption(name, description))
-          default: _ = 1
-          }
+          self.createOption(sl.contents(), name, description)
         }
       }
+    }
+  }
+  func createOption(_ type: String, _ name: String, _ description: String?) {
+    switch type {
+    case "array": self.options.append(ArrayOption(name, description))
+    case "boolean": self.options.append(BoolOption(name, description))
+    case "int": self.options.append(IntOption(name, description))
+    case "string": self.options.append(StringOption(name, description))
+    case "combo": self.options.append(ComboOption(name, description))
+    case "feature": self.options.append(FeatureOption(name, description))
+    default: _ = 1
     }
   }
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }

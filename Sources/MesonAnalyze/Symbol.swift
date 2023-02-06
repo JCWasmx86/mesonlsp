@@ -7,12 +7,14 @@ public class Symbol {
   public let startColumn: UInt32
   public let endLine: UInt32
   public let endColumn: UInt32
+  // swiftlint:disable no_magic_numbers
   static let STRING_KIND = UInt32(15)
   static let INT_KIND = UInt32(16)
   static let BOOL_KIND = UInt32(17)
   static let LIST_KIND = UInt32(18)
   static let OBJECT_KIND = UInt32(19)
   static let VARIABLE_KIND = UInt32(13)
+  // swiftlint:enable no_magic_numbers
 
   public init(id: IdExpression) {
     self.name = id.id

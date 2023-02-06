@@ -52,6 +52,7 @@ public class TimingInformation {
   public func hits() -> Int { return self.values.count }
 }
 
+// swiftlint:disable no_magic_numbers
 extension Array where Element == Double {
   func median() -> Double {
     let sortedArray = sorted()
@@ -71,4 +72,4 @@ extension Array where Element == Double {
     let v = self.reduce(0, { $0 + ($1 - mean) * ($1 - mean) })
     return sqrt(v / (Double(self.count) - 1))
   }
-}
+}  // swiftlint:enable no_magic_numbers

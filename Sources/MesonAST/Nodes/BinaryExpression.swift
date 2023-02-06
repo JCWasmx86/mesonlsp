@@ -16,7 +16,7 @@ public enum BinaryOperator {
   case notIn
   case or
   case and
-
+  // swiftlint:disable cyclomatic_complexity
   static func fromString(str: String) -> BinaryOperator? {
     switch str {
     case "+": return .plus
