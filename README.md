@@ -3,7 +3,7 @@
 A reimplementation of my Meson language server in Swift.
 
 ## Current feature set
-- Hovering
+- Hovering (Documentation often copied verbatim/minimally modified from mesonbuild, CC BY-SA 4.0, same for the entire `Sources/MesonDocs` directory due to ShareAlike)
 - Symbol resolving
 - Jump-To-Definition
 - Jump-To-Subdir
