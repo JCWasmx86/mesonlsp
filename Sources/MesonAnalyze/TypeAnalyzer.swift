@@ -58,20 +58,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if self.stack.isEmpty { return }
     let begin = clock()
     if self.scope.variables[name] != nil {
-      if self.overriddenVariables[self.overriddenVariables.count - 1][name] == nil {
-        self.overriddenVariables[self.overriddenVariables.count - 1][name] = self.scope.variables[
-          name
-        ]!
+      let orVCount = self.overriddenVariables.count - 1
+      if self.overriddenVariables[orVCount][name] == nil {
+        self.overriddenVariables[orVCount][name] = self.scope.variables[name]!
       } else {
-        self.overriddenVariables[self.overriddenVariables.count - 1][name]! += self.scope.variables[
-          name
-        ]!
+        self.overriddenVariables[orVCount][name]! += self.scope.variables[name]!
       }
     }
-    if self.stack[self.stack.count - 1][name] == nil {
-      self.stack[self.stack.count - 1][name] = types
+    let ssC = self.stack.count - 1
+    if self.stack[ssC][name] == nil {
+      self.stack[ssC][name] = types
     } else {
-      self.stack[self.stack.count - 1][name]! += types
+      self.stack[ssC][name]! += types
     }
     Timing.INSTANCE.registerMeasurement(name: "applyToStack", begin: begin, end: clock())
   }
@@ -123,16 +121,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     for id in node.ids { id.visit(visitor: self) }
     let iterTypes = node.expression.types
     if node.ids.count == 1 {
+
       if iterTypes.count > 0 && iterTypes[0] is ListType {
         node.ids[0].types = (iterTypes[0] as! ListType).types
       } else if iterTypes.count > 0 && iterTypes[0] is RangeType {
         node.ids[0].types = [self.t.types["int"]!]
       } else {
-        node.ids[0].types = [`Any`()]
+        node.ids[0].types = [self.t.types["any"]!]
       }
-      self.applyToStack((node.ids[0] as! IdExpression).id, node.ids[0].types)
-      self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
-      self.checkIdentifier(node.ids[0] as! IdExpression)
+      let id0Expr = (node.ids[0] as! IdExpression)
+      self.applyToStack(id0Expr.id, node.ids[0].types)
+      self.scope.variables[id0Expr.id] = node.ids[0].types
+      self.checkIdentifier(id0Expr)
     } else if node.ids.count == 2 {
       node.ids[0].types = [self.t.types["str"]!]
       if let d = iterTypes.filter({ $0 is Dict }).first {
@@ -140,12 +140,14 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else {
         node.ids[1].types = []
       }
-      self.applyToStack((node.ids[1] as! IdExpression).id, node.ids[0].types)
-      self.applyToStack((node.ids[1] as! IdExpression).id, node.ids[0].types)
-      self.scope.variables[(node.ids[1] as! IdExpression).id] = node.ids[1].types
-      self.scope.variables[(node.ids[0] as! IdExpression).id] = node.ids[0].types
-      self.checkIdentifier(node.ids[0] as! IdExpression)
-      self.checkIdentifier(node.ids[1] as! IdExpression)
+      let id0Expr = (node.ids[0] as! IdExpression)
+      let id1Expr = (node.ids[1] as! IdExpression)
+      self.applyToStack(id1Expr.id, node.ids[1].types)
+      self.applyToStack(id0Expr.id, node.ids[0].types)
+      self.scope.variables[id1Expr.id] = node.ids[1].types
+      self.scope.variables[id0Expr.id] = node.ids[0].types
+      self.checkIdentifier(id0Expr)
+      self.checkIdentifier(id1Expr)
     }
     for b in node.block { b.visit(visitor: self) }
     Timing.INSTANCE.registerMeasurement(name: "visitIterationStatement", begin: begin, end: clock())
@@ -168,6 +170,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitAssignmentStatement(node: AssignmentStatement) {
     let begin = clock()
     node.visitChildren(visitor: self)
+    if !(node.lhs is IdExpression) {
+      self.metadata.registerDiagnostic(
+        node: node.lhs,
+        diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can only assign to variables")
+      )
+      Timing.INSTANCE.registerMeasurement(
+        name: "visitAssignmentStatement",
+        begin: begin,
+        end: clock()
+      )
+      return
+    }
+    let lhsIdExpr = (node.lhs as! IdExpression)
     if node.op == .equals {
       var arr = node.rhs.types
       if arr.isEmpty && node.rhs is ArrayLiteral && (node.rhs as! ArrayLiteral).args.isEmpty {
@@ -178,10 +193,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       {
         arr = [Dict(types: [])]
       }
-      if node.lhs is IdExpression { self.checkIdentifier(node.lhs as! IdExpression) }
-      self.applyToStack((node.lhs as! IdExpression).id, arr)
+      if node.lhs is IdExpression { self.checkIdentifier(lhsIdExpr) }
+      self.applyToStack(lhsIdExpr.id, arr)
       self.scope.variables[(node.lhs as! IdExpression).id] = arr
-      (node.lhs as! IdExpression).types = arr
+      lhsIdExpr.types = arr
     } else {
       var newTypes: [Type] = []
       for l in node.lhs.types {
@@ -220,17 +235,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
       var deduped = dedup(types: newTypes)
-      if deduped.isEmpty && node.rhs.types.count == 0
-        && self.scope.variables[(node.lhs as! IdExpression).id] != nil
-        && self.scope.variables[(node.lhs as! IdExpression).id]!.count != 0
+      if deduped.isEmpty && node.rhs.types.count == 0 && self.scope.variables[lhsIdExpr.id] != nil
+        && self.scope.variables[lhsIdExpr.id]!.count != 0
       {
-        deduped = dedup(types: self.scope.variables[(node.lhs as! IdExpression).id]!)
+        deduped = dedup(types: self.scope.variables[lhsIdExpr.id]!)
       }
-      (node.lhs as! IdExpression).types = deduped
-      self.applyToStack((node.lhs as! IdExpression).id, deduped)
-      self.scope.variables[(node.lhs as! IdExpression).id] = deduped
+      lhsIdExpr.types = deduped
+      self.applyToStack(lhsIdExpr.id, deduped)
+      self.scope.variables[lhsIdExpr.id] = deduped
     }
-    self.metadata.registerIdentifier(id: (node.lhs as! IdExpression))
+    self.metadata.registerIdentifier(id: lhsIdExpr)
     Timing.INSTANCE.registerMeasurement(
       name: "visitAssignmentStatement",
       begin: begin,
@@ -455,12 +469,14 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let begin = clock()
     let args: [Node]
     let fn: Function
-    if node is FunctionExpression {
-      fn = (node as! FunctionExpression).function!
-      args = ((node as! FunctionExpression).argumentList! as! ArgumentList).args
+    if let fne = node as? FunctionExpression {
+      fn = fne.function!
+      args = (fne.argumentList! as! ArgumentList).args
+    } else if let me = node as? MethodExpression {
+      fn = me.method!
+      args = (me.argumentList! as! ArgumentList).args
     } else {
-      fn = (node as! MethodExpression).method!
-      args = ((node as! MethodExpression).argumentList! as! ArgumentList).args
+      return
     }
     var kwargsOnly = false
     for arg in args {
@@ -547,13 +563,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     Timing.INSTANCE.registerMeasurement(name: "evalStack", begin: begin, end: clock())
     node.types = dedup(types: s + (scope.variables[node.id] ?? []))
     node.visitChildren(visitor: self)
-    if (node.parent is FunctionExpression
-      && (node.parent as! FunctionExpression).id.equals(right: node))
-      || (node.parent is MethodExpression
-        && (node.parent as! MethodExpression).id.equals(right: node))
+    let parent = node.parent
+    if (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
+      || (parent is MethodExpression && (parent as! MethodExpression).id.equals(right: node))
     {
       return
-    } else if node.parent is KeywordItem && (node.parent as! KeywordItem).key.equals(right: node) {
+    } else if parent is KeywordItem && (parent as! KeywordItem).key.equals(right: node) {
       return
     }
     if !isKnownId(id: node) {
@@ -566,15 +581,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   func isKnownId(id: IdExpression) -> Bool {
-    if let a = id.parent as? AssignmentStatement, let b = a.lhs as? IdExpression {
+    let parent = id.parent
+    if let a = parent as? AssignmentStatement, let b = a.lhs as? IdExpression {
       if b.id == id.id && a.op == .equals { return true }
-    } else if let i = id.parent as? IterationStatement {
+    } else if let i = parent as? IterationStatement {
       for idd in i.ids { if let l = idd as? IdExpression, id.id == l.id { return true } }
-    } else if let kw = id.parent as? KeywordItem, let b = kw.key as? IdExpression {
+    } else if let kw = parent as? KeywordItem, let b = kw.key as? IdExpression {
       if id.id == b.id { return true }
-    } else if let fe = id.parent as? FunctionExpression, let b = fe.id as? IdExpression {
+    } else if let fe = parent as? FunctionExpression, let b = fe.id as? IdExpression {
       if id.id == b.id { return true }
-    } else if let me = id.parent as? MethodExpression, let b = me.id as? IdExpression {
+    } else if let me = parent as? MethodExpression, let b = me.id as? IdExpression {
       if id.id == b.id { return true }
     }
 
