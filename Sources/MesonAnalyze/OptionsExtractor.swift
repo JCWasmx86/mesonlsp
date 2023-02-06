@@ -21,27 +21,24 @@ public class OptionsExtractor: CodeVisitor {
     node.visitChildren(visitor: self)
     if node.functionName() != "option" { return }
     if !(node.argumentList is ArgumentList) { return }
-    let al = (node.argumentList as! ArgumentList)
-    if let nameNode = al.getPositionalArg(idx: 0) {
-      if let nameN = nameNode as? StringLiteral {
-        let name = nameN.contents()
-        if let type = al.getKwarg(name: "type") {
-          if let sl = type as? StringLiteral {
-            var description: String?
-            if let descNode = al.getKwarg(name: "description") {
-              if let descLiteral = descNode as? StringLiteral {
-                description = descLiteral.contents()
-              }
-            }
-            switch sl.contents() {
-            case "array": self.options.append(ArrayOption(name, description))
-            case "boolean": self.options.append(BoolOption(name, description))
-            case "int": self.options.append(IntOption(name, description))
-            case "string": self.options.append(StringOption(name, description))
-            case "combo": self.options.append(ComboOption(name, description))
-            case "feature": self.options.append(FeatureOption(name, description))
-            default: _ = 1
-            }
+    if let al = node.argumentList as? ArgumentList, let nameNode = al.getPositionalArg(idx: 0),
+      let nameN = nameNode as? StringLiteral
+    {
+      let name = nameN.contents()
+      if let type = al.getKwarg(name: "type") {
+        if let sl = type as? StringLiteral {
+          var description: String?
+          if let descNode = al.getKwarg(name: "description") {
+            if let descLiteral = descNode as? StringLiteral { description = descLiteral.contents() }
+          }
+          switch sl.contents() {
+          case "array": self.options.append(ArrayOption(name, description))
+          case "boolean": self.options.append(BoolOption(name, description))
+          case "int": self.options.append(IntOption(name, description))
+          case "string": self.options.append(StringOption(name, description))
+          case "combo": self.options.append(ComboOption(name, description))
+          case "feature": self.options.append(FeatureOption(name, description))
+          default: _ = 1
           }
         }
       }

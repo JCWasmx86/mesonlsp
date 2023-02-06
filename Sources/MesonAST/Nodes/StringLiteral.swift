@@ -13,7 +13,7 @@ public class StringLiteral: Expression {
     self.file = file
     self.location = Location(node: node)
     self.id = string_value(file: file, node: node)
-    if self.id != "''" && self.id != "" && 1 <= self.id.count - 1 {
+    if self.id != "''" && !self.id.isEmpty && self.id.count - 1 >= 1 {
       self.cache = self.id[1..<self.id.count - 1]
     } else {
       self.cache = ""

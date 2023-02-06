@@ -11,8 +11,8 @@
 // ===----------------------------------------------------------------------===//
 
 import Dispatch
-import LSPLogging
 import LanguageServerProtocol
+import LSPLogging
 
 public typealias Notification = LanguageServerProtocol.Notification
 

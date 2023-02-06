@@ -8,9 +8,7 @@ public protocol Type {
 extension Type {
   public func getMethod(name: String) -> Method? {
     for m in self.methods where m.name == name { return m }
-    if self is AbstractObject && (self as! AbstractObject).parent != nil {
-      return (self as! AbstractObject).parent?.getMethod(name: name)
-    }
+    if let ao = self as? AbstractObject, let aop = ao.parent { return aop.getMethod(name: name) }
     return nil
   }
 }

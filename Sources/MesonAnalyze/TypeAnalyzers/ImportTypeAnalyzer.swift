@@ -3,11 +3,12 @@ import MesonAST
 public class ImportTypeAnalyzer: MesonTypeAnalyzer {
   public func derive(node: Node, fn: Function, options: [MesonOption], ns: TypeNamespace) -> [Type]
   {
-    if let fe = node as? FunctionExpression, (fe.id as! IdExpression).id == "import" {
-      if let alo = fe.argumentList, let al = alo as? ArgumentList, al.args.count > 0 {
+    if let fe = node as? FunctionExpression, let feid = fe.id as? IdExpression, feid.id == "import"
+    {
+      if let alo = fe.argumentList, let al = alo as? ArgumentList, !al.args.isEmpty {
         let arg0 = al.args[0]
-        if arg0 is StringLiteral {
-          let t = (arg0 as! StringLiteral).contents()
+        if let sl = arg0 as? StringLiteral {
+          let t = sl.contents()
           switch t {
           case "cmake": return [ns.types["cmake_module"]!]
           case "fs": return [ns.types["fs_module"]!]

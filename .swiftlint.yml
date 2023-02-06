@@ -10,4 +10,16 @@ disabled_rules:
   - opening_brace
   - trailing_comma
   - type_body_length
-  - type_name
+analyzer_rules:
+  - typesafe_array_init
+  - unused_declaration
+  - unused_import
+opt_in_rules:
+  - array_init
+  - closure_spacing
+  - empty_collection_literal
+  #- no_magic_numbers
+  - empty_count
+  - empty_string
+  - sorted_imports
+  - yoda_condition

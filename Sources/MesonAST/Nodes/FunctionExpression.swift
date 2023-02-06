@@ -30,7 +30,7 @@ open class FunctionExpression: Expression {
   }
 
   public func functionName() -> String {
-    if self.id is IdExpression { return (self.id as! IdExpression).id }
+    if let id = self.id as? IdExpression { return id.id }
     return "<<Error>>"
   }
   open func setParents() {

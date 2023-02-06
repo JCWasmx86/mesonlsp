@@ -1,8 +1,8 @@
 import Foundation
 import LanguageServerProtocol
 import Logging
-import MesonAST
 import MesonAnalyze
+import MesonAST
 import MesonDocs
 import PathKit
 import Swifter
@@ -13,6 +13,8 @@ public typealias MesonVoid = ()
 
 public final class MesonServer: LanguageServer {
   static let LOG = Logger(label: "LanguageServer::MesonServer")
+  static let MIN_PORT = 65000
+  static let MAX_PORT = 65550
   var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
@@ -25,7 +27,7 @@ public final class MesonServer: LanguageServer {
     self.onExit = onExit
     self.ns = TypeNamespace()
     self.server = HttpServer()
-    for i in 65000...65550 {
+    for i in MesonServer.MIN_PORT...MesonServer.MAX_PORT {
       do {
         try self.server.start(
           in_port_t(i),
@@ -99,8 +101,8 @@ public final class MesonServer: LanguageServer {
                     MesonServer.LOG.info("Inserting completion: \(m.name)")
                     s.insert(m.name)
                   }
-                  if t is AbstractObject {
-                    var p = (t as! AbstractObject).parent
+                  if let t1 = t as? AbstractObject {
+                    var p = t1.parent
                     while p != nil {
                       for m in p!.methods {
                         MesonServer.LOG.info("Inserting completion: \(m.name)")
@@ -113,24 +115,22 @@ public final class MesonServer: LanguageServer {
                 for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
               }
             } else if let t = self.tree, let md = t.metadata {
-              if let idexpr = md.findIdentifierAt(fp, line, column), idexpr.parent is ArgumentList {
+              if let idexpr = md.findIdentifierAt(fp, line, column),
+                let al = idexpr.parent as? ArgumentList
+              {
                 let callExpr = idexpr.parent!.parent!
                 var usedKwargs: Set<String> = []
-                for arg in (idexpr.parent as! ArgumentList).args where arg is Kwarg {
+                for arg in al.args where arg is Kwarg {
                   MesonServer.LOG.info("Found already used kwarg: \((arg as! Kwarg).name)")
                   usedKwargs.insert((arg as! Kwarg).name)
                 }
                 var s: Set<String> = []
-                if callExpr is FunctionExpression,
-                  let f = (callExpr as! FunctionExpression).function
-                {
+                if let fe = callExpr as? FunctionExpression, let f = fe.function {
                   for arg in f.args where arg is Kwarg {
                     MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
                     s.insert((arg as! Kwarg).name)
                   }
-                } else if callExpr is MethodExpression,
-                  let m = (callExpr as! MethodExpression).method
-                {
+                } else if let me = callExpr as? MethodExpression, let m = me.method {
                   for arg in m.args where arg is Kwarg {
                     MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
                     s.insert((arg as! Kwarg).name)
@@ -272,10 +272,10 @@ public final class MesonServer: LanguageServer {
       let kw = tuple.0
       let f = tuple.1
       var fun: Function?
-      if kw.parent!.parent is MethodExpression {
-        fun = ((kw.parent!.parent!) as! MethodExpression).method
-      } else if kw.parent!.parent is FunctionExpression {
-        fun = ((kw.parent!.parent!) as! FunctionExpression).function
+      if let me = kw.parent!.parent as? MethodExpression {
+        fun = me.method
+      } else if let fe = kw.parent!.parent as? FunctionExpression {
+        fun = fe.function
       }
       if let k = kw.key as? IdExpression {
         content = f.id() + "<" + k.id + ">"
@@ -312,7 +312,7 @@ public final class MesonServer: LanguageServer {
               str += "\n"
             }
           }
-          if function!.returnTypes.count > 0 {
+          if !function!.returnTypes.isEmpty {
             str +=
               "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
           }
@@ -635,11 +635,14 @@ public final class MesonServer: LanguageServer {
       	"""
     var str = ""
     for t in Timing.INSTANCE.timings() {
+      let rounding = 2
       str.append(
-        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>" + "<td>\(t.min().round(to: 2))</td>"
-          + "<td>\(t.max().round(to: 2))</td>" + "<td>\(t.median().round(to: 2))</td>"
-          + "<td>\(t.average().round(to: 2))</td>" + "<td>\(t.stddev().round(to: 2))</td>"
-          + "<td>\(t.sum().round(to: 2))</td></tr>"
+        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>"
+          + "<td>\(t.min().round(to: rounding))</td>" + "<td>\(t.max().round(to: rounding))</td>"
+          + "<td>\(t.median().round(to: rounding))</td>"
+          + "<td>\(t.average().round(to: rounding))</td>"
+          + "<td>\(t.stddev().round(to: rounding))</td>"
+          + "<td>\(t.sum().round(to: rounding))</td></tr>"
       )
     }
     let footer = """
@@ -654,7 +657,8 @@ public final class MesonServer: LanguageServer {
 
 extension Double {
   func round(to places: Int) -> Double {
-    let divisor = pow(10.0, Double(places))
+    let base = 10
+    let divisor = pow(Double(base), Double(places))
     return (self * divisor).rounded() / divisor
   }
 }

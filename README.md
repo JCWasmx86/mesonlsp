@@ -13,6 +13,7 @@ A reimplementation of my Meson language server in Swift.
 - Rudimentary autocompletion
 
 ## Limitations
+- High memory usage (100-400MB)
 - Not implemented inefficiently: On each `textDocument/didChange` notification, the entire tree is rebuilt.
 - Only very partial support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
@@ -113,8 +114,6 @@ your root password using `sudo`, but don't execute the script using `sudo`)
 ## Want to contribute?
 Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
 free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
-
-(*) Depending on the progress of inlay hints in GNOME-Builder (See [here](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/1317) for progress)
 
 ## Debugging performance problems
 The language server is measuring the duration needed by certain operations and exposes it using a HTTP-Server on `http://localhost:65000` (Or any bigger port, if 65000 is already used)

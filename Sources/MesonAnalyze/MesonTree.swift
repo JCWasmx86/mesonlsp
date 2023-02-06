@@ -94,6 +94,10 @@ public class MesonTree {
       self.subfiles.append(tree)
       idx += 1
     }
+    self.parseOptions(parser: p)
+  }
+
+  func parseOptions(parser p: Parser) {
     if self.depth != 0 { return }
     let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
     if !f.exists { self.options = nil }

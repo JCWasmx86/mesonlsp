@@ -3,9 +3,7 @@ import MesonAST
 
 public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
   if let p = node.parent {
-    if p is AssignmentStatement && (p as! AssignmentStatement).lhs.equals(right: node)
-      && (p as! AssignmentStatement).op == .equals
-    {
+    if let assS = p as? AssignmentStatement, assS.lhs.equals(right: node), assS.op == .equals {
       return makeTuple(node)
     } else {
       return findDeclaration2(name: node.id, node: node, parent: p)
@@ -15,8 +13,7 @@ public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
 }
 
 public func findDeclaration2(name: String, node: Node, parent: Node) -> (String, UInt32, UInt32)? {
-  if parent is SelectionStatement {
-    let sst = (parent as! SelectionStatement)
+  if let sst = parent as? SelectionStatement {
     var block_idx = 0
     var stmt_idx = 0
     var breakLoops = false
@@ -38,19 +35,17 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = sst.blocks[block_idx][ridx]
-        if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
-          && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
-          && (s as! AssignmentStatement).op == .equals
+        if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
+          assSLHS.id == name, assS.op == .equals
         {
-          return makeTuple((s as! AssignmentStatement).lhs)
+          return makeTuple(assS.lhs)
         } else if s is IterationStatement || s is SelectionStatement {
           if let r = searchExtended(name: name, node: s) { return r }
         }
       }
     }
-  } else if parent is BuildDefinition {
+  } else if let bd = parent as? BuildDefinition {
     var stmt_idx = 0
-    let bd = (parent as! BuildDefinition)
     for b in bd.stmts {
       if (b.location.startLine <= node.location.startLine
         && b.location.endLine >= node.location.endLine) || b.equals(right: node)
@@ -63,11 +58,10 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = bd.stmts[ridx]
-        if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
-          && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
-          && (s as! AssignmentStatement).op == .equals
+        if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
+          assSLHS.id == name, assS.op == .equals
         {
-          return makeTuple((s as! AssignmentStatement).lhs)
+          return makeTuple(assS.lhs)
         } else if s is IterationStatement || s is SelectionStatement {
           if let r = searchExtended(name: name, node: s) { return r }
         }
@@ -75,9 +69,8 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       if node.parent == nil { return nil }
       return findDeclaration2(name: name, node: parent, parent: node.parent!)
     }
-  } else if parent is IterationStatement {
+  } else if let its = parent as? IterationStatement {
     var stmt_idx = 0
-    let its = (parent as! IterationStatement)
     for b in its.block {
       if b.location.startLine <= node.location.startLine
         && b.location.endLine >= node.location.endLine
@@ -90,11 +83,10 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
       for idx in 0..<stmt_idx {
         let ridx = (stmt_idx - 1) - idx
         let s = its.block[ridx]
-        if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
-          && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
-          && (s as! AssignmentStatement).op == .equals
+        if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
+          assSLHS.id == name, assS.op == .equals
         {
-          return makeTuple((s as! AssignmentStatement).lhs)
+          return makeTuple(assS.lhs)
         } else if s is IterationStatement || s is SelectionStatement {
           if let r = searchExtended(name: name, node: s) { return r }
         }
@@ -115,27 +107,23 @@ public func findDeclaration2(name: String, node: Node, parent: Node) -> (String,
 }
 
 func searchExtended(name: String, node: Node) -> (String, UInt32, UInt32)? {
-  if node is IterationStatement {
-    let its = (node as! IterationStatement)
+  if let its = node as? IterationStatement {
     for s in its.block.reversed() {
-      if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
-        && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
-        && (s as! AssignmentStatement).op == .equals
+      if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
+        assSLHS.id == name, assS.op == .equals
       {
-        return makeTuple(s)
+        return makeTuple(assS.lhs)
       } else if s is IterationStatement || s is SelectionStatement {
         if let r = searchExtended(name: name, node: s) { return r }
       }
     }
-  } else if node is SelectionStatement {
-    let ses = node as! SelectionStatement
+  } else if let ses = node as? SelectionStatement {
     for block in ses.blocks.reversed() {
       for s in block.reversed() {
-        if s is AssignmentStatement && (s as! AssignmentStatement).lhs is IdExpression
-          && ((s as! AssignmentStatement).lhs as! IdExpression).id == name
-          && (s as! AssignmentStatement).op == .equals
+        if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
+          assSLHS.id == name, assS.op == .equals
         {
-          return makeTuple(s)
+          return makeTuple(assS.lhs)
         } else if s is IterationStatement || s is SelectionStatement {
           if let r = searchExtended(name: name, node: s) { return r }
         }

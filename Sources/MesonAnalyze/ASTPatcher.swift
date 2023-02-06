@@ -7,17 +7,17 @@ class ASTPatcher: CodeVisitor {
   private var parent: String = ""
 
   func isSubdirCall(node: Node) -> Bool {
-    if !(node is FunctionExpression) { return false }
-    let f = node as! FunctionExpression
-    if (f.id as! IdExpression).id != "subdir" { return false }
-    if f.argumentList == nil || !(f.argumentList! is ArgumentList) { return false }
-    let args = (f.argumentList! as! ArgumentList).args
-    for a in args where a is StringLiteral {
-      if !Path(parent + "/" + (a as! StringLiteral).contents() + "/meson.build").exists {
-        return false
+    if let f = node as? FunctionExpression, let fid = f.id as? IdExpression, fid.id == "subdir",
+      let alNode = f.argumentList, let al = alNode as? ArgumentList
+    {
+      let args = al.args
+      for a in args where a is StringLiteral {
+        if let sl = a as? StringLiteral {
+          if !Path(parent + "/" + sl.contents() + "/meson.build").exists { return false }
+          subdirs.append(sl.id)
+          return true
+        }
       }
-      subdirs.append((a as! StringLiteral).id)
-      return true
     }
     return false
   }
@@ -34,9 +34,10 @@ class ASTPatcher: CodeVisitor {
     }
     for x in idxes {
       let stmt = node.stmts[x]
-      node.stmts[x] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.stmts[x] = sc
       node.stmts[x].parent = node
-      subdirNodes.append(node.stmts[x] as! SubdirCall)
+      subdirNodes.append(sc)
     }
     node.visitChildren(visitor: self)
   }
@@ -48,9 +49,10 @@ class ASTPatcher: CodeVisitor {
       for b in bb {
         if self.isSubdirCall(node: b) {
           let stmt = node.blocks[bidx][idx]
-          node.blocks[bidx][idx] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+          let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+          node.blocks[bidx][idx] = sc
           node.blocks[bidx][idx].parent = node
-          subdirNodes.append(node.blocks[bidx][idx] as! SubdirCall)
+          subdirNodes.append(sc)
         }
         idx += 1
       }
@@ -69,9 +71,10 @@ class ASTPatcher: CodeVisitor {
     }
     for x in idxes {
       let stmt = node.block[x]
-      node.block[x] = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.block[x] = sc
       node.block[x].parent = node
-      subdirNodes.append(node.block[x] as! SubdirCall)
+      subdirNodes.append(sc)
     }
     node.visitChildren(visitor: self)
   }

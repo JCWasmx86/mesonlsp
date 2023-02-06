@@ -41,7 +41,7 @@
     "OneCasePerLine" : true,
     "OneVariableDeclarationPerLine" : true,
     "OnlyOneTrailingClosureArgument" : true,
-    "OrderedImports" : true,
+    "OrderedImports" : false,
     "ReturnVoidInsteadOfEmptyTuple" : true,
     "UseEarlyExits" : false,
     "UseLetInEveryBoundCaseVariable" : true,

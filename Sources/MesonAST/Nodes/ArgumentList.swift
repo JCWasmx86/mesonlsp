@@ -45,7 +45,7 @@ public class ArgumentList: Expression {
   public func getKwarg(name: String) -> Node? {
     for a in self.args {
       if let b = a as? KeywordItem {
-        if (b.key is IdExpression) && (b.key as! IdExpression).id == name { return b.value }
+        if let ide = b.key as? IdExpression, ide.id == name { return b.value }
       }
     }
     return nil

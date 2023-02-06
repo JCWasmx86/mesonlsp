@@ -4,7 +4,13 @@ import SwiftTreeSitter
 public class SubdirCall: FunctionExpression {
   public var subdirname: String
   init(file: MesonSourceFile, node: FunctionExpression) {
-    self.subdirname = ((node.argumentList! as! ArgumentList).args[0] as! StringLiteral).contents()
+    if let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
+      let sl = al.args[0] as? StringLiteral
+    {
+      self.subdirname = sl.contents()
+    } else {
+      self.subdirname = "<<>>"
+    }
     super.init()
     self.file = file
     self.id = node.id
@@ -12,8 +18,8 @@ public class SubdirCall: FunctionExpression {
     self.argumentList = node.argumentList
   }
   public override func visit(visitor: CodeVisitor) {
-    if visitor is ExtendedCodeVisitor {
-      (visitor as! ExtendedCodeVisitor).visitSubdirCall(node: self)
+    if let ev = visitor as? ExtendedCodeVisitor {
+      ev.visitSubdirCall(node: self)
     } else {
       visitor.visitFunctionExpression(node: self)
     }

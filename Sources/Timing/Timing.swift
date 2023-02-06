@@ -1,8 +1,9 @@
 import Glibc
 
 public class Timing {
-  private var _timings: [String: TimingInformation] = [:]
   public static let INSTANCE = Timing()
+  static let MILLISECONDS_IN_SECOND: Double = 1000
+  private var _timings: [String: TimingInformation] = [:]
 
   private init() {
 
@@ -13,7 +14,7 @@ public class Timing {
     self._timings[name]!.append(value: diff)
   }
   public func registerMeasurement(name: String, begin: Int, end: Int) {
-    let diff = Double(end - begin) / (Double(CLOCKS_PER_SEC) / 1000.0)
+    let diff = Double(end - begin) / (Double(CLOCKS_PER_SEC) / Timing.MILLISECONDS_IN_SECOND)
     self.registerMeasurement(name: name, diff: diff)
   }
 
@@ -21,12 +22,19 @@ public class Timing {
 }
 
 public class TimingInformation {
+  static let MAX_VALUES = 50000
+  static let FALLBACK_VALUE_COUNT = 20000
+
   public let name: String
   internal var values: [Double] = []
+
   internal init(name: String) { self.name = name }
+
   internal func append(value: Double) {
     self.values.append(value)
-    if self.values.count > 50000 { self.values.removeFirst(30000) }
+    if self.values.count > TimingInformation.MAX_VALUES {
+      self.values.removeFirst(TimingInformation.MAX_VALUES - TimingInformation.FALLBACK_VALUE_COUNT)
+    }
   }
 
   public func min() -> Double { return self.values.sorted().first! }
@@ -47,10 +55,11 @@ public class TimingInformation {
 extension Array where Element == Double {
   func median() -> Double {
     let sortedArray = sorted()
+    let middle = count / 2
     if count % 2 != 0 {
-      return Double(sortedArray[count / 2])
+      return Double(sortedArray[middle])
     } else {
-      return Double(sortedArray[count / 2] + sortedArray[count / 2 - 1]) / 2.0
+      return Double(sortedArray[middle] + sortedArray[middle - 1]) / 2.0
     }
   }
   func sum() -> Double { return self.reduce(0, +) }
