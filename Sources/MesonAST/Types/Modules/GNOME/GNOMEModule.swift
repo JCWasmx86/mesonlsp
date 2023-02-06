@@ -41,7 +41,8 @@ public struct GNOMEModule: AbstractObject {
             name: "sources",
             opt: true,
             types: [ListType(types: [Str(), File(), CustomTgt(), CustomIdx()])]
-          ), Kwarg(name: "nsversion", types: [Str()]), Kwarg(name: "namespace", types: [Str()]),
+          ), Kwarg(name: "nsversion", opt: true, types: [Str()]),
+          Kwarg(name: "namespace", opt: true, types: [Str()]),
           Kwarg(name: "identifier_prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "includes", opt: true, types: [ListType(types: [Str(), CustomTgt()])]),
           Kwarg(name: "header", opt: true, types: [ListType(types: [Str()])]),
