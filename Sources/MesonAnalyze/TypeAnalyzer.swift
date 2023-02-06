@@ -220,12 +220,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
       var deduped = dedup(types: newTypes)
-      if deduped.isEmpty {
-        if node.rhs.types.count == 0 && self.scope.variables[(node.lhs as! IdExpression).id] != nil
-          && self.scope.variables[(node.lhs as! IdExpression).id]!.count != 0
-        {
-          deduped = dedup(types: self.scope.variables[(node.lhs as! IdExpression).id]!)
-        }
+      if deduped.isEmpty && node.rhs.types.count == 0
+        && self.scope.variables[(node.lhs as! IdExpression).id] != nil
+        && self.scope.variables[(node.lhs as! IdExpression).id]!.count != 0
+      {
+        deduped = dedup(types: self.scope.variables[(node.lhs as! IdExpression).id]!)
       }
       (node.lhs as! IdExpression).types = deduped
       self.applyToStack((node.lhs as! IdExpression).id, deduped)
