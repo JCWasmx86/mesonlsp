@@ -2,6 +2,16 @@
 
 A reimplementation of my Meson language server in Swift.
 
+## Current feature set
+- Hovering
+- Symbol resolving
+- Jump-To-Definition
+- Jump-To-Subdir
+- A limited set of diagnostics
+- Formatting
+- Document symbols
+- Rudimentary autocompletion
+
 ## Limitations
 - Not implemented inefficiently: On each `textDocument/didChange` notification, the entire tree is rebuilt.
 - Only very partial for anything regarding `set_variable`/`get_variable`
@@ -115,28 +125,6 @@ ninja -j $(nproc) install
 ## Want to contribute?
 Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
 free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
-
-## Expected feature set
-### Version 1.0
-- Hovering
-- Symbol resolving
-- Diagnostics
-- A limited set of diagnostics
-- Formatting
-- Symboltree
-- Rudimentary autocompletion
-
-### Version 2.0
-- Full autocompletion
-- More diagnostics
-- Inlay Hints (*)
-- Full Wrap/Subproject support
-- Don't reparse project on each change
-
-### Version 3.0
-- Renaming
-- Code actions
-- Inlay Hints (*)
 
 (*) Depending on the progress of inlay hints in GNOME-Builder (See [here](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/1317) for progress)
 
