@@ -67,7 +67,7 @@ DOCKER_BUILDKIT=1 podman build --file Dockerfile --output out --no-cache .
 # If you want to use Ubuntu as docker image
 DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu --output out --no-cache .
 ```
-This will place a file "Fedora37.zip" in the directory `out`. It contains
+This will place a file "Fedora37.zip" (Or Ubuntu22.04.zip) in the directory `out`. It contains
 two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
 
 A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
