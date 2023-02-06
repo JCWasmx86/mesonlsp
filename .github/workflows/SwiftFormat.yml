@@ -13,6 +13,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Fix UID
+        run: |
+          git config --global --add safe.directory /github/workspace
       - name: Lint
         uses: mtgto/swift-format-action@main
         with:
