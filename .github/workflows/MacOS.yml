@@ -1,0 +1,13 @@
+name: MacOS-CI
+
+on: [push]
+# Just check that it builds. I don't have MacOS, but
+# assuming it compiles, it should there, as I didn't do Linux
+# specific things
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: swift build
