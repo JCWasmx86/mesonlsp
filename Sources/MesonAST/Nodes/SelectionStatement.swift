@@ -25,7 +25,7 @@ public class SelectionStatement: Statement {
         let condition = from_tree(file: file, tree: node.child(at: idx + 1))
         sI = condition!
         idx += 1
-      } else if sv == "else if" {
+      } else if sv == "elif" {
         bb.append(tmp)
         while string_value(file: file, node: node.child(at: idx + 1)!) == "comment" { idx += 1 }
         tmp = []

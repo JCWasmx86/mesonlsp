@@ -38,4 +38,15 @@ listoflists = [ # ana:var: listoflists = list(list(int|str|dep))
 zzz = 1 # ana:var: zzz = int
 zzz += 1
 zzz += 'foo' # ana:error: Unable to apply operator `plusequals` to types int and str
+baz = (
+    1 ? '' : true # ana:error: Condition is not bool
+)
+if 1 # ana:error: Condition is not bool
 
+
+
+
+
+elif 2 # ana:error: Condition is not bool
+
+endif

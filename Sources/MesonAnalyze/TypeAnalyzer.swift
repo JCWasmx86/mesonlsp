@@ -89,6 +89,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.stack.append([:])
     self.overriddenVariables.append([:])
     node.visitChildren(visitor: self)
+    for condition in [node.ifCondition] + node.conditions {
+      var foundBoolOrAny = false
+      for t in condition.types where t is `Any` || t is BoolType {
+        foundBoolOrAny = true
+        break
+      }
+      if !foundBoolOrAny {
+        self.metadata.registerDiagnostic(
+          node: condition,
+          diag: MesonDiagnostic(sev: .error, node: condition, message: "Condition is not bool")
+        )
+      }
+    }
     let begin = clock()
     let types = self.stack.removeLast()
     for k in types.keys {
@@ -363,6 +376,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitConditionalExpression(node: ConditionalExpression) {
     node.visitChildren(visitor: self)
     node.types = dedup(types: node.ifFalse.types + node.ifTrue.types)
+    for t in node.condition.types where t is `Any` || t is BoolType { return }
+    self.metadata.registerDiagnostic(
+      node: node,
+      diag: MesonDiagnostic(sev: .error, node: node, message: "Condition is not bool")
+    )
   }
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)
