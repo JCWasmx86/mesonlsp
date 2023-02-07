@@ -42,11 +42,5 @@ baz = (
     1 ? '' : true # ana:error: Condition is not bool
 )
 if 1 # ana:error: Condition is not bool
-
-
-
-
-
 elif 2 # ana:error: Condition is not bool
-
 endif
