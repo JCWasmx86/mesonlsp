@@ -136,12 +136,33 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     for id in node.ids { id.visit(visitor: self) }
     let iterTypes = node.expression.types
     if node.ids.count == 1 {
-      if !iterTypes.isEmpty, let lt = iterTypes[0] as? ListType {
-        node.ids[0].types = lt.types
-      } else if !iterTypes.isEmpty && iterTypes[0] is RangeType {
-        node.ids[0].types = [self.t.types["int"]!]
+      var res: [Type] = []
+      var errs = 0
+      var foundDict = false
+      for l in iterTypes {
+        if l is RangeType {
+          res.append(self.t.types["int"]!)
+        } else if let lt = l as? ListType {
+          res += lt.types
+        } else {
+          if l is Dict { foundDict = true }
+          errs += 1
+        }
+      }
+      if errs != iterTypes.count {
+        node.ids[0].types = res
       } else {
-        node.ids[0].types = [self.t.types["any"]!]
+        node.ids[0].types = []
+        self.metadata.registerDiagnostic(
+          node: node.expression,
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node.expression,
+            message: foundDict
+              ? "Iterating over a dict requires two identifiers"
+              : "Expression yields no iterable result"
+          )
+        )
       }
       if let id0Expr = (node.ids[0] as? IdExpression) {
         self.applyToStack(id0Expr.id, node.ids[0].types)
@@ -154,6 +175,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         node.ids[1].types = ddd.types
       } else {
         node.ids[1].types = []
+        self.metadata.registerDiagnostic(
+          node: node.expression,
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node.expression,
+            message: iterTypes.filter({ $0 is ListType }).first != nil
+              ? "Iterating over a list requires one identifier"
+              : "Expression yields no iterable result"
+          )
+        )
       }
       if let id0Expr = (node.ids[0] as? IdExpression), let id1Expr = (node.ids[1] as? IdExpression)
       {

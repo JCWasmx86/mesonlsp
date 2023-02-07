@@ -44,3 +44,16 @@ baz = (
 if 1 # ana:error: Condition is not bool
 elif 2 # ana:error: Condition is not bool
 endif
+
+foreach iter : {} # ana:error: Iterating over a dict requires two identifiers
+
+endforeach
+foreach iter : 1 # ana:error: Expression yields no iterable result
+
+endforeach
+foreach iter, iter2 : [] # ana:error: Iterating over a list requires one identifier
+
+endforeach
+foreach iter, iter2 : 1 # ana:error: Expression yields no iterable result
+
+endforeach
