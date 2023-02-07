@@ -21,11 +21,9 @@ public class OptionTypeAnalyzer: MesonTypeAnalyzer {
           } else if o is FeatureOption {
             return [ns.types["feature"]!]
           } else if o is ComboOption {
-            // TODO: Is this right?
             return [ns.types["str"]!]
           } else {
-            // TODO: Can we do more?
-            return [ListType(types: [ns.types["int"]!, ns.types["str"]!, ns.types["bool"]!])]
+            return [ListType(types: [ns.types["str"]!])]
           }
         }
       }

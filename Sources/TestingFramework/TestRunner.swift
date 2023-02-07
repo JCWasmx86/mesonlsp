@@ -17,6 +17,7 @@ public class TestRunner: ExtendedCodeVisitor {
       for file in self.assertions.keys {
         for checker in self.assertions[file]! where checker.isPostCheck() {
           if checker.postCheck(metadata: self.metadata!, scope: tree.scope!) == .success {
+            TestRunner.LOG.info("Successful: \(checker.formatMessage())")
             self.successes += 1
           } else {
             TestRunner.LOG.error("Failed: \(checker.formatMessage())")

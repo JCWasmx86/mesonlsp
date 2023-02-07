@@ -27,3 +27,15 @@ dep1 = (
 ternary = (
     true ? 1 : dependency('') # ana:var: ternary = int|dep
 )
+subdir('subdir1')
+unclear = get_variable('have-' + 'foo', '') # ana:var: unclear = any|str
+unclear2 = get_variable('foobarbaz__') # ana:var: unclear2 = any
+listoflists = [ # ana:var: listoflists = list(list(int|str|dep))
+    [1, 1, 1],
+    ['', '1', '2'],
+    [dependency('')],
+]
+zzz = 1 # ana:var: zzz = int
+zzz += 1
+zzz += 'foo' # ana:error: Unable to apply operator `plusequals` to types int and str
+

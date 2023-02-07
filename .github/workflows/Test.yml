@@ -17,3 +17,4 @@ jobs:
         run: |
           swift build
           ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build

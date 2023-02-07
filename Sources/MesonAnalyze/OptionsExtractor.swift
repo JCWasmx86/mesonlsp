@@ -40,7 +40,7 @@ public class OptionsExtractor: CodeVisitor {
     switch type {
     case "array": self.options.append(ArrayOption(name, description))
     case "boolean": self.options.append(BoolOption(name, description))
-    case "int": self.options.append(IntOption(name, description))
+    case "integer": self.options.append(IntOption(name, description))
     case "string": self.options.append(StringOption(name, description))
     case "combo": self.options.append(ComboOption(name, description))
     case "feature": self.options.append(FeatureOption(name, description))

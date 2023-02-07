@@ -172,7 +172,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   // swiftlint:disable cyclomatic_complexity
-  func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type] {
+  func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type]? {
     var newTypes: [Type] = []
     for l in lhs {
       for r in rhs {
@@ -207,7 +207,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
-    return newTypes
+    return newTypes.isEmpty ? nil : newTypes
   }
   // swiftlint:enable cyclomatic_complexity
   public func visitAssignmentStatement(node: AssignmentStatement) {
@@ -234,17 +234,28 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if arr.isEmpty, let dictLit = node.rhs as? DictionaryLiteral, dictLit.values.isEmpty {
         arr = [Dict(types: [])]
       }
+      lhsIdExpr.types = arr
       self.checkIdentifier(lhsIdExpr)
       self.applyToStack(lhsIdExpr.id, arr)
       self.scope.variables[lhsIdExpr.id] = arr
-      lhsIdExpr.types = arr
     } else {
       let newTypes = evalAssignment(node.op!, node.lhs.types, node.rhs.types)
-      var deduped = dedup(types: newTypes)
+      var deduped = dedup(types: newTypes == nil ? node.lhs.types : newTypes!)
       if deduped.isEmpty && node.rhs.types.isEmpty && self.scope.variables[lhsIdExpr.id] != nil
         && !self.scope.variables[lhsIdExpr.id]!.isEmpty
       {
         deduped = dedup(types: self.scope.variables[lhsIdExpr.id]!)
+      }
+      if newTypes == nil {
+        self.metadata.registerDiagnostic(
+          node: node,
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node,
+            message:
+              "Unable to apply operator `\(node.op!)` to types \(self.joinTypes(types: node.lhs.types)) and \(self.joinTypes(types: node.rhs.types))"
+          )
+        )
       }
       lhsIdExpr.types = deduped
       self.applyToStack(lhsIdExpr.id, deduped)
@@ -273,11 +284,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           types.append(self.t.types["any"]!)
         }
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
-        // self.scope.variables[varname] = types
-        // self.applyToStack(varname, types)
         node.types = types
         TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
-      } else if args.isEmpty {
+      } else if !args.isEmpty {
         var types: [Type] = [self.t.types["any"]!]
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = self.dedup(types: types)
@@ -707,7 +716,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
-    return (nErrors, newTypes)
+    return (nErrors, nErrors == lhs.count * rhs.count ? lhs : newTypes)
   }
   // swiftlint:enable cyclomatic_complexity
 
@@ -791,7 +800,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var gotList: Bool = false
     var gotDict: Bool = false
     for t in types {
-      if t is `Any` { hasAny = true }
+      if t is `Any` {
+        hasAny = true
+        continue
+      }
       if t is BoolType {
         hasBool = true
       } else if t is `IntType` {
