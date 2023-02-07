@@ -180,8 +180,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           diag: MesonDiagnostic(
             sev: .error,
             node: node.expression,
-            message: iterTypes.filter({ $0 is ListType }).first != nil
-              ? "Iterating over a list requires one identifier"
+            message: iterTypes.filter({ $0 is ListType || $0 is RangeType }).first != nil
+              ? "Iterating over a list/range requires one identifier"
               : "Expression yields no iterable result"
           )
         )
