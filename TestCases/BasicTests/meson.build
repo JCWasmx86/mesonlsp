@@ -60,3 +60,13 @@ endforeach
 foreach iter, iter2 : range(0, 5) # ana:error: Iterating over a list/range requires one identifier
 
 endforeach
+executable() # ana:error: Expected 1 positional arguments, but got none!
+executable('foo', native: true, '') # ana:error: Unexpected positional argument after a keyword argument
+benchmark('foo', files(''), files('')) # ana:error: Expected 2 positional arguments, but got 3!
+benchmark('foo', files(''), abc: true) # ana:error: Unknown key word argument 'abc'!
+add_global_arguments('-Wall') # ana:error: Missing required key word argument 'language'!
+environment().append() # ana:error: Expected 1 positional arguments, but got none!
+environment().append('', separator: ':', '') # ana:error: Unexpected positional argument after a keyword argument
+meson.get_compiler('c', 'vala') # ana:error: Expected 1 positional arguments, but got 2!
+meson.get_compiler('c', abc: true) # ana:error: Unknown key word argument 'abc'!
+meson.add_devenv(environment()) # ana:error: Missing required key word argument 'method'!

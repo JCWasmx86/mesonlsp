@@ -15,7 +15,7 @@ public struct Meson: AbstractObject {
               Env(), Str(), ListType(types: [Str()]), Dict(types: [Str()]),
               Dict(types: [ListType(types: [Str()])]),
             ]
-          ), Kwarg(name: "method", opt: true, types: [Str()]),
+          ), Kwarg(name: "method", types: [Str()]),
           Kwarg(name: "separator", opt: true, types: [Str()]),
         ]
       ),
