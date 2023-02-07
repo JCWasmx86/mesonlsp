@@ -251,6 +251,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[lhsIdExpr.id] = deduped
     }
     self.metadata.registerIdentifier(id: lhsIdExpr)
+    let asStr = self.scope.variables[lhsIdExpr.id]!.map({ $0.toString() }).joined(separator: "|")
+    TypeAnalyzer.LOG.trace("\(lhsIdExpr.id) = \(asStr)")
     Timing.INSTANCE.registerMeasurement(
       name: "visitAssignmentStatement",
       begin: begin,
@@ -271,10 +273,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           types.append(self.t.types["any"]!)
         }
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
-        self.scope.variables[varname] = types
-        self.applyToStack(varname, types)
+        // self.scope.variables[varname] = types
+        // self.applyToStack(varname, types)
+        node.types = types
         TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
-      } else if !args.isEmpty {
+      } else if args.isEmpty {
         var types: [Type] = [self.t.types["any"]!]
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = self.dedup(types: types)
@@ -329,7 +332,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
         if node.function!.name == "set_variable" {
           let args = al.args
-          if args.count > 1, let sl = args[0] as? StringLiteral {
+          if args.count > 0, let sl = args[0] as? StringLiteral {
             let varname = sl.contents()
             let types = args[1].types
             self.scope.variables[varname] = types

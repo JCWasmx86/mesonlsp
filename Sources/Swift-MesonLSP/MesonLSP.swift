@@ -11,6 +11,7 @@ import MesonAnalyze
 import MesonAST
 import SwiftTreeSitter
 import TreeSitterMeson
+import TestingFramework
 
 @main public struct MesonLSP: ParsableCommand {
   static let NUM_PARSES = 100
@@ -20,11 +21,12 @@ import TreeSitterMeson
   @ArgumentParser.Option var path: String = "./meson.build"
   @ArgumentParser.Argument var paths: [String] = []
   @ArgumentParser.Flag var lsp: Bool = false
+  @ArgumentParser.Flag var test: Bool = false
 
   func parseNTimes() throws {
     let console = Terminal()
     LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = .trace
+      cl.logLevel = .debug
       return cl
     })
     let ns = TypeNamespace()
@@ -38,16 +40,37 @@ import TreeSitterMeson
 
   func parseEachProject() throws {
     let console = Terminal()
-    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = .trace
+      cl.logLevel = self.test ? .trace : .debug
       return cl
     })
+    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let ns = TypeNamespace()
-    logger.info("Parsing \(paths.count) projects")
-    for p in self.paths {
-      let t = try MesonTree(file: p, ns: ns)
-      t.analyzeTypes()
+    if self.test {
+      logger.info("Testing \(paths.count) projects")
+    } else {
+      logger.info("Parsing \(paths.count) projects")
+    }
+    if self.test {
+      for p in self.paths {
+        let t = try MesonTree(file: p, ns: ns)
+        t.analyzeTypes()
+        var s: Set<MesonTree> = [t]
+        var files: [String] = []
+        while !s.isEmpty {
+          let mt = s.removeFirst()
+          files.append(mt.file)
+          mt.subfiles.forEach({ s.insert($0) })
+        }
+        var checks: [String: [AssertionCheck]] = [:]
+        files.forEach({ checks[$0] = parseAssertions(name: $0) })
+        _ = TestRunner(tree: t, assertions: checks)
+      }
+    } else {
+      for p in self.paths {
+        let t = try MesonTree(file: p, ns: ns)
+        t.analyzeTypes()
+      }
     }
   }
 

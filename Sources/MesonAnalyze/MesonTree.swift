@@ -6,11 +6,12 @@ import SwiftTreeSitter
 import Timing
 import TreeSitterMeson
 
-public class MesonTree {
+public class MesonTree: Hashable {
   static let LOG = Logger(label: "MesonAnalyze::MesonTree")
   public let file: String
   public var ast: MesonAST.Node?
-  var subfiles: [MesonTree] = []
+  public var subfiles: [MesonTree] = []
+  public var scope: Scope? = nil
   var depth: Int
   var options: OptionState?
   public let ns: TypeNamespace
@@ -125,6 +126,7 @@ public class MesonTree {
     let t = TypeAnalyzer(parent: root, tree: self, options: options)
     self.ast!.setParents()
     self.ast!.visit(visitor: t)
+    if self.depth == 0 { self.scope = t.scope }
     self.metadata = t.metadata
     for s in self.subfiles where s.ast != nil { assert(s.ast!.parent is SubdirCall) }
   }
@@ -136,6 +138,10 @@ public class MesonTree {
     for t in self.subfiles { if let m = t.findSubdirTree(file: p) { return m } }
     return nil
   }
+
+  public func hash(into hasher: inout Hasher) { hasher.combine(self.file) }
+
+  public static func == (lhs: MesonTree, rhs: MesonTree) -> Bool { return lhs.file == rhs.file }
 }
 
 extension String {

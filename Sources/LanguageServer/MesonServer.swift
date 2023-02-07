@@ -628,44 +628,44 @@ public final class MesonServer: LanguageServer {
 
   func generateHTML() -> String {
     let header = """
-      		<!DOCTYPE html>
-      		<html>
-      		<head>
-      		<meta http-equiv="refresh" content="5" />
-      		<style>
-      		table {
-      			font-family: arial, sans-serif;
-      			border-collapse: collapse;
-      			width: 100%;
-      		}
+      	<!DOCTYPE html>
+      	<html>
+      	<head>
+      	<meta http-equiv="refresh" content="5" />
+      	<style>
+      	table {
+      		font-family: arial, sans-serif;
+      		border-collapse: collapse;
+      		width: 100%;
+      	}
 
-      		td, th {
-      			border: 1px solid #dddddd;
-      			text-align: left;
-      			padding: 8px;
-      		}
+      	td, th {
+      		border: 1px solid #dddddd;
+      		text-align: left;
+      		padding: 8px;
+      	}
 
-      		tr:nth-child(even) {
-      			background-color: #dddddd;
-      		}
-      		</style>
-      		</head>
-      		<body>
+      	tr:nth-child(even) {
+      		background-color: #dddddd;
+      	}
+      	</style>
+      	</head>
+      	<body>
 
-      		<h2>Timing information</h2>
+      	<h2>Timing information</h2>
 
-      		<table>
-      			<tr>
-      				<th>Identifier</th>
-      				<th>Hits</th>
-      				<th>Min</th>
-      				<th>Max</th>
-      				<th>Median</th>
-      				<th>Average</th>
-      				<th>Standard deviation</th>
-      				<th>Sum</th>
-      			</tr>
-      	"""
+      	<table>
+      		<tr>
+      			<th>Identifier</th>
+      			<th>Hits</th>
+      			<th>Min</th>
+      			<th>Max</th>
+      			<th>Median</th>
+      			<th>Average</th>
+      			<th>Standard deviation</th>
+      			<th>Sum</th>
+      		</tr>
+      """
     var str = ""
     for t in Timing.INSTANCE.timings() {
       let rounding = 2
@@ -679,11 +679,11 @@ public final class MesonServer: LanguageServer {
       )
     }
     let footer = """
-      		</table>
+      	</table>
 
-      		</body>
-      		</html>
-      	"""
+      	</body>
+      	</html>
+      """
     return header + str + footer
   }
 }
