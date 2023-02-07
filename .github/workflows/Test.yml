@@ -1,0 +1,19 @@
+name: Swift-Tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: swift build
+      - name: Run tests
+        run: swift test
+      - name: Run integration tests
+        run: |
+          swift build
+          ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
