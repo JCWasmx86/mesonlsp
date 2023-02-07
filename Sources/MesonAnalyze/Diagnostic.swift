@@ -20,6 +20,5 @@ public class MesonDiagnostic {
     self.startColumn = loc.startColumn
     self.endColumn = loc.endColumn
     self.message = message
-    print(message)
   }
 }
