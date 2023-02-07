@@ -6,8 +6,9 @@ public class TestRunner: ExtendedCodeVisitor {
   static let LOG = Logger(label: "TestFramework::TestRunner")
   let assertions: [String: [AssertionCheck]]
   let metadata: MesonMetadata?
-  var failures = 0
-  var successes = 0
+  public var failures = 0
+  public var successes = 0
+  public var notRun = 0
   public init(tree: MesonTree, assertions: [String: [AssertionCheck]]) {
     self.assertions = assertions
     if let a = tree.ast {
@@ -26,6 +27,7 @@ public class TestRunner: ExtendedCodeVisitor {
       TestRunner.LOG.info(
         "\(tree.file): Tests: \(self.successes)/\(self.successes + self.failures) passed"
       )
+      notRun = assertions.flatMap({ $0.value }).count - (failures + successes)
     } else {
       self.metadata = nil
     }

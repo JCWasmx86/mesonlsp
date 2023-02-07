@@ -52,6 +52,7 @@ import TestingFramework
       logger.info("Parsing \(paths.count) projects")
     }
     if self.test {
+      var fail = false
       for p in self.paths {
         let t = try MesonTree(file: p, ns: ns)
         t.analyzeTypes()
@@ -64,7 +65,12 @@ import TestingFramework
         }
         var checks: [String: [AssertionCheck]] = [:]
         files.forEach({ checks[$0] = parseAssertions(name: $0) })
-        _ = TestRunner(tree: t, assertions: checks)
+        let tr = TestRunner(tree: t, assertions: checks)
+        if !fail { fail = tr.failures != 0 || tr.notRun != 0 }
+      }
+      if fail {
+        logger.critical("Some testcases failed")
+        _Exit(1)
       }
     } else {
       for p in self.paths {
