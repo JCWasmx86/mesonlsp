@@ -76,6 +76,14 @@ import TestingFramework
       for p in self.paths {
         let t = try MesonTree(file: p, ns: ns)
         t.analyzeTypes()
+        if let mt = t.metadata {
+          for kv in mt.diagnostics {
+            for diag in kv.value {
+              let sev = diag.severity == .error ? "🔴" : "⚠️"
+              print("\(kv.key):\(diag.startLine):\(diag.startColumn): \(sev) \(diag.message)")
+            }
+          }
+        }
       }
     }
   }
@@ -83,8 +91,6 @@ import TestingFramework
   public mutating func run() throws {
     // LSP-Logging
     Logger.shared.currentLevel = .info
-    let console = Terminal()
-    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     if !lsp && paths.isEmpty {
       try self.parseNTimes()
       return
@@ -92,6 +98,8 @@ import TestingFramework
       try self.parseEachProject()
       return
     }
+    let console = Terminal()
+    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     LoggingSystem.bootstrap({ label in ConsoleLogger(label: label, console: console) })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
