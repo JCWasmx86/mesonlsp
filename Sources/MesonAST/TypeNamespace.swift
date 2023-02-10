@@ -305,6 +305,7 @@ public class TypeNamespace {
             types: [Str(), File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: [Str(), `IntType`()]),
           Kwarg(name: "version", opt: true, types: [Str()]),
+          Kwarg(name: "target_type", types: [Str()]),
           Kwarg(
             name: "vs_module_defs",
             opt: true,
@@ -433,6 +434,7 @@ public class TypeNamespace {
           Kwarg(name: "default_options", opt: true, types: [strlist]),
           Kwarg(name: "disabler", opt: true, types: [BoolType()]),
           Kwarg(name: "fallback", opt: true, types: [Str(), ListType(types: [Str()])]),
+          Kwarg(name: "cmake_module_path", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "include_type", opt: true, types: [Str()]),
           Kwarg(name: "language", opt: true, types: [Str()]),
           Kwarg(name: "method", opt: true, types: [Str()]),

@@ -14,6 +14,7 @@ public struct SIMDModule: AbstractObject {
           Kwarg(name: "compiler", opt: true, types: [Compiler()]),
           Kwarg(name: "mmx", opt: true, types: [Str(), File(), ListType(types: [Str(), File()])]),
           Kwarg(name: "sse", opt: true, types: [Str(), File(), ListType(types: [Str(), File()])]),
+          Kwarg(name: "include_directories", opt: true, types: [ListType(types: [Str(), Inc()])]),
           Kwarg(
             name: "sse2",
             opt: true,
