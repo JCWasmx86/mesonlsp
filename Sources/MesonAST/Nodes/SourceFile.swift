@@ -2,7 +2,7 @@ import SwiftTreeSitter
 
 public class SourceFile: Node {
   public let file: MesonSourceFile
-  public var build_definition: Node
+  var build_definition: Node?
   public var types: [Type] = []
   public let location: Location
   public weak var parent: Node?
@@ -12,11 +12,7 @@ public class SourceFile: Node {
     self.file = file
     self.location = Location(node: node)
     if node.namedChildCount == 0 {
-      self.build_definition = ErrorNode(
-        file: file,
-        node: node,
-        msg: "Expected build_definition, got nothing!"
-      )
+      self.build_definition = nil
       return
     }
     if node.namedChildCount == 1 && node.namedChild(at: 0)?.nodeType == "build_definition" {
@@ -36,13 +32,13 @@ public class SourceFile: Node {
   }
   public func visit(visitor: CodeVisitor) { visitor.visitSourceFile(file: self) }
   public func visitChildren(visitor: CodeVisitor) {
-    self.build_definition.visit(visitor: visitor)
+    self.build_definition?.visit(visitor: visitor)
 
     for e in self.errs { e.visit(visitor: visitor) }
   }
   public func setParents() {
-    self.build_definition.parent = self
-    self.build_definition.setParents()
+    self.build_definition?.parent = self
+    self.build_definition?.setParents()
     for e in errs {
       e.parent = self
       e.setParents()
