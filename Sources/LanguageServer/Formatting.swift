@@ -14,6 +14,7 @@ func formatFile(content: String, params: FormattingOptions) throws -> String? {
     task.executableURL = URL(fileURLWithPath: muon)
     try task.run()
     task.waitUntilExit()
+    if task.terminationStatus != 0 { return nil }
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     return String(data: data, encoding: .utf8)
   }
