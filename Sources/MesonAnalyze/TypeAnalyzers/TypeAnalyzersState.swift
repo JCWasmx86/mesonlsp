@@ -6,6 +6,7 @@ public class TypeAnalyzersState {
     self.state = [
       "import": ImportTypeAnalyzer(), "get_option": OptionTypeAnalyzer(),
       "dict.get": DictGetTypeAnalyzer(), "list.get": ListGetTypeAnalyzer(),
+      "build_target": BuildTargetTypeAnalyzer(),
     ]
   }
   public func apply(node: Node, options: [MesonOption], f: Function, ns: TypeNamespace) -> [Type] {
