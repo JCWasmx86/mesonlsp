@@ -58,6 +58,7 @@ public struct Qt5Module: AbstractObject {
         parent: self,
         returnTypes: [ListType(types: [CustomTgt()])],
         args: [
+          PositionalArgument(name: "name", opt: true, types: [Str()]),
           Kwarg(name: "sources", opt: true, types: [ListType(types: [Str(), File()])]),
           Kwarg(name: "qresources", opt: true, types: [ListType(types: [Str(), File()])]),
           Kwarg(
@@ -74,9 +75,9 @@ public struct Qt5Module: AbstractObject {
             name: "moc_headers",
             opt: true,
             types: [ListType(types: [Str(), File(), CustomTgt()])]
-          ), Kwarg(name: "moc_extra_args", opt: true, types: [ListType(types: [Str()])]),
-          Kwarg(name: "rcc_extra_args", opt: true, types: [ListType(types: [Str()])]),
-          Kwarg(name: "uic_extra_args", opt: true, types: [ListType(types: [Str()])]),
+          ), Kwarg(name: "moc_extra_arguments", opt: true, types: [ListType(types: [Str()])]),
+          Kwarg(name: "rcc_extra_arguments", opt: true, types: [ListType(types: [Str()])]),
+          Kwarg(name: "uic_extra_arguments", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "method", opt: true, types: [Str()]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep(), Lib()])]),
           Kwarg(name: "include_directories", opt: true, types: [ListType(types: [Inc(), Str()])]),
