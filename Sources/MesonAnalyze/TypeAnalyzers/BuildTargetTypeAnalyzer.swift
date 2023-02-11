@@ -6,8 +6,6 @@ public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
       let al = alo as? ArgumentList
     {
       for arg in al.args where arg is KeywordItem {
-        let name = ((arg as! KeywordItem).key as! IdExpression).id
-        print(name)
         if let sl = (arg as! KeywordItem).value as? StringLiteral {
           switch sl.contents() {
           case "executable": return [ns.types["exe"]!]

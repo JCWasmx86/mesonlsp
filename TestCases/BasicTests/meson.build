@@ -77,3 +77,7 @@ sm = build_target('foo', target_type: 'shared_module') # ana:var: sm = build_tgt
 bl = build_target('foo', target_type: 'both_libraries') # ana:var: bl = both_libs
 library = build_target('foo', target_type: 'library') # ana:var: library = lib
 jar = build_target('foo', target_type: 'jar') # ana:var: jar = jar
+imadep = dependency('abc')
+if not imadep.found()
+    imadep = disabler()
+endif
