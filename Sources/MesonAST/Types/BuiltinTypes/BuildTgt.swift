@@ -20,6 +20,8 @@ public struct BuildTgt: AbstractObject {
         ]
       ), Method(name: "found", parent: self, returnTypes: [BoolType()]),
       Method(name: "full_path", parent: self, returnTypes: [Str()]),
+      // TODO: Is this an internal method?
+      Method(name: "outdir", parent: self, returnTypes: [Str()]),
       Method(name: "name", parent: self, returnTypes: [Str()]),
       Method(name: "path", parent: self, returnTypes: [Str()]),
       Method(name: "private_dir_include", parent: self, returnTypes: [Inc()]),

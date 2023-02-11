@@ -9,14 +9,14 @@ public struct CudaModule: AbstractObject {
         name: "min_driver_version",
         parent: self,
         returnTypes: [Str()],
-        args: [PositionalArgument(name: "version_string", types: [Str()])]
+        args: [PositionalArgument(name: "version_string", varargs: true, types: [Str()])]
       ),
       Method(
         name: "nvcc_arch_flags",
         parent: self,
         returnTypes: [ListType(types: [Str()])],
         args: [
-          PositionalArgument(name: "architecture_set", opt: true, types: [Str()]),
+          PositionalArgument(name: "architecture_set", varargs: true, opt: true, types: [Str()]),
           Kwarg(name: "detected", opt: true, types: [Str(), ListType(types: [Str()])]),
         ]
       ),
@@ -25,7 +25,7 @@ public struct CudaModule: AbstractObject {
         parent: self,
         returnTypes: [ListType(types: [Str()])],
         args: [
-          PositionalArgument(name: "architecture_set", opt: true, types: [Str()]),
+          PositionalArgument(name: "architecture_set", varargs: true, opt: true, types: [Str()]),
           Kwarg(name: "detected", opt: true, types: [Str(), ListType(types: [Str()])]),
         ]
       ),

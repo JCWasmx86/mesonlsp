@@ -91,6 +91,7 @@ public struct Meson: AbstractObject {
         args: [
           PositionalArgument(name: "propname", types: [Str()]),
           PositionalArgument(name: "fallback_value", opt: true, types: [`Any`()]),
+          Kwarg(name: "native", opt: true, types: [BoolType()]),
         ]
       ), Method(name: "global_build_root", parent: self, returnTypes: [Str()]),
       Method(name: "global_source_root", parent: self, returnTypes: [Str()]),

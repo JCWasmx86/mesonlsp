@@ -16,6 +16,7 @@ public struct I18nModule: AbstractObject {
           Kwarg(name: "preset", opt: true, types: [Str()]),
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
+          Kwarg(name: "languages", opt: true, types: [ListType(types: [Str()])]),
         ]
       ),
       Method(

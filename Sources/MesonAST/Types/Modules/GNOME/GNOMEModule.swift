@@ -22,6 +22,7 @@ public struct GNOMEModule: AbstractObject {
           ), Kwarg(name: "export", opt: true, types: [BoolType()]),
           Kwarg(name: "extra_args", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "gresource_bundle", opt: true, types: [BoolType()]),
+          Kwarg(name: "build_by_default", opt: true, types: [BoolType()]),
           Kwarg(name: "install", opt: true, types: [BoolType()]),
           Kwarg(name: "install_dir", opt: true, types: [Str()]),
           Kwarg(name: "install_header", opt: true, types: [BoolType()]),
@@ -56,6 +57,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "link_with", opt: true, types: [ListType(types: [Lib()])]),
           Kwarg(name: "symbok_prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "fatal_warnings", opt: true, types: [BoolType()]),
+          Kwarg(name: "build_by_default", opt: true, types: [BoolType()]),
         ]
       ),
       Method(
@@ -71,7 +73,7 @@ public struct GNOMEModule: AbstractObject {
           Kwarg(name: "install_header", opt: true, types: [BoolType()]),
           Kwarg(name: "internal", opt: true, types: [BoolType()]),
           Kwarg(name: "nostdinc", opt: true, types: [BoolType()]),
-          Kwarg(name: "prefix", types: [ListType(types: [Str()])]),
+          Kwarg(name: "prefix", opt: true, types: [ListType(types: [Str()])]),
           Kwarg(name: "skip_source", opt: true, types: [BoolType()]),
           Kwarg(name: "sources", types: [ListType(types: [Str(), File()])]),
           Kwarg(name: "stdinc", opt: true, types: [BoolType()]),

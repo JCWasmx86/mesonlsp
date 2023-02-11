@@ -85,7 +85,12 @@ public struct Python3Module: AbstractObject {
           ), Kwarg(name: "win_subsystem", opt: true, types: [Str()]),
         ]
       ), Method(name: "language_version", parent: self, returnTypes: [Str()], args: []),
-      Method(name: "sysconfig_path", parent: self, returnTypes: [Str()], args: []),
+      Method(
+        name: "sysconfig_path",
+        parent: self,
+        returnTypes: [Str()],
+        args: [PositionalArgument(name: "path_name", types: [Str()])]
+      ),
     ]
   }
 }
