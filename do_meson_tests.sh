@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-swift build || exit
+swift build -c release --static-swift-stdlib || exit
 export LSPPATH=$PWD/.build/debug/Swift-MesonLSP
 export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
@@ -24,3 +24,9 @@ for i in *; do
 done
 cd ../..
 rm -rf meson
+count=$(echo failures.txt|wc -l)
+echo "$count lines"
+if [ "$count" -gt 104 ]; then
+    exit 1
+fi
+exit 0
