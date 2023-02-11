@@ -2,11 +2,13 @@ import MesonAST
 public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
   public func derive(node: Node, fn: Function, options: [MesonOption], ns: TypeNamespace) -> [Type]
   {
-    if let fe = node as? FunctionExpression, let al = fe.argumentList as? ArgumentList {
+    if let fe = node as? FunctionExpression, let alo = fe.argumentList,
+      let al = alo as? ArgumentList
+    {
       for arg in al.args where arg is KeywordItem {
         let name = ((arg as! KeywordItem).key as! IdExpression).id
-        if name != "target_type" { continue }
-        if let sl = (arg as! KeywordItem).key as? StringLiteral {
+        print(name)
+        if let sl = (arg as! KeywordItem).value as? StringLiteral {
           switch sl.contents() {
           case "executable": return [ns.types["exe"]!]
           case "shared_library": return [ns.types["lib"]!]

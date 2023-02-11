@@ -70,3 +70,10 @@ environment().append('', separator: ':', '') # ana:error: Unexpected positional 
 meson.get_compiler('c', 'vala') # ana:error: Expected 1 positional arguments, but got 2!
 meson.get_compiler('c', abc: true) # ana:error: Unknown key word argument 'abc'!
 meson.add_devenv(environment()) # ana:error: Missing required key word argument 'method'!
+exe = build_target('foo', target_type: 'executable') # ana:var: exe = exe
+sl = build_target('foo', target_type: 'shared_library') # ana:var: sl = lib
+stl = build_target('foo', target_type: 'static_library') # ana:var: stl = lib
+sm = build_target('foo', target_type: 'shared_module') # ana:var: sm = build_tgt
+bl = build_target('foo', target_type: 'both_libraries') # ana:var: bl = both_libs
+library = build_target('foo', target_type: 'library') # ana:var: library = lib
+jar = build_target('foo', target_type: 'jar') # ana:var: jar = jar
