@@ -33,7 +33,6 @@ meson -Dplugin_cabal=disabled \
 	-Dplugin_sourcekit=disabled \
 	-Dplugin_texlab=disabled \
 	-Dplugin_xmlfmt=disabled \
-	-Dplugin_xmlfmt=disabled \
 	_build
 cd _build || exit 1
 ninja install

@@ -98,7 +98,6 @@ meson -Dplugin_cabal=disabled \
       -Dplugin_sourcekit=disabled \
       -Dplugin_texlab=disabled \
       -Dplugin_xmlfmt=disabled \
-      -Dplugin_xmlfmt=disabled \
       _build
 cd _build
 # Don't do "sudo ninja install"
