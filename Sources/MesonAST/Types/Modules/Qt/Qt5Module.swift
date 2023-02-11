@@ -101,7 +101,7 @@ public struct Qt5Module: AbstractObject {
         ]
       ),
       Method(
-        name: "compile_translations",
+        name: "has_tools",
         parent: self,
         returnTypes: [BoolType()],
         args: [

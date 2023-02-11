@@ -13,7 +13,16 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
         }
       }
     }
-    return fn.returnTypes
+    return [
+      ns.types["cmake_module"]!, ns.types["fs_module"]!, ns.types["gnome_module"]!,
+      ns.types["i18n_module"]!, ns.types["rust_module"]!, ns.types["python_module"]!,
+      ns.types["python3_module"]!, ns.types["pkgconfig_module"]!, ns.types["keyval_module"]!,
+      ns.types["dlang_module"]!, ns.types["external_project_module"]!, ns.types["hotdoc_module"]!,
+      ns.types["java_module"]!, ns.types["windows_module"]!, ns.types["cuda_module"]!,
+      ns.types["icestorm_module"]!, ns.types["qt4_module"]!, ns.types["qt5_module"]!,
+      ns.types["qt6_module"]!, ns.types["wayland_module"]!, ns.types["simd_module"]!,
+      ns.types["sourceset_module"]!,
+    ]
   }
   func nameToModule(name: String, ns: TypeNamespace) -> [Type]? {
     let mapping = [

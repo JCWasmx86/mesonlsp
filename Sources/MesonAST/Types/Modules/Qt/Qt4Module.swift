@@ -101,7 +101,7 @@ public struct Qt4Module: AbstractObject {
         ]
       ),
       Method(
-        name: "compile_translations",
+        name: "has_tools",
         parent: self,
         returnTypes: [BoolType()],
         args: [
@@ -109,6 +109,7 @@ public struct Qt4Module: AbstractObject {
           Kwarg(name: "method", opt: true, types: [Str()]),
         ]
       ),
+
     ]
   }
 }
