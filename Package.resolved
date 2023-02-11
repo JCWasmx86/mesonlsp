@@ -158,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JCWasmx86/tree-sitter-meson",
       "state" : {
-        "revision" : "ac8a9d258b26add4f92ca22e5f9cc078cbb5ff81",
-        "version" : "1.0.2"
+        "revision" : "5f61367374830d968573f399350209301d724112",
+        "version" : "1.0.4"
       }
     },
     {

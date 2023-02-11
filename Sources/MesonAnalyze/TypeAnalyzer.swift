@@ -887,7 +887,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if hasBool { ret.append(self.t.types["bool"]!) }
     if hasInt { ret.append(self.t.types["int"]!) }
     if hasStr { ret.append(self.t.types["str"]!) }
-    ret += objs.values
+    ret += Array(objs.values.map({ $0.name })).sorted().map({ self.t.types[$0]! })
     Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
   }  // swiftlint:enable cyclomatic_complexity
