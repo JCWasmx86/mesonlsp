@@ -10,8 +10,8 @@ import LSPLogging
 import MesonAnalyze
 import MesonAST
 import SwiftTreeSitter
-import TreeSitterMeson
 import TestingFramework
+import TreeSitterMeson
 
 @main public struct MesonLSP: ParsableCommand {
   static let NUM_PARSES = 100

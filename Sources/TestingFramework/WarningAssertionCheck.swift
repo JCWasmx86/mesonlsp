@@ -1,5 +1,5 @@
-import MesonAnalyze
 import Foundation
+import MesonAnalyze
 
 class WarningAssertionCheck: AssertionCheck {
   let line: Int

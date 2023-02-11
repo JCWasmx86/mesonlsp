@@ -1,6 +1,6 @@
+import Logging
 import MesonAnalyze
 import MesonAST
-import Logging
 
 public class TestRunner: ExtendedCodeVisitor {
   static let LOG = Logger(label: "TestFramework::TestRunner")

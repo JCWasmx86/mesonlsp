@@ -11,7 +11,7 @@ public class MesonTree: Hashable {
   public let file: String
   public var ast: MesonAST.Node?
   public var subfiles: [MesonTree] = []
-  public var scope: Scope? = nil
+  public var scope: Scope?
   var depth: Int
   var options: OptionState?
   public let ns: TypeNamespace
