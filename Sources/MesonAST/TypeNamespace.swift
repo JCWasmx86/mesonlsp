@@ -882,6 +882,7 @@ public class TypeNamespace {
           PositionalArgument(name: "project_name", types: [Str()]),
           PositionalArgument(name: "language", varargs: true, opt: true, types: [Str()]),
           Kwarg(name: "default_options", opt: true, types: [strlist]),
+          Kwarg(name: "license_files", opt: true, types: [strlist, Str()]),
           Kwarg(name: "license", opt: true, types: [ListType(types: [Str()]), Str()]),
           Kwarg(name: "meson_version", opt: true, types: [Str()]),
           Kwarg(name: "subproject_dir", opt: true, types: [Str()]),

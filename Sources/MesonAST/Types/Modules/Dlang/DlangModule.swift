@@ -19,7 +19,7 @@ public struct DlangModule: AbstractObject {
           Kwarg(name: "license", opt: true, types: [Str(), ListType(types: [Str()])]),
           Kwarg(name: "sourceFiles", opt: true, types: [Str(), ListType(types: [Str()])]),
           Kwarg(name: "targetType", opt: true, types: [Str()]),
-          Kwarg(name: "sourceFiles", opt: true, types: [ListType(types: [Dep(), Str()])]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep(), Str()])]),
         ]
       )
     ]
