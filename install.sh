@@ -30,7 +30,6 @@ meson -Dplugin_cabal=disabled \
 	-Dplugin_swift_format=disabled \
 	-Dplugin_swift_lint=disabled \
 	-Dplugin_swift_templates=disabled \
-	-Dplugin_sourcekit=disabled \
 	-Dplugin_texlab=disabled \
 	-Dplugin_xmlfmt=disabled \
 	_build
