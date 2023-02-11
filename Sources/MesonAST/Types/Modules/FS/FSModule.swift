@@ -60,7 +60,7 @@ public struct FSModule: AbstractObject {
         ]
       ),
       Method(
-        name: "expand_user",
+        name: "expanduser",
         parent: self,
         returnTypes: [Str()],
         args: [PositionalArgument(name: "file", types: [Str()])]
