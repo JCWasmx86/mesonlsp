@@ -81,3 +81,4 @@ imadep = dependency('abc')
 if not imadep.found()
     imadep = disabler()
 endif
+checker = imadep # ana:var: checker = dep|disabler

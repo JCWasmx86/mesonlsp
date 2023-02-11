@@ -88,6 +88,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let begin1 = clock()
     self.stack.append([:])
     self.overriddenVariables.append([:])
+    var oldVars: [String: [Type]] = [:]
+    self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value.map({ $0 })) })
     node.visitChildren(visitor: self)
     for condition in [node.ifCondition] + node.conditions {
       var foundBoolOrAny = false
@@ -104,6 +106,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     let begin = clock()
     let types = self.stack.removeLast()
+    // If: 1 c, 1 b
+    // If,else if: 2c, 2b
+    // if, else if, else, 2c, 3b
     for k in types.keys {
       // TODO: This leaks some overwritten types
       // x = 'Foo'
@@ -113,7 +118,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       //   x = true
       // endif
       // x is now str|int|bool instead of int|bool
-      let l = dedup(types: (self.scope.variables[k] ?? []) + types[k]!)
+      var arr = (self.scope.variables[k] ?? []) + types[k]!
+      if node.conditions.count + 1 == node.blocks.count { arr += (oldVars[k] ?? []) }
+      let l = dedup(types: arr)
       self.scope.variables[k] = l
     }
     self.overriddenVariables.removeLast()
