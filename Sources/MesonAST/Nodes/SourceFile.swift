@@ -2,7 +2,7 @@ import SwiftTreeSitter
 
 public class SourceFile: Node {
   public let file: MesonSourceFile
-  var build_definition: Node?
+  public var build_definition: Node?
   public var types: [Type] = []
   public let location: Location
   public weak var parent: Node?
