@@ -87,7 +87,6 @@ meson -Dplugin_cabal=disabled \
       -Dplugin_hls=disabled \
       -Dplugin_icon_installer=disabled \
       -Dplugin_markdown=disabled \
-      -Dplugin_muon=disabled \
       -Dplugin_pylint=disabled \
       -Dplugin_shfmt=disabled \
       -Dplugin_sqls=disabled \
@@ -100,7 +99,6 @@ meson -Dplugin_cabal=disabled \
       -Dplugin_texlab=disabled \
       -Dplugin_xmlfmt=disabled \
       -Dplugin_xmlfmt=disabled \
-      -Duse_swift_meson_lsp=true \
       _build
 cd _build
 # Don't do "sudo ninja install"
