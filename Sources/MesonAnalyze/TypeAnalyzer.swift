@@ -713,6 +713,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
             newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "list") && isType(r, "list") {
             newTypes.append(self.t.types["bool"]!)
+          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
+            newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
           }
@@ -741,6 +743,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           } else if isType(l, "dict") && isType(r, "dict") {
             newTypes.append(self.t.types["bool"]!)
           } else if isType(l, "list") && isType(r, "list") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
             newTypes.append(self.t.types["bool"]!)
           } else {
             nErrors += 1
