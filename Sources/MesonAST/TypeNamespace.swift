@@ -43,16 +43,14 @@ public class TypeNamespace {
         name: "add_global_arguments",
         args: [
           PositionalArgument(name: "arg", varargs: true, opt: true, types: strL),
-          Kwarg(name: "language", types: strlistL),
-          Kwarg(name: "native", opt: true, types: boolL),
+          Kwarg(name: "language", types: strlistL), Kwarg(name: "native", opt: true, types: boolL),
         ]
       ),
       Function(
         name: "add_global_link_arguments",
         args: [
           PositionalArgument(name: "arg", varargs: true, opt: true, types: strL),
-          Kwarg(name: "language", types: strlistL),
-          Kwarg(name: "native", opt: true, types: boolL),
+          Kwarg(name: "language", types: strlistL), Kwarg(name: "native", opt: true, types: boolL),
         ]
       ),
       Function(
@@ -68,35 +66,29 @@ public class TypeNamespace {
         name: "add_project_arguments",
         args: [
           PositionalArgument(name: "arg", varargs: true, opt: true, types: strL),
-          Kwarg(name: "language", types: strlistL),
-          Kwarg(name: "native", opt: true, types: boolL),
+          Kwarg(name: "language", types: strlistL), Kwarg(name: "native", opt: true, types: boolL),
         ]
       ),
       Function(
         name: "add_project_dependencies",
         args: [
           PositionalArgument(name: "dependency", varargs: true, opt: true, types: [Dep()]),
-          Kwarg(name: "language", types: strlistL),
-          Kwarg(name: "native", opt: true, types: boolL),
+          Kwarg(name: "language", types: strlistL), Kwarg(name: "native", opt: true, types: boolL),
         ]
       ),
       Function(
         name: "add_project_link_arguments",
         args: [
           PositionalArgument(name: "arg", varargs: true, opt: true, types: strL),
-          Kwarg(name: "language", types: strlistL),
-          Kwarg(name: "native", opt: true, types: boolL),
+          Kwarg(name: "language", types: strlistL), Kwarg(name: "native", opt: true, types: boolL),
         ]
       ),
       Function(
         name: "add_test_setup",
         args: [
           PositionalArgument(name: "name", types: strL),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [Env(), ListType(types: strL), Dict(types: strL)]
-          ), Kwarg(name: "exclude_suites", opt: true, types: strlistL),
+          Kwarg(name: "env", opt: true, types: [Env(), ListType(types: strL), Dict(types: strL)]),
+          Kwarg(name: "exclude_suites", opt: true, types: strlistL),
           Kwarg(
             name: "exe_wrapper",
             opt: true,
@@ -128,11 +120,8 @@ public class TypeNamespace {
           PositionalArgument(name: "executable", types: [Exe(), Jar(), ExternalProgram(), File()]),
           Kwarg(name: "args", opt: true, types: [ListType(types: [str, File(), Tgt()])]),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [str, ListType(types: strL), Dict(types: strL)]
-          ), Kwarg(name: "priority", opt: true, types: inttL),
+          Kwarg(name: "env", opt: true, types: [str, ListType(types: strL), Dict(types: strL)]),
+          Kwarg(name: "priority", opt: true, types: inttL),
           Kwarg(name: "protocol", opt: true, types: strL),
           Kwarg(name: "should_fail", opt: true, types: boolL),
           Kwarg(name: "suite", opt: true, types: [str, ListType(types: strL)]),
@@ -175,16 +164,10 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
-          Kwarg(
-            name: "darwin_versions",
-            opt: true,
-            types: [str, intt, ListType(types: strL)]
-          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
           Kwarg(name: "gui_app", opt: true, types: boolL),
@@ -224,11 +207,8 @@ public class TypeNamespace {
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: sil),
           Kwarg(name: "version", opt: true, types: strL),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
@@ -265,16 +245,10 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
-          Kwarg(
-            name: "darwin_versions",
-            opt: true,
-            types: [str, intt, ListType(types: strL)]
-          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
           Kwarg(name: "gui_app", opt: true, types: boolL),
@@ -308,8 +282,7 @@ public class TypeNamespace {
             opt: true,
             types: [ListType(types: [ExtractedObj(), File(), str])]
           ), Kwarg(name: "override_options", opt: true, types: strlistL),
-          Kwarg(name: "pic", opt: true, types: boolL),
-          Kwarg(name: "pie", opt: true, types: boolL),
+          Kwarg(name: "pic", opt: true, types: boolL), Kwarg(name: "pie", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(
@@ -317,24 +290,16 @@ public class TypeNamespace {
             opt: true,
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: sil),
-          Kwarg(name: "version", opt: true, types: strL),
-          Kwarg(name: "target_type", types: strL),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "version", opt: true, types: strL), Kwarg(name: "target_type", types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
         name: "configuration_data",
         returnTypes: [CfgData()],
         args: [
-          PositionalArgument(
-            name: "data",
-            opt: true,
-            types: [Dict(types: [str, boolt, intt])]
-          )
+          PositionalArgument(name: "data", opt: true, types: [Dict(types: [str, boolt, intt])])
         ]
       ),
       Function(
@@ -343,11 +308,8 @@ public class TypeNamespace {
         args: [
           Kwarg(name: "capture", opt: true, types: boolL),
           Kwarg(name: "command", opt: true, types: [ListType(types: [str, File()])]),
-          Kwarg(
-            name: "configuration",
-            opt: true,
-            types: [Dict(types: silb), CfgData()]
-          ), Kwarg(name: "copy", opt: true, types: boolL),
+          Kwarg(name: "configuration", opt: true, types: [Dict(types: silb), CfgData()]),
+          Kwarg(name: "copy", opt: true, types: boolL),
           Kwarg(name: "depfile", opt: true, types: strL),
           Kwarg(name: "encoding", opt: true, types: strL),
           Kwarg(name: "format", opt: true, types: strL),
@@ -355,8 +317,7 @@ public class TypeNamespace {
           Kwarg(name: "install", opt: true, types: boolL),
           Kwarg(name: "install_dir", opt: true, types: strL),
           Kwarg(name: "install_mode", opt: true, types: [ListType(types: sil)]),
-          Kwarg(name: "install_tag", opt: true, types: strL),
-          Kwarg(name: "output", types: strL),
+          Kwarg(name: "install_tag", opt: true, types: strL), Kwarg(name: "output", types: strL),
           Kwarg(name: "output_format", opt: true, types: strL),
         ]
       ),
@@ -376,11 +337,8 @@ public class TypeNamespace {
           Kwarg(name: "depend_files", opt: true, types: [ListType(types: [str, File()])]),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
           Kwarg(name: "depfile", opt: true, types: strL),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [Env(), ListType(types: strL), Dict(types: strL)]
-          ), Kwarg(name: "feed", opt: true, types: boolL),
+          Kwarg(name: "env", opt: true, types: [Env(), ListType(types: strL), Dict(types: strL)]),
+          Kwarg(name: "feed", opt: true, types: boolL),
           Kwarg(name: "input", opt: true, types: [ListType(types: [str, File()])]),
           Kwarg(name: "install", opt: true, types: boolL),
           Kwarg(name: "install_dir", opt: true, types: strL),
@@ -394,19 +352,13 @@ public class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
             name: "msg",
             varargs: true,
             opt: true,
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
         ]
       ),
@@ -416,11 +368,8 @@ public class TypeNamespace {
         args: [
           Kwarg(name: "compile_args", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: [ListType(types: [str, Inc()])]),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [str, intt, ListType(types: sil)]
-          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
+          Kwarg(name: "d_module_versions", opt: true, types: [str, intt, ListType(types: sil)]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "include_directories", opt: true, types: [ListType(types: [str, Inc()])]),
           Kwarg(name: "link_args", opt: true, types: strlistL),
           Kwarg(name: "link_whole", opt: true, types: [ListType(types: [Lib()])]),
@@ -431,11 +380,8 @@ public class TypeNamespace {
             opt: true,
             types: [ListType(types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList()])]
           ),
-          Kwarg(
-            name: "variables",
-            opt: true,
-            types: [ListType(types: strL), Dict(types: strL)]
-          ), Kwarg(name: "version", opt: true, types: strL),
+          Kwarg(name: "variables", opt: true, types: [ListType(types: strL), Dict(types: strL)]),
+          Kwarg(name: "version", opt: true, types: strL),
         ]
       ),
       Function(
@@ -517,11 +463,8 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "export_dynamic", opt: true, types: boolL),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
@@ -596,10 +539,7 @@ public class TypeNamespace {
       ),
       Function(
         name: "get_option",
-        returnTypes: [
-          str, intt, boolt, Feature(),
-          ListType(types: silb),
-        ],
+        returnTypes: [str, intt, boolt, Feature(), ListType(types: silb)],
         args: [PositionalArgument(name: "option_name", types: strL)]
       ),
       Function(
@@ -729,11 +669,8 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
@@ -814,16 +751,10 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
-          Kwarg(
-            name: "darwin_versions",
-            opt: true,
-            types: [str, intt, ListType(types: strL)]
-          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
           Kwarg(name: "gui_app", opt: true, types: boolL),
@@ -863,11 +794,8 @@ public class TypeNamespace {
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: sil),
           Kwarg(name: "version", opt: true, types: strL),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
@@ -875,19 +803,13 @@ public class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
             name: "msg",
             varargs: true,
             opt: true,
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
         ]
       ),
@@ -924,11 +846,7 @@ public class TypeNamespace {
             types: [str, File(), ExternalProgram()]
           ), Kwarg(name: "capture", opt: true, types: boolL),
           Kwarg(name: "check", opt: true, types: boolL),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [Env(), ListType(types: strL), Dict(types: strL)]
-          ),
+          Kwarg(name: "env", opt: true, types: [Env(), ListType(types: strL), Dict(types: strL)]),
         ]
       ),
       Function(
@@ -941,11 +859,7 @@ public class TypeNamespace {
             types: [ListType(types: [Exe(), ExternalProgram(), CustomTgt(), File(), str])]
           ),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [CustomTgt(), BuildTgt()])]),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [Env(), ListType(types: strL), Dict(types: strL)]
-          ),
+          Kwarg(name: "env", opt: true, types: [Env(), ListType(types: strL), Dict(types: strL)]),
         ]
       ),
       Function(
@@ -989,16 +903,10 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
-          Kwarg(
-            name: "darwin_versions",
-            opt: true,
-            types: [str, intt, ListType(types: strL)]
-          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
+          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
           Kwarg(name: "gui_app", opt: true, types: boolL),
@@ -1036,11 +944,8 @@ public class TypeNamespace {
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: sil),
           Kwarg(name: "version", opt: true, types: strL),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
@@ -1077,11 +982,8 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
@@ -1119,11 +1021,8 @@ public class TypeNamespace {
             opt: true,
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
@@ -1160,11 +1059,8 @@ public class TypeNamespace {
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: strlistL),
           Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(
-            name: "d_module_versions",
-            opt: true,
-            types: [ListType(types: sil)]
-          ), Kwarg(name: "d_unittest", opt: true, types: boolL),
+          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [Dep()])]),
           Kwarg(name: "extra_files", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
           Kwarg(name: "gnu_symbol_visibility", opt: true, types: strL),
@@ -1205,11 +1101,8 @@ public class TypeNamespace {
             types: [str, File(), CustomTgt(), CustomIdx(), GeneratedList(), StructuredSrc()]
           ), Kwarg(name: "soversion", opt: true, types: sil),
           Kwarg(name: "version", opt: true, types: strL),
-          Kwarg(
-            name: "vs_module_defs",
-            opt: true,
-            types: [str, File(), CustomTgt(), CustomIdx()]
-          ), Kwarg(name: "win_subsystem", opt: true, types: strL),
+          Kwarg(name: "vs_module_defs", opt: true, types: [str, File(), CustomTgt(), CustomIdx()]),
+          Kwarg(name: "win_subsystem", opt: true, types: strL),
         ]
       ),
       Function(
@@ -1276,11 +1169,8 @@ public class TypeNamespace {
           PositionalArgument(name: "executable", types: [Exe(), Jar(), ExternalProgram(), File()]),
           Kwarg(name: "args", opt: true, types: [ListType(types: [str, File(), Tgt()])]),
           Kwarg(name: "depends", opt: true, types: [ListType(types: [BuildTgt(), CustomTgt()])]),
-          Kwarg(
-            name: "env",
-            opt: true,
-            types: [str, ListType(types: strL), Dict(types: strL)]
-          ), Kwarg(name: "is_parallel", opt: true, types: boolL),
+          Kwarg(name: "env", opt: true, types: [str, ListType(types: strL), Dict(types: strL)]),
+          Kwarg(name: "is_parallel", opt: true, types: boolL),
           Kwarg(name: "priority", opt: true, types: inttL),
           Kwarg(name: "protocol", opt: true, types: strL),
           Kwarg(name: "should_fail", opt: true, types: boolL),
@@ -1289,8 +1179,7 @@ public class TypeNamespace {
           Kwarg(name: "verbose", opt: true, types: boolL),
           Kwarg(name: "workdir", opt: true, types: strL),
         ]
-      ),
-      Function(name: "unset_variable", args: [PositionalArgument(name: "varname", types: strL)]),
+      ), Function(name: "unset_variable", args: [PositionalArgument(name: "varname", types: strL)]),
       Function(
         name: "vcs_tag",
         returnTypes: [CustomTgt()],
@@ -1299,9 +1188,8 @@ public class TypeNamespace {
             name: "command",
             opt: true,
             types: [ListType(types: [Exe(), ExternalProgram(), CustomTgt(), File(), str])]
-          ), Kwarg(name: "fallback", opt: true, types: strL),
-          Kwarg(name: "input", types: strL), Kwarg(name: "output", types: strL),
-          Kwarg(name: "replace_string", opt: true, types: strL),
+          ), Kwarg(name: "fallback", opt: true, types: strL), Kwarg(name: "input", types: strL),
+          Kwarg(name: "output", types: strL), Kwarg(name: "replace_string", opt: true, types: strL),
         ]
       ),
       Function(
@@ -1309,19 +1197,13 @@ public class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
             name: "msg",
             varargs: true,
             opt: true,
-            types: [
-              str, intt, boolt, ListType(types: silb),
-              Dict(types: silb),
-            ]
+            types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
         ]
       ),
