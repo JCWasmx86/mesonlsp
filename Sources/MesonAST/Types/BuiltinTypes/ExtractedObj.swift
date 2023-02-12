@@ -1,4 +1,4 @@
-public struct ExtractedObj: AbstractObject {
+public class ExtractedObj: AbstractObject {
   public let name: String = "extracted_obj"
   public let parent: AbstractObject? = nil
 

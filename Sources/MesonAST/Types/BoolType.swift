@@ -1,4 +1,4 @@
-public struct `BoolType`: Type {
+public class `BoolType`: Type {
   public let name: String = "bool"
 
   public init() {}

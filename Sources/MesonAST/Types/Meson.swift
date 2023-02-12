@@ -1,4 +1,4 @@
-public struct Meson: AbstractObject {
+public class Meson: AbstractObject {
   public let name: String = "meson"
   public let parent: AbstractObject? = nil
 

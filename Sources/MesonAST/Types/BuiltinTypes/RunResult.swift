@@ -1,4 +1,4 @@
-public struct RunResult: AbstractObject {
+public class RunResult: AbstractObject {
   public let name: String = "runresult"
   public let parent: AbstractObject? = nil
 

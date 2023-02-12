@@ -1,4 +1,4 @@
-public struct WindowsModule: AbstractObject {
+public class WindowsModule: AbstractObject {
   public let name: String = "windows_module"
   public let parent: AbstractObject? = Module()
 

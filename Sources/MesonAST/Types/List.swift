@@ -1,4 +1,4 @@
-public struct ListType: Type {
+public class ListType: Type {
   public let name: String = "list"
   public var types: [Type]
 

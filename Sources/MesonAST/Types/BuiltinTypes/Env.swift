@@ -1,4 +1,4 @@
-public struct Env: AbstractObject {
+public class Env: AbstractObject {
   public let name: String = "env"
   public let parent: AbstractObject? = nil
 

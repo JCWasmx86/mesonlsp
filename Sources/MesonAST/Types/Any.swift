@@ -1,4 +1,4 @@
-public struct `Any`: Type {
+public class `Any`: Type {
   public let name: String = "any"
   public init() {}
 

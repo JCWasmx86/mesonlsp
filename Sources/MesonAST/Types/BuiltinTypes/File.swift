@@ -1,4 +1,4 @@
-public struct File: AbstractObject {
+public class File: AbstractObject {
   public let name: String = "file"
   public let parent: AbstractObject? = nil
 

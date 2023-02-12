@@ -1,4 +1,4 @@
-public struct LazyType: Type {
+public class LazyType: Type {
   public let name: String
 
   public init(name: String) { self.name = name }

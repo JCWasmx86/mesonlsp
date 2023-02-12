@@ -1,4 +1,4 @@
-public struct FSModule: AbstractObject {
+public class FSModule: AbstractObject {
   public let name: String = "fs_module"
   public let parent: AbstractObject? = Module()
 

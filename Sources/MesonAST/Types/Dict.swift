@@ -1,4 +1,4 @@
-public struct Dict: Type {
+public class Dict: Type {
   public let name: String = "dict"
   public var types: [Type]
 
