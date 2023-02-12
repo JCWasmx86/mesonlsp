@@ -313,7 +313,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[lhsIdExpr.id] = deduped
     }
     self.metadata.registerIdentifier(id: lhsIdExpr)
-    let asStr = self.scope.variables[lhsIdExpr.id]!.map({ $0.toString() }).joined(separator: "|")
+    let asStr = self.scope.variables[lhsIdExpr.id]!.map({ $0.toString() }).sorted().joined(
+      separator: "|"
+    )
     TypeAnalyzer.LOG.trace("\(lhsIdExpr.id) = \(asStr)")
     Timing.INSTANCE.registerMeasurement(
       name: "visitAssignmentStatement",
@@ -827,7 +829,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func joinTypes(types: [Type]) -> String {
-    return types.map({ $0.toString() }).joined(separator: "|")
+    return types.map({ $0.toString() }).sorted().joined(separator: "|")
   }
   // swiftlint:disable cyclomatic_complexity
   public func dedup(types: [Type]) -> [Type] {
@@ -870,7 +872,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if hasBool { ret.append(self.t.types["bool"]!) }
     if hasInt { ret.append(self.t.types["int"]!) }
     if hasStr { ret.append(self.t.types["str"]!) }
-    ret += Array(objs.values.map({ $0.name })).sorted().map({ self.t.types[$0]! })
+    ret += objs.values
     Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
   }  // swiftlint:enable cyclomatic_complexity

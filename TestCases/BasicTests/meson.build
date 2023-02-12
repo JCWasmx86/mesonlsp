@@ -14,7 +14,7 @@ xyz = (
     abc # ana:var: xyz = list(int|str)
 )
 def = get_variable('abc') # ana:var: def = list(int|str)
-ghi = get_variable('abc', 1) # ana:var: ghi = list(int|str)|int
+ghi = get_variable('abc', 1) # ana:var: ghi = int|list(int|str)
 dep = dependency('')
 if dep.found()
     dep = true
@@ -25,12 +25,12 @@ dep1 = (
     dep # ana:var: dep1 = bool|int
 )
 ternary = (
-    true ? 1 : dependency('') # ana:var: ternary = int|dep
+    true ? 1 : dependency('') # ana:var: ternary = dep|int
 )
 subdir('subdir1')
 unclear = get_variable('have-' + 'foo', '') # ana:var: unclear = any|str
 unclear2 = get_variable('foobarbaz__') # ana:var: unclear2 = any
-listoflists = [ # ana:var: listoflists = list(list(int|str|dep))
+listoflists = [ # ana:var: listoflists = list(list(dep|int|str))
     [1, 1, 1],
     ['', '1', '2'],
     [dependency('')],

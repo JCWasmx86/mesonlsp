@@ -22,7 +22,7 @@ class VariableTypeAssertionCheck: AssertionCheck {
   func check(metadata: MesonMetadata, scope: Scope) -> AssertionResult { return .failure }
   func postCheck(metadata: MesonMetadata, scope: Scope) -> AssertionResult {
     if let vts = scope.variables[self.varname] {
-      let real = vts.map({ $0.toString() }).joined(separator: "|")
+      let real = vts.map({ $0.toString() }).sorted().joined(separator: "|")
       if real == self.types {
         return .success
       } else {
