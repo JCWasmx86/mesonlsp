@@ -21,6 +21,7 @@ import TreeSitterMeson
   @ArgumentParser.Option var path: String = "./meson.build"
   @ArgumentParser.Argument var paths: [String] = []
   @ArgumentParser.Flag var lsp: Bool = false
+  @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
 
   func parseNTimes() throws {
