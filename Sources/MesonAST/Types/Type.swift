@@ -1,14 +1,15 @@
 public protocol Type {
   var name: String { get }
-  var methods: [Method] { get set }
-  func getMethod(name: String) -> Method?
+  func getMethod(name: String, ns: TypeNamespace) -> Method?
   func toString() -> String
 }
 
 extension Type {
-  public func getMethod(name: String) -> Method? {
-    for m in self.methods where m.name == name { return m }
-    if let ao = self as? AbstractObject, let aop = ao.parent { return aop.getMethod(name: name) }
+  public func getMethod(name: String, ns: TypeNamespace) -> Method? {
+    for m in ns.vtables[self.name]! where m.name == name { return m }
+    if let ao = self as? AbstractObject, let aop = ao.parent {
+      return aop.getMethod(name: name, ns: ns)
+    }
     return nil
   }
 }

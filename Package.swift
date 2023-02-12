@@ -38,7 +38,7 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "Timing", .product(name: "Swifter", package: "swifter"), "MesonDocs",
+        "MesonAnalyze", "Timing", .product(name: "Swifter", package: "swifter"), "MesonDocs",
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
       ]

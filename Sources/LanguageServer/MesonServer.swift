@@ -117,14 +117,14 @@ public final class MesonServer: LanguageServer {
   func fillTypes(_ types: [Type]) -> Set<String> {
     var s: Set<String> = []
     for t in types {
-      for m in t.methods {
+      for m in self.ns.vtables[t.name]! {
         MesonServer.LOG.info("Inserting completion: \(m.name)")
         s.insert(m.name)
       }
       if let t1 = t as? AbstractObject {
         var p = t1.parent
         while p != nil {
-          for m in p!.methods {
+          for m in self.ns.vtables[p!.name]! {
             MesonServer.LOG.info("Inserting completion: \(m.name)")
             s.insert(m.name)
           }

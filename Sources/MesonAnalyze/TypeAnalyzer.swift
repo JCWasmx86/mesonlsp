@@ -478,7 +478,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         nAny += 1
         continue
       }
-      if let m = t.getMethod(name: methodName) {
+      if let m = t.getMethod(name: methodName, ns: self.t) {
         ownResultTypes += verify(
           types: self.typeanalyzersState.apply(node: node, options: self.options, f: m, ns: self.t)
         )

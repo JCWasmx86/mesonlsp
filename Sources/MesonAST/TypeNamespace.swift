@@ -1218,14 +1218,14 @@ public class TypeNamespace {
     self.vtables["any"] = []
     t = self.types["bool"]!
     self.vtables["bool"] = [
-      Method(name: "to_int", parent: t, returnTypes: [LazyType(name: "int")]),
+      Method(name: "to_int", parent: t, returnTypes: [`IntType`()]),
       Method(
         name: "to_string",
         parent: t,
-        returnTypes: [LazyType(name: "str")],
+        returnTypes: [Str()],
         args: [
-          PositionalArgument(name: "true_str", opt: true, types: [LazyType(name: "str")]),
-          PositionalArgument(name: "false_str", opt: true, types: [LazyType(name: "str")]),
+          PositionalArgument(name: "true_str", opt: true, types: [Str()]),
+          PositionalArgument(name: "false_str", opt: true, types: [Str()]),
         ]
       ),
     ]
@@ -1560,11 +1560,7 @@ public class TypeNamespace {
         returnTypes: [BoolType()],
         args: [PositionalArgument(name: "varname", types: [Str()])]
       ), Method(name: "keys", parent: t, returnTypes: [ListType(types: [Str()])]),
-      Method(
-        name: "merge_from",
-        parent: t,
-        args: [PositionalArgument(name: "other", types: [t])]
-      ),
+      Method(name: "merge_from", parent: t, args: [PositionalArgument(name: "other", types: [t])]),
       Method(
         name: "set",
         parent: t,
@@ -3705,12 +3701,12 @@ public class TypeNamespace {
     // TODO: Check what arguments/kwargs are given
     for o in self.types {
       if let obj = o.value as? AbstractObject, obj.parent != nil { continue }
-      for m in o.value.methods where m.name == name { return m }
+      for m in self.vtables[o.value.name]! where m.name == name { return m }
     }
     for o in self.types {
       if o.value as? AbstractObject == nil { continue }
       if let obj = o.value as? AbstractObject, obj.parent == nil { continue }
-      for m in o.value.methods where m.name == name { return m }
+      for m in self.vtables[o.value.name]! where m.name == name { return m }
     }
     return nil
   }
