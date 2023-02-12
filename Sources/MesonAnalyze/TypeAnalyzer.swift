@@ -443,26 +443,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: newTypes)
   }
-  // TODO: In 2.0 fix this by making all types
-  // classes
-  func verify(types: [Type]) -> [Type] {
-    let begin = clock()
-    let deduped = dedup(types: types)
-    var ret: [Type] = []
-    for d in deduped {
-      if d is AbstractObject {
-        ret += [self.t.types[d.name]!]
-      } else if let di = d as? Dict {
-        ret += [Dict(types: verify(types: di.types))]
-      } else if let lt = d as? ListType {
-        ret += [ListType(types: verify(types: lt.types))]
-      } else {
-        ret += [d]
-      }
-    }
-    Timing.INSTANCE.registerMeasurement(name: "verify", begin: begin, end: clock())
-    return ret
-  }
   // swiftlint:disable cyclomatic_complexity
   public func visitMethodExpression(node: MethodExpression) {
     let begin = clock()
@@ -479,8 +459,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         continue
       }
       if let m = t.getMethod(name: methodName, ns: self.t) {
-        ownResultTypes += verify(
-          types: self.typeanalyzersState.apply(node: node, options: self.options, f: m, ns: self.t)
+        ownResultTypes += self.typeanalyzersState.apply(
+          node: node,
+          options: self.options,
+          f: m,
+          ns: self.t
         )
         node.method = m
         self.metadata.registerMethodCall(call: node)
