@@ -80,7 +80,7 @@ import TreeSitterMeson
           for kv in mt.diagnostics {
             for diag in kv.value {
               let sev = diag.severity == .error ? "🔴" : "⚠️"
-              print("\(kv.key):\(diag.startLine):\(diag.startColumn): \(sev) \(diag.message)")
+              print("\(kv.key):\(diag.startLine + 1):\(diag.startColumn): \(sev) \(diag.message)")
             }
           }
         }
