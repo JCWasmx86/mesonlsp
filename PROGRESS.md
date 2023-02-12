@@ -42,9 +42,9 @@
 - [ ] Full autocompletion
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
-- [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Cache tree from tree-sitter
 - [x] More tests
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
+- [ ] Autogenerate type definitions from JSON (Requires upstream work)
