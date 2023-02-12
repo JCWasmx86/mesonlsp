@@ -44,6 +44,7 @@
 - [ ] Full Wrap/Subproject support
 - [ ] Cache tree from tree-sitter
 - [x] More tests
+- [ ] VSCode Extension
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
