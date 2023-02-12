@@ -37,9 +37,32 @@ for i in *; do
 		echo "Testing \"$i//$j\""
 		cd "$j" || exit
 		output=$($LSPPATH meson.build)
+		testname="$i/$j"
+		# shellcheck disable=SC2235
 		if echo "$output" | grep -q "🔴"; then
-			echo "$i/$j" >>"$OUTPUTPATH"
-			echo "$output" >>"$OUTPUTPATH"
+			if [ "$(echo "$output" | grep -c 🔴)" -eq 1 ] &&
+				([ "$testname" == "common/162 subdir if_found" ] ||
+					[ "$testname" == "failing/11 object arithmetic" ] ||
+					[ "$testname" == "failing/12 string arithmetic" ] ||
+					[ "$testname" == "failing/13 array arithmetic" ] ||
+					[ "$testname" == "failing/15 kwarg before arg" ] ||
+					[ "$testname" == "failing/18 wrong plusassign" ] ||
+					[ "$testname" == "failing/39 kwarg assign" ] ||
+					[ "$testname" == "failing/3 missing subdir" ] ||
+					[ "$testname" == "failing/49 executable comparison" ] ||
+					[ "$testname" == "failing/4 missing meson.build" ] ||
+					[ "$testname" == "failing/57 assign custom target index" ] ||
+					[ "$testname" == "failing/5 misplaced option" ] ||
+					[ "$testname" == "failing/97 subdir parse error" ] ||
+					[ "$testname" == "unit/21 exit status" ] ||
+					[ "$testname" == "unit/25 non-permitted kwargs" ]); then
+				:
+			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && [ "$testname" == "failing/50 inconsistent comparison" ]; then
+				:
+			else
+				echo "$i/$j" >>"$OUTPUTPATH"
+				echo "$output" >>"$OUTPUTPATH"
+			fi
 		fi
 		cd .. || exit
 	done
@@ -47,9 +70,9 @@ for i in *; do
 done
 cd ../..
 rm -rf meson
-count=$(echo failures.txt | wc -l)
+count=$(wc -l failures.txt |cut -d ' ' -f 1)
 echo "$count lines"
-if [ "$(wc -l <failures.txt)" -gt 104 ]; then
+if [ "$(wc -l <failures.txt)" -gt 55 ]; then
 	exit 1
 fi
 exit 0
