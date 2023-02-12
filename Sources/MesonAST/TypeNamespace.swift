@@ -608,6 +608,7 @@ public class TypeNamespace {
           PositionalArgument(name: "module_name", types: [Str()]),
           Kwarg(name: "module_name", opt: true, types: [BoolType()]),
           Kwarg(name: "required", opt: true, types: [BoolType(), Feature()]),
+          Kwarg(name: "disabler", opt: true, types: [BoolType()]),
         ]
       ),
       Function(
