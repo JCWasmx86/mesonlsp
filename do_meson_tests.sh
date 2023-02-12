@@ -24,9 +24,9 @@ for i in *; do
 done
 cd ../..
 rm -rf meson
-count=$(echo failures.txt|wc -l)
+count=$(echo failures.txt | wc -l)
 echo "$count lines"
-if [ "$count" -gt 104 ]; then
-    exit 1
+if [ "$(wc -l <failures.txt)" -gt 104 ]; then
+	exit 1
 fi
 exit 0
