@@ -18,18 +18,17 @@ PROJECTS = {
 }
 N_ITERATIONS = 10
 
-def heaptrack(absp, d):
-    try:
+def heaptrack(absp, d, ci):
+    if not ci:
         with subprocess.Popen(["heaptrack", "--record-only", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
             stdout, stderr = prof_proces.communicate()
-            print(stdout, file=sys.stderr)
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
             with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
                 stdout, stderr = ana_process.communicate()
                 lines = stdout.decode("utf-8").splitlines()
                 return lines
-    except:
+    else:
         # Because Ubuntu has too old software, so --record-only is not known
         # and github has no runners for modern distributions
         with subprocess.Popen(["heaptrack", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
@@ -43,7 +42,7 @@ def heaptrack(absp, d):
                 return lines
     assert(False)
 
-def analyze_file(file, commit):
+def analyze_file(file, commit, ci):
     ret = {}
     absp = os.path.abspath(file)
     ret["time"] = time.time()
@@ -64,7 +63,7 @@ def analyze_file(file, commit):
                 subprocess.run([absp, "--path", d + "/meson.build"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             b = datetime.datetime.now()
             projobj["parsing"] = ((b - a).total_seconds() * 1000)
-            lines = heaptrack(absp, d)
+            lines = heaptrack(absp, d, ci)
             print(lines, file=sys.stderr)
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
@@ -75,10 +74,11 @@ def analyze_file(file, commit):
 
 def main():
     parser = argparse.ArgumentParser(prog="collect_perf_data.py", description="Collect performance/memory usage characteristics")
+    parser.add_argument('--ci', action='store_true')
     parser.add_argument('filename')
     parser.add_argument('commit')
     args = parser.parse_args()
-    analyze_file(args.filename, args.commit)
+    analyze_file(args.filename, args.commit, args.ci)
 
 
 if __name__ == "__main__":
