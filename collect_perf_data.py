@@ -11,9 +11,9 @@ import sys
 
 
 PROJECTS = {
-    #"mesa": "https://gitlab.freedesktop.org/mesa/mesa/",
-    #"gnome-builder": "https://github.com/GNOME/gnome-builder",
-    #"qemu": "https://github.com/qemu/qemu",
+    "mesa": "https://gitlab.freedesktop.org/mesa/mesa/",
+    "gnome-builder": "https://github.com/GNOME/gnome-builder",
+    "qemu": "https://github.com/qemu/qemu",
     "GNOME-Builder-Plugins": "https://github.com/JCWasmx86/GNOME-Builder-Plugins"
 }
 N_ITERATIONS = 10

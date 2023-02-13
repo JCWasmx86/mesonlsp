@@ -16,7 +16,6 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
           sudo apt install -y heaptrack git
-          heaptrack_print --help
           swift build -c release --static-swift-stdlib
           ./collect_perf_data.py --ci .build/release/Swift-MesonLSP ${{ github.sha }} >/tmp/${{ github.sha }}.json
           cat /tmp/${{ github.sha }}.json
@@ -26,5 +25,5 @@ jobs:
           git config --global user.email "JCWasmx86@t-online.de"
           git config --global user.name "JCWasmx86"
           git add .
-          git commit -m "Automatic publish from github.com/project"
+          git commit -m "Push data for ${{ github.sha }}"
           git push
