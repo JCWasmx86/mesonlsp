@@ -12,19 +12,17 @@ jobs:
       - name: Build
         run: swift build -c release --static-swift-stdlib
       - name: Run profiling tests
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
           sudo apt install -y heaptrack git
           heaptrack_print --help
           swift build -c release --static-swift-stdlib
           ./collect_perf_data.py --ci .build/release/Swift-MesonLSP ${{ github.sha }} >/tmp/${{ github.sha }}.json
           cat /tmp/${{ github.sha }}.json
-      - name: Push JSON file
-        uses: dmnemec/copy_file_to_another_repo_action@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        with:
-          source_file: '/tmp/${{ github.sha }}.json'
-          destination_repo: 'JCWasmx86/ProfilingData'
-          user_email: 'JCWasmx86@t-online.de'
-          user_name: 'JCWasmx86'
-          commit_message: 'Uploading profiling data'
+          git clone https://.:${{ secrets.GITHUB_TOKEN }}@github.com/JCWasmx86/ProfilingData target
+          cp /tmp/${{ github.sha }}.json target
+          cd target
+          git add .
+          git commit -m "Automatic publish from github.com/project"
+          git push
