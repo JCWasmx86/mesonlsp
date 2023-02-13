@@ -15,7 +15,7 @@
       "location" : "https://github.com/apple/indexstore-db.git",
       "state" : {
         "branch" : "main",
-        "revision" : "6caa12ab3bb6245eee4e09dce7677e64720c6545"
+        "revision" : "c01ce7cfd52189c2817212eaf6942f7e0c16eafe"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "f857dbf22acf9aeef841441169a3dfa37b7203bf"
+        "revision" : "193789fcc9cd1e3dd41c387f47ec592b5841981f"
       }
     },
     {
@@ -48,10 +48,10 @@
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "e394bf350e38cb100b6bc4172834770ede1b7232",
-        "version" : "1.0.3"
+        "revision" : "9f39744e025c7d377987f30b03770805dcb0bcd1",
+        "version" : "1.1.4"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "ddb07e896a2a8af79512543b1c7eb9797f8898a5",
-        "version" : "1.1.7"
+        "revision" : "75ec60b8b4cc0f085c3ac414f3dca5625fa3588e",
+        "version" : "2.2.4"
       }
     },
     {
@@ -78,7 +78,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "bed7961003280f2d5e6fa1c0a506012f75995ec0"
+        "revision" : "b3e522d44677dd560bd445eb41881c44a98b1c6d"
       }
     },
     {
@@ -87,7 +87,7 @@
       "location" : "https://github.com/apple/swift-llbuild.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d6fd136c0785f05f0508e9509e349773e987c67c"
+        "revision" : "524fa08b14170a6a79d1242229d9abff84a0e49c"
       }
     },
     {
@@ -105,7 +105,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "2fb7ecc4e429c1e32cfea35d9c43cbd922a64dea"
+        "revision" : "fec4bcf14526acd2355e1e2c24852dd25ed08801"
       }
     },
     {
@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "cc9b4b6ca23e3b4ee1a086388d39654ecb646ba6"
+        "revision" : "cf413a6fe9a82e3f8e1c022cac6f6d23dfb1a035"
       }
     },
     {
@@ -132,7 +132,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "284a41800b7c5565512ec6ae21ee818aac1f84ac"
+        "revision" : "52a962f926b86496f1108f5f83e6dc9fd8a966c2"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "01835dc202670b5bb90d07f3eae41867e9ed29f6",
-        "version" : "5.0.1"
+        "revision" : "4889c132978bc6ad3e80f680011ec3dd4fead90c",
+        "version" : "5.0.4"
       }
     }
   ],
