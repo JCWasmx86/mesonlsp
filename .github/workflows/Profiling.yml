@@ -14,6 +14,7 @@ jobs:
       - name: Run profiling tests
         run: |
           sudo apt install -y heaptrack git
+          heaptrack_print --help
           swift build -c release --static-swift-stdlib
           ./collect_perf_data.py .build/release/Swift-MesonLSP ${{ github.sha }} >/tmp/${{ github.sha }}.json
       - name: Pushes test file

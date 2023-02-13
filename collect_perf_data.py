@@ -21,6 +21,7 @@ N_ITERATIONS = 10
 def heaptrack(absp, d):
     with subprocess.Popen(["heaptrack", "--record-only", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
         stdout, stderr = prof_proces.communicate()
+        print(stdout, file=sys.stderr)
         lines = stdout.decode("utf-8").splitlines()
         zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
         with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
