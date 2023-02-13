@@ -71,6 +71,7 @@ def analyze_file(file, commit, ci):
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.chdir(tmpdirname)
         for d in PROJECTS:
+            print("Parsing", d, file=sys.stderr)
             projobj = {}
             projobj["name"] = d
             subprocess.run(
@@ -80,6 +81,7 @@ def analyze_file(file, commit, ci):
             )
             a = datetime.datetime.now()
             for i in range(0, N_ITERATIONS):
+                print("Iteration", i, file=sys.stderr)
                 subprocess.run(
                     [absp, "--path", d + "/meson.build"],
                     stdout=subprocess.DEVNULL,
