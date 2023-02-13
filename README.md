@@ -13,7 +13,6 @@ A reimplementation of my Meson language server in Swift.
 - Rudimentary autocompletion
 
 ## Limitations
-- High memory usage (100-400MB)
 - Not implemented inefficiently: On each `textDocument/didChange` notification, the entire tree is rebuilt.
 - Only very partial support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
