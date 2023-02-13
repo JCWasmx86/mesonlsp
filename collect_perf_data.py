@@ -19,15 +19,28 @@ PROJECTS = {
 N_ITERATIONS = 10
 
 def heaptrack(absp, d):
-    with subprocess.Popen(["heaptrack", "--record-only", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
-        stdout, stderr = prof_proces.communicate()
-        print(stdout, file=sys.stderr)
-        lines = stdout.decode("utf-8").splitlines()
-        zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
-        with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
-            stdout, stderr = ana_process.communicate()
+    try:
+        with subprocess.Popen(["heaptrack", "--record-only", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
+            stdout, stderr = prof_proces.communicate()
+            print(stdout, file=sys.stderr)
             lines = stdout.decode("utf-8").splitlines()
-            return lines
+            zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
+            with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
+                stdout, stderr = ana_process.communicate()
+                lines = stdout.decode("utf-8").splitlines()
+                return lines
+    except:
+        # Because Ubuntu has too old software, so --record-only is not known
+        # and github has no runners for modern distributions
+        with subprocess.Popen(["heaptrack", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
+            stdout, stderr = prof_proces.communicate()
+            print(stdout, file=sys.stderr)
+            lines = stdout.decode("utf-8").splitlines()
+            zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
+            with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
+                stdout, stderr = ana_process.communicate()
+                lines = stdout.decode("utf-8").splitlines()
+                return lines
     assert(False)
 
 def analyze_file(file, commit):
