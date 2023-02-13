@@ -28,28 +28,28 @@ These measurements are based on the meson build system of four projects:
 - mesa (~16.4KLOC, huge size)
 - QEMU (~9.3KLOC, medium size)
 
-| Measurement                                                                       | v1.0      | v1.1      | Quotient ((v1.1/v1.0) * 100) - 100 | Better? |
-|-----------------------------------------------------------------------------------|-----------|-----------|------------------------------------|---------|
-| Clean compile time (`rm -rf .build&&swift build-c release --static-swift-stdlib`) | 182.93s   | 211.04s   | +15.4%                             | 🔴      |
-| Binary size                                                                       | 86715656B | 86591856B | -0.14%                             | 🟢      |
-| Binary size (Stripped)                                                            | 55070672B | 54934992B | -0.24%                             | 🟢      |
-| Parsing mesa 10 * 100 times                                                       | 8m33.626s | 8m35.773s | +0.42%                             | 🔴      |
-| Parsing QEMU 10 * 100 times                                                       | 8m27.328s | 5m56.167s | -29.80%                            | 🟢      |
-| Parsing gnome-builder 10 * 100 times                                              | 3m14.213s | 2m32.249s | -21.61%                            | 🟢      |
-| Parsing GNOME-Builder-Plugins 10 * 100 times                                      | 0m39.257s | 0m13.350s | -65.99%                            | 🟢      |
-| Allocated during parsing mesa (Sysprof)                                           | 630MB     | 666.8MB   | +5.84%                             | 🔴      |
-| Allocated during parsing QEMU (Sysprof)                                           | 622MB     | 514MB     | -17.36%                            | 🟢      |
-| Allocated during parsing gnome-builder (Sysprof)                                  | 253.7MB   | 263.3MB   | +3.78%                             | 🔴      |
-| Allocated during parsing GNOME-Builder-Plugins (Sysprof)                          | 70.0MB    | 30.2MB    | -56.86%                            | 🟢      |
-| Allocations during parsing mesa (Sysprof)                                         | 10393258  | 9482006   | -8.77%                             | 🟢      |
-| Allocations during parsing QEMU (Sysprof)                                         | 11976168  | 7512774   | -37.27%                            | 🟢      |
-| Allocations during parsing gnome-builder (Sysprof)                                | 4022854   | 3176052   | -21.05%                            | 🟢      |
-| Allocations during parsing GNOME-Builder-Plugins (Sysprof)                        | 1497990   | 348596    | -76.73%                            | 🟢      |
-| Peak heap memory usage during parsing mesa (Heaptrack)                            | 165.74M   | 25.93MB   | -84.36%                            | 🟢      |
-| Peak heap memory usage during parsing QEMU (Heaptrack)                            | 209.05M   | 25.01M    | -88.03%                            | 🟢      |
-| Peak heap memory usage during parsing gnome-builder (Heaptrack)                   | 129.73M   | 11.51M    | -91.12%                            | 🟢      |
-| Peak heap memory usage during	parsing	GNOME-Builder-Plugins (Heaptrack)           | 113.93M   | 2.95M     | -97.41%                            | 🟢      |
-| Memory usage of language server using mesa and rebuilding tree 70 times           | 493.9MB   | 60.7MB    | -87.71%                            | 🟢      |
+| Measurement                                                                        | v1.0      | v1.1      | Quotient ((v1.1/v1.0) * 100) - 100 | Better? |
+|------------------------------------------------------------------------------------|-----------|-----------|------------------------------------|---------|
+| Clean compile time (`rm -rf .build&&swift build -c release --static-swift-stdlib`) | 182.93s   | 211.04s   | +15.4%                             | 🔴      |
+| Binary size                                                                        | 86715656B | 86591856B | -0.14%                             | 🟢      |
+| Binary size (Stripped)                                                             | 55070672B | 54934992B | -0.24%                             | 🟢      |
+| Parsing mesa 10 * 100 times                                                        | 8m33.626s | 8m35.773s | +0.42%                             | 🔴      |
+| Parsing QEMU 10 * 100 times                                                        | 8m27.328s | 5m56.167s | -29.80%                            | 🟢      |
+| Parsing gnome-builder 10 * 100 times                                               | 3m14.213s | 2m32.249s | -21.61%                            | 🟢      |
+| Parsing GNOME-Builder-Plugins 10 * 100 times                                       | 0m39.257s | 0m13.350s | -65.99%                            | 🟢      |
+| Allocated during parsing mesa (Sysprof)                                            | 630MB     | 666.8MB   | +5.84%                             | 🔴      |
+| Allocated during parsing QEMU (Sysprof)                                            | 622MB     | 514MB     | -17.36%                            | 🟢      |
+| Allocated during parsing gnome-builder (Sysprof)                                   | 253.7MB   | 263.3MB   | +3.78%                             | 🔴      |
+| Allocated during parsing GNOME-Builder-Plugins (Sysprof)                           | 70.0MB    | 30.2MB    | -56.86%                            | 🟢      |
+| Allocations during parsing mesa (Sysprof)                                          | 10393258  | 9482006   | -8.77%                             | 🟢      |
+| Allocations during parsing QEMU (Sysprof)                                          | 11976168  | 7512774   | -37.27%                            | 🟢      |
+| Allocations during parsing gnome-builder (Sysprof)                                 | 4022854   | 3176052   | -21.05%                            | 🟢      |
+| Allocations during parsing GNOME-Builder-Plugins (Sysprof)                         | 1497990   | 348596    | -76.73%                            | 🟢      |
+| Peak heap memory usage during parsing mesa (Heaptrack)                             | 165.74M   | 25.93MB   | -84.36%                            | 🟢      |
+| Peak heap memory usage during parsing QEMU (Heaptrack)                             | 209.05M   | 25.01M    | -88.03%                            | 🟢      |
+| Peak heap memory usage during parsing gnome-builder (Heaptrack)                    | 129.73M   | 11.51M    | -91.12%                            | 🟢      |
+| Peak heap memory usage during	parsing	GNOME-Builder-Plugins (Heaptrack)            | 113.93M   | 2.95M     | -97.41%                            | 🟢      |
+| Memory usage of language server using mesa and rebuilding tree 70 times            | 493.9MB   | 60.7MB    | -87.71%                            | 🟢      |
 
 `Parsing XYZ 10 * 100 times` was measured like this:
 ```
@@ -77,7 +77,7 @@ heaptrack_print heaptrack.v1.0.somepid.zst | grep peak.heap
 heaptrack ../v1.1 --path meson.build
 heaptrack_print heaptrack.v1.1.somepid2.zst | grep peak.heap
 ```
-Reference hardware:
+Reference hardware/software:
 ```
 Swift version 5.7.3 (swift-5.7.3-RELEASE)
 Target: x86_64-unknown-linux-gnu
