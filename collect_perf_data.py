@@ -7,6 +7,7 @@ import json
 import tempfile
 import datetime
 import time
+import sys
 
 
 PROJECTS = {
@@ -50,6 +51,7 @@ def analyze_file(file, commit):
             b = datetime.datetime.now()
             projobj["parsing"] = ((b - a).total_seconds() * 1000)
             lines = heaptrack(absp, d)
+            print(lines, file=sys.stderr)
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
             projobj["peak_heap"] = lines[-3].split(" ")[4]
