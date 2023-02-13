@@ -23,6 +23,8 @@ jobs:
           git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/ProfilingData target
           cp /tmp/${{ github.sha }}.json target
           cd target
+          git config --global user.email "JCWasmx86@t-online.de"
+          git config --global user.name "JCWasmx86"
           git add .
           git commit -m "Automatic publish from github.com/project"
           git push
