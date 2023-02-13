@@ -15,7 +15,7 @@ jobs:
         run: |
           apt install -y heaptrack git
           swift build -c release --static-swift-stdlib
-          ./collect_perf_data.py ${{ github.sha }} >/tmp/${{ github.sha }}.json
+          ./collect_perf_data.py .build/release/Swift-MesonLSP ${{ github.sha }} >/tmp/${{ github.sha }}.json
       - name: Pushes test file
         uses: dmnemec/copy_file_to_another_repo_action@main
         env:
