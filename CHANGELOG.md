@@ -69,6 +69,7 @@ time for i in {0..9}; do
 done
 ```
 The number of allocations and the amount of allocations was tracked using Sysprof, just using "Memory Usage" and "Track Allocations" as instruments.
+The selected project will be parsed 100 times.
 
 The peak heap memory was obtained by using heaptrack:
 ```
