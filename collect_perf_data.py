@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-import os
-import uuid
-import subprocess
-import json
-import tempfile
 import datetime
-import time
+import json
+import os
+import subprocess
 import sys
-
+import tempfile
+import time
+import uuid
 
 PROJECTS = {
     "mesa": "https://gitlab.freedesktop.org/mesa/mesa/",
