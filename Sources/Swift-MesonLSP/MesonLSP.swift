@@ -91,7 +91,7 @@ import TreeSitterMeson
 
   public mutating func run() throws {
     // LSP-Logging
-    Logger.shared.currentLevel = .info
+    Logger.shared.currentLevel = self.stdio ? .error : .info
     if !lsp && paths.isEmpty {
       try self.parseNTimes()
       return
@@ -101,7 +101,11 @@ import TreeSitterMeson
     }
     let console = Terminal()
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
-    LoggingSystem.bootstrap({ label in ConsoleLogger(label: label, console: console) })
+    let std = self.stdio
+    LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
+      cl.logLevel = std ? .info : .critical
+      return cl
+    })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     logger.info("Duplicating STDOUT_FILENO")
