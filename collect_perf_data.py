@@ -33,7 +33,6 @@ def heaptrack(absp, d, ci):
         # and github has no runners for modern distributions
         with subprocess.Popen(["heaptrack", absp, "--path", d + "/meson.build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as prof_proces:
             stdout, stderr = prof_proces.communicate()
-            print(stdout, file=sys.stderr)
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace("\"", "")
             with subprocess.Popen(["heaptrack_print", zstfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as ana_process:
@@ -64,7 +63,6 @@ def analyze_file(file, commit, ci):
             b = datetime.datetime.now()
             projobj["parsing"] = ((b - a).total_seconds() * 1000)
             lines = heaptrack(absp, d, ci)
-            print(lines, file=sys.stderr)
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
             projobj["peak_heap"] = lines[-3].split(" ")[4]
