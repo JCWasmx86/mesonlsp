@@ -101,6 +101,27 @@ cd _build
 # Don't do "sudo ninja install"
 ninja -j $(nproc) install
 ```
+### Kate support
+Add this JSON to `~/.config/kate/lspclient/settings.json`:
+```
+{
+  "servers": {
+    "meson": {
+      "command": [
+        "Swift-MesonLSP",
+        "--lsp"
+      ],
+      "rootIndicationFileNames": [
+        "meson.build",
+        "meson_options.txt"
+      ],
+      "url": "https://github.com/JCWasmx86/Swift-MesonLSP",
+      "highlightingModeRegex": "^Meson$"
+    }
+  }
+}
+```
+After that you should confirm that the language server may be started.
 
 ### Notes
 On Fedora, you can use the `install.sh` script. It will automatically install all dependencies. (It will ask you for
