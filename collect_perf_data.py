@@ -18,14 +18,14 @@ PROJECTS = {
 N_ITERATIONS = 10
 
 
-def heaptrack(absp, d, ci):
-    if not ci:
+def heaptrack(absp, proj_name, is_ci):
+    if not is_ci:
         with subprocess.Popen(
-            ["heaptrack", "--record-only", absp, "--path", d + "/meson.build"],
+            ["heaptrack", "--record-only", absp, "--path", proj_name + "/meson.build"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         ) as prof_proces:
-            stdout, stderr = prof_proces.communicate()
+            stdout, _ = prof_proces.communicate()
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
             with subprocess.Popen(
@@ -33,18 +33,18 @@ def heaptrack(absp, d, ci):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             ) as ana_process:
-                stdout, stderr = ana_process.communicate()
+                stdout, _ = ana_process.communicate()
                 lines = stdout.decode("utf-8").splitlines()
                 return lines
     else:
         # Because Ubuntu has too old software, so --record-only is not known
         # and github has no runners for modern distributions
         with subprocess.Popen(
-            ["heaptrack", absp, "--path", d + "/meson.build"],
+            ["heaptrack", absp, "--path", proj_name + "/meson.build"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         ) as prof_proces:
-            stdout, stderr = prof_proces.communicate()
+            stdout, _ = prof_proces.communicate()
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
             with subprocess.Popen(
@@ -52,44 +52,46 @@ def heaptrack(absp, d, ci):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             ) as ana_process:
-                stdout, stderr = ana_process.communicate()
+                stdout, _ = ana_process.communicate()
                 lines = stdout.decode("utf-8").splitlines()
                 return lines
     assert False
 
 
-def analyze_file(file, commit, ci):
+def analyze_file(file, commit, is_ci):
     ret = {}
     absp = os.path.abspath(file)
     ret["time"] = time.time()
     ret["commit"] = commit
     ret["size"] = os.path.getsize(file)
     stripped = "/tmp/" + str(uuid.uuid4())
-    subprocess.run(["strip", "-s", file, "-o", stripped])
+    subprocess.run(["strip", "-s", file, "-o", stripped], check=True)
     ret["stripped_size"] = os.path.getsize(stripped)
     ret["projects"] = []
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.chdir(tmpdirname)
-        for d in PROJECTS:
-            print("Parsing", d, file=sys.stderr)
+        for proj_name, url in PROJECTS.items():
+            print("Parsing", proj_name, file=sys.stderr)
             projobj = {}
-            projobj["name"] = d
+            projobj["name"] = proj_name
             subprocess.run(
-                ["git", "clone", "--depth=1", PROJECTS[d]],
+                ["git", "clone", "--depth=1", url],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                check=True,
             )
-            a = datetime.datetime.now()
+            begin = datetime.datetime.now()
             for i in range(0, N_ITERATIONS):
                 print("Iteration", i, file=sys.stderr)
                 subprocess.run(
-                    [absp, "--path", d + "/meson.build"],
+                    [absp, "--path", proj_name + "/meson.build"],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
+                    check=True,
                 )
-            b = datetime.datetime.now()
-            projobj["parsing"] = (b - a).total_seconds() * 1000
-            lines = heaptrack(absp, d, ci)
+            end = datetime.datetime.now()
+            projobj["parsing"] = (end - begin).total_seconds() * 1000
+            lines = heaptrack(absp, proj_name, is_ci)
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
             projobj["peak_heap"] = lines[-3].split(" ")[4]
