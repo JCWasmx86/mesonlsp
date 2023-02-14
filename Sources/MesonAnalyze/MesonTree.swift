@@ -128,6 +128,12 @@ public final class MesonTree: Hashable {
       self.subfiles.append(tree)
       idx += 1
     }
+    for i in 0..<astPatcher.subdirs.count {
+      let sd = astPatcher.subdirs[i]
+      astPatcher.subdirNodes[i].fullFile =
+        Path(Path(self.file).parent().description + "/" + sd[1..<sd.count - 1] + "/meson.build")
+        .description
+    }
     self.parseOptions(parser: p)
   }
 

@@ -376,7 +376,7 @@ public final class MesonServer: LanguageServer {
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
     if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
-      if let t = findDeclaration(node: i) {
+      if let t = self.tree!.findDeclaration(node: i) {
         let newFile = t.0
         let line = t.1
         let column = t.2
@@ -425,7 +425,7 @@ public final class MesonServer: LanguageServer {
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
     if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
-      if let t = findDeclaration(node: i) {
+      if let t = self.tree!.findDeclaration(node: i) {
         let newFile = t.0
         let line = t.1
         let column = t.2
