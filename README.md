@@ -13,7 +13,7 @@ A reimplementation of my Meson language server in Swift.
 - Rudimentary autocompletion
 
 ## Limitations
-- Not implemented inefficiently: On each `textDocument/didChange` notification, the entire tree is rebuilt.
+- Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs before type annotations are cached.
 - Only very partial support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
 - Non constant `subdir`-calls are not supported
