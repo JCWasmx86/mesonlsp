@@ -144,6 +144,8 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
 - [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
+- [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
+
 ### Projects I tested the language server with
 - Working fine:
   - [GNOME Builder](https://gitlab.gnome.org/GNOME/gnome-builder)

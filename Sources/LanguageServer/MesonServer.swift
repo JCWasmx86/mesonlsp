@@ -1,3 +1,4 @@
+import Atomics
 import Foundation
 import LanguageServerProtocol
 import Logging
@@ -24,6 +25,7 @@ public final class MesonServer: LanguageServer {
   var docs: MesonDocs = MesonDocs()
   var openFiles: Set<String> = []
   var astCache: [String: Node] = [:]
+  let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -468,6 +470,8 @@ public final class MesonServer: LanguageServer {
   }
 
   func rebuildTree() {
+    let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
+    self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
     queue.async {
       let beginRebuilding = clock()
       if self.tree != nil && self.tree!.metadata != nil {
@@ -480,6 +484,7 @@ public final class MesonServer: LanguageServer {
               diagnostics: arr
             )
           )
+          self.tree!.metadata!.diagnostics.removeValue(forKey: k)
         }
       }
       let endClearing = clock()
@@ -488,6 +493,13 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endClearing)
       )
+      var newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      if oldValue != newValue {
+        MesonServer.LOG.info(
+          "Cancelling parsing - After clearing diagnostics (\(oldValue) vs \(newValue))"
+        )
+        return
+      }
       let tmptree = try! MesonTree(
         file: self.path! + "/meson.build",
         ns: self.ns,
@@ -501,7 +513,19 @@ public final class MesonServer: LanguageServer {
         begin: Int(endClearing),
         end: Int(endParsingEntireTree)
       )
+      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      if oldValue != newValue {
+        MesonServer.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
+        return
+      }
       tmptree.analyzeTypes()
+      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      if oldValue != newValue {
+        MesonServer.LOG.info(
+          "Cancelling build - After analyzing types (\(oldValue) vs \(newValue))"
+        )
+        return
+      }
       let endAnalyzingTypes = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "analyzingTypes",
@@ -557,6 +581,26 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endSendingDiagnostics)
       )
+      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      if oldValue != newValue {
+        MesonServer.LOG.info(
+          "Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))"
+        )
+        if tmptree.metadata != nil {
+          for k in tmptree.metadata!.diagnostics.keys {
+            if tmptree.metadata!.diagnostics[k] == nil { continue }
+            let arr: [Diagnostic] = []
+            self.client.send(
+              PublishDiagnosticsNotification(
+                uri: DocumentURI(URL(fileURLWithPath: k)),
+                diagnostics: arr
+              )
+            )
+            tmptree.metadata!.diagnostics.removeValue(forKey: k)
+          }
+        }
+        return
+      }
       self.tree = tmptree
     }
   }

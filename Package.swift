@@ -16,12 +16,13 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.4"),
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.1.4"),
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.2"),
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3"),
   ],
   targets: [
     .target(
@@ -38,9 +39,10 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "MesonAnalyze", "Timing", .product(name: "Swifter", package: "swifter"), "MesonDocs",
+        "MesonAnalyze", "Timing", "MesonDocs", .product(name: "Swifter", package: "swifter"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
+        .product(name: "Atomics", package: "swift-atomics"),
       ]
     ),
     .executableTarget(
