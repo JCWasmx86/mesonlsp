@@ -3,11 +3,9 @@ import Logging
 import MesonAST
 
 extension MesonTree {
-  static let LOG_DF = Logger(label: "MesonAnalyze::MesonTree::DeclarationFinder")
   public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
     if let p = node.parent {
       if let assS = p as? AssignmentStatement, assS.lhs.equals(right: node), assS.op == .equals {
-        MesonTree.LOG_DF.debug("findDeclaration - instantly found")
         return makeTuple(node)
       } else {
         return findDeclaration2(name: node.id, node: node, parent: p)
@@ -96,25 +94,19 @@ extension MesonTree {
   }
   func findDeclaration2(name: String, node: Node, parent: Node) -> (String, UInt32, UInt32)? {
     if let sst = parent as? SelectionStatement {
-      MesonTree.LOG_DF.debug("findDeclaration2 - Found SelectionStatement")
       if let r = iterateOverSelectionStatement(name: name, node: node, sst: sst) { return r }
     } else if let bd = parent as? BuildDefinition {
-      MesonTree.LOG_DF.debug("findDeclaration2 - Found BuildDefinition")
       if let r = iterateOverBuildDefinition(name: name, node: node, parent: parent, bd: bd) {
         return r
       }
     } else if let its = parent as? IterationStatement {
-      MesonTree.LOG_DF.debug("findDeclaration2 - Found IterationStatement")
       if let r = iterateOverIterationStatement(name: name, node: node, its: its) { return r }
     } else if parent is SourceFile {
-      MesonTree.LOG_DF.debug("findDeclaration2 - Found sourcefile")
       if parent.parent != nil && parent.parent is SubdirCall {
-        MesonTree.LOG_DF.debug("findDeclaration2 - Not at the root of the tree yet")
         return findDeclaration2(name: name, node: parent.parent!, parent: parent.parent!.parent!)
       }
     }
     if node.parent != nil && node.parent!.parent != nil {
-      MesonTree.LOG_DF.debug("findDeclaration2 - Recurse up one level")
       return findDeclaration2(name: name, node: node.parent!, parent: node.parent!.parent!)
     }
     return nil
@@ -140,7 +132,6 @@ extension MesonTree {
     return nil
   }
   func evalSubdir(_ name: String, _ s: SubdirCall) -> (String, UInt32, UInt32)? {
-    MesonTree.LOG_DF.debug("evalSubdir - \(s.fullFile), \(self.findSubdirTree(file: s.fullFile))")
     if let sf = self.findSubdirTree(file: s.fullFile), let sfn = sf.ast as? SourceFile,
       let bd = sfn.build_definition as? BuildDefinition
     {
@@ -150,7 +141,6 @@ extension MesonTree {
   }
 
   func evalStatement(_ name: String, _ s: Node) -> (String, UInt32, UInt32)? {
-    MesonTree.LOG_DF.debug("evalStatement: \(type(of: s)) \(s.file.file):\(s.location.format())")
     if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
       assSLHS.id == name, assS.op == .equals
     {
