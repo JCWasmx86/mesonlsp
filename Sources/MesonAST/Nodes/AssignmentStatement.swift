@@ -21,7 +21,7 @@ public enum AssignmentOperator {
   }
 }
 
-public class AssignmentStatement: Statement {
+public final class AssignmentStatement: Statement {
   public let file: MesonSourceFile
   public var lhs: Node
   public var rhs: Node
@@ -37,6 +37,29 @@ public class AssignmentStatement: Statement {
     self.rhs = from_tree(file: file, tree: node.namedChild(at: 2))!
     self.op = AssignmentOperator.fromString(
       str: string_value(file: file, node: node.namedChild(at: 1)!)
+    )
+  }
+  fileprivate init(
+    file: MesonSourceFile,
+    location: Location,
+    lhs: Node,
+    rhs: Node,
+    op: AssignmentOperator?
+  ) {
+    self.file = file
+    self.location = location
+    self.lhs = lhs
+    self.rhs = rhs
+    self.op = op
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return AssignmentStatement(
+      file: file,
+      location: location,
+      lhs: self.lhs.clone(),
+      rhs: self.rhs.clone(),
+      op: self.op
     )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitAssignmentStatement(node: self) }

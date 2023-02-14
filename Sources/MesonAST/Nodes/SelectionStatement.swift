@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class SelectionStatement: Statement {
+public final class SelectionStatement: Statement {
   public let file: MesonSourceFile
   public var ifCondition: Node
   public let conditions: [Node]
@@ -46,6 +46,31 @@ public class SelectionStatement: Statement {
     self.conditions = cs
     self.blocks = bb
     self.ifCondition = sI!
+  }
+  fileprivate init(
+    file: MesonSourceFile,
+    location: Location,
+    ifCondition: Node,
+    conditions: [Node],
+    blocks: [[Node]]
+  ) {
+    self.file = file
+    self.location = location
+    self.ifCondition = ifCondition
+    self.conditions = conditions
+    self.blocks = blocks
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    var arrs: [[Node]] = []
+    for blk in self.blocks { arrs.append(Array(blk.map({ $0.clone() }))) }
+    return SelectionStatement(
+      file: file,
+      location: location,
+      ifCondition: self.ifCondition.clone(),
+      conditions: Array(self.conditions.map({ $0.clone() })),
+      blocks: blocks
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitSelectionStatement(node: self) }
 

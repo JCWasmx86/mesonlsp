@@ -1,4 +1,4 @@
-public class Kwarg: Argument {
+public final class Kwarg: Argument {
   public let name: String
   public let opt: Bool
   public var types: [Type]

@@ -1,6 +1,6 @@
-public class Exe: AbstractObject {
+public final class Exe: AbstractObject {
   public let name: String = "exe"
   public let parent: AbstractObject? = BuildTgt()
 
-  public init() {}
+  init() {}
 }

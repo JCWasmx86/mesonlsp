@@ -1,6 +1,6 @@
-public class ListType: Type {
+public final class ListType: Type {
   public let name: String = "list"
-  public var types: [Type]
+  public let types: [Type]
 
   public init(types: [Type]) { self.types = types }
 

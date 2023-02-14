@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class IdExpression: Expression {
+public final class IdExpression: Expression {
   public let file: MesonSourceFile
   public let id: String
   public var types: [Type] = []
@@ -11,6 +11,15 @@ public class IdExpression: Expression {
     self.file = file
     self.location = Location(node: node)
     self.id = string_value(file: file, node: node)
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, id: String) {
+    self.file = file
+    self.location = location
+    self.id = id
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return IdExpression(file: file, location: location, id: self.id)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitIdExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

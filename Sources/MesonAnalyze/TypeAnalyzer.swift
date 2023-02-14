@@ -89,7 +89,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.stack.append([:])
     self.overriddenVariables.append([:])
     var oldVars: [String: [Type]] = [:]
-    self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value.map({ $0 })) })
+    self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
     node.visitChildren(visitor: self)
     for condition in [node.ifCondition] + node.conditions {
       var foundBoolOrAny = false
@@ -394,7 +394,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
         if node.function!.name == "set_variable" {
           let args = al.args
-          if args.count > 0, let sl = args[0] as? StringLiteral {
+          if !args.isEmpty, let sl = args[0] as? StringLiteral {
             let varname = sl.contents()
             let types = args[1].types
             self.scope.variables[varname] = types

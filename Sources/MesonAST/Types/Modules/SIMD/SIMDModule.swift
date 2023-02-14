@@ -1,6 +1,6 @@
-public class SIMDModule: AbstractObject {
+public final class SIMDModule: AbstractObject {
   public let name: String = "simd_module"
   public let parent: AbstractObject? = Module()
 
-  public init() {}
+  init() {}
 }

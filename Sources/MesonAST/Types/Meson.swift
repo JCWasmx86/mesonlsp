@@ -1,6 +1,6 @@
-public class Meson: AbstractObject {
+public final class Meson: AbstractObject {
   public let name: String = "meson"
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  init() {}
 }

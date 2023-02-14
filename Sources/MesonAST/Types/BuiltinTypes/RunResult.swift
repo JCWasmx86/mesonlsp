@@ -1,6 +1,6 @@
-public class RunResult: AbstractObject {
+public final class RunResult: AbstractObject {
   public let name: String = "runresult"
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  init() {}
 }

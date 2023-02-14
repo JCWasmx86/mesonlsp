@@ -1,6 +1,6 @@
-public class Lib: AbstractObject {
+public final class Lib: AbstractObject {
   public let name: String = "lib"
   public let parent: AbstractObject? = BuildTgt()
 
-  public init() {}
+  init() {}
 }

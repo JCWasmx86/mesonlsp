@@ -13,7 +13,7 @@ public enum UnaryOperator {
     }
   }
 }
-public class UnaryExpression: Expression {
+public final class UnaryExpression: Expression {
   public let file: MesonSourceFile
   public var expression: Node
   public let op: UnaryOperator?
@@ -33,6 +33,22 @@ public class UnaryExpression: Expression {
   public func setParents() {
     self.expression.parent = self
     self.expression.setParents()
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, expression: Node, op: UnaryOperator?)
+  {
+    self.file = file
+    self.location = location
+    self.expression = expression
+    self.op = op
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return UnaryExpression(
+      file: file,
+      location: location,
+      expression: self.expression.clone(),
+      op: self.op
+    )
   }
   public var description: String {
     return "(UnaryExpression \(String(describing: op)) \(expression))"

@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class BuildDefinition: Node {
+public final class BuildDefinition: Node {
   public let file: MesonSourceFile
   public var stmts: [Node]
   public var types: [Type] = []
@@ -19,6 +19,19 @@ public class BuildDefinition: Node {
       }
     })
     self.stmts = s
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, stmts: [Node]) {
+    self.file = file
+    self.location = location
+    self.stmts = stmts
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return BuildDefinition(
+      file: file,
+      location: location,
+      stmts: Array(self.stmts.map({ $0.clone() }))
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBuildDefinition(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

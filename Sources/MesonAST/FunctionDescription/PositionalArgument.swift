@@ -1,4 +1,4 @@
-public class PositionalArgument: Argument {
+public final class PositionalArgument: Argument {
   public let name: String
   public let varargs: Bool
   public let opt: Bool

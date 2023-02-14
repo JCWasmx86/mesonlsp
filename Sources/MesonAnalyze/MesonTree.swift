@@ -6,7 +6,7 @@ import SwiftTreeSitter
 import Timing
 import TreeSitterMeson
 
-public class MesonTree: Hashable {
+public final class MesonTree: Hashable {
   static let LOG = Logger(label: "MesonAnalyze::MesonTree")
   public let file: String
   public var ast: MesonAST.Node?
@@ -17,9 +17,14 @@ public class MesonTree: Hashable {
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
 
-  public init(file: String, ns: TypeNamespace, depth: Int = 0, memfiles: [String: String] = [:])
-    throws
-  {
+  public init(
+    file: String,
+    ns: TypeNamespace,
+    depth: Int = 0,
+    dontCache: Set<String>,
+    cache: inout [String: MesonAST.Node],
+    memfiles: [String: String] = [:]
+  ) throws {
     self.ns = ns
     let pkp = Path(file).normalize()
     self.file = pkp.description
@@ -27,13 +32,32 @@ public class MesonTree: Hashable {
     self.depth = depth
     let p = Parser()
     try p.setLanguage(tree_sitter_meson())
-    if memfiles[self.file] == nil && pkp.exists {
-      if let text = try? NSString(
-        contentsOfFile: self.file as String,
-        encoding: String.Encoding.utf8.rawValue
-      ) {
+    if dontCache.contains(self.file) || cache[self.file] == nil {
+      if memfiles[self.file] == nil && pkp.exists {
+        if let text = try? NSString(
+          contentsOfFile: self.file as String,
+          encoding: String.Encoding.utf8.rawValue
+        ) {
+          let beginParsing = clock()
+          let tree = p.parse(text.description)
+          let endParsing = clock()
+          Timing.INSTANCE.registerMeasurement(
+            name: "parsing",
+            begin: Int(beginParsing),
+            end: Int(endParsing)
+          )
+          let root = tree!.rootNode
+          self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+          let endBuildingAst = clock()
+          Timing.INSTANCE.registerMeasurement(
+            name: "buildingAST",
+            begin: Int(endParsing),
+            end: Int(endBuildingAst)
+          )
+        }
+      } else if memfiles[self.file] != nil {
         let beginParsing = clock()
-        let tree = p.parse(text.description)
+        let tree = p.parse(memfiles[self.file]!.description)
         let endParsing = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "parsing",
@@ -41,36 +65,38 @@ public class MesonTree: Hashable {
           end: Int(endParsing)
         )
         let root = tree!.rootNode
-        self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+        self.ast = from_tree(
+          file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description),
+          tree: root
+        )
         let endBuildingAst = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "buildingAST",
           begin: Int(endParsing),
           end: Int(endBuildingAst)
         )
+      } else {
+        MesonTree.LOG.warning("No file found: \(self.file)")
       }
-    } else if memfiles[self.file] != nil {
-      let beginParsing = clock()
-      let tree = p.parse(memfiles[self.file]!.description)
-      let endParsing = clock()
-      Timing.INSTANCE.registerMeasurement(
-        name: "parsing",
-        begin: Int(beginParsing),
-        end: Int(endParsing)
-      )
-      let root = tree!.rootNode
-      self.ast = from_tree(
-        file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description),
-        tree: root
-      )
-      let endBuildingAst = clock()
-      Timing.INSTANCE.registerMeasurement(
-        name: "buildingAST",
-        begin: Int(endParsing),
-        end: Int(endBuildingAst)
-      )
+      if self.ast != nil && !dontCache.contains(self.file) {
+        let beginCloning = clock()
+        cache[self.file] = self.ast!.clone()
+        let endCloning = clock()
+        Timing.INSTANCE.registerMeasurement(
+          name: "initalCloning",
+          begin: Int(beginCloning),
+          end: Int(endCloning)
+        )
+      }
     } else {
-      MesonTree.LOG.warning("No file found: \(self.file)")
+      let beginCloning = clock()
+      self.ast = cache[self.file]!.clone()
+      let endCloning = clock()
+      Timing.INSTANCE.registerMeasurement(
+        name: "cacheCloning",
+        begin: Int(beginCloning),
+        end: Int(endCloning)
+      )
     }
     let beginPatching = clock()
     let astPatcher = ASTPatcher()
@@ -86,7 +112,14 @@ public class MesonTree: Hashable {
       MesonTree.LOG.debug("Subtree: \(sd1)")
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
-      let tree = try MesonTree(file: f, ns: ns, depth: depth + 1, memfiles: memfiles)
+      let tree = try MesonTree(
+        file: f,
+        ns: ns,
+        depth: depth + 1,
+        dontCache: dontCache,
+        cache: &cache,
+        memfiles: memfiles
+      )
       if tree.ast != nil {
         tree.ast!.parent = astPatcher.subdirNodes[idx]
         tree.ast!.setParents()
@@ -117,10 +150,10 @@ public class MesonTree: Hashable {
   public func analyzeTypes() {
     if self.ast == nil { return }
     let root = Scope()
-    root.variables.updateValue([Meson()], forKey: "meson")
-    root.variables.updateValue([BuildMachine()], forKey: "build_machine")
-    root.variables.updateValue([HostMachine()], forKey: "host_machine")
-    root.variables.updateValue([TargetMachine()], forKey: "target_machine")
+    root.variables.updateValue([self.ns.types["meson"]!], forKey: "meson")
+    root.variables.updateValue([self.ns.types["build_machine"]!], forKey: "build_machine")
+    root.variables.updateValue([self.ns.types["host_machine"]!], forKey: "host_machine")
+    root.variables.updateValue([self.ns.types["target_machine"]!], forKey: "target_machine")
     var options: [MesonOption] = []
     if let o = self.options { options = Array(o.opts.values) }
     let t = TypeAnalyzer(parent: root, tree: self, options: options)

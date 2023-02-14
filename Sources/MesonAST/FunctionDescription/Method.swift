@@ -1,4 +1,4 @@
-public class Method: Function {
+public final class Method: Function {
   public var parent: Type
 
   init(name: String, parent: Type, returnTypes: [Type] = [], args: [Argument] = []) {

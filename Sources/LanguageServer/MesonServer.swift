@@ -22,6 +22,8 @@ public final class MesonServer: LanguageServer {
   var memfiles: [String: String] = [:]
   var server: HttpServer
   var docs: MesonDocs = MesonDocs()
+  var openFiles: Set<String> = []
+  var astCache: [String: Node] = [:]
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -152,9 +154,11 @@ public final class MesonServer: LanguageServer {
 
   func enumerateUsedKwargs(_ al: ArgumentList) -> Set<String> {
     var usedKwargs: Set<String> = []
-    for arg in al.args where arg is Kwarg {
-      MesonServer.LOG.info("Found already used kwarg: \((arg as! Kwarg).name)")
-      usedKwargs.insert((arg as! Kwarg).name)
+    for arg in al.args where arg is KeywordItem {
+      let kwi = (arg as! KeywordItem)
+      let kwik = (kwi.key as! IdExpression)
+      MesonServer.LOG.info("Found already used kwarg: \(kwik.id)")
+      usedKwargs.insert(kwik.id)
     }
     return usedKwargs
   }
@@ -487,6 +491,8 @@ public final class MesonServer: LanguageServer {
       let tmptree = try! MesonTree(
         file: self.path! + "/meson.build",
         ns: self.ns,
+        dontCache: self.openFiles,
+        cache: &self.astCache,
         memfiles: self.memfiles
       )
       let endParsingEntireTree = clock()
@@ -556,7 +562,9 @@ public final class MesonServer: LanguageServer {
   }
 
   func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
-
+    let file = note.params.textDocument.uri.fileURL?.path
+    self.openFiles.insert(file!)
+    self.astCache.removeValue(forKey: file!)
   }
 
   func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
@@ -573,6 +581,7 @@ public final class MesonServer: LanguageServer {
     // Either the saves were changed or dropped, so use the contents
     // of the file
     MesonServer.LOG.info("[Close] Dropping \(file!) from memcache")
+    self.openFiles.remove(file!)
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }

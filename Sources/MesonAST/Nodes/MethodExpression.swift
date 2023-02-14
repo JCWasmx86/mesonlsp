@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class MethodExpression: Expression {
+public final class MethodExpression: Expression {
   public let file: MesonSourceFile
   public var obj: Node
   public var id: Node
@@ -18,6 +18,29 @@ public class MethodExpression: Expression {
     if let nc = node.child(at: 4), nc.nodeType != ")" {
       self.argumentList = from_tree(file: file, tree: nc)
     }
+  }
+  fileprivate init(
+    file: MesonSourceFile,
+    location: Location,
+    obj: Node,
+    id: Node,
+    argumentList: Node?
+  ) {
+    self.file = file
+    self.location = location
+    self.obj = obj
+    self.id = id
+    self.argumentList = argumentList
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return MethodExpression(
+      file: file,
+      location: location,
+      obj: self.obj.clone(),
+      id: self.id.clone(),
+      argumentList: self.argumentList == nil ? nil : self.argumentList!.clone()
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitMethodExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

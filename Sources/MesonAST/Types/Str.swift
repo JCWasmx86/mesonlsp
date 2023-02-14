@@ -1,6 +1,6 @@
-public class Str: Type {
+public final class Str: Type {
   public let name: String = "str"
 
-  public init() {}
+  init() {}
   public func toString() -> String { return "str" }
 }

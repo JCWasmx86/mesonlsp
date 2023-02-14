@@ -1,6 +1,6 @@
-public class Feature: AbstractObject {
+public final class Feature: AbstractObject {
   public let name: String = "feature"
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  init() {}
 }

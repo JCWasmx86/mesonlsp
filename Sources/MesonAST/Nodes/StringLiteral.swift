@@ -1,7 +1,7 @@
 import Foundation
 import SwiftTreeSitter
 
-public class StringLiteral: Expression {
+public final class StringLiteral: Expression {
   public let file: MesonSourceFile
   public let id: String
   public var types: [Type] = []
@@ -18,6 +18,16 @@ public class StringLiteral: Expression {
     } else {
       self.cache = ""
     }
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, id: String, cache: String) {
+    self.file = file
+    self.location = location
+    self.id = id
+    self.cache = cache
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return StringLiteral(file: file, location: location, id: self.id, cache: self.cache)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitStringLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

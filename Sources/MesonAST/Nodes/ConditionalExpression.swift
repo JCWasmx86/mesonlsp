@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class ConditionalExpression: Expression {
+public final class ConditionalExpression: Expression {
   public let file: MesonSourceFile
   public var condition: Node
   public var ifTrue: Node
@@ -15,6 +15,21 @@ public class ConditionalExpression: Expression {
     self.condition = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.ifTrue = from_tree(file: file, tree: node.namedChild(at: 1))!
     self.ifFalse = from_tree(file: file, tree: node.namedChild(at: 2))!
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, nodes: [Node]) {
+    self.file = file
+    self.location = location
+    self.condition = nodes[0]
+    self.ifTrue = nodes[1]
+    self.ifFalse = nodes[2]
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return ConditionalExpression(
+      file: file,
+      location: location,
+      nodes: [self.condition.clone(), self.ifTrue.clone(), self.ifFalse.clone()]
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitConditionalExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

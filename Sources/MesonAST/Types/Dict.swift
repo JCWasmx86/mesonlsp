@@ -1,6 +1,6 @@
-public class Dict: Type {
+public final class Dict: Type {
   public let name: String = "dict"
-  public var types: [Type]
+  public let types: [Type]
 
   public init(types: [Type]) { self.types = types }
   public func toString() -> String {

@@ -1,6 +1,6 @@
-public class Compiler: AbstractObject {
+public final class Compiler: AbstractObject {
   public let name: String = "compiler"
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  init() {}
 }

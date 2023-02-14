@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class ErrorNode: Node {
+public final class ErrorNode: Node {
   public let file: MesonSourceFile
   public let message: String
   public var types: [Type] = []
@@ -16,6 +16,15 @@ public class ErrorNode: Node {
     self.file = file
     self.location = Location(node: node)
     self.message = msg
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, msg: String) {
+    self.file = file
+    self.location = location
+    self.message = msg
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return ErrorNode(file: file, location: location, msg: self.message)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitErrorNode(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

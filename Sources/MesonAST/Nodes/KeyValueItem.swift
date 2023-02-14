@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class KeyValueItem: Expression {
+public final class KeyValueItem: Expression {
   public let file: MesonSourceFile
   public var key: Node
   public var value: Node
@@ -13,6 +13,21 @@ public class KeyValueItem: Expression {
     self.location = Location(node: node)
     self.key = from_tree(file: file, tree: node.namedChild(at: 0))!
     self.value = from_tree(file: file, tree: node.namedChild(at: 1))!
+  }
+  fileprivate init(file: MesonSourceFile, location: Location, key: Node, value: Node) {
+    self.file = file
+    self.location = location
+    self.key = key
+    self.value = value
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return KeyValueItem(
+      file: file,
+      location: location,
+      key: self.key.clone(),
+      value: self.value.clone()
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitKeyValueItem(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

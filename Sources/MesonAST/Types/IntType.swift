@@ -1,6 +1,6 @@
-public class `IntType`: Type {
+public final class `IntType`: Type {
   public let name: String = "int"
 
-  public init() {}
+  init() {}
   public func toString() -> String { return "int" }
 }

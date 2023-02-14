@@ -6,6 +6,7 @@ public protocol Node: AnyObject, CustomStringConvertible {
   func visit(visitor: CodeVisitor)
   func visitChildren(visitor: CodeVisitor)
   func setParents()
+  func clone() -> Node
 }
 
 extension Node {

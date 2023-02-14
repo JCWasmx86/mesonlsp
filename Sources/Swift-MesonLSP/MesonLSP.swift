@@ -31,10 +31,12 @@ import TreeSitterMeson
       return cl
     })
     let ns = TypeNamespace()
-    var t = try MesonTree(file: self.path, ns: ns)
+    var cache: [String: MesonAST.Node] = [:]
+    var t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
     t.analyzeTypes()
     for _ in 0..<MesonLSP.NUM_PARSES {
-      t = try MesonTree(file: self.path, ns: ns)
+      cache.removeAll()
+      t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes()
     }
   }
@@ -54,8 +56,10 @@ import TreeSitterMeson
     }
     if self.test {
       var fail = false
+      var cache: [String: MesonAST.Node] = [:]
       for p in self.paths {
-        let t = try MesonTree(file: p, ns: ns)
+        let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+        cache.removeAll()
         t.analyzeTypes()
         var s: Set<MesonTree> = [t]
         var files: [String] = []
@@ -75,7 +79,8 @@ import TreeSitterMeson
       }
     } else {
       for p in self.paths {
-        let t = try MesonTree(file: p, ns: ns)
+        var cache: [String: MesonAST.Node] = [:]
+        let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
         t.analyzeTypes()
         if let mt = t.metadata {
           for kv in mt.diagnostics {
@@ -103,12 +108,13 @@ import TreeSitterMeson
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let std = self.stdio
     LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = std ? .info : .critical
+      cl.logLevel = std ? .critical : .info
       return cl
     })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     logger.info("Duplicating STDOUT_FILENO")
+    close(STDOUT_FILENO)
     if dup2(STDERR_FILENO, STDOUT_FILENO) == -1 {
       fatalError("failed to redirect stdout -> stderr: \(strerror(errno)!)")
     }
@@ -119,7 +125,7 @@ import TreeSitterMeson
         requests: builtinRequests,
         notifications: builtinNotifications + [DidSaveTextDocumentNotification.self]
       ),
-      inFD: FileHandle.standardInput,
+      inFD: FileHandle(fileDescriptor: STDIN_FILENO, closeOnDealloc: false),
       outFD: realStdoutHandle,
       syncRequests: false
     )

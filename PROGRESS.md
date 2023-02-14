@@ -42,7 +42,7 @@
 - [ ] Full autocompletion
 - [ ] More diagnostics
 - [ ] Full Wrap/Subproject support
-- [ ] Cache tree from tree-sitter
+- [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
 - [x] More tests
 - [ ] VSCode Extension
 ## Version 3.0

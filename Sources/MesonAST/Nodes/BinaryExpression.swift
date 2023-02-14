@@ -39,7 +39,7 @@ public enum BinaryOperator {
   }
 }
 
-public class BinaryExpression: Statement {
+public final class BinaryExpression: Statement {
   public let file: MesonSourceFile
   public var lhs: Node
   public var rhs: Node
@@ -55,6 +55,29 @@ public class BinaryExpression: Statement {
     self.rhs = from_tree(file: file, tree: node.namedChild(at: node.namedChildCount == 2 ? 1 : 2))!
     let opNode = node.namedChildCount == 2 ? node.child(at: 1) : node.namedChild(at: 1)
     self.op = BinaryOperator.fromString(str: string_value(file: file, node: opNode!))
+  }
+  fileprivate init(
+    file: MesonSourceFile,
+    location: Location,
+    lhs: Node,
+    rhs: Node,
+    op: BinaryOperator?
+  ) {
+    self.file = file
+    self.location = location
+    self.lhs = lhs
+    self.rhs = rhs
+    self.op = op
+  }
+  public func clone() -> Node {
+    let location = self.location.clone()
+    return BinaryExpression(
+      file: file,
+      location: location,
+      lhs: self.lhs.clone(),
+      rhs: self.rhs.clone(),
+      op: self.op
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBinaryExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

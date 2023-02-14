@@ -1,6 +1,6 @@
 import SwiftTreeSitter
 
-public class Location {
+public final class Location {
   static let TREE_SITTER_BYTES_PER_CHAR = UInt32(2)
   public let startLine: UInt32
   public let endLine: UInt32
@@ -20,6 +20,17 @@ public class Location {
     self.endLine = 0
     self.startColumn = 0
     self.endColumn = 0
+  }
+
+  init(_ sL: UInt32, _ eL: UInt32, _ sC: UInt32, _ eC: UInt32) {
+    self.startLine = sL
+    self.endLine = eL
+    self.startColumn = sC
+    self.endColumn = eC
+  }
+
+  public func clone() -> Location {
+    return Location(self.startLine, self.endLine, self.startColumn, self.endColumn)
   }
 
   public func format() -> String {

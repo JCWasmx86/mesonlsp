@@ -1,6 +1,6 @@
-public class GeneratedList: AbstractObject {
+public final class GeneratedList: AbstractObject {
   public let name: String = "generated_list"
   public let parent: AbstractObject? = nil
 
-  public init() {}
+  init() {}
 }
