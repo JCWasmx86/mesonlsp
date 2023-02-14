@@ -24,8 +24,8 @@ def heaptrack(absp, proj_name, is_ci):
             ["heaptrack", "--record-only", absp, "--path", proj_name + "/meson.build"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-        ) as prof_proces:
-            stdout, _ = prof_proces.communicate()
+        ) as prof_process:
+            stdout, _ = prof_process.communicate()
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
             with subprocess.Popen(
@@ -43,8 +43,8 @@ def heaptrack(absp, proj_name, is_ci):
             ["heaptrack", absp, "--path", proj_name + "/meson.build"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-        ) as prof_proces:
-            stdout, _ = prof_proces.communicate()
+        ) as prof_process:
+            stdout, _ = prof_process.communicate()
             lines = stdout.decode("utf-8").splitlines()
             zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
             with subprocess.Popen(
