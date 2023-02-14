@@ -70,16 +70,17 @@ def analyze_file(file, commit, is_ci):
     ret["projects"] = []
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.chdir(tmpdirname)
-        for proj_name, url in PROJECTS.items():
-            print("Parsing", proj_name, file=sys.stderr)
-            projobj = {}
-            projobj["name"] = proj_name
+        for url in PROJECTS.values():
             subprocess.run(
                 ["git", "clone", "--depth=1", url],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 check=True,
             )
+        for proj_name in PROJECTS:
+            print("Parsing", proj_name, file=sys.stderr)
+            projobj = {}
+            projobj["name"] = proj_name
             begin = datetime.datetime.now()
             for i in range(0, N_ITERATIONS):
                 print("Iteration", i, file=sys.stderr)
