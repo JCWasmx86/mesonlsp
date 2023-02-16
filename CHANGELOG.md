@@ -1,3 +1,5 @@
+# 1.2.1 (Feb 16 2023)
+- Upload binary on release
 # 1.2 (Feb 16 2023)
 - Cache AST for all unopened documents
 - Cancel rebuilding the tree, if another rebuild has started
