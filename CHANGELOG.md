@@ -1,3 +1,12 @@
+# 1.2 (Feb 16 2023)
+- Cache AST for all unopened documents
+- Cancel rebuilding the tree, if another rebuild has started
+- Fix some bugs with jumping to declaration. (Sadly comes with a performance regression)
+- Add required code for VSCode
+- Add installation instructions for Kate
+- Don't advertise support for higlighting
+- Bump swift-argument-parser
+- Setup CI workflow to measure RAM-usage/performance regressions
 # 1.1 (Feb 13 2023)
 ## Changes
 - Reduced memory usage (Up to 60%) by just allocating methods for each type only once, instead for each object created.
