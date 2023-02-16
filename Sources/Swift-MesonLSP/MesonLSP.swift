@@ -105,7 +105,6 @@ import TreeSitterMeson
       return
     }
     let console = Terminal()
-    let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let std = self.stdio
     LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
       cl.logLevel = std ? .critical : .info
