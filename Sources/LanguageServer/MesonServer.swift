@@ -647,7 +647,6 @@ public final class MesonServer: LanguageServer {
         CompletionOptions(resolveProvider: false, triggerCharacters: ["."])
       ),
       definitionProvider: .bool(true),
-      documentHighlightProvider: .bool(true),
       documentSymbolProvider: .bool(true),
       workspaceSymbolProvider: .bool(true),
       documentFormattingProvider: .bool(true),
