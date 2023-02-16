@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: disable=missing-module-docstring,missing-function-docstring
 import argparse
 import datetime
 import json
