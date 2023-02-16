@@ -113,7 +113,6 @@ import TreeSitterMeson
     })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
-    logger.info("Duplicating STDOUT_FILENO")
     close(STDOUT_FILENO)
     if dup2(STDERR_FILENO, STDOUT_FILENO) == -1 {
       fatalError("failed to redirect stdout -> stderr: \(strerror(errno)!)")
