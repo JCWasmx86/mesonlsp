@@ -1,0 +1,22 @@
+name: Release-Upload
+
+on: release
+
+jobs:
+  build-docker-image:
+    name: Build and upload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: swift build -c release --static-swift-stdlib
+      - name: Run integration tests
+        run: |
+          swift build -c release
+          cp .build/release/Swift-MesonLSP /tmp/Swift-MesonLSP
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: /tmp/Swift-MesonLSP
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
