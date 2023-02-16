@@ -1,6 +1,8 @@
 name: Release-Upload
 
-on: release
+on:
+  release:
+  workflow_dispatch:
 
 jobs:
   build-docker-image:
