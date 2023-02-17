@@ -44,7 +44,7 @@
 - [ ] Full Wrap/Subproject support
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
 - [x] More tests
-- [ ] VSCode Extension
+- [x] VSCode Extension (Just a fork of vscode-meson currently)
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
