@@ -14,7 +14,7 @@ A reimplementation of my Meson language server in Swift.
 - Rudimentary autocompletion
 
 ## Limitations
-- Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs before type annotations are cached.
+- Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
 - Only very partial support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
 - Non constant `subdir`-calls are not supported
@@ -35,7 +35,7 @@ foreach backend : backends
 endforeach
 ```
 A majority of these limitations come from the fact that Swift-MesonLSP won't interpret the code, but instead
-will just traverse the ast and check what subdirs are included.
+will just traverse the AST and check what subdirs are included.
 
 ## Why a reimplementation?
 The first version, written in Vala, had some code maintenance problems because basically everything was done in one file.
@@ -122,7 +122,7 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
   }
 }
 ```
-After that you a dialog should be shown asking you to confirm that the language server may be started.
+After that, a dialog should be shown asking you to confirm that the language server may be started.
 
 #### neovim
 Add this JSON to `:CocConfig`:
