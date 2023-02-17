@@ -150,7 +150,7 @@ Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Fe
 free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
 
 ## Debugging performance problems
-The language server is measuring the duration needed by certain operations and exposes it using a HTTP-Server on `http://localhost:65000` (Or any bigger port, if 65000 is already used)
+The language server is measuring the duration needed by certain operations and exposes it using a HTTP-Server on `http://localhost:65000` (Or any higher port, if 65000 is already used)
 
 ![Timing](img/timings.png)
 This picture shows an example of the rendered timing information. The project used is mesa and it
