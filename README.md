@@ -74,7 +74,8 @@ two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
 A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
 to `Swift-MesonLSP` and copy it to the right destination.
 
-### Install the GNOME Builder plugin (Requires GNOME Builder Nightly)
+### Connect with your editor
+#### GNOME Builder Nightly
 ```
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins
@@ -101,7 +102,7 @@ cd _build
 # Don't do "sudo ninja install"
 ninja -j $(nproc) install
 ```
-### Kate support
+#### Kate
 Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
 {
@@ -121,7 +122,24 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
   }
 }
 ```
-After that you should confirm that the language server may be started.
+After that you a dialog should be shown asking you to confirm that the language server may be started.
+
+#### neovim
+Add this JSON to `:CocConfig`:
+```
+{
+    "languageserver": {
+        "meson": {
+            "command": "Swift-MesonLSP",
+            "args": ["--lsp"],
+            "rootPatterns": ["meson.build"],
+            "filetypes": ["meson"]
+        }
+    }
+}
+```
+#### VSCode
+Install this fork of vscode-meson: https://github.com/JCWasmx86/vscode-meson
 
 ### Notes
 On Fedora, you can use the `install.sh` script. It will automatically install all dependencies. (It will ask you for
