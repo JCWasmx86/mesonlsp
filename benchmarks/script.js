@@ -18,7 +18,7 @@ function findProject(obj, name) {
 }
 
 function percentify(oldValue, newValue) {
-  return ((newValue / oldValue) * 100 - 100).toFixed(2) + "%";
+  return `${((newValue / oldValue) * 100 - 100).toFixed(2)}%`;
 }
 
 function createOverviewCharts() {
@@ -87,7 +87,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById((element + "_allocs").replaceAll("-", "_"));
+    ctx = document.getElementById((`${element}_allocs`).replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -104,7 +104,7 @@ function createOverviewCharts() {
       },
     });
     ctx = document.getElementById(
-      (element + "_tmp_allocs").replaceAll("-", "_"),
+      (`${element}_tmp_allocs`).replaceAll("-", "_"),
     );
     new Chart(ctx, {
       type: "bar",
@@ -121,7 +121,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById((element + "_rss").replaceAll("-", "_"));
+    ctx = document.getElementById((`${element}_rss`).replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -137,7 +137,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById((element + "_heap").replaceAll("-", "_"));
+    ctx = document.getElementById((`${element}_heap`).replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -157,20 +157,20 @@ function createOverviewCharts() {
 }
 
 function appendTr(tr, txt) {
-  var td = document.createElement("td");
+  const td = document.createElement("td");
   td.appendChild(document.createTextNode(txt));
   tr.appendChild(td);
 }
 function changedVersions() {
   const oldData = ALL_BENCHMARKS[document.getElementById("versions").value];
   const newData = ALL_BENCHMARKS[document.getElementById("versions2").value];
-  let tableDiv = document.getElementById("dynamicTable");
+  const tableDiv = document.getElementById("dynamicTable");
   while (tableDiv.hasChildNodes()) {
     tableDiv.removeChild(tableDiv.lastChild);
   }
-  let table = document.createElement("table");
+  const table = document.createElement("table");
   table.border = "1";
-  let tableBody = document.createElement("tbody");
+  const tableBody = document.createElement("tbody");
   table.appendChild(tableBody);
   let tr = document.createElement("tr");
   tableBody.appendChild(tr);
@@ -198,31 +198,31 @@ function changedVersions() {
     "GNOME-Builder-Plugins",
   ];
   for (const element of elementNames) {
-    let p = findProject(oldData, element);
-    let p1 = findProject(newData, element);
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
     tr = document.createElement("tr");
     tableBody.appendChild(tr);
-    appendTr(tr, "Parsing " + element + " 10 * 100 times");
+    appendTr(tr, `Parsing ${element} 10 * 100 times`);
     appendTr(tr, p.parsing);
     appendTr(tr, p1.parsing);
     appendTr(tr, percentify(p.parsing, p1.parsing));
   }
   for (const element of elementNames) {
-    let p = findProject(oldData, element);
-    let p1 = findProject(newData, element);
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
     tr = document.createElement("tr");
     tableBody.appendChild(tr);
-    appendTr(tr, "Memory allocations during parsing " + element);
+    appendTr(tr, `Memory allocations during parsing ${element}`);
     appendTr(tr, p.memory_allocations);
     appendTr(tr, p1.memory_allocations);
     appendTr(tr, percentify(p.memory_allocations, p1.memory_allocations));
   }
   for (const element of elementNames) {
-    let p = findProject(oldData, element);
-    let p1 = findProject(newData, element);
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
     tr = document.createElement("tr");
     tableBody.appendChild(tr);
-    appendTr(tr, "Temporary memory allocations during parsing " + element);
+    appendTr(tr, `Temporary memory allocations during parsing ${element}`);
     appendTr(tr, p.temporary_memory_allocations);
     appendTr(tr, p1.temporary_memory_allocations);
     appendTr(
@@ -234,11 +234,11 @@ function changedVersions() {
     );
   }
   for (const element of elementNames) {
-    let p = findProject(oldData, element);
-    let p1 = findProject(newData, element);
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
     tr = document.createElement("tr");
     tableBody.appendChild(tr);
-    appendTr(tr, "Peak heap usage during parsing " + element);
+    appendTr(tr, `Peak heap usage during parsing ${element}`);
     appendTr(tr, p.peak_heap);
     appendTr(tr, p1.peak_heap);
     appendTr(
@@ -247,13 +247,13 @@ function changedVersions() {
     );
   }
   for (const element of elementNames) {
-    let p = findProject(oldData, element);
-    let p1 = findProject(newData, element);
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
     tr = document.createElement("tr");
     tableBody.appendChild(tr);
     appendTr(
       tr,
-      "Peak RSS during parsing " + element + " (Includes heaptrack overhead)",
+      `Peak RSS during parsing ${element} (Includes heaptrack overhead)`,
     );
     appendTr(tr, p.peak_rss);
     appendTr(tr, p1.peak_rss);
