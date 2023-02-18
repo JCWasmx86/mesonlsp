@@ -17,6 +17,10 @@ function findProject(obj, name) {
   }
 }
 
+function percentify(oldValue, newValue) {
+  return ((newValue / oldValue) * 100 - 100).toFixed(2) + "%";
+}
+
 function createOverviewCharts() {
   ctx = document.getElementById("sizeChart");
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
@@ -149,5 +153,113 @@ function createOverviewCharts() {
         ],
       },
     });
+  }
+}
+
+function appendTr(tr, txt) {
+  var td = document.createElement("td");
+  td.appendChild(document.createTextNode(txt));
+  tr.appendChild(td);
+}
+function changedVersions() {
+  const oldData = ALL_BENCHMARKS[document.getElementById("versions").value];
+  const newData = ALL_BENCHMARKS[document.getElementById("versions2").value];
+  let tableDiv = document.getElementById("dynamicTable");
+  while (tableDiv.hasChildNodes()) {
+    tableDiv.removeChild(tableDiv.lastChild);
+  }
+  let table = document.createElement("table");
+  table.border = "1";
+  let tableBody = document.createElement("tbody");
+  table.appendChild(tableBody);
+  let tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Measurement");
+  appendTr(tr, oldData.commit);
+  appendTr(tr, newData.commit);
+  appendTr(tr, "Percentage");
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Binary Size");
+  appendTr(tr, oldData.size);
+  appendTr(tr, newData.size);
+  appendTr(tr, percentify(oldData.size, newData.size));
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Binary Size (Stripped)");
+  appendTr(tr, oldData.size);
+  appendTr(tr, newData.size);
+  appendTr(tr, percentify(oldData.stripped_size, newData.stripped_size));
+  tableDiv.appendChild(table);
+  const elementNames = [
+    "mesa",
+    "gnome-builder",
+    "qemu",
+    "GNOME-Builder-Plugins",
+  ];
+  for (const element of elementNames) {
+    let p = findProject(oldData, element);
+    let p1 = findProject(newData, element);
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(tr, "Parsing " + element + " 10 * 100 times");
+    appendTr(tr, p.parsing);
+    appendTr(tr, p1.parsing);
+    appendTr(tr, percentify(p.parsing, p1.parsing));
+  }
+  for (const element of elementNames) {
+    let p = findProject(oldData, element);
+    let p1 = findProject(newData, element);
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(tr, "Memory allocations during parsing " + element);
+    appendTr(tr, p.memory_allocations);
+    appendTr(tr, p1.memory_allocations);
+    appendTr(tr, percentify(p.memory_allocations, p1.memory_allocations));
+  }
+  for (const element of elementNames) {
+    let p = findProject(oldData, element);
+    let p1 = findProject(newData, element);
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(tr, "Temporary memory allocations during parsing " + element);
+    appendTr(tr, p.temporary_memory_allocations);
+    appendTr(tr, p1.temporary_memory_allocations);
+    appendTr(
+      tr,
+      percentify(
+        p.temporary_memory_allocations,
+        p1.temporary_memory_allocations,
+      ),
+    );
+  }
+  for (const element of elementNames) {
+    let p = findProject(oldData, element);
+    let p1 = findProject(newData, element);
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(tr, "Peak heap usage during parsing " + element);
+    appendTr(tr, p.peak_heap);
+    appendTr(tr, p1.peak_heap);
+    appendTr(
+      tr,
+      percentify(p.peak_heap.replace("M", ""), p1.peak_heap.replace("M", "")),
+    );
+  }
+  for (const element of elementNames) {
+    let p = findProject(oldData, element);
+    let p1 = findProject(newData, element);
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(
+      tr,
+      "Peak RSS during parsing " + element + " (Includes heaptrack overhead)",
+    );
+    appendTr(tr, p.peak_rss);
+    appendTr(tr, p1.peak_rss);
+    appendTr(
+      tr,
+      percentify(p.peak_rss.replace("M", ""), p1.peak_rss.replace("M", "")),
+    );
   }
 }

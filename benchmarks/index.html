@@ -72,6 +72,12 @@
 
 		<div id="Comparisons" class="tabcontent">
 			<h3>Comparisons</h3>
+			<select onchange="changedVersions()" name="versions" id="versions">
+			</select>
+			<select onchange="changedVersions()" name="versions2" id="versions2">
+			</select>
+			<br/>
+			<div id="dynamicTable"></div>
 		</div>
 
 		<div id="About" class="tabcontent">
@@ -107,6 +113,18 @@
 		<script>
 			document.getElementById("defaultOpen").click();
 			createOverviewCharts();
+			ALL_BENCHMARKS.map((a, i) => {
+				let opt = document.createElement("option");
+				opt.value = i
+				opt.innerHTML = a.commit
+				document.getElementById("versions").append(opt);
+				opt = document.createElement("option");
+				opt.value = i
+				opt.innerHTML = a.commit
+				document.getElementById("versions2").append(opt);
+			});
+			document.getElementById("versions2").value = ALL_BENCHMARKS.length - 1;
+			changedVersions();
 		</script>
 	</body>
 </html>
