@@ -124,7 +124,7 @@ function createOverviewCharts() {
         labels: tags,
         datasets: [
           {
-            label: "Peak RSS",
+            label: "Peak RSS (In MB)",
             data: ALL_BENCHMARKS.map((a) =>
               findProject(a, element).peak_rss.replace("M", ""),
             ),
@@ -140,7 +140,7 @@ function createOverviewCharts() {
         labels: tags,
         datasets: [
           {
-            label: "Peak Heap",
+            label: "Peak Heap (In MB)",
             data: ALL_BENCHMARKS.map((a) =>
               findProject(a, element).peak_heap.replace("M", ""),
             ),
