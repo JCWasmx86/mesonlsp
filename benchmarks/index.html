@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="style.css">
+		<script type="text/javascript" src="generated.js"></script>
+		<script type="text/javascript" src="script.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	</head>
+	<body>
+		<div class="tab">
+			<button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>
+			<button class="tablinks" onclick="openTab(event, 'Comparisons')">Comparisons</button>
+			<button class="tablinks" onclick="openTab(event, 'About')">About</button>
+		</div>
+
+		<div id="Overview" class="tabcontent">
+			<h3>Overview</h3>
+			<details>
+				<summary>Overview</summary>
+				<div id="horizontal">
+					<div class="child"><canvas id="sizeChart"></canvas></div>
+					<div class="child"><canvas id="strippedSizeChart"></canvas></div>
+				</div>
+			</details>
+			<hr/>
+			<details>
+				<summary>Measurements for Mesa</summary>
+				<div id="horizontal">
+					<div class="child"><canvas id="mesa"></canvas></div>
+					<div class="child"><canvas id="mesa_allocs"></canvas></div>
+					<div class="child"><canvas id="mesa_tmp_allocs"></canvas></div>
+					<div class="child"><canvas id="mesa_rss"></canvas></div>
+					<div class="child"><canvas id="mesa_heap"></canvas></div>
+				</div>
+			</details>
+			<hr/>
+			<details>
+				<summary>Measurements for GNOME-Builder</summary>
+				<div id="horizontal">
+					<div class="child"><canvas id="gnome_builder"></canvas></div>
+					<div class="child"><canvas id="gnome_builder_allocs"></canvas></div>
+					<div class="child"><canvas id="gnome_builder_tmp_allocs"></canvas></div>
+					<div class="child"><canvas id="gnome_builder_rss"></canvas></div>
+					<div class="child"><canvas id="gnome_builder_heap"></canvas></div>
+				</div>
+			</details>
+			<hr/>
+			<details>
+				<summary>Measurements for QEMU</summary>
+				<div id="horizontal">
+					<div class="child"><canvas id="qemu"></canvas></div>
+					<div class="child"><canvas id="qemu_allocs"></canvas></div>
+					<div class="child"><canvas id="qemu_tmp_allocs"></canvas></div>
+					<div class="child"><canvas id="qemu_rss"></canvas></div>
+					<div class="child"><canvas id="qemu_heap"></canvas></div>
+				</div>
+			</details>
+			<hr/>
+			<details>
+				<summary>Measurements for GNOME-Builder-Plugins</summary>
+				<div id="horizontal">
+					<div class="child"><canvas id="GNOME_Builder_Plugins"></canvas></div>
+					<div class="child"><canvas id="GNOME_Builder_Plugins_allocs"></canvas></div>
+					<div class="child"><canvas id="GNOME_Builder_Plugins_tmp_allocs"></canvas></div>
+					<div class="child"><canvas id="GNOME_Builder_Plugins_rss"></canvas></div>
+					<div class="child"><canvas id="GNOME_Builder_Plugins_heap"></canvas></div>
+				</div>
+			</details>
+		</div>
+
+		<div id="Comparisons" class="tabcontent">
+			<h3>Comparisons</h3>
+		</div>
+
+		<div id="About" class="tabcontent">
+			<h3>About</h3>
+		</div>
+
+		<script>
+			document.getElementById("defaultOpen").click();
+			createOverviewCharts();
+		</script>
+	</body>
+</html>
