@@ -76,6 +76,32 @@
 
 		<div id="About" class="tabcontent">
 			<h3>About</h3>
+			This is a website showing several stats for each release of Swift-MesonLSP.
+			<h4>Selection of projects</h4>
+			Four projects were selected for the benchmarks:
+			<ul>
+				<li>GNOME-Builder-Plugins: Small codebase</li>
+				<li>GNOME-Builder: Medium codebase</li>
+				<li>QEMU: Large codebase</li>
+				<li>Mesa: Huge codebase</li>
+			</ul>
+			They all exhibit different behaviors. For example: While all others had huge performance improvements, for mesa the parsing time improved just by a little bit.
+			And for GNOME-Builder-Plugins between v1.1 and v1.2 the number of memory allocations increased - against the trend.
+			<h4>Measurement methods</h4>
+			<ul>
+				<li><b>Time required for parsing:</b> Measures 10 times the time needed to parse the project 100 times.</li>
+				<li><b>Memory allocations:</b> Counts the number of memory allocations using heaptrack.</li>
+				<li><b>Temporary memory allocations:</b> Counts the number of temporary memory allocations using heaptrack.</li>
+				<li><b>Peak RSS:</b> Peak RSS including heaptrack overhead</li>
+				<li><b>Peak Heap:</b> Peak heap memory usage, measured using heaptrack</li>
+			</ul>
+			<h4>Software/Hardware</h4>
+			<ul>
+				<li>Fedora 37</li>
+				<li>Swift version 5.7.3 (swift-5.7.3-RELEASE)</li>
+				<li>11th Gen Intel i5-1135G7 (8) @ 4.200GHz </li>
+				<li>Memory: 15735MiB</li>
+			</ul>
 		</div>
 
 		<script>
