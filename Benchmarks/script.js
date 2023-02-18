@@ -87,7 +87,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById((`${element}_allocs`).replaceAll("-", "_"));
+    ctx = document.getElementById(`${element}_allocs`.replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -103,9 +103,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById(
-      (`${element}_tmp_allocs`).replaceAll("-", "_"),
-    );
+    ctx = document.getElementById(`${element}_tmp_allocs`.replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -120,8 +118,15 @@ function createOverviewCharts() {
           },
         ],
       },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: false,
+          },
+        },
+      },
     });
-    ctx = document.getElementById((`${element}_rss`).replaceAll("-", "_"));
+    ctx = document.getElementById(`${element}_rss`.replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
@@ -137,7 +142,7 @@ function createOverviewCharts() {
         ],
       },
     });
-    ctx = document.getElementById((`${element}_heap`).replaceAll("-", "_"));
+    ctx = document.getElementById(`${element}_heap`.replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
       data: {
