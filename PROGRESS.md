@@ -40,7 +40,7 @@
 - [x] Rudimentary autocompletion
 ## Version 2.0
 - [ ] Full autocompletion
-- [ ] More diagnostics
+- [x] More diagnostics
 - [ ] Full Wrap/Subproject support
 - [ ] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
