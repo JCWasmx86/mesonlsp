@@ -49,4 +49,5 @@
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
+- [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
