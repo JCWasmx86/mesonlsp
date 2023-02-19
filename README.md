@@ -84,7 +84,6 @@ cd GNOME-Builder-Plugins
 meson -Dplugin_cabal=disabled \
       -Dplugin_clangd=disabled \
       -Dplugin_gitgui=disabled \
-      -Dplugin_hadolint=disabled \
       -Dplugin_hls=disabled \
       -Dplugin_icon_installer=disabled \
       -Dplugin_markdown=disabled \
