@@ -66,6 +66,38 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.formatting)
     _register(MesonServer.documentSymbol)
     _register(MesonServer.complete)
+    _register(MesonServer.highlight)
+  }
+
+  func highlight(_ req: Request<DocumentHighlightRequest>) {
+    let begin = clock()
+    let file = req.params.textDocument.uri.fileURL!.path
+    if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast,
+      let id = self.tree!.metadata!.findIdentifierAt(
+        file,
+        req.params.position.line,
+        req.params.position.utf16index
+      )
+    {
+      let hs = HighlightSearcher(varname: id.id)
+      ast.visit(visitor: hs)
+      var ret: [DocumentHighlight] = []
+      for a in hs.accesses {
+        let accessType: DocumentHighlightKind = a.0 == 2 ? .read : .write
+        let si = a.1
+        let range =
+          Position(
+            line: Int(si.startLine),
+            utf16index: Int(si.startColumn)
+          )..<Position(line: Int(si.endLine), utf16index: Int(si.endColumn))
+        ret.append(DocumentHighlight(range: range, kind: accessType))
+      }
+      Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
+      req.reply(ret)
+      return
+    }
+    Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
+    req.reply([])
   }
 
   func complete(_ req: Request<CompletionRequest>) {
@@ -647,6 +679,7 @@ public final class MesonServer: LanguageServer {
         CompletionOptions(resolveProvider: false, triggerCharacters: ["."])
       ),
       definitionProvider: .bool(true),
+      documentHighlightProvider: .bool(true),
       documentSymbolProvider: .bool(true),
       workspaceSymbolProvider: .bool(true),
       documentFormattingProvider: .bool(true),
