@@ -892,7 +892,7 @@ public final class TypeNamespace {
       ),
       Function(
         name: "library",
-        returnTypes: [self.types["lib"]!],
+        returnTypes: [self.types["lib"]!, self.types["both_libs"]!],
         args: [
           PositionalArgument(name: "target_name", types: strL),
           PositionalArgument(
