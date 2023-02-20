@@ -19,13 +19,13 @@ public class HighlightSearcher: CodeVisitor {
   }
   public func visitAssignmentStatement(node: AssignmentStatement) {
     if node.lhs is IdExpression, let lhs = node.lhs as? IdExpression, lhs.id == self.varname {
-      self.accesses.append((3, node.location))
+      self.accesses.append((3, lhs.location))
       node.rhs.visitChildren(visitor: self)
       return
     } else if node.lhs is SubscriptExpression, let lhs = node.lhs as? SubscriptExpression,
       let outer = lhs.outer as? IdExpression, outer.id == self.varname
     {
-      self.accesses.append((3, node.location))
+      self.accesses.append((3, lhs.location))
       node.rhs.visitChildren(visitor: self)
     }
     node.visitChildren(visitor: self)
