@@ -7,6 +7,7 @@ public class TypeAnalyzersState {
       "import": ImportTypeAnalyzer(), "get_option": OptionTypeAnalyzer(),
       "dict.get": DictGetTypeAnalyzer(), "list.get": ListGetTypeAnalyzer(),
       "build_target": BuildTargetTypeAnalyzer(),
+      "subproject.get_variable": SubprojectGetVariableTypeAnalyzer(),
     ]
   }
   public func apply(node: Node, options: [MesonOption], f: Function, ns: TypeNamespace) -> [Type] {
