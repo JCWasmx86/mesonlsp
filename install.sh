@@ -15,14 +15,10 @@ sudo dnf install -y swift-lang \
 swift build -c release --static-swift-stdlib
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins || exit 1
-meson -Dplugin_cabal=disabled \
-	-Dplugin_clangd=disabled \
+meson -Dplugin_clangd=disabled \
 	-Dplugin_gitgui=disabled \
-	-Dplugin_hls=disabled \
 	-Dplugin_icon_installer=disabled \
 	-Dplugin_shfmt=disabled \
-	-Dplugin_sqls=disabled \
-	-Dplugin_stack=disabled \
 	-Dplugin_swift=disabled \
 	-Dplugin_swift_lint=disabled \
 	-Dplugin_swift_templates=disabled \
