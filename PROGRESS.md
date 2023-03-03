@@ -41,8 +41,9 @@
 ## Version 2.0
 - [ ] Full autocompletion
 - [x] More diagnostics
-- [ ] Full Wrap/Subproject support
-- [ ] Highlighting
+- [ ] Full Wrap support
+- [ ] Full Subproject support
+- [x] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
 - [x] More tests
 - [x] VSCode Extension (Just a fork of vscode-meson currently)
