@@ -3,8 +3,8 @@ import Dispatch
 import Foundation
 import LanguageServerProtocol
 import Logging
-import MesonAST
 import MesonAnalyze
+import MesonAST
 import MesonDocs
 import PathKit
 import Swifter

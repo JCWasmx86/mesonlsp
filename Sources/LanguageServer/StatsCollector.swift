@@ -1,6 +1,6 @@
-import PathKit
-import Glibc
 import CMem
+import Glibc
+import PathKit
 
 func collectStats() -> (UInt64, UInt64, UInt64) {
   let pid = getpid()
