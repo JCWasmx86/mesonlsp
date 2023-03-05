@@ -1,9 +1,10 @@
 import Atomics
+import Dispatch
 import Foundation
 import LanguageServerProtocol
 import Logging
-import MesonAnalyze
 import MesonAST
+import MesonAnalyze
 import MesonDocs
 import PathKit
 import Swifter
@@ -26,6 +27,7 @@ public final class MesonServer: LanguageServer {
   var openFiles: Set<String> = []
   var astCache: [String: Node] = [:]
   let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
+  let interval = DispatchTimeInterval.seconds(60)
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -44,6 +46,28 @@ public final class MesonServer: LanguageServer {
     }
     super.init(client: client)
     self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
+    self.queue.asyncAfter(deadline: .now() + interval) {
+      self.sendStats()
+      self.scheduleNextTask()
+    }
+  }
+
+  func sendStats() {
+    MesonServer.LOG.info("Collecting stats")
+    let (heap, stack) = collectStats()
+    MesonServer.LOG.info("Stack: \(stack) Heap: \(heap)")
+    let heapS = formatWithUnits(heap)
+    let stackS = formatWithUnits(stack)
+    self.client.send(
+      ShowMessageNotification(type: .info, message: "Stack usage: \(heapS) Heap usage: \(stackS)")
+    )
+  }
+
+  func scheduleNextTask() {
+    self.queue.asyncAfter(deadline: .now() + interval) {
+      self.sendStats()
+      self.scheduleNextTask()
+    }
   }
 
   public func prepareForExit() {
