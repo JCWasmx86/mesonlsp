@@ -461,11 +461,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         nAny += 1
         bits |= (1 << 0)
         continue
-      } else if let l = t as? ListType, l.types.count == 0 && l.types[0] is `Any` {
+      } else if let l = t as? ListType, l.types.count == 1 && l.types[0] is `Any` {
         nAny += 1
         bits |= (1 << 1)
         continue
-      } else if let d = t as? Dict, d.types.count == 0 && d.types[0] is `Any` {
+      } else if let d = t as? Dict, d.types.count == 1 && d.types[0] is `Any` {
         nAny += 1
         bits |= (1 << 2)
         continue

@@ -57,7 +57,7 @@ for i in *; do
 					[ "$testname" == "unit/21 exit status" ] ||
 					[ "$testname" == "unit/25 non-permitted kwargs" ]); then
 				:
-			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && ([ "$testname" == "failing/50 inconsistent comparison" ] || [ "$testname" == "frameworks/4 qt" ]); then
+			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && [ "$testname" == "failing/50 inconsistent comparison" ]; then
 				:
 			else
 				echo "$i/$j" >>"$OUTPUTPATH"
