@@ -54,12 +54,16 @@ public final class MesonServer: LanguageServer {
 
   func sendStats() {
     MesonServer.LOG.info("Collecting stats")
-    let (heap, stack) = collectStats()
-    MesonServer.LOG.info("Stack: \(stack) Heap: \(heap)")
+    let (heap, stack, total) = collectStats()
+    MesonServer.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
     let heapS = formatWithUnits(heap)
     let stackS = formatWithUnits(stack)
+    let totalS = formatWithUnits(total)
     self.client.send(
-      ShowMessageNotification(type: .info, message: "Stack usage: \(heapS) Heap usage: \(stackS)")
+      ShowMessageNotification(
+        type: .info,
+        message: "Stack usage: \(heapS) Heap usage: \(stackS) Total: \(totalS)"
+      )
     )
   }
 
