@@ -682,7 +682,10 @@ public final class TypeNamespace {
       ),
       Function(
         name: "get_variable",
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "variable_name", types: strL),
           PositionalArgument(name: "default", opt: true, types: [self.types["any"]!]),
@@ -2004,6 +2007,7 @@ public final class TypeNamespace {
           PositionalArgument(name: "libname", types: strL),
           Kwarg(name: "dirs", opt: true, types: [ListType(types: strL)]),
           Kwarg(name: "disabler", opt: true, types: boolL),
+          Kwarg(name: "native", opt: true, types: boolL),
           Kwarg(name: "has_headers", opt: true, types: [ListType(types: strL)]),
           Kwarg(name: "header_args", opt: true, types: [ListType(types: strL)]),
           Kwarg(
@@ -2495,7 +2499,10 @@ public final class TypeNamespace {
       Method(
         name: "get_variable",
         parent: t,
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "var_name", types: strL),
           PositionalArgument(name: "fallback", opt: true, types: [self.types["any"]!]),
@@ -2579,7 +2586,10 @@ public final class TypeNamespace {
       Method(
         name: "get_variable",
         parent: t,
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "var_name", types: strL),
           PositionalArgument(name: "fallback", opt: true, types: [self.types["any"]!]),
@@ -3642,7 +3652,10 @@ public final class TypeNamespace {
       Method(
         name: "get_variable",
         parent: t,
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "variable_name", types: strL),
           PositionalArgument(name: "fallback", opt: true, types: [self.types["any"]!]),
