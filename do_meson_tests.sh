@@ -24,7 +24,7 @@
 # unit/21 exit status: Expected failure
 # unit/25 non-permitted kwargs: Expected failure
 swift build -c release --static-swift-stdlib || exit
-export LSPPATH=$PWD/.build/debug/Swift-MesonLSP
+export LSPPATH=$PWD/.build/release/Swift-MesonLSP
 export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
 git clone https://github.com/mesonbuild/meson.git || exit
