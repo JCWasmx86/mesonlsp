@@ -455,9 +455,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     guard let methodNameId = node.id as? IdExpression else { return }
     let methodName = methodNameId.id
     var nAny = 0
+    var bits = 0
     for t in types {
       if t is `Any` {
         nAny += 1
+        bits |= (1 << 0)
+        continue
+      } else if let l = t as? ListType, l.types.count == 0 && l.types[0] is `Any` {
+        nAny += 1
+        bits |= (1 << 1)
+        continue
+      } else if let d = t as? Dict, d.types.count == 0 && d.types[0] is `Any` {
+        nAny += 1
+        bits |= (1 << 2)
         continue
       }
       if let m = t.getMethod(name: methodName, ns: self.t) {
@@ -474,7 +484,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     node.types = dedup(types: ownResultTypes)
-    if !found && nAny == types.count {
+    if !found && ((nAny == types.count) || (bits == 0b111 && types.count == 3)) {
       let begin = clock()
       let guessedMethod = self.t.lookupMethod(name: methodName)
       Timing.INSTANCE.registerMeasurement(name: "guessingMethod", begin: begin, end: clock())
