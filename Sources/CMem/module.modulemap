@@ -1,0 +1,5 @@
+module CMem [system] {
+	header "shim.h"
+	link "readline"
+	export *
+}

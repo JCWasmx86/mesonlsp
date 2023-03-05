@@ -12,6 +12,7 @@ let package = Package(
     .library(name: "Timing", targets: ["Timing"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
+    .library(name: "CMem", targets: ["CMem"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
@@ -31,7 +32,8 @@ let package = Package(
         "Timing", "SwiftTreeSitter", "MesonAST", "PathKit",
         .product(name: "Logging", package: "swift-log"),
       ]
-    ), .target(name: "Timing", dependencies: []), .target(name: "MesonDocs", dependencies: []),
+    ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
+    .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
@@ -39,7 +41,8 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "MesonAnalyze", "Timing", "MesonDocs", .product(name: "Swifter", package: "swifter"),
+        "MesonAnalyze", "Timing", "MesonDocs", "CMem",
+        .product(name: "Swifter", package: "swifter"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
         .product(name: "Atomics", package: "swift-atomics"),
