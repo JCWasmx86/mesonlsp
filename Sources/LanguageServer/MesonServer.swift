@@ -95,6 +95,21 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.documentSymbol)
     _register(MesonServer.complete)
     _register(MesonServer.highlight)
+    _register(MesonServer.inlayHints)
+  }
+
+  func inlayHints(_ req: Request<InlayHintRequest>) {
+    let begin = clock()
+    let file = req.params.textDocument.uri.fileURL!.path
+    if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast {
+      let ih = InlayHints()
+      ast.visit(visitor: ih)
+      req.reply(ih.inlays)
+      Timing.INSTANCE.registerMeasurement(name: "inlayHints", begin: begin, end: clock())
+      return
+    }
+    Timing.INSTANCE.registerMeasurement(name: "inlayHints", begin: begin, end: clock())
+    req.reply([])
   }
 
   func highlight(_ req: Request<DocumentHighlightRequest>) {
@@ -711,7 +726,8 @@ public final class MesonServer: LanguageServer {
       documentSymbolProvider: .bool(true),
       workspaceSymbolProvider: .bool(true),
       documentFormattingProvider: .bool(true),
-      declarationProvider: .bool(true)
+      declarationProvider: .bool(true),
+      inlayHintProvider: .bool(true)
     )
   }
 
