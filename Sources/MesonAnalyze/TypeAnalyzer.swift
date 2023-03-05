@@ -494,7 +494,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
       }
     }
-    if !found {
+    let onlyDisabler = types.count == 1 && (types[0] as? Disabler) != nil
+    if !found && !onlyDisabler {
       let t = joinTypes(types: types)
       self.metadata.registerDiagnostic(
         node: node,
@@ -504,6 +505,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           message: "No method \(methodName) found for types `\(t)'"
         )
       )
+    } else if !found && onlyDisabler {
+      TypeAnalyzer.LOG.info("Ignoring invalid method for disabler")
     } else {
       if let args = node.argumentList, args is ArgumentList {
         self.checkCall(node: node)
