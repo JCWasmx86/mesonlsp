@@ -54,10 +54,10 @@ for i in *; do
 					[ "$testname" == "failing/57 assign custom target index" ] ||
 					[ "$testname" == "failing/5 misplaced option" ] ||
 					[ "$testname" == "failing/97 subdir parse error" ] ||
-					[ "$testname" == "unit/21 exit status" ] ||
-					[ "$testname" == "unit/25 non-permitted kwargs" ]); then
+					[ "$testname" == "unit/21 exit status" ]); then
 				:
-			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && [ "$testname" == "failing/50 inconsistent comparison" ]; then
+			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && ([ "$testname" == "failing/50 inconsistent comparison" ] ||
+				[ "$testname" == "unit/25 non-permitted kwargs" ]); then
 				:
 			else
 				echo "$i/$j" >>"$OUTPUTPATH"
@@ -70,10 +70,10 @@ for i in *; do
 done
 cd ../..
 rm -rf meson
-count=$(wc -l failures.txt |cut -d ' ' -f 1)
+count=$(wc -l failures.txt | cut -d ' ' -f 1)
 echo "$count lines"
 cat failures.txt
-if [ "$(wc -l <failures.txt)" -gt 55 ]; then
+if [ "$(wc -l <failures.txt)" -gt 32 ]; then
 	exit 1
 fi
 exit 0
