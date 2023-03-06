@@ -41,7 +41,7 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
       "unstable-wayland": ns.types["wayland_module"]!, "unstable-simd": ns.types["simd_module"]!,
       "sourceset": ns.types["sourceset_module"]!,
     ]
-    if let r = mapping[name] { return [r] }
+    if let type = mapping[name] { return [type] }
     return nil
   }
 }

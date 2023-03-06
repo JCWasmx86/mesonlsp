@@ -23,12 +23,13 @@ import TreeSitterMeson
   @ArgumentParser.Flag var lsp: Bool = false
   @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
+  @ArgumentParser.Flag var benchmark: Bool = false
 
   func parseNTimes() throws {
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = .debug
-      return cl
+    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+      logger.logLevel = .debug
+      return logger
     })
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
@@ -43,9 +44,9 @@ import TreeSitterMeson
 
   func parseEachProject() throws {
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = self.test ? .trace : .debug
-      return cl
+    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+      logger.logLevel = self.test ? .trace : .debug
+      return logger
     })
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let ns = TypeNamespace()
@@ -94,21 +95,38 @@ import TreeSitterMeson
     }
   }
 
+  func doBenchmark() throws {
+    for path in paths {
+      let ns = TypeNamespace()
+      var cache: [String: MesonAST.Node] = [:]
+      var t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+      t.analyzeTypes()
+      for _ in 0..<MesonLSP.NUM_PARSES * 10 {
+        cache.removeAll()
+        t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+        t.analyzeTypes()
+      }
+    }
+  }
+
   public mutating func run() throws {
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
-    if !lsp && paths.isEmpty {
+    if !lsp && paths.isEmpty && !self.benchmark {
       try self.parseNTimes()
       return
-    } else if !lsp && !paths.isEmpty {
+    } else if !lsp && !paths.isEmpty && !self.benchmark {
       try self.parseEachProject()
+      return
+    } else if self.benchmark {
+      try self.doBenchmark()
       return
     }
     let console = Terminal()
     let std = self.stdio
-    LoggingSystem.bootstrap({ label in var cl = ConsoleLogger(label: label, console: console)
-      cl.logLevel = std ? .critical : .info
-      return cl
+    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+      logger.logLevel = std ? .critical : .info
+      return logger
     })
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }

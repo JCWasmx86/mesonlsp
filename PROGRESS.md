@@ -47,6 +47,7 @@
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
 - [x] More tests
 - [x] VSCode Extension (Just a fork of vscode-meson currently)
+- [x] Inlay hints
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions

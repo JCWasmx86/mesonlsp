@@ -62,7 +62,7 @@ public final class MesonServer: LanguageServer {
     self.client.send(
       ShowMessageNotification(
         type: .info,
-        message: "Stack usage: \(heapS) Heap usage: \(stackS) Total: \(totalS)"
+        message: "Heap usage: \(heapS) Stack usage: \(stackS) Total: \(totalS)"
       )
     )
   }
@@ -367,8 +367,9 @@ public final class MesonServer: LanguageServer {
       }
     }
   }
+
   func hover(_ req: Request<HoverRequest>) {
-    let beginHover = clock()
+    let begin = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
     var content: String?
@@ -414,8 +415,7 @@ public final class MesonServer: LanguageServer {
         range: nil
       )
     )
-    let endHover = clock()
-    Timing.INSTANCE.registerMeasurement(name: "hover", begin: Int(beginHover), end: Int(endHover))
+    Timing.INSTANCE.registerMeasurement(name: "hover", begin: begin, end: clock())
   }
 
   func callHover(content: String?, mdocs: String, function: Function?) -> String {
@@ -496,7 +496,7 @@ public final class MesonServer: LanguageServer {
   }
 
   func definition(_ req: Request<DefinitionRequest>) {
-    let beginDefinition = clock()
+    let begin = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
     if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
@@ -509,12 +509,7 @@ public final class MesonServer: LanguageServer {
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
         )
-        let endDefinition = clock()
-        Timing.INSTANCE.registerMeasurement(
-          name: "definition",
-          begin: Int(beginDefinition),
-          end: Int(endDefinition)
-        )
+        Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
         return
       } else {
         MesonServer.LOG.info("Found identifier")
@@ -526,22 +521,12 @@ public final class MesonServer: LanguageServer {
         .description
       let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
-      let endDefinition = clock()
-      Timing.INSTANCE.registerMeasurement(
-        name: "definition",
-        begin: Int(beginDefinition),
-        end: Int(endDefinition)
-      )
+      Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
       return
     }
     MesonServer.LOG.warning("Found no definition")
     req.reply(.locations([]))
-    let endDefinition = clock()
-    Timing.INSTANCE.registerMeasurement(
-      name: "definition",
-      begin: Int(beginDefinition),
-      end: Int(endDefinition)
-    )
+    Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
   }
 
   func rebuildTree() {

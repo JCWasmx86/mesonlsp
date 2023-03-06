@@ -11,9 +11,9 @@ public class TestRunner: ExtendedCodeVisitor {
   public var notRun = 0
   public init(tree: MesonTree, assertions: [String: [AssertionCheck]]) {
     self.assertions = assertions
-    if let a = tree.ast {
+    if let ast = tree.ast {
       self.metadata = tree.metadata
-      a.visit(visitor: self)
+      ast.visit(visitor: self)
       for file in self.assertions.keys {
         for checker in self.assertions[file]! where checker.isPostCheck() {
           if checker.postCheck(metadata: self.metadata!, scope: tree.scope!) == .success {
