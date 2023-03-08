@@ -718,6 +718,11 @@ public final class MesonServer: LanguageServer {
 
   func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
+    if let clientInfo = p.clientInfo {
+      MesonServer.LOG.info(
+        "Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")"
+      )
+    }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
     self.rebuildTree()
