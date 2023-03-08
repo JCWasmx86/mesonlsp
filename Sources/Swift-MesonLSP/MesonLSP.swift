@@ -24,6 +24,7 @@ import TreeSitterMeson
   @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
   @ArgumentParser.Flag var benchmark: Bool = false
+  @ArgumentParser.Flag var keepCache: Bool = false
 
   func parseNTimes() throws {
     let console = Terminal()
@@ -36,7 +37,7 @@ import TreeSitterMeson
     var t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
     t.analyzeTypes()
     for _ in 0..<MesonLSP.NUM_PARSES {
-      cache.removeAll()
+      if !self.keepCache { cache.removeAll() }
       t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes()
     }
@@ -60,7 +61,7 @@ import TreeSitterMeson
       var cache: [String: MesonAST.Node] = [:]
       for p in self.paths {
         let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
-        cache.removeAll()
+        if !self.keepCache { cache.removeAll() }
         t.analyzeTypes()
         var s: Set<MesonTree> = [t]
         var files: [String] = []
@@ -102,7 +103,7 @@ import TreeSitterMeson
       var t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes()
       for _ in 0..<MesonLSP.NUM_PARSES * 10 {
-        cache.removeAll()
+        if !self.keepCache { cache.removeAll() }
         t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
         t.analyzeTypes()
       }
