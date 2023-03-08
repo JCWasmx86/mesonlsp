@@ -124,9 +124,8 @@ import TreeSitterMeson
       return
     }
     let console = Terminal()
-    let std = self.stdio
     LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
-      logger.logLevel = std ? .critical : .info
+      logger.logLevel = .info
       return logger
     })
     let realStdout = dup(STDOUT_FILENO)
