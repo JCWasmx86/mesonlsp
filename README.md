@@ -84,6 +84,7 @@ cd GNOME-Builder-Plugins
 meson -Dplugin_clangd=disabled \
       -Dplugin_gitgui=disabled \
       -Dplugin_icon_installer=disabled \
+      -Dplugin_scriptdir=disabled \
       -Dplugin_shfmt=disabled \
       -Dplugin_swift_templates=disabled \
       -Dplugin_texlab=disabled \
