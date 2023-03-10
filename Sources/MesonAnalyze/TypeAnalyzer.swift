@@ -502,6 +502,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         self.metadata.registerMethodCall(call: node)
         found = true
         checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
+        node.types = dedup(types: ownResultTypes)
       }
     }
     let onlyDisabler = types.count == 1 && (types[0] as? Disabler) != nil
