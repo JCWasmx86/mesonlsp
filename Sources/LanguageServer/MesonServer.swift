@@ -731,6 +731,7 @@ public final class MesonServer: LanguageServer {
       workspaceSymbolProvider: .bool(true),
       documentFormattingProvider: .bool(true),
       declarationProvider: .bool(true),
+      workspace: WorkspaceServerCapabilities(),
       inlayHintProvider: .bool(true)
     )
   }
