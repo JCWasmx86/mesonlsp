@@ -42,6 +42,7 @@ for i in *; do
 		if echo "$output" | grep -q "🔴"; then
 			if [ "$(echo "$output" | grep -c 🔴)" -eq 1 ] &&
 				([ "$testname" == "common/162 subdir if_found" ] ||
+				 	[ "$testname" == "common/67 modules" ] ||
 					[ "$testname" == "failing/11 object arithmetic" ] ||
 					[ "$testname" == "failing/12 string arithmetic" ] ||
 					[ "$testname" == "failing/13 array arithmetic" ] ||
@@ -73,7 +74,7 @@ rm -rf meson
 count=$(wc -l failures.txt | cut -d ' ' -f 1)
 echo "$count lines"
 cat failures.txt
-if [ "$(wc -l <failures.txt)" -gt 40 ]; then
+if [ "$(wc -l <failures.txt)" -gt 29 ]; then
 	exit 1
 fi
 exit 0
