@@ -1,6 +1,9 @@
 name: MacOS-CI
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+
 # Just check that it builds. I don't have MacOS, but
 # assuming it compiles, it should there, as I didn't do Linux
 # specific things
