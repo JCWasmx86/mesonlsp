@@ -6,8 +6,31 @@ public class InlayHints: CodeVisitor {
 
   func makeHint(_ id: Node) {
     let pos = Position(line: Int(id.location.startLine), utf16index: Int(id.location.endColumn))
-    let text = ":" + id.types.map({ $0.toString() }).sorted().joined(separator: "|")
+    let text = ":" + prettify(id.types, 0)
     self.inlays.append(InlayHint(position: pos, label: .string(text)))
+  }
+
+  func prettify(_ types: [Type], _ depth: Int) -> String {
+    var strs: [String] = []
+    for t in types {
+      if t is Disabler && types.count > 1 { continue }
+      if let lt = t as? ListType {
+        if depth >= 1 {
+          strs.append("list(...)")
+        } else {
+          strs.append("list(" + prettify(lt.types, depth + 1) + ")")
+        }
+      } else if let dt = t as? Dict {
+        if depth >= 1 {
+          strs.append("dict(...)")
+        } else {
+          strs.append("dict(" + prettify(dt.types, depth + 1) + ")")
+        }
+      } else {
+        strs.append(t.toString())
+      }
+    }
+    return strs.sorted().joined(separator: "|")
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
