@@ -96,6 +96,8 @@ public final class MesonServer: LanguageServer {
     _register(MesonServer.complete)
     _register(MesonServer.highlight)
     _register(MesonServer.inlayHints)
+    _register(MesonServer.didCreateFiles)
+    _register(MesonServer.didDeleteFiles)
   }
 
   func inlayHints(_ req: Request<InlayHintRequest>) {
@@ -699,6 +701,18 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     MesonServer.LOG.info("[Change] Adding \(file!) to memcache")
     self.memfiles[file!] = note.params.contentChanges[0].text
+    self.rebuildTree()
+  }
+
+  func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) { self.rebuildTree() }
+
+  func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
+    for f in note.params.files {
+      let path = f.uri.fileURL!.path
+      if self.memfiles[path] != nil { self.memfiles.removeValue(forKey: path) }
+      if self.openFiles.contains(path) { self.openFiles.remove(path) }
+      if self.astCache[path] != nil { self.astCache.removeValue(forKey: path) }
+    }
     self.rebuildTree()
   }
 
