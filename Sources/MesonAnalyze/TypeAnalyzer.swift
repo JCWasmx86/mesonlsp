@@ -417,12 +417,34 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
         if node.function!.name == "set_variable" {
           let args = al.args
-          if !args.isEmpty, let sl = args[0] as? StringLiteral {
-            let varname = sl.contents()
-            let types = args[1].types
-            self.scope.variables[varname] = types
-            self.applyToStack(varname, types)
-            TypeAnalyzer.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
+          if !args.isEmpty {
+            if let sl = args[0] as? StringLiteral {
+              let varname = sl.contents()
+              let types = args[1].types
+              self.scope.variables[varname] = types
+              self.applyToStack(varname, types)
+              TypeAnalyzer.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
+            } else if let be = args[0] as? BinaryExpression, be.op == .some(.plus),
+              (be.lhs is IdExpression && be.rhs is StringLiteral)
+                || (be.lhs is StringLiteral && be.rhs is IdExpression)
+            {
+              let lhs = be.lhs
+              let rhs = be.rhs
+              let id = (rhs is IdExpression) ? (rhs as! IdExpression).id : (lhs as! IdExpression).id
+              let vars = self.searchForIdAsStrArray(id, node)
+              TypeAnalyzer.LOG.info("set_variable(be): Guessed \(vars)")
+              for heuristics in vars {
+                let types = args[1].types
+                var varname = ""
+                if let sl = lhs as? StringLiteral {
+                  varname = sl.contents() + heuristics
+                } else if let sl = lhs as? StringLiteral {
+                  varname = heuristics + sl.contents()
+                }
+                self.scope.variables[varname] = types
+                self.applyToStack(varname, types)
+              }
+            }
           }
         }
       }
@@ -434,6 +456,94 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     Timing.INSTANCE.registerMeasurement(name: "visitFunctionExpression", begin: begin, end: clock())
   }
+
+  func searchForIdAsStrArray(_ id: String, _ node: MesonAST.Node) -> [String] {
+    let parent = node.parent!
+    if let bd = parent as? BuildDefinition {
+      var foundOurselves = false
+      for b in bd.stmts.reversed() {
+        if b.equals(right: node) {
+          foundOurselves = true
+          continue
+        } else if foundOurselves {
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
+            s.op == .some(.equals), idexpr.id == id
+          {
+            if let r = s.rhs as? StringLiteral {
+              return [r.contents()]
+            } else if let r = s.rhs as? ArrayLiteral {
+              return Array(
+                r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+              )
+            }
+          }
+          continue
+        }  // We are below the subdir call
+      }
+      // Won't traverse the sourcefiles, too slow (For now)
+      return []
+    } else if let its = parent as? IterationStatement {
+      var foundOurselves = false
+      for b in its.block.reversed() {
+        if b.equals(right: node) {
+          foundOurselves = true
+          continue
+        } else if foundOurselves {
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
+            s.op == .some(.equals), idexpr.id == id
+          {
+            if let r = s.rhs as? StringLiteral {
+              return [r.contents()]
+            } else if let r = s.rhs as? ArrayLiteral {
+              return Array(
+                r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+              )
+            }
+          }
+          continue
+        }  // We are below the subdir call
+      }
+      for i in its.ids {
+        if let idexpr = i as? IdExpression, idexpr.id == id {
+          if let arr = its.expression as? ArrayLiteral {
+            return Array(
+              arr.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+            )
+          } else if let idexpr2 = its.expression as? IdExpression {
+            return self.searchForIdAsStrArray(idexpr2.id, parent)
+          }
+          break
+        }
+      }
+      return self.searchForIdAsStrArray(id, parent)
+    } else if let sst = parent as? SelectionStatement {
+      for blk in sst.blocks.reversed() {
+        var foundOurselves = true
+        for b in blk.reversed() {
+          if b.equals(right: node) {
+            foundOurselves = true
+            continue
+          } else if foundOurselves {
+            if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
+              s.op == .some(.equals), idexpr.id == id
+            {
+              if let r = s.rhs as? StringLiteral {
+                return [r.contents()]
+              } else if let r = s.rhs as? ArrayLiteral {
+                return Array(
+                  r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+                )
+              }
+            }
+          }
+        }
+        if foundOurselves { break }
+      }
+      return self.searchForIdAsStrArray(id, parent)
+    }
+    return []
+  }
+
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
   public func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
   public func visitConditionalExpression(node: ConditionalExpression) {
