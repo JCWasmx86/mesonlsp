@@ -1,3 +1,12 @@
+# 1.3 (Mar 11 2023)
+- Implement inlay hints
+- Implement `textDocument/documentHighlight`
+- Listen to `workspace/didCreateFiles` and `workspace/didDeleteFiles`
+- Slightly improve auto completion
+- Send memory usage information to the server periodically
+- Fix a lot of type definitions
+- Add some heuristics for `subdir(x)`, where x is not a string literal. This allows parsing e.g. GTK correctly.
+- Add web-based dashboard for showing performance over the time
 # 1.2.1 (Feb 16 2023)
 - Upload binary on release
 # 1.2 (Feb 16 2023)
