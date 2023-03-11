@@ -2,6 +2,7 @@ import ArgumentParser
 import ConsoleKit
 import Dispatch
 import Foundation
+import Interpreter
 import LanguageServer
 import LanguageServerProtocol
 import LanguageServerProtocolJSONRPC
@@ -24,6 +25,7 @@ import TreeSitterMeson
   @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
   @ArgumentParser.Flag var benchmark: Bool = false
+  @ArgumentParser.Flag var interpret: Bool = false
   @ArgumentParser.Flag var keepCache: Bool = false
 
   func parseNTimes() throws {
@@ -41,6 +43,19 @@ import TreeSitterMeson
       t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes()
     }
+  }
+
+  func doInterpret() throws {
+    let console = Terminal()
+    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+      logger.logLevel = .trace
+      return logger
+    })
+    let ns = TypeNamespace()
+    var cache: [String: MesonAST.Node] = [:]
+    let t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
+    let interpreter = Interpreter(ns: ns, tree: t)
+    interpreter.run()
   }
 
   func parseEachProject() throws {
@@ -121,6 +136,9 @@ import TreeSitterMeson
       return
     } else if self.benchmark {
       try self.doBenchmark()
+      return
+    } else if self.interpret {
+      try self.doInterpret()
       return
     }
     let console = Terminal()
