@@ -444,6 +444,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 self.scope.variables[varname] = types
                 self.applyToStack(varname, types)
               }
+            } else if let me = args[0] as? MethodExpression, let str = me.obj as? StringLiteral,
+              let meid = me.id as? IdExpression, meid.id == "format",
+              let al = me.argumentList as? ArgumentList, al.args.count == 1,
+              let idToSearch = al.args[0] as? IdExpression
+            {
+              let vars = self.searchForIdAsStrArray(idToSearch.id, node)
+              TypeAnalyzer.LOG.info("set_variable(format): Guessed \(vars)")
+              for heuristics in vars {
+                let types = args[1].types
+                let varname = str.contents().replacingOccurrences(of: "@0@", with: heuristics)
+                self.scope.variables[varname] = types
+                self.applyToStack(varname, types)
+              }
             }
           }
         }
