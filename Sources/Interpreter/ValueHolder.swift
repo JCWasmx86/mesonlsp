@@ -1,5 +1,5 @@
-import MesonAST
 import MesonAnalyze
+import MesonAST
 import PathKit
 
 open class ValueHolder {

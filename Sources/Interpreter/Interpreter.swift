@@ -1,7 +1,7 @@
-import Logging
-import MesonAST
-import MesonAnalyze
 import Foundation
+import Logging
+import MesonAnalyze
+import MesonAST
 import PathKit
 
 public class Interpreter {
