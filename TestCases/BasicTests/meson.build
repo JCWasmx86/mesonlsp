@@ -81,7 +81,9 @@ imadep = dependency('abc')
 if not imadep.found()
     imadep = disabler()
 endif
-checker = imadep # ana:var: checker = dep|disabler
+checker = (
+    imadep # ana:var: checker = dep|disabler
+)
 UP_BIN = 0B1 # ana:var: UP_BIN = int
 UP_HEX = 0X1 # ana:var: UP_HEX = int
 UP_OCT = 0O1 # ana:var: UP_OCT = int

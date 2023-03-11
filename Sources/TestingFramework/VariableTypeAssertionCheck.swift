@@ -32,9 +32,7 @@ class VariableTypeAssertionCheck: AssertionCheck {
         return .failure
       }
     }
-    VariableTypeAssertionCheck.LOG.error(
-      "Unable to find expected variable \(self.varname)!"
-    )
+    VariableTypeAssertionCheck.LOG.error("Unable to find expected variable \(self.varname)!")
     return .failure
   }
   func formatMessage() -> String { return "Checking that \(self.varname) has types \(self.types)" }
