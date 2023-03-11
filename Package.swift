@@ -13,6 +13,7 @@ let package = Package(
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
     .library(name: "CMem", targets: ["CMem"]),
+    .library(name: "Interpreter", targets: ["Interpreter"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
@@ -35,6 +36,10 @@ let package = Package(
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
     .target(name: "MesonDocs", dependencies: []),
     .target(
+      name: "Interpreter",
+      dependencies: ["MesonAnalyze", "MesonAST", .product(name: "Logging", package: "swift-log")]
+    ),
+    .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
     ), .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
@@ -52,7 +57,7 @@ let package = Package(
       name: "Swift-MesonLSP",
       dependencies: [
         "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
-        "TestingFramework", .product(name: "ConsoleKit", package: "console-kit"),
+        "TestingFramework", "Interpreter", .product(name: "ConsoleKit", package: "console-kit"),
         .product(name: "Logging", package: "swift-log"),
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),

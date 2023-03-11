@@ -27,4 +27,16 @@ public final class IntegerLiteral: Expression {
 
   }
   public var description: String { return "(IntegerLiteral \(value))" }
+
+  public func parse() -> Int {
+		let lower = self.value.lowercased()
+		if lower.starts(with: "0x") {
+			return Int(lower.replacingOccurrences(of: "0x", with: ""), radix: 16)!
+		} else if lower.starts(with: "0b") {
+			return Int(lower.replacingOccurrences(of: "0b", with: ""), radix: 2)!
+		} else if lower.starts(with: "0o") {
+			return Int(lower.replacingOccurrences(of: "0o", with: ""), radix: 8)!
+		}
+		return Int(lower)!
+  }
 }
