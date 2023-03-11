@@ -1,0 +1,1 @@
+simplestrvar = 1
