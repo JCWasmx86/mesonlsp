@@ -438,7 +438,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 var varname = ""
                 if let sl = lhs as? StringLiteral {
                   varname = sl.contents() + heuristics
-                } else if let sl = lhs as? StringLiteral {
+                } else if let sl = rhs as? StringLiteral {
                   varname = heuristics + sl.contents()
                 }
                 self.scope.variables[varname] = types
