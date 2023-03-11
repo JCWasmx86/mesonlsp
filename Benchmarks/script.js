@@ -24,7 +24,7 @@ function percentify(oldValue, newValue) {
 function createOverviewCharts() {
   ctx = document.getElementById("sizeChart");
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
-  const colors = ["#1c71d8", "#c01c28", "#613583"];
+  const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
   new Chart(ctx, {
     type: "bar",
     data: {
@@ -71,6 +71,7 @@ function createOverviewCharts() {
     "gnome-builder",
     "qemu",
     "GNOME-Builder-Plugins",
+    "gtk",
   ];
   for (const element of elementNames) {
     ctx = document.getElementById(element.replaceAll("-", "_"));
@@ -201,6 +202,7 @@ function changedVersions() {
     "gnome-builder",
     "qemu",
     "GNOME-Builder-Plugins",
+    "gtk",
   ];
   for (const element of elementNames) {
     const p = findProject(oldData, element);
