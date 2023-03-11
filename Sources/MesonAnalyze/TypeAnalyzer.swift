@@ -457,6 +457,35 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 self.scope.variables[varname] = types
                 self.applyToStack(varname, types)
               }
+            } else if let me = args[0] as? MethodExpression, let idexpr = me.obj as? IdExpression,
+              let meid = me.id as? IdExpression,
+              ["underscorify", "to_lower", "to_upper", "strip"].contains(meid.id)
+            {
+              let vars = self.searchForIdAsStrArray(idexpr.id, node)
+              TypeAnalyzer.LOG.info("set_variable(limitedmethods): Guessed \(vars)")
+              for heuristics in vars {
+                let types = args[1].types
+                var varname = heuristics
+                switch meid.id {
+                case "underscorify":
+                  var res = ""
+                  for v in varname {
+                    if v.isLetter || v.isNumber {
+                      res.append(v)
+                      continue
+                    }
+                    res += "_"
+                  }
+                  varname = res
+                case "to_lower": varname = varname.lowercased()
+                case "to_upper": varname = varname.uppercased()
+                case "strip": varname = varname.trimmingCharacters(in: .whitespacesAndNewlines)
+                default: fatalError("unreachable")
+                }
+                print(varname, meid.id)
+                self.scope.variables[varname] = types
+                self.applyToStack(varname, types)
+              }
             }
           }
         }

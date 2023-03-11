@@ -21,3 +21,19 @@ foreach x : ['1']
     set_variable('have_' + x, true)
 endforeach
 # ana:var: have_1 = bool
+
+foreach x : ['2', '3']
+    set_variable('have_@0@'.format(x), true)
+endforeach
+# ana:var: have_2 = bool
+# ana:var: have_3 = bool
+
+python_tools = [
+    'glib-genmarshal',
+    'glib-mkenums',
+]
+foreach tool: python_tools
+    set_variable(tool.underscorify(), true)
+endforeach
+# ana:var: glib_genmarshal = bool
+# ana:var: glib_mkenums = bool
