@@ -95,6 +95,8 @@ public class MultiSubdirCall: FunctionExpression {
             return Array(
               arr.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
             )
+          } else if let idexpr2 = its.expression as? IdExpression {
+          	return self.searchFor2(idexpr2.id, parent)
           }
           break
         }
