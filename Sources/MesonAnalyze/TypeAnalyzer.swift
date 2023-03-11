@@ -363,7 +363,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         node.types = types
         TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
       } else if !args.isEmpty {
-        var types: [Type] = [self.t.types["any"]!]
+        var types: [Type] = fn.returnTypes
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = self.dedup(types: types)
         TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
@@ -465,24 +465,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               TypeAnalyzer.LOG.info("set_variable(limitedmethods): Guessed \(vars)")
               for heuristics in vars {
                 let types = args[1].types
-                var varname = heuristics
-                switch meid.id {
-                case "underscorify":
-                  var res = ""
-                  for v in varname {
-                    if v.isLetter || v.isNumber {
-                      res.append(v)
-                      continue
-                    }
-                    res += "_"
-                  }
-                  varname = res
-                case "to_lower": varname = varname.lowercased()
-                case "to_upper": varname = varname.uppercased()
-                case "strip": varname = varname.trimmingCharacters(in: .whitespacesAndNewlines)
-                default: fatalError("unreachable")
-                }
-                print(varname, meid.id)
+                let varname = applyMethod(varname: heuristics, name: meid.id)
                 self.scope.variables[varname] = types
                 self.applyToStack(varname, types)
               }
@@ -497,6 +480,25 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     Timing.INSTANCE.registerMeasurement(name: "visitFunctionExpression", begin: begin, end: clock())
+  }
+
+  func applyMethod(varname: String, name: String) -> String {
+    switch name {
+    case "underscorify":
+      var res = ""
+      for v in varname {
+        if v.isLetter || v.isNumber {
+          res.append(v)
+          continue
+        }
+        res += "_"
+      }
+      return res
+    case "to_lower": return varname.lowercased()
+    case "to_upper": return varname.uppercased()
+    case "strip": return varname.trimmingCharacters(in: .whitespacesAndNewlines)
+    default: fatalError("unreachable")
+    }
   }
 
   func searchForIdAsStrArray(_ id: String, _ node: MesonAST.Node) -> [String] {
