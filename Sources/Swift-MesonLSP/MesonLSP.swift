@@ -128,13 +128,13 @@ import TreeSitterMeson
   public mutating func run() throws {
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
-    if !lsp && paths.isEmpty && !self.benchmark {
+    if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
       try self.parseNTimes()
       return
-    } else if !lsp && !paths.isEmpty && !self.benchmark {
+    } else if !lsp && !paths.isEmpty && !self.benchmark && !self.interpret {
       try self.parseEachProject()
       return
-    } else if self.benchmark {
+    } else if self.benchmark && !self.interpret {
       try self.doBenchmark()
       return
     } else if self.interpret {
