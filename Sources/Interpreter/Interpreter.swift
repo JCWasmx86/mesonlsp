@@ -19,6 +19,7 @@ public class Interpreter {
     self.scope["meson"] = MesonValueHolder(t: self.ns)
     self.scope["build_machine"] = BuildMachineHolder(t: self.ns)
     self.scope["host_machine"] = HostMachineHolder(t: self.ns)
+    self.scope["target_machine"] = TargetMachineHolder(t: self.ns)
     self.tempDir = try! Path.uniqueTemporary()
     Interpreter.LOG.info("MESON_BUILD_ROOT: \(self.tempDir)")
   }
@@ -284,7 +285,7 @@ public class Interpreter {
     } else if let fe = node as? FunctionExpression {
       return self.executeFunction(fe)
     } else if let id = node as? IdExpression {
-      Interpreter.LOG.info("Accessing id: \(id.id)")
+      Interpreter.LOG.info("Accessing id: \(id.id) = \(self.scope[id.id]!.clone())")
       return self.scope[id.id]!.clone()
     } else if let il = node as? IntegerLiteral {
       return IntegerValueHolder(t: self.ns, value: il.parse())
@@ -345,6 +346,13 @@ public class Interpreter {
         "Assertion failed at \(fe.file.file):\(fe.location.format()): \(msg)"
       )
       exit(1)
+
+    case "include_directories":
+      var args: [String] = []
+      for p in ao.positionalArguments {
+        if let s = p as? StringValueHolder { args.append(s.value) }
+      }
+      return IncValueHolder(t: self.ns, incs: args)
     case "run_command":
       var args: [String] = []
       var capture = true
@@ -414,8 +422,8 @@ public class Interpreter {
         }
       }
     }
-
-    return obj.executeMethod(t: self.ns, args: ao, name: method)
+    Interpreter.LOG.info("\(type(of: obj))")
+    return obj.executeMethod(t: self.ns, args: ao, name: method, tree: self.tree)
   }
 
   func resolvePathToExecutableURL(_ command: String) -> URL? {

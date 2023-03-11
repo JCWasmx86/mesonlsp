@@ -1,4 +1,6 @@
 import MesonAST
+import MesonAnalyze
+import PathKit
 
 open class ValueHolder {
   let type: Type
@@ -9,13 +11,16 @@ open class ValueHolder {
 
   open func equals(_ other: ValueHolder) -> Bool { return self.type.name == other.type.name }
 
-  open func executeMethod(t: TypeNamespace, args: ArgsObject, name: String) -> ValueHolder? {
-    return nil
-  }
+  open func executeMethod(t: TypeNamespace, args: ArgsObject, name: String, tree: MesonTree)
+    -> ValueHolder?
+  { return nil }
 }
 
 open class ErrorValueHolder: ValueHolder {
   public init(t: TypeNamespace) { super.init(type: t.types["void"]!) }
+
+  public override init(type: Type) { super.init(type: type) }
+  public override func clone() -> ValueHolder { return ErrorValueHolder(type: self.type) }
 }
 
 open class ListValueHolder: ValueHolder {
@@ -90,9 +95,12 @@ open class StringValueHolder: ValueHolder {
     return false
   }
 
-  public override func executeMethod(t: TypeNamespace, args: ArgsObject, name: String)
-    -> ValueHolder?
-  {
+  public override func executeMethod(
+    t: TypeNamespace,
+    args: ArgsObject,
+    name: String,
+    tree: MesonTree
+  ) -> ValueHolder? {
     switch name {
     case "strip":
       return StringValueHolder(
@@ -135,24 +143,46 @@ open class DictValueHolder: ValueHolder {
   }
 }
 
-open class MesonValueHolder: ValueHolder {
+public class MesonValueHolder: ValueHolder {
 
   public init(t: TypeNamespace) { super.init(type: t.types["meson"]!) }
+
+  public override init(type: Type) { super.init(type: type) }
+  public override func clone() -> ValueHolder { return MesonValueHolder(type: self.type) }
+
+  public override func executeMethod(
+    t: TypeNamespace,
+    args: ArgsObject,
+    name: String,
+    tree: MesonTree
+  ) -> ValueHolder? {
+    switch name {
+    case "current_source_dir":
+      return StringValueHolder(t: t, value: Path(tree.ast!.file.file).parent().description)
+    default: return nil
+    }
+  }
 }
 
 open class BuildMachineHolder: ValueHolder {
 
   public init(t: TypeNamespace) { super.init(type: t.types["build_machine"]!) }
+  public override init(type: Type) { super.init(type: type) }
+  public override func clone() -> ValueHolder { return BuildMachineHolder(type: self.type) }
 }
 
 open class HostMachineHolder: ValueHolder {
 
   public init(t: TypeNamespace) { super.init(type: t.types["host_machine"]!) }
+  public override init(type: Type) { super.init(type: type) }
+  public override func clone() -> ValueHolder { return HostMachineHolder(type: self.type) }
 }
 
 open class TargetMachineHolder: ValueHolder {
 
   public init(t: TypeNamespace) { super.init(type: t.types["target_machine"]!) }
+  public override init(type: Type) { super.init(type: type) }
+  public override func clone() -> ValueHolder { return TargetMachineHolder(type: self.type) }
 }
 
 open class IntegerValueHolder: ValueHolder {
@@ -244,14 +274,44 @@ public class RunresultHolder: ValueHolder {
     return false
   }
 
-  public override func executeMethod(t: TypeNamespace, args: ArgsObject, name: String)
-    -> ValueHolder?
-  {
+  public override func executeMethod(
+    t: TypeNamespace,
+    args: ArgsObject,
+    name: String,
+    tree: MesonTree
+  ) -> ValueHolder? {
     switch name {
     case "returncode": return IntegerValueHolder(t: t, value: Int(self.returncode))
     case "stdout": return StringValueHolder(t: t, value: self.sout)
     case "stderr": return StringValueHolder(t: t, value: self.serr)
     default: return nil
     }
+  }
+}
+
+public class IncValueHolder: ValueHolder {
+  public let incs: [String]
+
+  public init(t: TypeNamespace, incs: [String]) {
+    self.incs = incs
+    super.init(type: t.types["inc"]!)
+  }
+
+  public init(t: Type, incs: [String]) {
+    self.incs = incs
+    super.init(type: t)
+  }
+
+  public override func clone() -> ValueHolder {
+    return IncValueHolder(t: self.type, incs: Array(self.incs))
+  }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? IncValueHolder {
+      if lh.incs.count != self.incs.count { return false }
+      for i in 0..<lh.incs.count where lh.incs[i] != self.incs[i] { return false }
+      return true
+    }
+    return false
   }
 }
