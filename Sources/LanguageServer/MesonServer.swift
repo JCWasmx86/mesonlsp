@@ -585,7 +585,12 @@ public final class MesonServer: LanguageServer {
         MesonServer.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
         return
       }
-      tmptree.analyzeTypes()
+      tmptree.analyzeTypes(
+        ns: self.ns,
+        dontCache: self.openFiles,
+        cache: &self.astCache,
+        memfiles: self.memfiles
+      )
       newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
       if oldValue != newValue {
         MesonServer.LOG.info(

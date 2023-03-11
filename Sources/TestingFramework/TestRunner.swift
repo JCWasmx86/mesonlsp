@@ -9,6 +9,7 @@ public class TestRunner: ExtendedCodeVisitor {
   public var failures = 0
   public var successes = 0
   public var notRun = 0
+
   public init(tree: MesonTree, assertions: [String: [AssertionCheck]]) {
     self.assertions = assertions
     if let ast = tree.ast {
@@ -70,4 +71,5 @@ public class TestRunner: ExtendedCodeVisitor {
   public func visitDictionaryLiteral(node: DictionaryLiteral) { node.visitChildren(visitor: self) }
   public func visitKeyValueItem(node: KeyValueItem) { node.visitChildren(visitor: self) }
   public func visitSubdirCall(node: SubdirCall) { node.visitChildren(visitor: self) }
+  public func visitMultiSubdirCall(node: MultiSubdirCall) { node.visitChildren(visitor: self) }
 }

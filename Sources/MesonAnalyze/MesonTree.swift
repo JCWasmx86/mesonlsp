@@ -16,6 +16,7 @@ public final class MesonTree: Hashable {
   var options: OptionState?
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
+  public var multiCallSubfiles: [MultiSubdirCall] = []
 
   public init(
     file: String,
@@ -128,6 +129,8 @@ public final class MesonTree: Hashable {
       self.subfiles.append(tree)
       idx += 1
     }
+    for i in astPatcher.multiSubdirNodes { self.multiCallSubfiles.append(i) }
+
     for i in 0..<astPatcher.subdirs.count {
       let sd = astPatcher.subdirs[i]
       astPatcher.subdirNodes[i].fullFile =
@@ -153,7 +156,13 @@ public final class MesonTree: Hashable {
     }
   }
 
-  public func analyzeTypes() {
+  public func analyzeTypes(
+    ns: TypeNamespace,
+    depth: Int = 0,
+    dontCache: Set<String>,
+    cache: inout [String: MesonAST.Node],
+    memfiles: [String: String] = [:]
+  ) {
     if self.ast == nil { return }
     let root = Scope()
     root.variables.updateValue([self.ns.types["meson"]!], forKey: "meson")
@@ -164,10 +173,51 @@ public final class MesonTree: Hashable {
     if let o = self.options { options = Array(o.opts.values) }
     let t = TypeAnalyzer(parent: root, tree: self, options: options)
     self.ast!.setParents()
+    self.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)
     self.ast!.visit(visitor: t)
     if self.depth == 0 { self.scope = t.scope }
     self.metadata = t.metadata
-    for s in self.subfiles where s.ast != nil { assert(s.ast!.parent is SubdirCall) }
+    for s in self.subfiles where s.ast != nil {
+      assert(s.ast!.parent is SubdirCall || s.ast!.parent is MultiSubdirCall)
+    }
+  }
+
+  func heuristics(
+    ns: TypeNamespace,
+    depth: Int = 0,
+    dontCache: Set<String>,
+    cache: inout [String: MesonAST.Node],
+    memfiles: [String: String] = [:]
+  ) {
+    var idx = 0
+    for msc in self.multiCallSubfiles {
+      let heuristics = msc.heuristics()
+      msc.subdirnames = heuristics
+      for heuristic in heuristics {
+        MesonTree.LOG.info("Found subdir call using heuristics: \(heuristic)")
+        let f = Path(
+          Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"
+        ).normalize().description
+        let tree = try! MesonTree(
+          file: f,
+          ns: ns,
+          depth: depth + 1,
+          dontCache: dontCache,
+          cache: &cache,
+          memfiles: memfiles
+        )
+        if tree.ast != nil {
+          tree.ast!.parent = self.multiCallSubfiles[idx]
+          tree.ast!.setParents()
+          assert(tree.ast!.parent != nil)
+        }
+        self.subfiles.append(tree)
+      }
+      idx += 1
+    }
+    for s in self.subfiles where s.ast != nil {
+      s.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)
+    }
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {

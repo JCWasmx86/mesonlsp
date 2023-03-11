@@ -4,6 +4,7 @@ import PathKit
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []
   public var subdirNodes: [SubdirCall] = []
+  public var multiSubdirNodes: [MultiSubdirCall] = []
   private var parent: String = ""
 
   func isSubdirCall(node: Node) -> Bool {
@@ -18,6 +19,16 @@ class ASTPatcher: CodeVisitor {
           return true
         }
       }
+    }
+    return false
+  }
+
+  func isMultiSubdirCall(node: Node) -> Bool {
+    if let f = node as? FunctionExpression, let fid = f.id as? IdExpression, fid.id == "subdir",
+      let alNode = f.argumentList, let al = alNode as? ArgumentList
+    {
+      let args = al.args
+      for a in args where a is IdExpression { return true }
     }
     return false
   }
@@ -39,6 +50,19 @@ class ASTPatcher: CodeVisitor {
       node.stmts[x].parent = node
       subdirNodes.append(sc)
     }
+    idx = 0
+    idxes = []
+    for stmt in node.stmts {
+      if self.isMultiSubdirCall(node: stmt) { idxes.append(idx) }
+      idx += 1
+    }
+    for x in idxes {
+      let stmt = node.stmts[x]
+      let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.stmts[x] = sc
+      node.stmts[x].parent = node
+      multiSubdirNodes.append(sc)
+    }
     node.visitChildren(visitor: self)
   }
   func visitErrorNode(node: ErrorNode) { node.visitChildren(visitor: self) }
@@ -53,6 +77,12 @@ class ASTPatcher: CodeVisitor {
           node.blocks[bidx][idx] = sc
           node.blocks[bidx][idx].parent = node
           subdirNodes.append(sc)
+        } else if self.isMultiSubdirCall(node: b) {
+          let stmt = node.blocks[bidx][idx]
+          let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+          node.blocks[bidx][idx] = sc
+          node.blocks[bidx][idx].parent = node
+          multiSubdirNodes.append(sc)
         }
         idx += 1
       }
@@ -75,6 +105,19 @@ class ASTPatcher: CodeVisitor {
       node.block[x] = sc
       node.block[x].parent = node
       subdirNodes.append(sc)
+    }
+    idx = 0
+    idxes = []
+    for stmt in node.block {
+      if self.isMultiSubdirCall(node: stmt) { idxes.append(idx) }
+      idx += 1
+    }
+    for x in idxes {
+      let stmt = node.block[x]
+      let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+      node.block[x] = sc
+      node.block[x].parent = node
+      multiSubdirNodes.append(sc)
     }
     node.visitChildren(visitor: self)
   }

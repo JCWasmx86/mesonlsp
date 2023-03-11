@@ -56,6 +56,29 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     Timing.INSTANCE.registerMeasurement(name: "visitSubdirCall", begin: begin, end: clock())
   }
 
+  public func visitMultiSubdirCall(node: MultiSubdirCall) {
+    let begin = clock()
+    node.visitChildren(visitor: self)
+    for subdirname in node.subdirnames {
+      let newPath = Path(
+        Path(node.file.file).absolute().parent().description + "/" + subdirname + "/meson.build"
+      ).description
+      let subtree = self.tree.findSubdirTree(file: newPath)
+      if let st = subtree {
+        let tmptree = self.tree
+        self.tree = st
+        self.scope = Scope(parent: self.scope)
+        st.ast?.setParents()
+        st.ast?.parent = node
+        st.ast?.visit(visitor: self)
+        self.tree = tmptree
+      } else {
+        TypeAnalyzer.LOG.warning("Not found (Multisubdir): \(subdirname)")
+      }
+    }
+    Timing.INSTANCE.registerMeasurement(name: "visitMultiSubdirCall", begin: begin, end: clock())
+  }
+
   public func applyToStack(_ name: String, _ types: [Type]) {
     if self.stack.isEmpty { return }
     let begin = clock()

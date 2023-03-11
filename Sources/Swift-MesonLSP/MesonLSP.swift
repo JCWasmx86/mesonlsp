@@ -37,11 +37,11 @@ import TreeSitterMeson
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
     var t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
-    t.analyzeTypes()
+    t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     for _ in 0..<MesonLSP.NUM_PARSES {
       if !self.keepCache { cache.removeAll() }
       t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
-      t.analyzeTypes()
+      t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     }
   }
 
@@ -77,7 +77,7 @@ import TreeSitterMeson
       for p in self.paths {
         let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
         if !self.keepCache { cache.removeAll() }
-        t.analyzeTypes()
+        t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
         var s: Set<MesonTree> = [t]
         var files: [String] = []
         while !s.isEmpty {
@@ -98,7 +98,7 @@ import TreeSitterMeson
       for p in self.paths {
         var cache: [String: MesonAST.Node] = [:]
         let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
-        t.analyzeTypes()
+        t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
         if let mt = t.metadata {
           for kv in mt.diagnostics {
             for diag in kv.value {
@@ -116,11 +116,11 @@ import TreeSitterMeson
       let ns = TypeNamespace()
       var cache: [String: MesonAST.Node] = [:]
       var t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
-      t.analyzeTypes()
+      t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       for _ in 0..<MesonLSP.NUM_PARSES * 10 {
         if !self.keepCache { cache.removeAll() }
         t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
-        t.analyzeTypes()
+        t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       }
     }
   }
