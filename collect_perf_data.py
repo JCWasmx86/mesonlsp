@@ -15,6 +15,7 @@ PROJECTS = {
     "gnome-builder": "https://github.com/GNOME/gnome-builder",
     "qemu": "https://github.com/qemu/qemu",
     "GNOME-Builder-Plugins": "https://github.com/JCWasmx86/GNOME-Builder-Plugins",
+    "gtk": "https://github.com/GNOME/gtk"
 }
 N_ITERATIONS = 10
 
