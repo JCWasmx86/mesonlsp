@@ -193,15 +193,7 @@ public class Interpreter {
         if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
           return IntegerValueHolder(t: self.ns, value: lhsB.value / rhsB.value)
         }
-      case .equalsEquals:
-        if let lhsB = lhs as? BoolValueHolder, let rhsB = rhs as? BoolValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value == rhsB.value)
-        } else if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value == rhsB.value)
-        } else if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? StringValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value == rhsB.value)
-        }
-      // TODO: Dict/list
+      case .equalsEquals: return BoolValueHolder(t: self.ns, value: lhs.equals(rhs))
       case .ge:
         if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
           return BoolValueHolder(t: self.ns, value: lhsB.value >= rhsB.value)
@@ -215,8 +207,16 @@ public class Interpreter {
           return BoolValueHolder(t: self.ns, value: lhsB.value > rhsB.value)
         }
       case .IN:
-        // TODO
-        _ = 1
+        if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? StringValueHolder {
+          return BoolValueHolder(t: self.ns, value: rhsB.value.contains(lhsB.value))
+        } else if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? DictValueHolder {
+          return BoolValueHolder(t: self.ns, value: rhsB.values[lhsB.value] != nil)
+        } else if let rhsB = rhs as? ListValueHolder {
+          return BoolValueHolder(
+            t: self.ns,
+            value: !rhsB.values.filter({ $0.equals(rhsB) }).isEmpty
+          )
+        }
       case .le:
         if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
           return BoolValueHolder(t: self.ns, value: lhsB.value <= rhsB.value)
@@ -241,18 +241,15 @@ public class Interpreter {
         if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
           return IntegerValueHolder(t: self.ns, value: lhsB.value * rhsB.value)
         }
-      case .notEquals:
-        if let lhsB = lhs as? BoolValueHolder, let rhsB = rhs as? BoolValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value != rhsB.value)
-        } else if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value != rhsB.value)
-        } else if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? StringValueHolder {
-          return BoolValueHolder(t: self.ns, value: lhsB.value != rhsB.value)
-        }
-      // TODO: Dict/list
+      case .notEquals: return BoolValueHolder(t: self.ns, value: !lhs.equals(rhs))
       case .notIn:
-        // TODO
-        _ = 1
+        if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? StringValueHolder {
+          return BoolValueHolder(t: self.ns, value: !rhsB.value.contains(lhsB.value))
+        } else if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? DictValueHolder {
+          return BoolValueHolder(t: self.ns, value: rhsB.values[lhsB.value] == nil)
+        } else if let rhsB = rhs as? ListValueHolder {
+          return BoolValueHolder(t: self.ns, value: rhsB.values.filter({ $0.equals(rhsB) }).isEmpty)
+        }
       case .or:
         if let lhsB = lhs as? BoolValueHolder, let rhsB = rhs as? BoolValueHolder {
           return BoolValueHolder(t: self.ns, value: lhsB.value || rhsB.value)

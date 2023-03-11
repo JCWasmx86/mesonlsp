@@ -6,6 +6,8 @@ open class ValueHolder {
   public init(type: Type) { self.type = type }
 
   open func clone() -> ValueHolder { return ValueHolder(type: self.type) }
+
+  open func equals(_ other: ValueHolder) -> Bool { return self.type.name == other.type.name }
 }
 
 open class ErrorValueHolder: ValueHolder {
@@ -29,6 +31,15 @@ open class ListValueHolder: ValueHolder {
   public override func clone() -> ValueHolder {
     return ListValueHolder(t: self.type, values: Array(self.values.map({ $0.clone() })))
   }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? ListValueHolder {
+      if lh.values.count != self.values.count { return false }
+      for i in 0..<lh.values.count where !lh.values[i].equals(self.values[i]) { return false }
+      return true
+    }
+    return false
+  }
 }
 
 open class BoolValueHolder: ValueHolder {
@@ -47,6 +58,11 @@ open class BoolValueHolder: ValueHolder {
   public override func clone() -> ValueHolder {
     return BoolValueHolder(t: self.type, value: self.value)
   }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? BoolValueHolder { return self.value == lh.value }
+    return false
+  }
 }
 
 open class StringValueHolder: ValueHolder {
@@ -64,6 +80,11 @@ open class StringValueHolder: ValueHolder {
 
   public override func clone() -> ValueHolder {
     return StringValueHolder(t: self.type, value: self.value)
+  }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? StringValueHolder { return self.value == lh.value }
+    return false
   }
 }
 
@@ -84,6 +105,17 @@ open class DictValueHolder: ValueHolder {
     var copy: [String: ValueHolder] = [:]
     for m in self.values { copy[m.key] = m.value.clone() }
     return DictValueHolder(t: self.type, values: copy)
+  }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? DictValueHolder {
+      if lh.values.count != self.values.count { return false }
+      for k in lh.values.keys where self.values[k] == nil { return false }
+      for k in self.values.keys where lh.values[k] == nil { return false }
+      for k in self.values.keys where !lh.values[k]!.equals(self.values[k]!) { return false }
+      return true
+    }
+    return false
   }
 }
 
@@ -122,5 +154,10 @@ open class IntegerValueHolder: ValueHolder {
 
   public override func clone() -> ValueHolder {
     return IntegerValueHolder(t: self.type, value: self.value)
+  }
+
+  public override func equals(_ other: ValueHolder) -> Bool {
+    if let lh = other as? IntegerValueHolder { return self.value == lh.value }
+    return false
   }
 }
