@@ -1,6 +1,8 @@
 import Logging
 import MesonAST
 import MesonAnalyze
+import Foundation
+import PathKit
 
 public class Interpreter {
   static let LOG = Logger(label: "Interpreter::Interpreter")
@@ -8,6 +10,7 @@ public class Interpreter {
   private var ns: TypeNamespace
   private var tree: MesonTree
   private var scope: [String: ValueHolder]
+  private var tempDir: Path
 
   public init(ns: TypeNamespace, tree: MesonTree) {
     self.ns = ns
@@ -16,6 +19,8 @@ public class Interpreter {
     self.scope["meson"] = MesonValueHolder(t: self.ns)
     self.scope["build_machine"] = BuildMachineHolder(t: self.ns)
     self.scope["host_machine"] = HostMachineHolder(t: self.ns)
+    self.tempDir = try! Path.uniqueTemporary()
+    Interpreter.LOG.info("MESON_BUILD_ROOT: \(self.tempDir)")
   }
 
   public func run() {
@@ -51,7 +56,7 @@ public class Interpreter {
                 let ii = inner as? IntegerValueHolder
               {
                 var newArr = Array(arr.values.map({ $0.clone() }))
-                newArr[ii.value] = value
+                newArr[ii.value] = value!
                 scope[idExpr2.id] = ListValueHolder(t: ns, values: newArr)
               }
             }
@@ -72,7 +77,7 @@ public class Interpreter {
               if let lvh2 = value as? ListValueHolder {
                 newValues += Array(lvh2.values.map({ $0.clone() }))
               } else {
-                newValues.append(value)
+                newValues.append(value!)
               }
               self.scope[idExpr.id] = ListValueHolder(t: self.ns, values: newValues)
             } else if let dvh = containerToAddTo as? DictValueHolder {
@@ -92,13 +97,13 @@ public class Interpreter {
               {
                 var newMappings: [String: ValueHolder] = [:]
                 for n in dict.values { newMappings[n.key] = n.value.clone() }
-                newMappings[si.value] = self.addValues(newMappings[si.value]!, value)
+                newMappings[si.value] = self.addValues(newMappings[si.value]!, value!)
                 scope[idExpr2.id] = DictValueHolder(t: ns, values: newMappings)
               } else if let arr = parentContainer as? ListValueHolder,
                 let ii = inner as? IntegerValueHolder
               {
                 var newArr = Array(arr.values.map({ $0.clone() }))
-                newArr[ii.value] = self.addValues(newArr[ii.value], value)
+                newArr[ii.value] = self.addValues(newArr[ii.value], value!)
                 scope[idExpr2.id] = ListValueHolder(t: ns, values: newArr)
               }
             }
@@ -175,15 +180,15 @@ public class Interpreter {
     return ErrorValueHolder(t: self.ns)
   }
 
-  func eval(_ node: Node) -> ValueHolder {
+  func eval(_ node: Node) -> ValueHolder? {
     // TODO: Handle subdircall before function expression
     if let al = node as? ArrayLiteral {
       var types: [ValueHolder] = []
-      for a in al.args { types.append(self.eval(a)) }
+      for a in al.args { types.append(self.eval(a)!) }
       return ListValueHolder(t: self.ns, values: types)
     } else if let be = node as? BinaryExpression {
-      let lhs = self.eval(be.lhs)
-      let rhs = self.eval(be.rhs)
+      let lhs = self.eval(be.lhs)!
+      let rhs = self.eval(be.rhs)!
       switch be.op! {
       case .and:
         if let lhsB = lhs as? BoolValueHolder, let rhsB = rhs as? BoolValueHolder {
@@ -192,6 +197,8 @@ public class Interpreter {
       case .div:
         if let lhsB = lhs as? IntegerValueHolder, let rhsB = rhs as? IntegerValueHolder {
           return IntegerValueHolder(t: self.ns, value: lhsB.value / rhsB.value)
+        } else if let lhsB = lhs as? StringValueHolder, let rhsB = rhs as? StringValueHolder {
+          return StringValueHolder(t: self.ns, value: lhsB.value + "/" + rhsB.value)
         }
       case .equalsEquals: return BoolValueHolder(t: self.ns, value: lhs.equals(rhs))
       case .ge:
@@ -275,13 +282,14 @@ public class Interpreter {
       }
       return DictValueHolder(t: self.ns, values: mappings)
     } else if let fe = node as? FunctionExpression {
-      // TODO
+      return self.executeFunction(fe)
     } else if let id = node as? IdExpression {
+      Interpreter.LOG.info("Accessing id: \(id.id)")
       return self.scope[id.id]!.clone()
     } else if let il = node as? IntegerLiteral {
       return IntegerValueHolder(t: self.ns, value: il.parse())
     } else if let me = node as? MethodExpression {
-      // TODO
+      return self.executeMethod(me)
     } else if let sl = node as? StringLiteral {
       return StringValueHolder(t: self.ns, value: sl.contents())
     } else if let se = node as? SubscriptExpression {
@@ -304,6 +312,137 @@ public class Interpreter {
         }
       }
     }
+    Interpreter.LOG.info("\(type(of: node))")
     return ErrorValueHolder(t: self.ns)
   }
+
+  func executeFunction(_ fe: FunctionExpression) -> ValueHolder? {
+    let ao = ArgsObject()
+    if let al = fe.argumentList as? ArgumentList {
+      for arg in al.args {
+        if let kwi = arg as? KeywordItem {
+          ao.kwargs[(kwi.key as! IdExpression).id] = self.eval(kwi.value)!
+        } else {
+          ao.positionalArguments.append(self.eval(arg)!)
+        }
+      }
+    }
+    switch fe.functionName() {
+    case "alias_target":
+      let aliasTgtName = (ao.positionalArguments[0] as! StringValueHolder).value
+      var dependencies: [ValueHolder] = []
+      for i in 1..<ao.positionalArguments.count {
+        dependencies.append(ao.positionalArguments[i].clone())
+      }
+      return AliasTgtValueHolder(t: self.ns, name: aliasTgtName, deps: dependencies)
+    case "assert":
+      let isTrue = (ao.positionalArguments[0] as! BoolValueHolder).value
+      if isTrue { return nil }
+      let msg =
+        ao.positionalArguments.count == 2
+        ? (ao.positionalArguments[1] as! StringValueHolder).value : "Unknown"
+      Interpreter.LOG.critical(
+        "Assertion failed at \(fe.file.file):\(fe.location.format()): \(msg)"
+      )
+      exit(1)
+    case "run_command":
+      var args: [String] = []
+      var capture = true
+      var check = true
+      for p in ao.positionalArguments {
+        if let s = p as? StringValueHolder { args.append(s.value) }
+      }
+      if let al = ao.kwargs["capture"] as? BoolValueHolder { capture = al.value }
+      if let al = ao.kwargs["check"] as? BoolValueHolder { check = al.value }
+      if capture {
+        let task = Process()
+        task.executableURL = resolvePathToExecutableURL(args[0])
+        task.arguments = Array(args.dropFirst())
+
+        let pipe = Pipe()
+        let pipe2 = Pipe()
+        task.standardOutput = pipe
+        task.standardError = pipe2
+        try! task.run()
+        task.waitUntilExit()
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines)
+        let data2 = pipe2.fileHandleForReading.readDataToEndOfFile()
+        let error = String(data: data2, encoding: .utf8)?.trimmingCharacters(in: .newlines)
+        if check && task.terminationStatus != 0 {
+          Interpreter.LOG.critical(
+            "Failed to run \(args.joined(separator: " ")): Exited with \(task.terminationStatus)"
+          )
+          exit(1)
+        }
+        return RunresultHolder(t: self.ns, task.terminationStatus, output!, error!)
+      } else {
+        let task = Process()
+        task.executableURL = resolvePathToExecutableURL(args[0])
+        task.arguments = Array(args.dropFirst())
+
+        try! task.run()
+        task.waitUntilExit()
+
+        if check && task.terminationStatus != 0 {
+          Interpreter.LOG.critical(
+            "Failed to run \(args.joined(separator: " ")): Exited with \(task.terminationStatus)"
+          )
+          exit(1)
+        }
+        return RunresultHolder(t: self.ns, task.terminationStatus, "", "")
+      }
+    default:
+      Interpreter.LOG.critical("Unhandled function call: \(fe.functionName())")
+      break
+    }
+    return nil
+  }
+
+  func executeMethod(_ me: MethodExpression) -> ValueHolder? {
+    let obj = self.eval(me.obj)!
+    let method = (me.id as! IdExpression).id
+    Interpreter.LOG.info("Executing method \(obj.type.name)::\(method)")
+    let ao = ArgsObject()
+    if let al = me.argumentList as? ArgumentList {
+      for arg in al.args {
+        if let kwi = arg as? KeywordItem {
+          ao.kwargs[(kwi.key as! IdExpression).id] = self.eval(kwi.value)!
+        } else {
+          ao.positionalArguments.append(self.eval(arg)!)
+        }
+      }
+    }
+
+    return obj.executeMethod(t: self.ns, args: ao, name: method)
+  }
+
+  func resolvePathToExecutableURL(_ command: String) -> URL? {
+    if command.starts(with: "/") { return URL(fileURLWithPath: command) }
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+    process.arguments = [command]
+
+    let pipe = Pipe()
+    process.standardOutput = pipe
+
+    do {
+      try process.run()
+      process.waitUntilExit()
+
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      if let path = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines),
+        !path.isEmpty
+      {
+        return URL(fileURLWithPath: path)
+      } else {
+        return nil
+      }
+    } catch {
+      print("Error resolving command path: \(error.localizedDescription)")
+      return nil
+    }
+  }
+
 }

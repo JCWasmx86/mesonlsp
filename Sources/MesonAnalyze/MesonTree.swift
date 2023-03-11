@@ -26,7 +26,7 @@ public final class MesonTree: Hashable {
     memfiles: [String: String] = [:]
   ) throws {
     self.ns = ns
-    let pkp = Path(file).normalize()
+    let pkp = Path(file).absolute().normalize()
     self.file = pkp.description
     self.ast = nil
     self.depth = depth
