@@ -60,7 +60,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let begin = clock()
     node.visitChildren(visitor: self)
     for subdirname in node.subdirnames {
-      if subdirname == "" { continue }
+      if subdirname.isEmpty { continue }
       let newPath = Path(
         Path(node.file.file).absolute().parent().description + "/" + subdirname + "/meson.build"
       ).description
