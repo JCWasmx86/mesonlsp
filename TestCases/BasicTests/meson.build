@@ -28,8 +28,8 @@ ternary = (
     true ? 1 : dependency('') # ana:var: ternary = dep|int
 )
 subdir('subdir1')
-unclear = get_variable('have-' + 'foo', '') # ana:var: unclear = any|str
-unclear2 = get_variable('foobarbaz__') # ana:var: unclear2 = any
+unclear = get_variable('have-' + 'foo', '') # ana:var: unclear = any|dict(any)|list(any)|str
+unclear2 = get_variable('foobarbaz__') # ana:var: unclear2 = any|dict(any)|list(any)
 listoflists = [ # ana:var: listoflists = list(list(dep|int|str))
     [1, 1, 1],
     ['', '1', '2'],
