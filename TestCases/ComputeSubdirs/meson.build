@@ -21,16 +21,16 @@ endforeach
 # ana:var: b2 = int
 asm = 'asm'
 if foo
-  asm = 'no-asm'
+    asm = 'no-asm'
 endif
 subdir('foo' / asm)
 # ana:var: foo_asm = int
 # ana:var: foo_no_asm = int
 
 if foo
-  asm1 = 'no-asm'
+    asm1 = 'no-asm'
 else
-  asm1 = 'asm'
+    asm1 = 'asm'
 endif
 subdir('bar' / asm1)
 # ana:var: bar_asm = int

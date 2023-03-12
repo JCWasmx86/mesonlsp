@@ -1,8 +1,4 @@
-funcs = [
-    'foo',
-    'bar',
-    'baz'
-]
+funcs = ['foo', 'bar', 'baz']
 foreach x : funcs
     set_variable('have_' + x, true)
 endforeach
@@ -32,7 +28,7 @@ python_tools = [
     'glib-genmarshal',
     'glib-mkenums',
 ]
-foreach tool: python_tools
+foreach tool : python_tools
     set_variable(tool.underscorify(), true)
 endforeach
 # ana:var: glib_genmarshal = bool
