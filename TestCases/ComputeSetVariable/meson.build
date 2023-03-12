@@ -52,3 +52,17 @@ endforeach
 # ana:var: hb_set_fuzzer_exe = bool
 # ana:var: hb_draw_fuzzer_exe = bool
 # ana:var: hb_repacker_fuzzer_exe = bool
+
+gdkpixbuf_bin = [
+    ['gdk-pixbuf-csource'],
+    ['gdk-pixbuf-pixdata'],
+    ['gdk-pixbuf-query-loaders', ['queryloaders.c']],
+]
+foreach bin : gdkpixbuf_bin
+    bin_name = bin[0]
+    set_variable(bin_name.underscorify(), true)
+endforeach
+# ana:var: gdk_pixbuf_csource = bool
+# ana:var: gdk_pixbuf_pixdata = bool
+# ana:var: gdk_pixbuf_query_loaders = bool
+

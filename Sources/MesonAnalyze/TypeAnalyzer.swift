@@ -501,6 +501,69 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
+  func scanForArrayDecl(_ id: String, _ node: Node) -> Node? {
+    let parent = node.parent!
+    if let bd = parent as? BuildDefinition {
+      var foundOurselves = false
+      for b in bd.stmts.reversed() {
+        if b.equals(right: node) {
+          foundOurselves = true
+          continue
+        } else if foundOurselves {
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression, idexpr.id == id
+          {
+            if let r = s.rhs as? ArrayLiteral { return r }
+          }
+          continue
+        }
+      }
+      return nil
+    } else if let its = parent as? IterationStatement {
+      var foundOurselves = false
+      for b in its.block.reversed() {
+        if b.equals(right: node) {
+          foundOurselves = true
+          continue
+        } else if foundOurselves {
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression, idexpr.id == id
+          {
+            if let r = s.rhs as? ArrayLiteral { return r }
+          }
+          continue
+        }
+      }
+      for i in its.ids {
+        if let idexpr = i as? IdExpression, idexpr.id == id {
+          if let arr = its.expression as? ArrayLiteral {
+            return arr
+          } else if let idexpr2 = its.expression as? IdExpression {
+            return self.scanForArrayDecl(idexpr2.id, parent)
+          }
+          break
+        }
+      }
+    } else if let sst = parent as? SelectionStatement {
+      for blk in sst.blocks.reversed() {
+        var foundOurselves = true
+        for b in blk.reversed() {
+          if b.equals(right: node) {
+            foundOurselves = true
+            continue
+          } else if foundOurselves {
+            if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
+              idexpr.id == id
+            {
+              if let r = s.rhs as? ArrayLiteral { return r }
+            }
+          }
+        }
+        if foundOurselves { break }
+      }
+      return nil
+    }
+    return nil
+  }
+
   func searchForIdAsStrArray(_ id: String, _ node: MesonAST.Node) -> [String] {
     let parent = node.parent!
     var tmp: [String] = []
@@ -536,6 +599,22 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               }
               if s.op == .equals { return ret + tmp }
               tmp += ret
+            } else if let sse = s.rhs as? SubscriptExpression,
+              let il = sse.inner as? IntegerLiteral, let outerId = sse.outer as? IdExpression
+            {
+              let node = self.scanForArrayDecl(outerId.id, node)
+              let idx = il.parse()
+              if let al = node as? ArrayLiteral {
+                var rets: [String] = []
+                for val in al.args {
+                  if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                    if let sl1 = subArray.args[idx] as? StringLiteral {
+                      rets.append(sl1.contents())
+                    }
+                  }
+                }
+                return rets
+              }
             } else if let rets = self.evalBlock(b, id) {
               tmp += rets
             }
@@ -579,6 +658,22 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               }
               if s.op == .equals { return ret + tmp }
               tmp += ret
+            } else if let sse = s.rhs as? SubscriptExpression,
+              let il = sse.inner as? IntegerLiteral, let outerId = sse.outer as? IdExpression
+            {
+              let node = self.scanForArrayDecl(outerId.id, node)
+              let idx = il.parse()
+              if let al = node as? ArrayLiteral {
+                var rets: [String] = []
+                for val in al.args {
+                  if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                    if let sl1 = subArray.args[idx] as? StringLiteral {
+                      rets.append(sl1.contents())
+                    }
+                  }
+                }
+                return rets
+              }
             } else if let rets = self.evalBlock(b, id) {
               tmp += rets
             }
@@ -635,6 +730,22 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 }
                 if s.op == .equals { return ret + tmp }
                 tmp += ret
+              } else if let sse = s.rhs as? SubscriptExpression,
+                let il = sse.inner as? IntegerLiteral, let outerId = sse.outer as? IdExpression
+              {
+                let node = self.scanForArrayDecl(outerId.id, node)
+                let idx = il.parse()
+                if let al = node as? ArrayLiteral {
+                  var rets: [String] = []
+                  for val in al.args {
+                    if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                      if let sl1 = subArray.args[idx] as? StringLiteral {
+                        rets.append(sl1.contents())
+                      }
+                    }
+                  }
+                  return rets
+                }
               } else if let rets = self.evalBlock(b, id) {
                 tmp += rets
               }
