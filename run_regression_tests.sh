@@ -44,5 +44,10 @@ cd qemu || exit
 # TODO: Fix this
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "4" ] || exit 1
 cd .. || exit
+git clone --depth=1 https://github.com/harfbuzz/harfbuzz
+cd harfbuzz || exit
+[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+cd .. || exit
 echo No errors
+cd ..
 rm -rf ../__regressions
