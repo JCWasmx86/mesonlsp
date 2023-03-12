@@ -60,6 +60,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let begin = clock()
     node.visitChildren(visitor: self)
     for subdirname in node.subdirnames {
+      if subdirname == "" { continue }
       let newPath = Path(
         Path(node.file.file).absolute().parent().description + "/" + subdirname + "/meson.build"
       ).description
@@ -474,7 +475,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   func guessSetVariable(args: [Node], node: FunctionExpression) {
     let vars = self.resolveExpressionToString(node: args[0], pnode: node)
-    for v in vars {
+    for v in Set(vars) {
       let types = args[1].types
       self.scope.variables[v] = types
       self.applyToStack(v, types)

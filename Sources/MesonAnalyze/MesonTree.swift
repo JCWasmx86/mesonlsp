@@ -190,10 +190,13 @@ public final class MesonTree: Hashable {
     memfiles: [String: String] = [:]
   ) {
     var idx = 0
+    var s: Set<String> = []
     for msc in self.multiCallSubfiles {
       let heuristics = msc.heuristics()
       msc.subdirnames = heuristics
       for heuristic in heuristics {
+        if heuristic.isEmpty || s.contains(heuristic) { continue }
+        s.insert(heuristic)
         MesonTree.LOG.info("Found subdir call using heuristics: \(heuristic)")
         let f = Path(
           Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"

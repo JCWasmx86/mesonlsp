@@ -35,9 +35,9 @@ public class MultiSubdirCall: FunctionExpression {
     for a in (self.argumentList as! ArgumentList).args
     where (a is IdExpression || a is BinaryExpression) {
       if let idexpr = a as? IdExpression {
-        return self.searchFor(idexpr.id)
+        return Array(Set(self.searchFor(idexpr.id)))
       } else if let binaryExpr = a as? BinaryExpression {
-        return self.evalBinaryExpression(binaryExpr)
+        return Array(Set(self.evalBinaryExpression(binaryExpr)))
       }
     }
     return ret
