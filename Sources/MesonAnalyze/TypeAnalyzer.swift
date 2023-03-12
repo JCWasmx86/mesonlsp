@@ -357,7 +357,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         if let sv = self.scope.variables[varname] {
           types += sv
         } else {
-          types.append(self.t.types["any"]!)
+          types += fn.returnTypes
         }
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = types
