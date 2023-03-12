@@ -7,6 +7,7 @@ mkdir __regressions
 cd __regressions || exit
 git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa
 cd mesa || exit
+# Two undefined variables, I assume it's an error on mesa side
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "2" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/systemd/systemd
@@ -19,6 +20,7 @@ cd gtk || exit
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
+# Type error in rarely used codepath (Solaris) (Probably)
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "1" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gnome-builder
@@ -39,6 +41,7 @@ cd GNOME-Builder-Plugins || exit
 cd .. || exit
 git clone --depth=1 https://gitlab.com/qemu-project/qemu
 cd qemu || exit
+# TODO: Fix this
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "4" ] || exit 1
 cd .. || exit
 echo No errors
