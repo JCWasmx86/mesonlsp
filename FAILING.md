@@ -26,8 +26,6 @@ A lot of misc errors in the parent project
 - `compile_args` can't be found for an unknown reason
 #### mpdecimal
 - `mpd_header_config_32_LEGACY` and `mpd_header_config_UNIVERSAL` can't be found for an unknown reason
-#### OpenSSL
-- Various missing variables, as they are defined in a subdir that is not visited, as the computing expression for `subdir()` is too complex.
 #### Wayland
 - Various missing variables, as the expression that calculates those variable names is too complex.
 
