@@ -185,10 +185,10 @@ In this example, it took around half-second to parse the entire mesa meson files
   - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
   - [Systemd](https://github.com/systemd/systemd)
   - [GitG](https://gitlab.gnome.org/GNOME/gitg)
+  - [GTK](https://gitlab.gnome.org/GNOME/gtk)
 - Somewhat working:
   - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
   - [QEMU](https://gitlab.com/qemu-project/qemu)
-  - [GTK](https://gitlab.gnome.org/GNOME/gtk)
   - [GLib](https://gitlab.gnome.org/GNOME/glib)
 - Very flaky:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
