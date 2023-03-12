@@ -485,6 +485,20 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
       return ret
+    } else if let me = node as? SubscriptExpression, let parentId = me.outer as? IdExpression,
+      let il = me.inner as? IntegerLiteral
+    {
+      let str = self.scanForArrayDecl(parentId.id, pnode)
+      var ret: [String] = []
+      let selIdx = il.parse()
+      if let al = str as? ArrayLiteral {
+        for arr2 in al.args {
+          if let arr22 = arr2 as? ArrayLiteral, selIdx < arr22.args.count {
+            if let strLit = arr22.args[selIdx] as? StringLiteral { ret.append(strLit.contents()) }
+          }
+        }
+      }
+      return ret
     }
     return []
   }

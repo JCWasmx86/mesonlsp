@@ -99,3 +99,37 @@ endforeach
 # ana:var: have_vp8_decoder = bool
 # ana:var: have_vp9_encoder = bool
 # ana:var: have_vp9_decoder = bool
+
+vpx2_features = [
+    [
+        'vpx/vp6cx.h',
+        'vpx_codec_vp6_cx_algo',
+        '-DHAVE_VP6_ENCODER',
+        'VP6 encoder',
+    ],
+    [
+        'vpx/vp6dx.h',
+        'vpx_codec_vp6_dx_algo',
+        '-DHAVE_VP8_DECODER',
+        'VP6 decoder',
+    ],
+    [
+        'vpx/vp7cx.h',
+        'vpx_codec_vp7_cx_algo',
+        '-DHAVE_VP7_ENCODER',
+        'VP7 encoder',
+    ],
+    [
+        'vpx/vp7dx.h',
+        'vpx_codec_vp7_dx_algo',
+        '-DHAVE_VP7_DECODER',
+        'VP7 decoder',
+    ],
+]
+foreach f : vpx2_features
+    set_variable('have_' + f[3].to_lower().underscorify(), true)
+endforeach
+# ana:var: have_vp6_encoder = bool
+# ana:var: have_vp6_decoder = bool
+# ana:var: have_vp7_encoder = bool
+# ana:var: have_vp7_decoder = bool
