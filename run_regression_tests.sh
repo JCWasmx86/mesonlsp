@@ -41,8 +41,7 @@ cd GNOME-Builder-Plugins || exit
 cd .. || exit
 git clone --depth=1 https://gitlab.com/qemu-project/qemu
 cd qemu || exit
-# TODO: Fix this
-[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "4" ] || exit 1
+[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/harfbuzz/harfbuzz
 cd harfbuzz || exit

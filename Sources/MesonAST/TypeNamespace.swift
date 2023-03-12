@@ -443,6 +443,7 @@ public final class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
+            opt: true,
             types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
@@ -531,7 +532,7 @@ public final class TypeNamespace {
       Function(
         name: "error",
         args: [
-          PositionalArgument(name: "message", types: strL),
+          PositionalArgument(name: "message", opt: true, types: strL),
           PositionalArgument(name: "msg", varargs: true, opt: true, types: strL),
         ]
       ),
@@ -1005,6 +1006,7 @@ public final class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
+            opt: true,
             types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
@@ -1526,6 +1528,7 @@ public final class TypeNamespace {
         args: [
           PositionalArgument(
             name: "message",
+            opt: true,
             types: [str, intt, boolt, ListType(types: silb), Dict(types: silb)]
           ),
           PositionalArgument(
