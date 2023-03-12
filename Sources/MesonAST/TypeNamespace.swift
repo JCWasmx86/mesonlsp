@@ -3046,6 +3046,7 @@ public final class TypeNamespace {
           Kwarg(name: "docbook", opt: true, types: strL),
           Kwarg(name: "autocleanup", opt: true, types: strL),
           Kwarg(name: "install_dir", opt: true, types: strL),
+          Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(
             name: "sources",
             opt: true,
@@ -4339,7 +4340,7 @@ public final class TypeNamespace {
             name: "neon",
             opt: true,
             types: [str, self.types["file"]!, ListType(types: [str, self.types["file"]!])]
-          ),
+          ), Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
         ]
       )
     ]
