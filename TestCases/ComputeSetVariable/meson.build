@@ -39,11 +39,14 @@ endforeach
 # ana:var: glib_mkenums = bool
 
 tests = [
-  'hb-shape-fuzzer.cc',
-  'hb-subset-fuzzer.cc',
-  'hb-set-fuzzer.cc',
-  'hb-draw-fuzzer.cc',
+    'hb-shape-fuzzer.cc',
+    'hb-subset-fuzzer.cc',
+    'hb-set-fuzzer.cc',
+    'hb-draw-fuzzer.cc',
 ]
+if get_option('experimental_api')
+    tests += 'hb-repacker-fuzzer.cc'
+endif
 foreach file_name : tests
     test_name = file_name.split('.')[0]
     set_variable('@0@_exe'.format(test_name.underscorify()), true)
@@ -52,3 +55,4 @@ endforeach
 # ana:var: hb_subset_fuzzer_exe = bool
 # ana:var: hb_set_fuzzer_exe = bool
 # ana:var: hb_draw_fuzzer_exe = bool
+# ana:var: hb_repacker_fuzzer_exe = bool

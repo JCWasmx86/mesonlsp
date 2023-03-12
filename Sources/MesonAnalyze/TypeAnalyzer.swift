@@ -503,6 +503,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   func searchForIdAsStrArray(_ id: String, _ node: MesonAST.Node) -> [String] {
     let parent = node.parent!
+    var tmp: [String] = []
     if let bd = parent as? BuildDefinition {
       var foundOurselves = false
       for b in bd.stmts.reversed() {
@@ -510,15 +511,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           foundOurselves = true
           continue
         } else if foundOurselves {
-          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
-            s.op == .some(.equals), idexpr.id == id
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression, idexpr.id == id
           {
             if let r = s.rhs as? StringLiteral {
-              return [r.contents()]
+              let a = [r.contents()]
+              if s.op == .equals { return a + tmp }
+              tmp += a
             } else if let r = s.rhs as? ArrayLiteral {
-              return Array(
+              let a = Array(
                 r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
               )
+              if s.op == .equals { return a + tmp }
+              tmp += a
             } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
               let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
               meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -530,13 +534,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 let arr = p.components(separatedBy: splitby.contents())
                 if il.parse() < arr.count { ret.append(arr[il.parse()]) }
               }
+              if s.op == .equals { return ret + tmp }
+              tmp += ret
+            } else if let rets = self.evalBlock(b, id) {
+              tmp += rets
             }
+          } else if let rets = self.evalBlock(b, id) {
+            tmp += rets
           }
           continue
-        }  // We are below the subdir call
+        }
       }
       // Won't traverse the sourcefiles, too slow (For now)
-      return []
+      return tmp
     } else if let its = parent as? IterationStatement {
       var foundOurselves = false
       for b in its.block.reversed() {
@@ -544,15 +554,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           foundOurselves = true
           continue
         } else if foundOurselves {
-          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
-            s.op == .some(.equals), idexpr.id == id
+          if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression, idexpr.id == id
           {
             if let r = s.rhs as? StringLiteral {
-              return [r.contents()]
+              let a = [r.contents()]
+              if s.op == .equals { return a + tmp }
+              tmp += a
             } else if let r = s.rhs as? ArrayLiteral {
-              return Array(
+              let a = Array(
                 r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
               )
+              if s.op == .equals { return a + tmp }
+              tmp += a
             } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
               let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
               meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -564,25 +577,30 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 let arr = p.components(separatedBy: splitby.contents())
                 if il.parse() < arr.count { ret.append(arr[il.parse()]) }
               }
-              return ret
+              if s.op == .equals { return ret + tmp }
+              tmp += ret
+            } else if let rets = self.evalBlock(b, id) {
+              tmp += rets
             }
+          } else if let rets = self.evalBlock(b, id) {
+            tmp += rets
           }
           continue
-        }  // We are below the subdir call
+        }
       }
       for i in its.ids {
         if let idexpr = i as? IdExpression, idexpr.id == id {
           if let arr = its.expression as? ArrayLiteral {
             return Array(
               arr.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
-            )
+            ) + tmp
           } else if let idexpr2 = its.expression as? IdExpression {
-            return self.searchForIdAsStrArray(idexpr2.id, parent)
+            return self.searchForIdAsStrArray(idexpr2.id, parent) + tmp
           }
           break
         }
       }
-      return self.searchForIdAsStrArray(id, parent)
+      return self.searchForIdAsStrArray(id, parent) + tmp
     } else if let sst = parent as? SelectionStatement {
       for blk in sst.blocks.reversed() {
         var foundOurselves = true
@@ -592,14 +610,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
             continue
           } else if foundOurselves {
             if let s = b as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
-              s.op == .some(.equals), idexpr.id == id
+              idexpr.id == id
             {
               if let r = s.rhs as? StringLiteral {
-                return [r.contents()]
+                let a = [r.contents()]
+                if s.op == .equals { return a + tmp }
+                tmp += a
               } else if let r = s.rhs as? ArrayLiteral {
-                return Array(
+                let a = Array(
                   r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
                 )
+                if s.op == .equals { return a + tmp }
+                tmp += a
               } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
                 let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
                 meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -611,15 +633,58 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                   let arr = p.components(separatedBy: splitby.contents())
                   if il.parse() < arr.count { ret.append(arr[il.parse()]) }
                 }
+                if s.op == .equals { return ret + tmp }
+                tmp += ret
+              } else if let rets = self.evalBlock(b, id) {
+                tmp += rets
               }
+            } else if let rets = self.evalBlock(b, id) {
+              tmp += rets
             }
           }
         }
         if foundOurselves { break }
       }
-      return self.searchForIdAsStrArray(id, parent)
+      return self.searchForIdAsStrArray(id, parent) + tmp
     }
-    return []
+    return tmp
+  }
+
+  func evalBlock(_ node: MesonAST.Node, _ id: String) -> [String]? {
+    if let its = node as? IterationStatement {
+      var ret: [String] = []
+      for b in its.block.reversed() { if let blocks = self.evalBlock(b, id) { ret += blocks } }
+      for i in its.ids {
+        if let idexpr = i as? IdExpression, idexpr.id == id {
+          if let arr = its.expression as? ArrayLiteral {
+            return Array(
+              arr.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+            )
+          } else if let idexpr2 = its.expression as? IdExpression {
+            ret += self.searchForIdAsStrArray(idexpr2.id, node)
+          }
+          break
+        }
+      }
+      return ret.isEmpty ? nil : ret
+    } else if let sst = node as? SelectionStatement {
+      var ret: [String] = []
+      for b1 in sst.blocks.reversed() {
+        for b in b1.reversed() { if let blocks = self.evalBlock(b, id) { ret += blocks } }
+      }
+      return ret.isEmpty ? nil : ret
+    } else if let s = node as? AssignmentStatement, let idexpr = s.lhs as? IdExpression,
+      idexpr.id == id
+    {
+      if let r = s.rhs as? StringLiteral {
+        return [r.contents()]
+      } else if let r = s.rhs as? ArrayLiteral {
+        return Array(
+          r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
+        )
+      }
+    }
+    return nil
   }
 
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
