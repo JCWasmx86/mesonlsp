@@ -42,3 +42,4 @@ cd qemu || exit
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -le "4" ] || exit 1
 cd .. || exit
 echo No errors
+rm -rf ../__regressions
