@@ -321,7 +321,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       {
         deduped = dedup(types: self.scope.variables[lhsIdExpr.id]!)
       }
-      if newTypes == nil {
+      if newTypes == nil && !node.rhs.types.isEmpty && !node.lhs.types.isEmpty {
         self.metadata.registerDiagnostic(
           node: node,
           diag: MesonDiagnostic(
