@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+# This script will always clone from Github instead of e.g. GNOME Gitlab
+# in order to save resources of these projects
 swift build -c release --static-swift-stdlib || exit
-alias gc="git clone --depth=1"
 export LSPPATH=$PWD/.build/release/Swift-MesonLSP
 rm -rf __regressions
 mkdir __regressions
