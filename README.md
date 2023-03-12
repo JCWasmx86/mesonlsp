@@ -178,17 +178,17 @@ In this example, it took around half-second to parse the entire mesa meson files
 
 ### Projects I tested the language server with
 - Working fine:
+  - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
+  - [GitG](https://gitlab.gnome.org/GNOME/gitg)
   - [GNOME Builder](https://gitlab.gnome.org/GNOME/gnome-builder)
   - [GNOME Builder Plugins](https://github.com/JCWasmx86/GNOME-Builder-Plugins)
-  - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
-  - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
-  - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
-  - [Systemd](https://github.com/systemd/systemd)
-  - [GitG](https://gitlab.gnome.org/GNOME/gitg)
   - [GTK](https://gitlab.gnome.org/GNOME/gtk)
+  - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
+  - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
+  - [Systemd](https://github.com/systemd/systemd)
 - Somewhat working:
+  - [GLib](https://gitlab.gnome.org/GNOME/glib)
   - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
   - [QEMU](https://gitlab.com/qemu-project/qemu)
-  - [GLib](https://gitlab.gnome.org/GNOME/glib)
 - Very flaky:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
