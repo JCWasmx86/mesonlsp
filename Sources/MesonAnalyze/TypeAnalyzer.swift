@@ -478,7 +478,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       var ret: [String] = []
       let selIdx = il.parse()
       if let al = str as? ArrayLiteral {
-        print(al)
         for arr2 in al.args {
           if let arr22 = arr2 as? ArrayLiteral, selIdx < arr22.args.count {
             if let strLit = arr22.args[selIdx] as? StringLiteral { ret.append(strLit.contents()) }
