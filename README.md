@@ -15,23 +15,25 @@ A reimplementation of my Meson language server in Swift.
 
 ## Limitations
 - Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
-- Only very partial support for anything regarding `set_variable`/`get_variable`
+- Limited support for anything regarding `set_variable`/`get_variable`
 - No wrap/subproject support
-- Non constant `subdir`-calls are not supported
+- Non constant `subdir`-calls are not fully supported yet (1)
 - Type deduction is not 100% correct yet
 - Autocompletion is very flaky
 - Type definitions may have minor errors regarding:
   - Is this argument optional?
   - What is the type of the argument?
 
+(1)
 ```
-some_var = 'foo'
-set_variable('foo_' + some_var, 1)
-x = foo_foo # Unknown identifier 'foo_foo'
-foreach backend : backends
-  # The file backend-$backend/meson.build
-  # won't be parsed
-  subdir('backend-' + backend)
+# This will work
+foreach x : ['a', 'b']
+  subdir(x)
+endforeach
+
+# This won't work
+for x : [['a', true], ['b', true]]
+  subdir(x[0])
 endforeach
 ```
 A majority of these limitations come from the fact that Swift-MesonLSP won't interpret the code, but instead
