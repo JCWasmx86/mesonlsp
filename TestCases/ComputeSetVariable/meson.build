@@ -135,10 +135,34 @@ endforeach
 # ana:var: have_vp7_decoder = bool
 
 test_apps = [
-    ['srtp_driver', {'extra_sources': 'util.c', 'run_args': '-v'}],
-    ['replay_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
-    ['roc_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
-    ['rdbx_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
+    [
+        'srtp_driver',
+        {
+            'extra_sources': 'util.c',
+            'run_args': '-v',
+        },
+    ],
+    [
+        'replay_driver',
+        {
+            'extra_sources': 'ut_sim.c',
+            'run_args': '-v',
+        },
+    ],
+    [
+        'roc_driver',
+        {
+            'extra_sources': 'ut_sim.c',
+            'run_args': '-v',
+        },
+    ],
+    [
+        'rdbx_driver',
+        {
+            'extra_sources': 'ut_sim.c',
+            'run_args': '-v',
+        },
+    ],
     ['test_srtp', {'run_args': '-v'}],
     [
         'rtpw',
@@ -153,3 +177,36 @@ foreach t : test_apps
     set_variable(test_name + '_exe', true)
 endforeach
 # ana:var: rtpw_exe = bool
+
+generated_headers = [
+    {
+        'scanner_args': ['server-header'],
+        'output': 'wayland-server-protocol.h',
+        'install': true,
+    },
+    {
+        'scanner_args': ['server-header', '-c'],
+        'output': 'wayland-server-protocol-core.h',
+        'install': false,
+    },
+    {
+        'scanner_args': ['client-header'],
+        'output': 'wayland-client-protocol.h',
+        'install': true,
+    },
+    {
+        'scanner_args': ['client-header', '-c'],
+        'output': 'wayland-client-protocol-core.h',
+        'install': false,
+    },
+]
+foreach gen: generated_headers
+    output_file = gen.get('output')
+    target_name = output_file.underscorify()
+    set_variable(target_name, true)
+endforeach
+## TODO: Disabled
+#ana:var: wayland_client_protocol_h = bool
+#ana:var: wayland_server_protocol_h = bool
+#ana:var: wayland_client_protocol_core_h = bool
+#ana:var: wayland_server_protocol_core_h = bool
