@@ -28,7 +28,21 @@ class ASTPatcher: CodeVisitor {
       let alNode = f.argumentList, let al = alNode as? ArgumentList
     {
       let args = al.args
-      for a in args where a is IdExpression { return true }
+      for a in args where a is IdExpression || self.isMultiCallBinaryExpression(node: a) {
+        return true
+      }
+    }
+    return false
+  }
+
+  func isMultiCallBinaryExpression(node: Node) -> Bool {
+    if let be = node as? BinaryExpression, be.op == .div || be.op == .plus,
+      be.lhs is IdExpression || self.isMultiCallBinaryExpression(node: be.lhs)
+        || be.lhs is StringLiteral,
+      be.rhs is IdExpression || self.isMultiCallBinaryExpression(node: be.rhs)
+        || be.rhs is StringLiteral
+    {
+      return true
     }
     return false
   }
