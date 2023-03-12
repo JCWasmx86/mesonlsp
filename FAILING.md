@@ -30,3 +30,7 @@ A lot of misc errors in the parent project
 - Various missing variables, as they are defined in a subdir that is not visited, as the computing expression for `subdir()` is too complex.
 #### Wayland
 - Various missing variables, as the expression that calculates those variable names is too complex.
+
+### mesa
+`inc_egl` and `inc_egl_dri2` are undefined in `src/gallium/frontends/omx/meson.build`. These variables are defined in `src/egl/meson.build`.
+In `src/meson.build`, a `subdir('gallium')` call is before the one with `subdir('egl')`, thus leading to an error.
