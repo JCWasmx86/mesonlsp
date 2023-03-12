@@ -52,6 +52,11 @@ git clone --depth=1 https://github.com/GNOME/gdk-pixbuf
 cd gdk-pixbuf || exit
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
+git clone --depth=1 https://github.com/cisco/libsrtp
+cd libsrtp || exit
+[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+cd .. || exit
+
 echo No errors
 cd ..
 rm -rf ../__regressions
