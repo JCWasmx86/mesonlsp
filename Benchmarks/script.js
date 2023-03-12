@@ -193,8 +193,8 @@ function changedVersions() {
   tr = document.createElement("tr");
   tableBody.appendChild(tr);
   appendTr(tr, "Binary Size (Stripped)");
-  appendTr(tr, oldData.size);
-  appendTr(tr, newData.size);
+  appendTr(tr, oldData.stripped_size);
+  appendTr(tr, newData.stripped_size);
   appendTr(tr, percentify(oldData.stripped_size, newData.stripped_size));
   tableDiv.appendChild(table);
   const elementNames = [
