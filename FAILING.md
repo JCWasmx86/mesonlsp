@@ -18,8 +18,6 @@ A lot of misc errors in the parent project
 - `inc_private_native` and `inc_private` can't be found, as they are defined in a subdir that is not visited, as the computing expression for `subdir()` is too complex.
 #### GLib
 - Unknown error. Probably related to operator precedence
-#### Harfbuzz
-- `hb_shape_fuzzer_exe`, `hb_subset_fuzzer_exe` and `hb_draw_fuzzer_exe` can't be found, as the expression that calculates those variable names is too complex.
 #### libsrtp
 - `rtpw_exe` can't be found, as the expression that calculates those variable names is too complex.
 #### lz4

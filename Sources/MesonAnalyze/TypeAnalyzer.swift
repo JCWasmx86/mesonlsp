@@ -421,51 +421,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               self.scope.variables[varname] = types
               self.applyToStack(varname, types)
               TypeAnalyzer.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
-            } else if let be = args[0] as? BinaryExpression, be.op == .some(.plus),
-              (be.lhs is IdExpression && be.rhs is StringLiteral)
-                || (be.lhs is StringLiteral && be.rhs is IdExpression)
-            {
-              let lhs = be.lhs
-              let rhs = be.rhs
-              let id = (rhs is IdExpression) ? (rhs as! IdExpression).id : (lhs as! IdExpression).id
-              let vars = self.searchForIdAsStrArray(id, node)
-              TypeAnalyzer.LOG.info("set_variable(be): Guessed \(vars)")
-              for heuristics in vars {
-                let types = args[1].types
-                var varname = ""
-                if let sl = lhs as? StringLiteral {
-                  varname = sl.contents() + heuristics
-                } else if let sl = rhs as? StringLiteral {
-                  varname = heuristics + sl.contents()
-                }
-                self.scope.variables[varname] = types
-                self.applyToStack(varname, types)
-              }
-            } else if let me = args[0] as? MethodExpression, let str = me.obj as? StringLiteral,
-              let meid = me.id as? IdExpression, meid.id == "format",
-              let al = me.argumentList as? ArgumentList, al.args.count == 1,
-              let idToSearch = al.args[0] as? IdExpression
-            {
-              let vars = self.searchForIdAsStrArray(idToSearch.id, node)
-              TypeAnalyzer.LOG.info("set_variable(format): Guessed \(vars)")
-              for heuristics in vars {
-                let types = args[1].types
-                let varname = str.contents().replacingOccurrences(of: "@0@", with: heuristics)
-                self.scope.variables[varname] = types
-                self.applyToStack(varname, types)
-              }
-            } else if let me = args[0] as? MethodExpression, let idexpr = me.obj as? IdExpression,
-              let meid = me.id as? IdExpression,
-              ["underscorify", "to_lower", "to_upper", "strip"].contains(meid.id)
-            {
-              let vars = self.searchForIdAsStrArray(idexpr.id, node)
-              TypeAnalyzer.LOG.info("set_variable(limitedmethods): Guessed \(vars)")
-              for heuristics in vars {
-                let types = args[1].types
-                let varname = applyMethod(varname: heuristics, name: meid.id)
-                self.scope.variables[varname] = types
-                self.applyToStack(varname, types)
-              }
+            } else {
+              guessSetVariable(args: args, node: node)
             }
             Timing.INSTANCE.registerMeasurement(
               name: "guessSetVariable",
@@ -482,6 +439,46 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     Timing.INSTANCE.registerMeasurement(name: "visitFunctionExpression", begin: begin, end: clock())
+  }
+
+  func resolveExpressionToString(node: Node, pnode: Node) -> [String] {
+    if let be = node as? BinaryExpression {
+      let lhs = self.resolveExpressionToString(node: be.lhs, pnode: pnode)
+      let rhs = self.resolveExpressionToString(node: be.rhs, pnode: pnode)
+      var ret: [String] = []
+      for l in lhs { for r in rhs { ret.append(l + (be.op == .div ? "/" : "") + r) } }
+      return ret
+    } else if let sl = node as? StringLiteral {
+      return [sl.contents()]
+    } else if let idexpr = node as? IdExpression {
+      return self.searchForIdAsStrArray(idexpr.id, pnode)
+    } else if let me = node as? MethodExpression, let meid = me.id as? IdExpression,
+      ["underscorify", "to_lower", "to_upper", "strip"].contains(meid.id)
+    {
+      var ret: [String] = []
+      for s in self.resolveExpressionToString(node: me.obj, pnode: pnode) {
+        ret.append(self.applyMethod(varname: s, name: (me.id as! IdExpression).id))
+      }
+      return ret
+    } else if let me = node as? MethodExpression, let meid = me.id as? IdExpression,
+      meid.id == "format", let al = me.argumentList as? ArgumentList, al.args.count == 1
+    {
+      let fmt = self.resolveExpressionToString(node: al.args[0], pnode: pnode)
+      let str = self.resolveExpressionToString(node: me.obj, pnode: pnode)
+      var ret: [String] = []
+      for l in fmt { for r in str { ret.append(r.replacingOccurrences(of: "@0@", with: l)) } }
+      return ret
+    }
+    return []
+  }
+
+  func guessSetVariable(args: [Node], node: FunctionExpression) {
+    let vars = self.resolveExpressionToString(node: args[0], pnode: node)
+    for v in vars {
+      let types = args[1].types
+      self.scope.variables[v] = types
+      self.applyToStack(v, types)
+    }
   }
 
   func applyMethod(varname: String, name: String) -> String {
@@ -521,6 +518,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               return Array(
                 r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
               )
+            } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
+              let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
+              meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+              let splitby = al.args[0] as? StringLiteral
+            {
+              let parentStrs = self.resolveExpressionToString(node: me.obj, pnode: node)
+              var ret: [String] = []
+              for p in parentStrs {
+                let arr = p.components(separatedBy: splitby.contents())
+                if il.parse() < arr.count { ret.append(arr[il.parse()]) }
+              }
             }
           }
           continue
@@ -544,6 +552,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               return Array(
                 r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
               )
+            } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
+              let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
+              meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+              let splitby = al.args[0] as? StringLiteral
+            {
+              let parentStrs = self.resolveExpressionToString(node: me.obj, pnode: node)
+              var ret: [String] = []
+              for p in parentStrs {
+                let arr = p.components(separatedBy: splitby.contents())
+                if il.parse() < arr.count { ret.append(arr[il.parse()]) }
+              }
+              return ret
             }
           }
           continue
@@ -579,6 +599,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 return Array(
                   r.args.filter({ $0 is StringLiteral }).map({ ($0 as! StringLiteral).contents() })
                 )
+              } else if let r = s.rhs as? SubscriptExpression, let il = r.inner as? IntegerLiteral,
+                let me = r.outer as? MethodExpression, let meid = me.id as? IdExpression,
+                meid.id == "split", let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+                let splitby = al.args[0] as? StringLiteral
+              {
+                let parentStrs = self.resolveExpressionToString(node: me.obj, pnode: node)
+                var ret: [String] = []
+                for p in parentStrs {
+                  let arr = p.components(separatedBy: splitby.contents())
+                  if il.parse() < arr.count { ret.append(arr[il.parse()]) }
+                }
               }
             }
           }
