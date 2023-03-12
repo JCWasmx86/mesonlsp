@@ -133,3 +133,23 @@ endforeach
 # ana:var: have_vp6_decoder = bool
 # ana:var: have_vp7_encoder = bool
 # ana:var: have_vp7_decoder = bool
+
+test_apps = [
+    ['srtp_driver', {'extra_sources': 'util.c', 'run_args': '-v'}],
+    ['replay_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
+    ['roc_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
+    ['rdbx_driver', {'extra_sources': 'ut_sim.c', 'run_args': '-v'}],
+    ['test_srtp', {'run_args': '-v'}],
+    [
+        'rtpw',
+        {
+            'extra_sources': ['rtp.c', 'util.c', '../crypto/math/datatypes.c'],
+            'define_test': false,
+        },
+    ],
+]
+foreach t : test_apps
+    test_name = t.get(0)
+    set_variable(test_name + '_exe', true)
+endforeach
+# ana:var: rtpw_exe = bool

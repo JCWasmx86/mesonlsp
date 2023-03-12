@@ -567,7 +567,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           if let arr = its.expression as? ArrayLiteral {
             return arr
           } else if let idexpr2 = its.expression as? IdExpression {
-            return self.scanForArrayDecl(idexpr2.id, parent)
+            return self.scanForArrayDecl(idexpr2.id, its)
           }
           break
         }
@@ -646,6 +646,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 }
                 return rets
               }
+            } else if let me = s.rhs as? MethodExpression, let meobj = me.obj as? IdExpression,
+              let meid = me.id as? IdExpression, meid.id == "get",
+              let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+              let idxToAccess = al.args[0] as? IntegerLiteral
+            {
+              let node = self.scanForArrayDecl(meobj.id, node)
+              let idx = idxToAccess.parse()
+              if let al = node as? ArrayLiteral {
+                var rets: [String] = []
+                for val in al.args {
+                  if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                    if let sl1 = subArray.args[idx] as? StringLiteral {
+                      rets.append(sl1.contents())
+                    }
+                  }
+                }
+                return rets
+              }
             } else if let rets = self.evalBlock(b, id) {
               tmp += rets
             }
@@ -695,6 +713,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               let node = self.scanForArrayDecl(outerId.id, node)
               let idx = il.parse()
               if let al = node as? ArrayLiteral {
+                var rets: [String] = []
+                for val in al.args {
+                  if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                    if let sl1 = subArray.args[idx] as? StringLiteral {
+                      rets.append(sl1.contents())
+                    }
+                  }
+                }
+                return rets
+              }
+            } else if let me = s.rhs as? MethodExpression, let meobj = me.obj as? IdExpression,
+              let meid = me.id as? IdExpression, meid.id == "get",
+              let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+              let idxToAccess = al.args[0] as? IntegerLiteral
+            {
+              let node2 = self.scanForArrayDecl(meobj.id, node)
+              let idx = idxToAccess.parse()
+              if let al = node2 as? ArrayLiteral {
                 var rets: [String] = []
                 for val in al.args {
                   if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
@@ -766,6 +802,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               {
                 let node = self.scanForArrayDecl(outerId.id, node)
                 let idx = il.parse()
+                if let al = node as? ArrayLiteral {
+                  var rets: [String] = []
+                  for val in al.args {
+                    if let subArray = val as? ArrayLiteral, idx < subArray.args.count {
+                      if let sl1 = subArray.args[idx] as? StringLiteral {
+                        rets.append(sl1.contents())
+                      }
+                    }
+                  }
+                  return rets
+                }
+              } else if let me = s.rhs as? MethodExpression, let meobj = me.obj as? IdExpression,
+                let meid = me.id as? IdExpression, meid.id == "get",
+                let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+                let idxToAccess = al.args[0] as? IntegerLiteral
+              {
+                let node = self.scanForArrayDecl(meobj.id, node)
+                let idx = idxToAccess.parse()
                 if let al = node as? ArrayLiteral {
                   var rets: [String] = []
                   for val in al.args {
