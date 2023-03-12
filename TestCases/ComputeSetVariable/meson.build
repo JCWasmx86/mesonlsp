@@ -66,3 +66,36 @@ endforeach
 # ana:var: gdk_pixbuf_pixdata = bool
 # ana:var: gdk_pixbuf_query_loaders = bool
 
+vpx_features = [
+    [
+        'vpx/vp8cx.h',
+        'vpx_codec_vp8_cx_algo',
+        '-DHAVE_VP8_ENCODER',
+        'VP8 encoder',
+    ],
+    [
+        'vpx/vp8dx.h',
+        'vpx_codec_vp8_dx_algo',
+        '-DHAVE_VP8_DECODER',
+        'VP8 decoder',
+    ],
+    [
+        'vpx/vp8cx.h',
+        'vpx_codec_vp9_cx_algo',
+        '-DHAVE_VP9_ENCODER',
+        'VP9 encoder',
+    ],
+    [
+        'vpx/vp8dx.h',
+        'vpx_codec_vp9_dx_algo',
+        '-DHAVE_VP9_DECODER',
+        'VP9 decoder',
+    ],
+]
+foreach f : vpx_features
+    set_variable('have_' + f.get(3).to_lower().underscorify(), true)
+endforeach
+# ana:var: have_vp8_encoder = bool
+# ana:var: have_vp8_decoder = bool
+# ana:var: have_vp9_encoder = bool
+# ana:var: have_vp9_decoder = bool

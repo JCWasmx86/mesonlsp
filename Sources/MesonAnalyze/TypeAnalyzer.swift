@@ -469,6 +469,23 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       var ret: [String] = []
       for l in fmt { for r in str { ret.append(r.replacingOccurrences(of: "@0@", with: l)) } }
       return ret
+    } else if let me = node as? MethodExpression, let meid = me.id as? IdExpression,
+      meid.id == "get", let parentId = me.obj as? IdExpression,
+      let al = me.argumentList as? ArgumentList, !al.args.isEmpty,
+      let il = al.args[0] as? IntegerLiteral
+    {
+      let str = self.scanForArrayDecl(parentId.id, pnode)
+      var ret: [String] = []
+      let selIdx = il.parse()
+      if let al = str as? ArrayLiteral {
+        print(al)
+        for arr2 in al.args {
+          if let arr22 = arr2 as? ArrayLiteral, selIdx < arr22.args.count {
+            if let strLit = arr22.args[selIdx] as? StringLiteral { ret.append(strLit.contents()) }
+          }
+        }
+      }
+      return ret
     }
     return []
   }
@@ -542,6 +559,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           break
         }
       }
+      return self.scanForArrayDecl(id, its)
     } else if let sst = parent as? SelectionStatement {
       for blk in sst.blocks.reversed() {
         var foundOurselves = true
@@ -559,7 +577,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
         if foundOurselves { break }
       }
-      return nil
+      return self.scanForArrayDecl(id, sst)
     }
     return nil
   }
