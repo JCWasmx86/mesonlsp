@@ -354,11 +354,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if !args.isEmpty, let sl = args[0] as? StringLiteral {
         let varname = sl.contents()
         var types: [Type] = []
-        if let sv = self.scope.variables[varname] {
-          types += sv
-        } else {
-          types += fn.returnTypes
-        }
+        if let sv = self.scope.variables[varname] { types += sv } else { types += fn.returnTypes }
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = types
         TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
@@ -418,6 +414,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         if node.function!.name == "set_variable" {
           let args = al.args
           if !args.isEmpty {
+            let beginGuessing = clock()
             if let sl = args[0] as? StringLiteral {
               let varname = sl.contents()
               let types = args[1].types
@@ -470,6 +467,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
                 self.applyToStack(varname, types)
               }
             }
+            Timing.INSTANCE.registerMeasurement(
+              name: "guessSetVariable",
+              begin: beginGuessing,
+              end: clock()
+            )
           }
         }
       }
