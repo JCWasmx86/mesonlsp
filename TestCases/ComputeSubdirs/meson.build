@@ -35,3 +35,42 @@ endif
 subdir('bar' / asm1)
 # ana:var: bar_asm = int
 # ana:var: bar_no_asm = int
+
+cc_dict = {
+    'compiler': meson.get_compiler('c'),
+    'machine': host_machine,
+    'config_h_subdir': 'hash1/public',
+    'native': false,
+}
+cc_native_dict = {
+    'compiler': meson.get_compiler('c', native: true),
+    'machine': build_machine,
+    'config_h_subdir': 'hash1/private',
+    'native': true,
+}
+configurations = [cc_dict, cc_native_dict]
+foreach entry : configurations
+    subdir(entry.get('config_h_subdir'))
+endforeach
+# ana:var: hash1_private = int
+# ana:var: hash1_public = int
+
+# From CMocka
+cc_dict2 = {
+    'compiler': meson.get_compiler('c'),
+    'machine': host_machine,
+    'config_h_subdir': 'hash2/public',
+    'native': false,
+}
+cc_native_dict2 = {
+    'compiler': meson.get_compiler('c', native: true),
+    'machine': build_machine,
+    'config_h_subdir': 'hash2/private',
+    'native': true,
+}
+configurations2 = [cc_dict2, cc_native_dict2]
+foreach entry : configurations2
+    subdir(entry['config_h_subdir'])
+endforeach
+# ana:var: hash2_private = int
+# ana:var: hash2_public = int

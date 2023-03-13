@@ -43,10 +43,22 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
       } else if let dict = r.node as? DictionaryLiteral, let keyLit = al.args[0] as? StringLiteral {
         for k in dict.values
         where (k is KeyValueItem)
-          && ((k as! KeyValueItem).key as? IdExpression)?.id == keyLit.contents()
+          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
         {
           if let keySL = (k as! KeyValueItem).value as? StringLiteral {
             ret.append(keySL.contents())
+          }
+        }
+      } else if let arr = r.node as? ArrayLiteral, let sl = al.args[0] as? StringLiteral {
+        for a in arr.args where a is DictionaryLiteral {
+          let dict = (a as! DictionaryLiteral)
+          for k in dict.values
+          where (k is KeyValueItem)
+            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+          {
+            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+              ret.append(keySL.contents())
+            }
           }
         }
       }
@@ -74,10 +86,22 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
         if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
           ret.append(sl.contents())
         }
+      } else if let arr = r.node as? ArrayLiteral, let sl = inner as? StringLiteral {
+        for a in arr.args where a is DictionaryLiteral {
+          let dict = (a as! DictionaryLiteral)
+          for k in dict.values
+          where (k is KeyValueItem)
+            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+          {
+            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+              ret.append(keySL.contents())
+            }
+          }
+        }
       } else if let dict = r.node as? DictionaryLiteral, let keyLit = inner as? StringLiteral {
         for k in dict.values
         where (k is KeyValueItem)
-          && ((k as! KeyValueItem).key as? IdExpression)?.id == keyLit.contents()
+          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
         {
           if let keySL = (k as! KeyValueItem).value as? StringLiteral {
             ret.append(keySL.contents())
@@ -216,6 +240,8 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
         return al.args.map({ ArrayNode(node: $0) })
       } else if !al.args.isEmpty && al.args[0] is DictionaryLiteral {
         return al.args.map({ DictNode(node: $0) })
+      } else if !al.args.isEmpty && al.args[0] is IdExpression {
+        return al.args.map({ resolveArrayOrDict(parentStmt, $0 as! IdExpression) }).flatMap({ $0 })
       }
     }
     return [ArrayNode(node: toEval)]
@@ -272,6 +298,18 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
             ret.append(StringNode(node: val))
           }
         }
+      } else if let arr = r.node as? ArrayLiteral, let sl = inner as? StringLiteral {
+        for a in arr.args where a is DictionaryLiteral {
+          let dict = (a as! DictionaryLiteral)
+          for k in dict.values
+          where (k is KeyValueItem)
+            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+          {
+            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+              ret.append(StringNode(node: keySL))
+            }
+          }
+        }
       }
     }
     return ret
@@ -298,6 +336,18 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
             key.contents() == sl.contents(), let val = k.value as? StringLiteral
           {
             ret.append(StringNode(node: val))
+          }
+        }
+      } else if let arr = r.node as? ArrayLiteral, let sl = se.inner as? StringLiteral {
+        for a in arr.args where a is DictionaryLiteral {
+          let dict = (a as! DictionaryLiteral)
+          for k in dict.values
+          where (k is KeyValueItem)
+            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+          {
+            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+              ret.append(StringNode(node: keySL))
+            }
           }
         }
       }
