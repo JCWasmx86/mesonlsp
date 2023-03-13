@@ -13,3 +13,6 @@ serve: FORCE
 	echo "];" >> generated.js
 	python -m http.server
 FORCE: ;
+
+format:
+	rome format script.js --verbose --write --quote-style double --indent-style space --indent-size 2
