@@ -47,14 +47,14 @@
   }
 }
 
-#horizontal {
+.horizontal {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: stretch;
 }
 
-#vertical {
+.vertical {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;

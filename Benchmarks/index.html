@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<meta charset="utf-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1"/>
-		<link rel="stylesheet" href="style.css"/>
-		<script type="text/javascript" src="generated.js"></script>
-		<script type="text/javascript" src="script.js"></script>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="style.css">
+		<script src="generated.js"></script>
+		<script src="script.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<title>
+		  Dashboard for Swift-MesonLSP
+		</title>
 	</head>
 	<body>
 		<div class="tab">
@@ -19,12 +22,12 @@
 			<h3>Overview</h3>
 			<details>
 				<summary>Overview</summary>
-			  <div id="vertical">
-				  <div id="horizontal">
+			  <div class="vertical">
+				  <div class="horizontal">
 					  <div class="child"><canvas id="sizeChart"></canvas></div>
 					  <div class="child"><canvas id="strippedSizeChart"></canvas></div>
 			    </div>
-			    <div id="horizontal">
+			    <div class="horizontal">
 				    <div class="child"><canvas id="avgPerformance"></canvas></div>
 				    <div class="child"><canvas id="avgMemoryAllocations"></canvas></div>
 				    <div class="child"><canvas id="avgTempMemoryAllocations"></canvas></div>
@@ -33,10 +36,10 @@
 				  </div>
 			  </div>
 			</details>
-			<hr/>
+			<hr>
 			<details>
 				<summary>Measurements for Mesa</summary>
-				<div id="horizontal">
+				<div class="horizontal">
 					<div class="child"><canvas id="mesa"></canvas></div>
 					<div class="child"><canvas id="mesa_allocs"></canvas></div>
 					<div class="child"><canvas id="mesa_tmp_allocs"></canvas></div>
@@ -44,10 +47,10 @@
 					<div class="child"><canvas id="mesa_heap"></canvas></div>
 				</div>
 			</details>
-			<hr/>
+			<hr>
 			<details>
 				<summary>Measurements for GNOME-Builder</summary>
-				<div id="horizontal">
+				<div class="horizontal">
 					<div class="child"><canvas id="gnome_builder"></canvas></div>
 					<div class="child"><canvas id="gnome_builder_allocs"></canvas></div>
 					<div class="child"><canvas id="gnome_builder_tmp_allocs"></canvas></div>
@@ -55,10 +58,10 @@
 					<div class="child"><canvas id="gnome_builder_heap"></canvas></div>
 				</div>
 			</details>
-			<hr/>
+			<hr>
 			<details>
 				<summary>Measurements for QEMU</summary>
-				<div id="horizontal">
+				<div class="horizontal">
 					<div class="child"><canvas id="qemu"></canvas></div>
 					<div class="child"><canvas id="qemu_allocs"></canvas></div>
 					<div class="child"><canvas id="qemu_tmp_allocs"></canvas></div>
@@ -66,10 +69,10 @@
 					<div class="child"><canvas id="qemu_heap"></canvas></div>
 				</div>
 			</details>
-			<hr/>
+			<hr>
 			<details>
 				<summary>Measurements for GNOME-Builder-Plugins</summary>
-				<div id="horizontal">
+				<div class="horizontal">
 					<div class="child"><canvas id="GNOME_Builder_Plugins"></canvas></div>
 					<div class="child"><canvas id="GNOME_Builder_Plugins_allocs"></canvas></div>
 					<div class="child"><canvas id="GNOME_Builder_Plugins_tmp_allocs"></canvas></div>
@@ -77,16 +80,17 @@
 					<div class="child"><canvas id="GNOME_Builder_Plugins_heap"></canvas></div>
 				</div>
 			</details>
-			<hr/>
+			<hr>
 			<details>
 				<summary>Measurements for GTK</summary>
-				<div id="horizontal">
+				<div class="horizontal">
 					<div class="child"><canvas id="gtk"></canvas></div>
 					<div class="child"><canvas id="gtk_allocs"></canvas></div>
 					<div class="child"><canvas id="gtk_tmp_allocs"></canvas></div>
 					<div class="child"><canvas id="gtk_rss"></canvas></div>
 					<div class="child"><canvas id="gtk_heap"></canvas></div>
 				</div>
+		  </details>
 		</div>
 
 		<div id="Comparisons" class="tabcontent">
@@ -95,7 +99,7 @@
 			</select>
 			<select onchange="changedVersions()" name="versions2" id="versions2">
 			</select>
-			<br/>
+			<br>
 			<div id="dynamicTable"></div>
 		</div>
 
