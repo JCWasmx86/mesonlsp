@@ -16,8 +16,6 @@ A lot of misc errors in the parent project
 - `compile_args` can't be found for an unknown reason
 #### mpdecimal
 - `mpd_header_config_32_LEGACY` and `mpd_header_config_UNIVERSAL` can't be found for an unknown reason
-#### Wayland
-- Various missing variables, as the expression that calculates those variable names is too complex.
 
 ### mesa
 `inc_egl` and `inc_egl_dri2` are undefined in `src/gallium/frontends/omx/meson.build`. These variables are defined in `src/egl/meson.build`.
