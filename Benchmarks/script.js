@@ -66,13 +66,16 @@ function avgData(key) {
 function avgAllocationsPerSecond() {
   const allocations = avgData("memory_allocations");
   const parsing = avgData("parsing");
-  return allocations.map((e, i) => e / (parsing[i] / 1000));
+  return allocations.map((e, i) => (e * 10) / (parsing[i] / 1000));
 }
 
 function avgTemporaryAllocationsPerSecond() {
   const allocations = avgData("temporary_memory_allocations");
   const parsing = avgData("parsing");
-  return allocations.map((e, i) => e / (parsing[i] / 1000));
+  // Divided by 1000 to convert ms -> s
+  // Multiplied by 10, as performance is measured doing 10 * 100
+  // but heaptrack is 1 * 100
+  return allocations.map((e, i) => (e * 10) / (parsing[i] / 1000));
 }
 
 function createOverviewCharts() {
