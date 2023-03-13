@@ -29,257 +29,107 @@ function percentify(oldValue, newValue) {
   return `${((newValue / oldValue) * 100 - 100).toFixed(2)}%`;
 }
 
+function attachChart(name, label, data, beginAtZero) {
+  const tags = ALL_BENCHMARKS.map((a) => a.commit);
+  const ctx = document.getElementById(name);
+  const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
+  beginAtZero = typeof beginAtZero !== "undefined" ? beginAtZero : true;
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: label,
+          data: data,
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: beginAtZero,
+        },
+      },
+    },
+  });
+}
+
+function avgData(key) {
+  return ALL_BENCHMARKS.map((a) => a.projects)
+    .map((a) => a.map((b) => parseFloat(`${b[key]}`.replace("M", ""))))
+    .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+    .map((a) => a / ELEMENT_NAMES.length);
+}
+
 function createOverviewCharts() {
-  ctx = document.getElementById("sizeChart");
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
   const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Size in bytes (Unstripped)",
-          data: ALL_BENCHMARKS.map((a) => a.size),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: false,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("strippedSizeChart");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Size in bytes (Stripped)",
-          data: ALL_BENCHMARKS.map((a) => a.stripped_size),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: false,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("avgPerformance");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Average performance (In ms)",
-          data: ALL_BENCHMARKS.map((a) => a.projects)
-            .map((a) => a.map((b) => b.parsing))
-            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
-            .map((a) => a / ELEMENT_NAMES.length),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("avgMemoryAllocations");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Average memory allocations",
-          data: ALL_BENCHMARKS.map((a) => a.projects)
-            .map((a) => a.map((b) => b.memory_allocations))
-            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
-            .map((a) => a / ELEMENT_NAMES.length),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("avgTempMemoryAllocations");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Average temporary memory allocations",
-          data: ALL_BENCHMARKS.map((a) => a.projects)
-            .map((a) => a.map((b) => b.temporary_memory_allocations))
-            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
-            .map((a) => a / ELEMENT_NAMES.length),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("avgRss");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Peak RSS (In MB)",
-          data: ALL_BENCHMARKS.map((a) => a.projects)
-            .map((a) => a.map((b) => parseFloat(b.peak_rss.replace("M", ""))))
-            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
-            .map((a) => a / ELEMENT_NAMES.length),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
-  ctx = document.getElementById("avgHeap");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: tags,
-      datasets: [
-        {
-          label: "Peak Heap (In MB)",
-          data: ALL_BENCHMARKS.map((a) => a.projects)
-            .map((a) => a.map((b) => parseFloat(b.peak_heap.replace("M", ""))))
-            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
-            .map((a) => a / ELEMENT_NAMES.length),
-          backgroundColor: colors,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  });
+  attachChart(
+    "sizeChart",
+    "Size in bytes (Unstripped)",
+    ALL_BENCHMARKS.map((a) => a.size),
+    false,
+  );
+  attachChart(
+    "strippedSizeChart",
+    "Size in bytes (Stripped)",
+    ALL_BENCHMARKS.map((a) => a.stripped_size),
+    false,
+  );
+  attachChart(
+    "avgPerformance",
+    "Average performance (In ms)",
+    avgData("parsing"),
+  );
+  attachChart(
+    "avgMemoryAllocations",
+    "Average memory allocations",
+    avgData("memory_allocations"),
+  );
+  attachChart(
+    "avgTempMemoryAllocations",
+    "Average temporary memory allocations",
+    avgData("temporary_memory_allocations"),
+    false,
+  );
+  attachChart("avgRss", "Peak RSS (In MB)", avgData("peak_rss"));
+  attachChart("avgHeap", "Peak Heap (In MB)", avgData("peak_heap"));
   for (const element of ELEMENT_NAMES) {
     ctx = document.getElementById(element.replaceAll("-", "_"));
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: tags,
-        datasets: [
-          {
-            label: "Time required for parsing (In ms)",
-            data: ALL_BENCHMARKS.map((a) => findProject(a, element).parsing),
-            backgroundColor: colors,
-          },
-        ],
-      },
-    });
-    ctx = document.getElementById(`${element}_allocs`.replaceAll("-", "_"));
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: tags,
-        datasets: [
-          {
-            label: "Memory allocations",
-            data: ALL_BENCHMARKS.map(
-              (a) => findProject(a, element).memory_allocations,
-            ),
-            backgroundColor: colors,
-          },
-        ],
-      },
-    });
-    ctx = document.getElementById(`${element}_tmp_allocs`.replaceAll("-", "_"));
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: tags,
-        datasets: [
-          {
-            label: "Temporary memory allocations",
-            data: ALL_BENCHMARKS.map(
-              (a) => findProject(a, element).temporary_memory_allocations,
-            ),
-            backgroundColor: colors,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: false,
-          },
-        },
-      },
-    });
-    ctx = document.getElementById(`${element}_rss`.replaceAll("-", "_"));
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: tags,
-        datasets: [
-          {
-            label: "Peak RSS (In MB)",
-            data: ALL_BENCHMARKS.map((a) =>
-              findProject(a, element).peak_rss.replace("M", ""),
-            ),
-            backgroundColor: colors,
-          },
-        ],
-      },
-    });
-    ctx = document.getElementById(`${element}_heap`.replaceAll("-", "_"));
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: tags,
-        datasets: [
-          {
-            label: "Peak Heap (In MB)",
-            data: ALL_BENCHMARKS.map((a) =>
-              findProject(a, element).peak_heap.replace("M", ""),
-            ),
-            backgroundColor: colors,
-          },
-        ],
-      },
-    });
+    attachChart(
+      element.replaceAll("-", "_"),
+      "Time required for parsing (In ms)",
+      ALL_BENCHMARKS.map((a) => findProject(a, element).parsing),
+    );
+    attachChart(
+      `${element}_allocs`.replaceAll("-", "_"),
+      "Memory allocations",
+      ALL_BENCHMARKS.map((a) => findProject(a, element).memory_allocations),
+    );
+    attachChart(
+      `${element}_tmp_allocs`.replaceAll("-", "_"),
+      "Temporary memory allocations",
+      ALL_BENCHMARKS.map(
+        (a) => findProject(a, element).temporary_memory_allocations,
+      ),
+      false,
+    );
+    attachChart(
+      `${element}_rss`.replaceAll("-", "_"),
+      "Peak RSS (In MB)",
+      ALL_BENCHMARKS.map((a) =>
+        findProject(a, element).peak_rss.replace("M", ""),
+      ),
+    );
+    attachChart(
+      `${element}_heap`.replaceAll("-", "_"),
+      "Peak Heap (In MB)",
+      ALL_BENCHMARKS.map((a) =>
+        findProject(a, element).peak_heap.replace("M", ""),
+      ),
+    );
   }
 }
 
