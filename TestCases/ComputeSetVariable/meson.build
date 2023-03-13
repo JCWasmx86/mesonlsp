@@ -200,13 +200,20 @@ generated_headers = [
         'install': false,
     },
 ]
-foreach gen: generated_headers
+foreach gen : generated_headers
     output_file = gen.get('output')
     target_name = output_file.underscorify()
     set_variable(target_name, true)
 endforeach
-## TODO: Disabled
-#ana:var: wayland_client_protocol_h = bool
-#ana:var: wayland_server_protocol_h = bool
-#ana:var: wayland_client_protocol_core_h = bool
-#ana:var: wayland_server_protocol_core_h = bool
+# ana:var: wayland_client_protocol_h = bool
+# ana:var: wayland_server_protocol_h = bool
+# ana:var: wayland_client_protocol_core_h = bool
+# ana:var: wayland_server_protocol_core_h = bool
+
+a1 = 'snake'
+a2 = a1
+a3 = a2
+a4 = a3
+set_variable('have_' + a4, true)
+# ana:var: have_snake = bool
+

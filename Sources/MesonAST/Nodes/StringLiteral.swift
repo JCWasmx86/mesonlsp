@@ -19,6 +19,14 @@ public final class StringLiteral: Expression {
       self.cache = ""
     }
   }
+
+  public init(_ contents: String) {
+  	self.file = MesonSourceFile(file: "/dev/null")
+  	self.id = "\"\(contents)\""
+  	self.location = Location(0, 0, 1, 1)
+  	self.cache = contents
+  }
+
   fileprivate init(file: MesonSourceFile, location: Location, id: String, cache: String) {
     self.file = file
     self.location = location
