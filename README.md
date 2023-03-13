@@ -12,6 +12,8 @@ A reimplementation of my Meson language server in Swift.
 - Formatting
 - Document symbols
 - Rudimentary autocompletion
+- Inlay hints
+- Highlighting
 
 ## Limitations
 - Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
