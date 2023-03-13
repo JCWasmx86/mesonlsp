@@ -17,7 +17,10 @@ PROJECTS = {
     "GNOME-Builder-Plugins": "https://github.com/JCWasmx86/GNOME-Builder-Plugins",
     "gtk": "https://github.com/GNOME/gtk",
 }
-
+# Those give errors
+# TODO: https://github.com/HelenOS/helenos
+# TODO: https://github.com/picolibc/picolibc
+# TODO: https://github.com/postgres/postgres
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
     "systemd": "https://github.com/systemd/systemd",
@@ -27,6 +30,20 @@ MISC_PROJECTS = {
     "gnome-shell": "https://github.com/GNOME/gnome-shell",
     "evince": "https://github.com/GNOME/evince",
     "gjs": "https://github.com/GNOME/gjs",
+    "rustc-demangle": "https://github.com/JCWasmx86/rustc-demangle",
+    "libswiftdemangle": "https://github.com/JCWasmx86/libswiftdemangle",
+    "dbus-broker": "https://github.com/bus1/dbus-broker",
+    "cinnamon-desktop": "https://github.com/linuxmint/cinnamon-desktop",
+    "cglm": "https://github.com/recp/cglm",
+    "budgie-desktop": "https://github.com/BuddiesOfBudgie/budgie-desktop",
+    "dxvk": "https://github.com/doitsujin/dxvk",
+    "hexchat": "https://github.com/hexchat/hexchat",
+    "knot-resolver": "https://gitlab.nic.cz/knot/knot-resolver",
+    "le": "https://github.com/kirushyk/le",
+    "lxc": "https://github.com/lxc/lxc",
+    "libvirt": "https://gitlab.com/libvirt/libvirt",
+    "libvips": "https://github.com/libvips/libvips",
+    "miniz": "https://github.com/richgel999/miniz",
 }
 
 N_ITERATIONS = 10
@@ -102,7 +119,7 @@ def analyze_file(file, commit, is_ci):
         projs = []
         for projname in MISC_PROJECTS.keys():
             projs.append(projname + "/meson.build")
-        command = [absp] + (projs * 100)
+        command = [absp] + (projs * 25)
         print("Parsing misc", file=sys.stderr)
         begin = datetime.datetime.now()
         subprocess.run(
