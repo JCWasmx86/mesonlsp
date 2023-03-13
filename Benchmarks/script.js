@@ -63,6 +63,18 @@ function avgData(key) {
     .map((a) => a / ELEMENT_NAMES.length);
 }
 
+function avgAllocationsPerSecond() {
+  const allocations = avgData("memory_allocations");
+  const parsing = avgData("parsing");
+  return allocations.map((e, i) => e / (parsing[i] / 1000));
+}
+
+function avgTemporaryAllocationsPerSecond() {
+  const allocations = avgData("temporary_memory_allocations");
+  const parsing = avgData("parsing");
+  return allocations.map((e, i) => e / (parsing[i] / 1000));
+}
+
 function createOverviewCharts() {
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
   const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
@@ -77,6 +89,16 @@ function createOverviewCharts() {
     "Size in bytes (Stripped)",
     ALL_BENCHMARKS.map((a) => a.stripped_size),
     false,
+  );
+  attachChart(
+    "avgAllocationsPerSecond",
+    "Average allocations per second",
+    avgAllocationsPerSecond(),
+  );
+  attachChart(
+    "avgTemporaryAllocationsPerSecond",
+    "Average temporary allocations per second",
+    avgTemporaryAllocationsPerSecond(),
   );
   attachChart(
     "avgPerformance",
