@@ -1,3 +1,11 @@
+ELEMENT_NAMES = [
+  "mesa",
+  "gnome-builder",
+  "qemu",
+  "GNOME-Builder-Plugins",
+  "gtk",
+];
+
 function openTab(evt, tabName) {
   const tabcontent = document.getElementsByClassName("tabcontent");
   for (let i = 0; i < tabcontent.length; i++) {
@@ -66,14 +74,127 @@ function createOverviewCharts() {
       },
     },
   });
-  const elementNames = [
-    "mesa",
-    "gnome-builder",
-    "qemu",
-    "GNOME-Builder-Plugins",
-    "gtk",
-  ];
-  for (const element of elementNames) {
+  ctx = document.getElementById("avgPerformance");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Average performance (In ms)",
+          data: ALL_BENCHMARKS.map((a) => a.projects)
+            .map((a) => a.map((b) => b.parsing))
+            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+            .map((a) => a / ELEMENT_NAMES.length),
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  ctx = document.getElementById("avgMemoryAllocations");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Average memory allocations",
+          data: ALL_BENCHMARKS.map((a) => a.projects)
+            .map((a) => a.map((b) => b.memory_allocations))
+            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+            .map((a) => a / ELEMENT_NAMES.length),
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  ctx = document.getElementById("avgTempMemoryAllocations");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Average temporary memory allocations",
+          data: ALL_BENCHMARKS.map((a) => a.projects)
+            .map((a) => a.map((b) => b.temporary_memory_allocations))
+            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+            .map((a) => a / ELEMENT_NAMES.length),
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  ctx = document.getElementById("avgRss");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Peak RSS (In MB)",
+          data: ALL_BENCHMARKS.map((a) => a.projects)
+            .map((a) => a.map((b) => parseFloat(b.peak_rss.replace("M", ""))))
+            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+            .map((a) => a / ELEMENT_NAMES.length),
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  ctx = document.getElementById("avgHeap");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Peak Heap (In MB)",
+          data: ALL_BENCHMARKS.map((a) => a.projects)
+            .map((a) => a.map((b) => parseFloat(b.peak_heap.replace("M", ""))))
+            .map((a) => a.reduce((partialSum, b) => partialSum + b, 0))
+            .map((a) => a / ELEMENT_NAMES.length),
+          backgroundColor: colors,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  for (const element of ELEMENT_NAMES) {
     ctx = document.getElementById(element.replaceAll("-", "_"));
     new Chart(ctx, {
       type: "bar",
@@ -197,14 +318,7 @@ function changedVersions() {
   appendTr(tr, newData.stripped_size);
   appendTr(tr, percentify(oldData.stripped_size, newData.stripped_size));
   tableDiv.appendChild(table);
-  const elementNames = [
-    "mesa",
-    "gnome-builder",
-    "qemu",
-    "GNOME-Builder-Plugins",
-    "gtk",
-  ];
-  for (const element of elementNames) {
+  for (const element of ELEMENT_NAMES) {
     const p = findProject(oldData, element);
     const p1 = findProject(newData, element);
     tr = document.createElement("tr");
@@ -214,7 +328,7 @@ function changedVersions() {
     appendTr(tr, p1.parsing);
     appendTr(tr, percentify(p.parsing, p1.parsing));
   }
-  for (const element of elementNames) {
+  for (const element of ELEMENT_NAMES) {
     const p = findProject(oldData, element);
     const p1 = findProject(newData, element);
     tr = document.createElement("tr");
@@ -224,7 +338,7 @@ function changedVersions() {
     appendTr(tr, p1.memory_allocations);
     appendTr(tr, percentify(p.memory_allocations, p1.memory_allocations));
   }
-  for (const element of elementNames) {
+  for (const element of ELEMENT_NAMES) {
     const p = findProject(oldData, element);
     const p1 = findProject(newData, element);
     tr = document.createElement("tr");
@@ -240,7 +354,7 @@ function changedVersions() {
       ),
     );
   }
-  for (const element of elementNames) {
+  for (const element of ELEMENT_NAMES) {
     const p = findProject(oldData, element);
     const p1 = findProject(newData, element);
     tr = document.createElement("tr");
@@ -253,7 +367,7 @@ function changedVersions() {
       percentify(p.peak_heap.replace("M", ""), p1.peak_heap.replace("M", "")),
     );
   }
-  for (const element of elementNames) {
+  for (const element of ELEMENT_NAMES) {
     const p = findProject(oldData, element);
     const p1 = findProject(newData, element);
     tr = document.createElement("tr");

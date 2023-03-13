@@ -54,6 +54,13 @@
   align-items: stretch;
 }
 
+#vertical {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
 .child {
   flex: 1;
 }
