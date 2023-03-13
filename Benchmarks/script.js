@@ -163,6 +163,13 @@ function appendTr(tr, txt) {
   td.appendChild(document.createTextNode(txt));
   tr.appendChild(td);
 }
+
+function appendTh(tr, txt) {
+  const th = document.createElement("th");
+  th.appendChild(document.createTextNode(txt));
+  tr.appendChild(th);
+}
+
 function changedVersions() {
   const oldData = ALL_BENCHMARKS[document.getElementById("versions").value];
   const newData = ALL_BENCHMARKS[document.getElementById("versions2").value];
@@ -176,10 +183,10 @@ function changedVersions() {
   table.appendChild(tableBody);
   let tr = document.createElement("tr");
   tableBody.appendChild(tr);
-  appendTr(tr, "Measurement");
-  appendTr(tr, oldData.commit);
-  appendTr(tr, newData.commit);
-  appendTr(tr, "Percentage");
+  appendTh(tr, "Measurement");
+  appendTh(tr, oldData.commit);
+  appendTh(tr, newData.commit);
+  appendTh(tr, "Percentage");
   tr = document.createElement("tr");
   tableBody.appendChild(tr);
   appendTr(tr, "Binary Size");
