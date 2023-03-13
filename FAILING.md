@@ -8,8 +8,6 @@ A lot of misc errors in the parent project
 - `need_api_gles` can't be found for an unknown reason.
 
 ### Wrapdb
-#### CMocka
-- `inc_private_native` and `inc_private` can't be found, as they are defined in a subdir that is not visited, as the computing expression for `subdir()` is too complex.
 #### GLib
 - Unknown error. Probably related to operator precedence
 #### lz4
