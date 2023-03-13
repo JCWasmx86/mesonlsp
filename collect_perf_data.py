@@ -15,15 +15,27 @@ PROJECTS = {
     "gnome-builder": "https://github.com/GNOME/gnome-builder",
     "qemu": "https://github.com/qemu/qemu",
     "GNOME-Builder-Plugins": "https://github.com/JCWasmx86/GNOME-Builder-Plugins",
-    "gtk": "https://github.com/GNOME/gtk"
+    "gtk": "https://github.com/GNOME/gtk",
 }
+
+MISC_PROJECTS = {
+    "glib": "https://github.com/GNOME/glib",
+    "systemd": "https://github.com/systemd/systemd",
+    "gitg": "https://github.com/GNOME/gitg",
+    "code": "https://github.com/elementary/code",
+    "vte": "https://github.com/GNOME/vte",
+    "gnome-shell": "https://github.com/GNOME/gnome-shell",
+    "evince": "https://github.com/GNOME/evince",
+    "gjs": "https://github.com/GNOME/gjs",
+}
+
 N_ITERATIONS = 10
 
 
-def heaptrack(absp, proj_name, is_ci):
+def heaptrack(command, is_ci):
     if not is_ci:
         with subprocess.Popen(
-            ["heaptrack", "--record-only", absp, "--path", proj_name + "/meson.build"],
+            ["heaptrack", "--record-only"] + command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         ) as prof_process:
@@ -42,7 +54,7 @@ def heaptrack(absp, proj_name, is_ci):
         # Because Ubuntu has too old software, so --record-only is not known
         # and github has no runners for modern distributions
         with subprocess.Popen(
-            ["heaptrack", absp, "--path", proj_name + "/meson.build"],
+            ["heaptrack"] + command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         ) as prof_process:
@@ -60,6 +72,16 @@ def heaptrack(absp, proj_name, is_ci):
     assert False
 
 
+def clone_project(url):
+    print("Cloning", url)
+    subprocess.run(
+        ["git", "clone", "--depth=1", url],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+    )
+
+
 def analyze_file(file, commit, is_ci):
     ret = {}
     absp = os.path.abspath(file)
@@ -73,28 +95,48 @@ def analyze_file(file, commit, is_ci):
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.chdir(tmpdirname)
         for url in PROJECTS.values():
-            subprocess.run(
-                ["git", "clone", "--depth=1", url],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
+            clone_project(url)
+        for url in MISC_PROJECTS.values():
+            clone_project(url)
+        ret["misc"] = {}
+        projs = []
+        for projname in MISC_PROJECTS.keys():
+            projs.append(projname + "/meson.build")
+        command = [absp] + (projs * 100)
+        print("Parsing misc", file=sys.stderr)
+        begin = datetime.datetime.now()
+        subprocess.run(
+            command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
+        end = datetime.datetime.now()
+        print("Tracing using heaptrack for misc", file=sys.stderr)
+        lines = heaptrack(command, is_ci)
+        ret["misc"]["parsing"] = (end - begin).total_seconds() * 1000
+        ret["misc"]["memory_allocations"] = int(lines[-5].split(" ")[4])
+        ret["misc"]["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
+        ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
+        ret["misc"]["peak_rss"] = lines[-2].split("): ")[1]
         for proj_name in PROJECTS:
             print("Parsing", proj_name, file=sys.stderr)
             projobj = {}
             projobj["name"] = proj_name
             begin = datetime.datetime.now()
+            command = [absp, "--path", proj_name + "/meson.build"]
             for i in range(0, N_ITERATIONS):
                 print("Iteration", i, file=sys.stderr)
                 subprocess.run(
-                    [absp, "--path", proj_name + "/meson.build"],
+                    command,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     check=True,
                 )
             end = datetime.datetime.now()
             projobj["parsing"] = (end - begin).total_seconds() * 1000
-            lines = heaptrack(absp, proj_name, is_ci)
+            print("Tracing using heaptrack for " + proj_name, file=sys.stderr)
+            lines = heaptrack(command, is_ci)
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
             projobj["peak_heap"] = lines[-3].split(" ")[4]
