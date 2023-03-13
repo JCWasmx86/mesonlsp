@@ -56,6 +56,14 @@ git clone --depth=1 https://github.com/cisco/libsrtp
 cd libsrtp || exit
 [ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
+git clone --depth=1 https://gitlab.freedesktop.org/wayland/wayland
+cd wayland || exit
+[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+cd .. || exit
+git clone --depth=1 https://gitlab.freedesktop.org/xorg/xserver
+cd xserver || exit
+[ "$(Swift-MesonLSP meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+cd .. || exit
 
 echo No errors
 cd ..
