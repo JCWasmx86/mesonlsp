@@ -16,11 +16,11 @@ PROJECTS = {
     "qemu": "https://github.com/qemu/qemu",
     "GNOME-Builder-Plugins": "https://github.com/JCWasmx86/GNOME-Builder-Plugins",
     "gtk": "https://github.com/GNOME/gtk",
+    "postgres": "https://github.com/postgres/postgres",
 }
 # Those give errors
 # TODO: https://github.com/HelenOS/helenos
 # TODO: https://github.com/picolibc/picolibc
-# TODO: https://github.com/postgres/postgres
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
     "systemd": "https://github.com/systemd/systemd",
