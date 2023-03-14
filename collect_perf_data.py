@@ -51,6 +51,8 @@ MISC_PROJECTS = {
     "scipy": "https://github.com/scipy/scipy",
     "systemd": "https://github.com/systemd/systemd",
     "vte": "https://github.com/GNOME/vte",
+    "xts": "https://gitlab.freedesktop.org/xorg/test/xts",
+    "zrythm": "https://git.sr.ht/%7Ealextee/zrythm",
 }
 
 N_ITERATIONS = 10
