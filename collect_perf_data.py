@@ -18,7 +18,7 @@ PROJECTS = {
     "gtk": "https://github.com/GNOME/gtk",
     "postgres": "https://github.com/postgres/postgres",
 }
-# TODO: https://github.com/DPDK/dpdk
+
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
     "systemd": "https://github.com/systemd/systemd",
