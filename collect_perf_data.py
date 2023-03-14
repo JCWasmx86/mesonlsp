@@ -5,10 +5,10 @@ import datetime
 import json
 import os
 import subprocess
-import sys
 import tempfile
 import time
 import uuid
+import logging
 
 PROJECTS = {
     "mesa": "https://gitlab.freedesktop.org/mesa/mesa/",
@@ -94,10 +94,11 @@ def heaptrack(command, is_ci):
 
 
 def clone_project(url):
-    print("Cloning", url, file=sys.stderr)
+    logging.info("Cloning " + url)
     subprocess.run(
         ["git", "clone", "--depth=1", url],
         stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         check=True,
     )
 
@@ -123,7 +124,7 @@ def analyze_file(file, commit, is_ci):
         for projname in MISC_PROJECTS.keys():
             projs.append(projname + "/meson.build")
         command = [absp] + (projs * MISC_N_TIMES)
-        print("Parsing misc", file=sys.stderr)
+        logging.info("Parsing misc")
         begin = datetime.datetime.now()
         subprocess.run(
             command,
@@ -132,7 +133,7 @@ def analyze_file(file, commit, is_ci):
             check=True,
         )
         end = datetime.datetime.now()
-        print("Tracing using heaptrack for misc", file=sys.stderr)
+        logging.info("Tracing using heaptrack for misc")
         lines = heaptrack(command, is_ci)
         if lines[-1].startswith("suppressed leaks:"):
             lines = lines[:-1]
@@ -142,13 +143,13 @@ def analyze_file(file, commit, is_ci):
         ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
         ret["misc"]["peak_rss"] = lines[-2].split("): ")[1]
         for proj_name in PROJECTS:
-            print("Parsing", proj_name, file=sys.stderr)
+            logging.info("Parsing " + proj_name)
             projobj = {}
             projobj["name"] = proj_name
             begin = datetime.datetime.now()
             command = [absp, "--path", proj_name + "/meson.build"]
             for i in range(0, N_ITERATIONS):
-                print("Iteration", i, file=sys.stderr)
+                logging.info("Iteration " + str(i))
                 subprocess.run(
                     command,
                     stdout=subprocess.DEVNULL,
@@ -157,7 +158,7 @@ def analyze_file(file, commit, is_ci):
                 )
             end = datetime.datetime.now()
             projobj["parsing"] = (end - begin).total_seconds() * 1000
-            print("Tracing using heaptrack for " + proj_name, file=sys.stderr)
+            logging.info("Tracing using heaptrack for " + proj_name)
             lines = heaptrack(command, is_ci)
             if lines[-1].startswith("suppressed leaks:"):
                 lines = lines[:-1]
@@ -182,4 +183,7 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format="%(asctime)s %(levelname)-8s %(message)s", level=logging.INFO
+    )
     main()
