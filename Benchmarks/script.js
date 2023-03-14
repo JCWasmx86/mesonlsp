@@ -4,6 +4,7 @@ ELEMENT_NAMES = [
   "qemu",
   "GNOME-Builder-Plugins",
   "gtk",
+  "postgres",
 ];
 
 function openTab(evt, tabName) {
