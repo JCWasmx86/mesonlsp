@@ -156,6 +156,32 @@ function createOverviewCharts() {
       ),
     );
   }
+  attachChart(
+    "misc",
+    "Time required for parsing (In ms)",
+    ALL_BENCHMARKS.map((a) => a.misc.parsing),
+  );
+  attachChart(
+    "misc_allocs",
+    "Memory allocations",
+    ALL_BENCHMARKS.map((a) => a.misc.memory_allocations),
+  );
+  attachChart(
+    "misc_tmp_allocs",
+    "Temporary memory allocations",
+    ALL_BENCHMARKS.map((a) => a.misc.temporary_memory_allocations),
+    false,
+  );
+  attachChart(
+    "misc_rss",
+    "Peak RSS (In MB)",
+    ALL_BENCHMARKS.map((a) => a.misc.peak_rss.replace("M", "")),
+  );
+  attachChart(
+    "misc_heap",
+    "Peak Heap (In MB)",
+    ALL_BENCHMARKS.map((a) => a.misc.peak_heap.replace("M", "")),
+  );
 }
 
 function appendTr(tr, txt) {
