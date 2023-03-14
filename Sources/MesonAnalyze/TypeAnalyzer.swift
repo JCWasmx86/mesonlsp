@@ -121,10 +121,15 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         foundBoolOrAny = true
         break
       }
-      if !foundBoolOrAny {
+      if !foundBoolOrAny && !condition.types.isEmpty {
+        let t = condition.types.map({ $0.toString() }).joined(separator: "|")
         self.metadata.registerDiagnostic(
           node: condition,
-          diag: MesonDiagnostic(sev: .error, node: condition, message: "Condition is not bool")
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: condition,
+            message: "Condition is not bool: \(t)"
+          )
         )
       }
     }
@@ -460,10 +465,13 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     node.types = dedup(types: node.ifFalse.types + node.ifTrue.types)
     for t in node.condition.types where t is `Any` || t is BoolType { return }
-    self.metadata.registerDiagnostic(
-      node: node,
-      diag: MesonDiagnostic(sev: .error, node: node, message: "Condition is not bool")
-    )
+    if !node.condition.types.isEmpty {
+      let t = node.condition.types.map({ $0.toString() }).joined(separator: "|")
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Condition is not bool: \(t)")
+      )
+    }
   }
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)

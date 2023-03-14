@@ -892,7 +892,7 @@ public final class TypeNamespace {
       Function(
         name: "join_paths",
         returnTypes: strL,
-        args: [PositionalArgument(name: "part", varargs: true, types: strL)]
+        args: [PositionalArgument(name: "part", varargs: true, opt: true, types: strL)]
       ),
       Function(
         name: "library",
@@ -3296,7 +3296,7 @@ public final class TypeNamespace {
                 self.types["generated_list"]!,
               ])
             ]
-          ),
+          ), Kwarg(name: "build_by_default", opt: true, types: boolL),
         ]
       ),
       Method(
