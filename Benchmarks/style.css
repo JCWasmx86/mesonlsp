@@ -80,3 +80,16 @@ td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
+.smallsize {
+  height: 187px;
+  width: 374px;
+  min-width: 374px;
+  min-height: 187px;
+}
+
+#chart-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}

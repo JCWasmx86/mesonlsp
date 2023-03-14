@@ -350,3 +350,35 @@ function changedVersions() {
     ),
   );
 }
+
+function createChartCanvas(nameID) {
+  const chartDiv = document.createElement("div");
+  chartDiv.classList.add("child");
+  chartDiv.classList.add("smallsize");
+  const canvasElem = document.createElement("canvas");
+  canvasElem.setAttribute("id", nameID);
+  chartDiv.appendChild(canvasElem);
+  const allChartsDiv = document.getElementById("allCharts");
+  allChartsDiv.appendChild(chartDiv);
+}
+
+function initAllCharts() {
+  let obj = {};
+  for (const benchmark of ALL_BENCHMARKS) {
+    for (let [key, value] of Object.entries(benchmark.quick)) {
+      if (obj.hasOwnProperty(key)) {
+        obj[key].push(value);
+      } else {
+        obj[key] = [value];
+      }
+    }
+  }
+  for (let [key, value] of Object.entries(obj)) {
+    createChartCanvas("chart_" + key);
+    attachChart(
+      "chart_" + key,
+      "Time required for parsing " + key + " (In ms)",
+      value,
+    );
+  }
+}

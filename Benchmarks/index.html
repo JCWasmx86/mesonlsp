@@ -15,6 +15,7 @@
 		<div class="tab">
 			<button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>
 			<button class="tablinks" onclick="openTab(event, 'Comparisons')">Comparisons</button>
+		  <button class="tablinks" onclick="openTab(event, 'PPC')">Per project charts</button>
 			<button class="tablinks" onclick="openTab(event, 'About')">About</button>
 		</div>
 
@@ -117,6 +118,11 @@
 		  </details>
 		</div>
 
+		<div id="PPC" class="tabcontent">
+			<h3>Per project charts</h3>
+      <div id="allCharts" style="display: flex; flex-wrap: wrap; justify-content: center;" class="chart-container"></div>
+    </div>
+
 		<div id="Comparisons" class="tabcontent">
 			<h3>Comparisons</h3>
 			<select onchange="changedVersions()" name="versions" id="versions">
@@ -175,6 +181,7 @@
 			});
 			document.getElementById("versions2").value = ALL_BENCHMARKS.length - 1;
 			changedVersions();
+		  initAllCharts();
 		</script>
 	</body>
 </html>
