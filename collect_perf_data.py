@@ -76,6 +76,7 @@ def heaptrack(command, is_ci):
             ) as ana_process:
                 stdout, _ = ana_process.communicate()
                 lines = stdout.decode("utf-8").splitlines()
+                os.remove(zstfile)
                 return lines
     else:
         # Because Ubuntu has too old software, so --record-only is not known
@@ -95,6 +96,7 @@ def heaptrack(command, is_ci):
             ) as ana_process:
                 stdout, _ = ana_process.communicate()
                 lines = stdout.decode("utf-8").splitlines()
+                os.remove(zstfile)
                 return lines
     assert False
 
