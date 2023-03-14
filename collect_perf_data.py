@@ -18,7 +18,7 @@ PROJECTS = {
     "gtk": "https://github.com/GNOME/gtk",
     "postgres": "https://github.com/postgres/postgres",
 }
-
+# TODO: https://github.com/DPDK/dpdk
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
     "systemd": "https://github.com/systemd/systemd",
@@ -44,6 +44,9 @@ MISC_PROJECTS = {
     "miniz": "https://github.com/richgel999/miniz",
     "bubblewrap": "https://github.com/containers/bubblewrap",
     "scipy": "https://github.com/scipy/scipy",
+    "bsdutils": "https://github.com/dcantrell/bsdutils",
+    "bzip2": "https://gitlab.com/federicomenaquintero/bzip2",
+    "frida-core": "https://github.com/frida/frida-core",
 }
 
 N_ITERATIONS = 10

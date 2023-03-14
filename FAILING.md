@@ -20,6 +20,8 @@ A lot of variables are read from outside of the build system, from a config file
 require a full-blown interpreter
 ### Picolibc
 A lot of errors due to the code structure.
+### DPDK
+A lot of errors due to the code structure.
 ### mesa
 `inc_egl` and `inc_egl_dri2` are undefined in `src/gallium/frontends/omx/meson.build`. These variables are defined in `src/egl/meson.build`.
 In `src/meson.build`, a `subdir('gallium')` call is before the one with `subdir('egl')`, thus leading to an error.
