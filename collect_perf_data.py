@@ -175,6 +175,31 @@ def analyze_file(file, commit, is_ci):
             projobj["peak_heap"] = lines[-3].split(" ")[4]
             projobj["peak_rss"] = lines[-2].split("): ")[1]
             ret["projects"].append(projobj)
+        ret["quick"] = {}
+        for proj_name in PROJECTS:
+            logging.info("Quick parsing " + proj_name)
+            begin = datetime.datetime.now()
+            command = [absp, "--path", proj_name + "/meson.build"]
+            subprocess.run(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            end = datetime.datetime.now()
+            ret["quick"][proj_name] = (end - begin).total_seconds() * 1000
+        for proj_name in MISC_PROJECTS:
+            logging.info("Quick parsing " + proj_name)
+            begin = datetime.datetime.now()
+            command = [absp, "--path", proj_name + "/meson.build"]
+            subprocess.run(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            end = datetime.datetime.now()
+            ret["quick"][proj_name] = (end - begin).total_seconds() * 1000
     print(json.dumps(ret))
 
 
