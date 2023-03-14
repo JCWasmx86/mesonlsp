@@ -18,8 +18,7 @@ PROJECTS = {
     "gtk": "https://github.com/GNOME/gtk",
     "postgres": "https://github.com/postgres/postgres",
 }
-# Those give errors
-# TODO: https://github.com/picolibc/picolibc
+
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
     "systemd": "https://github.com/systemd/systemd",
