@@ -94,7 +94,6 @@ def clone_project(url):
     subprocess.run(
         ["git", "clone", "--depth=1", url],
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
         check=True,
     )
 
@@ -131,14 +130,12 @@ def analyze_file(file, commit, is_ci):
         end = datetime.datetime.now()
         print("Tracing using heaptrack for misc", file=sys.stderr)
         lines = heaptrack(command, is_ci)
+        if lines[-1].startswith("suppressed leaks:"):
+            lines = lines[:-1]
         ret["misc"]["parsing"] = (end - begin).total_seconds() * 1000
-        print(lines[-5], file=sys.stderr)
         ret["misc"]["memory_allocations"] = int(lines[-5].split(" ")[4])
-        print(lines[-4], file=sys.stderr)
         ret["misc"]["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
-        print(lines[-3], file=sys.stderr)
         ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
-        print(lines[-2], file=sys.stderr)
         ret["misc"]["peak_rss"] = lines[-2].split("): ")[1]
         for proj_name in PROJECTS:
             print("Parsing", proj_name, file=sys.stderr)
@@ -158,13 +155,11 @@ def analyze_file(file, commit, is_ci):
             projobj["parsing"] = (end - begin).total_seconds() * 1000
             print("Tracing using heaptrack for " + proj_name, file=sys.stderr)
             lines = heaptrack(command, is_ci)
-            print(lines[-5], file=sys.stderr)
+            if lines[-1].startswith("suppressed leaks:"):
+                lines = lines[:-1]
             projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
-            print(lines[-4], file=sys.stderr)
             projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
-            print(lines[-3], file=sys.stderr)
             projobj["peak_heap"] = lines[-3].split(" ")[4]
-            print(lines[-2], file=sys.stderr)
             projobj["peak_rss"] = lines[-2].split("): ")[1]
             ret["projects"].append(projobj)
     print(json.dumps(ret))
