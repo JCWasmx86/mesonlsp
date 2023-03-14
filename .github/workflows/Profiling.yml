@@ -15,7 +15,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
-          sudo apt install -y heaptrack git jq cloc
+          sudo apt install -y heaptrack git jq
           swift build -c release --static-swift-stdlib
           ./collect_perf_data.py --ci .build/release/Swift-MesonLSP ${{ github.sha }} | jq >/tmp/${{ github.sha }}.json
           cat /tmp/${{ github.sha }}.json
