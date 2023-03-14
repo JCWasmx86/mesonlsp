@@ -47,6 +47,9 @@ MISC_PROJECTS = {
     "bsdutils": "https://github.com/dcantrell/bsdutils",
     "bzip2": "https://gitlab.com/federicomenaquintero/bzip2",
     "frida-core": "https://github.com/frida/frida-core",
+    "igt-gpu-tools": "https://gitlab.freedesktop.org/drm/igt-gpu-tools",
+    "fwupd": "https://github.com/fwupd/fwupd",
+    "mpv": "https://github.com/mpv-player/mpv",
 }
 
 N_ITERATIONS = 10
