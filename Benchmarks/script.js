@@ -399,7 +399,7 @@ function initAllCharts() {
   }
   attachChart(
     "ppc_percentage",
-    "Time required for parsing (In ms, percentage to previous version)",
+    "Time required for parsing (In percentage to previous version)",
     percentages,
   );
 }
