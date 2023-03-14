@@ -660,14 +660,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     for requiredKwarg in fn.requiredKwargs() where usedKwargs[requiredKwarg] == nil {
-      self.metadata.registerDiagnostic(
-        node: node,
-        diag: MesonDiagnostic(
-          sev: .error,
+      if usedKwargs["kwargs"] == nil {
+        self.metadata.registerDiagnostic(
           node: node,
-          message: "Missing required key word argument '" + requiredKwarg + "'!"
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node,
+            message: "Missing required key word argument '" + requiredKwarg + "'!"
+          )
         )
-      )
+      }
     }
     // TODO: Type checking for each argument
     Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
