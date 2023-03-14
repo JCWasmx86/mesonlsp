@@ -291,4 +291,61 @@ function changedVersions() {
       percentify(p.peak_rss.replace("M", ""), p1.peak_rss.replace("M", "")),
     );
   }
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Parsing miscellaneous projects");
+  appendTr(tr, oldData.misc.parsing);
+  appendTr(tr, newData.misc.parsing);
+  appendTr(tr, percentify(oldData.misc.parsing, newData.misc.parsing));
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Memory allocations during parsing miscellaneous projects");
+  appendTr(tr, oldData.misc.memory_allocations);
+  appendTr(tr, newData.misc.memory_allocations);
+  appendTr(
+    tr,
+    percentify(
+      oldData.misc.memory_allocations,
+      newData.misc.memory_allocations,
+    ),
+  );
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(
+    tr,
+    "Temporary memory allocations during parsing miscellaneous projects",
+  );
+  appendTr(tr, oldData.misc.temporary_memory_allocations);
+  appendTr(tr, newData.misc.temporary_memory_allocations);
+  appendTr(
+    tr,
+    percentify(
+      oldData.misc.temporary_memory_allocations,
+      newData.misc.temporary_memory_allocations,
+    ),
+  );
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Peak heap usage during parsing miscellaneous projects");
+  appendTr(tr, oldData.misc.peak_heap.replace("M", ""));
+  appendTr(tr, newData.misc.peak_heap.replace("M", ""));
+  appendTr(
+    tr,
+    percentify(
+      oldData.misc.peak_heap.replace("M", ""),
+      newData.misc.peak_heap.replace("M", ""),
+    ),
+  );
+  tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTr(tr, "Peak RSS usage during parsing miscellaneous projects");
+  appendTr(tr, oldData.misc.peak_rss.replace("M", ""));
+  appendTr(tr, newData.misc.peak_rss.replace("M", ""));
+  appendTr(
+    tr,
+    percentify(
+      oldData.misc.peak_rss.replace("M", ""),
+      newData.misc.peak_rss.replace("M", ""),
+    ),
+  );
 }
