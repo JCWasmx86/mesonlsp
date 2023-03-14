@@ -46,6 +46,7 @@ MISC_PROJECTS = {
     "lxc": "https://github.com/lxc/lxc",
     "miniz": "https://github.com/richgel999/miniz",
     "mpv": "https://github.com/mpv-player/mpv",
+    "pipewire": "https://github.com/PipeWire/pipewire",
     "rustc-demangle": "https://github.com/JCWasmx86/rustc-demangle",
     "scipy": "https://github.com/scipy/scipy",
     "systemd": "https://github.com/systemd/systemd",
