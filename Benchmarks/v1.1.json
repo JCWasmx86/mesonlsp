@@ -1,1 +1,104 @@
-{"time": 1678807551.3452263, "commit": "v1.1", "size": 86592352, "stripped_size": 54934992, "projects": [{"name": "gnome-builder", "parsing": 144693.766, "memory_allocations": 44389053, "temporary_memory_allocations": 4233115, "peak_heap": "11.62M", "peak_rss": "41.07M"}, {"name": "GNOME-Builder-Plugins", "parsing": 8271.496000000001, "memory_allocations": 2401727, "temporary_memory_allocations": 334880, "peak_heap": "2.50M", "peak_rss": "24.98M"}, {"name": "gtk", "parsing": 116941.174, "memory_allocations": 31376582, "temporary_memory_allocations": 2613601, "peak_heap": "12.46M", "peak_rss": "47.16M"}, {"name": "mesa", "parsing": 518861.74600000004, "memory_allocations": 149251578, "temporary_memory_allocations": 9422898, "peak_heap": "26.17M", "peak_rss": "74.65M"}, {"name": "postgres", "parsing": 310093.932, "memory_allocations": 98146126, "temporary_memory_allocations": 8903724, "peak_heap": "19.74M", "peak_rss": "64.89M"}, {"name": "qemu", "parsing": 351917.762, "memory_allocations": 103316491, "temporary_memory_allocations": 9232444, "peak_heap": "25.15M", "peak_rss": "78.96M"}], "misc": {"parsing": 159036.75699999998, "memory_allocations": 433683234, "temporary_memory_allocations": 42526164, "peak_heap": "17.48M", "peak_rss": "84.56M"}}
+{
+    "time": 1678807551.3452263,
+    "commit": "v1.1",
+    "size": 86592352,
+    "stripped_size": 54934992,
+    "projects": [
+        {
+            "name": "gnome-builder",
+            "parsing": 144693.766,
+            "memory_allocations": 44389053,
+            "temporary_memory_allocations": 4233115,
+            "peak_heap": "11.62M",
+            "peak_rss": "41.07M"
+        },
+        {
+            "name": "GNOME-Builder-Plugins",
+            "parsing": 8271.496000000001,
+            "memory_allocations": 2401727,
+            "temporary_memory_allocations": 334880,
+            "peak_heap": "2.50M",
+            "peak_rss": "24.98M"
+        },
+        {
+            "name": "gtk",
+            "parsing": 116941.174,
+            "memory_allocations": 31376582,
+            "temporary_memory_allocations": 2613601,
+            "peak_heap": "12.46M",
+            "peak_rss": "47.16M"
+        },
+        {
+            "name": "mesa",
+            "parsing": 518861.74600000004,
+            "memory_allocations": 149251578,
+            "temporary_memory_allocations": 9422898,
+            "peak_heap": "26.17M",
+            "peak_rss": "74.65M"
+        },
+        {
+            "name": "postgres",
+            "parsing": 310093.932,
+            "memory_allocations": 98146126,
+            "temporary_memory_allocations": 8903724,
+            "peak_heap": "19.74M",
+            "peak_rss": "64.89M"
+        },
+        {
+            "name": "qemu",
+            "parsing": 351917.762,
+            "memory_allocations": 103316491,
+            "temporary_memory_allocations": 9232444,
+            "peak_heap": "25.15M",
+            "peak_rss": "78.96M"
+        }
+    ],
+    "misc": {
+        "parsing": 159036.75699999998,
+        "memory_allocations": 433683234,
+        "temporary_memory_allocations": 42526164,
+        "peak_heap": "17.48M",
+        "peak_rss": "84.56M"
+    },
+    "quick": {
+        "gnome-builder": 15819.523000000001,
+        "GNOME-Builder-Plugins": 852.676,
+        "gtk": 11855.028,
+        "mesa": 53273.691999999995,
+        "postgres": 32032.021999999997,
+        "qemu": 37133.367,
+        "bsdutils": 2927.918,
+        "bubblewrap": 599.6759999999999,
+        "budgie-desktop": 4879.451999999999,
+        "bzip2": 450.822,
+        "cglm": 173.152,
+        "cinnamon-desktop": 671.593,
+        "code": 1318.615,
+        "dbus-broker": 924.394,
+        "dxvk": 1280.6329999999998,
+        "evince": 3297.386,
+        "frida-core": 3829.559,
+        "fwupd": 5599.696,
+        "gitg": 1795.376,
+        "gjs": 2666.066,
+        "glib": 20983.154,
+        "gnome-shell": 2637.7329999999997,
+        "hexchat": 2706.7670000000003,
+        "igt-gpu-tools": 4088.82,
+        "knot-resolver": 3670.984,
+        "le": 1781.612,
+        "libswiftdemangle": 129.886,
+        "libvips": 4449.789,
+        "libvirt": 21208.611999999997,
+        "lxc": 5790.222,
+        "miniz": 52.207,
+        "mpv": 5067.581999999999,
+        "pipewire": 8954.858,
+        "rustc-demangle": 92.161,
+        "scipy": 8498.742999999999,
+        "systemd": 28803.028000000002,
+        "vte": 3402.858,
+        "xts": 5761.624000000001,
+        "zrythm": 11580.982
+    }
+}
