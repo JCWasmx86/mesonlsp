@@ -217,3 +217,18 @@ a4 = a3
 set_variable('have_' + a4, true)
 # ana:var: have_snake = bool
 
+foreach target : ['header', 'source']
+    ext = target == 'header' ? 'h' : 'c'
+    set_variable('g_egldispatchstubs_' + ext, true)
+endforeach
+# ana:var: g_egldispatchstubs_c = bool
+# ana:var: g_egldispatchstubs_h = bool
+
+foreach g : ['gl', 'opengl', 'glesv1', 'glesv2']
+    name = 'glapi_' + g
+    set_variable('idep_' + name, true)
+endforeach
+# ana:var: idep_glapi_gl = bool
+# ana:var: idep_glapi_opengl = bool
+# ana:var: idep_glapi_glesv1 = bool
+# ana:var: idep_glapi_glesv2 = bool

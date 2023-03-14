@@ -247,8 +247,47 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
     return [ArrayNode(node: toEval)]
   } else if toEval is StringLiteral {
     return [StringNode(node: toEval)]
-  } else if toEval is BinaryExpression {
-    // TODO
+  } else if let be = toEval as? BinaryExpression {
+    let rhs = abstractEval(parentStmt, be.rhs)
+    let lhs = abstractEval(parentStmt, be.lhs)
+    var ret: [InterpretNode] = []
+    let sep = be.op == .div ? "/" : ""
+    for l in lhs {
+      for r in rhs {
+        if let sl = l.node as? StringLiteral, let sr = r.node as? StringLiteral {
+          ret.append(ArtificalStringNode(contents: sl.contents() + sep + sr.contents()))
+        } else if let sl = l.node as? StringLiteral, let arrR = r.node as? ArrayLiteral {
+          for arrArg in arrR.args {
+            if let sr = arrArg as? StringLiteral {
+              ret.append(ArtificalStringNode(contents: sl.contents() + sep + sr.contents()))
+            } else if let sr2 = arrArg as? ArrayLiteral {
+              for arrArg2 in sr2.args where arrArg2 is StringLiteral {
+                ret.append(
+                  ArtificalStringNode(
+                    contents: sl.contents() + sep + (arrArg2 as! StringLiteral).contents()
+                  )
+                )
+              }
+            }
+          }
+        } else if let sl = r.node as? StringLiteral, let arrR = l.node as? ArrayLiteral {
+          for arrArg in arrR.args {
+            if let sr = arrArg as? StringLiteral {
+              ret.append(ArtificalStringNode(contents: sr.contents() + sep + sl.contents()))
+            } else if let sr2 = arrArg as? ArrayLiteral {
+              for arrArg2 in sr2.args where arrArg2 is StringLiteral {
+                ret.append(
+                  ArtificalStringNode(
+                    contents: (arrArg2 as! StringLiteral).contents() + sep + sl.contents()
+                  )
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+    return ret
   } else if let id = toEval as? IdExpression {
     return resolveArrayOrDict(parentStmt, id)
   } else if let me = toEval as? MethodExpression, let meid = me.id as? IdExpression,
@@ -391,6 +430,8 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
       )
     }
     return ret
+  } else if let ce = toEval as? ConditionalExpression {
+    return abstractEval(parentStmt, ce.ifTrue) + abstractEval(parentStmt, ce.ifFalse)
   }
   return []
 }
