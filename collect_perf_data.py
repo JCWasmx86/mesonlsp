@@ -3,12 +3,12 @@
 import argparse
 import datetime
 import json
+import logging
 import os
 import subprocess
 import tempfile
 import time
 import uuid
-import logging
 
 PROJECTS = {
     "gnome-builder": "https://github.com/GNOME/gnome-builder",
