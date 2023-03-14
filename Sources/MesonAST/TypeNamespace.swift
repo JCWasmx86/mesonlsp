@@ -1694,7 +1694,10 @@ public final class TypeNamespace {
       Method(
         name: "get_cross_property",
         parent: t,
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "propname", types: strL),
           PositionalArgument(name: "fallback_value", opt: true, types: [self.types["any"]!]),
@@ -1703,7 +1706,10 @@ public final class TypeNamespace {
       Method(
         name: "get_external_property",
         parent: t,
-        returnTypes: [self.types["any"]!],
+        returnTypes: [
+          self.types["any"]!, ListType(types: [self.types["any"]!]),
+          Dict(types: [self.types["any"]!]),
+        ],
         args: [
           PositionalArgument(name: "propname", types: strL),
           PositionalArgument(name: "fallback_value", opt: true, types: [self.types["any"]!]),
