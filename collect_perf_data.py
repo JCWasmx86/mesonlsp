@@ -50,6 +50,7 @@ MISC_PROJECTS = {
 }
 
 N_ITERATIONS = 10
+MISC_N_TIMES = 100
 
 
 def heaptrack(command, is_ci):
@@ -121,7 +122,7 @@ def analyze_file(file, commit, is_ci):
         projs = []
         for projname in MISC_PROJECTS.keys():
             projs.append(projname + "/meson.build")
-        command = [absp] + (projs * 25)
+        command = [absp] + (projs * MISC_N_TIMES)
         print("Parsing misc", file=sys.stderr)
         begin = datetime.datetime.now()
         subprocess.run(
