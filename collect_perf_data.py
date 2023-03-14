@@ -43,6 +43,8 @@ MISC_PROJECTS = {
     "libvirt": "https://gitlab.com/libvirt/libvirt",
     "libvips": "https://github.com/libvips/libvips",
     "miniz": "https://github.com/richgel999/miniz",
+    "bubblewrap": "https://github.com/containers/bubblewrap",
+    "scipy": "https://github.com/scipy/scipy",
 }
 
 N_ITERATIONS = 10
