@@ -19,7 +19,6 @@ PROJECTS = {
     "postgres": "https://github.com/postgres/postgres",
 }
 # Those give errors
-# TODO: https://github.com/HelenOS/helenos
 # TODO: https://github.com/picolibc/picolibc
 MISC_PROJECTS = {
     "glib": "https://github.com/GNOME/glib",
