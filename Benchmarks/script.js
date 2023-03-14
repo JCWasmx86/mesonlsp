@@ -363,9 +363,10 @@ function createChartCanvas(nameID) {
 }
 
 function initAllCharts() {
-  let obj = {};
+  const obj = {};
+  let sum = undefined;
   for (const benchmark of ALL_BENCHMARKS) {
-    for (let [key, value] of Object.entries(benchmark.quick)) {
+    for (const [key, value] of Object.entries(benchmark.quick)) {
       if (obj.hasOwnProperty(key)) {
         obj[key].push(value);
       } else {
@@ -373,12 +374,32 @@ function initAllCharts() {
       }
     }
   }
-  for (let [key, value] of Object.entries(obj)) {
-    createChartCanvas("chart_" + key);
+  for (const [key, value] of Object.entries(obj)) {
+    createChartCanvas(`chart_${key}`);
     attachChart(
-      "chart_" + key,
-      "Time required for parsing " + key + " (In ms)",
+      `chart_${key}`,
+      `Time required for parsing ${key} (In ms)`,
       value,
     );
+    if (sum === undefined) {
+      sum = value;
+    } else {
+      sum.map(function (num, idx) {
+        return num + value[idx];
+      });
+    }
   }
+  attachChart("ppc", "Time required for parsing (In ms, summed up)", sum);
+  const percentages = [0.0];
+  for (let i = 1; i < ALL_BENCHMARKS.length; i++) {
+    const newValue = sum[i];
+    const oldValue = sum[i - 1];
+    const per = ((newValue / oldValue) * 100 - 100).toFixed(2);
+    percentages.push(per);
+  }
+  attachChart(
+    "ppc_percentage",
+    "Time required for parsing (In ms, percentage to previous version)",
+    percentages,
+  );
 }
