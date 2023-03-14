@@ -707,7 +707,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if !isKnownId(id: node) {
       self.metadata.registerDiagnostic(
         node: node,
-        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier")
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown identifier `\(node.id)`")
       )
     }
     self.metadata.registerIdentifier(id: node)

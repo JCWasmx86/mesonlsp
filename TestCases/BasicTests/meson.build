@@ -2,7 +2,7 @@ project('foo', 'c')
 subdir('nonexisting') # ana:error: nonexisting/meson.build not found
 xY = 1 # ana:warn: Expected snake case
 x = (
-    foo # ana:error: Unknown identifier
+    foo # ana:error: Unknown identifier `foo`
 )
 x = [] # ana:var: x = list()
 x.foo() # ana:error: No method foo found for types `list()'
