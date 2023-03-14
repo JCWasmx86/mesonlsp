@@ -444,7 +444,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   func guessSetVariable(args: [Node], node: FunctionExpression) {
     let vars = Set(MesonAnalyze.guessSetVariable(fe: node))
-    TypeAnalyzer.LOG.info("Guessed values to set_variable: \(vars)")
+    TypeAnalyzer.LOG.info(
+      "Guessed values to set_variable: \(vars) at \(node.file.file):\(node.location.format())"
+    )
     for v in vars {
       let types = args[1].types
       self.scope.variables[v] = types
