@@ -3477,7 +3477,7 @@ public final class TypeNamespace {
             name: "requires_private",
             opt: true,
             types: [ListType(types: [str, self.types["dep"]!, self.types["lib"]!])]
-          ),
+          ), Kwarg(name: "install", opt: true, types: boolL),
         ]
       )
     ]
