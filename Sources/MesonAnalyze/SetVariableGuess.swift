@@ -75,36 +75,37 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
       }
     }
     return ret
-  } else if let sse = argExpression as? SubscriptExpression, let outer = sse.outer as? IdExpression
-  {
-    let nodes = resolveArrayOrDict(parentExpr, outer)
+  } else if let sse = argExpression as? SubscriptExpression {
+    let outer = abstractEval(parentExpr, sse.outer)
+    let inner = abstractEval(parentExpr, sse.inner)
     var ret: [String] = []
-    let inner = sse.inner
-    for r in nodes {
-      if let arr = r.node as? ArrayLiteral, let il = inner as? IntegerLiteral {
-        let idx = il.parse()
-        if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
-          ret.append(sl.contents())
-        }
-      } else if let arr = r.node as? ArrayLiteral, let sl = inner as? StringLiteral {
-        for a in arr.args where a is DictionaryLiteral {
-          let dict = (a as! DictionaryLiteral)
+    for o in outer {
+      for i in inner {
+        if let arr = o.node as? ArrayLiteral, let il = i.node as? IntegerLiteral {
+          let idx = il.parse()
+          if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
+            ret.append(sl.contents())
+          }
+        } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
+          for a in arr.args where a is DictionaryLiteral {
+            let dict = (a as! DictionaryLiteral)
+            for k in dict.values
+            where (k is KeyValueItem)
+              && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+            {
+              if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+                ret.append(keySL.contents())
+              }
+            }
+          }
+        } else if let dict = o.node as? DictionaryLiteral, let keyLit = i.node as? StringLiteral {
           for k in dict.values
           where (k is KeyValueItem)
-            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
           {
             if let keySL = (k as! KeyValueItem).value as? StringLiteral {
               ret.append(keySL.contents())
             }
-          }
-        }
-      } else if let dict = r.node as? DictionaryLiteral, let keyLit = inner as? StringLiteral {
-        for k in dict.values
-        where (k is KeyValueItem)
-          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
-        {
-          if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-            ret.append(keySL.contents())
           }
         }
       }
@@ -247,6 +248,8 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
     return [ArrayNode(node: toEval)]
   } else if toEval is StringLiteral {
     return [StringNode(node: toEval)]
+  } else if toEval is IntegerLiteral {
+    return [IntNode(node: toEval)]
   } else if let be = toEval as? BinaryExpression {
     let rhs = abstractEval(parentStmt, be.rhs)
     let lhs = abstractEval(parentStmt, be.lhs)
@@ -316,7 +319,7 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
       }
     }
     return ret
-  } else if let sse = toEval as? SubscriptExpression, let meobj = sse.outer as? IdExpression {
+  } /* else if let sse = toEval as? SubscriptExpression, let meobj = sse.outer as? IdExpression {
     let objs = resolveArrayOrDict(parentStmt, meobj)
     var ret: [InterpretNode] = []
     let inner = sse.inner
@@ -352,7 +355,8 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
       }
     }
     return ret
-  } else if let se = toEval as? SubscriptExpression,
+  } */
+  else if let se = toEval as? SubscriptExpression,
     se.inner is IntegerLiteral || se.inner is StringLiteral,
     let outerObj = se.outer as? IdExpression
   {
@@ -432,6 +436,44 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
     return ret
   } else if let ce = toEval as? ConditionalExpression {
     return abstractEval(parentStmt, ce.ifTrue) + abstractEval(parentStmt, ce.ifFalse)
+  } else if let sse = toEval as? SubscriptExpression {
+    let outer = abstractEval(parentStmt, sse.outer)
+    let inner = abstractEval(parentStmt, sse.inner)
+    var ret: [InterpretNode] = []
+    for o in outer {
+      for i in inner {
+        if let arr = o.node as? ArrayLiteral, let idx = i.node as? IntegerLiteral,
+          idx.parse() < arr.args.count
+        {
+          if let atIdx = arr.args[idx.parse()] as? StringLiteral {
+            ret.append(StringNode(node: atIdx))
+          } else if let atIdx = arr.args[idx.parse()] as? ArrayLiteral {
+            for a2 in atIdx.args where a2 is StringLiteral { ret.append(StringNode(node: a2)) }
+          }
+        } else if let sl = i.node as? StringLiteral, let dict = o.node as? DictionaryLiteral {
+          for kvi in dict.values {
+            if let k = kvi as? KeyValueItem, let key = k.key as? StringLiteral,
+              key.contents() == sl.contents(), let val = k.value as? StringLiteral
+            {
+              ret.append(StringNode(node: val))
+            }
+          }
+        } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
+          for a in arr.args where a is DictionaryLiteral {
+            let dict = (a as! DictionaryLiteral)
+            for k in dict.values
+            where (k is KeyValueItem)
+              && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+            {
+              if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+                ret.append(StringNode(node: keySL))
+              }
+            }
+          }
+        }
+      }
+    }
+    return ret
   }
   return []
 }
@@ -477,6 +519,10 @@ class StringNode: InterpretNode {
 }
 
 class DictNode: InterpretNode {
+
+}
+
+class IntNode: InterpretNode {
 
 }
 

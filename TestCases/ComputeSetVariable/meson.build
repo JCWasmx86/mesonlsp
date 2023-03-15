@@ -232,3 +232,26 @@ endforeach
 # ana:var: idep_glapi_opengl = bool
 # ana:var: idep_glapi_glesv1 = bool
 # ana:var: idep_glapi_glesv2 = bool
+
+NAME1 = 0
+plugins = [
+    ['bookmarks', [gio_dep, libxml_dep, gom_dep], []],
+    ['filesystem', [grilo_pls_dep], []],
+    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
+    ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],
+]
+foreach p: plugins
+    varname = p[NAME1].underscorify()
+    varname_enabled = varname + '_enabled'
+    varname_idx = varname + '_idx'
+    set_variable(varname_enabled, true)
+    set_variable(varname_idx, true)
+endforeach
+# ana:var: bookmarks_enabled = bool
+# ana:var: bookmarks_idx = bool
+# ana:var: filesystem_enabled = bool
+# ana:var: filesystem_idx = bool
+# ana:var: lua_factory_enabled = bool
+# ana:var: lua_factory_idx = bool
+# ana:var: youtube_enabled = bool
+# ana:var: youtube_idx = bool
