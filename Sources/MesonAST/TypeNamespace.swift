@@ -4474,6 +4474,7 @@ public final class TypeNamespace {
           PositionalArgument(
             name: "libs",
             varargs: true,
+            opt: true,
             types: [str, self.types["file"]!, self.types["custom_tgt"]!, self.types["custom_idx"]!]
           ),
           Kwarg(
