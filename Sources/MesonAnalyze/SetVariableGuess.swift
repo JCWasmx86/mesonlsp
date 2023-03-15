@@ -3,7 +3,11 @@ import MesonAST
 public func guessSetVariable(fe: FunctionExpression) -> [String] {
   if let al = fe.argumentList as? ArgumentList, !al.args.isEmpty {
     let exprToCalculate = al.args[0]
-    return calculateExpression(fe, exprToCalculate)
+    var parent: Node? = fe
+    while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
+      || parent?.parent is BuildDefinition)
+    { parent = parent!.parent }
+    return calculateExpression(parent!, exprToCalculate)
   }
   return []
 }

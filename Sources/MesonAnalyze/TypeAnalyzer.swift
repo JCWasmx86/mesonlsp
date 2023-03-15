@@ -367,8 +367,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else if !args.isEmpty {
         var types: [Type] = fn.returnTypes
         if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
+        let guessedNames = Set(MesonAnalyze.guessSetVariable(fe: node))
+        types += guessedNames.map({ self.scope.variables[$0] ?? [] }).flatMap({ $0 })
         node.types = self.dedup(types: types)
-        TypeAnalyzer.LOG.info("get_variable (Imprecise): ??? = \(self.joinTypes(types: types))")
+        TypeAnalyzer.LOG.info(
+          "get_variable (Imprecise): ??? = \(self.joinTypes(types: node.types)): Guessed variable names: \(guessedNames)"
+        )
       }
     } else if fn.name == "subdir" && node.argumentList != nil,
       let al = node.argumentList as? ArgumentList

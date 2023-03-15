@@ -255,3 +255,12 @@ endforeach
 # ana:var: lua_factory_idx = bool
 # ana:var: youtube_enabled = bool
 # ana:var: youtube_idx = bool
+
+foreach p: plugins
+    name = p[NAME1].underscorify() + '_enabled'
+    set_variable(name + 'foo', get_variable(name).to_string('yes', 'no'))
+endforeach
+# ana:var: bookmarks_enabledfoo = str
+# ana:var: filesystem_enabledfoo = str
+# ana:var: lua_factory_enabledfoo = str
+# ana:var: youtube_enabledfoo = str
