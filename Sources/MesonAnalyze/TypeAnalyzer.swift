@@ -877,7 +877,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     let (nErrors, newTypes) = self.evalBinaryExpression(node.op!, node.lhs.types, node.rhs.types)
     let nTimes = node.lhs.types.count * node.rhs.types.count
-    if nTimes != 0 && nErrors == nTimes && (!node.lhs.types.isEmpty) && (!node.rhs.types.isEmpty) {
+    if nTimes != 0 && nErrors == nTimes && (!node.lhs.types.isEmpty) && (!node.rhs.types.isEmpty)
+      && !self.isSpecial(node.lhs.types) && !self.isSpecial(node.rhs.types)
+    {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(
@@ -890,6 +892,21 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: newTypes)
     Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
+  }
+
+  func isSpecial(_ types: [Type]) -> Bool {
+    if types.count != 3 { return false }
+    var counter = 0
+    for t in types {
+      if t is `Any` {
+        counter += 1
+      } else if let lt = t as? ListType, lt.types.count == 1, lt.types[0] is `Any` {
+        counter += 1
+      } else if let dt = t as? Dict, dt.types.count == 1, dt.types[0] is `Any` {
+        counter += 1
+      }
+    }
+    return counter == 3
   }
   public func visitStringLiteral(node: StringLiteral) {
     node.types = [self.t.types["str"]!]
