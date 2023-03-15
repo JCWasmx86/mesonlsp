@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import time
 import uuid
+from functools import reduce
 
 PROJECTS = {
     "gnome-builder": "https://github.com/GNOME/gnome-builder",
@@ -57,6 +58,9 @@ MISC_PROJECTS = {
 
 N_ITERATIONS = 10
 MISC_N_TIMES = 100
+MS_IN_S = 1000
+N_REPEATS_IF_TOO_SHORT = 50
+TOO_SHORT_THRESHOLD = 1500
 
 
 def heaptrack(command, is_ci):
@@ -127,6 +131,37 @@ def analyze_file(file, commit, is_ci):
             clone_project(url)
         for url in MISC_PROJECTS.values():
             clone_project(url)
+        ret["quick"] = {}
+        for proj_name in reduce(lambda x,y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
+            logging.info("Quick parsing " + proj_name)
+            command = [absp, "--path", proj_name + "/meson.build"]
+            begin = datetime.datetime.now()
+            subprocess.run(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            end = datetime.datetime.now()
+            duration = (end - begin).total_seconds() * MS_IN_S
+            if duration < TOO_SHORT_THRESHOLD:
+                logging.info("Too fast, repeating with more iterations: " + str(duration))
+                command = [absp] + (
+                    [proj_name + "/meson.build"] * (N_REPEATS_IF_TOO_SHORT * 101)
+                )
+                begin = datetime.datetime.now()
+                subprocess.run(
+                    command,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True,
+                )
+                end = datetime.datetime.now()
+                duration = (
+                    (end - begin).total_seconds() * MS_IN_S
+                ) / N_REPEATS_IF_TOO_SHORT
+                logging.info("New duration: " + str(duration))
+            ret["quick"][proj_name] = duration
         ret["misc"] = {}
         projs = []
         for projname in MISC_PROJECTS.keys():
@@ -145,7 +180,7 @@ def analyze_file(file, commit, is_ci):
         lines = heaptrack(command, is_ci)
         if lines[-1].startswith("suppressed leaks:"):
             lines = lines[:-1]
-        ret["misc"]["parsing"] = (end - begin).total_seconds() * 1000
+        ret["misc"]["parsing"] = (end - begin).total_seconds() * MS_IN_S
         ret["misc"]["memory_allocations"] = int(lines[-5].split(" ")[4])
         ret["misc"]["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
         ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
@@ -165,7 +200,7 @@ def analyze_file(file, commit, is_ci):
                     check=True,
                 )
             end = datetime.datetime.now()
-            projobj["parsing"] = (end - begin).total_seconds() * 1000
+            projobj["parsing"] = (end - begin).total_seconds() * MS_IN_S
             logging.info("Tracing using heaptrack for " + proj_name)
             lines = heaptrack(command, is_ci)
             if lines[-1].startswith("suppressed leaks:"):
@@ -175,31 +210,6 @@ def analyze_file(file, commit, is_ci):
             projobj["peak_heap"] = lines[-3].split(" ")[4]
             projobj["peak_rss"] = lines[-2].split("): ")[1]
             ret["projects"].append(projobj)
-        ret["quick"] = {}
-        for proj_name in PROJECTS:
-            logging.info("Quick parsing " + proj_name)
-            begin = datetime.datetime.now()
-            command = [absp, "--path", proj_name + "/meson.build"]
-            subprocess.run(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            end = datetime.datetime.now()
-            ret["quick"][proj_name] = (end - begin).total_seconds() * 1000
-        for proj_name in MISC_PROJECTS:
-            logging.info("Quick parsing " + proj_name)
-            begin = datetime.datetime.now()
-            command = [absp, "--path", proj_name + "/meson.build"]
-            subprocess.run(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            end = datetime.datetime.now()
-            ret["quick"][proj_name] = (end - begin).total_seconds() * 1000
     print(json.dumps(ret))
 
 
