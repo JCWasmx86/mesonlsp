@@ -57,6 +57,8 @@ for i in *; do
 					[ "$testname" == "failing/97 subdir parse error" ] ||
 					[ "$testname" == "unit/21 exit status" ]); then
 				:
+			elif [ "$(echo "$output" | grep -c 🔴)" -eq 2 ] && ([ "$testname" == "failing/55 or on new line" ]); then
+				:
 			elif [ "$(echo "$output" | grep -c 🔴)" -eq 3 ] && ([ "$testname" == "failing/50 inconsistent comparison" ] ||
 				[ "$testname" == "unit/25 non-permitted kwargs" ]); then
 				:

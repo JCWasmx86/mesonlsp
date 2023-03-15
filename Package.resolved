@@ -77,9 +77,9 @@
         "package": "swift-certificates",
         "repositoryURL": "https://github.com/apple/swift-certificates.git",
         "state": {
-          "branch": "main",
-          "revision": "54f7367ea5feae3a49761b8798982f919fde5911",
-          "version": null
+          "branch": null,
+          "revision": "54b9711034c0bd9b18f9ac0fb262d493130bcf13",
+          "version": "0.1.0"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/apple/swift-crypto.git",
         "state": {
           "branch": null,
-          "revision": "80a6e3edc1fc3a4c6c7d4177c73fa3f74c72d3e1",
-          "version": "2.3.0"
+          "revision": "da0fe44138ab86e380f40a2acbd8a611b07d3f64",
+          "version": "2.4.0"
         }
       },
       {
@@ -105,7 +105,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "5cf3e273310f36491851abe87a427397a2f73e52",
+          "revision": "edea61b966d8765f4a0698a0362caa9f212d3c6a",
           "version": null
         }
       },
@@ -114,7 +114,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "17e20c376b935284ff9788409e22c3a6f842d8c7",
+          "revision": "57f5b527ea050bc33e5362ecba2d622228399f72",
           "version": null
         }
       },
@@ -132,7 +132,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "aa6e0e6e643e909b48076ae575f23dab98bb5c98",
+          "revision": "6b2c653050d83eac64fa1d3993d41acb23867c08",
           "version": null
         }
       },
@@ -141,7 +141,7 @@
         "repositoryURL": "https://github.com/apple/swift-syntax.git",
         "state": {
           "branch": "main",
-          "revision": "fbd615b3c43a4d23c642a4e943de5bfb005d1449",
+          "revision": "20d5fb93afa883c7e3165d54a93e8e79fe15d22e",
           "version": null
         }
       },
@@ -186,8 +186,8 @@
         "repositoryURL": "https://github.com/JCWasmx86/tree-sitter-meson",
         "state": {
           "branch": null,
-          "revision": "5f61367374830d968573f399350209301d724112",
-          "version": "1.0.4"
+          "revision": "3717c33105a66dd0ea4132419a32b79490ebe88c",
+          "version": "1.0.7"
         }
       },
       {
