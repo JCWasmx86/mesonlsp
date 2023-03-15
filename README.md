@@ -152,6 +152,14 @@ got fully parsed 35 times.
 
 In this example, it took around half-second to parse the entire mesa meson files, deduce the types and emit diagnostics.
 
+## Code coverage
+- Build with `swift build -c release --static-swift-stdlib -Xswiftc -profile-generate -Xswiftc -profile-coverage-mapping`
+- Run the program
+- `cp default.profraw /somedir`
+- `llvm-profdata merge -sparse default.profraw -o default.profdata`
+- `llvm-cov export --instr-profile default.profdata ~/Projects/Swift-MesonLSP/.build/release/Swift-MesonLSP -format lcov|swift demangle > out.lcov`
+- `genhtml --ignore-errors source out.lcov --legend --output-directory=/tmp/somepath`
+
 ## References
 - [gnome-builder#629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629) An issue somewhat related to this project.
 ### Dependencies
