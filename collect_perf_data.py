@@ -132,7 +132,7 @@ def analyze_file(file, commit, is_ci):
         for url in MISC_PROJECTS.values():
             clone_project(url)
         ret["quick"] = {}
-        for proj_name in reduce(lambda x,y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
+        for proj_name in reduce(lambda x, y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
             logging.info("Quick parsing " + proj_name)
             command = [absp, "--path", proj_name + "/meson.build"]
             begin = datetime.datetime.now()
@@ -145,7 +145,9 @@ def analyze_file(file, commit, is_ci):
             end = datetime.datetime.now()
             duration = (end - begin).total_seconds() * MS_IN_S
             if duration < TOO_SHORT_THRESHOLD:
-                logging.info("Too fast, repeating with more iterations: " + str(duration))
+                logging.info(
+                    "Too fast, repeating with more iterations: " + str(duration)
+                )
                 command = [absp] + (
                     [proj_name + "/meson.build"] * (N_REPEATS_IF_TOO_SHORT * 101)
                 )
