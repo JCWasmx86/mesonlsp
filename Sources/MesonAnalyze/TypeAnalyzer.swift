@@ -17,6 +17,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   let options: [MesonOption]
   var stack: [[String: [Type]]] = []
   var overriddenVariables: [[String: [Type]]] = []
+  var ignoreUnknownIdentifer: [String] = []
 
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
@@ -114,7 +115,31 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.overriddenVariables.append([:])
     var oldVars: [String: [Type]] = [:]
     self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
-    node.visitChildren(visitor: self)
+    var idx = 0
+    for b in node.blocks {
+      let condition: Node?
+      if idx == 0 {
+        condition = node.ifCondition
+      } else if idx - 1 < node.conditions.count {
+        condition = node.conditions[idx - 1]
+      } else {
+        condition = nil
+      }
+      var appended = false
+      if let c = condition {
+        c.visit(visitor: self)
+        if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
+          fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
+          let sl = al.args[0] as? StringLiteral
+        {
+          self.ignoreUnknownIdentifer.append(sl.contents())
+          appended = true
+        }
+      }
+      for b1 in b { b1.visit(visitor: self) }
+      if appended { self.ignoreUnknownIdentifer.removeLast() }
+      idx += 1
+    }
     for condition in [node.ifCondition] + node.conditions {
       var foundBoolOrAny = false
       for t in condition.types where t is `Any` || t is BoolType {
@@ -700,6 +725,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
       || (parent is MethodExpression && (parent as! MethodExpression).id.equals(right: node))
       || (parent is KeywordItem && (parent as! KeywordItem).key.equals(right: node))
+      || self.ignoreUnknownIdentifer.contains(node.id)
   }
   public func visitIdExpression(node: IdExpression) {
     let begin = clock()
