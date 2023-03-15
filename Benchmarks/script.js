@@ -402,4 +402,35 @@ function initAllCharts() {
     "Time required for parsing (In percentage to previous version)",
     percentages,
   );
+  const tableDiv = document.getElementById("allChartsTable");
+  const table = document.createElement("table");
+  table.border = "1";
+  const tableBody = document.createElement("tbody");
+  table.appendChild(tableBody);
+  let tr = document.createElement("tr");
+  tableBody.appendChild(tr);
+  appendTh(tr, "Project");
+  for (const benchmark of ALL_BENCHMARKS) {
+    appendTh(tr, benchmark.commit);
+  }
+  for (const [key, value] of Object.entries(obj)) {
+    tr = document.createElement("tr");
+    tableBody.appendChild(tr);
+    appendTr(tr, key);
+    for (let i = 0; i < value.length; i++) {
+      if (i === 0) {
+        appendTr(tr, value[0].toFixed(2));
+      } else {
+        const diff = value[i] - value[i - 1];
+        const color = diff === 0 ? undefined : diff < 0 ? "#26a269" : "#e01b24";
+        const td = document.createElement("td");
+        if (color !== undefined) {
+          td.style.backgroundColor = color;
+        }
+        td.appendChild(document.createTextNode(value[i].toFixed(2)));
+        tr.appendChild(td);
+      }
+    }
+  }
+  tableDiv.appendChild(table);
 }
