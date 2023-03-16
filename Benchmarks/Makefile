@@ -21,4 +21,3 @@ format:
 updatejs:
 	rm -f chart.js
 	wget https://cdn.jsdelivr.net/npm/chart.js
-	rome format chart.js --verbose --write --quote-style double --indent-style space --indent-size 2
