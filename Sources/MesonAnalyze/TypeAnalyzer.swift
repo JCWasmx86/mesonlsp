@@ -163,8 +163,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     self.overriddenVariables.removeLast()
   }
-  public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
-  public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
+  public func visitBreakStatement(node: BreakNode) {}
+  public func visitContinueStatement(node: ContinueNode) {}
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
     for id in node.ids { id.visit(visitor: self) }
@@ -839,24 +839,15 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return counter == 3
   }
-  public func visitStringLiteral(node: StringLiteral) {
-    node.types = [self.t.types["str"]!]
-    node.visitChildren(visitor: self)
-  }
+  public func visitStringLiteral(node: StringLiteral) { node.types = [self.t.types["str"]!] }
   public func visitArrayLiteral(node: ArrayLiteral) {
     node.visitChildren(visitor: self)
     var t: [Type] = []
     for elem in node.args { t += elem.types }
     node.types = [ListType(types: dedup(types: t))]
   }
-  public func visitBooleanLiteral(node: BooleanLiteral) {
-    node.types = [self.t.types["bool"]!]
-    node.visitChildren(visitor: self)
-  }
-  public func visitIntegerLiteral(node: IntegerLiteral) {
-    node.types = [self.t.types["int"]!]
-    node.visitChildren(visitor: self)
-  }
+  public func visitBooleanLiteral(node: BooleanLiteral) { node.types = [self.t.types["bool"]!] }
+  public func visitIntegerLiteral(node: IntegerLiteral) { node.types = [self.t.types["int"]!] }
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
     node.visitChildren(visitor: self)
     var t: [Type] = []
