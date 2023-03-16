@@ -55,7 +55,7 @@ class ASTPatcher: CodeVisitor {
     }
     node.visitChildren(visitor: self)
   }
-  func visitErrorNode(node: ErrorNode) { node.visitChildren(visitor: self) }
+  func visitErrorNode(node: ErrorNode) {}
   func visitSelectionStatement(node: SelectionStatement) {
     var bidx = 0
     for bb in node.blocks {
@@ -80,8 +80,8 @@ class ASTPatcher: CodeVisitor {
     }
     node.visitChildren(visitor: self)
   }
-  func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
-  func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
+  func visitBreakStatement(node: BreakNode) {}
+  func visitContinueStatement(node: ContinueNode) {}
   func visitIterationStatement(node: IterationStatement) {
     var idx = 0
     for stmt in node.block {
@@ -100,20 +100,20 @@ class ASTPatcher: CodeVisitor {
     }
     node.visitChildren(visitor: self)
   }
-  func visitAssignmentStatement(node: AssignmentStatement) { node.visitChildren(visitor: self) }
-  func visitFunctionExpression(node: FunctionExpression) { node.visitChildren(visitor: self) }
-  func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
-  func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
-  func visitConditionalExpression(node: ConditionalExpression) { node.visitChildren(visitor: self) }
-  func visitUnaryExpression(node: UnaryExpression) { node.visitChildren(visitor: self) }
-  func visitSubscriptExpression(node: SubscriptExpression) { node.visitChildren(visitor: self) }
-  func visitMethodExpression(node: MethodExpression) { node.visitChildren(visitor: self) }
-  func visitIdExpression(node: IdExpression) { node.visitChildren(visitor: self) }
-  func visitBinaryExpression(node: BinaryExpression) { node.visitChildren(visitor: self) }
-  func visitStringLiteral(node: StringLiteral) { node.visitChildren(visitor: self) }
-  func visitArrayLiteral(node: ArrayLiteral) { node.visitChildren(visitor: self) }
-  func visitBooleanLiteral(node: BooleanLiteral) { node.visitChildren(visitor: self) }
-  func visitIntegerLiteral(node: IntegerLiteral) { node.visitChildren(visitor: self) }
-  func visitDictionaryLiteral(node: DictionaryLiteral) { node.visitChildren(visitor: self) }
-  func visitKeyValueItem(node: KeyValueItem) { node.visitChildren(visitor: self) }
+  func visitAssignmentStatement(node: AssignmentStatement) {}
+  func visitFunctionExpression(node: FunctionExpression) {}
+  func visitArgumentList(node: ArgumentList) {}
+  func visitKeywordItem(node: KeywordItem) {}
+  func visitConditionalExpression(node: ConditionalExpression) {}
+  func visitUnaryExpression(node: UnaryExpression) {}
+  func visitSubscriptExpression(node: SubscriptExpression) {}
+  func visitMethodExpression(node: MethodExpression) {}
+  func visitIdExpression(node: IdExpression) {}
+  func visitBinaryExpression(node: BinaryExpression) {}
+  func visitStringLiteral(node: StringLiteral) {}
+  func visitArrayLiteral(node: ArrayLiteral) {}
+  func visitBooleanLiteral(node: BooleanLiteral) {}
+  func visitIntegerLiteral(node: IntegerLiteral) {}
+  func visitDictionaryLiteral(node: DictionaryLiteral) {}
+  func visitKeyValueItem(node: KeyValueItem) {}
 }
