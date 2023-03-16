@@ -110,7 +110,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
     var idx = 0
     for b in node.blocks {
-    	var appended = false
+      var appended = false
       if idx < node.conditions.count {
         let c = node.conditions[idx]
         c.visit(visitor: self)
@@ -159,8 +159,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       // x is now str|int|bool instead of int|bool
       var arr = (self.scope.variables[k] ?? []) + types[k]!
       if node.conditions.count == node.blocks.count { arr += (oldVars[k] ?? []) }
-      let l = dedup(types: arr)
-      self.scope.variables[k] = l
+      self.scope.variables[k] = dedup(types: arr)
     }
     self.overriddenVariables.removeLast()
   }
@@ -328,10 +327,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[lhsIdExpr.id] = deduped
     }
     self.metadata.registerIdentifier(id: lhsIdExpr)
-    let asStr = self.scope.variables[lhsIdExpr.id]!.map({ $0.toString() }).sorted().joined(
-      separator: "|"
-    )
-    TypeAnalyzer.LOG.trace("\(lhsIdExpr.id) = \(asStr)")
   }
   func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
     if fn.name == "get_variable" && node.argumentList != nil,
@@ -883,7 +878,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
   // swiftlint:disable cyclomatic_complexity
   public func dedup(types: [Type]) -> [Type] {
-    if types.isEmpty { return types }
+    if types.isEmpty || types.count == 1 { return types }
     var listtypes: [Type] = []
     var dicttypes: [Type] = []
     var hasAny: Bool = false
