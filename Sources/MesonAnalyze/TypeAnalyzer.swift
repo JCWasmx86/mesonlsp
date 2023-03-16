@@ -110,16 +110,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
     var idx = 0
     for b in node.blocks {
-      let condition: Node?
-      if idx == 0 {
-        condition = node.ifCondition
-      } else if idx - 1 < node.conditions.count {
-        condition = node.conditions[idx - 1]
-      } else {
-        condition = nil
-      }
       var appended = false
-      if let c = condition {
+      if idx < node.conditions.count {
+        let c = node.conditions[idx]
         c.visit(visitor: self)
         if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
           fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -133,7 +126,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if appended { self.ignoreUnknownIdentifer.removeLast() }
       idx += 1
     }
-    for condition in [node.ifCondition] + node.conditions {
+    for condition in node.conditions {
       var foundBoolOrAny = false
       for t in condition.types where t is `Any` || t is BoolType {
         foundBoolOrAny = true
@@ -166,8 +159,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       // x is now str|int|bool instead of int|bool
       var arr = (self.scope.variables[k] ?? []) + types[k]!
       if node.conditions.count + 1 == node.blocks.count { arr += (oldVars[k] ?? []) }
-      let l = dedup(types: arr)
-      self.scope.variables[k] = l
+      self.scope.variables[k] = dedup(types: arr)
     }
     self.overriddenVariables.removeLast()
   }
