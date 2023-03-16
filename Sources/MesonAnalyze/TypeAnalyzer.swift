@@ -28,7 +28,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func visitSubdirCall(node: SubdirCall) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     self.metadata.registerSubdirCall(call: node)
     let newPath = Path(
@@ -54,11 +53,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       TypeAnalyzer.LOG.warning("Not found: \(node.subdirname)")
     }
-    Timing.INSTANCE.registerMeasurement(name: "visitSubdirCall", begin: begin, end: clock())
   }
 
   public func visitMultiSubdirCall(node: MultiSubdirCall) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     for subdirname in node.subdirnames {
       if subdirname.isEmpty { continue }
@@ -78,12 +75,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         TypeAnalyzer.LOG.warning("Not found (Multisubdir): \(subdirname)")
       }
     }
-    Timing.INSTANCE.registerMeasurement(name: "visitMultiSubdirCall", begin: begin, end: clock())
   }
 
   public func applyToStack(_ name: String, _ types: [Type]) {
     if self.stack.isEmpty { return }
-    let begin = clock()
     if self.scope.variables[name] != nil {
       let orVCount = self.overriddenVariables.count - 1
       if self.overriddenVariables[orVCount][name] == nil {
@@ -98,7 +93,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     } else {
       self.stack[ssC][name]! += types
     }
-    Timing.INSTANCE.registerMeasurement(name: "applyToStack", begin: begin, end: clock())
   }
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
   public func visitBuildDefinition(node: BuildDefinition) { node.visitChildren(visitor: self) }
@@ -110,7 +104,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     )
   }
   public func visitSelectionStatement(node: SelectionStatement) {
-    let begin1 = clock()
     self.stack.append([:])
     self.overriddenVariables.append([:])
     var oldVars: [String: [Type]] = [:]
@@ -158,7 +151,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         )
       }
     }
-    let begin = clock()
     let types = self.stack.removeLast()
     // If: 1 c, 1 b
     // If,else if: 2c, 2b
@@ -178,21 +170,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.scope.variables[k] = l
     }
     self.overriddenVariables.removeLast()
-    Timing.INSTANCE.registerMeasurement(
-      name: "SelectionStatementTypeMerge",
-      begin: begin,
-      end: clock()
-    )
-    Timing.INSTANCE.registerMeasurement(
-      name: "visitSelectionStatement",
-      begin: begin1,
-      end: clock()
-    )
   }
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }
   public func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   public func visitIterationStatement(node: IterationStatement) {
-    let begin = clock()
     node.expression.visit(visitor: self)
     for id in node.ids { id.visit(visitor: self) }
     let iterTypes = node.expression.types
@@ -258,22 +239,15 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     for b in node.block { b.visit(visitor: self) }
-    Timing.INSTANCE.registerMeasurement(name: "visitIterationStatement", begin: begin, end: clock())
   }
 
   func checkIdentifier(_ node: IdExpression) {
-    let begin = clock()
     if !isSnakeCase(str: node.id) {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
       )
     }
-    Timing.INSTANCE.registerMeasurement(
-      name: "checkIdentifier",
-      begin: Int(begin),
-      end: Int(clock())
-    )
   }
 
   // swiftlint:disable cyclomatic_complexity
@@ -316,17 +290,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
   // swiftlint:enable cyclomatic_complexity
   public func visitAssignmentStatement(node: AssignmentStatement) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     if !(node.lhs is IdExpression) {
       self.metadata.registerDiagnostic(
         node: node.lhs,
         diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can only assign to variables")
-      )
-      Timing.INSTANCE.registerMeasurement(
-        name: "visitAssignmentStatement",
-        begin: begin,
-        end: clock()
       )
       return
     }
@@ -371,11 +339,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       separator: "|"
     )
     TypeAnalyzer.LOG.trace("\(lhsIdExpr.id) = \(asStr)")
-    Timing.INSTANCE.registerMeasurement(
-      name: "visitAssignmentStatement",
-      begin: begin,
-      end: clock()
-    )
   }
   func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
     if fn.name == "get_variable" && node.argumentList != nil,
@@ -412,7 +375,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
   public func visitFunctionExpression(node: FunctionExpression) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     guard let funcNameId = node.id as? IdExpression else { return }
     let funcName = funcNameId.id
@@ -449,7 +411,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         if node.function!.name == "set_variable" {
           let args = al.args
           if !args.isEmpty {
-            let beginGuessing = clock()
             if let sl = args[0] as? StringLiteral {
               let varname = sl.contents()
               let types = args[1].types
@@ -459,11 +420,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
             } else {
               guessSetVariable(args: args, node: node)
             }
-            Timing.INSTANCE.registerMeasurement(
-              name: "guessSetVariable",
-              begin: beginGuessing,
-              end: clock()
-            )
           }
         }
       }
@@ -473,7 +429,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)")
       )
     }
-    Timing.INSTANCE.registerMeasurement(name: "visitFunctionExpression", begin: begin, end: clock())
   }
 
   func guessSetVariable(args: [Node], node: FunctionExpression) {
@@ -527,7 +482,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
   // swiftlint:disable cyclomatic_complexity
   public func visitMethodExpression(node: MethodExpression) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     let types = node.obj.types
     var ownResultTypes: [Type] = []
@@ -565,9 +519,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: ownResultTypes)
     if !found && ((nAny == types.count) || (bits == 0b111 && types.count == 3)) {
-      let begin = clock()
       let guessedMethod = self.t.lookupMethod(name: methodName)
-      Timing.INSTANCE.registerMeasurement(name: "guessingMethod", begin: begin, end: clock())
       if let guessedM = guessedMethod {
         TypeAnalyzer.LOG.info(
           "Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())"
@@ -620,13 +572,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
-    Timing.INSTANCE.registerMeasurement(name: "visitMethodExpression", begin: begin, end: clock())
   }
   // swiftlint:enable cyclomatic_complexity
 
   // swiftlint:disable cyclomatic_complexity
   func checkCall(node: Expression) {
-    let begin = clock()
     let args: [Node]
     let fn: Function
     if let fne = node as? FunctionExpression {
@@ -709,9 +659,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         )
       }
-    }
-    // TODO: Type checking for each argument
-    Timing.INSTANCE.registerMeasurement(name: "checkCall", begin: Int(begin), end: Int(clock()))
+    }// TODO: Type checking for each argument
   }
   // swiftlint:enable cyclomatic_complexity
 
@@ -728,9 +676,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       || self.ignoreUnknownIdentifer.contains(node.id)
   }
   public func visitIdExpression(node: IdExpression) {
-    let begin = clock()
     let s = self.evalStack(name: node.id)
-    Timing.INSTANCE.registerMeasurement(name: "evalStack", begin: begin, end: clock())
     node.types = dedup(types: s + (scope.variables[node.id] ?? []))
     node.visitChildren(visitor: self)
     if self.ignoreIdExpression(node: node) { return }
@@ -863,7 +809,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   // swiftlint:enable cyclomatic_complexity
 
   public func visitBinaryExpression(node: BinaryExpression) {
-    let begin = clock()
     node.visitChildren(visitor: self)
     if node.op == nil {
       // Emergency fix
@@ -872,7 +817,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         node: node,
         diag: MesonDiagnostic(sev: .error, node: node, message: "Missing binary operator")
       )
-      Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
       return
     }
     let (nErrors, newTypes) = self.evalBinaryExpression(node.op!, node.lhs.types, node.rhs.types)
@@ -891,7 +835,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     node.types = dedup(types: newTypes)
-    Timing.INSTANCE.registerMeasurement(name: "visitBinaryExpression", begin: begin, end: clock())
   }
 
   func isSpecial(_ types: [Type]) -> Bool {
@@ -948,7 +891,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   // swiftlint:disable cyclomatic_complexity
   public func dedup(types: [Type]) -> [Type] {
     if types.isEmpty { return types }
-    let begin = clock()
     var listtypes: [Type] = []
     var dicttypes: [Type] = []
     var hasAny: Bool = false
@@ -987,7 +929,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if hasInt { ret.append(self.t.types["int"]!) }
     if hasStr { ret.append(self.t.types["str"]!) }
     ret += objs.values
-    Timing.INSTANCE.registerMeasurement(name: "dedup", begin: begin, end: clock())
     return ret
   }  // swiftlint:enable cyclomatic_complexity
 }
