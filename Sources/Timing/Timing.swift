@@ -28,7 +28,10 @@ public class TimingInformation {
   public let name: String
   internal var values: [Double] = []
 
-  internal init(name: String) { self.name = name }
+  internal init(name: String) {
+    self.values.reserveCapacity(TimingInformation.MAX_VALUES + 1)
+    self.name = name
+  }
 
   internal func append(value: Double) {
     self.values.append(value)

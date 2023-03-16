@@ -41,4 +41,4 @@ public func from_tree(file: MesonSourceFile, tree: SwiftTreeSitter.Node?) -> Nod
     }
   }
   return nil
-}// swiftlint:enable cyclomatic_complexity
+}  // swiftlint:enable cyclomatic_complexity
