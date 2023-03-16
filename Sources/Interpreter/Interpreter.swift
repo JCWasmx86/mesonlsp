@@ -111,7 +111,7 @@ public class Interpreter {
           }
         }
       } else if let selectionStatement = stmt as? SelectionStatement {
-        let conds = [selectionStatement.ifCondition] + selectionStatement.conditions
+        let conds = selectionStatement.conditions
         var idx = 0
         for c in conds {
           let val = self.eval(c)

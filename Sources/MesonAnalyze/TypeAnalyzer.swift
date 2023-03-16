@@ -111,13 +111,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var idx = 0
     for b in node.blocks {
       let condition: Node?
-      if idx == 0 {
-        condition = node.ifCondition
-      } else if idx - 1 < node.conditions.count {
-        condition = node.conditions[idx - 1]
-      } else {
-        condition = nil
-      }
+      if idx < node.conditions.count { condition = node.conditions[idx] } else { condition = nil }
       var appended = false
       if let c = condition {
         c.visit(visitor: self)
@@ -133,7 +127,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if appended { self.ignoreUnknownIdentifer.removeLast() }
       idx += 1
     }
-    for condition in [node.ifCondition] + node.conditions {
+    for condition in node.conditions {
       var foundBoolOrAny = false
       for t in condition.types where t is `Any` || t is BoolType {
         foundBoolOrAny = true
@@ -165,7 +159,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       // endif
       // x is now str|int|bool instead of int|bool
       var arr = (self.scope.variables[k] ?? []) + types[k]!
-      if node.conditions.count + 1 == node.blocks.count { arr += (oldVars[k] ?? []) }
+      if node.conditions.count == node.blocks.count { arr += (oldVars[k] ?? []) }
       let l = dedup(types: arr)
       self.scope.variables[k] = l
     }
