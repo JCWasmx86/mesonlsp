@@ -110,10 +110,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
     var idx = 0
     for b in node.blocks {
-      let condition: Node?
-      if idx < node.conditions.count { condition = node.conditions[idx] } else { condition = nil }
-      var appended = false
-      if let c = condition {
+    	var appended = false
+      if idx < node.conditions.count {
+        let c = node.conditions[idx]
         c.visit(visitor: self)
         if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
           fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
