@@ -39,30 +39,19 @@ class ASTPatcher: CodeVisitor {
   }
   func visitBuildDefinition(node: BuildDefinition) {
     var idx = 0
-    var idxes: [Int] = []
     for stmt in node.stmts {
-      if self.isSubdirCall(node: stmt) { idxes.append(idx) }
+      if self.isSubdirCall(node: stmt) {
+        let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+        node.stmts[idx] = sc
+        node.stmts[idx].parent = node
+        subdirNodes.append(sc)
+      } else if self.isMultiSubdirCall(node: stmt) {
+        let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+        node.stmts[idx] = sc
+        node.stmts[idx].parent = node
+        multiSubdirNodes.append(sc)
+      }
       idx += 1
-    }
-    for x in idxes {
-      let stmt = node.stmts[x]
-      let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
-      node.stmts[x] = sc
-      node.stmts[x].parent = node
-      subdirNodes.append(sc)
-    }
-    idx = 0
-    idxes = []
-    for stmt in node.stmts {
-      if self.isMultiSubdirCall(node: stmt) { idxes.append(idx) }
-      idx += 1
-    }
-    for x in idxes {
-      let stmt = node.stmts[x]
-      let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
-      node.stmts[x] = sc
-      node.stmts[x].parent = node
-      multiSubdirNodes.append(sc)
     }
     node.visitChildren(visitor: self)
   }
@@ -95,30 +84,19 @@ class ASTPatcher: CodeVisitor {
   func visitContinueStatement(node: ContinueNode) { node.visitChildren(visitor: self) }
   func visitIterationStatement(node: IterationStatement) {
     var idx = 0
-    var idxes: [Int] = []
     for stmt in node.block {
-      if self.isSubdirCall(node: stmt) { idxes.append(idx) }
+      if self.isSubdirCall(node: stmt) {
+        let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+        node.block[idx] = sc
+        node.block[idx].parent = node
+        subdirNodes.append(sc)
+      } else if self.isMultiSubdirCall(node: stmt) {
+        let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
+        node.block[idx] = sc
+        node.block[idx].parent = node
+        multiSubdirNodes.append(sc)
+      }
       idx += 1
-    }
-    for x in idxes {
-      let stmt = node.block[x]
-      let sc = SubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
-      node.block[x] = sc
-      node.block[x].parent = node
-      subdirNodes.append(sc)
-    }
-    idx = 0
-    idxes = []
-    for stmt in node.block {
-      if self.isMultiSubdirCall(node: stmt) { idxes.append(idx) }
-      idx += 1
-    }
-    for x in idxes {
-      let stmt = node.block[x]
-      let sc = MultiSubdirCall(file: stmt.file, node: stmt as! FunctionExpression)
-      node.block[x] = sc
-      node.block[x].parent = node
-      multiSubdirNodes.append(sc)
     }
     node.visitChildren(visitor: self)
   }

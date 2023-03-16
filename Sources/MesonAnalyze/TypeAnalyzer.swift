@@ -659,7 +659,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         )
       }
-    }// TODO: Type checking for each argument
+    }  // TODO: Type checking for each argument
   }
   // swiftlint:enable cyclomatic_complexity
 
