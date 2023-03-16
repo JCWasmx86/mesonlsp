@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-module-docstring,missing-function-docstring
+# pylint: disable=missing-module-docstring,missing-function-docstring,bare-except
 import argparse
 import datetime
 import json
 import logging
 import os
 import subprocess
-import tempfile
 import time
 import uuid
 from functools import reduce
@@ -63,113 +62,86 @@ N_REPEATS_IF_TOO_SHORT = 50
 TOO_SHORT_THRESHOLD = 1500
 
 
+def base_path():
+    home = os.path.expanduser("~")
+    full_path = home + "/.cache/" + "swift-mesonlsp-benchmarks"
+    try:
+        os.mkdir(full_path)
+    except:
+        pass
+    return full_path
+
+
 def heaptrack(command, is_ci):
+    base_command = ["heaptrack"]
     if not is_ci:
+        base_command += ["--record-only"]
+
+    with subprocess.Popen(
+        base_command + command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ) as prof_process:
+        stdout, _ = prof_process.communicate()
+        lines = stdout.decode("utf-8").splitlines()
+        zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
         with subprocess.Popen(
-            ["heaptrack", "--record-only"] + command,
+            ["heaptrack_print", zstfile],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-        ) as prof_process:
-            stdout, _ = prof_process.communicate()
+        ) as ana_process:
+            stdout, _ = ana_process.communicate()
             lines = stdout.decode("utf-8").splitlines()
-            zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
-            with subprocess.Popen(
-                ["heaptrack_print", zstfile],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            ) as ana_process:
-                stdout, _ = ana_process.communicate()
-                lines = stdout.decode("utf-8").splitlines()
-                os.remove(zstfile)
-                return lines
-    else:
-        # Because Ubuntu has too old software, so --record-only is not known
-        # and github has no runners for modern distributions
-        with subprocess.Popen(
-            ["heaptrack"] + command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        ) as prof_process:
-            stdout, _ = prof_process.communicate()
-            lines = stdout.decode("utf-8").splitlines()
-            zstfile = lines[-1].strip().split(" ")[2].replace('"', "")
-            with subprocess.Popen(
-                ["heaptrack_print", zstfile],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            ) as ana_process:
-                stdout, _ = ana_process.communicate()
-                lines = stdout.decode("utf-8").splitlines()
-                os.remove(zstfile)
-                return lines
-    assert False
+            os.remove(zstfile)
+            return lines
 
 
-def clone_project(url):
-    logging.info("Cloning " + url)
+def clone_project(name, url):
+    if os.path.exists(name):
+        logging.info("Updating %s", url)
+        subprocess.run(
+            ["git", "-C", name, "fetch", "--unshallow"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        subprocess.run(
+            ["git", "-C", name, "pull"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        return
+    logging.info("Cloning %s", url)
     subprocess.run(
-        ["git", "clone", "--depth=1", url],
+        ["git", "clone", "--depth=1", url, name],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=True,
     )
 
 
-def analyze_file(file, commit, is_ci):
-    ret = {}
-    absp = os.path.abspath(file)
+def clone_projects():
+    for name, url in PROJECTS.items():
+        clone_project(name, url)
+    for name, url in MISC_PROJECTS.items():
+        clone_project(name, url)
+
+
+def basic_analysis(ret, file, commit):
     ret["time"] = time.time()
     ret["commit"] = commit
     ret["size"] = os.path.getsize(file)
     stripped = "/tmp/" + str(uuid.uuid4())
     subprocess.run(["strip", "-s", file, "-o", stripped], check=True)
     ret["stripped_size"] = os.path.getsize(stripped)
-    ret["projects"] = []
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        os.chdir(tmpdirname)
-        for url in PROJECTS.values():
-            clone_project(url)
-        for url in MISC_PROJECTS.values():
-            clone_project(url)
-        ret["quick"] = {}
-        for proj_name in reduce(lambda x, y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
-            logging.info("Quick parsing " + proj_name)
-            command = [absp, "--path", proj_name + "/meson.build"]
-            begin = datetime.datetime.now()
-            subprocess.run(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            end = datetime.datetime.now()
-            duration = (end - begin).total_seconds() * MS_IN_S
-            if duration < TOO_SHORT_THRESHOLD:
-                logging.info(
-                    "Too fast, repeating with more iterations: " + str(duration)
-                )
-                command = [absp] + (
-                    [proj_name + "/meson.build"] * (N_REPEATS_IF_TOO_SHORT * 101)
-                )
-                begin = datetime.datetime.now()
-                subprocess.run(
-                    command,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=True,
-                )
-                end = datetime.datetime.now()
-                duration = (
-                    (end - begin).total_seconds() * MS_IN_S
-                ) / N_REPEATS_IF_TOO_SHORT
-                logging.info("New duration: " + str(duration))
-            ret["quick"][proj_name] = duration
-        ret["misc"] = {}
-        projs = []
-        for projname in MISC_PROJECTS.keys():
-            projs.append(projname + "/meson.build")
-        command = [absp] + (projs * MISC_N_TIMES)
-        logging.info("Parsing misc")
+    os.remove(stripped)
+
+
+def quick_parse(ret, absp):
+    for proj_name in reduce(lambda x, y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
+        logging.info("Quick parsing %s", proj_name)
+        command = [absp, "--path", proj_name + "/meson.build"]
         begin = datetime.datetime.now()
         subprocess.run(
             command,
@@ -178,40 +150,93 @@ def analyze_file(file, commit, is_ci):
             check=True,
         )
         end = datetime.datetime.now()
-        logging.info("Tracing using heaptrack for misc")
+        duration = (end - begin).total_seconds() * MS_IN_S
+        if duration < TOO_SHORT_THRESHOLD:
+            logging.info("Too fast, repeating with more iterations: %s", str(duration))
+            command = [absp] + (
+                [proj_name + "/meson.build"] * (N_REPEATS_IF_TOO_SHORT * 101)
+            )
+            begin = datetime.datetime.now()
+            subprocess.run(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            end = datetime.datetime.now()
+            duration = (
+                (end - begin).total_seconds() * MS_IN_S
+            ) / N_REPEATS_IF_TOO_SHORT
+            logging.info("New duration: %s", str(duration))
+        ret["quick"][proj_name] = duration
+
+
+def misc_parse(ret, absp, is_ci):
+    projs = []
+    for projname in MISC_PROJECTS:
+        projs.append(projname + "/meson.build")
+    command = [absp] + (projs * MISC_N_TIMES)
+    logging.info("Parsing misc")
+    begin = datetime.datetime.now()
+    subprocess.run(
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+    )
+    end = datetime.datetime.now()
+    logging.info("Tracing using heaptrack for misc")
+    lines = heaptrack(command, is_ci)
+    if lines[-1].startswith("suppressed leaks:"):
+        lines = lines[:-1]
+    ret["misc"]["parsing"] = (end - begin).total_seconds() * MS_IN_S
+    ret["misc"]["memory_allocations"] = int(lines[-5].split(" ")[4])
+    ret["misc"]["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
+    ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
+    ret["misc"]["peak_rss"] = lines[-2].split("): ")[1]
+
+
+def projects_parse(ret, absp, is_ci):
+    for proj_name in PROJECTS:
+        logging.info("Parsing %s", proj_name)
+        projobj = {}
+        projobj["name"] = proj_name
+        begin = datetime.datetime.now()
+        command = [absp, "--path", proj_name + "/meson.build"]
+        for i in range(0, N_ITERATIONS):
+            logging.info("Iteration %s", str(i))
+            subprocess.run(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+        end = datetime.datetime.now()
+        projobj["parsing"] = (end - begin).total_seconds() * MS_IN_S
+        logging.info("Tracing using heaptrack for %s", proj_name)
         lines = heaptrack(command, is_ci)
         if lines[-1].startswith("suppressed leaks:"):
             lines = lines[:-1]
-        ret["misc"]["parsing"] = (end - begin).total_seconds() * MS_IN_S
-        ret["misc"]["memory_allocations"] = int(lines[-5].split(" ")[4])
-        ret["misc"]["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
-        ret["misc"]["peak_heap"] = lines[-3].split(" ")[4]
-        ret["misc"]["peak_rss"] = lines[-2].split("): ")[1]
-        for proj_name in PROJECTS:
-            logging.info("Parsing " + proj_name)
-            projobj = {}
-            projobj["name"] = proj_name
-            begin = datetime.datetime.now()
-            command = [absp, "--path", proj_name + "/meson.build"]
-            for i in range(0, N_ITERATIONS):
-                logging.info("Iteration " + str(i))
-                subprocess.run(
-                    command,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=True,
-                )
-            end = datetime.datetime.now()
-            projobj["parsing"] = (end - begin).total_seconds() * MS_IN_S
-            logging.info("Tracing using heaptrack for " + proj_name)
-            lines = heaptrack(command, is_ci)
-            if lines[-1].startswith("suppressed leaks:"):
-                lines = lines[:-1]
-            projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
-            projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
-            projobj["peak_heap"] = lines[-3].split(" ")[4]
-            projobj["peak_rss"] = lines[-2].split("): ")[1]
-            ret["projects"].append(projobj)
+        projobj["memory_allocations"] = int(lines[-5].split(" ")[4])
+        projobj["temporary_memory_allocations"] = int(lines[-4].split(" ")[3])
+        projobj["peak_heap"] = lines[-3].split(" ")[4]
+        projobj["peak_rss"] = lines[-2].split("): ")[1]
+        ret["projects"].append(projobj)
+
+
+def analyze_file(file, commit, is_ci):
+    logging.info("Base path: %s", base_path())
+    ret = {}
+    basic_analysis(ret, file, commit)
+    absp = os.path.abspath(file)
+    os.chdir(base_path())
+    clone_projects()
+    ret["quick"] = {}
+    quick_parse(ret, absp)
+    ret["misc"] = {}
+    misc_parse(ret, absp, is_ci)
+    ret["projects"] = []
+    projects_parse(ret, absp, is_ci)
     print(json.dumps(ret))
 
 

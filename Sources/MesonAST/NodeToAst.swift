@@ -1,6 +1,6 @@
-// swiftlint:disable cyclomatic_complexity
 import SwiftTreeSitter
 
+// swiftlint:disable cyclomatic_complexity
 public func from_tree(file: MesonSourceFile, tree: SwiftTreeSitter.Node?) -> Node? {
   if let t = tree {
     if let type = t.nodeType {
@@ -41,4 +41,4 @@ public func from_tree(file: MesonSourceFile, tree: SwiftTreeSitter.Node?) -> Nod
     }
   }
   return nil
-}
+}// swiftlint:enable cyclomatic_complexity

@@ -37,6 +37,7 @@ public enum BinaryOperator {
     default: return nil
     }
   }
+  // swiftlint:enable cyclomatic_complexity
 }
 
 public final class BinaryExpression: Statement {

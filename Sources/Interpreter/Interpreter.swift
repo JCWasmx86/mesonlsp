@@ -401,9 +401,7 @@ public class Interpreter {
         }
         return RunresultHolder(t: self.ns, task.terminationStatus, "", "")
       }
-    default:
-      Interpreter.LOG.critical("Unhandled function call: \(fe.functionName())")
-      break
+    default: Interpreter.LOG.critical("Unhandled function call: \(fe.functionName())")
     }
     return nil
   }
