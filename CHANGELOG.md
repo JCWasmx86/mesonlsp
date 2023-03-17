@@ -1,3 +1,11 @@
+# 1.4 (Mar 17 2023)
+- Add support for deriving strings in `subdir(x)`/`set_variable(x)`, where x is not a string literal. The implementation is good enough for parsing WrapDB, GNOME and ElementaryOS correctly.
+- Improve dashboard to show more information and work offline
+- Minor code cleanups
+- Minor performance improvements
+- Add regression tests in CI
+- Add more projects to benchmark suite
+- Update tree-sitter parser
 # 1.3 (Mar 11 2023)
 - Implement inlay hints
 - Implement `textDocument/documentHighlight`
