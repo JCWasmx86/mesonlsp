@@ -45,6 +45,7 @@ TBD: For the moment, just follow what the docker files do:
 - [Language Server](https://github.com/JCWasmx86/Swift-MesonLSP/blob/master/Dockerfile.ubuntu)
 - [GNOME-Builder plugin](https://github.com/JCWasmx86/GNOME-Builder-Plugins/blob/main/Dockerfile.ubuntu)
 ### Install the language server
+You can either [download](https://github.com/JCWasmx86/Swift-MesonLSP/releases/tag/v1.4) the file from the releases or build it yourself.
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
