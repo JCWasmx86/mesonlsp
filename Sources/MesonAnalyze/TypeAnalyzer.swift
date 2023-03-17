@@ -119,28 +119,22 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           self.ignoreUnknownIdentifer.append(sl.contents())
           appended = true
         }
+        var foundBoolOrAny = false
+        for t in c.types where t is `Any` || t is BoolType {
+          foundBoolOrAny = true
+          break
+        }
+        if !foundBoolOrAny && !c.types.isEmpty {
+          let t = c.types.map({ $0.toString() }).joined(separator: "|")
+          self.metadata.registerDiagnostic(
+            node: c,
+            diag: MesonDiagnostic(sev: .error, node: c, message: "Condition is not bool: \(t)")
+          )
+        }
       }
       for b1 in b { b1.visit(visitor: self) }
       if appended { self.ignoreUnknownIdentifer.removeLast() }
       idx += 1
-    }
-    for condition in node.conditions {
-      var foundBoolOrAny = false
-      for t in condition.types where t is `Any` || t is BoolType {
-        foundBoolOrAny = true
-        break
-      }
-      if !foundBoolOrAny && !condition.types.isEmpty {
-        let t = condition.types.map({ $0.toString() }).joined(separator: "|")
-        self.metadata.registerDiagnostic(
-          node: condition,
-          diag: MesonDiagnostic(
-            sev: .error,
-            node: condition,
-            message: "Condition is not bool: \(t)"
-          )
-        )
-      }
     }
     let types = self.stack.removeLast()
     // If: 1 c, 1 b
