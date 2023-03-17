@@ -79,7 +79,39 @@ function avgTemporaryAllocationsPerSecond() {
   return allocations.map((e, i) => (e * 10) / (parsing[i] / 1000));
 }
 
+function appendHr(parent) {
+  const hr = document.createElement("hr");
+  parent.append(hr);
+}
+
+function initHTML() {
+  const parent = document.getElementById("Overview");
+  appendHr(parent);
+  for (const element of ELEMENT_NAMES) {
+    const ctxName = element.replaceAll("-", "_");
+    let detail = document.createElement("details");
+    let summary = document.createElement("summary");
+    summary.textContent = "Measurements for " + element;
+    const resultDiv = document.createElement("div");
+    resultDiv.classList.add("horizontal");
+    for (const suffix of ["", "_allocs", "_tmp_allocs", "_rss", "_heap"]) {
+      let childDiv = document.createElement("div");
+      childDiv.classList.add("child");
+      let canvas = document.createElement("canvas");
+      canvas.id = ctxName + suffix;
+      childDiv.append(canvas);
+      resultDiv.append(childDiv);
+    }
+    detail.append(summary);
+    detail.append(resultDiv);
+    parent.insertBefore(detail, document.getElementById("anchor"));
+    const hr = document.createElement("hr");
+    parent.insertBefore(hr, document.getElementById("anchor"));
+  }
+}
+
 function createOverviewCharts() {
+  initHTML();
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
   const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
   attachChart(
@@ -188,6 +220,11 @@ function createOverviewCharts() {
 function appendTr(tr, txt) {
   const td = document.createElement("td");
   td.appendChild(document.createTextNode(txt));
+  if (txt[0] == "-" && (txt + "").endsWith("%")) {
+    td.style.backgroundColor = "#26a269";
+  } else if (txt[0] != "-" && (txt + "").endsWith("%")) {
+    td.style.backgroundColor = "#e01b24";
+  }
   tr.appendChild(td);
 }
 
