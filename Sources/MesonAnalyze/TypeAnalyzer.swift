@@ -161,7 +161,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
     let iterTypes = node.expression.types
     node.ids[0].types = [self.t.types["str"]!]
-    if let dd = iterTypes.filter({ $0 is Dict }).first, let ddd = dd as? Dict {
+    let first = iterTypes.first { $0 is Dict }
+    if let dd = first, let ddd = dd as? Dict {
       node.ids[1].types = ddd.types
     } else {
       node.ids[1].types = []
@@ -170,7 +171,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(
           sev: .error,
           node: node.expression,
-          message: iterTypes.filter { $0 is ListType || $0 is RangeType }.first != nil
+          message: iterTypes.first { $0 is ListType || $0 is RangeType } != nil
             ? "Iterating over a list/range requires one identifier"
             : "Expression yields no iterable result"
         )
