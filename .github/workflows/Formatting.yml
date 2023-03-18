@@ -20,3 +20,4 @@ jobs:
           git config --global user.name "Your Name"
           git commit -a -m "Failed" || exit 0
           git diff HEAD~1 | cat
+          exit 1
