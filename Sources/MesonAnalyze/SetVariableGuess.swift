@@ -197,28 +197,21 @@ func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [Inter
   return tmp
 }
 
+func evalStatement(_ b: Node, _ toResolve: IdExpression) -> [InterpretNode] {
+  if let ass = b as? AssignmentStatement, let lhs = ass.lhs as? IdExpression, toResolve.id == lhs.id
+  {
+    return abstractEval(ass, ass.rhs)
+  } else {
+    return fullEval(b, toResolve)
+  }
+}
+
 func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   var ret: [InterpretNode] = []
   if let its = stmt as? BuildDefinition {
-    for b in its.stmts.reversed() {
-      if let ass = b as? AssignmentStatement, let lhs = ass.lhs as? IdExpression,
-        toResolve.id == lhs.id
-      {
-        ret += abstractEval(ass, ass.rhs)
-      } else {
-        ret += fullEval(b, toResolve)
-      }
-    }
+    for b in its.stmts.reversed() { ret += evalStatement(b, toResolve) }
   } else if let its = stmt as? IterationStatement {
-    for b in its.block.reversed() {
-      if let ass = b as? AssignmentStatement, let lhs = ass.lhs as? IdExpression,
-        toResolve.id == lhs.id
-      {
-        ret += abstractEval(ass, ass.rhs)
-      } else {
-        ret += fullEval(b, toResolve)
-      }
-    }
+    for b in its.block.reversed() { ret += evalStatement(b, toResolve) }
     for b in its.ids {
       if let idexpr = b as? IdExpression, idexpr.id == toResolve.id {
         ret += abstractEval(b, its.expression)
@@ -226,15 +219,7 @@ func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
     }
   } else if let sst = stmt as? SelectionStatement {
     for block in sst.blocks.reversed() {
-      for b in block.reversed() {
-        if let ass = b as? AssignmentStatement, let lhs = ass.lhs as? IdExpression,
-          toResolve.id == lhs.id
-        {
-          ret += abstractEval(ass, ass.rhs)
-        } else {
-          ret += fullEval(b, toResolve)
-        }
-      }
+      for b in block.reversed() { ret += evalStatement(b, toResolve) }
     }
   }
   return ret
