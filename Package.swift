@@ -42,8 +42,11 @@ let package = Package(
       name: "LanguageServer",
       dependencies: [
         "MesonAnalyze", "Timing", "MesonDocs", "CMem",
-        .product(name: "Swifter", package: "swifter"),
-        .product(name: "LSPBindings", package: "sourcekit-lsp"),
+        .product(
+          name: "Swifter",
+          package: "swifter",
+          condition: .when(platforms: [.linux, .macOS])
+        ), .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
         .product(name: "Atomics", package: "swift-atomics"),
       ]

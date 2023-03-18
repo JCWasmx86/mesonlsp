@@ -7,7 +7,9 @@ import MesonAnalyze
 import MesonAST
 import MesonDocs
 import PathKit
-import Swifter
+#if !os(Windows)
+  import Swifter
+#endif
 import Timing
 
 // There seem to be some name collisions
@@ -22,7 +24,9 @@ public final class MesonServer: LanguageServer {
   var tree: MesonTree?
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
-  var server: HttpServer
+  #if !os(Windows)
+    var server: HttpServer
+  #endif
   var docs: MesonDocs = MesonDocs()
   var openFiles: Set<String> = []
   var astCache: [String: Node] = [:]
@@ -32,20 +36,22 @@ public final class MesonServer: LanguageServer {
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
     self.ns = TypeNamespace()
-    self.server = HttpServer()
-    for i in MesonServer.MIN_PORT...MesonServer.MAX_PORT {
-      do {
-        try self.server.start(
-          in_port_t(i),
-          forceIPv4: false,
-          priority: DispatchQoS.QoSClass.background
-        )
-        MesonServer.LOG.info("Port: \(i)")
-        break
-      } catch {}
-    }
-    super.init(client: client)
-    self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
+    #if !os(Windows)
+      self.server = HttpServer()
+      for i in MesonServer.MIN_PORT...MesonServer.MAX_PORT {
+        do {
+          try self.server.start(
+            in_port_t(i),
+            forceIPv4: false,
+            priority: DispatchQoS.QoSClass.background
+          )
+          MesonServer.LOG.info("Port: \(i)")
+          break
+        } catch {}
+      }
+      super.init(client: client)
+      self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
+    #endif
     self.queue.asyncAfter(deadline: .now() + interval) {
       self.sendStats()
       self.scheduleNextTask()
