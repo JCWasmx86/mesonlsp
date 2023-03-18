@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Check if formatting is right
+      - name: Check if formatting is correct
         run: |
           git clone https://github.com/apple/swift-format
           cd swift-format
