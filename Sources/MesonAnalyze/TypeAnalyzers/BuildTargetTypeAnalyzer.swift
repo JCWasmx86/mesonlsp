@@ -2,9 +2,8 @@ import MesonAST
 
 public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
   static let mappings: [String: String] = [
-    "executable": "exe", "shared_library": "lib",
-    "shared_module": "build_tgt", "static_library": "lib", "both_libraries": "both_libs",
-    "library": "lib", "jar": "jar",
+    "executable": "exe", "shared_library": "lib", "shared_module": "build_tgt",
+    "static_library": "lib", "both_libraries": "both_libs", "library": "lib", "jar": "jar",
   ]
   public func derive(node: Node, fn: Function, options: [MesonOption], ns: TypeNamespace) -> [Type]
   {
@@ -14,9 +13,7 @@ public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
       for arg in al.args where arg is KeywordItem {
         if let sl = (arg as! KeywordItem).value as? StringLiteral {
           let s = sl.contents()
-          if let t = BuildTargetTypeAnalyzer.mappings[s] {
-          	return [ns.types[t]!]
-          }
+          if let t = BuildTargetTypeAnalyzer.mappings[s] { return [ns.types[t]!] }
           break
         }
       }

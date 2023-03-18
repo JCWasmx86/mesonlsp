@@ -3,7 +3,7 @@ import Logging
 import MesonAST
 
 extension MesonTree {
-  public func findDeclaration(node: IdExpression) -> (String, UInt32, UInt32)? {
+  public func findDeclaration(node: IdExpression) -> (String, [UInt32])? {
     if let p = node.parent {
       if let assS = p as? AssignmentStatement, assS.lhs.equals(right: node), assS.op == .equals {
         return makeTuple(node)
@@ -15,7 +15,7 @@ extension MesonTree {
   }
 
   func iterateOverSelectionStatement(name: String, node: Node, sst: SelectionStatement) -> (
-    String, UInt32, UInt32
+    String, [UInt32]
   )? {
     var block_idx = 0
     var stmt_idx = 0
@@ -45,7 +45,7 @@ extension MesonTree {
   }
 
   func iterateOverIterationStatement(name: String, node: Node, its: IterationStatement) -> (
-    String, UInt32, UInt32
+    String, [UInt32]
   )? {
     var stmt_idx = 0
     for b in its.block {
@@ -70,7 +70,7 @@ extension MesonTree {
   }
 
   func iterateOverBuildDefinition(name: String, node: Node, parent: Node, bd: BuildDefinition) -> (
-    String, UInt32, UInt32
+    String, [UInt32]
   )? {
     var stmt_idx = 0
     for b in bd.stmts {
@@ -92,7 +92,7 @@ extension MesonTree {
     }
     return nil
   }
-  func findDeclaration2(name: String, node: Node, parent: Node) -> (String, UInt32, UInt32)? {
+  func findDeclaration2(name: String, node: Node, parent: Node) -> (String, [UInt32])? {
     if let sst = parent as? SelectionStatement {
       if let r = iterateOverSelectionStatement(name: name, node: node, sst: sst) { return r }
     } else if let bd = parent as? BuildDefinition {
@@ -112,7 +112,7 @@ extension MesonTree {
     return nil
   }
 
-  func simpleAnalyze(_ name: String, _ s: Node) -> (String, UInt32, UInt32)? {
+  func simpleAnalyze(_ name: String, _ s: Node) -> (String, [UInt32])? {
     if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
       assSLHS.id == name, assS.op == .equals
     {
@@ -131,7 +131,7 @@ extension MesonTree {
     }
     return nil
   }
-  func evalSubdir(_ name: String, _ s: SubdirCall) -> (String, UInt32, UInt32)? {
+  func evalSubdir(_ name: String, _ s: SubdirCall) -> (String, [UInt32])? {
     if let sf = self.findSubdirTree(file: s.fullFile), let sfn = sf.ast as? SourceFile,
       let bd = sfn.build_definition as? BuildDefinition
     {
@@ -140,7 +140,7 @@ extension MesonTree {
     return nil
   }
 
-  func evalStatement(_ name: String, _ s: Node) -> (String, UInt32, UInt32)? {
+  func evalStatement(_ name: String, _ s: Node) -> (String, [UInt32])? {
     if let assS = s as? AssignmentStatement, let assSLHS = assS.lhs as? IdExpression,
       assSLHS.id == name, assS.op == .equals
     {
@@ -152,7 +152,7 @@ extension MesonTree {
     }
     return nil
   }
-  func searchExtended(name: String, node: Node) -> (String, UInt32, UInt32)? {
+  func searchExtended(name: String, node: Node) -> (String, [UInt32])? {
     if let its = node as? IterationStatement {
       for s in its.block.reversed() { if let r = evalStatement(name, s) { return r } }
     } else if let ses = node as? SelectionStatement {
@@ -164,10 +164,10 @@ extension MesonTree {
     }
     return nil
   }
-  func makeTuple(_ node: Node) -> (String, UInt32, UInt32) {
+  func makeTuple(_ node: Node) -> (String, [UInt32]) {
     let file = node.file.file
     let line = node.location.startLine
     let column = node.location.startColumn
-    return (file, line, column)
+    return (file, [line, column])
   }
 }

@@ -61,7 +61,10 @@ public final class MesonServer: LanguageServer {
   func sendStats() {
     #if !os(Windows)
       MesonServer.LOG.info("Collecting stats")
-      let (heap, stack, total) = collectStats()
+      let stats = collectStats()
+      let heap = stats[0]
+      let stack = stats[1]
+      let total = stats[2]
       MesonServer.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
       let heapS = formatWithUnits(heap)
       let stackS = formatWithUnits(stack)
@@ -473,8 +476,8 @@ public final class MesonServer: LanguageServer {
     if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
       if let t = self.tree!.findDeclaration(node: i) {
         let newFile = t.0
-        let line = t.1
-        let column = t.2
+        let line = t.1[0]
+        let column = t.1[1]
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
         MesonServer.LOG.info("Found declaration")
         req.reply(
@@ -522,8 +525,8 @@ public final class MesonServer: LanguageServer {
     if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
       if let t = self.tree!.findDeclaration(node: i) {
         let newFile = t.0
-        let line = t.1
-        let column = t.2
+        let line = t.1[0]
+        let column = t.1[1]
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
         MesonServer.LOG.info("Found definition")
         req.reply(

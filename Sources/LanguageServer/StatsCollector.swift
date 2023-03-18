@@ -3,7 +3,7 @@
   import Glibc
   import PathKit
 
-  func collectStats() -> (UInt64, UInt64, UInt64) {
+  func collectStats() -> [UInt64] {
     let pid = getpid()
     let path = "/proc/\(pid)/maps"
     let p = Path(path)
@@ -23,8 +23,8 @@
           stackUsage = addrs[1] - addrs[0]
         }
       }
-      return (heapUsage, stackUsage, total)
-    } catch { return (0, 0, 0) }
+      return [heapUsage, stackUsage, total]
+    } catch { return [0, 0, 0] }
   }
 
   func formatWithUnits(_ bytes: UInt64) -> String {
