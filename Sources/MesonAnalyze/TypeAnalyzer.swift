@@ -728,102 +728,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return type.name == name || type.name == "any"
   }
 
-  func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (Int, [Type]) {
-    var newTypes: [Type] = []
-    var nErrors = 0
-    for l in lhs {
-      for r in rhs {
-        // Theoretically not an error (yet),
-        // but practically better safe than sorry.
-        if r.name == "any" && l.name == "any" {
-          nErrors += 1
-          continue
-        }
-        switch op {
-        case .and, .or:
-          if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .div:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["str"]!)
-          } else {
-            nErrors += 1
-          }
-        case .equalsEquals:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
-            newTypes.append(self.t.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .ge, .gt, .le, .lt:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .IN: newTypes.append(self.t.types["bool"]!)
-        case .minus, .modulo, .mul:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
-          } else {
-            nErrors += 1
-          }
-        case .notEquals:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t.types["bool"]!)
-          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
-            newTypes.append(self.t.types["bool"]!)
-          } else {
-            nErrors += 1
-          }
-        case .notIn: newTypes.append(self.t.types["bool"]!)
-        case .plus:
-          if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
-          } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["str"]!)
-          } else if let ll = l as? ListType, let lr = r as? ListType {
-            newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
-          } else if let ll = l as? ListType {
-            newTypes.append(ListType(types: dedup(types: ll.types + [r])))
-          } else if let dl = l as? Dict, let dr = r as? Dict {
-            newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
-          } else if let dl = l as? Dict {
-            newTypes.append(Dict(types: dedup(types: dl.types + [r])))
-          } else {
-            nErrors += 1
-          }
-        }
-      }
-    }
-    return (nErrors, nErrors == lhs.count * rhs.count ? lhs : newTypes)
-  }
-
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)
     if node.op == nil {
@@ -937,6 +841,102 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if hasStr { ret.append(self.t.types["str"]!) }
     ret += objs.values
     return ret
+  }
+
+  func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (Int, [Type]) {
+    var newTypes: [Type] = []
+    var nErrors = 0
+    for l in lhs {
+      for r in rhs {
+        // Theoretically not an error (yet),
+        // but practically better safe than sorry.
+        if r.name == "any" && l.name == "any" {
+          nErrors += 1
+          continue
+        }
+        switch op {
+        case .and, .or:
+          if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .div:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["int"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t.types["str"]!)
+          } else {
+            nErrors += 1
+          }
+        case .equalsEquals:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "dict") && isType(r, "dict") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "list") && isType(r, "list") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
+            newTypes.append(self.t.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .ge, .gt, .le, .lt:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .IN: newTypes.append(self.t.types["bool"]!)
+        case .minus, .modulo, .mul:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["int"]!)
+          } else {
+            nErrors += 1
+          }
+        case .notEquals:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "bool") && isType(r, "bool") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "dict") && isType(r, "dict") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if isType(l, "list") && isType(r, "list") {
+            newTypes.append(self.t.types["bool"]!)
+          } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
+            newTypes.append(self.t.types["bool"]!)
+          } else {
+            nErrors += 1
+          }
+        case .notIn: newTypes.append(self.t.types["bool"]!)
+        case .plus:
+          if isType(l, "int") && isType(r, "int") {
+            newTypes.append(self.t.types["int"]!)
+          } else if isType(l, "str") && isType(r, "str") {
+            newTypes.append(self.t.types["str"]!)
+          } else if let ll = l as? ListType, let lr = r as? ListType {
+            newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
+          } else if let ll = l as? ListType {
+            newTypes.append(ListType(types: dedup(types: ll.types + [r])))
+          } else if let dl = l as? Dict, let dr = r as? Dict {
+            newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
+          } else if let dl = l as? Dict {
+            newTypes.append(Dict(types: dedup(types: dl.types + [r])))
+          } else {
+            nErrors += 1
+          }
+        }
+      }
+    }
+    return (nErrors, nErrors == lhs.count * rhs.count ? lhs : newTypes)
   }
 
   // swiftlint:enable cyclomatic_complexity
