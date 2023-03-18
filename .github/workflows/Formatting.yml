@@ -15,5 +15,5 @@ jobs:
           cd swift-format
           swift build
           cd ..
-          ./swift-format/.build/debug/swift-format -i --recursive Package.swift Sources/ Package.swift
+          ./swift-format/.build/debug/swift-format -i --recursive Package.swift Sources/ Tests
           git commit -a -m "Failed" && exit 1
