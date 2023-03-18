@@ -296,45 +296,45 @@ func abstractEvalBinaryExpression(_ be: BinaryExpression, _ parentStmt: Node) ->
   return ret
 }
 
+func abstractEvalComputeSubscript(i: InterpretNode, o: InterpretNode, ret: inout [InterpretNode]) {
+  if let arr = o.node as? ArrayLiteral, let idx = i.node as? IntegerLiteral,
+    idx.parse() < arr.args.count
+  {
+    if let atIdx = arr.args[idx.parse()] as? StringLiteral {
+      ret.append(StringNode(node: atIdx))
+    } else if let atIdx = arr.args[idx.parse()] as? ArrayLiteral {
+      for a2 in atIdx.args where a2 is StringLiteral { ret.append(StringNode(node: a2)) }
+    }
+  } else if let sl = i.node as? StringLiteral, let dict = o.node as? DictionaryLiteral {
+    for kvi in dict.values {
+      if let k = kvi as? KeyValueItem, let key = k.key as? StringLiteral,
+        key.contents() == sl.contents(), let val = k.value as? StringLiteral
+      {
+        ret.append(StringNode(node: val))
+      }
+    }
+  } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
+    for a in arr.args where a is DictionaryLiteral {
+      let dict = (a as! DictionaryLiteral)
+      for k in dict.values
+      where (k is KeyValueItem)
+        && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+      {
+        if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+          ret.append(StringNode(node: keySL))
+        }
+      }
+    }
+  }
+}
+
 func abstractEvalSubscriptExpression(_ sse: SubscriptExpression, _ parentStmt: Node)
   -> [InterpretNode]
 {
   let outer = abstractEval(parentStmt, sse.outer)
   let inner = abstractEval(parentStmt, sse.inner)
   var ret: [InterpretNode] = []
-  for o in outer {
-    for i in inner {
-      if let arr = o.node as? ArrayLiteral, let idx = i.node as? IntegerLiteral,
-        idx.parse() < arr.args.count
-      {
-        if let atIdx = arr.args[idx.parse()] as? StringLiteral {
-          ret.append(StringNode(node: atIdx))
-        } else if let atIdx = arr.args[idx.parse()] as? ArrayLiteral {
-          for a2 in atIdx.args where a2 is StringLiteral { ret.append(StringNode(node: a2)) }
-        }
-      } else if let sl = i.node as? StringLiteral, let dict = o.node as? DictionaryLiteral {
-        for kvi in dict.values {
-          if let k = kvi as? KeyValueItem, let key = k.key as? StringLiteral,
-            key.contents() == sl.contents(), let val = k.value as? StringLiteral
-          {
-            ret.append(StringNode(node: val))
-          }
-        }
-      } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
-        for a in arr.args where a is DictionaryLiteral {
-          let dict = (a as! DictionaryLiteral)
-          for k in dict.values
-          where (k is KeyValueItem)
-            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
-          {
-            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-              ret.append(StringNode(node: keySL))
-            }
-          }
-        }
-      }
-    }
-  }
+  for o in outer { for i in inner { abstractEvalComputeSubscript(i: i, o: o, ret: &ret) } }
   return ret
 }
 
