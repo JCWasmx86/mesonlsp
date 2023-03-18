@@ -863,6 +863,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return types.map({ $0.toString() }).sorted().joined(separator: "|")
   }
 
+  // swiftlint:disable cyclomatic_complexity
   public func dedup(types: [Type]) -> [Type] {
     if types.isEmpty || types.count == 1 { return types }
     var listtypes: [Type] = []
@@ -878,8 +879,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if t is `Any` {
         hasAny = true
         continue
-      }
-      if t is BoolType {
+      } else if t is BoolType {
         hasBool = true
       } else if t is `IntType` {
         hasInt = true
@@ -905,4 +905,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     ret += objs.values
     return ret
   }
+
+  // swiftlint:enable cyclomatic_complexity
 }
