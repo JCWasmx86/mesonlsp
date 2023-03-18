@@ -20,6 +20,94 @@ func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [S
   return ret
 }
 
+func calculateStringFormatMethodCall(_ me: MethodExpression, _ al: ArgumentList, _ parentExpr: Node)
+  -> [String]
+{
+  let objStrs = calculateExpression(parentExpr, me.obj)
+  let fmtStrs = calculateExpression(parentExpr, al.args[0])
+  var ret: [String] = []
+  for o in objStrs { for f in fmtStrs { ret.append(o.replacingOccurrences(of: "@0@", with: f)) } }
+  return ret
+}
+
+func calculateGetMethodCall(_ al: ArgumentList, _ meobj: IdExpression, _ parentExpr: Node)
+  -> [String]
+{
+  let nodes = resolveArrayOrDict(parentExpr, meobj)
+  var ret: [String] = []
+  for r in nodes {
+    if let arr = r.node as? ArrayLiteral, let il = al.args[0] as? IntegerLiteral {
+      let idx = il.parse()
+      if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
+        ret.append(sl.contents())
+      }
+    } else if let dict = r.node as? DictionaryLiteral, let keyLit = al.args[0] as? StringLiteral {
+      for k in dict.values
+      where (k is KeyValueItem)
+        && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
+      {
+        if let keySL = (k as! KeyValueItem).value as? StringLiteral { ret.append(keySL.contents()) }
+      }
+    } else if let arr = r.node as? ArrayLiteral, let sl = al.args[0] as? StringLiteral {
+      for a in arr.args where a is DictionaryLiteral {
+        let dict = (a as! DictionaryLiteral)
+        for k in dict.values
+        where (k is KeyValueItem)
+          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+        {
+          if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+            ret.append(keySL.contents())
+          }
+        }
+      }
+    }
+  }
+  return ret
+}
+
+func calculateIdExpression(_ idexpr: IdExpression, _ parentExpr: Node) -> [String] {
+  let l = resolveArrayOrDict(parentExpr, idexpr)
+  var ret: [String] = []
+  for v in l {
+    if let sn = v.node as? StringLiteral {
+      ret.append(sn.contents())
+    } else if let an = v as? ArrayNode, let al = an.node as? ArrayLiteral {
+      for arg in al.args { if let sl = arg as? StringLiteral { ret.append(sl.contents()) } }
+    }
+  }
+  return ret
+}
+
+func calculateEvalSubscriptExpression(i: InterpretNode, o: InterpretNode, ret: inout [String]) {
+  if let arr = o.node as? ArrayLiteral, let il = i.node as? IntegerLiteral {
+    let idx = il.parse()
+    if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral { ret.append(sl.contents()) }
+  } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
+    for a in arr.args where a is DictionaryLiteral {
+      let dict = (a as! DictionaryLiteral)
+      for k in dict.values
+      where (k is KeyValueItem)
+        && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
+      {
+        if let keySL = (k as! KeyValueItem).value as? StringLiteral { ret.append(keySL.contents()) }
+      }
+    }
+  } else if let dict = o.node as? DictionaryLiteral, let keyLit = i.node as? StringLiteral {
+    for k in dict.values
+    where (k is KeyValueItem)
+      && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
+    { if let keySL = (k as! KeyValueItem).value as? StringLiteral { ret.append(keySL.contents()) } }
+  }
+}
+
+func calculateSubscriptExpression(_ sse: SubscriptExpression, _ parentExpr: Node) -> [String] {
+  let outer = abstractEval(parentExpr, sse.outer)
+  let inner = abstractEval(parentExpr, sse.inner)
+  var ret: [String] = []
+  for o in outer { for i in inner { calculateEvalSubscriptExpression(i: i, o: o, ret: &ret) } }
+  return ret
+}
+
 func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
   if let sl = argExpression as? StringLiteral {
     return [sl.contents()]
@@ -31,94 +119,16 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
   } else if let me = argExpression as? MethodExpression, let meid = me.id as? IdExpression,
     meid.id == "format", let al = me.argumentList as? ArgumentList, !al.args.isEmpty
   {
-    let objStrs = calculateExpression(parentExpr, me.obj)
-    let fmtStrs = calculateExpression(parentExpr, al.args[0])
-    var ret: [String] = []
-    for o in objStrs { for f in fmtStrs { ret.append(o.replacingOccurrences(of: "@0@", with: f)) } }
-    return ret
+    return calculateStringFormatMethodCall(me, al, parentExpr)
   } else if let me = argExpression as? MethodExpression, let meobj = me.obj as? IdExpression,
     let meid = me.id as? IdExpression, meid.id == "get", let al = me.argumentList as? ArgumentList,
     !al.args.isEmpty
   {
-    let nodes = resolveArrayOrDict(parentExpr, meobj)
-    var ret: [String] = []
-    for r in nodes {
-      if let arr = r.node as? ArrayLiteral, let il = al.args[0] as? IntegerLiteral {
-        let idx = il.parse()
-        if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
-          ret.append(sl.contents())
-        }
-      } else if let dict = r.node as? DictionaryLiteral, let keyLit = al.args[0] as? StringLiteral {
-        for k in dict.values
-        where (k is KeyValueItem)
-          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
-        {
-          if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-            ret.append(keySL.contents())
-          }
-        }
-      } else if let arr = r.node as? ArrayLiteral, let sl = al.args[0] as? StringLiteral {
-        for a in arr.args where a is DictionaryLiteral {
-          let dict = (a as! DictionaryLiteral)
-          for k in dict.values
-          where (k is KeyValueItem)
-            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
-          {
-            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-              ret.append(keySL.contents())
-            }
-          }
-        }
-      }
-    }
-    return ret
+    return calculateGetMethodCall(al, meobj, parentExpr)
   } else if let idexpr = argExpression as? IdExpression {
-    let l = resolveArrayOrDict(parentExpr, idexpr)
-    var ret: [String] = []
-    for v in l {
-      if let sn = v.node as? StringLiteral {
-        ret.append(sn.contents())
-      } else if let an = v as? ArrayNode, let al = an.node as? ArrayLiteral {
-        for arg in al.args { if let sl = arg as? StringLiteral { ret.append(sl.contents()) } }
-      }
-    }
-    return ret
+    return calculateIdExpression(idexpr, parentExpr)
   } else if let sse = argExpression as? SubscriptExpression {
-    let outer = abstractEval(parentExpr, sse.outer)
-    let inner = abstractEval(parentExpr, sse.inner)
-    var ret: [String] = []
-    for o in outer {
-      for i in inner {
-        if let arr = o.node as? ArrayLiteral, let il = i.node as? IntegerLiteral {
-          let idx = il.parse()
-          if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral {
-            ret.append(sl.contents())
-          }
-        } else if let arr = o.node as? ArrayLiteral, let sl = i.node as? StringLiteral {
-          for a in arr.args where a is DictionaryLiteral {
-            let dict = (a as! DictionaryLiteral)
-            for k in dict.values
-            where (k is KeyValueItem)
-              && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
-            {
-              if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-                ret.append(keySL.contents())
-              }
-            }
-          }
-        } else if let dict = o.node as? DictionaryLiteral, let keyLit = i.node as? StringLiteral {
-          for k in dict.values
-          where (k is KeyValueItem)
-            && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == keyLit.contents()
-          {
-            if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-              ret.append(keySL.contents())
-            }
-          }
-        }
-      }
-    }
-    return ret
+    return calculateSubscriptExpression(sse, parentExpr)
   }
   return []
 }
