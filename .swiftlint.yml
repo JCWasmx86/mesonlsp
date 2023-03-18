@@ -18,7 +18,6 @@ opt_in_rules:
   - empty_collection_literal
   - empty_count
   - empty_string
-  - extension_access_modifier
   - first_where
   - flatmap_over_map_reduce
   - last_where
