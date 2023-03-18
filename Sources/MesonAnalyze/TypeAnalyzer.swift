@@ -469,15 +469,37 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
 
-  public func visitMethodExpression(node: MethodExpression) {
-    node.visitChildren(visitor: self)
-    let types = node.obj.types
-    var ownResultTypes: [Type] = []
+  func guessMethod(node: MethodExpression, methodName: String, ownResultTypes: inout [Type]) -> Bool
+  {
+    let guessedMethod = self.t.lookupMethod(name: methodName)
+    if let guessedM = guessedMethod {
+      TypeAnalyzer.LOG.info(
+        "Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())"
+      )
+      ownResultTypes += self.typeanalyzersState.apply(
+        node: node,
+        options: self.options,
+        f: guessedM,
+        ns: self.t
+      )
+      node.method = guessedM
+      self.metadata.registerMethodCall(call: node)
+      checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
+      node.types = dedup(types: ownResultTypes)
+      return true
+    }
+    return false
+  }
+
+  func findMethod(
+    node: MethodExpression,
+    methodName: String,
+    nAny: inout Int,
+    bits: inout Int,
+    ownResultTypes: inout [Type]
+  ) -> Bool {
     var found = false
-    guard let methodNameId = node.id as? IdExpression else { return }
-    let methodName = methodNameId.id
-    var nAny = 0
-    var bits = 0
+    let types = node.obj.types
     for t in types {
       if t is `Any` {
         nAny += 1
@@ -505,25 +527,28 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         checkerState.apply(node: node, metadata: self.metadata, f: m)
       }
     }
+    return found
+  }
+
+  public func visitMethodExpression(node: MethodExpression) {
+    node.visitChildren(visitor: self)
+    let types = node.obj.types
+    var ownResultTypes: [Type] = []
+    var found = false
+    guard let methodNameId = node.id as? IdExpression else { return }
+    let methodName = methodNameId.id
+    var nAny = 0
+    var bits = 0
+    found = findMethod(
+      node: node,
+      methodName: methodName,
+      nAny: &nAny,
+      bits: &bits,
+      ownResultTypes: &ownResultTypes
+    )
     node.types = dedup(types: ownResultTypes)
     if !found && ((nAny == types.count) || (bits == 0b111 && types.count == 3)) {
-      let guessedMethod = self.t.lookupMethod(name: methodName)
-      if let guessedM = guessedMethod {
-        TypeAnalyzer.LOG.info(
-          "Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())"
-        )
-        ownResultTypes += self.typeanalyzersState.apply(
-          node: node,
-          options: self.options,
-          f: guessedM,
-          ns: self.t
-        )
-        node.method = guessedM
-        self.metadata.registerMethodCall(call: node)
-        found = true
-        checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
-        node.types = dedup(types: ownResultTypes)
-      }
+      found = guessMethod(node: node, methodName: methodName, ownResultTypes: &ownResultTypes)
     }
     let onlyDisabler = types.count == 1 && (types[0] as? Disabler) != nil
     if !found && !onlyDisabler {
@@ -561,19 +586,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
   }
-
-  func checkCall(node: Expression) {
-    let args: [Node]
-    let fn: Function
-    if let fne = node as? FunctionExpression {
-      fn = fne.function!
-      if let al = fne.argumentList as? ArgumentList { args = al.args } else { args = [] }
-    } else if let me = node as? MethodExpression {
-      fn = me.method!
-      if let al = me.argumentList as? ArgumentList { args = al.args } else { args = [] }
-    } else {
-      return
-    }
+  func checkKwargsAfterPositionalArguments(_ args: [Node]) {
     var kwargsOnly = false
     for arg in args {
       if kwargsOnly {
@@ -591,31 +604,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         kwargsOnly = true
       }
     }
-    var nKwargs = 0
-    var nPos = 0
-    for arg in args { if arg is KeywordItem { nKwargs += 1 } else { nPos += 1 } }
-    if nPos < fn.minPosArgs() {
-      self.metadata.registerDiagnostic(
-        node: node,
-        diag: MesonDiagnostic(
-          sev: .error,
-          node: node,
-          message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
-            + String(nPos) + "!"
-        )
-      )
-    }
-    if nPos > fn.maxPosArgs() {
-      self.metadata.registerDiagnostic(
-        node: node,
-        diag: MesonDiagnostic(
-          sev: .error,
-          node: node,
-          message: "Expected " + String(fn.maxPosArgs()) + " positional arguments, but got "
-            + String(nPos) + "!"
-        )
-      )
-    }
+  }
+
+  func checkKwargs(_ fn: Function, _ args: [Node], _ node: Node) {
     var usedKwargs: [String: KeywordItem] = [:]
     for arg in args where arg is KeywordItem {
       let k = (arg as! KeywordItem).key
@@ -645,6 +636,47 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         )
       }
     }
+  }
+
+  func checkCall(node: Expression) {
+    let args: [Node]
+    let fn: Function
+    if let fne = node as? FunctionExpression {
+      fn = fne.function!
+      if let al = fne.argumentList as? ArgumentList { args = al.args } else { args = [] }
+    } else if let me = node as? MethodExpression {
+      fn = me.method!
+      if let al = me.argumentList as? ArgumentList { args = al.args } else { args = [] }
+    } else {
+      return
+    }
+    checkKwargsAfterPositionalArguments(args)
+    var nKwargs = 0
+    var nPos = 0
+    for arg in args { if arg is KeywordItem { nKwargs += 1 } else { nPos += 1 } }
+    if nPos < fn.minPosArgs() {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error,
+          node: node,
+          message: "Expected " + String(fn.minPosArgs()) + " positional arguments, but got "
+            + String(nPos) + "!"
+        )
+      )
+    }
+    if nPos > fn.maxPosArgs() {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(
+          sev: .error,
+          node: node,
+          message: "Expected " + String(fn.maxPosArgs()) + " positional arguments, but got "
+            + String(nPos) + "!"
+        )
+      )
+    }
+    checkKwargs(fn, args, node)
   }
 
   public func evalStack(name: String) -> [Type] {
