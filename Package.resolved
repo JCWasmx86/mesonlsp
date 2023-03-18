@@ -132,7 +132,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "fe109107a6153bf6dd82d951bcd373e280315d6a",
+          "revision": "c4d349825b8bae3a72245a7fabbfb82bd16ed361",
           "version": null
         }
       },
@@ -141,7 +141,7 @@
         "repositoryURL": "https://github.com/apple/swift-syntax.git",
         "state": {
           "branch": "main",
-          "revision": "808d4038fe1ef15ab2334f6095e7d8a55c36486c",
+          "revision": "55349f8019fb129781af3f988011b20b66989664",
           "version": null
         }
       },
