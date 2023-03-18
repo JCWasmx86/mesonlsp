@@ -239,13 +239,13 @@ func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
 func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
   if toEval is DictionaryLiteral {
     return [DictNode(node: toEval)]
-  } else if toEval is ArrayLiteral {
-    if let al = toEval as? ArrayLiteral {
-      if !al.args.isEmpty && al.args[0] is ArrayLiteral {
+  } else if let al = toEval as? ArrayLiteral {
+    if !al.args.isEmpty {
+      if al.args[0] is ArrayLiteral {
         return al.args.map({ ArrayNode(node: $0) })
-      } else if !al.args.isEmpty && al.args[0] is DictionaryLiteral {
+      } else if al.args[0] is DictionaryLiteral {
         return al.args.map({ DictNode(node: $0) })
-      } else if !al.args.isEmpty && al.args[0] is IdExpression {
+      } else if al.args[0] is IdExpression {
         return al.args.map({ resolveArrayOrDict(parentStmt, $0 as! IdExpression) }).flatMap({ $0 })
       }
     }
