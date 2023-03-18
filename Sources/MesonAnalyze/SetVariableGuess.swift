@@ -123,78 +123,106 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
   return []
 }
 
-func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [InterpretNode] {
-  let parent = parentExpr.parent!
+func analyseBuildDefinition(_ bd: BuildDefinition, _ parentExpr: Node, _ toResolve: IdExpression)
+  -> [InterpretNode]
+{
   var foundOurselves = false
   var tmp: [InterpretNode] = []
-  if let bd = parent as? BuildDefinition {
-    for b in bd.stmts.reversed() {
-      if b.equals(right: parentExpr) {
-        foundOurselves = true
-        continue
-      } else if foundOurselves {
-        if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
-          lhs.id == toResolve.id
-        {
-          if assignment.op == .equals {
-            return abstractEval(b, assignment.rhs) + tmp
-          } else {
-            tmp += abstractEval(b, assignment.rhs)
-          }
+  for b in bd.stmts.reversed() {
+    if b.equals(right: parentExpr) {
+      foundOurselves = true
+      continue
+    } else if foundOurselves {
+      if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
+        lhs.id == toResolve.id
+      {
+        if assignment.op == .equals {
+          return abstractEval(b, assignment.rhs) + tmp
         } else {
-          tmp += fullEval(b, toResolve)
+          tmp += abstractEval(b, assignment.rhs)
         }
+      } else {
+        tmp += fullEval(b, toResolve)
       }
     }
-  } else if let its = parent as? IterationStatement {
-    for b in its.block.reversed() {
-      if b.equals(right: parentExpr) {
-        foundOurselves = true
-        continue
-      } else if foundOurselves {
-        if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
-          lhs.id == toResolve.id
-        {
-          if assignment.op == .equals {
-            return abstractEval(b, assignment.rhs) + tmp
-          } else {
-            tmp += abstractEval(b, assignment.rhs)
-          }
-        } else {
-          tmp += fullEval(b, toResolve)
-        }
-      }
-    }
-    for b in its.ids {
-      if let idexpr = b as? IdExpression, idexpr.id == toResolve.id {
-        return abstractEval(parent, its.expression) + tmp
-      }
-    }
-    return resolveArrayOrDict(its, toResolve) + tmp
-  } else if let sst = parent as? SelectionStatement {
-    for block in sst.blocks.reversed() {
-      for b in block.reversed() {
-        if b.equals(right: parentExpr) {
-          foundOurselves = true
-          continue
-        } else if foundOurselves {
-          if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
-            lhs.id == toResolve.id
-          {
-            if assignment.op == .equals {
-              return abstractEval(b, assignment.rhs) + tmp
-            } else {
-              tmp += abstractEval(b, assignment.rhs)
-            }
-          } else {
-            tmp += fullEval(b, toResolve)
-          }
-        }
-      }
-    }
-    return resolveArrayOrDict(sst, toResolve) + tmp
   }
   return tmp
+}
+
+func analyseIterationStatement(
+  _ its: IterationStatement,
+  _ parentExpr: Node,
+  _ toResolve: IdExpression
+) -> [InterpretNode] {
+  var foundOurselves = false
+  var tmp: [InterpretNode] = []
+
+  for b in its.block.reversed() {
+    if b.equals(right: parentExpr) {
+      foundOurselves = true
+      continue
+    } else if foundOurselves {
+      if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
+        lhs.id == toResolve.id
+      {
+        if assignment.op == .equals {
+          return abstractEval(b, assignment.rhs) + tmp
+        } else {
+          tmp += abstractEval(b, assignment.rhs)
+        }
+      } else {
+        tmp += fullEval(b, toResolve)
+      }
+    }
+  }
+  for b in its.ids {
+    if let idexpr = b as? IdExpression, idexpr.id == toResolve.id {
+      return abstractEval(parentExpr.parent!, its.expression) + tmp
+    }
+  }
+  return resolveArrayOrDict(its, toResolve) + tmp
+}
+
+func analyseSelectionStatement(
+  _ sst: SelectionStatement,
+  _ parentExpr: Node,
+  _ toResolve: IdExpression
+) -> [InterpretNode] {
+  var foundOurselves = false
+  var tmp: [InterpretNode] = []
+  for block in sst.blocks.reversed() {
+    for b in block.reversed() {
+      if b.equals(right: parentExpr) {
+        foundOurselves = true
+        continue
+      } else if foundOurselves {
+        if let assignment = b as? AssignmentStatement, let lhs = assignment.lhs as? IdExpression,
+          lhs.id == toResolve.id
+        {
+          if assignment.op == .equals {
+            return abstractEval(b, assignment.rhs) + tmp
+          } else {
+            tmp += abstractEval(b, assignment.rhs)
+          }
+        } else {
+          tmp += fullEval(b, toResolve)
+        }
+      }
+    }
+  }
+  return resolveArrayOrDict(sst, toResolve) + tmp
+}
+
+func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [InterpretNode] {
+  let parent = parentExpr.parent!
+  if let bd = parent as? BuildDefinition {
+    return analyseBuildDefinition(bd, parentExpr, toResolve)
+  } else if let its = parent as? IterationStatement {
+    return analyseIterationStatement(its, parentExpr, toResolve)
+  } else if let sst = parent as? SelectionStatement {
+    return analyseSelectionStatement(sst, parentExpr, toResolve)
+  }
+  return []
 }
 
 func evalStatement(_ b: Node, _ toResolve: IdExpression) -> [InterpretNode] {
