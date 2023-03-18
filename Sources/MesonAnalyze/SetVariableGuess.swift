@@ -433,17 +433,7 @@ func abstractEvalSimpleSubscriptExpression(
         }
       }
     } else if let arr = r.node as? ArrayLiteral, let sl = se.inner as? StringLiteral {
-      for a in arr.args where a is DictionaryLiteral {
-        let dict = (a as! DictionaryLiteral)
-        for k in dict.values
-        where (k is KeyValueItem)
-          && ((k as! KeyValueItem).key as? StringLiteral)?.contents() == sl.contents()
-        {
-          if let keySL = (k as! KeyValueItem).value as? StringLiteral {
-            ret.append(StringNode(node: keySL))
-          }
-        }
-      }
+      abstractEvalComputeSubscriptExtractDictArray(arr, sl, &ret)
     }
   }
   return ret
