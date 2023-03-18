@@ -389,16 +389,35 @@ function changedVersions() {
 }
 
 function createChartCanvas(nameID) {
-  const chartDiv = document.createElement("div");
+  const fullSpan = document.createElement("span");
+  fullSpan.classList.add("horizontal");
+  let chartDiv = document.createElement("div");
   chartDiv.classList.add("child");
-  chartDiv.classList.add("smallsize");
-  const canvasElem = document.createElement("canvas");
+  let canvasElem = document.createElement("canvas");
   canvasElem.setAttribute("id", nameID);
   chartDiv.appendChild(canvasElem);
   const allChartsDiv = document.getElementById("allCharts");
-  allChartsDiv.appendChild(chartDiv);
+  fullSpan.appendChild(chartDiv);
+  chartDiv = document.createElement("div");
+  chartDiv.classList.add("child");
+  canvasElem = document.createElement("canvas");
+  canvasElem.setAttribute("id", nameID + "_ppc");
+  chartDiv.appendChild(canvasElem);
+  fullSpan.appendChild(chartDiv);
+  allChartsDiv.appendChild(fullSpan);
+  allChartsDiv.appendChild(document.createElement("hr"));
 }
 
+function percentifyArray(array) {
+  const percentages = [0.0];
+  for (let i = 1; i < ALL_BENCHMARKS.length; i++) {
+    const newValue = array[i];
+    const oldValue = array[i - 1];
+    const per = ((newValue / oldValue) * 100 - 100).toFixed(2);
+    percentages.push(per);
+  }
+  return percentages;
+}
 function initAllCharts() {
   const obj = {};
   let sum = undefined;
@@ -417,6 +436,11 @@ function initAllCharts() {
       `chart_${key}`,
       `Time required for parsing ${key} (In ms)`,
       value,
+    );
+    attachChart(
+      `chart_${key}_ppc`,
+      `Time required for parsing ${key} (In percentage to previous version)`,
+      percentifyArray(value),
     );
     if (sum === undefined) {
       sum = value;
