@@ -27,7 +27,7 @@ import TreeSitterMeson
   @ArgumentParser.Flag var interpret: Bool = false
   @ArgumentParser.Flag var keepCache: Bool = false
 
-  func parseNTimes() throws {
+  func parseNTimes() {
     let console = Terminal()
     LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = .debug
@@ -35,16 +35,16 @@ import TreeSitterMeson
     })
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
-    var t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
+    var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
     t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     for _ in 0..<MesonLSP.NUM_PARSES {
       if !self.keepCache { cache.removeAll() }
-      t = try MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
+      t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     }
   }
 
-  func parseEachProject() throws {
+  func parseEachProject() {
     let console = Terminal()
     LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = self.test ? .trace : .debug
@@ -61,7 +61,7 @@ import TreeSitterMeson
       var fail = false
       var cache: [String: MesonAST.Node] = [:]
       for p in self.paths {
-        let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+        let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
         if !self.keepCache { cache.removeAll() }
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
         var s: Set<MesonTree> = [t]
@@ -81,14 +81,14 @@ import TreeSitterMeson
         _Exit(1)
       }
     } else {
-      try parseAndPrintDiagnostics(ns: ns)
+      parseAndPrintDiagnostics(ns: ns)
     }
   }
 
-  func parseAndPrintDiagnostics(ns: TypeNamespace) throws {
+  func parseAndPrintDiagnostics(ns: TypeNamespace) {
     for p in self.paths {
       var cache: [String: MesonAST.Node] = [:]
-      let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+      let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       if let mt = t.metadata {
         for kv in mt.diagnostics {
@@ -101,31 +101,31 @@ import TreeSitterMeson
     }
   }
 
-  func doBenchmark() throws {
+  func doBenchmark() {
     for path in paths {
       let ns = TypeNamespace()
       var cache: [String: MesonAST.Node] = [:]
-      var t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+      var t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       for _ in 0..<MesonLSP.NUM_PARSES * 10 {
         if !self.keepCache { cache.removeAll() }
-        t = try MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+        t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       }
     }
   }
 
-  public mutating func run() throws {
+  public mutating func run() {
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
     if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
-      try self.parseNTimes()
+      self.parseNTimes()
       return
     } else if !lsp && !paths.isEmpty && !self.benchmark && !self.interpret {
-      try self.parseEachProject()
+      self.parseEachProject()
       return
     } else if self.benchmark && !self.interpret {
-      try self.doBenchmark()
+      self.doBenchmark()
       return
     }
     let console = Terminal()

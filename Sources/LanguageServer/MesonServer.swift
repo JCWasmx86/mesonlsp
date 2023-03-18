@@ -583,7 +583,7 @@ public final class MesonServer: LanguageServer {
         )
         return
       }
-      let tmptree = try! MesonTree(
+      let tmptree = MesonTree(
         file: self.path! + "/meson.build",
         ns: self.ns,
         dontCache: self.openFiles,

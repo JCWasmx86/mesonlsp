@@ -14,7 +14,7 @@ class ParsingTests: XCTestCase {
 
   func parseString(s: String) -> MesonAST.Node {
     let p = Parser()
-    try! p.setLanguage(tree_sitter_meson())
+    do { try p.setLanguage(tree_sitter_meson()) } catch { fatalError("Unable to set language") }
     let tree = p.parse(s)
     let root = tree!.rootNode
     let file = "/tmp/meson.build"

@@ -25,14 +25,14 @@ public final class MesonTree: Hashable {
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
     memfiles: [String: String] = [:]
-  ) throws {
+  ) {
     self.ns = ns
     let pkp = Path(file).absolute().normalize()
     self.file = pkp.description
     self.ast = nil
     self.depth = depth
     let p = Parser()
-    try p.setLanguage(tree_sitter_meson())
+    do { try p.setLanguage(tree_sitter_meson()) } catch { fatalError("Unable to set language") }
     if dontCache.contains(self.file) || cache[self.file] == nil {
       if memfiles[self.file] == nil && pkp.exists {
         if let text = try? NSString(
@@ -113,7 +113,7 @@ public final class MesonTree: Hashable {
       MesonTree.LOG.debug("Subtree: \(sd1)")
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
-      let tree = try MesonTree(
+      let tree = MesonTree(
         file: f,
         ns: ns,
         depth: depth + 1,
@@ -201,7 +201,7 @@ public final class MesonTree: Hashable {
         let f = Path(
           Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"
         ).normalize().description
-        let tree = try! MesonTree(
+        let tree = MesonTree(
           file: f,
           ns: ns,
           depth: depth + 1,
