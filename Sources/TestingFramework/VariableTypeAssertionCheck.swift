@@ -13,7 +13,7 @@ class VariableTypeAssertionCheck: AssertionCheck {
   init(file: String, line: Int, args: [String]) {
     self.line = line
     self.file = file
-    self.args = [args[0].trimmingCharacters(in: NSCharacterSet.whitespaces)]
+    self.args = [args[0].trimmingCharacters(in: .whitespaces)]
     // Args are <varname> = <types>
     self.varname = args[0].split(separator: " ")[0].description
     self.types = args[0].split(separator: " ")[2].description

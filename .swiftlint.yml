@@ -17,6 +17,7 @@ opt_in_rules:
   - empty_collection_literal
   - empty_count
   - empty_string
+  - legacy_objc_type
   - let_var_whitespace
   # Disabled as there are too many false positives
   # - no_magic_numbers

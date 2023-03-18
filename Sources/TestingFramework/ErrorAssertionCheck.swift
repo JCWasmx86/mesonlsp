@@ -9,7 +9,7 @@ class ErrorAssertionCheck: AssertionCheck {
   init(file: String, line: Int, args: [String]) {
     self.line = line
     self.file = file
-    self.args = [args[0].trimmingCharacters(in: NSCharacterSet.whitespaces)]
+    self.args = [args[0].trimmingCharacters(in: .whitespaces)]
   }
 
   func appliesToLine(line: Int) -> Bool { return false }

@@ -170,9 +170,7 @@ public final class MesonServer: LanguageServer {
       MesonServer.LOG.info("Completion at: [\(line):\(column)]")
       if line < lines.count {
         let str = lines[line]
-        let prev = str.prefix(column + 1).description.trimmingCharacters(
-          in: NSCharacterSet.whitespaces
-        )
+        let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
