@@ -120,7 +120,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           appended = true
         }
         var foundBoolOrAny = false
-        for t in c.types where t is `Any` || t is BoolType {
+        for t in c.types where t is `Any` || t is BoolType || t is Disabler {
           foundBoolOrAny = true
           break
         }
@@ -428,7 +428,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitConditionalExpression(node: ConditionalExpression) {
     node.visitChildren(visitor: self)
     node.types = dedup(types: node.ifFalse.types + node.ifTrue.types)
-    for t in node.condition.types where t is `Any` || t is BoolType { return }
+    for t in node.condition.types where t is `Any` || t is BoolType || t is Disabler { return }
     if !node.condition.types.isEmpty {
       let t = node.condition.types.map({ $0.toString() }).joined(separator: "|")
       self.metadata.registerDiagnostic(
