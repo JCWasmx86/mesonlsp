@@ -1,5 +1,6 @@
 import SwiftTreeSitter
 
+// swiftlint:disable cyclomatic_complexity
 public enum BinaryOperator {
   case plus
   case minus
@@ -16,7 +17,7 @@ public enum BinaryOperator {
   case notIn
   case or
   case and
-  // swiftlint:disable cyclomatic_complexity
+
   static func fromString(str: String) -> BinaryOperator? {
     switch str {
     case "+": return .plus
@@ -37,8 +38,8 @@ public enum BinaryOperator {
     default: return nil
     }
   }
-  // swiftlint:enable cyclomatic_complexity
 }
+// swiftlint:enable cyclomatic_complexity
 
 public final class BinaryExpression: Statement {
   public let file: MesonSourceFile

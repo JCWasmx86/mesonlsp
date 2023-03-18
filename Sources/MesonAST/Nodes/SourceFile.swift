@@ -52,9 +52,7 @@ public final class SourceFile: Node {
     for e in self.errs { e.visit(visitor: visitor) }
   }
   public func setParents() {
-  	if self.build_definition?.parent != nil {
-  		return
-  	}
+    if self.build_definition?.parent != nil { return }
     self.build_definition?.parent = self
     self.build_definition?.setParents()
     for e in errs {

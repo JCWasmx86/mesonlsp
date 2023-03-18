@@ -45,12 +45,8 @@ public final class SelectionStatement: Statement {
     self.conditions = [sI!] + cs
     self.blocks = bb
   }
-  fileprivate init(
-    file: MesonSourceFile,
-    location: Location,
-    conditions: [Node],
-    blocks: [[Node]]
-  ) {
+  fileprivate init(file: MesonSourceFile, location: Location, conditions: [Node], blocks: [[Node]])
+  {
     self.file = file
     self.location = location
     self.conditions = conditions
