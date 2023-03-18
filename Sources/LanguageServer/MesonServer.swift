@@ -536,24 +536,27 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
   }
 
+  func clearDiagnostics() {
+    if self.tree != nil && self.tree!.metadata != nil {
+      for k in self.tree!.metadata!.diagnostics.keys {
+        if self.tree!.metadata!.diagnostics[k] == nil { continue }
+        let arr: [Diagnostic] = []
+        self.client.send(
+          PublishDiagnosticsNotification(
+            uri: DocumentURI(URL(fileURLWithPath: k)),
+            diagnostics: arr
+          )
+        )
+        self.tree!.metadata!.diagnostics.removeValue(forKey: k)
+      }
+    }
+  }
   func rebuildTree() {
     let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
     self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
     queue.async {
       let beginRebuilding = clock()
-      if self.tree != nil && self.tree!.metadata != nil {
-        for k in self.tree!.metadata!.diagnostics.keys {
-          if self.tree!.metadata!.diagnostics[k] == nil { continue }
-          let arr: [Diagnostic] = []
-          self.client.send(
-            PublishDiagnosticsNotification(
-              uri: DocumentURI(URL(fileURLWithPath: k)),
-              diagnostics: arr
-            )
-          )
-          self.tree!.metadata!.diagnostics.removeValue(forKey: k)
-        }
-      }
+      self.clearDiagnostics()
       let endClearing = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "clearingDiagnostics",
@@ -613,35 +616,7 @@ public final class MesonServer: LanguageServer {
         )
         return
       }
-      for k in tmptree.metadata!.diagnostics.keys {
-        if tmptree.metadata!.diagnostics[k] == nil { continue }
-        var arr: [Diagnostic] = []
-        let diags = tmptree.metadata!.diagnostics[k]!
-        MesonServer.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
-        for diag in diags {
-          if diag.severity == .error {
-            MesonServer.LOG.error("\(diag.message)")
-          } else {
-            MesonServer.LOG.warning("\(diag.message)")
-          }
-          let s = LanguageServerProtocol.Position(
-            line: Int(diag.startLine),
-            utf16index: Int(diag.startColumn)
-          )
-          let e = LanguageServerProtocol.Position(
-            line: Int(diag.endLine),
-            utf16index: Int(diag.endColumn)
-          )
-          let sev: DiagnosticSeverity = diag.severity == .error ? .error : .warning
-          arr.append(Diagnostic(range: s..<e, severity: sev, source: nil, message: diag.message))
-        }
-        self.client.send(
-          PublishDiagnosticsNotification(
-            uri: DocumentURI(URL(fileURLWithPath: k)),
-            diagnostics: arr
-          )
-        )
-      }
+      self.sendNewDiagnostics(tmptree)
       let endSendingDiagnostics = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "sendingDiagnostics",
@@ -674,6 +649,35 @@ public final class MesonServer: LanguageServer {
         return
       }
       self.tree = tmptree
+    }
+  }
+
+  func sendNewDiagnostics(_ tmptree: MesonTree) {
+    for k in tmptree.metadata!.diagnostics.keys {
+      if tmptree.metadata!.diagnostics[k] == nil { continue }
+      var arr: [Diagnostic] = []
+      let diags = tmptree.metadata!.diagnostics[k]!
+      MesonServer.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
+      for diag in diags {
+        if diag.severity == .error {
+          MesonServer.LOG.error("\(diag.message)")
+        } else {
+          MesonServer.LOG.warning("\(diag.message)")
+        }
+        let s = LanguageServerProtocol.Position(
+          line: Int(diag.startLine),
+          utf16index: Int(diag.startColumn)
+        )
+        let e = LanguageServerProtocol.Position(
+          line: Int(diag.endLine),
+          utf16index: Int(diag.endColumn)
+        )
+        let sev: DiagnosticSeverity = diag.severity == .error ? .error : .warning
+        arr.append(Diagnostic(range: s..<e, severity: sev, source: nil, message: diag.message))
+      }
+      self.client.send(
+        PublishDiagnosticsNotification(uri: DocumentURI(URL(fileURLWithPath: k)), diagnostics: arr)
+      )
     }
   }
 
