@@ -48,6 +48,7 @@ open class LanguageServerEndpoint {
   public struct RequestCancelKey: Hashable {
     public var client: ObjectIdentifier
     public var request: RequestID
+
     public init(client: ObjectIdentifier, request: RequestID) {
       self.client = client
       self.request = request

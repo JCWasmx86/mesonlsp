@@ -1,5 +1,6 @@
 public class OptionState {
   public var opts: [String: MesonOption] = [:]
+
   init(options: [MesonOption]) {
     self.append(option: StringOption("prefix", nil))
     self.append(option: StringOption("bindir", nil))

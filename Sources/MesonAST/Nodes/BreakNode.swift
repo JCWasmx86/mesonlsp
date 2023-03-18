@@ -23,5 +23,6 @@ public final class BreakNode: Statement {
   public func setParents() {
 
   }
+
   public var description: String { return "(break)" }
 }

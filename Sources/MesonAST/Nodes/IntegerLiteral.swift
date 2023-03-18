@@ -26,7 +26,6 @@ public final class IntegerLiteral: Expression {
   public func setParents() {
 
   }
-  public var description: String { return "(IntegerLiteral \(value))" }
 
   public func parse() -> Int {
     let lower = self.value.lowercased()
@@ -39,4 +38,6 @@ public final class IntegerLiteral: Expression {
     }
     return Int(lower)!
   }
+
+  public var description: String { return "(IntegerLiteral \(value))" }
 }

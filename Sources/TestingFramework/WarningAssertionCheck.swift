@@ -5,11 +5,13 @@ class WarningAssertionCheck: AssertionCheck {
   let line: Int
   let file: String
   let args: [String]
+
   init(file: String, line: Int, args: [String]) {
     self.line = line
     self.file = file
     self.args = [args[0].trimmingCharacters(in: NSCharacterSet.whitespaces)]
   }
+
   func appliesToLine(line: Int) -> Bool { return false }
   func isPostCheck() -> Bool { return true }
   func check(metadata: MesonMetadata, scope: Scope) -> AssertionResult { return .failure }

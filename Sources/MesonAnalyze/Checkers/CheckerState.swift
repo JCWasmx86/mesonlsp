@@ -2,6 +2,7 @@ import MesonAST
 
 public class CheckerState {
   let state: [String: MesonChecker]
+
   public init() {
     self.state = [
       "custom_target": BuildAlwaysKwargCheck(), "build_tgt.path": BuildTgtPathCheck(),

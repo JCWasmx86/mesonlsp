@@ -15,9 +15,10 @@ opt_in_rules:
   - array_init
   - closure_spacing
   - empty_collection_literal
-  # Disabled as there are too many false positives
-  #- no_magic_numbers
   - empty_count
   - empty_string
+  - let_var_whitespace
+  # Disabled as there are too many false positives
+  # - no_magic_numbers
   - sorted_imports
   - yoda_condition

@@ -15,9 +15,7 @@ import TreeSitterMeson
 
 @main public struct MesonLSP: ParsableCommand {
   static let NUM_PARSES = 100
-  public init() {
 
-  }
   @ArgumentParser.Option var path: String = "./meson.build"
   @ArgumentParser.Argument var paths: [String] = []
   @ArgumentParser.Flag var lsp: Bool = false
@@ -26,6 +24,10 @@ import TreeSitterMeson
   @ArgumentParser.Flag var benchmark: Bool = false
   @ArgumentParser.Flag var interpret: Bool = false
   @ArgumentParser.Flag var keepCache: Bool = false
+
+  public init() {
+
+  }
 
   func parseNTimes() {
     let console = Terminal()

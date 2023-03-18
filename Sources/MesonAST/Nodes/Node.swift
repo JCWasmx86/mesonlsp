@@ -3,6 +3,7 @@ public protocol Node: AnyObject, CustomStringConvertible {
   var types: [Type] { get set }
   var location: Location { get }
   var parent: Node? { get set }
+
   func visit(visitor: CodeVisitor)
   func visitChildren(visitor: CodeVisitor)
   func setParents()
@@ -17,6 +18,7 @@ extension Node {
       && left.location.startColumn == right.location.startColumn
       && left.location.endColumn == right.location.endColumn
   }
+
   public var description: String { return "<<>>" }
 }
 

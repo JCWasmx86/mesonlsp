@@ -1,5 +1,6 @@
 public protocol Type: AnyObject {
   var name: String { get }
+
   func getMethod(name: String, ns: TypeNamespace) -> Method?
   func toString() -> String
 }

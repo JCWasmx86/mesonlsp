@@ -4,6 +4,7 @@ import SwiftTreeSitter
 public class SubdirCall: FunctionExpression {
   public var subdirname: String
   public var fullFile: String
+
   init(file: MesonSourceFile, node: FunctionExpression) {
     if let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
       let sl = al.args[0] as? StringLiteral

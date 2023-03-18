@@ -41,5 +41,6 @@ public final class SubscriptExpression: Expression {
     self.inner.setParents()
     self.outer.setParents()
   }
+
   public var description: String { return "(SubscriptExpression \(outer)[\(inner)])" }
 }

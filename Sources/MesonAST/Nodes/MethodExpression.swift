@@ -57,6 +57,7 @@ public final class MethodExpression: Expression {
     self.argumentList?.parent = self
     self.argumentList?.setParents()
   }
+
   public var description: String {
     return "(MethodExpression \(obj).\(id) \(String(describing: argumentList)))"
   }

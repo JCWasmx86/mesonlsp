@@ -35,5 +35,6 @@ public final class ArrayLiteral: Expression {
       arg.setParents()
     }
   }
+
   public var description: String { return "(ArrayLiteral \(args))" }
 }

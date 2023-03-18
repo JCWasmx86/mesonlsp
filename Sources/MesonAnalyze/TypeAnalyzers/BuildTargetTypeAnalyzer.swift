@@ -5,6 +5,7 @@ public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
     "executable": "exe", "shared_library": "lib", "shared_module": "build_tgt",
     "static_library": "lib", "both_libraries": "both_libs", "library": "lib", "jar": "jar",
   ]
+
   public func derive(node: Node, fn: Function, options: [MesonOption], ns: TypeNamespace) -> [Type]
   {
     if let fe = node as? FunctionExpression, let alo = fe.argumentList,

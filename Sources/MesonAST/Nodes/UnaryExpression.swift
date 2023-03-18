@@ -50,6 +50,7 @@ public final class UnaryExpression: Expression {
       op: self.op
     )
   }
+
   public var description: String {
     return "(UnaryExpression \(String(describing: op)) \(expression))"
   }

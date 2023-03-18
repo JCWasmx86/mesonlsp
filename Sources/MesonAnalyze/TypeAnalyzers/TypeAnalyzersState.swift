@@ -2,6 +2,7 @@ import MesonAST
 
 public class TypeAnalyzersState {
   let state: [String: MesonTypeAnalyzer]
+
   public init() {
     self.state = [
       "import": ImportTypeAnalyzer(), "get_option": OptionTypeAnalyzer(),

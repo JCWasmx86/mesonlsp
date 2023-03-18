@@ -9,6 +9,7 @@ class VariableTypeAssertionCheck: AssertionCheck {
   let args: [String]
   let varname: String
   let types: String
+
   init(file: String, line: Int, args: [String]) {
     self.line = line
     self.file = file
