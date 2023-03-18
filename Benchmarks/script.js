@@ -89,15 +89,15 @@ function initHTML() {
   appendHr(parent);
   for (const element of ELEMENT_NAMES) {
     const ctxName = element.replaceAll("-", "_");
-    let detail = document.createElement("details");
-    let summary = document.createElement("summary");
-    summary.textContent = "Measurements for " + element;
+    const detail = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = `Measurements for ${element}`;
     const resultDiv = document.createElement("div");
     resultDiv.classList.add("horizontal");
     for (const suffix of ["", "_allocs", "_tmp_allocs", "_rss", "_heap"]) {
-      let childDiv = document.createElement("div");
+      const childDiv = document.createElement("div");
       childDiv.classList.add("child");
-      let canvas = document.createElement("canvas");
+      const canvas = document.createElement("canvas");
       canvas.id = ctxName + suffix;
       childDiv.append(canvas);
       resultDiv.append(childDiv);
@@ -220,9 +220,9 @@ function createOverviewCharts() {
 function appendTr(tr, txt) {
   const td = document.createElement("td");
   td.appendChild(document.createTextNode(txt));
-  if (txt[0] == "-" && (txt + "").endsWith("%")) {
+  if (txt[0] === "-" && (`${txt}`).endsWith("%")) {
     td.style.backgroundColor = "#26a269";
-  } else if (txt[0] != "-" && (txt + "").endsWith("%")) {
+  } else if (txt[0] !== "-" && (`${txt}`).endsWith("%")) {
     td.style.backgroundColor = "#e01b24";
   }
   tr.appendChild(td);
@@ -388,9 +388,13 @@ function changedVersions() {
   );
 }
 
-function createChartCanvas(nameID) {
+function createChartCanvas(fullName, nameID) {
+  const fullSpanOuter = document.createElement("span");
   const fullSpan = document.createElement("span");
   fullSpan.classList.add("horizontal");
+  const h5 = document.createElement("h5");
+  h5.innerHTML = fullName;
+  fullSpanOuter.appendChild(h5);
   let chartDiv = document.createElement("div");
   chartDiv.classList.add("child");
   let canvasElem = document.createElement("canvas");
@@ -401,10 +405,11 @@ function createChartCanvas(nameID) {
   chartDiv = document.createElement("div");
   chartDiv.classList.add("child");
   canvasElem = document.createElement("canvas");
-  canvasElem.setAttribute("id", nameID + "_ppc");
+  canvasElem.setAttribute("id", `${nameID}_ppc`);
   chartDiv.appendChild(canvasElem);
   fullSpan.appendChild(chartDiv);
-  allChartsDiv.appendChild(fullSpan);
+  fullSpanOuter.appendChild(fullSpan);
+  allChartsDiv.appendChild(fullSpanOuter);
   allChartsDiv.appendChild(document.createElement("hr"));
 }
 
@@ -431,7 +436,7 @@ function initAllCharts() {
     }
   }
   for (const [key, value] of Object.entries(obj)) {
-    createChartCanvas(`chart_${key}`);
+    createChartCanvas(key, `chart_${key}`);
     attachChart(
       `chart_${key}`,
       `Time required for parsing ${key} (In ms)`,
