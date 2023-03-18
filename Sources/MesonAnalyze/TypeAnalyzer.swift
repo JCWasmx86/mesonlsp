@@ -616,7 +616,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       let k = (arg as! KeywordItem).key
       if let kId = k as? IdExpression {
         usedKwargs[kId.id] = (arg as! KeywordItem)
-        // TODO: What is this kwargs kwarg? Can it be applied everywhere?
         if !fn.hasKwarg(name: kId.id) && kId.id != "kwargs" {
           self.metadata.registerDiagnostic(
             node: arg,
@@ -640,7 +639,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         )
       }
-    }  // TODO: Type checking for each argument
+    }
   }
   // swiftlint:enable cyclomatic_complexity
 
