@@ -53,18 +53,20 @@ public final class MesonServer: LanguageServer {
   }
 
   func sendStats() {
-    MesonServer.LOG.info("Collecting stats")
-    let (heap, stack, total) = collectStats()
-    MesonServer.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
-    let heapS = formatWithUnits(heap)
-    let stackS = formatWithUnits(stack)
-    let totalS = formatWithUnits(total)
-    self.client.send(
-      ShowMessageNotification(
-        type: .info,
-        message: "Heap usage: \(heapS) Stack usage: \(stackS) Total: \(totalS)"
+    #if !os(Windows)
+      MesonServer.LOG.info("Collecting stats")
+      let (heap, stack, total) = collectStats()
+      MesonServer.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
+      let heapS = formatWithUnits(heap)
+      let stackS = formatWithUnits(stack)
+      let totalS = formatWithUnits(total)
+      self.client.send(
+        ShowMessageNotification(
+          type: .info,
+          message: "Heap usage: \(heapS) Stack usage: \(stackS) Total: \(totalS)"
+        )
       )
-    )
+    #endif
   }
 
   func scheduleNextTask() {

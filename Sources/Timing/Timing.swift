@@ -1,4 +1,8 @@
-import Glibc
+#if os(Windows)
+  import CRT
+#else
+  import Glibc
+#endif
 
 public class Timing {
   public static let INSTANCE = Timing()
