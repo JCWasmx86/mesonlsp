@@ -1868,7 +1868,6 @@ public final class TypeNamespace {
         ]
       ), Method(name: "found", parent: t, returnTypes: boolL),
       Method(name: "full_path", parent: t, returnTypes: strL),
-      // TODO: Is this an internal method?
       Method(name: "outdir", parent: t, returnTypes: strL),
       Method(name: "name", parent: t, returnTypes: strL),
       Method(name: "path", parent: t, returnTypes: strL),
@@ -2693,7 +2692,6 @@ public final class TypeNamespace {
           PositionalArgument(name: "source", types: strL),
           Kwarg(name: "authors", opt: true, types: [str, ListType(types: strL)]),
           Kwarg(name: "description", opt: true, types: strL),
-          // TODO: Derived just based on guessing
           Kwarg(name: "copyright", opt: true, types: [str, ListType(types: strL)]),
           Kwarg(name: "license", opt: true, types: [str, ListType(types: strL)]),
           Kwarg(name: "sourceFiles", opt: true, types: [str, ListType(types: strL)]),
@@ -3813,7 +3811,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_ui",
         parent: t,
@@ -3829,7 +3827,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_moc",
         parent: t,
@@ -3864,7 +3862,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "preprocess",
         parent: t,
@@ -3907,7 +3905,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_translations",
         parent: t,
@@ -3956,7 +3954,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_ui",
         parent: t,
@@ -3972,7 +3970,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_moc",
         parent: t,
@@ -4007,7 +4005,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "preprocess",
         parent: t,
@@ -4050,7 +4048,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_translations",
         parent: t,
@@ -4099,7 +4097,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_ui",
         parent: t,
@@ -4115,7 +4113,7 @@ public final class TypeNamespace {
           Kwarg(name: "method", opt: true, types: strL),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_moc",
         parent: t,
@@ -4150,7 +4148,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "preprocess",
         parent: t,
@@ -4193,7 +4191,7 @@ public final class TypeNamespace {
           ),
         ]
       ),
-      // TODO: Return values?
+
       Method(
         name: "compile_translations",
         parent: t,
