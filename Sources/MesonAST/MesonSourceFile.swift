@@ -1,4 +1,5 @@
 import Foundation
+import PathKit
 
 open class MesonSourceFile {
   public let file: String
@@ -14,10 +15,7 @@ open class MesonSourceFile {
   open func contents() throws -> String {
     if self._cached { return self._contents }
     self._cached = true
-    self._contents = try NSString(
-      contentsOfFile: self.file as String,
-      encoding: String.Encoding.utf8.rawValue
-    ).description
+    self._contents = try Path(self.file).read()
     return self._contents
   }
 }

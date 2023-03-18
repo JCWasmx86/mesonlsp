@@ -35,27 +35,24 @@ public final class MesonTree: Hashable {
     do { try p.setLanguage(tree_sitter_meson()) } catch { fatalError("Unable to set language") }
     if dontCache.contains(self.file) || cache[self.file] == nil {
       if memfiles[self.file] == nil && pkp.exists {
-        if let text = try? NSString(
-          contentsOfFile: self.file as String,
-          encoding: String.Encoding.utf8.rawValue
-        ) {
-          let beginParsing = clock()
-          let tree = p.parse(text.description)
-          let endParsing = clock()
-          Timing.INSTANCE.registerMeasurement(
-            name: "parsing",
-            begin: Int(beginParsing),
-            end: Int(endParsing)
-          )
-          let root = tree!.rootNode
-          self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
-          let endBuildingAst = clock()
-          Timing.INSTANCE.registerMeasurement(
-            name: "buildingAST",
-            begin: Int(endParsing),
-            end: Int(endBuildingAst)
-          )
-        }
+        let text = self.readFile(self.file)
+        guard let text = text else { return }
+        let beginParsing = clock()
+        let tree = p.parse(text)
+        let endParsing = clock()
+        Timing.INSTANCE.registerMeasurement(
+          name: "parsing",
+          begin: Int(beginParsing),
+          end: Int(endParsing)
+        )
+        let root = tree!.rootNode
+        self.ast = from_tree(file: MesonSourceFile(file: self.file), tree: root)
+        let endBuildingAst = clock()
+        Timing.INSTANCE.registerMeasurement(
+          name: "buildingAST",
+          begin: Int(endParsing),
+          end: Int(endBuildingAst)
+        )
       } else if memfiles[self.file] != nil {
         let beginParsing = clock()
         let tree = p.parse(memfiles[self.file]!.description)
@@ -140,20 +137,21 @@ public final class MesonTree: Hashable {
     self.parseOptions(parser: p)
   }
 
+  func readFile(_ name: String) -> String? {
+    do { return try Path(name).read() } catch { return nil }
+  }
+
   func parseOptions(parser p: Parser) {
     if self.depth != 0 { return }
     let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
     if !f.exists { self.options = nil }
-    if let text = try? NSString(
-      contentsOfFile: f.description as String,
-      encoding: String.Encoding.utf8.rawValue
-    ) {
-      let tree = p.parse(text.description)
-      let root = tree!.rootNode
-      let visitor = OptionsExtractor()
-      from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
-      self.options = OptionState(options: visitor.options)
-    }
+    let text = self.readFile(f.description)
+    guard let text = text else { return }
+    let tree = p.parse(text)
+    let root = tree!.rootNode
+    let visitor = OptionsExtractor()
+    from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
+    self.options = OptionState(options: visitor.options)
   }
 
   public func analyzeTypes(
