@@ -22,18 +22,18 @@ public class Symbol {
     self.startColumn = id.location.startColumn
     self.endLine = id.location.endLine
     self.endColumn = id.location.endColumn
-    self.kind = Symbol.newKind(id: id)
+    self.kind = Self.newKind(id: id)
   }
 
   private static func newKind(id: IdExpression) -> UInt32 {
     if id.types.count == 1 {
       let t = id.types[0]
-      if t.name == "str" { return Symbol.STRING_KIND }
-      if t.name == "int" { return Symbol.INT_KIND }
-      if t.name == "bool" { return Symbol.BOOL_KIND }
-      if t.name == "list" { return Symbol.LIST_KIND }
-      if t is AbstractObject { return Symbol.OBJECT_KIND }
+      if t.name == "str" { return Self.STRING_KIND }
+      if t.name == "int" { return Self.INT_KIND }
+      if t.name == "bool" { return Self.BOOL_KIND }
+      if t.name == "list" { return Self.LIST_KIND }
+      if t is AbstractObject { return Self.OBJECT_KIND }
     }
-    return Symbol.VARIABLE_KIND
+    return Self.VARIABLE_KIND
   }
 }

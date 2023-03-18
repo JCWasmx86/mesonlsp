@@ -24,7 +24,7 @@ public final class ErrorNode: Node {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return ErrorNode(file: file, location: location, msg: self.message)
+    return Self(file: file, location: location, msg: self.message)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitErrorNode(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

@@ -49,7 +49,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           message: "Unable to find subdir \(node.subdirname)"
         )
       )
-      TypeAnalyzer.LOG.warning("Not found: \(node.subdirname)")
+      Self.LOG.warning("Not found: \(node.subdirname)")
     }
   }
 
@@ -69,7 +69,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         st.ast?.visit(visitor: self)
         self.tree = tmptree
       } else {
-        TypeAnalyzer.LOG.warning("Not found (Multisubdir): \(subdirname)")
+        Self.LOG.warning("Not found (Multisubdir): \(subdirname)")
       }
     }
   }
@@ -228,7 +228,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     for id in node.ids { id.visit(visitor: self) }
     if node.ids.count == 1 {
       analyseIterationStatementSingleIdentifier(node)
-    } else if node.ids.count == TypeAnalyzer.ITERATION_DICT_VAR_COUNT {
+    } else if node.ids.count == Self.ITERATION_DICT_VAR_COUNT {
       analyseIterationStatementTwoIdentifiers(node)
     }
     for b in node.block { b.visit(visitor: self) }
@@ -338,16 +338,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         let varname = sl.contents()
         var types: [Type] = []
         if let sv = self.scope.variables[varname] { types += sv } else { types += fn.returnTypes }
-        if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
+        if args.count >= Self.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         node.types = types
-        TypeAnalyzer.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
+        Self.LOG.info("get_variable: \(varname) = \(self.joinTypes(types: types))")
       } else if !args.isEmpty {
         var types: [Type] = fn.returnTypes
-        if args.count >= TypeAnalyzer.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
+        if args.count >= Self.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
         let guessedNames = Set(MesonAnalyze.guessSetVariable(fe: node))
         types += guessedNames.map({ self.scope.variables[$0] ?? [] }).flatMap({ $0 })
         node.types = self.dedup(types: types)
-        TypeAnalyzer.LOG.info(
+        Self.LOG.info(
           "get_variable (Imprecise): ??? = \(self.joinTypes(types: node.types)): Guessed variable names: \(guessedNames)"
         )
       }
@@ -405,7 +405,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               let types = args[1].types
               self.scope.variables[varname] = types
               self.applyToStack(varname, types)
-              TypeAnalyzer.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
+              Self.LOG.info("set_variable: \(varname) = \(self.joinTypes(types: types))")
             } else {
               guessSetVariable(args: args, node: node)
             }
@@ -422,7 +422,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   func guessSetVariable(args: [Node], node: FunctionExpression) {
     let vars = Set(MesonAnalyze.guessSetVariable(fe: node))
-    TypeAnalyzer.LOG.info(
+    Self.LOG.info(
       "Guessed values to set_variable: \(vars) at \(node.file.file):\(node.location.format())"
     )
     for v in vars {
@@ -474,9 +474,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   {
     let guessedMethod = self.t.lookupMethod(name: methodName)
     if let guessedM = guessedMethod {
-      TypeAnalyzer.LOG.info(
-        "Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())"
-      )
+      Self.LOG.info("Guessed method \(guessedM.id()) at \(node.file.file)\(node.location.format())")
       ownResultTypes += self.typeanalyzersState.apply(
         node: node,
         options: self.options,
@@ -563,7 +561,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         )
       )
     } else if !found && onlyDisabler {
-      TypeAnalyzer.LOG.info("Ignoring invalid method for disabler")
+      Self.LOG.info("Ignoring invalid method for disabler")
     } else {
       if let args = node.argumentList, args is ArgumentList {
         self.checkCall(node: node)

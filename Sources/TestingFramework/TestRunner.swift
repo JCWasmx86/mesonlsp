@@ -18,15 +18,15 @@ public class TestRunner: ExtendedCodeVisitor {
       for file in self.assertions.keys {
         for checker in self.assertions[file]! where checker.isPostCheck() {
           if checker.postCheck(metadata: self.metadata!, scope: tree.scope!) == .success {
-            TestRunner.LOG.info("Successful: \(checker.formatMessage())")
+            Self.LOG.info("Successful: \(checker.formatMessage())")
             self.successes += 1
           } else {
-            TestRunner.LOG.error("Failed: \(checker.formatMessage())")
+            Self.LOG.error("Failed: \(checker.formatMessage())")
             self.failures += 1
           }
         }
       }
-      TestRunner.LOG.info(
+      Self.LOG.info(
         "\(tree.file): Tests: \(self.successes)/\(self.successes + self.failures) passed"
       )
       notRun = assertions.flatMap { $0.value }.count - (failures + successes)

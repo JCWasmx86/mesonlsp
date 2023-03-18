@@ -27,11 +27,7 @@ public final class BuildDefinition: Node {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return BuildDefinition(
-      file: file,
-      location: location,
-      stmts: Array(self.stmts.map { $0.clone() })
-    )
+    return Self(file: file, location: location, stmts: Array(self.stmts.map { $0.clone() }))
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBuildDefinition(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

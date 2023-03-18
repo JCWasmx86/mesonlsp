@@ -27,12 +27,7 @@ public final class KeywordItem: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return KeywordItem(
-      file: file,
-      location: location,
-      key: self.key.clone(),
-      value: self.value.clone()
-    )
+    return Self(file: file, location: location, key: self.key.clone(), value: self.value.clone())
   }
   public func setParents() {
     self.key.parent = self

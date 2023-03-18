@@ -56,7 +56,7 @@ public final class SelectionStatement: Statement {
     let location = self.location.clone()
     var arrs: [[Node]] = []
     for blk in self.blocks { arrs.append(Array(blk.map { $0.clone() })) }
-    return SelectionStatement(
+    return Self(
       file: file,
       location: location,
       conditions: Array(self.conditions.map { $0.clone() }),

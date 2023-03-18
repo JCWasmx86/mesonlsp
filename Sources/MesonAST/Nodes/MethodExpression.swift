@@ -34,7 +34,7 @@ public final class MethodExpression: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return MethodExpression(
+    return Self(
       file: file,
       location: location,
       obj: self.obj.clone(),

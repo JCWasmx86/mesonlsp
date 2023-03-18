@@ -14,7 +14,7 @@ public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
       for arg in al.args where arg is KeywordItem {
         if let sl = (arg as! KeywordItem).value as? StringLiteral {
           let s = sl.contents()
-          if let t = BuildTargetTypeAnalyzer.mappings[s] { return [ns.types[t]!] }
+          if let t = Self.mappings[s] { return [ns.types[t]!] }
           break
         }
       }

@@ -73,7 +73,7 @@ public final class BinaryExpression: Statement {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return BinaryExpression(
+    return Self(
       file: file,
       location: location,
       lhs: self.lhs.clone(),

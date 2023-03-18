@@ -38,7 +38,7 @@ public final class SourceFile: Node {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return SourceFile(
+    return Self(
       file: file,
       location: location,
       definition: self.build_definition == nil ? nil : self.build_definition!.clone(),

@@ -19,7 +19,7 @@ public final class IntegerLiteral: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return IntegerLiteral(file: file, location: location, value: self.value)
+    return Self(file: file, location: location, value: self.value)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitIntegerLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

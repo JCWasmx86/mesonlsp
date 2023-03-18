@@ -39,7 +39,7 @@ import TreeSitterMeson
     var cache: [String: MesonAST.Node] = [:]
     var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
     t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
-    for _ in 0..<MesonLSP.NUM_PARSES {
+    for _ in 0..<Self.NUM_PARSES {
       if !self.keepCache { cache.removeAll() }
       t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
@@ -109,7 +109,7 @@ import TreeSitterMeson
       var cache: [String: MesonAST.Node] = [:]
       var t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
-      for _ in 0..<MesonLSP.NUM_PARSES * 10 {
+      for _ in 0..<Self.NUM_PARSES * 10 {
         if !self.keepCache { cache.removeAll() }
         t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)

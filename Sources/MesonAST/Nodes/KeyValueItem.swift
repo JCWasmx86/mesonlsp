@@ -22,12 +22,7 @@ public final class KeyValueItem: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return KeyValueItem(
-      file: file,
-      location: location,
-      key: self.key.clone(),
-      value: self.value.clone()
-    )
+    return Self(file: file, location: location, key: self.key.clone(), value: self.value.clone())
   }
   public func visit(visitor: CodeVisitor) { visitor.visitKeyValueItem(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

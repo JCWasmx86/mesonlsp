@@ -22,7 +22,7 @@ public final class SubscriptExpression: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return SubscriptExpression(
+    return Self(
       file: file,
       location: location,
       outer: self.outer.clone(),

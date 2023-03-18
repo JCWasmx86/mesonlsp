@@ -18,7 +18,7 @@ public class Timing {
     self._timings[name]!.append(value: diff)
   }
   public func registerMeasurement(name: String, begin: Int, end: Int) {
-    let diff = Double(end - begin) / (Double(CLOCKS_PER_SEC) / Timing.MILLISECONDS_IN_SECOND)
+    let diff = Double(end - begin) / (Double(CLOCKS_PER_SEC) / Self.MILLISECONDS_IN_SECOND)
     self.registerMeasurement(name: name, diff: diff)
   }
 
@@ -33,14 +33,14 @@ public class TimingInformation {
   internal var values: [Double] = []
 
   internal init(name: String) {
-    self.values.reserveCapacity(TimingInformation.MAX_VALUES + 1)
+    self.values.reserveCapacity(Self.MAX_VALUES + 1)
     self.name = name
   }
 
   internal func append(value: Double) {
     self.values.append(value)
-    if self.values.count > TimingInformation.MAX_VALUES {
-      self.values.removeFirst(TimingInformation.MAX_VALUES - TimingInformation.FALLBACK_VALUE_COUNT)
+    if self.values.count > Self.MAX_VALUES {
+      self.values.removeFirst(Self.MAX_VALUES - Self.FALLBACK_VALUE_COUNT)
     }
   }
 

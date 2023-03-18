@@ -25,7 +25,7 @@ public final class ConditionalExpression: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return ConditionalExpression(
+    return Self(
       file: file,
       location: location,
       nodes: [self.condition.clone(), self.ifTrue.clone(), self.ifFalse.clone()]

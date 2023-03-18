@@ -77,7 +77,7 @@ public final class MesonTree: Hashable {
           end: Int(endBuildingAst)
         )
       } else {
-        MesonTree.LOG.warning("No file found: \(self.file)")
+        Self.LOG.warning("No file found: \(self.file)")
       }
       if self.ast != nil && !dontCache.contains(self.file) {
         let beginCloning = clock()
@@ -110,10 +110,10 @@ public final class MesonTree: Hashable {
     var idx = 0
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
-      MesonTree.LOG.debug("Subtree: \(sd1)")
+      Self.LOG.debug("Subtree: \(sd1)")
       let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
         .normalize().description
-      let tree = MesonTree(
+      let tree = Self(
         file: f,
         ns: ns,
         depth: depth + 1,
@@ -197,11 +197,11 @@ public final class MesonTree: Hashable {
       for heuristic in heuristics {
         if heuristic.isEmpty || s.contains(heuristic) { continue }
         s.insert(heuristic)
-        MesonTree.LOG.info("Found subdir call using heuristics: \(heuristic)")
+        Self.LOG.info("Found subdir call using heuristics: \(heuristic)")
         let f = Path(
           Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"
         ).normalize().description
-        let tree = MesonTree(
+        let tree = Self(
           file: f,
           ns: ns,
           depth: depth + 1,

@@ -54,7 +54,7 @@ public final class AssignmentStatement: Statement {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return AssignmentStatement(
+    return Self(
       file: file,
       location: location,
       lhs: self.lhs.clone(),

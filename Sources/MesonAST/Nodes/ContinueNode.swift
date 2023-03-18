@@ -16,7 +16,7 @@ public final class ContinueNode: Statement {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return ContinueNode(file: file, location: location)
+    return Self(file: file, location: location)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitContinueStatement(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

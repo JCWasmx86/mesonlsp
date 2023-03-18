@@ -19,7 +19,7 @@ public final class IdExpression: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return IdExpression(file: file, location: location, id: self.id)
+    return Self(file: file, location: location, id: self.id)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitIdExpression(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

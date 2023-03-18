@@ -43,12 +43,7 @@ public final class UnaryExpression: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return UnaryExpression(
-      file: file,
-      location: location,
-      expression: self.expression.clone(),
-      op: self.op
-    )
+    return Self(file: file, location: location, expression: self.expression.clone(), op: self.op)
   }
 
   public var description: String {

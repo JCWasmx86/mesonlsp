@@ -22,7 +22,7 @@ public final class ArrayLiteral: Expression {
   public func clone() -> Node {
     let newArgs: [Node] = Array(self.args.map { $0.clone() })
     let location = self.location.clone()
-    return ArrayLiteral(file: file, location: location, args: newArgs)
+    return Self(file: file, location: location, args: newArgs)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitArrayLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {

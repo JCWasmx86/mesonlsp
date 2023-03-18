@@ -16,7 +16,7 @@ public final class BreakNode: Statement {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return BreakNode(file: file, location: location)
+    return Self(file: file, location: location)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBreakStatement(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

@@ -27,13 +27,13 @@ class VariableTypeAssertionCheck: AssertionCheck {
       if real == self.types {
         return .success
       } else {
-        VariableTypeAssertionCheck.LOG.error(
+        Self.LOG.error(
           "Expected types \(self.types) for variable \(self.varname), but got: \(real)"
         )
         return .failure
       }
     }
-    VariableTypeAssertionCheck.LOG.error("Unable to find expected variable \(self.varname)!")
+    Self.LOG.error("Unable to find expected variable \(self.varname)!")
     return .failure
   }
   func formatMessage() -> String { return "Checking that \(self.varname) has types \(self.types)" }

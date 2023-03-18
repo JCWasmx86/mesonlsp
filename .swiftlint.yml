@@ -18,6 +18,7 @@ opt_in_rules:
   - empty_collection_literal
   - empty_count
   - empty_string
+  - extension_access_modifier
   - first_where
   - flatmap_over_map_reduce
   - last_where
@@ -26,6 +27,7 @@ opt_in_rules:
   - literal_expression_end_indentation
   # Disabled as there are too many false positives
   # - no_magic_numbers
+  - prefer_self_in_static_references
   - sorted_imports
   - trailing_closure
   - yoda_condition

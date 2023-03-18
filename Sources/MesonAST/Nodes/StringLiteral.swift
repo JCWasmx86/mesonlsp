@@ -35,7 +35,7 @@ public final class StringLiteral: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return StringLiteral(file: file, location: location, id: self.id, cache: self.cache)
+    return Self(file: file, location: location, id: self.id, cache: self.cache)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitStringLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}

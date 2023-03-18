@@ -38,14 +38,14 @@ public final class MesonServer: LanguageServer {
     self.ns = TypeNamespace()
     #if !os(Windows)
       self.server = HttpServer()
-      for i in MesonServer.MIN_PORT...MesonServer.MAX_PORT {
+      for i in Self.MIN_PORT...Self.MAX_PORT {
         do {
           try self.server.start(
             in_port_t(i),
             forceIPv4: false,
             priority: DispatchQoS.QoSClass.background
           )
-          MesonServer.LOG.info("Port: \(i)")
+          Self.LOG.info("Port: \(i)")
           break
         } catch {}
       }
@@ -60,12 +60,12 @@ public final class MesonServer: LanguageServer {
 
   func sendStats() {
     #if !os(Windows)
-      MesonServer.LOG.info("Collecting stats")
+      Self.LOG.info("Collecting stats")
       let stats = collectStats()
       let heap = stats[0]
       let stack = stats[1]
       let total = stats[2]
-      MesonServer.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
+      Self.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
       let heapS = formatWithUnits(heap)
       let stackS = formatWithUnits(stack)
       let totalS = formatWithUnits(total)
@@ -90,25 +90,25 @@ public final class MesonServer: LanguageServer {
   }
 
   public override func _registerBuiltinHandlers() {
-    _register(MesonServer.initialize)
-    _register(MesonServer.clientInitialized)
-    _register(MesonServer.cancelRequest)
-    _register(MesonServer.shutdown)
-    _register(MesonServer.exit)
-    _register(MesonServer.openDocument)
-    _register(MesonServer.closeDocument)
-    _register(MesonServer.changeDocument)
-    _register(MesonServer.didSaveDocument)
-    _register(MesonServer.hover)
-    _register(MesonServer.declaration)
-    _register(MesonServer.definition)
-    _register(MesonServer.formatting)
-    _register(MesonServer.documentSymbol)
-    _register(MesonServer.complete)
-    _register(MesonServer.highlight)
-    _register(MesonServer.inlayHints)
-    _register(MesonServer.didCreateFiles)
-    _register(MesonServer.didDeleteFiles)
+    _register(Self.initialize)
+    _register(Self.clientInitialized)
+    _register(Self.cancelRequest)
+    _register(Self.shutdown)
+    _register(Self.exit)
+    _register(Self.openDocument)
+    _register(Self.closeDocument)
+    _register(Self.changeDocument)
+    _register(Self.didSaveDocument)
+    _register(Self.hover)
+    _register(Self.declaration)
+    _register(Self.definition)
+    _register(Self.formatting)
+    _register(Self.documentSymbol)
+    _register(Self.complete)
+    _register(Self.highlight)
+    _register(Self.inlayHints)
+    _register(Self.didCreateFiles)
+    _register(Self.didDeleteFiles)
   }
 
   func inlayHints(_ req: Request<InlayHintRequest>) {
@@ -167,7 +167,7 @@ public final class MesonServer: LanguageServer {
       let line = pos.line
       let column = pos.utf16index
       let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
-      MesonServer.LOG.info("Completion at: [\(line):\(column)]")
+      Self.LOG.info("Completion at: [\(line):\(column)]")
       if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
@@ -195,7 +195,7 @@ public final class MesonServer: LanguageServer {
           }
         }
       } else {
-        MesonServer.LOG.error("Line out of bounds: \(line) > \(lines.count)")
+        Self.LOG.error("Line out of bounds: \(line) > \(lines.count)")
       }  // 1. Get the nearest node
       // 2. If it is an identifier and parent is build_definition/iterS/selectS
       // 2.1. Calculate function names
@@ -213,14 +213,14 @@ public final class MesonServer: LanguageServer {
     var s: Set<String> = []
     for t in types {
       for m in self.ns.vtables[t.name]! {
-        MesonServer.LOG.info("Inserting completion: \(m.name)")
+        Self.LOG.info("Inserting completion: \(m.name)")
         s.insert(m.name)
       }
       if let t1 = t as? AbstractObject {
         var p = t1.parent
         while p != nil {
           for m in self.ns.vtables[p!.name]! {
-            MesonServer.LOG.info("Inserting completion: \(m.name)")
+            Self.LOG.info("Inserting completion: \(m.name)")
             s.insert(m.name)
           }
           p = p!.parent
@@ -233,12 +233,12 @@ public final class MesonServer: LanguageServer {
     var s: Set<String> = []
     if let fe = callExpr as? FunctionExpression, let f = fe.function {
       for arg in f.args where arg is Kwarg {
-        MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+        Self.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
         s.insert((arg as! Kwarg).name)
       }
     } else if let me = callExpr as? MethodExpression, let m = me.method {
       for arg in m.args where arg is Kwarg {
-        MesonServer.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
+        Self.LOG.info("Adding kwarg to completion list: \((arg as! Kwarg).name)")
         s.insert((arg as! Kwarg).name)
       }
     }
@@ -250,7 +250,7 @@ public final class MesonServer: LanguageServer {
     for arg in al.args where arg is KeywordItem {
       let kwi = (arg as! KeywordItem)
       let kwik = (kwi.key as! IdExpression)
-      MesonServer.LOG.info("Found already used kwarg: \(kwik.id)")
+      Self.LOG.info("Found already used kwarg: \(kwik.id)")
       usedKwargs.insert(kwik.id)
     }
     return usedKwargs
@@ -259,13 +259,13 @@ public final class MesonServer: LanguageServer {
   func afterDotCompletion(_ md: MesonMetadata, _ fp: String, _ line: Int, _ column: Int) -> [Type]?
   {
     if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
-      MesonServer.LOG.info("Found id expr: \(idexpr.id)")
+      Self.LOG.info("Found id expr: \(idexpr.id)")
       return idexpr.types
     } else if let fc = md.findFullFunctionCallAt(fp, line, column - 1), fc.function != nil {
-      MesonServer.LOG.info("Found function expr: \(fc.functionName())")
+      Self.LOG.info("Found function expr: \(fc.functionName())")
       return fc.types
     } else if let me = md.findFullMethodCallAt(fp, line, column - 1), me.method != nil {
-      MesonServer.LOG.info("Found method expr: \(me.method!.id())")
+      Self.LOG.info("Found method expr: \(me.method!.id())")
       return me.types
     }
     return nil
@@ -308,7 +308,7 @@ public final class MesonServer: LanguageServer {
   func formatting(_ req: Request<DocumentFormattingRequest>) {
     let begin = clock()
     do {
-      MesonServer.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
+      Self.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
       if let contents = self.getContents(file: req.params.textDocument.uri.fileURL!.path) {
         if let formatted = try formatFile(content: contents, params: req.params.options) {
           let newLines = formatted.split(whereSeparator: \.isNewline)
@@ -323,13 +323,13 @@ public final class MesonServer: LanguageServer {
           Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
           return
         } else {
-          MesonServer.LOG.error("Unable to format file")
+          Self.LOG.error("Unable to format file")
         }
       } else {
-        MesonServer.LOG.error("Unable to read file")
+        Self.LOG.error("Unable to read file")
       }
     } catch {
-      MesonServer.LOG.error("Error formatting file \(error)")
+      Self.LOG.error("Error formatting file \(error)")
       req.reply(
         Result.failure(
           ResponseError(code: .internalError, message: "Unable to format using muon: \(error)")
@@ -477,7 +477,7 @@ public final class MesonServer: LanguageServer {
         let line = t.1[0]
         let column = t.1[1]
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        MesonServer.LOG.info("Found declaration")
+        Self.LOG.info("Found declaration")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
         )
@@ -489,7 +489,7 @@ public final class MesonServer: LanguageServer {
         )
         return
       } else {
-        MesonServer.LOG.info("Found identifier")
+        Self.LOG.info("Found identifier")
       }
     }
 
@@ -506,7 +506,7 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    MesonServer.LOG.warning("Found no declaration")
+    Self.LOG.warning("Found no declaration")
     req.reply(.locations([]))
     let endDeclaration = clock()
     Timing.INSTANCE.registerMeasurement(
@@ -526,14 +526,14 @@ public final class MesonServer: LanguageServer {
         let line = t.1[0]
         let column = t.1[1]
         let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        MesonServer.LOG.info("Found definition")
+        Self.LOG.info("Found definition")
         req.reply(
           .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
         )
         Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
         return
       } else {
-        MesonServer.LOG.info("Found identifier")
+        Self.LOG.info("Found identifier")
       }
     }
 
@@ -545,7 +545,7 @@ public final class MesonServer: LanguageServer {
       Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
       return
     }
-    MesonServer.LOG.warning("Found no definition")
+    Self.LOG.warning("Found no definition")
     req.reply(.locations([]))
     Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
   }
@@ -579,7 +579,7 @@ public final class MesonServer: LanguageServer {
       )
       var newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
       if oldValue != newValue {
-        MesonServer.LOG.info(
+        Self.LOG.info(
           "Cancelling parsing - After clearing diagnostics (\(oldValue) vs \(newValue))"
         )
         return
@@ -599,7 +599,7 @@ public final class MesonServer: LanguageServer {
       )
       newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
       if oldValue != newValue {
-        MesonServer.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
+        Self.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
         return
       }
       tmptree.analyzeTypes(
@@ -610,9 +610,7 @@ public final class MesonServer: LanguageServer {
       )
       newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
       if oldValue != newValue {
-        MesonServer.LOG.info(
-          "Cancelling build - After analyzing types (\(oldValue) vs \(newValue))"
-        )
+        Self.LOG.info("Cancelling build - After analyzing types (\(oldValue) vs \(newValue))")
         return
       }
       let endAnalyzingTypes = clock()
@@ -644,9 +642,7 @@ public final class MesonServer: LanguageServer {
       )
       newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
       if oldValue != newValue {
-        MesonServer.LOG.info(
-          "Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))"
-        )
+        Self.LOG.info("Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))")
         if tmptree.metadata != nil {
           for k in tmptree.metadata!.diagnostics.keys {
             if tmptree.metadata!.diagnostics[k] == nil { continue }
@@ -671,12 +667,12 @@ public final class MesonServer: LanguageServer {
       if tmptree.metadata!.diagnostics[k] == nil { continue }
       var arr: [Diagnostic] = []
       let diags = tmptree.metadata!.diagnostics[k]!
-      MesonServer.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
+      Self.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
       for diag in diags {
         if diag.severity == .error {
-          MesonServer.LOG.error("\(diag.message)")
+          Self.LOG.error("\(diag.message)")
         } else {
-          MesonServer.LOG.warning("\(diag.message)")
+          Self.LOG.warning("\(diag.message)")
         }
         let s = LanguageServerProtocol.Position(
           line: Int(diag.startLine),
@@ -705,7 +701,7 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    MesonServer.LOG.info("[Save] Dropping \(file!) from memcache")
+    Self.LOG.info("[Save] Dropping \(file!) from memcache")
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
   }
@@ -714,7 +710,7 @@ public final class MesonServer: LanguageServer {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
-    MesonServer.LOG.info("[Close] Dropping \(file!) from memcache")
+    Self.LOG.info("[Close] Dropping \(file!) from memcache")
     self.openFiles.remove(file!)
     self.memfiles.removeValue(forKey: file!)
     self.rebuildTree()
@@ -722,7 +718,7 @@ public final class MesonServer: LanguageServer {
 
   func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
-    MesonServer.LOG.info("[Change] Adding \(file!) to memcache")
+    Self.LOG.info("[Change] Adding \(file!) to memcache")
     self.memfiles[file!] = note.params.contentChanges[0].text
     self.rebuildTree()
   }
@@ -762,9 +758,7 @@ public final class MesonServer: LanguageServer {
   func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
     if let clientInfo = p.clientInfo {
-      MesonServer.LOG.info(
-        "Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")"
-      )
+      Self.LOG.info("Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")")
     }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath

@@ -40,7 +40,7 @@ public final class IterationStatement: Statement {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return IterationStatement(
+    return Self(
       file: file,
       location: location,
       expression: self.expression.clone(),

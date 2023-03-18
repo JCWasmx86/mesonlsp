@@ -19,7 +19,7 @@ public final class BooleanLiteral: Expression {
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return BooleanLiteral(file: file, location: location, value: self.value)
+    return Self(file: file, location: location, value: self.value)
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBooleanLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}
