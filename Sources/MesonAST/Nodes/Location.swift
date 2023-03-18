@@ -9,7 +9,6 @@ public final class Location {
 
   public init(node: SwiftTreeSitter.Node) {
     self.startLine = node.pointRange.lowerBound.row
-    // TODO: Why / TREE_SITTER_BYTES_PER_CHAR?
     self.startColumn = node.pointRange.lowerBound.column / Location.TREE_SITTER_BYTES_PER_CHAR
     self.endLine = node.pointRange.upperBound.row
     self.endColumn = node.pointRange.upperBound.column / Location.TREE_SITTER_BYTES_PER_CHAR
