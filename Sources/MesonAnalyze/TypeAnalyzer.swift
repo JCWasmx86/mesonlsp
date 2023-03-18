@@ -141,7 +141,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     // If,else if: 2c, 2b
     // if, else if, else, 2c, 3b
     for k in types.keys {
-      // TODO: This leaks some overwritten types
+      // This leaks some overwritten types. This can't be solved
+      // without costly static analysis
       // x = 'Foo'
       // if bar
       //   x = 2
