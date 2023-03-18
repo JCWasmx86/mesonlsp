@@ -243,41 +243,42 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
+  func evalPlusEquals(_ l: Type, _ r: Type) -> Type? {
+    if l is `IntType` && r is `IntType` {
+      return self.t.types["int"]!
+    } else if l is Str && r is Str {
+      return self.t.types["str"]!
+    } else if let ll = l as? ListType, let lr = r as? ListType {
+      return ListType(types: dedup(types: ll.types + lr.types))
+    } else if let ll = l as? ListType {
+      return ListType(types: dedup(types: ll.types + [r]))
+    } else if let dl = l as? Dict, let dr = r as? Dict {
+      return Dict(types: dedup(types: dl.types + dr.types))
+    } else if let dl = l as? Dict {
+      return Dict(types: dedup(types: dl.types + [r]))
+    }
+    return nil
+  }
+
+  func evalAssignmentTypes(_ l: Type, _ r: Type, _ op: AssignmentOperator, _ newTypes: inout [Type])
+  {
+    switch op {
+    case .divequals:
+      if l is `IntType` && r is `IntType` {
+        newTypes.append(self.t.types["int"]!)
+      } else if l is Str && r is Str {
+        newTypes.append(self.t.types["str"]!)
+      }
+    case .minusequals, .modequals, .mulequals:
+      if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
+    case .plusequals: if let t = evalPlusEquals(l, r) { newTypes.append(t) }
+    default: _ = 1
+    }
+  }
+
   func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type]? {
     var newTypes: [Type] = []
-    for l in lhs {
-      for r in rhs {
-        switch op {
-        case .divequals:
-          if l is `IntType` && r is `IntType` {
-            newTypes.append(self.t.types["int"]!)
-          } else if l is Str && r is Str {
-            newTypes.append(self.t.types["str"]!)
-          }
-        case .minusequals:
-          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-        case .modequals:
-          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-        case .mulequals:
-          if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
-        case .plusequals:
-          if l is `IntType` && r is `IntType` {
-            newTypes.append(self.t.types["int"]!)
-          } else if l is Str && r is Str {
-            newTypes.append(self.t.types["str"]!)
-          } else if let ll = l as? ListType, let lr = r as? ListType {
-            newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
-          } else if let ll = l as? ListType {
-            newTypes.append(ListType(types: dedup(types: ll.types + [r])))
-          } else if let dl = l as? Dict, let dr = r as? Dict {
-            newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
-          } else if let dl = l as? Dict {
-            newTypes.append(Dict(types: dedup(types: dl.types + [r])))
-          }
-        default: _ = 1
-        }
-      }
-    }
+    for l in lhs { for r in rhs { evalAssignmentTypes(l, r, op, &newTypes) } }
     return newTypes.isEmpty ? nil : newTypes
   }
 
