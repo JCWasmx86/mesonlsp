@@ -12,15 +12,19 @@ public func guessSetVariable(fe: FunctionExpression) -> [String] {
   return []
 }
 
+func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [String] {
+  let lhs = calculateExpression(parentExpr, be.lhs)
+  let rhs = calculateExpression(parentExpr, be.rhs)
+  var ret: [String] = []
+  for l in lhs { for r in rhs { ret.append(l + (be.op == .plus ? "" : "/") + r) } }
+  return ret
+}
+
 func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
   if let sl = argExpression as? StringLiteral {
     return [sl.contents()]
   } else if let be = argExpression as? BinaryExpression {
-    let lhs = calculateExpression(parentExpr, be.lhs)
-    let rhs = calculateExpression(parentExpr, be.rhs)
-    var ret: [String] = []
-    for l in lhs { for r in rhs { ret.append(l + (be.op == .plus ? "" : "/") + r) } }
-    return ret
+    return calculateBinaryExpression(parentExpr, be)
   } else if let me = argExpression as? MethodExpression, isValidMethod(me) {
     let objStrs = calculateExpression(parentExpr, me.obj)
     return objStrs.map({ applyMethod(varname: $0, name: (me.id as! IdExpression).id) })
