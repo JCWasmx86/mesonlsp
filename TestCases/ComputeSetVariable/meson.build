@@ -237,10 +237,18 @@ NAME1 = 0
 plugins = [
     ['bookmarks', [gio_dep, libxml_dep, gom_dep], []],
     ['filesystem', [grilo_pls_dep], []],
-    ['lua-factory', [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep], [goa_dep, totem_plparser_mini_dep]],
-    ['youtube', [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep], []],
+    [
+        'lua-factory',
+        [lua_dep, libarchive_dep, grilo_net_dep, json_glib_dep, libxml_dep],
+        [goa_dep, totem_plparser_mini_dep],
+    ],
+    [
+        'youtube',
+        [grilo_net_dep, libxml_dep, libgdata_dep, totem_plparser_dep],
+        [],
+    ],
 ]
-foreach p: plugins
+foreach p : plugins
     varname = p[NAME1].underscorify()
     varname_enabled = varname + '_enabled'
     varname_idx = varname + '_idx'
@@ -256,7 +264,7 @@ endforeach
 # ana:var: youtube_enabled = bool
 # ana:var: youtube_idx = bool
 
-foreach p: plugins
+foreach p : plugins
     name = p[NAME1].underscorify() + '_enabled'
     set_variable(name + 'foo', get_variable(name).to_string('yes', 'no'))
 endforeach
