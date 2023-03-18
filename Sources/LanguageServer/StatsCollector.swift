@@ -16,7 +16,7 @@
       for map in maps {
         let parts = map.split(separator: " ")
         let range = parts[0]
-        let addrs = range.split(separator: "-").map({ UInt64($0, radix: 16)! })
+        let addrs = range.split(separator: "-").map { UInt64($0, radix: 16)! }
         if map.hasSuffix("[heap]") {
           heapUsage = addrs[1] - addrs[0]
         } else if map.hasSuffix("[stack]") {

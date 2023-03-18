@@ -11,13 +11,13 @@ public final class BuildDefinition: Node {
     self.file = file
     self.location = Location(node: node)
     var s: [Node] = []
-    node.enumerateNamedChildren(block: {
+    node.enumerateNamedChildren {
       if let n1 = from_tree(file: file, tree: $0) {
         s.append(n1)
       } else {
         // s.append(ErrorNode(file: file, node: $0, msg: "Unexpected failure to parse statement"))
       }
-    })
+    }
     self.stmts = s
   }
   fileprivate init(file: MesonSourceFile, location: Location, stmts: [Node]) {
@@ -30,7 +30,7 @@ public final class BuildDefinition: Node {
     return BuildDefinition(
       file: file,
       location: location,
-      stmts: Array(self.stmts.map({ $0.clone() }))
+      stmts: Array(self.stmts.map { $0.clone() })
     )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitBuildDefinition(node: self) }

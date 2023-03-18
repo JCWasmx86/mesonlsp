@@ -29,7 +29,7 @@ public class TestRunner: ExtendedCodeVisitor {
       TestRunner.LOG.info(
         "\(tree.file): Tests: \(self.successes)/\(self.successes + self.failures) passed"
       )
-      notRun = assertions.flatMap({ $0.value }).count - (failures + successes)
+      notRun = assertions.flatMap { $0.value }.count - (failures + successes)
     } else {
       self.metadata = nil
     }

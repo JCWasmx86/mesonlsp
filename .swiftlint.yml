@@ -7,6 +7,7 @@ disabled_rules:
   - opening_brace
   - trailing_comma
   - type_body_length
+  - closure_parameter_position
 analyzer_rules:
   - typesafe_array_init
   - unused_declaration
@@ -22,4 +23,5 @@ opt_in_rules:
   # Disabled as there are too many false positives
   # - no_magic_numbers
   - sorted_imports
+  - trailing_closure
   - yoda_condition

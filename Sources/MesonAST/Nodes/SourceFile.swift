@@ -42,7 +42,7 @@ public final class SourceFile: Node {
       file: file,
       location: location,
       definition: self.build_definition == nil ? nil : self.build_definition!.clone(),
-      errors: Array(self.errs.map({ $0.clone() }))
+      errors: Array(self.errs.map { $0.clone() })
     )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitSourceFile(file: self) }

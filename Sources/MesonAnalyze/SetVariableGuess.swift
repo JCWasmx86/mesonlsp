@@ -398,9 +398,9 @@ func abstractEvalMethod(_ me: MethodExpression, _ parentStmt: Node) -> [Interpre
       strValues.append(sl.contents())
     }
     ret += Array(
-      strValues.map({
+      strValues.map {
         ArtificalStringNode(contents: applyMethod(varname: $0, name: (me.id as! IdExpression).id))
-      })
+      }
     )
   }
   return ret
@@ -473,7 +473,7 @@ func abstractEvalArrayLiteral(_ al: ArrayLiteral, _ toEval: Node, _ parentStmt: 
   if !al.args.isEmpty {
     let firstArg = al.args[0]
     if firstArg is ArrayLiteral {
-      return al.args.map({ ArrayNode(node: $0) })
+      return al.args.map { ArrayNode(node: $0) }
     } else if firstArg is DictionaryLiteral {
       return al.args.map({ DictNode(node: $0) })
     } else if firstArg is IdExpression {

@@ -34,6 +34,6 @@ public class Function {
   public func hasKwarg(name: String) -> Bool { return self.kwargs[name] != nil }
 
   public func requiredKwargs() -> [String] {
-    return Array(self.kwargs.values.filter({ !$0.opt }).map({ $0.name }))
+    return Array(self.kwargs.values.filter { !$0.opt }.map { $0.name })
   }
 }

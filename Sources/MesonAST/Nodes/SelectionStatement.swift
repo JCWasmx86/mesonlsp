@@ -55,11 +55,11 @@ public final class SelectionStatement: Statement {
   public func clone() -> Node {
     let location = self.location.clone()
     var arrs: [[Node]] = []
-    for blk in self.blocks { arrs.append(Array(blk.map({ $0.clone() }))) }
+    for blk in self.blocks { arrs.append(Array(blk.map { $0.clone() })) }
     return SelectionStatement(
       file: file,
       location: location,
-      conditions: Array(self.conditions.map({ $0.clone() })),
+      conditions: Array(self.conditions.map { $0.clone() }),
       blocks: blocks
     )
   }

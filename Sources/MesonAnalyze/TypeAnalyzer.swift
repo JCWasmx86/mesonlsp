@@ -104,7 +104,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.stack.append([:])
     self.overriddenVariables.append([:])
     var oldVars: [String: [Type]] = [:]
-    self.scope.variables.forEach({ oldVars[$0.key] = Array($0.value) })
+    self.scope.variables.forEach { oldVars[$0.key] = Array($0.value) }
     var idx = 0
     for b in node.blocks {
       var appended = false
@@ -124,7 +124,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           break
         }
         if !foundBoolOrAny && !c.types.isEmpty {
-          let t = c.types.map({ $0.toString() }).joined(separator: "|")
+          let t = c.types.map { $0.toString() }.joined(separator: "|")
           self.metadata.registerDiagnostic(
             node: c,
             diag: MesonDiagnostic(sev: .error, node: c, message: "Condition is not bool: \(t)")
@@ -170,7 +170,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(
           sev: .error,
           node: node.expression,
-          message: iterTypes.filter({ $0 is ListType || $0 is RangeType }).first != nil
+          message: iterTypes.filter { $0 is ListType || $0 is RangeType }.first != nil
             ? "Iterating over a list/range requires one identifier"
             : "Expression yields no iterable result"
         )
@@ -438,7 +438,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: node.ifFalse.types + node.ifTrue.types)
     for t in node.condition.types where t is `Any` || t is BoolType || t is Disabler { return }
     if !node.condition.types.isEmpty {
-      let t = node.condition.types.map({ $0.toString() }).joined(separator: "|")
+      let t = node.condition.types.map { $0.toString() }.joined(separator: "|")
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(sev: .error, node: node, message: "Condition is not bool: \(t)")
@@ -796,7 +796,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func joinTypes(types: [Type]) -> String {
-    return types.map({ $0.toString() }).sorted().joined(separator: "|")
+    return types.map { $0.toString() }.sorted().joined(separator: "|")
   }
 
   // swiftlint:disable cyclomatic_complexity

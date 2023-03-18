@@ -15,7 +15,7 @@ public final class IterationStatement: Statement {
     var idx = 2
     let idList = node.namedChild(at: 0)!
     var tmpIds: [Node] = []
-    idList.enumerateNamedChildren(block: { tmpIds.append(from_tree(file: file, tree: $0)!) })
+    idList.enumerateNamedChildren { tmpIds.append(from_tree(file: file, tree: $0)!) }
     self.ids = tmpIds
     self.expression = from_tree(file: file, tree: node.namedChild(at: 1)!)!
     var bb: [Node] = []
@@ -44,8 +44,8 @@ public final class IterationStatement: Statement {
       file: file,
       location: location,
       expression: self.expression.clone(),
-      ids: Array(self.ids.map({ $0.clone() })),
-      block: Array(self.block.map({ $0.clone() }))
+      ids: Array(self.ids.map { $0.clone() }),
+      block: Array(self.block.map { $0.clone() })
     )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitIterationStatement(node: self) }

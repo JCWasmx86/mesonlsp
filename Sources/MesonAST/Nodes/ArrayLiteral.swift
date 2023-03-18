@@ -11,7 +11,7 @@ public final class ArrayLiteral: Expression {
     self.file = file
     self.location = Location(node: node)
     var bb: [Node] = []
-    node.enumerateNamedChildren(block: { bb.append(from_tree(file: file, tree: $0)!) })
+    node.enumerateNamedChildren { bb.append(from_tree(file: file, tree: $0)!) }
     self.args = bb
   }
   fileprivate init(file: MesonSourceFile, location: Location, args: [Node]) {
@@ -20,7 +20,7 @@ public final class ArrayLiteral: Expression {
     self.args = args
   }
   public func clone() -> Node {
-    let newArgs: [Node] = Array(self.args.map({ $0.clone() }))
+    let newArgs: [Node] = Array(self.args.map { $0.clone() })
     let location = self.location.clone()
     return ArrayLiteral(file: file, location: location, args: newArgs)
   }

@@ -383,7 +383,7 @@ public final class MesonServer: LanguageServer {
   ) {
     if content == nil, let f = self.tree!.metadata!.findIdentifierAt(file, line, column) {
       if !f.types.isEmpty {
-        content = f.types.map({ $0.toString() }).joined(separator: "|")
+        content = f.types.map { $0.toString() }.joined(separator: "|")
         requery = false
       }
     }
@@ -413,7 +413,7 @@ public final class MesonServer: LanguageServer {
       if let k = kw.key as? IdExpression {
         content = f.id() + "<" + k.id + ">"
         if fun != nil, let f = fun!.kwargs[k.id] {
-          kwargTypes = f.types.map({ $0.toString() }).joined(separator: "|")
+          kwargTypes = f.types.map { $0.toString() }.joined(separator: "|")
         }
       }
     }
@@ -447,7 +447,7 @@ public final class MesonServer: LanguageServer {
         if pa.opt { str += "\\[" }
         str += "`" + pa.name + "`"
         str += " "
-        str += pa.types.map({ $0.toString() }).joined(separator: "|")
+        str += pa.types.map { $0.toString() }.joined(separator: "|")
         if pa.varargs { str += "..." }
         if pa.opt { str += "\\]" }
         str += "\n"
@@ -462,7 +462,7 @@ public final class MesonServer: LanguageServer {
       }
     }
     if !function!.returnTypes.isEmpty {
-      str += "\n*Returns:* " + function!.returnTypes.map({ $0.toString() }).joined(separator: "|")
+      str += "\n*Returns:* " + function!.returnTypes.map { $0.toString() }.joined(separator: "|")
     }
     return str
   }

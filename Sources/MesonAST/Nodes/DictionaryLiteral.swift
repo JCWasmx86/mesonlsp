@@ -11,7 +11,7 @@ public final class DictionaryLiteral: Expression {
     self.file = file
     self.location = Location(node: node)
     var bb: [Node] = []
-    node.enumerateNamedChildren(block: { bb.append(from_tree(file: file, tree: $0)!) })
+    node.enumerateNamedChildren { bb.append(from_tree(file: file, tree: $0)!) }
     self.values = bb
   }
   fileprivate init(file: MesonSourceFile, location: Location, values: [Node]) {
@@ -24,7 +24,7 @@ public final class DictionaryLiteral: Expression {
     return DictionaryLiteral(
       file: file,
       location: location,
-      values: Array(self.values.map({ $0.clone() }))
+      values: Array(self.values.map { $0.clone() })
     )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitDictionaryLiteral(node: self) }

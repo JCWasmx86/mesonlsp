@@ -76,7 +76,7 @@ extension Array where Element == Double {
 
   func std() -> Double {
     let mean = self.avg()
-    let v = self.reduce(0, { $0 + ($1 - mean) * ($1 - mean) })
+    let v = self.reduce(0) { result, element in result + (element - mean) * (element - mean) }
     return sqrt(v / (Double(self.count) - 1))
   }
 }  // swiftlint:enable no_magic_numbers

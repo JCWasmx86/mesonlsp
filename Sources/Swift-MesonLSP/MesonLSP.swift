@@ -31,10 +31,10 @@ import TreeSitterMeson
 
   func parseNTimes() {
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = .debug
       return logger
-    })
+    }
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
     var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
@@ -48,10 +48,10 @@ import TreeSitterMeson
 
   func parseEachProject() {
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = self.test ? .trace : .debug
       return logger
-    })
+    }
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let ns = TypeNamespace()
     if self.test {
@@ -71,10 +71,10 @@ import TreeSitterMeson
         while !s.isEmpty {
           let mt = s.removeFirst()
           files.append(mt.file)
-          mt.subfiles.forEach({ s.insert($0) })
+          mt.subfiles.forEach { s.insert($0) }
         }
         var checks: [String: [AssertionCheck]] = [:]
-        files.forEach({ checks[$0] = parseAssertions(name: $0) })
+        files.forEach { checks[$0] = parseAssertions(name: $0) }
         let tr = TestRunner(tree: t, assertions: checks)
         if !fail { fail = tr.failures != 0 || tr.notRun != 0 }
       }
@@ -131,10 +131,10 @@ import TreeSitterMeson
       return
     }
     let console = Terminal()
-    LoggingSystem.bootstrap({ label in var logger = ConsoleLogger(label: label, console: console)
+    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = .info
       return logger
-    })
+    }
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     close(STDOUT_FILENO)
@@ -152,21 +152,16 @@ import TreeSitterMeson
       outFD: realStdoutHandle,
       syncRequests: false
     )
-    let server = MesonServer(
-      client: clientConnection,
-      onExit: {
-        clientConnection.close()
-        return
-      }
-    )
-    clientConnection.start(
-      receiveHandler: server,
-      closeHandler: {
-        server.prepareForExit()
-        withExtendedLifetime(realStdoutHandle) {}
-        _Exit(0)
-      }
-    )
+    let server = MesonServer(client: clientConnection) {
+      clientConnection.close()
+      return
+    }
+
+    clientConnection.start(receiveHandler: server) {
+      server.prepareForExit()
+      withExtendedLifetime(realStdoutHandle) {}
+      _Exit(0)
+    }
     dispatchMain()
   }
 }

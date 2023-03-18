@@ -10,7 +10,7 @@ public class OptionTypeAnalyzer: MesonTypeAnalyzer {
       let arg0 = al.args[0]
       if let sl = arg0 as? StringLiteral {
         let t = sl.contents()
-        let opt = options.filter({ $0.name == t }).first
+        let opt = options.filter { $0.name == t }.first
         if let o = opt {
           if o is StringOption {
             return [ns.types["str"]!]
