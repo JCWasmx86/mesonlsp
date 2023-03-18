@@ -81,16 +81,20 @@ import TreeSitterMeson
         _Exit(1)
       }
     } else {
-      for p in self.paths {
-        var cache: [String: MesonAST.Node] = [:]
-        let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
-        t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
-        if let mt = t.metadata {
-          for kv in mt.diagnostics {
-            for diag in kv.value {
-              let sev = diag.severity == .error ? "🔴" : "⚠️"
-              print("\(kv.key):\(diag.startLine + 1):\(diag.startColumn): \(sev) \(diag.message)")
-            }
+      try parseAndPrintDiagnostics(ns: ns)
+    }
+  }
+
+  func parseAndPrintDiagnostics(ns: TypeNamespace) throws {
+    for p in self.paths {
+      var cache: [String: MesonAST.Node] = [:]
+      let t = try MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+      t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
+      if let mt = t.metadata {
+        for kv in mt.diagnostics {
+          for diag in kv.value {
+            let sev = diag.severity == .error ? "🔴" : "⚠️"
+            print("\(kv.key):\(diag.startLine + 1):\(diag.startColumn): \(sev) \(diag.message)")
           }
         }
       }
