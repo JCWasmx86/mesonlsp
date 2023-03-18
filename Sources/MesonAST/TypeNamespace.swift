@@ -4501,7 +4501,6 @@ public final class TypeNamespace {
   }
 
   public func lookupMethod(name: String) -> Method? {
-    // TODO: Check what arguments/kwargs are given
     for o in self.types {
       if let obj = o.value as? AbstractObject, obj.parent != nil { continue }
       for m in self.vtables[o.value.name]! where m.name == name { return m }
