@@ -1,0 +1,17 @@
+name: Formatting Check
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check if formatting is right
+        run: |
+          wget https://github.com/JCWasmx86/JCWasmx86.github.io/raw/master/swift-format
+          chmod +x ./swift-format
+          ./swift-format -i --recursive Package.swift Sources/ Package.swift
+          git commit -a -m "Failed" && exit 1
