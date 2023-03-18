@@ -302,8 +302,13 @@ public final class MesonServer: LanguageServer {
       MesonServer.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
       if let contents = self.getContents(file: req.params.textDocument.uri.fileURL!.path) {
         if let formatted = try formatFile(content: contents, params: req.params.options) {
-          // TODO: Do this better
-          let range = Position(line: 0, utf16index: 0)..<Position(line: 5_000_000, utf16index: 2048)
+          let newLines = formatted.split(whereSeparator: \.isNewline)
+          let endOfLastLine = newLines.isEmpty ? 1024 : (newLines[newLines.count - 1].count)
+          let range =
+            Position(
+              line: 0,
+              utf16index: 0
+            )..<Position(line: newLines.count, utf16index: endOfLastLine)
           let edit = TextEdit(range: range, newText: formatted)
           req.reply([edit])
           Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
