@@ -48,6 +48,8 @@
 - [x] More tests
 - [x] VSCode Extension (Just a fork of vscode-meson currently)
 - [x] Inlay hints
+- [ ] Add swiftlint to CI
+- [ ] Add swift-format to CI
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
