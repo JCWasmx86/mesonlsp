@@ -243,7 +243,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  // swiftlint:disable cyclomatic_complexity
   func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type]? {
     var newTypes: [Type] = []
     for l in lhs {
@@ -281,7 +280,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return newTypes.isEmpty ? nil : newTypes
   }
-  // swiftlint:enable cyclomatic_complexity
+
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
     if !(node.lhs is IdExpression) {
@@ -469,7 +468,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     node.types = dedup(types: newTypes)
   }
-  // swiftlint:disable cyclomatic_complexity
+
   public func visitMethodExpression(node: MethodExpression) {
     node.visitChildren(visitor: self)
     let types = node.obj.types
@@ -562,9 +561,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
   }
-  // swiftlint:enable cyclomatic_complexity
 
-  // swiftlint:disable cyclomatic_complexity
   func checkCall(node: Expression) {
     let args: [Node]
     let fn: Function
@@ -649,7 +646,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
   }
-  // swiftlint:enable cyclomatic_complexity
 
   public func evalStack(name: String) -> [Type] {
     var ret: [Type] = []
@@ -698,7 +694,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   func isType(_ type: Type, _ name: String) -> Bool {
     return type.name == name || type.name == "any"
   }
-  // swiftlint:disable cyclomatic_complexity
+
   func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (Int, [Type]) {
     var newTypes: [Type] = []
     var nErrors = 0
@@ -794,7 +790,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return (nErrors, nErrors == lhs.count * rhs.count ? lhs : newTypes)
   }
-  // swiftlint:enable cyclomatic_complexity
 
   public func visitBinaryExpression(node: BinaryExpression) {
     node.visitChildren(visitor: self)
@@ -867,7 +862,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func joinTypes(types: [Type]) -> String {
     return types.map({ $0.toString() }).sorted().joined(separator: "|")
   }
-  // swiftlint:disable cyclomatic_complexity
+
   public func dedup(types: [Type]) -> [Type] {
     if types.isEmpty || types.count == 1 { return types }
     var listtypes: [Type] = []
@@ -909,5 +904,5 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if hasStr { ret.append(self.t.types["str"]!) }
     ret += objs.values
     return ret
-  }  // swiftlint:enable cyclomatic_complexity
+  }
 }
