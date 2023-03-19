@@ -9,7 +9,7 @@ let package = Package(
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
     .library(name: "MesonAST", targets: ["MesonAST"]),
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
-    .library(name: "Timing", targets: ["Timing"]),
+    .library(name: "Timing", targets: ["Timing"]), .library(name: "IOUtils", targets: ["IOUtils"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
     .library(name: "CMem", targets: ["CMem"]),
@@ -18,7 +18,6 @@ let package = Package(
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.2"),
-    .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
@@ -29,15 +28,15 @@ let package = Package(
     .target(
       name: "MesonAnalyze",
       dependencies: [
-        "Timing", "SwiftTreeSitter", "MesonAST", "PathKit",
+        "Timing", "SwiftTreeSitter", "MesonAST", "IOUtils",
         .product(name: "Logging", package: "swift-log"),
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
-    .target(name: "MesonDocs", dependencies: []),
+    .target(name: "IOUtils", dependencies: []), .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
-    ), .target(name: "MesonAST", dependencies: ["SwiftTreeSitter", "Timing"]),
+    ), .target(name: "MesonAST", dependencies: ["IOUtils", "SwiftTreeSitter", "Timing"]),
     .target(
       name: "LanguageServer",
       dependencies: [

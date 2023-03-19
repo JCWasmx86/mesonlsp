@@ -1,12 +1,12 @@
 import Atomics
 import Dispatch
 import Foundation
+import IOUtils
 import LanguageServerProtocol
 import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
-import PathKit
 #if !os(Windows)
   import Swifter
 #endif
@@ -494,8 +494,7 @@ public final class MesonServer: LanguageServer {
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
-        .description
+      let path = getParent(file!) + "/" + sd.subdirname + "/meson.build"
       let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       let endDeclaration = clock()
@@ -538,8 +537,7 @@ public final class MesonServer: LanguageServer {
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
-        .description
+      let path = getParent(file!) + "/" + sd.subdirname + "/meson.build"
       let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())

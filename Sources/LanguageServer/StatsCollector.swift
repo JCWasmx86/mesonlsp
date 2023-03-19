@@ -1,14 +1,13 @@
 #if !os(Windows)
   import CMem
   import Glibc
-  import PathKit
+  import IOUtils
 
   func collectStats() -> [UInt64] {
     let pid = getpid()
     let path = "/proc/\(pid)/maps"
-    let p = Path(path)
     do {
-      let contents: String = try p.read()
+      let contents: String = try readFile(path)
       let maps = contents.split(separator: "\n")
       var heapUsage: UInt64 = 0
       var stackUsage: UInt64 = 0

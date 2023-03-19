@@ -1,5 +1,5 @@
 import Foundation
-import PathKit
+import IOUtils
 
 open class MesonSourceFile {
   public let file: String
@@ -15,7 +15,7 @@ open class MesonSourceFile {
   open func contents() throws -> String {
     if self._cached { return self._contents }
     self._cached = true
-    self._contents = try Path(self.file).read()
+    self._contents = try readFile(self.file)
     return self._contents
   }
 }

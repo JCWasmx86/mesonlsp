@@ -1,7 +1,7 @@
 import Foundation
+import IOUtils
 import Logging
 import MesonAST
-import PathKit
 import SwiftTreeSitter
 import Timing
 import TreeSitterMeson
@@ -27,14 +27,14 @@ public final class MesonTree: Hashable {
     memfiles: [String: String] = [:]
   ) {
     self.ns = ns
-    let pkp = Path(file).absolute().normalize()
+    let pkp = normalizePath(makeAbsolute(file))
     self.file = pkp.description
     self.ast = nil
     self.depth = depth
     let p = Parser()
     do { try p.setLanguage(tree_sitter_meson()) } catch { fatalError("Unable to set language") }
     if dontCache.contains(self.file) || cache[self.file] == nil {
-      if memfiles[self.file] == nil && pkp.exists {
+      if memfiles[self.file] == nil && fileExists(pkp) {
         let text = self.readFile(self.file)
         guard let text = text else { return }
         let beginParsing = clock()
@@ -108,8 +108,7 @@ public final class MesonTree: Hashable {
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
       Self.LOG.debug("Subtree: \(sd1)")
-      let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
-        .normalize().description
+      let f = normalizePath(getParent(makeAbsolute(self.file)) + "/" + sd1 + "/meson.build")
       let tree = Self(
         file: f,
         ns: ns,
@@ -130,21 +129,21 @@ public final class MesonTree: Hashable {
 
     for i in 0..<astPatcher.subdirs.count {
       let sd = astPatcher.subdirs[i]
-      astPatcher.subdirNodes[i].fullFile =
-        Path(Path(self.file).parent().description + "/" + sd[1..<sd.count - 1] + "/meson.build")
-        .description
+      astPatcher.subdirNodes[i].fullFile = normalizePath(
+        getParent(self.file).description + "/" + sd[1..<sd.count - 1] + "/meson.build"
+      )
     }
     self.parseOptions(parser: p)
   }
 
   func readFile(_ name: String) -> String? {
-    do { return try Path(name).read() } catch { return nil }
+    do { return try IOUtils.readFile(name) } catch { return nil }
   }
 
   func parseOptions(parser p: Parser) {
     if self.depth != 0 { return }
-    let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
-    if !f.exists { self.options = nil }
+    let f = normalizePath(getParent(self.file) + "/meson_options.txt")
+    if !fileExists(f) { self.options = nil }
     let text = self.readFile(f.description)
     guard let text = text else { return }
     let tree = p.parse(text)
@@ -196,9 +195,7 @@ public final class MesonTree: Hashable {
         if heuristic.isEmpty || s.contains(heuristic) { continue }
         s.insert(heuristic)
         Self.LOG.info("Found subdir call using heuristics: \(heuristic)")
-        let f = Path(
-          Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"
-        ).normalize().description
+        let f = normalizePath(getParent(makeAbsolute(self.file)) + "/" + heuristic + "/meson.build")
         let tree = Self(
           file: f,
           ns: ns,
@@ -222,7 +219,7 @@ public final class MesonTree: Hashable {
   }
 
   public func findSubdirTree(file: String) -> MesonTree? {
-    let p = Path(file).normalize().absolute().description
+    let p = makeAbsolute(normalizePath(file))
     if p == self.file { return self }
     for t in self.subfiles where t.file == p { return t }
     for t in self.subfiles { if let m = t.findSubdirTree(file: p) { return m } }
