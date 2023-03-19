@@ -48,7 +48,7 @@
 - [x] More tests
 - [x] VSCode Extension (Just a fork of vscode-meson currently)
 - [x] Inlay hints
-- [ ] Add swiftlint to CI
+- [x] Add swiftlint to CI
 - [x] Add swift-format to CI
 - [ ] Add Windows to CI
   - [ ] PathKit must support Windows
