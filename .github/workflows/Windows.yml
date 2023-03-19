@@ -14,6 +14,7 @@ jobs:
         shell: powershell
         run: |
           Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
-      - uses: actions/checkout@v2
-      - run: swift build
-      - run: swift test
+      - uses: actions/checkout@v3
+      - run: |
+          swift build
+          swift test
