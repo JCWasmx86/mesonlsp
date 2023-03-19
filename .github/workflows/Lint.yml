@@ -1,0 +1,20 @@
+name: Lint Check
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using SwiftLint
+        run: |
+          git clone https://github.com/realm/swiftlint
+          cd swiftlint
+          swift build
+          cd ..
+          ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
+          ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests
+          exit 1
