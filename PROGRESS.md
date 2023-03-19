@@ -51,7 +51,6 @@
 - [x] Add swiftlint to CI
 - [x] Add swift-format to CI
 - [ ] Add Windows to CI
-  - [ ] PathKit must support Windows
 - [ ] Add MacOS to CI
 ## Version 3.0
 - [ ] Renaming
