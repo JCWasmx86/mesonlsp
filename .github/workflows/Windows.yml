@@ -10,7 +10,10 @@ jobs:
         with:
           branch: swift-5.7.3-release
           tag: 5.7.3-RELEASE
-
+      - name: Enable long paths on Windows
+        shell: powershell
+        run: |
+          Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
       - uses: actions/checkout@v2
       - run: swift build
       - run: swift test
