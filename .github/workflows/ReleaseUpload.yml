@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-docker-image:
+  build-ubuntu:
     name: Build and upload
     runs-on: ubuntu-latest
     steps:
@@ -18,5 +18,20 @@ jobs:
         uses: JasonEtco/upload-to-release@master
         with:
           args: Swift-MesonLSP.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  build-macos:
+    name: Build and upload
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          swift build -c release
+          zip -9jpr Swift-MesonLSP-MacOS.zip .build/release/Swift-MesonLSP
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: Swift-MesonLSP-MacOS.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
