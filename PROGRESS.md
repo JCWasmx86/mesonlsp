@@ -50,10 +50,11 @@
 - [x] Inlay hints
 - [x] Add swiftlint to CI
 - [x] Add swift-format to CI
-- [ ] Add Windows to CI
 - [ ] Add MacOS to CI
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
+## Version n
+- [ ] Add Windows to CI
