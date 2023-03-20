@@ -7,7 +7,7 @@ import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
-#if !os(Windows)
+#if os(Linux)
   import Swifter
 #endif
 import Timing
@@ -24,7 +24,7 @@ public final class MesonServer: LanguageServer {
   var tree: MesonTree?
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
-  #if !os(Windows)
+  #if os(Linux)
     var server: HttpServer
   #endif
   var docs: MesonDocs = MesonDocs()
@@ -36,7 +36,7 @@ public final class MesonServer: LanguageServer {
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
     self.ns = TypeNamespace()
-    #if !os(Windows)
+    #if os(Linux)
       self.server = HttpServer()
       for i in Self.MIN_PORT...Self.MAX_PORT {
         do {
@@ -59,7 +59,7 @@ public final class MesonServer: LanguageServer {
   }
 
   func sendStats() {
-    #if !os(Windows)
+    #if os(Linux)
       Self.LOG.info("Collecting stats")
       let stats = collectStats()
       let heap = stats[0]

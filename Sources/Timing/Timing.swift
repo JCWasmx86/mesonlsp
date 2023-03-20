@@ -24,6 +24,10 @@ public class Timing {
     self.registerMeasurement(name: name, diff: diff)
   }
 
+  public func registerMeasurement(name: String, begin: UInt, end: UInt) {
+    self.registerMeasurement(name: name, begin: Int(begin), end: Int(end))
+  }
+
   public func timings() -> [TimingInformation] { return Array(self._timings.values) }
 }
 
