@@ -8,28 +8,7 @@ on:
 # assuming it compiles, it should there, as I didn't do Linux
 # specific things
 jobs:
-  macos11:
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: |
-          swift build
-          swift test
-          ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
-          ./do_meson_tests.sh
-          ./run_regression_tests.sh
-          swift build -c release
-          mkdir -p ${{ github.workspace }}/Artifacts
-          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP-MacOS.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-MacOS-11.zip
-          path: ${{ github.workspace }}/Artifacts
-  macos12:
+  build:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -48,5 +27,5 @@ jobs:
           sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP-MacOS.zip
       - uses: actions/upload-artifact@v3
         with:
-          name: Swift-MesonLSP-MacOS-12.zip
+          name: Swift-MesonLSP-MacOS.zip
           path: ${{ github.workspace }}/Artifacts
