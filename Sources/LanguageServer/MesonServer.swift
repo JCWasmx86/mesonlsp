@@ -774,7 +774,9 @@ public final class MesonServer: LanguageServer {
   }
   func shutdown(_ request: Request<ShutdownRequest>) {
     self.prepareForExit()
-    self.server.stop()
+    #if os(Linux)
+      self.server.stop()
+    #endif
     request.reply(VoidResponse())
   }
   func exit(_ notification: Notification<ExitNotification>) {
