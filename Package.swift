@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "Swift-MesonLSP",
+  platforms: [.macOS("10.15.4")],
   products: [
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
     .library(name: "MesonAST", targets: ["MesonAST"]),
