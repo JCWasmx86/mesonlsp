@@ -1,6 +1,6 @@
-import IOUtils
 import Logging
 import MesonAST
+import IOUtils
 import Timing
 
 public final class TypeAnalyzer: ExtendedCodeVisitor {
@@ -29,7 +29,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitSubdirCall(node: SubdirCall) {
     node.visitChildren(visitor: self)
     self.metadata.registerSubdirCall(call: node)
-    let newPath = getParent(makeAbsolute(node.file.file)) + "/" + node.subdirname + "/meson.build"
+    let newPath =
+      Path(node.file.file).absolute().parent().description + "/" + node.subdirname + "/meson.build"
     let subtree = self.tree.findSubdirTree(file: newPath)
     if let st = subtree {
       let tmptree = self.tree
@@ -54,7 +55,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitMultiSubdirCall(node: MultiSubdirCall) {
     node.visitChildren(visitor: self)
-    let base = getParent(makeAbsolute(node.file.file))
+    let base = Path(node.file.file).absolute().parent().description
     for subdirname in node.subdirnames {
       if subdirname.isEmpty { continue }
       let newPath = base + "/" + subdirname + "/meson.build"

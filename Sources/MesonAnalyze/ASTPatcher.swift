@@ -1,5 +1,5 @@
-import IOUtils
 import MesonAST
+import IOUtils
 
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []
@@ -14,7 +14,7 @@ class ASTPatcher: CodeVisitor {
       let args = al.args
       for a in args where a is StringLiteral {
         if let sl = a as? StringLiteral {
-          if !fileExists(parent + "/" + sl.contents() + "/meson.build") { return false }
+          if !Path(parent + "/" + sl.contents() + "/meson.build").exists { return false }
           subdirs.append(sl.id)
           return true
         }
@@ -34,7 +34,7 @@ class ASTPatcher: CodeVisitor {
   }
 
   func visitSourceFile(file: SourceFile) {
-    self.parent = getParent(file.file.file)
+    self.parent = Path(file.file.file).parent().description
     file.visitChildren(visitor: self)
   }
   func visitBuildDefinition(node: BuildDefinition) {

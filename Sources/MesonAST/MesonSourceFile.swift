@@ -15,7 +15,7 @@ open class MesonSourceFile {
   open func contents() throws -> String {
     if self._cached { return self._contents }
     self._cached = true
-    self._contents = try readFile(self.file)
+    self._contents = try Path(self.file).read()
     return self._contents
   }
 }

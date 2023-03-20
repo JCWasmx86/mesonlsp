@@ -9,7 +9,8 @@ let package = Package(
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
     .library(name: "MesonAST", targets: ["MesonAST"]),
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
-    .library(name: "Timing", targets: ["Timing"]), .library(name: "IOUtils", targets: ["IOUtils"]),
+    .library(name: "IOUtils", targets: ["IOUtils"]),
+    .library(name: "Timing", targets: ["Timing"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
     .library(name: "CMem", targets: ["CMem"]),
@@ -31,8 +32,8 @@ let package = Package(
         "Timing", "SwiftTreeSitter", "MesonAST", "IOUtils",
         .product(name: "Logging", package: "swift-log"),
       ]
-    ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
-    .target(name: "IOUtils", dependencies: []), .target(name: "MesonDocs", dependencies: []),
+    ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []), .target(name: "IOUtils", dependencies: []),
+    .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
@@ -40,7 +41,7 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "MesonAnalyze", "Timing", "MesonDocs", "CMem",
+        "MesonAnalyze", "Timing", "MesonDocs", "CMem", "IOUtils",
         .product(
           name: "Swifter",
           package: "swifter",

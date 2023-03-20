@@ -167,6 +167,7 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
 - [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
 - [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
+- [PathKit](https://github.com/kylef/PathKit) - Effortless path operations in Swift
 - [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
 - [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
