@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
 
-# Just check that it builds. I don't have MacOS, but
+# Just check that it builds and the test pass. I don't have MacOS, but
 # assuming it compiles, it should there, as I didn't do Linux
 # specific things
 jobs:
@@ -13,4 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: swift build
+        run: |
+          swift build
+          swift test
+          ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
+          ./do_meson_tests.sh
+          ./run_regression_tests.sh
+          swift build -c release --static-swift-stdlib
+          zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP
+          sudo cp Swift-MesonLSP.zip /Swift-MesonLSP-MacOS.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-MacOS.zip
+          path: /Swift-MesonLSP-MacOS.zip
