@@ -24,8 +24,8 @@ jobs:
           ./run_regression_tests.sh
           swift build -c release
           zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP
-          sudo cp Swift-MesonLSP.zip /Swift-MesonLSP-MacOS.zip
+          sudo cp Swift-MesonLSP.zip /tmp/Swift-MesonLSP-MacOS.zip
       - uses: actions/upload-artifact@v3
         with:
           name: Swift-MesonLSP-MacOS.zip
-          path: /Swift-MesonLSP-MacOS.zip
+          path: /tmp/Swift-MesonLSP-MacOS.zip
