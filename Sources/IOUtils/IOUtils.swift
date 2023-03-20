@@ -1,5 +1,8 @@
 import Foundation
 
+class Constants {
+	static let CURR_URL: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+}
 public func readFile(_ path: String) throws -> String {
   let fileURL = URL(fileURLWithPath: path)
   let data = try Data(contentsOf: fileURL)
@@ -7,24 +10,37 @@ public func readFile(_ path: String) throws -> String {
 }
 
 public func makeAbsolute(_ path: String) -> String {
-  return URL(
+	if path.first == "/" {
+		return path
+	}
+  return makeAbsolute_(path).path
+}
+
+func makeAbsolute_(_ path: String) -> URL {
+	return URL(
     fileURLWithPath: path,
     relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-  ).path
+  )
 }
 
 public func getParent(_ path: String) -> String {
-  let url = URL(fileURLWithPath: path)
-  return url.deletingLastPathComponent().path
+	return normalizePath_(path + "/..")
 }
 
 public func fileExists(_ path: String) -> Bool {
-  let fileManager = FileManager.default
-  return fileManager.fileExists(atPath: path)
+  return FileManager.default.fileExists(atPath: path)
+}
+
+public func normalizePath_(_ path: String) -> String {
+	return URL(
+    fileURLWithPath: path,
+    relativeTo: Constants.CURR_URL
+  ).standardizedFileURL.path
 }
 
 public func normalizePath(_ path: String) -> String {
-  let url = URL(fileURLWithPath: path)
-  let standardizedURL = url.standardizedFileURL
-  return standardizedURL.path
+  return URL(
+    fileURLWithPath: path,
+    relativeTo: Constants.CURR_URL
+  ).standardizedFileURL.path
 }
