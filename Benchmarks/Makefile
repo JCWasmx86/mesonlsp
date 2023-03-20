@@ -13,7 +13,7 @@ serve: FORCE
 	echo -n "," >> generated.js
 	cat v1.4.json >> generated.js
 	echo -n "," >> generated.js
-	cat HEAD.json >> generated.js
+	cat v1.4.1.json >> generated.js
 	echo "];" >> generated.js
 	python -m http.server
 FORCE: ;
