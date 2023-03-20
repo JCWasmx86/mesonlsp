@@ -1,17 +1,31 @@
 // PathKit - Effortless path operations
+// Copyright (c) 2014, Kyle Fuller
+// All rights reserved.
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+
+// 1. Redistributions of source code must retain the above copyright notice, this
+//    list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Copied from here: https://raw.githubusercontent.com/kylef/PathKit/master/Sources/PathKit.swift
-#if os(Linux)
-import Glibc
-
-let system_glob = Glibc.glob
-#else
-import Darwin
-
-let system_glob = Darwin.glob
-#endif
-
+// swiftlint:disable legacy_objc_type
+// swiftlint:disable todo
+// swiftlint:disable nesting
 import Foundation
-
 
 /// Represents a filesystem path.
 public struct Path {
@@ -27,43 +41,36 @@ public struct Path {
 
   // MARK: Init
 
-  public init() {
-    self.init("")
-  }
+  public init() { self.init("") }
 
   /// Create a Path from a given String
-  public init(_ path: String) {
-    self.init(path, fileSystemInfo: DefaultFileSystemInfo())
-  }
+  public init(_ path: String) { self.init(path, fileSystemInfo: DefaultFileSystemInfo()) }
 
   internal init(_ path: String, fileSystemInfo: FileSystemInfo) {
     self.path = path
     self.fileSystemInfo = fileSystemInfo
   }
 
-  internal init(fileSystemInfo: FileSystemInfo) {
-    self.init("", fileSystemInfo: fileSystemInfo)
-  }
+  internal init(fileSystemInfo: FileSystemInfo) { self.init("", fileSystemInfo: fileSystemInfo) }
 
   /// Create a Path by joining multiple path components together
-  public init<S : Collection>(components: S) where S.Iterator.Element == String {
+  public init<S: Collection>(components: S) where S.Iterator.Element == String {
     let path: String
     if components.isEmpty {
       path = "."
-    } else if components.first == Path.separator && components.count > 1 {
-      let p = components.joined(separator: Path.separator)
+    } else if components.first == Self.separator && components.count > 1 {
+      let p = components.joined(separator: Self.separator)
       path = String(p[p.index(after: p.startIndex)...])
     } else {
-      path = components.joined(separator: Path.separator)
+      path = components.joined(separator: Self.separator)
     }
     self.init(path)
   }
 }
 
-
 // MARK: StringLiteralConvertible
 
-extension Path : ExpressibleByStringLiteral {
+extension Path: ExpressibleByStringLiteral {
   public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
   public typealias UnicodeScalarLiteralType = StringLiteralType
 
@@ -71,46 +78,28 @@ extension Path : ExpressibleByStringLiteral {
     self.init(stringLiteral: path)
   }
 
-  public init(unicodeScalarLiteral path: StringLiteralType) {
-    self.init(stringLiteral: path)
-  }
+  public init(unicodeScalarLiteral path: StringLiteralType) { self.init(stringLiteral: path) }
 
-  public init(stringLiteral value: StringLiteralType) {
-    self.init(value)
-  }
+  public init(stringLiteral value: StringLiteralType) { self.init(value) }
 }
-
 
 // MARK: CustomStringConvertible
 
-extension Path : CustomStringConvertible {
-  public var description: String {
-    return self.path
-  }
-}
-
+extension Path: CustomStringConvertible { public var description: String { return self.path } }
 
 // MARK: Conversion
 
 extension Path {
-  public var string: String {
-    return self.path
-  }
+  public var string: String { return self.path }
 
-  public var url: URL {
-    return URL(fileURLWithPath: path)
-  }
+  public var url: URL { return URL(fileURLWithPath: path) }
 }
-
 
 // MARK: Hashable
 
-extension Path : Hashable {
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(self.path.hashValue)
-  }
+extension Path: Hashable {
+  public func hash(into hasher: inout Hasher) { hasher.combine(self.path.hashValue) }
 }
-
 
 // MARK: Path Info
 
@@ -119,31 +108,23 @@ extension Path {
   ///
   /// - Returns: `true` iff the path begins with a slash
   ///
-  public var isAbsolute: Bool {
-    return path.hasPrefix(Path.separator)
-  }
+  public var isAbsolute: Bool { return path.hasPrefix(Path.separator) }
 
   /// Test whether a path is relative.
   ///
   /// - Returns: `true` iff a path is relative (not absolute)
   ///
-  public var isRelative: Bool {
-    return !isAbsolute
-  }
+  public var isRelative: Bool { return !isAbsolute }
 
   /// Concatenates relative paths to the current directory and derives the normalized path
   ///
   /// - Returns: the absolute path in the actual filesystem
   ///
   public func absolute() -> Path {
-    if isAbsolute {
-      return normalize()
-    }
+    if isAbsolute { return normalize() }
 
-  let expandedPath = Path(NSString(string: self.path).expandingTildeInPath)
-  if expandedPath.isAbsolute {
-    return expandedPath.normalize()
-  }
+    let expandedPath = Path(NSString(string: self.path).expandingTildeInPath)
+    if expandedPath.isAbsolute { return expandedPath.normalize() }
 
     return (Path.current + self).normalize()
   }
@@ -154,9 +135,7 @@ extension Path {
   /// - Returns: a new path made by removing extraneous path components from the underlying String
   ///   representation.
   ///
-  public func normalize() -> Path {
-    return Path(NSString(string: self.path).standardizingPath)
-  }
+  public func normalize() -> Path { return Path(NSString(string: self.path).standardizingPath) }
 
   /// De-normalizes the path, by replacing the current user home directory with "~".
   ///
@@ -164,18 +143,18 @@ extension Path {
   ///   representation.
   ///
   public func abbreviate() -> Path {
-    let rangeOptions: String.CompareOptions = fileSystemInfo.isFSCaseSensitiveAt(path: self) ?
-      [.anchored] : [.anchored, .caseInsensitive]
+    let rangeOptions: String.CompareOptions =
+      fileSystemInfo.isFSCaseSensitiveAt(path: self) ? [.anchored] : [.anchored, .caseInsensitive]
     let home = Path.home.string
     guard let homeRange = self.path.range(of: home, options: rangeOptions) else { return self }
     let withoutHome = Path(self.path.replacingCharacters(in: homeRange, with: ""))
 
     if withoutHome.path.isEmpty || withoutHome.path == Path.separator {
-        return Path("~")
+      return Path("~")
     } else if withoutHome.isAbsolute {
-        return Path("~" + withoutHome.path)
+      return Path("~" + withoutHome.path)
     } else {
-        return Path("~") + withoutHome.path
+      return Path("~") + withoutHome.path
     }
   }
 
@@ -186,17 +165,11 @@ extension Path {
   public func symlinkDestination() throws -> Path {
     let symlinkDestination = try Path.fileManager.destinationOfSymbolicLink(atPath: path)
     let symlinkPath = Path(symlinkDestination)
-    if symlinkPath.isRelative {
-      return self + ".." + symlinkPath
-    } else {
-      return symlinkPath
-    }
+    if symlinkPath.isRelative { return self + ".." + symlinkPath } else { return symlinkPath }
   }
 }
 
-internal protocol FileSystemInfo {
-  func isFSCaseSensitiveAt(path: Path) -> Bool
-}
+internal protocol FileSystemInfo { func isFSCaseSensitiveAt(path: Path) -> Bool }
 
 internal struct DefaultFileSystemInfo: FileSystemInfo {
   func isFSCaseSensitiveAt(path: Path) -> Bool {
@@ -211,7 +184,9 @@ internal struct DefaultFileSystemInfo: FileSystemInfo {
       // Calling resourceValues will fail if the path does not exist on the filesystem, which
       // makes sense, but means we can only guarantee the return value is correct if the
       // path actually exists.
-      if let resourceValues = try? path.url.resourceValues(forKeys: [.volumeSupportsCaseSensitiveNamesKey]) {
+      if let resourceValues = try? path.url.resourceValues(forKeys: [
+        .volumeSupportsCaseSensitiveNamesKey
+      ]) {
         isCaseSensitive = resourceValues.volumeSupportsCaseSensitiveNames ?? isCaseSensitive
       }
       return isCaseSensitive
@@ -226,9 +201,7 @@ extension Path {
   ///
   /// - Returns: the last path component
   ///
-  public var lastComponent: String {
-    return NSString(string: path).lastPathComponent
-  }
+  public var lastComponent: String { return NSString(string: path).lastPathComponent }
 
   /// The last path component without file extension
   ///
@@ -245,9 +218,7 @@ extension Path {
   ///
   /// - Returns: all path components
   ///
-  public var components: [String] {
-    return NSString(string: path).pathComponents
-  }
+  public var components: [String] { return NSString(string: path).pathComponents }
 
   /// The file extension behind the last dot of the last component.
   ///
@@ -255,14 +226,11 @@ extension Path {
   ///
   public var `extension`: String? {
     let pathExtension = NSString(string: path).pathExtension
-    if  pathExtension.isEmpty {
-      return nil
-    }
+    if pathExtension.isEmpty { return nil }
 
     return pathExtension
   }
 }
-
 
 // MARK: File Info
 
@@ -272,9 +240,7 @@ extension Path {
   /// - Returns: `false` iff the path doesn't exist on disk or its existence could not be
   ///   determined
   ///
-  public var exists: Bool {
-    return Path.fileManager.fileExists(atPath: self.path)
-  }
+  public var exists: Bool { return Path.fileManager.fileExists(atPath: self.path) }
 
   /// Test whether a path is a directory.
   ///
@@ -312,11 +278,9 @@ extension Path {
   ///
   public var isSymlink: Bool {
     do {
-      let _ = try Path.fileManager.destinationOfSymbolicLink(atPath: path)
+      _ = try Path.fileManager.destinationOfSymbolicLink(atPath: path)
       return true
-    } catch {
-      return false
-    }
+    } catch { return false }
   }
 
   /// Test whether a path is readable
@@ -325,9 +289,7 @@ extension Path {
   ///   otherwise `false` if the process does not have read privileges or the existence of the
   ///   file could not be determined.
   ///
-  public var isReadable: Bool {
-    return Path.fileManager.isReadableFile(atPath: self.path)
-  }
+  public var isReadable: Bool { return Path.fileManager.isReadableFile(atPath: self.path) }
 
   /// Test whether a path is writeable
   ///
@@ -335,9 +297,7 @@ extension Path {
   ///   otherwise `false` if the process does not have write privileges or the existence of the
   ///   file could not be determined.
   ///
-  public var isWritable: Bool {
-    return Path.fileManager.isWritableFile(atPath: self.path)
-  }
+  public var isWritable: Bool { return Path.fileManager.isWritableFile(atPath: self.path) }
 
   /// Test whether a path is executable
   ///
@@ -345,9 +305,7 @@ extension Path {
   ///   otherwise `false` if the process does not have execute privileges or the existence of the
   ///   file could not be determined.
   ///
-  public var isExecutable: Bool {
-    return Path.fileManager.isExecutableFile(atPath: self.path)
-  }
+  public var isExecutable: Bool { return Path.fileManager.isExecutableFile(atPath: self.path) }
 
   /// Test whether a path is deletable
   ///
@@ -355,11 +313,8 @@ extension Path {
   ///   otherwise `false` if the process does not have delete privileges or the existence of the
   ///   file could not be determined.
   ///
-  public var isDeletable: Bool {
-    return Path.fileManager.isDeletableFile(atPath: self.path)
-  }
+  public var isDeletable: Bool { return Path.fileManager.isDeletableFile(atPath: self.path) }
 }
-
 
 // MARK: File Manipulation
 
@@ -370,8 +325,12 @@ extension Path {
   ///   This method also fails if any of the intermediate path elements corresponds to a file and
   ///   not a directory.
   ///
-  public func mkdir() throws -> () {
-    try Path.fileManager.createDirectory(atPath: self.path, withIntermediateDirectories: false, attributes: nil)
+  public func mkdir() throws {
+    try Path.fileManager.createDirectory(
+      atPath: self.path,
+      withIntermediateDirectories: false,
+      attributes: nil
+    )
   }
 
   /// Create the directory and any intermediate parent directories that do not exist.
@@ -379,8 +338,12 @@ extension Path {
   /// - Note: This method fails if any of the intermediate path elements corresponds to a file and
   ///   not a directory.
   ///
-  public func mkpath() throws -> () {
-    try Path.fileManager.createDirectory(atPath: self.path, withIntermediateDirectories: true, attributes: nil)
+  public func mkpath() throws {
+    try Path.fileManager.createDirectory(
+      atPath: self.path,
+      withIntermediateDirectories: true,
+      attributes: nil
+    )
   }
 
   /// Delete the file or directory.
@@ -388,16 +351,14 @@ extension Path {
   /// - Note: If the path specifies a directory, the contents of that directory are recursively
   ///   removed.
   ///
-  public func delete() throws -> () {
-    try Path.fileManager.removeItem(atPath: self.path)
-  }
+  public func delete() throws { try Path.fileManager.removeItem(atPath: self.path) }
 
   /// Move the file or directory to a new location synchronously.
   ///
   /// - Parameter destination: The new path. This path must include the name of the file or
   ///   directory in its new location.
   ///
-  public func move(_ destination: Path) throws -> () {
+  public func move(_ destination: Path) throws {
     try Path.fileManager.moveItem(atPath: self.path, toPath: destination.path)
   }
 
@@ -406,7 +367,7 @@ extension Path {
   /// - Parameter destination: The new path. This path must include the name of the file or
   ///   directory in its new location.
   ///
-  public func copy(_ destination: Path) throws -> () {
+  public func copy(_ destination: Path) throws {
     try Path.fileManager.copyItem(atPath: self.path, toPath: destination.path)
   }
 
@@ -414,7 +375,7 @@ extension Path {
   ///
   /// - Parameter destination: The location where the link will be created.
   ///
-  public func link(_ destination: Path) throws -> () {
+  public func link(_ destination: Path) throws {
     try Path.fileManager.linkItem(atPath: self.path, toPath: destination.path)
   }
 
@@ -422,11 +383,13 @@ extension Path {
   ///
   /// - Parameter destintation: The location where the link will be created.
   ///
-  public func symlink(_ destination: Path) throws -> () {
-    try Path.fileManager.createSymbolicLink(atPath: self.path, withDestinationPath: destination.path)
+  public func symlink(_ destination: Path) throws {
+    try Path.fileManager.createSymbolicLink(
+      atPath: self.path,
+      withDestinationPath: destination.path
+    )
   }
 }
-
 
 // MARK: Current Directory
 
@@ -436,12 +399,8 @@ extension Path {
   /// - Returns: the current working directory of the process
   ///
   public static var current: Path {
-    get {
-      return self.init(Path.fileManager.currentDirectoryPath)
-    }
-    set {
-      _ = Path.fileManager.changeCurrentDirectoryPath(newValue.description)
-    }
+    get { return self.init(Path.fileManager.currentDirectoryPath) }
+    set { _ = Path.fileManager.changeCurrentDirectoryPath(newValue.description) }
   }
 
   /// Changes the current working directory of the process to the path during the execution of the
@@ -451,7 +410,7 @@ extension Path {
   /// - Parameter closure: A closure to be executed while the current directory is configured to
   ///   the path.
   ///
-  public func chdir(closure: () throws -> ()) rethrows {
+  public func chdir(closure: () throws -> Void) rethrows {
     let previous = Path.current
     Path.current = self
     defer { Path.current = previous }
@@ -459,31 +418,24 @@ extension Path {
   }
 }
 
-
 // MARK: Temporary
 
 extension Path {
   /// - Returns: the path to either the user’s or application’s home directory,
   ///   depending on the platform.
   ///
-  public static var home: Path {
-    return Path(NSHomeDirectory())
-  }
+  public static var home: Path { return Path(NSHomeDirectory()) }
 
   /// - Returns: the path of the temporary directory for the current user.
   ///
-  public static var temporary: Path {
-    return Path(NSTemporaryDirectory())
-  }
+  public static var temporary: Path { return Path(NSTemporaryDirectory()) }
 
   /// - Returns: the path of a temporary directory unique for the process.
   /// - Note: Based on `NSProcessInfo.globallyUniqueString`.
   ///
   public static func processUniqueTemporary() throws -> Path {
     let path = temporary + ProcessInfo.processInfo.globallyUniqueString
-    if !path.exists {
-      try path.mkdir()
-    }
+    if !path.exists { try path.mkdir() }
     return path
   }
 
@@ -496,7 +448,6 @@ extension Path {
     return path
   }
 }
-
 
 // MARK: Contents
 
@@ -517,7 +468,8 @@ extension Path {
   /// - Returns: the contents of the file at the specified path as string.
   ///
   public func read(_ encoding: String.Encoding = String.Encoding.utf8) throws -> String {
-    return try NSString(contentsOfFile: path, encoding: encoding.rawValue).substring(from: 0) as String
+    return try NSString(contentsOfFile: path, encoding: encoding.rawValue).substring(from: 0)
+      as String
   }
 
   /// Write a file.
@@ -527,9 +479,7 @@ extension Path {
   ///
   /// - Parameter data: the contents to write to file.
   ///
-  public func write(_ data: Data) throws {
-    try data.write(to: normalize().url, options: .atomic)
-  }
+  public func write(_ data: Data) throws { try data.write(to: normalize().url, options: .atomic) }
 
   /// Reads the file.
   ///
@@ -548,7 +498,6 @@ extension Path {
   }
 }
 
-
 // MARK: Traversing
 
 extension Path {
@@ -556,18 +505,14 @@ extension Path {
   ///
   /// - Returns: the normalized path of the parent directory
   ///
-  public func parent() -> Path {
-    return self + ".."
-  }
+  public func parent() -> Path { return self + ".." }
 
   /// Performs a shallow enumeration in a directory
   ///
   /// - Returns: paths to all files, directories and symbolic links contained in the directory
   ///
   public func children() throws -> [Path] {
-    return try Path.fileManager.contentsOfDirectory(atPath: path).map {
-      self + Path($0)
-    }
+    return try Path.fileManager.contentsOfDirectory(atPath: path).map { self + Path($0) }
   }
 
   /// Performs a deep enumeration in a directory
@@ -576,82 +521,34 @@ extension Path {
   ///   any subdirectory.
   ///
   public func recursiveChildren() throws -> [Path] {
-    return try Path.fileManager.subpathsOfDirectory(atPath: path).map {
-      self + Path($0)
-    }
+    return try Path.fileManager.subpathsOfDirectory(atPath: path).map { self + Path($0) }
   }
 }
-
-
-// MARK: Globbing
-
-extension Path {
-  public static func glob(_ pattern: String) -> [Path] {
-    var gt = glob_t()
-    guard let cPattern = strdup(pattern) else {
-      fatalError("strdup returned null: Likely out of memory")
-    }
-    defer {
-      globfree(&gt)
-      free(cPattern)
-    }
-
-    let flags = GLOB_TILDE | GLOB_BRACE | GLOB_MARK
-    if system_glob(cPattern, flags, nil, &gt) == 0 {
-#if os(Linux)
-      let matchc = gt.gl_pathc
-#else
-      let matchc = gt.gl_matchc
-#endif
-      return (0..<Int(matchc)).compactMap { index in
-        if let path = String(validatingUTF8: gt.gl_pathv[index]!) {
-          return Path(path)
-        }
-
-        return nil
-      }
-    }
-
-    // GLOB_NOMATCH
-    return []
-  }
-
-  public func glob(_ pattern: String) -> [Path] {
-    return Path.glob((self + pattern).description)
-  }
-
-  public func match(_ pattern: String) -> Bool {
-    guard let cPattern = strdup(pattern),
-          let cPath = strdup(path) else {
-      fatalError("strdup returned null: Likely out of memory")
-    }
-    defer {
-      free(cPattern)
-      free(cPath)
-    }
-    return fnmatch(cPattern, cPath, 0) == 0
-  }
-}
-
 
 // MARK: SequenceType
 
-extension Path : Sequence {
-  public struct DirectoryEnumerationOptions : OptionSet {
+extension Path: Sequence {
+  public struct DirectoryEnumerationOptions: OptionSet {
     public let rawValue: UInt
-    public init(rawValue: UInt) {
-      self.rawValue = rawValue
-    }
 
-    public static var skipsSubdirectoryDescendants = DirectoryEnumerationOptions(rawValue: FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants.rawValue)
-    public static var skipsPackageDescendants = DirectoryEnumerationOptions(rawValue: FileManager.DirectoryEnumerationOptions.skipsPackageDescendants.rawValue)
-    public static var skipsHiddenFiles = DirectoryEnumerationOptions(rawValue: FileManager.DirectoryEnumerationOptions.skipsHiddenFiles.rawValue)
+    public init(rawValue: UInt) { self.rawValue = rawValue }
+
+    public static var skipsSubdirectoryDescendants = Self(
+      rawValue: FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants.rawValue
+    )
+    public static var skipsPackageDescendants = Self(
+      rawValue: FileManager.DirectoryEnumerationOptions.skipsPackageDescendants.rawValue
+    )
+    public static var skipsHiddenFiles = Self(
+      rawValue: FileManager.DirectoryEnumerationOptions.skipsHiddenFiles.rawValue
+    )
   }
 
   /// Represents a path sequence with specific enumeration options
-  public struct PathSequence : Sequence {
+  public struct PathSequence: Sequence {
     private var path: Path
     private var options: DirectoryEnumerationOptions
+
     init(path: Path, options: DirectoryEnumerationOptions) {
       self.path = path
       self.options = options
@@ -664,7 +561,7 @@ extension Path : Sequence {
 
   /// Enumerates the contents of a directory, returning the paths of all files and directories
   /// contained within that directory. These paths are relative to the directory.
-  public struct DirectoryEnumerator : IteratorProtocol {
+  public struct DirectoryEnumerator: IteratorProtocol {
     public typealias Element = Path
 
     let path: Path
@@ -673,22 +570,22 @@ extension Path : Sequence {
     init(path: Path, options mask: DirectoryEnumerationOptions = []) {
       let options = FileManager.DirectoryEnumerationOptions(rawValue: mask.rawValue)
       self.path = path
-      self.directoryEnumerator = Path.fileManager.enumerator(at: path.url, includingPropertiesForKeys: nil, options: options)
+      self.directoryEnumerator = Path.fileManager.enumerator(
+        at: path.url,
+        includingPropertiesForKeys: nil,
+        options: options
+      )
     }
 
     public func next() -> Path? {
       let next = directoryEnumerator?.nextObject()
 
-      if let next = next as? URL {
-        return Path(next.path)
-      }
+      if let next = next as? URL { return Path(next.path) }
       return nil
     }
 
     /// Skip recursion into the most recently obtained subdirectory.
-    public func skipDescendants() {
-      directoryEnumerator?.skipDescendants()
-    }
+    public func skipDescendants() { directoryEnumerator?.skipDescendants() }
   }
 
   /// Perform a deep enumeration of a directory.
@@ -696,9 +593,7 @@ extension Path : Sequence {
   /// - Returns: a directory enumerator that can be used to perform a deep enumeration of the
   ///   directory.
   ///
-  public func makeIterator() -> DirectoryEnumerator {
-    return DirectoryEnumerator(path: self)
-  }
+  public func makeIterator() -> DirectoryEnumerator { return DirectoryEnumerator(path: self) }
 
   /// Perform a deep enumeration of a directory.
   ///
@@ -712,20 +607,16 @@ extension Path : Sequence {
   }
 }
 
-
 // MARK: Equatable
 
-extension Path : Equatable {}
+extension Path: Equatable {}
 
 /// Determines if two paths are identical
 ///
 /// - Note: The comparison is string-based. Be aware that two different paths (foo.txt and
 ///   ./foo.txt) can refer to the same file.
 ///
-public func ==(lhs: Path, rhs: Path) -> Bool {
-  return lhs.path == rhs.path
-}
-
+public func == (lhs: Path, rhs: Path) -> Bool { return lhs.path == rhs.path }
 
 // MARK: Pattern Matching
 
@@ -735,36 +626,27 @@ public func ==(lhs: Path, rhs: Path) -> Bool {
 ///     - the paths are equal (based on `Path`'s `Equatable` implementation)
 ///     - the paths can be normalized to equal Paths.
 ///
-public func ~=(lhs: Path, rhs: Path) -> Bool {
-  return lhs == rhs
-    || lhs.normalize() == rhs.normalize()
+public func ~= (lhs: Path, rhs: Path) -> Bool {
+  return lhs == rhs || lhs.normalize() == rhs.normalize()
 }
-
 
 // MARK: Comparable
 
-extension Path : Comparable {}
+extension Path: Comparable {}
 
 /// Defines a strict total order over Paths based on their underlying string representation.
-public func <(lhs: Path, rhs: Path) -> Bool {
-  return lhs.path < rhs.path
-}
-
+public func < (lhs: Path, rhs: Path) -> Bool { return lhs.path < rhs.path }
 
 // MARK: Operators
 
 /// Appends a Path fragment to another Path to produce a new Path
-public func +(lhs: Path, rhs: Path) -> Path {
-  return lhs.path + rhs.path
-}
+public func + (lhs: Path, rhs: Path) -> Path { return lhs.path + rhs.path }
 
 /// Appends a String fragment to another Path to produce a new Path
-public func +(lhs: Path, rhs: String) -> Path {
-  return lhs.path + rhs
-}
+public func + (lhs: Path, rhs: String) -> Path { return lhs.path + rhs }
 
 /// Appends a String fragment to another String to produce a new Path
-internal func +(lhs: String, rhs: String) -> Path {
+internal func + (lhs: String, rhs: String) -> Path {
   if rhs.hasPrefix(Path.separator) {
     // Absolute paths replace relative paths
     return Path(rhs)
@@ -773,9 +655,7 @@ internal func +(lhs: String, rhs: String) -> Path {
     var rSlice = NSString(string: rhs).pathComponents.fullSlice
 
     // Get rid of trailing "/" at the left side
-    if lSlice.count > 1 && lSlice.last == Path.separator {
-      lSlice.removeLast()
-    }
+    if lSlice.count > 1 && lSlice.last == Path.separator { lSlice.removeLast() }
 
     // Advance after the first relevant "."
     lSlice = lSlice.filter { $0 != "." }.fullSlice
@@ -787,17 +667,12 @@ internal func +(lhs: String, rhs: String) -> Path {
         // A leading "/" is never popped
         lSlice.removeLast()
       }
-      if !rSlice.isEmpty {
-        rSlice.removeFirst()
-      }
+      if !rSlice.isEmpty { rSlice.removeFirst() }
 
       switch (lSlice.isEmpty, rSlice.isEmpty) {
-      case (true, _):
-        break
-      case (_, true):
-        break
-      default:
-        continue
+      case (true, _): break
+      case (_, true): break
+      default: continue
       }
     }
 
@@ -805,8 +680,7 @@ internal func +(lhs: String, rhs: String) -> Path {
   }
 }
 
-extension Array {
-  var fullSlice: ArraySlice<Element> {
-    return self[self.indices.suffix(from: 0)]
-  }
-}
+extension Array { var fullSlice: ArraySlice<Element> { return self[self.indices.suffix(from: 0)] } }
+// swiftlint:enable todo
+// swiftlint:enable nesting
+// swiftlint:enable legacy_objc_type

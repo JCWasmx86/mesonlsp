@@ -1,7 +1,7 @@
 import Foundation
+import IOUtils
 import Logging
 import MesonAST
-import IOUtils
 import SwiftTreeSitter
 import Timing
 import TreeSitterMeson

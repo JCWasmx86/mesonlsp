@@ -1,12 +1,12 @@
 import Atomics
 import Dispatch
 import Foundation
+import IOUtils
 import LanguageServerProtocol
 import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
-import IOUtils
 #if !os(Windows)
   import Swifter
 #endif

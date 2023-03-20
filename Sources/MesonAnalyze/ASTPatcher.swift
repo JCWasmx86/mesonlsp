@@ -1,5 +1,5 @@
-import MesonAST
 import IOUtils
+import MesonAST
 
 class ASTPatcher: CodeVisitor {
   public var subdirs: [String] = []

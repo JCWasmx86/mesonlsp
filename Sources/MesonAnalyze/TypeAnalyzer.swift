@@ -1,6 +1,6 @@
+import IOUtils
 import Logging
 import MesonAST
-import IOUtils
 import Timing
 
 public final class TypeAnalyzer: ExtendedCodeVisitor {
