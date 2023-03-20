@@ -1,4 +1,4 @@
-#if !os(Windows)
+#if !os(Windows) && !os(macOS)
   import CMem
   import Glibc
   import IOUtils

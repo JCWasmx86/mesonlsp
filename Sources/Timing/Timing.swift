@@ -1,7 +1,9 @@
 #if os(Windows)
   import CRT
-#else
+#elseif os(Linux)
   import Glibc
+#else
+  import Darwin
 #endif
 
 public class Timing {
