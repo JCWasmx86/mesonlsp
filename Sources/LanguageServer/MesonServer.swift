@@ -49,9 +49,11 @@ public final class MesonServer: LanguageServer {
           break
         } catch {}
       }
+      super.init(client: client)
       self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
+    #else
+    	super.init(client: client)
     #endif
-    super.init(client: client)
     self.queue.asyncAfter(deadline: .now() + interval) {
       self.sendStats()
       self.scheduleNextTask()
