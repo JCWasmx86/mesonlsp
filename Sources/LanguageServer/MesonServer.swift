@@ -52,7 +52,7 @@ public final class MesonServer: LanguageServer {
       super.init(client: client)
       self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
     #else
-    	super.init(client: client)
+      super.init(client: client)
     #endif
     self.queue.asyncAfter(deadline: .now() + interval) {
       self.sendStats()
