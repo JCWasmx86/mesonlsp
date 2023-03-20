@@ -1,3 +1,8 @@
+# 1.4.1 (Mar 20 2023)
+- Major code cleanups
+- Replaced PathKit dependency by a vendored version.
+- Restructured code to allow support for other platforms.
+- Add MacOS CI (Provides freshly compiled binaries for testing)
 # 1.4 (Mar 17 2023)
 - Add support for deriving strings in `subdir(x)`/`set_variable(x)`, where x is not a string literal. The implementation is good enough for parsing WrapDB, GNOME and ElementaryOS correctly.
 - Improve dashboard to show more information and work offline
