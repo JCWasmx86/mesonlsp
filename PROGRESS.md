@@ -50,7 +50,7 @@
 - [x] Inlay hints
 - [x] Add swiftlint to CI
 - [x] Add swift-format to CI
-- [ ] Add MacOS to CI
+- [x] Add MacOS to CI
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
