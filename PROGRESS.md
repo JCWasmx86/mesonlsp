@@ -49,6 +49,7 @@
     - [x] wrap-git
     - [x] wrap-hg
     - [x] wrap-svn
+    - [ ] Apply diffs/patches
   - [ ] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
 - [x] Highlighting
