@@ -63,4 +63,24 @@ public class Wrap {
       throw WrapError.genericError("Command failed with code \(task.terminationStatus): \(joined)")
     }
   }
+
+  internal func download(url: String) throws -> String {
+    let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
+    let outputFile = tempPath + "/" + UUID().uuidString
+    var found = false
+    Self.LOG.info("Attempting to download from \(url) to file \(outputFile)")
+    do {
+      try self.assertRequired("wget")
+      found = true
+      try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
+    } catch {
+      if !found {
+        try self.assertRequired("curl")
+        try self.executeCommand(["curl", url, "-o", outputFile, "-s"])
+      } else {
+        throw error
+      }
+    }
+    return outputFile
+  }
 }

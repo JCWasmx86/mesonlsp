@@ -58,6 +58,7 @@ public class FileWrap: Wrap {
       // All other libraries I tried (SwiftHTTP, Just) didn't even compile
       // So declare defeat and simply shell out to curl/wget, as one of those is always
       // installed.
+      let archiveFile = try self.download(url: url.description)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
     }
