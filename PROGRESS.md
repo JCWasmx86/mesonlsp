@@ -43,7 +43,7 @@
 - [x] More diagnostics
 - [ ] Full Wrap support
   - [x] Define data model
-  - [ ] Parse wrap files
+  - [x] Parse wrap files
   - [ ] Setup directory structures
     - [ ] wrap-file
     - [ ] wrap-git
