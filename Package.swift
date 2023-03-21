@@ -13,7 +13,7 @@ let package = Package(
     .library(name: "IOUtils", targets: ["IOUtils"]), .library(name: "Timing", targets: ["Timing"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
-    .library(name: "CMem", targets: ["CMem"]),
+    .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
@@ -33,7 +33,8 @@ let package = Package(
         .product(name: "Logging", package: "swift-log"),
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
-    .target(name: "IOUtils", dependencies: []), .target(name: "MesonDocs", dependencies: []),
+    .target(name: "IOUtils", dependencies: []), .target(name: "Wrap", dependencies: []),
+    .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
@@ -55,7 +56,7 @@ let package = Package(
       name: "Swift-MesonLSP",
       dependencies: [
         "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
-        "TestingFramework", .product(name: "ConsoleKit", package: "console-kit"),
+        "TestingFramework", "Wrap", .product(name: "ConsoleKit", package: "console-kit"),
         .product(name: "Logging", package: "swift-log"),
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),

@@ -42,6 +42,13 @@
 - [ ] Full autocompletion
 - [x] More diagnostics
 - [ ] Full Wrap support
+  - [x] Define data model
+  - [ ] Parse wrap files
+  - [ ] Setup directory structures
+    - [ ] wrap-file
+    - [ ] wrap-git
+    - [ ] wrap-hg
+    - [ ] wrap-svn
 - [ ] Full Subproject support
 - [x] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
