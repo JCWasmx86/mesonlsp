@@ -1,3 +1,5 @@
+import Foundation
+
 public class Wrap {
   public private(set) var directory: String?
   public private(set) var patchURL: String?
@@ -33,5 +35,30 @@ public class Wrap {
 
   public func setupDirectory(path: String, packagefilesPath: String) throws {
     fatalError("Implement me")
+  }
+
+  internal func assertRequired(_ command: String) throws {
+    let task = Process()
+    task.arguments = ["-c", "\'which \(command)\'"]
+    task.executableURL = URL(fileURLWithPath: "/bin/sh")
+    try task.run()
+    task.waitUntilExit()
+    if task.terminationStatus != 0 {
+      throw WrapError.commandNotFound("Required command `\(command)` not found")
+    }
+  }
+
+  internal func executeCommand(_ commands: [String]) throws {
+    let task = Process()
+    let joined = commands.map { $0.contains(" ") ? "\'\($0)\'" : $0 }.joined(separator: " ")
+    task.arguments = ["-c", "\"\(joined)\""]
+    task.executableURL = URL(fileURLWithPath: "/bin/sh")
+    try task.run()
+    task.waitUntilExit()
+    if task.terminationStatus != 0 {
+      throw WrapError.commandNotFound(
+        "Command failed with code \(task.terminationStatus): \(joined)"
+      )
+    }
   }
 }

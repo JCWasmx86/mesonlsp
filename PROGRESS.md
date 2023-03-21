@@ -46,7 +46,7 @@
   - [x] Parse wrap files
   - [ ] Setup directory structures
     - [ ] wrap-file
-    - [ ] wrap-git
+    - [x] wrap-git
     - [ ] wrap-hg
     - [ ] wrap-svn
 - [ ] Full Subproject support
