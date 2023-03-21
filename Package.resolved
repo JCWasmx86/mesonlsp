@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "INIParser",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-INIParser.git",
+        "state": {
+          "branch": null,
+          "revision": "d5f7373ea4affec9af8b9727f411b884288562f8",
+          "version": "4.0.0"
+        }
+      },
+      {
         "package": "SourceKitLSP",
         "repositoryURL": "https://github.com/apple/sourcekit-lsp",
         "state": {

@@ -24,6 +24,7 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3"),
+    .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
   ],
   targets: [
     .target(
@@ -33,8 +34,11 @@ let package = Package(
         .product(name: "Logging", package: "swift-log"),
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
-    .target(name: "IOUtils", dependencies: []), .target(name: "Wrap", dependencies: []),
-    .target(name: "MesonDocs", dependencies: []),
+    .target(name: "IOUtils", dependencies: []),
+    .target(
+      name: "Wrap",
+      dependencies: [.product(name: "INIParser", package: "Perfect-INIParser")]
+    ), .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
