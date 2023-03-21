@@ -37,7 +37,10 @@ let package = Package(
     .target(name: "IOUtils", dependencies: []),
     .target(
       name: "Wrap",
-      dependencies: ["IOUtils", .product(name: "INIParser", package: "Perfect-INIParser")]
+      dependencies: [
+        "IOUtils", .product(name: "INIParser", package: "Perfect-INIParser"),
+        .product(name: "Logging", package: "swift-log"),
+      ]
     ), .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
