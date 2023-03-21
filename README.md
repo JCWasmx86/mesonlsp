@@ -164,29 +164,29 @@ In this example, it took around half-second to parse the entire mesa meson files
 ## References
 - [gnome-builder#629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629) An issue somewhat related to this project.
 ### Dependencies
-- [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
-- [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
-- [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
+- [Alamofire](https://github.com/Alamofire/Alamofire) - Elegant HTTP Networking in Swift
+- [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
+- [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
 - [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
+- [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
+- [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
 - [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
-- [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
-- [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
-- [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
-- [Alamofire](https://github.com/Alamofire/Alamofire) - Elegant HTTP Networking in Swift
+- [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
+- [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
 
 ### Projects I tested the language server with
 - Working fine:
   - [Fractal](https://gitlab.gnome.org/GNOME/fractal)
   - [GitG](https://gitlab.gnome.org/GNOME/gitg)
+  - [GLib](https://gitlab.gnome.org/GNOME/glib)
   - [GNOME Builder](https://gitlab.gnome.org/GNOME/gnome-builder)
   - [GNOME Builder Plugins](https://github.com/JCWasmx86/GNOME-Builder-Plugins)
   - [GTK](https://gitlab.gnome.org/GNOME/gtk)
   - [libswiftdemangle](https://github.com/JCWasmx86/libswiftdemangle)
+  - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
   - [QEMU](https://gitlab.com/qemu-project/qemu)
   - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
   - [Systemd](https://github.com/systemd/systemd)
-  - [GLib](https://gitlab.gnome.org/GNOME/glib)
-  - [Mesa](https://gitlab.freedesktop.org/mesa/mesa)
 - Somewhat flaky:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
