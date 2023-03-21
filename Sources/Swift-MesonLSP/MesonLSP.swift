@@ -12,13 +12,17 @@ import MesonAST
 import SwiftTreeSitter
 import TestingFramework
 import TreeSitterMeson
+import Wrap
 
 @main public struct MesonLSP: ParsableCommand {
   static let NUM_PARSES = 100
 
   @ArgumentParser.Option var path: String = "./meson.build"
   @ArgumentParser.Argument var paths: [String] = []
+  @ArgumentParser.Option var wrapOutput: String = ""
+  @ArgumentParser.Option var wrapPackageFiles: String = ""
   @ArgumentParser.Flag var lsp: Bool = false
+  @ArgumentParser.Flag var wrap: Bool = false
   @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
   @ArgumentParser.Flag var benchmark: Bool = false
@@ -117,10 +121,33 @@ import TreeSitterMeson
     }
   }
 
+  func parseWraps() {
+    let console = Terminal()
+    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+      logger.logLevel = .debug
+      return logger
+    }
+    let logger = Logger(label: "MesonLSP::parseWraps")
+    for w in self.paths {
+      let wfp = WrapFileParser(path: w)
+      do {
+        let wrapAsObject = try wfp.parse()
+        try wrapAsObject.setupDirectory(
+          path: self.wrapOutput,
+          packagefilesPath: self.wrapPackageFiles
+        )
+      } catch let error as NSError {
+        logger.critical("Caught exception: \(error.debugDescription)")
+      }
+    }
+  }
+
   public mutating func run() {
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
-    if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
+    if self.wrap && !self.paths.isEmpty {
+      self.parseWraps()
+    } else if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
       self.parseNTimes()
       return
     } else if !lsp && !paths.isEmpty && !self.benchmark && !self.interpret {
