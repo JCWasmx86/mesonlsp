@@ -1,3 +1,5 @@
+import Foundation
+
 public class FileWrap: Wrap {
   public private(set) var sourceURL: String?
   public private(set) var sourceFallbackURL: String?
@@ -33,5 +35,26 @@ public class FileWrap: Wrap {
       patchDirectory: patchDirectory,
       diffFiles: diffFiles
     )
+  }
+
+  public override func setupDirectory(path: String, packagefilesPath: String) throws {
+    guard let urlAsString = self.sourceURL else {
+      throw WrapError.genericError("Expected URL to clone")
+    }
+    if let url = URL(string: urlAsString) {
+      // Do something like https://github.com/mesonbuild/meson/blob/3e7c08f358e9bd91808c8ff3b76c11aedeb82f85/mesonbuild/wrap/wrap.py#L549
+      let targetDirectory =
+        self.directory
+        ?? url.lastPathComponent.replacingOccurrences(of: ".zip", with: "").replacingOccurrences(
+          of: ".tar.xz",
+          with: ""
+        ).replacingOccurrences(of: ".tar.gz", with: "").replacingOccurrences(
+          of: ".tar.bz2",
+          with: ""
+        ).replacingOccurrences(of: ".tgz", with: "")
+      let fullPath = path + "/" + targetDirectory
+    } else {
+      throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
+    }
   }
 }

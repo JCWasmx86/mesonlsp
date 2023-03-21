@@ -164,7 +164,6 @@ In this example, it took around half-second to parse the entire mesa meson files
 ## References
 - [gnome-builder#629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629) An issue somewhat related to this project.
 ### Dependencies
-- [Alamofire](https://github.com/Alamofire/Alamofire) - Elegant HTTP Networking in Swift
 - [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
 - [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
 - [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
