@@ -53,6 +53,11 @@ public class FileWrap: Wrap {
           with: ""
         ).replacingOccurrences(of: ".tgz", with: "")
       let fullPath = path + "/" + targetDirectory
+      // Alamofire does not fit in, as everything is synchronous
+      // URLSession.shared does not seem to exist.
+      // All other libraries I tried (SwiftHTTP, Just) didn't even compile
+      // So declare defeat and simply shell out to curl/wget, as one of those is always
+      // installed.
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
     }
