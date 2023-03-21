@@ -128,6 +128,7 @@ import Wrap
       return logger
     }
     let logger = Logger(label: "MesonLSP::parseWraps")
+    var nErrors = 0
     for w in self.paths {
       let wfp = WrapFileParser(path: w)
       do {
@@ -136,10 +137,12 @@ import Wrap
           path: self.wrapOutput,
           packagefilesPath: self.wrapPackageFiles
         )
-      } catch let error as NSError {
-        logger.critical("Caught exception: \(error.debugDescription)")
+      } catch let error {
+        logger.critical("Caught exception: \(String(describing: error))")
+        nErrors += 1
       }
     }
+    _Exit(nErrors == 0 ? 0 : 1)
   }
 
   public mutating func run() {
@@ -147,6 +150,7 @@ import Wrap
     Logger.shared.currentLevel = self.stdio ? .error : .info
     if self.wrap && !self.paths.isEmpty {
       self.parseWraps()
+      return
     } else if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
       self.parseNTimes()
       return

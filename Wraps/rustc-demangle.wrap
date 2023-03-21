@@ -1,0 +1,4 @@
+[wrap-git]
+url = https://github.com/JCWasmx86/rustc-demangle
+revision = head
+depth = 1

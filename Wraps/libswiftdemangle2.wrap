@@ -1,0 +1,5 @@
+[wrap-git]
+directory = libswiftdemangle2
+url = https://github.com/JCWasmx86/libswiftdemangle
+revision = main
+depth = 1

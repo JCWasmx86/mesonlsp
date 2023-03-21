@@ -41,7 +41,8 @@ public class Wrap {
 
   internal func assertRequired(_ command: String) throws {
     let task = Process()
-    task.arguments = ["-c", "\'which \(command)\'"]
+    Self.LOG.info("Checking if `\(command)` exists")
+    task.arguments = ["-c", "which \(command)"]
     task.executableURL = URL(fileURLWithPath: "/bin/sh")
     try task.run()
     task.waitUntilExit()
@@ -52,16 +53,14 @@ public class Wrap {
 
   internal func executeCommand(_ commands: [String]) throws {
     let task = Process()
-    let joined = commands.map { $0.contains(" ") ? "\'\($0)\'" : $0 }.joined(separator: " ")
+    let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
     Self.LOG.info("Executing \"\(joined)\"")
-    task.arguments = ["-c", "\"\(joined)\""]
+    task.arguments = ["-c", "\(joined)"]
     task.executableURL = URL(fileURLWithPath: "/bin/sh")
     try task.run()
     task.waitUntilExit()
     if task.terminationStatus != 0 {
-      throw WrapError.commandNotFound(
-        "Command failed with code \(task.terminationStatus): \(joined)"
-      )
+      throw WrapError.genericError("Command failed with code \(task.terminationStatus): \(joined)")
     }
   }
 }
