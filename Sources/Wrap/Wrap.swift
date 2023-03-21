@@ -7,6 +7,7 @@ public class Wrap {
   public private(set) var patchDirectory: String?
   public private(set) var diffFiles: [String]?
   public private(set) var provides: Provides = Provides()
+  public private(set) var wrapFile: String = ""
 
   internal init(
     directory: String?,
@@ -27,4 +28,10 @@ public class Wrap {
   }
 
   internal func applyProvides(_ provides: Provides) { self.provides = provides }
+
+  internal func setFile(_ file: String) { self.wrapFile = file }
+
+  public func setupDirectory(path: String, packagefilesPath: String) throws {
+    fatalError("Implement me")
+  }
 }

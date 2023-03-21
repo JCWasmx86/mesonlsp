@@ -1,4 +1,5 @@
 import INIParser
+import IOUtils
 
 public class WrapFileParser {
   private let path: String
@@ -97,6 +98,7 @@ public class WrapFileParser {
     }
     if let r = ret {
       r.applyProvides(provides)
+      r.setFile(Path(self.path).normalize().description)
       return r
     }
     throw WrapError.unknownWrapType("Unknown wrap type \(name)")
