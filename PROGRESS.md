@@ -47,8 +47,9 @@
   - [ ] Setup directory structures
     - [ ] wrap-file
     - [x] wrap-git
-    - [ ] wrap-hg
-    - [ ] wrap-svn
+    - [x] wrap-hg
+    - [x] wrap-svn
+  - [ ] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
 - [x] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
