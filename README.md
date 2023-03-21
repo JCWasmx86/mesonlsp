@@ -173,6 +173,7 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
 - [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
 - [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
+- [Alamofire](https://github.com/Alamofire/Alamofire) - Elegant HTTP Networking in Swift
 
 ### Projects I tested the language server with
 - Working fine:

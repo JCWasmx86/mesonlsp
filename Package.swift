@@ -25,6 +25,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
+    .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.4")),
   ],
   targets: [
     .target(
@@ -38,7 +39,7 @@ let package = Package(
     .target(
       name: "Wrap",
       dependencies: [
-        "IOUtils", .product(name: "INIParser", package: "Perfect-INIParser"),
+        "IOUtils", "Alamofire", .product(name: "INIParser", package: "Perfect-INIParser"),
         .product(name: "Logging", package: "swift-log"),
       ]
     ), .target(name: "MesonDocs", dependencies: []),
