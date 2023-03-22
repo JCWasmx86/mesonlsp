@@ -45,7 +45,7 @@
   - [x] Define data model
   - [x] Parse wrap files
   - [ ] Setup directory structures
-    - [ ] wrap-file
+    - [x] wrap-file
     - [x] wrap-git
     - [x] wrap-hg
     - [x] wrap-svn
