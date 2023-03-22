@@ -59,6 +59,26 @@ public class FileWrap: Wrap {
       // So declare defeat and simply shell out to curl/wget, as one of those is always
       // installed.
       let archiveFile = try self.download(url: url.description)
+      do {
+        try FileManager.default.createDirectory(
+          atPath: self.leadDirectoryMissing ? fullPath : path,
+          withIntermediateDirectories: true,
+          attributes: nil
+        )
+      } catch {
+        // Ignore
+      }
+      let wd = self.leadDirectoryMissing ? fullPath : path
+      let fileName = url.lastPathComponent
+      if fileName.hasSuffix(".zip") {
+        try self.assertRequired("unzip")
+        try self.executeCommand(["unzip", archiveFile], wd)
+      } else if fileName.hasSuffix("tar.xz") || fileName.hasSuffix(".tar.bz2")
+        || fileName.hasSuffix(".tgz") || fileName.hasSuffix(".tar.gz")
+      {
+        try self.assertRequired("tar")
+        try self.executeCommand(["tar", "xzvf", archiveFile], wd)
+      }
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
     }

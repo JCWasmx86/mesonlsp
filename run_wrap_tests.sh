@@ -3,7 +3,9 @@ rm -rf __wrap_target
 mkdir __wrap_target
 swift build -c release --static-swift-stdlib || exit
 export LSPPATH="$PWD/.build/release/Swift-MesonLSP"
-$LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps/libswiftdemangle2.wrap --wrap-output "$PWD/__wrap_target/" || exit
+$LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap \
+						--wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap \
+						--wrap Wraps/turtle.wrap --wrap-output "$PWD/__wrap_target/" || exit
 cd __wrap_target || exit
 cd libswiftdemangle || exit
 if test -f ".git/refs/heads/main"; then
@@ -17,6 +19,17 @@ if grep -v -q "e96565e27f95865830626f5d8a081b69cfe5ea11" .git/refs/heads/main; t
 fi
 cd ../rustc-demangle || exit
 # TODO: What should I test here?
+cd ../miniz-3.0.1 || exit
+if [ ! -f "miniz.c" ]; then
+	echo "Missing miniz.c"
+	exit 1
+fi
+cd ../turtle-1.3.2 || exit
+if [ ! -d "doc" ]; then
+	echo "Missing directory doc/"
+	exit 1
+fi
 cd ..
 cd ..
 rm -rf __wrap_target
+echo "No errors"

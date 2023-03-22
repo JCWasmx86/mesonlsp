@@ -51,12 +51,13 @@ public class Wrap {
     }
   }
 
-  internal func executeCommand(_ commands: [String]) throws {
+  internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
     let task = Process()
     let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
-    Self.LOG.info("Executing \"\(joined)\"")
+    Self.LOG.info("Executing \"\(joined)\" at \(cwd ?? "???")")
     task.arguments = ["-c", "\(joined)"]
     task.executableURL = URL(fileURLWithPath: "/bin/sh")
+    if let c = cwd { task.currentDirectoryURL = URL(fileURLWithPath: c) }
     try task.run()
     task.waitUntilExit()
     if task.terminationStatus != 0 {
