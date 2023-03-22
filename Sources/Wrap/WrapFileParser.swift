@@ -23,7 +23,7 @@ public class WrapFileParser {
     let patchDirectory = firstSection["patch_directory"]
     var diffFiles: [String] = []
     if let df = firstSection["diff_files"] {
-      diffFiles = df.split(separator: ",").map { $0.description.lowercased() }
+      diffFiles = Array(df.split(separator: ",").map { $0.description })
     }
     var ret: Wrap?
     if name == "wrap-file" {

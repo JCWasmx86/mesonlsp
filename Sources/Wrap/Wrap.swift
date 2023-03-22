@@ -108,7 +108,18 @@ public class Wrap {
     }
   }
 
-  func applyDiffFiles(path: String, packagesfilesPath: String) throws {}
+  func applyDiffFiles(path: String, packagesfilesPath: String) throws {
+    if let diffs = diffFiles {
+      for diff in diffs {
+        Self.LOG.info("Applying diff \(diff)")
+        let absoluteDiffPath = packagesfilesPath + "/" + diff
+        try self.executeCommand(
+          ["git", "--work-tree", path, "apply", "-p1", absoluteDiffPath],
+          path
+        )
+      }
+    }
+  }
 
   func mergeDirectories(from sourceURL: URL, to destinationURL: URL) throws {
     let fileManager = FileManager.default
