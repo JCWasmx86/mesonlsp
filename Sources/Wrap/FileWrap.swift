@@ -41,11 +41,12 @@ public class FileWrap: Wrap {
     guard let urlAsString = self.sourceURL else {
       throw WrapError.genericError("Expected URL to clone")
     }
-    if let url = URL(string: urlAsString), let hash = self.sourceHash {
+    if let url = URL(string: urlAsString), let hash = self.sourceHash, let sfn = self.sourceFilename
+    {
       // Do something like https://github.com/mesonbuild/meson/blob/3e7c08f358e9bd91808c8ff3b76c11aedeb82f85/mesonbuild/wrap/wrap.py#L549
       let targetDirectory =
         self.directory
-        ?? url.lastPathComponent.replacingOccurrences(of: ".zip", with: "").replacingOccurrences(
+        ?? sfn.replacingOccurrences(of: ".zip", with: "").replacingOccurrences(
           of: ".tar.xz",
           with: ""
         ).replacingOccurrences(of: ".tar.gz", with: "").replacingOccurrences(
@@ -73,7 +74,7 @@ public class FileWrap: Wrap {
         // Ignore
       }
       let wd = self.leadDirectoryMissing ? fullPath : path
-      let fileName = url.lastPathComponent
+      let fileName = sfn
       if fileName.hasSuffix(".zip") {
         try self.assertRequired("unzip")
         try self.executeCommand(["unzip", archiveFile], wd)
@@ -82,6 +83,8 @@ public class FileWrap: Wrap {
       {
         try self.assertRequired("tar")
         try self.executeCommand(["tar", "xvf", archiveFile], wd)
+      } else {
+      	throw WrapError.genericError("Unable to extract archive \(sfn)")
       }
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
