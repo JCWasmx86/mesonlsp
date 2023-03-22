@@ -52,7 +52,7 @@
     - [x] Apply patches
     - [x] Apply diffs
   - [x] Check all checksums
-  - [ ] Use fallback URLs
+  - [x] Use fallback URLs
   - [ ] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
 - [x] Highlighting
