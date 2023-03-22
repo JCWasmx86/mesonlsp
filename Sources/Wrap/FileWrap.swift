@@ -82,7 +82,7 @@ public class FileWrap: Wrap {
         || fileName.hasSuffix(".tgz") || fileName.hasSuffix(".tar.gz")
       {
         try self.assertRequired("tar")
-        try self.executeCommand(["tar", "xvf", archiveFile], wd)
+        try self.executeCommand(["tar", "xf", archiveFile], wd)
       } else {
         throw WrapError.genericError("Unable to extract archive \(sfn)")
       }
