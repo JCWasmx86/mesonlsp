@@ -51,7 +51,7 @@
     - [x] wrap-svn
     - [x] Apply patches
     - [x] Apply diffs
-  - [ ] Check all checksums
+  - [x] Check all checksums
   - [ ] Use fallback URLs
   - [ ] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
