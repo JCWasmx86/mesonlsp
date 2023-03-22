@@ -11,6 +11,7 @@ public class SvnWrap: VcsWrap {
         self.directory ?? url.lastPathComponent.replacingOccurrences(of: ".git", with: "")
       let fullPath = path + "/" + targetDirectory
       try self.executeCommand(["svn", "checkout", "-r", rev, url.description, fullPath])
+      try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.url))")
     }

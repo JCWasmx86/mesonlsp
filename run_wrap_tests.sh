@@ -5,7 +5,8 @@ swift build -c release --static-swift-stdlib || exit
 export LSPPATH="$PWD/.build/release/Swift-MesonLSP"
 $LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap \
 						--wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap \
-						--wrap Wraps/turtle.wrap --wrap-output "$PWD/__wrap_target/" || exit
+						--wrap Wraps/turtle.wrap \
+						--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/Wraps/packagefiles"|| exit
 cd __wrap_target || exit
 cd libswiftdemangle || exit
 if test -f ".git/refs/heads/main"; then
@@ -24,9 +25,17 @@ if [ ! -f "miniz.c" ]; then
 	echo "Missing miniz.c"
 	exit 1
 fi
+if [ ! -f "meson.build" ]; then
+	echo "Missing meson.build"
+	exit 1
+fi
 cd ../turtle-1.3.2 || exit
 if [ ! -d "doc" ]; then
 	echo "Missing directory doc/"
+	exit 1
+fi
+if [ ! -f "meson.build" ]; then
+	echo "Missing meson.build"
 	exit 1
 fi
 cd ..

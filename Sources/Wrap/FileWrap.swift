@@ -79,6 +79,7 @@ public class FileWrap: Wrap {
         try self.assertRequired("tar")
         try self.executeCommand(["tar", "xzvf", archiveFile], wd)
       }
+      try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
     }

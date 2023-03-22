@@ -1,4 +1,5 @@
 import Foundation
+import IOUtils
 import Logging
 
 public class Wrap {
@@ -83,5 +84,59 @@ public class Wrap {
       }
     }
     return outputFile
+  }
+
+  internal func postSetup(path: String, packagesfilesPath: String) throws {
+    try self.applyPatch(path: path, packagesfilesPath: packagesfilesPath)
+    try self.applyDiffFiles(path: path, packagesfilesPath: packagesfilesPath)
+  }
+
+  func applyPatch(path: String, packagesfilesPath: String) throws {
+    if let patchDir = self.patchDirectory {
+      let packagePath = Path(packagesfilesPath + "/" + patchDir)
+      Self.LOG.info("Copying from \(packagePath) to \(path)")
+      let children = try packagePath.children()
+      let destDir = Path(path)
+      try mergeDirectories(
+        from: URL(fileURLWithPath: packagePath.description),
+        to: URL(fileURLWithPath: path)
+      )
+      return
+      for c in children {
+        do { try c.copy(destDir) } catch let e {
+          Self.LOG.warning("\(e)")
+          throw e
+        }
+      }
+    }
+  }
+
+  func applyDiffFiles(path: String, packagesfilesPath: String) throws {}
+
+  func mergeDirectories(from sourceURL: URL, to destinationURL: URL) throws {
+    let fileManager = FileManager.default
+    let fileUrls = try fileManager.contentsOfDirectory(
+      at: sourceURL,
+      includingPropertiesForKeys: nil
+    )
+
+    for fileUrl in fileUrls {
+      let destinationFileUrl = destinationURL.appendingPathComponent(fileUrl.lastPathComponent)
+      if fileManager.fileExists(atPath: destinationFileUrl.path) {
+        try fileManager.removeItem(at: destinationFileUrl)
+      }
+      if fileManager.fileExists(atPath: fileUrl.path) {
+        if fileUrl.hasDirectoryPath {
+          try fileManager.createDirectory(
+            at: destinationFileUrl,
+            withIntermediateDirectories: true,
+            attributes: nil
+          )
+          try mergeDirectories(from: fileUrl, to: destinationFileUrl)
+        } else {
+          try fileManager.copyItem(at: fileUrl, to: destinationFileUrl)
+        }
+      }
+    }
   }
 }

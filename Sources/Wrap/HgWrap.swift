@@ -14,6 +14,7 @@ public class HgWrap: VcsWrap {
       if rev.lowercased() != "tip" {
         try self.executeCommand(["hg", "--cwd", fullPath, "checkout", rev])
       }
+      try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.url))")
     }

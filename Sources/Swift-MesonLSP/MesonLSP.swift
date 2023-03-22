@@ -129,6 +129,8 @@ import Wrap
     }
     let logger = Logger(label: "MesonLSP::parseWraps")
     var nErrors = 0
+    logger.info("Packagefiles at: \(self.wrapPackageFiles)")
+    logger.info("Output at: \(self.wrapOutput)")
     for w in self.paths {
       let wfp = WrapFileParser(path: w)
       do {

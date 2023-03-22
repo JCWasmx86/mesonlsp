@@ -86,6 +86,7 @@ public class GitWrap: VcsWrap {
       if let pl = self.pushURL {
         try self.executeCommand(["git", "-C", fullPath, "set-url", "--push", "origin", pl])
       }
+      try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.url))")
     }
