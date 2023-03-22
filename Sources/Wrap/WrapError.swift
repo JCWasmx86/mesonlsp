@@ -5,4 +5,5 @@ public enum WrapError: Error {
   case noWrapSectionFound(String)
   case unknownWrapType(String)
   case commandNotFound(String)
+  case validationError(String)
 }

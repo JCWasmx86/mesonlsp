@@ -170,6 +170,7 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
 - [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
 - [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
+- [swift-crypto](https://github.com/apple/swift-crypto) - Open-source implementation of a substantial portion of the API of Apple CryptoKit suitable for use on Linux platforms.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
 - [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
 - [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.

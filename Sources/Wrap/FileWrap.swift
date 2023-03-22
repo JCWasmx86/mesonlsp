@@ -41,7 +41,7 @@ public class FileWrap: Wrap {
     guard let urlAsString = self.sourceURL else {
       throw WrapError.genericError("Expected URL to clone")
     }
-    if let url = URL(string: urlAsString) {
+    if let url = URL(string: urlAsString), let hash = self.sourceHash {
       // Do something like https://github.com/mesonbuild/meson/blob/3e7c08f358e9bd91808c8ff3b76c11aedeb82f85/mesonbuild/wrap/wrap.py#L549
       let targetDirectory =
         self.directory
@@ -58,7 +58,7 @@ public class FileWrap: Wrap {
       // All other libraries I tried (SwiftHTTP, Just) didn't even compile
       // So declare defeat and simply shell out to curl/wget, as one of those is always
       // installed.
-      let archiveFile = try self.download(url: url.description)
+      let archiveFile = try self.download(url: url.description, expectedHash: hash)
       do {
         try FileManager.default.createDirectory(
           atPath: self.leadDirectoryMissing ? fullPath : path,

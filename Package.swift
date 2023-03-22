@@ -19,6 +19,7 @@ let package = Package(
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.2"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3"),
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "2.4.0"),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
@@ -38,7 +39,8 @@ let package = Package(
     .target(
       name: "Wrap",
       dependencies: [
-        "IOUtils", .product(name: "INIParser", package: "Perfect-INIParser"),
+        "IOUtils", .product(name: "Crypto", package: "swift-crypto"),
+        .product(name: "INIParser", package: "Perfect-INIParser"),
         .product(name: "Logging", package: "swift-log"),
       ]
     ), .target(name: "MesonDocs", dependencies: []),

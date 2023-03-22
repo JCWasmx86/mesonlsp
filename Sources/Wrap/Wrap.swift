@@ -1,3 +1,4 @@
+import Crypto
 import Foundation
 import IOUtils
 import Logging
@@ -66,7 +67,7 @@ public class Wrap {
     }
   }
 
-  internal func download(url: String) throws -> String {
+  internal func download(url: String, expectedHash: String) throws -> String {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + "/" + UUID().uuidString
     var found = false
@@ -82,6 +83,12 @@ public class Wrap {
       } else {
         throw error
       }
+    }
+    let savedData = try Data(contentsOf: URL(fileURLWithPath: outputFile))
+    let hashedBytes = Data(SHA256.hash(data: savedData)).hexStringEncoded()
+    Self.LOG.info("Expected \(expectedHash), got \(hashedBytes)")
+    if expectedHash != hashedBytes {
+      throw WrapError.validationError("Expected \(expectedHash), got \(hashedBytes)")
     }
     return outputFile
   }
@@ -100,9 +107,9 @@ public class Wrap {
         to: URL(fileURLWithPath: path)
       )
       return
-    } else if self.patchFilename != nil, let url = self.patchURL {
+    } else if self.patchFilename != nil, let url = self.patchURL, let hash = self.patchHash {
       // Download files, unpack in the parent directory of path
-      let handleToPath = try self.download(url: url)
+      let handleToPath = try self.download(url: url, expectedHash: hash)
       try self.assertRequired("zip")
       try self.executeCommand(["unzip", handleToPath], Path(path).parent().description)
     }
@@ -146,5 +153,18 @@ public class Wrap {
         }
       }
     }
+  }
+}
+
+extension Data {
+  private static let hexAlphabet = Array("0123456789abcdef".unicodeScalars)
+
+  public func hexStringEncoded() -> String {
+    String(
+      reduce(into: "".unicodeScalars) { result, value in
+        result.append(Self.hexAlphabet[Int(value / 0x10)])
+        result.append(Self.hexAlphabet[Int(value % 0x10)])
+      }
+    )
   }
 }
