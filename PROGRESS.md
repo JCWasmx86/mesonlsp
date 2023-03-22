@@ -50,6 +50,8 @@
     - [x] wrap-hg
     - [x] wrap-svn
     - [ ] Apply diffs/patches
+  - [ ] Check all checksums
+  - [ ] Use fallback URLs
   - [ ] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
 - [x] Highlighting
