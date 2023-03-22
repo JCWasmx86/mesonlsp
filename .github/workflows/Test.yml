@@ -24,4 +24,4 @@ jobs:
           ./run_wrap_tests.sh
           git clone https://github.com/mesonbuild/wrapdb
           mkdir wo
-          for i in wrapdb/subprojects/*.wrap; do .build/debug/Swift-MesonLSP --wrap $i --wrap-package-files "./wrapdb/packagefiles" --wrap-output ./wo/ || exit 1; done
+          for i in wrapdb/subprojects/*.wrap; do .build/debug/Swift-MesonLSP --wrap $i --wrap-package-files "./wrapdb/subprojects/packagefiles" --wrap-output ./wo/ || exit 1; done
