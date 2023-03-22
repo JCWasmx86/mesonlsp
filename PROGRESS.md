@@ -49,7 +49,8 @@
     - [x] wrap-git
     - [x] wrap-hg
     - [x] wrap-svn
-    - [ ] Apply diffs/patches
+    - [x] Apply patches
+    - [ ] Apply diffs
   - [ ] Check all checksums
   - [ ] Use fallback URLs
   - [ ] Apply to all files to WrapDB in CI
