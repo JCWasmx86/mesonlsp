@@ -44,13 +44,13 @@
 - [ ] Full Wrap support
   - [x] Define data model
   - [x] Parse wrap files
-  - [ ] Setup directory structures
+  - [x] Setup directory structures
     - [x] wrap-file
     - [x] wrap-git
     - [x] wrap-hg
     - [x] wrap-svn
     - [x] Apply patches
-    - [ ] Apply diffs
+    - [x] Apply diffs
   - [ ] Check all checksums
   - [ ] Use fallback URLs
   - [ ] Apply to all files to WrapDB in CI
