@@ -95,19 +95,16 @@ public class Wrap {
     if let patchDir = self.patchDirectory {
       let packagePath = Path(packagesfilesPath + "/" + patchDir)
       Self.LOG.info("Copying from \(packagePath) to \(path)")
-      let children = try packagePath.children()
-      let destDir = Path(path)
       try mergeDirectories(
         from: URL(fileURLWithPath: packagePath.description),
         to: URL(fileURLWithPath: path)
       )
       return
-      for c in children {
-        do { try c.copy(destDir) } catch let e {
-          Self.LOG.warning("\(e)")
-          throw e
-        }
-      }
+    } else if self.patchFilename != nil, let url = self.patchURL {
+      // Download files, unpack in the parent directory of path
+      let handleToPath = try self.download(url: url)
+      try self.assertRequired("zip")
+      try self.executeCommand(["unzip", handleToPath], Path(path).parent().description)
     }
   }
 

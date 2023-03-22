@@ -5,7 +5,7 @@ swift build -c release --static-swift-stdlib || exit
 export LSPPATH="$PWD/.build/release/Swift-MesonLSP"
 $LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap \
 						--wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap \
-						--wrap Wraps/turtle.wrap \
+						--wrap Wraps/turtle.wrap --wrap Wraps/sqlite.wrap \
 						--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/Wraps/packagefiles"|| exit
 cd __wrap_target || exit
 cd libswiftdemangle || exit
@@ -34,6 +34,11 @@ if [ ! -d "doc" ]; then
 	echo "Missing directory doc/"
 	exit 1
 fi
+if [ ! -f "meson.build" ]; then
+	echo "Missing meson.build"
+	exit 1
+fi
+cd ../sqlite-amalgamation-3080802 || exit
 if [ ! -f "meson.build" ]; then
 	echo "Missing meson.build"
 	exit 1
