@@ -84,7 +84,7 @@ public class FileWrap: Wrap {
         try self.assertRequired("tar")
         try self.executeCommand(["tar", "xvf", archiveFile], wd)
       } else {
-      	throw WrapError.genericError("Unable to extract archive \(sfn)")
+        throw WrapError.genericError("Unable to extract archive \(sfn)")
       }
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
