@@ -44,6 +44,13 @@ if [ ! -f "meson.build" ]; then
 	echo "Missing meson.build"
 	exit 1
 fi
+cd ../pango-1.50.12 || exit
+if grep -q "FOOBARBAZ" meson.build; then
+	:
+else
+	echo "Patch wasn't applied"
+	exit 1
+fi
 cd ..
 cd ..
 rm -rf __wrap_target

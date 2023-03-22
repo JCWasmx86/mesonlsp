@@ -49,7 +49,7 @@ index ca296da3..a3103e96 100644
                            fallback: ['freetype2', 'freetype_dep'])
  
 -if freetype_dep.found() and freetype_dep.type_name() == 'pkgconfig'
-+if freetype_dep.found() and freetype_dep.type_name() in ['pkgconfig', 'internal']
++if freetype_dep.found() and freetype_dep.type_name() in ['pkgconfig', 'internal'] # FOOBARBAZQUX
    freetype2_pc = 'freetype2'
  endif
  
