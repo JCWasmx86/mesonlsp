@@ -67,20 +67,21 @@ public class Wrap {
     }
   }
 
-  internal func download(url: String, expectedHash: String) throws -> String {
+  internal func download(url: String, fallbackURL: String?, expectedHash: String) throws -> String {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + "/" + UUID().uuidString
-    var found = false
     Self.LOG.info("Attempting to download from \(url) to file \(outputFile)")
     do {
       try self.assertRequired("wget")
-      found = true
       try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
     } catch {
-      if !found {
+      do {
         try self.assertRequired("curl")
         try self.executeCommand(["curl", url, "-o", outputFile, "-s"])
-      } else {
+      } catch {
+        if let fb = fallbackURL {
+          return try download(url: fb, fallbackURL: nil, expectedHash: expectedHash)
+        }
         throw error
       }
     }
@@ -88,6 +89,9 @@ public class Wrap {
     let hashedBytes = Data(SHA256.hash(data: savedData)).hexStringEncoded()
     Self.LOG.info("Expected \(expectedHash), got \(hashedBytes)")
     if expectedHash != hashedBytes {
+      if let fb = fallbackURL {
+        return try download(url: fb, fallbackURL: nil, expectedHash: expectedHash)
+      }
       throw WrapError.validationError("Expected \(expectedHash), got \(hashedBytes)")
     }
     return outputFile
@@ -109,7 +113,11 @@ public class Wrap {
       return
     } else if self.patchFilename != nil, let url = self.patchURL, let hash = self.patchHash {
       // Download files, unpack in the parent directory of path
-      let handleToPath = try self.download(url: url, expectedHash: hash)
+      let handleToPath = try self.download(
+        url: url,
+        fallbackURL: self.patchFallbackURL,
+        expectedHash: hash
+      )
       try self.assertRequired("zip")
       try self.executeCommand(["unzip", handleToPath], Path(path).parent().description)
     }

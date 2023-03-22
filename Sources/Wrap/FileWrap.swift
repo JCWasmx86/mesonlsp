@@ -58,7 +58,11 @@ public class FileWrap: Wrap {
       // All other libraries I tried (SwiftHTTP, Just) didn't even compile
       // So declare defeat and simply shell out to curl/wget, as one of those is always
       // installed.
-      let archiveFile = try self.download(url: url.description, expectedHash: hash)
+      let archiveFile = try self.download(
+        url: url.description,
+        fallbackURL: self.sourceFallbackURL,
+        expectedHash: hash
+      )
       do {
         try FileManager.default.createDirectory(
           atPath: self.leadDirectoryMissing ? fullPath : path,
