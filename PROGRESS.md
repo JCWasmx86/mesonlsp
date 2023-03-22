@@ -41,7 +41,7 @@
 ## Version 2.0
 - [ ] Full autocompletion
 - [x] More diagnostics
-- [ ] Full Wrap support
+- [x] Full Wrap support
   - [x] Define data model
   - [x] Parse wrap files
   - [x] Setup directory structures
@@ -53,7 +53,7 @@
     - [x] Apply diffs
   - [x] Check all checksums
   - [x] Use fallback URLs
-  - [ ] Apply to all files to WrapDB in CI
+  - [x] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
 - [x] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
