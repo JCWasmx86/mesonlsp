@@ -17,6 +17,33 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var stack: [[String: [Type]]] = []
   var overriddenVariables: [[String: [Type]]] = []
   var ignoreUnknownIdentifer: [String] = []
+  let pureFunctions: Set<String> = [
+    "disabler", "environment", "files", "generator", "get_variable", "import",
+    "include_directories", "is_disabler", "is_variable", "join_paths", "structured_sources",
+  ]
+  // Missing: Compiler functions and the ones from the modules
+  let pureMethods: Set<String> = [
+    "build_machine.cpu", "build_machine.cpu_family", "build_machine.endian", "build_machine.system",
+    "meson.backend", "meson.build_options", "meson.build_root", "meson.can_run_host_binaries",
+    "meson.current_build_dir", "meson.current_source_dir", "meson.get_cross_property",
+    "meson.get_external_property", "meson.global_build_root", "meson.global_source_root",
+    "meson.has_exe_wrapper", "meson.has_external_property", "meson.is_cross_build",
+    "meson.is_subproject", "meson.is_unity", "meson.project_build_root", "meson.project_license",
+    "meson.project_license_files", "meson.project_name", "meson.project_source_root",
+    "meson.project_version", "meson.source_root", "meson.version", "both_libs.get_shared_lib",
+    "both_libs.get_static_lib", "build_tgt.extract_all_objects", "build_tgt.extract_objects",
+    "build_tgt.found", "build_tgt.full_path", "build_tgt.full_path", "build_tgt.name",
+    "build_tgt.path", "build_tgt.private_dir_include", "cfg_data.get", "cfg_data.get_unquoted",
+    "cfg_data.has", "cfg_data.keys", "custom_idx.full_path", "custom_tgt.full_path",
+    "custom_tgt.to_list", "dep.as_link_whole", "dep.as_system", "dep.found",
+    "dep.get_configtool_variable", "dep.get_pkgconfig_variable", "dep.get_variable",
+    "dep.include_type", "dep.name", "dep.partial_dependency", "dep.type_name", "dep.version",
+    "disabler.found", "external_program.found", "external_program.full_path",
+    "external_program.path", "external_program.version", "feature.allowed", "feature.auto",
+    "feature.disabled", "feature.enabled", "module.found", "runresult.compiled",
+    "runresult.returncode", "runresult.stderr", "runresult.stdout", "subproject.found",
+    "subproject.get_variable",
+  ]
 
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
@@ -816,37 +843,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       noEffect = true
     } else if let fn = b as? FunctionExpression, let fnid = fn.id as? IdExpression {
       let fname = fnid.id
-      let fns = [
-        "disabler", "environment", "files", "generator", "get_variable", "import",
-        "include_directories", "is_disabler", "is_variable", "join_paths", "structured_sources",
-      ]
-      noEffect = fns.contains(fname)
+      noEffect = self.pureFunctions.contains(fname)
     } else if let me = b as? MethodExpression, let method = me.method {
       let methodName = method.id()
-      let mnames = [
-        "build_machine.cpu", "build_machine.cpu_family", "build_machine.endian",
-        "build_machine.system", "meson.backend", "meson.build_options", "meson.build_root",
-        "meson.can_run_host_binaries", "meson.current_build_dir", "meson.current_source_dir",
-        "meson.get_cross_property", "meson.get_external_property", "meson.global_build_root",
-        "meson.global_source_root", "meson.has_exe_wrapper", "meson.has_external_property",
-        "meson.is_cross_build", "meson.is_subproject", "meson.is_unity", "meson.project_build_root",
-        "meson.project_license", "meson.project_license_files", "meson.project_name",
-        "meson.project_source_root", "meson.project_version", "meson.source_root", "meson.version",
-        "both_libs.get_shared_lib", "both_libs.get_static_lib", "build_tgt.extract_all_objects",
-        "build_tgt.extract_objects", "build_tgt.found", "build_tgt.full_path",
-        "build_tgt.full_path", "build_tgt.name", "build_tgt.path", "build_tgt.private_dir_include",
-        "cfg_data.get", "cfg_data.get_unquoted", "cfg_data.has", "cfg_data.keys",
-        "custom_idx.full_path", "custom_tgt.full_path", "custom_tgt.to_list", "dep.as_link_whole",
-        "dep.as_system", "dep.found", "dep.get_configtool_variable", "dep.get_pkgconfig_variable",
-        "dep.get_variable", "dep.include_type", "dep.name", "dep.partial_dependency",
-        "dep.type_name", "dep.version", "disabler.found", "external_program.found",
-        "external_program.full_path", "external_program.path", "external_program.version",
-        "feature.allowed", "feature.auto", "feature.disabled", "feature.enabled", "module.found",
-        "runresult.compiled", "runresult.returncode", "runresult.stderr", "runresult.stdout",
-        "subproject.found", "subproject.get_variable",
-      ]
-      // Missing: Compiler functions and the ones from the modules
-      noEffect = mnames.contains(methodName)
+      noEffect = self.pureMethods.contains(methodName)
     }
     if noEffect {
       self.metadata.registerDiagnostic(
