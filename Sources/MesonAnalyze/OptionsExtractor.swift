@@ -39,20 +39,24 @@ public class OptionsExtractor: CodeVisitor {
           if let descNode = al.getKwarg(name: "description") {
             if let descLiteral = descNode as? StringLiteral { description = descLiteral.contents() }
           }
-          self.createOption(sl.contents(), name, description)
+          var deprecated = false
+          if let kwarg = al.getKwarg(name: "deprecated"), let bool = kwarg as? BooleanLiteral {
+            deprecated = bool.value
+          }
+          self.createOption(sl.contents(), name, description, deprecated)
         }
       }
     }
   }
 
-  func createOption(_ type: String, _ name: String, _ description: String?) {
+  func createOption(_ type: String, _ name: String, _ description: String?, _ deprecated: Bool) {
     switch type {
-    case "array": self.options.append(ArrayOption(name, description))
-    case "boolean": self.options.append(BoolOption(name, description))
-    case "integer": self.options.append(IntOption(name, description))
-    case "string": self.options.append(StringOption(name, description))
-    case "combo": self.options.append(ComboOption(name, description))
-    case "feature": self.options.append(FeatureOption(name, description))
+    case "array": self.options.append(ArrayOption(name, description, deprecated))
+    case "boolean": self.options.append(BoolOption(name, description, deprecated))
+    case "integer": self.options.append(IntOption(name, description, deprecated))
+    case "string": self.options.append(StringOption(name, description, deprecated))
+    case "combo": self.options.append(ComboOption(name, description, deprecated))
+    case "feature": self.options.append(FeatureOption(name, description, deprecated))
     default: _ = 1
     }
   }

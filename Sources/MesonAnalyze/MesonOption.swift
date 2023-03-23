@@ -1,10 +1,12 @@
 public class MesonOption {
   public let name: String
   public let description: String?
+  public let deprecated: Bool
 
-  public init(_ name: String, _ description: String?) {
+  public init(_ name: String, _ description: String?, _ deprecated: Bool = false) {
     self.name = name
     self.description = description
+    self.deprecated = deprecated
   }
 }
 

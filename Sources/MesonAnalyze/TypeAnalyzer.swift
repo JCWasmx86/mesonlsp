@@ -460,6 +460,32 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
         )
       }
+    } else if fn.name == "get_option" && node.argumentList != nil,
+      let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
+      let sl = al.args[0] as? StringLiteral, let opts = self.tree.options
+    {
+      self.analyzeOptsCalls(node, sl, opts)
+    }
+  }
+
+  func analyzeOptsCalls(_ node: Node, _ sl: StringLiteral, _ opts: OptionState) {
+    let optname = sl.contents()
+    if let opt = opts.opts[optname] {
+      if opt.deprecated {
+        self.metadata.registerDiagnostic(
+          node: node,
+          diag: MesonDiagnostic(
+            sev: .warning,
+            node: node,
+            message: "Option `\(optname)` is deprecated"
+          )
+        )
+      }
+    } else {
+      self.metadata.registerDiagnostic(
+        node: node,
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown option `\(optname)`")
+      )
     }
   }
 

@@ -6,3 +6,5 @@ arrayo = get_option('arrayopt') # ana:var: arrayo = list(str)
 booleano = get_option('booleanopt') # ana:var: booleano = bool
 featureo = get_option('featureopt') # ana:var: featureo = feature
 nonexisting = get_option('nonexisting') # ana:var: nonexisting = bool|feature|int|list(bool|int|str)|str
+nonexisting2 = get_option('nonexisting2') # ana:error: Unknown option `nonexisting2`
+depr = get_option('deprecated') # ana:warn: Option `deprecated` is deprecated
