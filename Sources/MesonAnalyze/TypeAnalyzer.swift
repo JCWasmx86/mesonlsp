@@ -148,6 +148,30 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     )
   }
 
+  func checkCondition(_ c: Node) -> Bool {
+    var appended = false
+    if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
+      fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
+      let sl = al.args[0] as? StringLiteral
+    {
+      self.ignoreUnknownIdentifer.append(sl.contents())
+      appended = true
+    }
+    var foundBoolOrAny = false
+    for t in c.types where t is `Any` || t is BoolType || t is Disabler {
+      foundBoolOrAny = true
+      break
+    }
+    if !foundBoolOrAny && !c.types.isEmpty {
+      let t = c.types.map { $0.toString() }.joined(separator: "|")
+      self.metadata.registerDiagnostic(
+        node: c,
+        diag: MesonDiagnostic(sev: .error, node: c, message: "Condition is not bool: \(t)")
+      )
+    }
+    return appended
+  }
+
   public func visitSelectionStatement(node: SelectionStatement) {
     self.stack.append([:])
     self.overriddenVariables.append([:])
@@ -159,25 +183,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if idx < node.conditions.count {
         let c = node.conditions[idx]
         c.visit(visitor: self)
-        if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
-          fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
-          let sl = al.args[0] as? StringLiteral
-        {
-          self.ignoreUnknownIdentifer.append(sl.contents())
-          appended = true
-        }
-        var foundBoolOrAny = false
-        for t in c.types where t is `Any` || t is BoolType || t is Disabler {
-          foundBoolOrAny = true
-          break
-        }
-        if !foundBoolOrAny && !c.types.isEmpty {
-          let t = c.types.map { $0.toString() }.joined(separator: "|")
-          self.metadata.registerDiagnostic(
-            node: c,
-            diag: MesonDiagnostic(sev: .error, node: c, message: "Condition is not bool: \(t)")
-          )
-        }
+        appended = self.checkCondition(c)
       }
       var lastAlive: Node?
       var firstDead: Node?
