@@ -4,6 +4,7 @@
 - Detect unused assignments
 - Allow downloading and setting up wraps
 - Warn about use of deprecated options
+- Add error, if an option does not exist
 # 1.4.1 (Mar 20 2023)
 - Major code cleanups
 - Replaced PathKit dependency by a vendored version.
