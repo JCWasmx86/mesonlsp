@@ -26,6 +26,14 @@ public class MesonMetadata {
     }
   }
 
+  public func registerDiagnostic(begin: Node, end: Node, diag: MesonDiagnostic) {
+    if self.diagnostics[begin.file.file] == nil {
+      self.diagnostics.updateValue([diag], forKey: begin.file.file)
+    } else {
+      self.diagnostics[begin.file.file]!.append(diag)
+    }
+  }
+
   public func registerMethodCall(call: MethodExpression) {
     if self.methodCalls[call.file.file] == nil {
       self.methodCalls.updateValue([call], forKey: call.file.file)

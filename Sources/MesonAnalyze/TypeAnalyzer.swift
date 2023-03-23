@@ -122,7 +122,23 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitBuildDefinition(node: BuildDefinition) {
     node.visitChildren(visitor: self)
 
-    for b in node.stmts { self.checkNoEffect(b) }
+    var lastAlive: Node?
+    var firstDead: Node?
+    var lastDead: Node?
+    for b in node.stmts {
+      self.checkNoEffect(b)
+      if lastAlive == nil {
+        if self.isDead(b) { lastAlive = b }
+      } else {
+        if firstDead == nil {
+          firstDead = b
+          lastDead = b
+        } else {
+          lastDead = b
+        }
+      }
+    }
+    self.applyDead(lastAlive, firstDead, lastDead)
   }
   public func visitErrorNode(node: ErrorNode) {
     node.visitChildren(visitor: self)
@@ -131,6 +147,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       diag: MesonDiagnostic(sev: .error, node: node, message: node.message)
     )
   }
+
   public func visitSelectionStatement(node: SelectionStatement) {
     self.stack.append([:])
     self.overriddenVariables.append([:])
@@ -162,10 +179,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         }
       }
+      var lastAlive: Node?
+      var firstDead: Node?
+      var lastDead: Node?
       for b1 in b {
         b1.visit(visitor: self)
         self.checkNoEffect(b1)
+        if lastAlive == nil {
+          if self.isDead(b1) { lastAlive = b1 }
+        } else {
+          if firstDead == nil {
+            firstDead = b1
+            lastDead = b1
+          } else {
+            lastDead = b1
+          }
+        }
       }
+      self.applyDead(lastAlive, firstDead, lastDead)
       if appended { self.ignoreUnknownIdentifer.removeLast() }
       idx += 1
     }
@@ -265,10 +296,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     } else if node.ids.count == Self.ITERATION_DICT_VAR_COUNT {
       analyseIterationStatementTwoIdentifiers(node)
     }
+    var lastAlive: Node?
+    var firstDead: Node?
+    var lastDead: Node?
     for b in node.block {
       b.visit(visitor: self)
       self.checkNoEffect(b)
+      if lastAlive == nil {
+        if self.isDead(b) { lastAlive = b }
+      } else {
+        if firstDead == nil {
+          firstDead = b
+          lastDead = b
+        } else {
+          lastDead = b
+        }
+      }
     }
+    self.applyDead(lastAlive, firstDead, lastDead)
   }
 
   func checkIdentifier(_ node: IdExpression) {
@@ -858,6 +903,26 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         )
       )
     }
+  }
+
+  func isDead(_ b: Node) -> Bool {
+    // We could check, if it is e.g. an assert(false)
+    if let fn = b as? FunctionExpression, let fnid = fn.id as? IdExpression,
+      fnid.id == "error" || fnid.id == "subdir_done"
+    {
+      return true
+    }
+    return false
+  }
+
+  func applyDead(_ lastAlive: Node?, _ firstDead: Node?, _ lastDead: Node?) {
+    if lastAlive == nil { return }
+    if firstDead == nil || lastDead == nil { return }
+    self.metadata.registerDiagnostic(
+      begin: firstDead!,
+      end: lastDead!,
+      diag: MesonDiagnostic(sev: .warning, begin: firstDead!, end: lastDead!, message: "Dead code")
+    )
   }
 
   // swiftlint:disable cyclomatic_complexity

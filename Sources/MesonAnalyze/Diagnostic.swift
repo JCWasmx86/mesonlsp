@@ -21,4 +21,13 @@ public class MesonDiagnostic {
     self.endColumn = loc.endColumn
     self.message = message
   }
+
+  public init(sev: MesonDiagnosticSeverity, begin: Node, end: Node, message: String) {
+    self.severity = sev
+    self.startLine = begin.location.startLine
+    self.endLine = end.location.endLine
+    self.startColumn = begin.location.startColumn
+    self.endColumn = end.location.endColumn
+    self.message = message
+  }
 }

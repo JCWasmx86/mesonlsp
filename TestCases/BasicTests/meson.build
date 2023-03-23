@@ -91,3 +91,6 @@ UP_OCT = 0O1 # ana:var: UP_OCT = int
 1 # ana:warn: Statement does not have an effect or the result to the call is unused
 [] # ana:warn: Statement does not have an effect or the result to the call is unused
 files() # ana:warn: Statement does not have an effect or the result to the call is unused
+error('foo')
+dead_code = 1 # ana:warn: Dead code
+
