@@ -93,4 +93,7 @@ UP_OCT = 0O1 # ana:var: UP_OCT = int
 files() # ana:warn: Statement does not have an effect or the result to the call is unused
 error('foo')
 dead_code = 1 # ana:warn: Dead code
+unused_assignment = 1 # ana:warn: Unused assignment
+unused_assignment2 = 1
+unused_assignment3 = unused_assignment2 # ana:warn Unused assignment
 
