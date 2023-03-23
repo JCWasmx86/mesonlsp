@@ -17,6 +17,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var stack: [[String: [Type]]] = []
   var overriddenVariables: [[String: [Type]]] = []
   var ignoreUnknownIdentifer: [String] = []
+  var depth: UInt = 0
+  var variablesNeedingUse: [[IdExpression]] = []
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
     "include_directories", "is_disabler", "is_variable", "join_paths", "structured_sources",
@@ -123,7 +125,23 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
+  public func visitSourceFile(file: SourceFile) {
+    self.depth += 1
+    self.variablesNeedingUse.append([])
+    file.visitChildren(visitor: self)
+    self.depth -= 1
+    let needingUse = self.variablesNeedingUse.removeLast()
+    if self.depth == 0 {
+      for n in needingUse {
+        self.metadata.registerDiagnostic(
+          node: n,
+          diag: MesonDiagnostic(sev: .warning, node: n, message: "Unused assignment")
+        )
+      }
+    } else {
+      self.variablesNeedingUse[self.variablesNeedingUse.count - 1] += needingUse
+    }
+  }
 
   public func visitBuildDefinition(node: BuildDefinition) {
     node.visitChildren(visitor: self)
@@ -185,6 +203,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var oldVars: [String: [Type]] = [:]
     self.scope.variables.forEach { oldVars[$0.key] = Array($0.value) }
     var idx = 0
+    var allLeft: [IdExpression] = []
     for b in node.blocks {
       var appended = false
       if idx < node.conditions.count {
@@ -195,6 +214,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       var lastAlive: Node?
       var firstDead: Node?
       var lastDead: Node?
+      self.variablesNeedingUse.append([])
       for b1 in b {
         b1.visit(visitor: self)
         self.checkNoEffect(b1)
@@ -211,8 +231,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
       self.applyDead(lastAlive, firstDead, lastDead)
       if appended { self.ignoreUnknownIdentifer.removeLast() }
+      let needingUse = self.variablesNeedingUse.removeLast()
+      allLeft += needingUse
       idx += 1
     }
+    var dedupedUnusedAssignments: Set<String> = []
+    var copied: [IdExpression] = []
+    for n in allLeft where !dedupedUnusedAssignments.contains(n.id) {
+      dedupedUnusedAssignments.insert(n.id)
+      copied.append(n)
+    }
+    self.variablesNeedingUse[self.variablesNeedingUse.count - 1] += copied
     let types = self.stack.removeLast()
     // If: 1 c, 1 b
     // If,else if: 2c, 2b
@@ -380,6 +409,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return newTypes.isEmpty ? nil : newTypes
   }
 
+  func registerNeedForUse(_ node: IdExpression) {
+    self.variablesNeedingUse[self.variablesNeedingUse.count - 1].append(node)
+  }
+
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
     if !(node.lhs is IdExpression) {
@@ -402,6 +435,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.checkIdentifier(lhsIdExpr)
       self.applyToStack(lhsIdExpr.id, arr)
       self.scope.variables[lhsIdExpr.id] = arr
+      self.registerNeedForUse(lhsIdExpr)
     } else {
       let newTypes = evalAssignment(node.op!, node.lhs.types, node.rhs.types)
       var deduped = dedup(types: newTypes == nil ? node.lhs.types : newTypes!)
@@ -826,6 +860,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let s = self.evalStack(name: node.id)
     node.types = dedup(types: s + (scope.variables[node.id] ?? []))
     node.visitChildren(visitor: self)
+    if let p = node.parent {
+      if let ass = p as? AssignmentStatement {
+        if ass.op != .equals || ass.rhs.equals(right: node) { self.registerUsed(node.id) }
+      } else if let kw = p as? KeywordItem, kw.value.equals(right: node) {
+        self.registerUsed(node.id)
+      } else if p is FunctionExpression {
+        // Do nothing
+      } else {
+        self.registerUsed(node.id)
+      }
+    } else {
+      self.registerUsed(node.id)
+    }
     if self.ignoreIdExpression(node: node) { return }
     if !isKnownId(id: node) {
       self.metadata.registerDiagnostic(
@@ -834,6 +881,16 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     self.metadata.registerIdentifier(id: node)
+  }
+
+  func registerUsed(_ id: String) {
+    var new: [[IdExpression]] = []
+    for arr in self.variablesNeedingUse.reversed() {
+      var n: [IdExpression] = []
+      for a in arr where a.id != id { n.append(a) }
+      new.append(n)
+    }
+    self.variablesNeedingUse = new
   }
 
   func isKnownId(id: IdExpression) -> Bool {
