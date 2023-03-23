@@ -42,7 +42,7 @@
 - [ ] Full autocompletion
 - [ ] More diagnostics
   - [ ] Unused variables
-  - [ ] Deprecated options
+  - [x] Deprecated options
 - [x] Full Wrap support
   - [x] Define data model
   - [x] Parse wrap files
