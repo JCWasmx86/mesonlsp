@@ -40,8 +40,8 @@
 - [x] Rudimentary autocompletion
 ## Version 2.0
 - [ ] Full autocompletion
-- [ ] More diagnostics
-  - [ ] Unused variables
+- [x] More diagnostics
+  - [x] Unused variables
   - [x] Deprecated options
 - [x] Full Wrap support
   - [x] Define data model
