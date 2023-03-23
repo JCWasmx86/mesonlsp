@@ -1,6 +1,7 @@
 # Next (XXX XX 2023)
 - Add dead code detection
 - Add detection for code without effect
+- Detect unused assignments
 - Allow downloading and setting up wraps
 - Warn about use of deprecated options
 # 1.4.1 (Mar 20 2023)
