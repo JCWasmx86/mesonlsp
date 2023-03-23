@@ -40,7 +40,9 @@
 - [x] Rudimentary autocompletion
 ## Version 2.0
 - [ ] Full autocompletion
-- [x] More diagnostics
+- [ ] More diagnostics
+  - [ ] Unused variables
+  - [ ] Deprecated options
 - [x] Full Wrap support
   - [x] Define data model
   - [x] Parse wrap files
