@@ -2,6 +2,7 @@
 - Add dead code detection
 - Add detection for code without effect
 - Allow downloading and setting up wraps
+- Warn about use of deprecated options
 # 1.4.1 (Mar 20 2023)
 - Major code cleanups
 - Replaced PathKit dependency by a vendored version.
