@@ -122,7 +122,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.stack[ssC][name]! += types
     }
   }
+
   public func visitSourceFile(file: SourceFile) { file.visitChildren(visitor: self) }
+
   public func visitBuildDefinition(node: BuildDefinition) {
     node.visitChildren(visitor: self)
 
@@ -144,6 +146,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     self.applyDead(lastAlive, firstDead, lastDead)
   }
+
   public func visitErrorNode(node: ErrorNode) {
     node.visitChildren(visitor: self)
     self.metadata.registerDiagnostic(
@@ -230,7 +233,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     self.overriddenVariables.removeLast()
   }
+
   public func visitBreakStatement(node: BreakNode) {}
+
   public func visitContinueStatement(node: ContinueNode) {}
 
   func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
@@ -298,6 +303,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.checkIdentifier(id0Expr)
     }
   }
+
   public func visitIterationStatement(node: IterationStatement) {
     node.expression.visit(visitor: self)
     for id in node.ids { id.visit(visitor: self) }
@@ -421,6 +427,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     self.metadata.registerIdentifier(id: lhsIdExpr)
   }
+
   func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
     if fn.name == "get_variable" && node.argumentList != nil,
       let al = node.argumentList as? ArgumentList
@@ -455,6 +462,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
   }
+
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
     guard let funcNameId = node.id as? IdExpression else { return }
@@ -525,7 +533,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
+
   public func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
+
   public func visitConditionalExpression(node: ConditionalExpression) {
     node.visitChildren(visitor: self)
     node.types = dedup(types: node.ifFalse.types + node.ifTrue.types)
@@ -538,6 +548,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
   }
+
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)
     switch node.op! {
@@ -545,6 +556,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     case .not, .exclamationMark: node.types = [self.t.types["bool"]!]
     }
   }
+
   public func visitSubscriptExpression(node: SubscriptExpression) {
     node.visitChildren(visitor: self)
     var newTypes: [Type] = []
@@ -775,6 +787,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     for ov in self.overriddenVariables where ov[name] != nil { ret += ov[name]! }
     return ret
   }
+
   func ignoreIdExpression(node: IdExpression) -> Bool {
     let parent = node.parent
     return (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
@@ -782,6 +795,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       || (parent is KeywordItem && (parent as! KeywordItem).key.equals(right: node))
       || self.ignoreUnknownIdentifer.contains(node.id)
   }
+
   public func visitIdExpression(node: IdExpression) {
     let s = self.evalStack(name: node.id)
     node.types = dedup(types: s + (scope.variables[node.id] ?? []))
@@ -862,20 +876,25 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return counter == 3
   }
   public func visitStringLiteral(node: StringLiteral) { node.types = [self.t.types["str"]!] }
+
   public func visitArrayLiteral(node: ArrayLiteral) {
     node.visitChildren(visitor: self)
     var t: [Type] = []
     for elem in node.args { t += elem.types }
     node.types = [ListType(types: dedup(types: t))]
   }
+
   public func visitBooleanLiteral(node: BooleanLiteral) { node.types = [self.t.types["bool"]!] }
+
   public func visitIntegerLiteral(node: IntegerLiteral) { node.types = [self.t.types["int"]!] }
+
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
     node.visitChildren(visitor: self)
     var t: [Type] = []
     for elem in node.values { t += elem.types }
     node.types = [Dict(types: dedup(types: t))]
   }
+
   public func visitKeyValueItem(node: KeyValueItem) {
     node.visitChildren(visitor: self)
     node.types = node.value.types

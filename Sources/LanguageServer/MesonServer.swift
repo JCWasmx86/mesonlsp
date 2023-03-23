@@ -231,6 +231,7 @@ public final class MesonServer: LanguageServer {
     }
     return s
   }
+
   func fillKwargs(_ callExpr: Node) -> Set<String> {
     var s: Set<String> = []
     if let fe = callExpr as? FunctionExpression, let f = fe.function {
@@ -567,6 +568,7 @@ public final class MesonServer: LanguageServer {
       }
     }
   }
+
   func rebuildTree() {
     let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
     self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
@@ -771,9 +773,11 @@ public final class MesonServer: LanguageServer {
   func clientInitialized(_: Notification<InitializedNotification>) {
     // Nothing to do.
   }
+
   func cancelRequest(_ notification: Notification<CancelRequestNotification>) {
     // No cancellation for anything supported (yet?)
   }
+
   func shutdown(_ request: Request<ShutdownRequest>) {
     self.prepareForExit()
     #if os(Linux)

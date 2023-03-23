@@ -4,6 +4,7 @@ public enum MesonDiagnosticSeverity {
   case warning
   case error
 }
+
 public class MesonDiagnostic {
   public let severity: MesonDiagnosticSeverity
   public let startLine: UInt32

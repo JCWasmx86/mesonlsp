@@ -14,6 +14,7 @@ public class MultiSubdirCall: FunctionExpression {
     self.location = node.location
     self.argumentList = node.argumentList
   }
+
   public override func visit(visitor: CodeVisitor) {
     if let ev = visitor as? ExtendedCodeVisitor {
       ev.visitMultiSubdirCall(node: self)
@@ -21,6 +22,7 @@ public class MultiSubdirCall: FunctionExpression {
       visitor.visitFunctionExpression(node: self)
     }
   }
+
   public override func visitChildren(visitor: CodeVisitor) { super.visitChildren(visitor: visitor) }
 
   public override func setParents() {

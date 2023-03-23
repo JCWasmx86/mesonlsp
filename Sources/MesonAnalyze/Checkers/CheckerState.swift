@@ -18,6 +18,7 @@ public class CheckerState {
       "static_library": GuiAppKwargCheck(), "both_libraries": GuiAppKwargCheck(),
     ]
   }
+
   public func apply(node: Node, metadata: MesonMetadata, f: Function) {
     if let c = self.state[f.id()] { c.check(node: node, metadata: metadata) }
   }

@@ -92,6 +92,7 @@ extension MesonTree {
     }
     return nil
   }
+
   func findDeclaration2(name: String, node: Node, parent: Node) -> (String, [UInt32])? {
     if let sst = parent as? SelectionStatement {
       if let r = iterateOverSelectionStatement(name: name, node: node, sst: sst) { return r }
@@ -131,6 +132,7 @@ extension MesonTree {
     }
     return nil
   }
+
   func evalSubdir(_ name: String, _ s: SubdirCall) -> (String, [UInt32])? {
     if let sf = self.findSubdirTree(file: s.fullFile), let sfn = sf.ast as? SourceFile,
       let bd = sfn.build_definition as? BuildDefinition
@@ -152,6 +154,7 @@ extension MesonTree {
     }
     return nil
   }
+
   func searchExtended(name: String, node: Node) -> (String, [UInt32])? {
     if let its = node as? IterationStatement {
       for s in its.block.reversed() { if let r = evalStatement(name, s) { return r } }
@@ -164,6 +167,7 @@ extension MesonTree {
     }
     return nil
   }
+
   func makeTuple(_ node: Node) -> (String, [UInt32]) {
     let file = node.file.file
     let line = node.location.startLine

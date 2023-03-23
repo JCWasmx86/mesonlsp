@@ -7,5 +7,6 @@ public class MemoryFile: MesonSourceFile {
     self._cached = true
 
   }
+
   open override func contents() throws -> String { return self._contents }
 }
