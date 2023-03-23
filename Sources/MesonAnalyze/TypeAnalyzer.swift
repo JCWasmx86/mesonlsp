@@ -42,7 +42,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     "external_program.path", "external_program.version", "feature.allowed", "feature.auto",
     "feature.disabled", "feature.enabled", "module.found", "runresult.compiled",
     "runresult.returncode", "runresult.stderr", "runresult.stdout", "subproject.found",
-    "subproject.get_variable",
+    "subproject.get_variable", "str.contains", "str.endswith", "str.format", "str.join",
+    "str.replace", "str.split", "str.startswith", "str.strip", "str.substring", "str.to_lower",
+    "str.to_upper", "str.underscorify", "str.version_compare", "bool.to_int", "bool.to_string",
+    "dict.get", "dict.has_key", "dict.keys", "int.even", "int.is_odd", "int.to_string",
+    "list.contains", "list.get", "list.length",
   ]
 
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
