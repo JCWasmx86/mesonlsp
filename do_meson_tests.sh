@@ -42,7 +42,7 @@ for i in *; do
 		if echo "$output" | grep -q "🔴"; then
 			if [ "$(echo "$output" | grep -c 🔴)" -eq 1 ] &&
 				([ "$testname" == "common/162 subdir if_found" ] ||
-				 	[ "$testname" == "common/67 modules" ] ||
+					[ "$testname" == "common/67 modules" ] ||
 					[ "$testname" == "failing/11 object arithmetic" ] ||
 					[ "$testname" == "failing/12 string arithmetic" ] ||
 					[ "$testname" == "failing/13 array arithmetic" ] ||
