@@ -17,5 +17,9 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           cscript /?
-          swift build -v
+          swift build -v & (echo Command failed. & set errorlevel=0)
+          cscript //NoLogo .ci\sed.vbs s/(static)/(dynamic)/ < .build/checkouts/sourcekit-lsp/Package.swift > outfile.txt
+          type outfile.txt
+          copy /y outfile.txt .build/checkouts/sourcekit-lsp/Package.swift
+          swift build
           swift test
