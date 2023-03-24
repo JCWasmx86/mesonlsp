@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-if [ -n "$(flatpak list | grep -q org.gnome.Builder.Devel)" ]; then
-	echo "Flatpak org.gnome.Builder.Devel missing"
+if ! command -v flatpak &>/dev/null; then
+	echo "Flatpak is not installed"
+	exit 1
+fi
+if ! flatpak list | grep "org.gnome.Builder.Devel" &>/dev/null; then
+	echo "org.gnome.Builder.Devel is not installed"
 	exit 1
 fi
 sudo dnf install -y swift-lang \
