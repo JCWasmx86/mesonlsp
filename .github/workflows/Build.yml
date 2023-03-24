@@ -42,11 +42,10 @@ jobs:
           ./run_wrap_tests.sh
           swift build -c release
           mkdir -p ${{ github.workspace }}/Artifacts
-          zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP
-          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP-MacOS.zip
+          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
       - uses: actions/upload-artifact@v3
         with:
-          name: MacOS12.zip
+          name: MacOS12
           path: ${{ github.workspace }}/Artifacts
   ubuntu2204:
     runs-on: ubuntu-22.04
