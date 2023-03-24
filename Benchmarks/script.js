@@ -220,9 +220,9 @@ function createOverviewCharts() {
 function appendTr(tr, txt) {
   const td = document.createElement("td");
   td.appendChild(document.createTextNode(txt));
-  if (txt[0] === "-" && (`${txt}`).endsWith("%")) {
+  if (txt[0] === "-" && `${txt}`.endsWith("%")) {
     td.style.backgroundColor = "#26a269";
-  } else if (txt[0] !== "-" && (`${txt}`).endsWith("%")) {
+  } else if (txt[0] !== "-" && `${txt}`.endsWith("%")) {
     td.style.backgroundColor = "#e01b24";
   }
   tr.appendChild(td);
