@@ -1,5 +1,7 @@
 import ArgumentParser
-import ConsoleKit
+#if !os(Windows)
+  import ConsoleKit
+#endif
 import Dispatch
 import Foundation
 import LanguageServer
@@ -34,11 +36,13 @@ import Wrap
   }
 
   private func parseNTimes() {
-    let console = Terminal()
-    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-      logger.logLevel = .debug
-      return logger
-    }
+    #if !os(Windows)
+      let console = Terminal()
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = .debug
+        return logger
+      }
+    #endif
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
     var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
@@ -51,11 +55,13 @@ import Wrap
   }
 
   private func parseEachProject() {
-    let console = Terminal()
-    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-      logger.logLevel = self.test ? .trace : .debug
-      return logger
-    }
+    #if !os(Windows)
+      let console = Terminal()
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = self.test ? .trace : .debug
+        return logger
+      }
+    #endif
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let ns = TypeNamespace()
     if self.test {
@@ -122,11 +128,13 @@ import Wrap
   }
 
   private func parseWraps() {
-    let console = Terminal()
-    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-      logger.logLevel = .debug
-      return logger
-    }
+    #if !os(Windows)
+      let console = Terminal()
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = .debug
+        return logger
+      }
+    #endif
     let logger = Logger(label: "MesonLSP::parseWraps")
     var nErrors = 0
     logger.info("Packagefiles at: \(self.wrapPackageFiles)")
@@ -163,11 +171,13 @@ import Wrap
       self.doBenchmark()
       return
     }
-    let console = Terminal()
-    LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-      logger.logLevel = .info
-      return logger
-    }
+    #if !os(Windows)
+      let console = Terminal()
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = .info
+        return logger
+      }
+    #endif
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     close(STDOUT_FILENO)

@@ -19,8 +19,4 @@ jobs:
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
-          swift build -v || echo Command Failed
-          (Get-Content -ReadCount 0 .build/checkouts/sourcekit-lsp/Package.swift) -replace 'static', 'dynamic' | Set-Content .build/checkouts/sourcekit-lsp/Package.swift -WhatIf
-          Remove-Item -LiteralPath ".build/x86_64-unknown-windows-msvc" -Force -Recurse
-          swift build
-          swift test
+          swift build -v

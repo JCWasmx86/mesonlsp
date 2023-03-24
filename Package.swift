@@ -65,8 +65,12 @@ let package = Package(
       name: "Swift-MesonLSP",
       dependencies: [
         "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
-        "TestingFramework", "Wrap", .product(name: "ConsoleKit", package: "console-kit"),
-        .product(name: "Logging", package: "swift-log"),
+        "TestingFramework", "Wrap",
+        .product(
+          name: "ConsoleKit",
+          package: "console-kit",
+          condition: .when(platforms: [.linux, .macOS])
+        ), .product(name: "Logging", package: "swift-log"),
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
