@@ -1,0 +1,43 @@
+name: Other Lints
+
+on: [push]
+
+jobs:
+  rome:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using rome
+        run: |
+          sudo apt install -y make
+          wget https://github.com/rome/tools/releases/download/cli%2Fv11.0.0/rome-linux-x64
+          chmod +x rome-linux-x64
+          ./rome-linux-x64 check Benchmarks/script.js
+          sudo cp rome-linux-x64 /usr/bin/rome
+          cd Benchmarks
+          make format
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git commit -a -m "Failed" || exit 0
+          git diff HEAD~1 | cat
+          exit 1
+
+  pylint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using pylint
+        run: |
+          pip install pylint
+          pylint collect_perf_data.py
+
+  shellcheck:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using shellcheck
+        run: |
+          sudo apt install -y xz-utils tar
+          wget https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz
+          tar xvf shellcheck-v0.9.0.linux.x86_64.tar.xz
+          ./shellcheck-v0.9.0/shellcheck *.sh
