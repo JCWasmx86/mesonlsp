@@ -45,7 +45,7 @@ jobs:
           sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
       - uses: actions/upload-artifact@v3
         with:
-          name: MacOS12
+          name: MacOS12.zip
           path: ${{ github.workspace }}/Artifacts
   ubuntu2204:
     runs-on: ubuntu-22.04
