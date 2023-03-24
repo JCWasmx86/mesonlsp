@@ -49,7 +49,12 @@ public class OptionsExtractor: CodeVisitor {
     }
   }
 
-  func createOption(_ type: String, _ name: String, _ description: String?, _ deprecated: Bool) {
+  private func createOption(
+    _ type: String,
+    _ name: String,
+    _ description: String?,
+    _ deprecated: Bool
+  ) {
     switch type {
     case "array": self.options.append(ArrayOption(name, description, deprecated))
     case "boolean": self.options.append(BoolOption(name, description, deprecated))

@@ -72,5 +72,5 @@ public class OptionState {
     for o in options { self.append(option: o) }
   }
 
-  func append(option: MesonOption) { self.opts[option.name] = option }
+  private func append(option: MesonOption) { self.opts[option.name] = option }
 }

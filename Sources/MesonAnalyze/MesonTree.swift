@@ -137,11 +137,11 @@ public final class MesonTree: Hashable {
     self.parseOptions(parser: p)
   }
 
-  func readFile(_ name: String) -> String? {
+  private func readFile(_ name: String) -> String? {
     do { return try Path(name).read() } catch { return nil }
   }
 
-  func parseOptions(parser p: Parser) {
+  private func parseOptions(parser p: Parser) {
     if self.depth != 0 { return }
     let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
     if !f.exists { self.options = nil }
@@ -180,7 +180,7 @@ public final class MesonTree: Hashable {
     }
   }
 
-  func heuristics(
+  private func heuristics(
     ns: TypeNamespace,
     depth: Int = 0,
     dontCache: Set<String>,

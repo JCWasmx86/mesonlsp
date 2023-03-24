@@ -1,7 +1,7 @@
 import MesonAST
 
 public class CheckerState {
-  let state: [String: MesonChecker]
+  private let state: [String: MesonChecker]
 
   public init() {
     self.state = [

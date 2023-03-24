@@ -13,7 +13,7 @@ extension SwiftTreeSitter.Node {
   }
 }
 
-func string_value(file: MesonSourceFile, node: SwiftTreeSitter.Node) -> String {
+internal func string_value(file: MesonSourceFile, node: SwiftTreeSitter.Node) -> String {
   if let text = try? file.contents() {
     let r2 = Range(node.range, in: text)!
     return text[r2].trimmingCharacters(in: .whitespacesAndNewlines)

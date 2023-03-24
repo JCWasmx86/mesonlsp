@@ -1,7 +1,7 @@
 import MesonAST
 
 public class TypeAnalyzersState {
-  let state: [String: MesonTypeAnalyzer]
+  private let state: [String: MesonTypeAnalyzer]
 
   public init() {
     self.state = [

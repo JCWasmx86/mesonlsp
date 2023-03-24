@@ -33,7 +33,7 @@ import Wrap
 
   }
 
-  func parseNTimes() {
+  private func parseNTimes() {
     let console = Terminal()
     LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = .debug
@@ -50,7 +50,7 @@ import Wrap
     }
   }
 
-  func parseEachProject() {
+  private func parseEachProject() {
     let console = Terminal()
     LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = self.test ? .trace : .debug
@@ -91,7 +91,7 @@ import Wrap
     }
   }
 
-  func parseAndPrintDiagnostics(ns: TypeNamespace) {
+  private func parseAndPrintDiagnostics(ns: TypeNamespace) {
     for p in self.paths {
       var cache: [String: MesonAST.Node] = [:]
       let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
@@ -107,7 +107,7 @@ import Wrap
     }
   }
 
-  func doBenchmark() {
+  private func doBenchmark() {
     for path in paths {
       let ns = TypeNamespace()
       var cache: [String: MesonAST.Node] = [:]
@@ -121,7 +121,7 @@ import Wrap
     }
   }
 
-  func parseWraps() {
+  private func parseWraps() {
     let console = Terminal()
     LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
       logger.logLevel = .debug

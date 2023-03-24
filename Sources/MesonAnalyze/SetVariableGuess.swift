@@ -12,7 +12,7 @@ public func guessSetVariable(fe: FunctionExpression) -> [String] {
   return []
 }
 
-func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [String] {
+private func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [String] {
   let lhs = calculateExpression(parentExpr, be.lhs)
   let rhs = calculateExpression(parentExpr, be.rhs)
   var ret: [String] = []
@@ -20,9 +20,11 @@ func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [S
   return ret
 }
 
-func calculateStringFormatMethodCall(_ me: MethodExpression, _ al: ArgumentList, _ parentExpr: Node)
-  -> [String]
-{
+private func calculateStringFormatMethodCall(
+  _ me: MethodExpression,
+  _ al: ArgumentList,
+  _ parentExpr: Node
+) -> [String] {
   let objStrs = calculateExpression(parentExpr, me.obj)
   let fmtStrs = calculateExpression(parentExpr, al.args[0])
   var ret: [String] = []
@@ -30,7 +32,7 @@ func calculateStringFormatMethodCall(_ me: MethodExpression, _ al: ArgumentList,
   return ret
 }
 
-func calculateGetMethodCall(_ al: ArgumentList, _ meobj: IdExpression, _ parentExpr: Node)
+private func calculateGetMethodCall(_ al: ArgumentList, _ meobj: IdExpression, _ parentExpr: Node)
   -> [String]
 {
   let nodes = resolveArrayOrDict(parentExpr, meobj)
@@ -65,7 +67,7 @@ func calculateGetMethodCall(_ al: ArgumentList, _ meobj: IdExpression, _ parentE
   return ret
 }
 
-func calculateIdExpression(_ idexpr: IdExpression, _ parentExpr: Node) -> [String] {
+private func calculateIdExpression(_ idexpr: IdExpression, _ parentExpr: Node) -> [String] {
   let l = resolveArrayOrDict(parentExpr, idexpr)
   var ret: [String] = []
   for v in l {
@@ -78,7 +80,11 @@ func calculateIdExpression(_ idexpr: IdExpression, _ parentExpr: Node) -> [Strin
   return ret
 }
 
-func calculateEvalSubscriptExpression(i: InterpretNode, o: InterpretNode, ret: inout [String]) {
+private func calculateEvalSubscriptExpression(
+  i: InterpretNode,
+  o: InterpretNode,
+  ret: inout [String]
+) {
   if let arr = o.node as? ArrayLiteral, let il = i.node as? IntegerLiteral {
     let idx = il.parse()
     if idx < arr.args.count, let sl = arr.args[idx] as? StringLiteral { ret.append(sl.contents()) }
@@ -100,7 +106,9 @@ func calculateEvalSubscriptExpression(i: InterpretNode, o: InterpretNode, ret: i
   }
 }
 
-func calculateSubscriptExpression(_ sse: SubscriptExpression, _ parentExpr: Node) -> [String] {
+private func calculateSubscriptExpression(_ sse: SubscriptExpression, _ parentExpr: Node)
+  -> [String]
+{
   let outer = abstractEval(parentExpr, sse.outer)
   let inner = abstractEval(parentExpr, sse.inner)
   var ret: [String] = []
@@ -108,7 +116,7 @@ func calculateSubscriptExpression(_ sse: SubscriptExpression, _ parentExpr: Node
   return ret
 }
 
-func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
+private func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
   if let sl = argExpression as? StringLiteral {
     return [sl.contents()]
   } else if let be = argExpression as? BinaryExpression {
@@ -133,9 +141,11 @@ func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] 
   return []
 }
 
-func analyseBuildDefinition(_ bd: BuildDefinition, _ parentExpr: Node, _ toResolve: IdExpression)
-  -> [InterpretNode]
-{
+private func analyseBuildDefinition(
+  _ bd: BuildDefinition,
+  _ parentExpr: Node,
+  _ toResolve: IdExpression
+) -> [InterpretNode] {
   var foundOurselves = false
   var tmp: [InterpretNode] = []
   for b in bd.stmts.reversed() {
@@ -159,7 +169,7 @@ func analyseBuildDefinition(_ bd: BuildDefinition, _ parentExpr: Node, _ toResol
   return tmp
 }
 
-func analyseIterationStatement(
+private func analyseIterationStatement(
   _ its: IterationStatement,
   _ parentExpr: Node,
   _ toResolve: IdExpression
@@ -193,7 +203,7 @@ func analyseIterationStatement(
   return resolveArrayOrDict(its, toResolve) + tmp
 }
 
-func analyseSelectionStatement(
+private func analyseSelectionStatement(
   _ sst: SelectionStatement,
   _ parentExpr: Node,
   _ toResolve: IdExpression
@@ -223,7 +233,7 @@ func analyseSelectionStatement(
   return resolveArrayOrDict(sst, toResolve) + tmp
 }
 
-func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [InterpretNode] {
+private func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   let parent = parentExpr.parent!
   if let bd = parent as? BuildDefinition {
     return analyseBuildDefinition(bd, parentExpr, toResolve)
@@ -235,7 +245,7 @@ func resolveArrayOrDict(_ parentExpr: Node, _ toResolve: IdExpression) -> [Inter
   return []
 }
 
-func evalStatement(_ b: Node, _ toResolve: IdExpression) -> [InterpretNode] {
+private func evalStatement(_ b: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   if let ass = b as? AssignmentStatement, let lhs = ass.lhs as? IdExpression, toResolve.id == lhs.id
   {
     return abstractEval(ass, ass.rhs)
@@ -244,7 +254,7 @@ func evalStatement(_ b: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   }
 }
 
-func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
+private func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   var ret: [InterpretNode] = []
   if let its = stmt as? BuildDefinition {
     for b in its.stmts.reversed() { ret += evalStatement(b, toResolve) }
@@ -263,7 +273,7 @@ func fullEval(_ stmt: Node, _ toResolve: IdExpression) -> [InterpretNode] {
   return ret
 }
 
-func addToArrayConcatenated(
+private func addToArrayConcatenated(
   _ arr: ArrayLiteral,
   _ contents: String,
   _ sep: String,
@@ -277,7 +287,7 @@ func addToArrayConcatenated(
   }
 }
 
-func abstractEvalComputeBinaryExpr(
+private func abstractEvalComputeBinaryExpr(
   _ l: InterpretNode,
   _ r: InterpretNode,
   _ sep: String,
@@ -304,7 +314,9 @@ func abstractEvalComputeBinaryExpr(
   }
 }
 
-func abstractEvalBinaryExpression(_ be: BinaryExpression, _ parentStmt: Node) -> [InterpretNode] {
+private func abstractEvalBinaryExpression(_ be: BinaryExpression, _ parentStmt: Node)
+  -> [InterpretNode]
+{
   let rhs = abstractEval(parentStmt, be.rhs)
   let lhs = abstractEval(parentStmt, be.lhs)
   var ret: [InterpretNode] = []
@@ -313,7 +325,7 @@ func abstractEvalBinaryExpression(_ be: BinaryExpression, _ parentStmt: Node) ->
   return ret
 }
 
-func abstractEvalComputeSubscriptExtractDictArray(
+private func abstractEvalComputeSubscriptExtractDictArray(
   _ arr: ArrayLiteral,
   _ sl: StringLiteral,
   _ ret: inout [InterpretNode]
@@ -330,7 +342,11 @@ func abstractEvalComputeSubscriptExtractDictArray(
     }
   }
 }
-func abstractEvalComputeSubscript(i: InterpretNode, o: InterpretNode, ret: inout [InterpretNode]) {
+private func abstractEvalComputeSubscript(
+  i: InterpretNode,
+  o: InterpretNode,
+  ret: inout [InterpretNode]
+) {
   if let arr = o.node as? ArrayLiteral, let idx = i.node as? IntegerLiteral,
     idx.parse() < arr.args.count
   {
@@ -352,7 +368,7 @@ func abstractEvalComputeSubscript(i: InterpretNode, o: InterpretNode, ret: inout
   }
 }
 
-func abstractEvalSubscriptExpression(_ sse: SubscriptExpression, _ parentStmt: Node)
+private func abstractEvalSubscriptExpression(_ sse: SubscriptExpression, _ parentStmt: Node)
   -> [InterpretNode]
 {
   let outer = abstractEval(parentStmt, sse.outer)
@@ -363,7 +379,7 @@ func abstractEvalSubscriptExpression(_ sse: SubscriptExpression, _ parentStmt: N
 }
 
 // For foo.split(bar)[baz]
-func abstractEvalSplitWithSubscriptExpression(
+private func abstractEvalSplitWithSubscriptExpression(
   _ idx: IntegerLiteral,
   _ sl: StringLiteral,
   _ outerME: MethodExpression,
@@ -387,7 +403,7 @@ func abstractEvalSplitWithSubscriptExpression(
   return ret
 }
 
-func abstractEvalMethod(_ me: MethodExpression, _ parentStmt: Node) -> [InterpretNode] {
+private func abstractEvalMethod(_ me: MethodExpression, _ parentStmt: Node) -> [InterpretNode] {
   let meobj = abstractEval(parentStmt, me.obj)
   var ret: [InterpretNode] = []
   for r in meobj {
@@ -406,7 +422,7 @@ func abstractEvalMethod(_ me: MethodExpression, _ parentStmt: Node) -> [Interpre
   return ret
 }
 
-func abstractEvalSimpleSubscriptExpression(
+private func abstractEvalSimpleSubscriptExpression(
   _ se: SubscriptExpression,
   _ outerObj: IdExpression,
   _ parentStmt: Node
@@ -439,7 +455,7 @@ func abstractEvalSimpleSubscriptExpression(
   return ret
 }
 
-func abstractEvalGetMethodCall(
+private func abstractEvalGetMethodCall(
   _ me: MethodExpression,
   _ meobj: IdExpression,
   _ al: ArgumentList,
@@ -467,7 +483,7 @@ func abstractEvalGetMethodCall(
   return ret
 }
 
-func abstractEvalArrayLiteral(_ al: ArrayLiteral, _ toEval: Node, _ parentStmt: Node)
+private func abstractEvalArrayLiteral(_ al: ArrayLiteral, _ toEval: Node, _ parentStmt: Node)
   -> [InterpretNode]
 {
   if !al.args.isEmpty {
@@ -483,7 +499,7 @@ func abstractEvalArrayLiteral(_ al: ArrayLiteral, _ toEval: Node, _ parentStmt: 
   return [ArrayNode(node: toEval)]
 }
 
-func abstractEvalGenericSubscriptExpression(_ se: SubscriptExpression, _ parentStmt: Node)
+private func abstractEvalGenericSubscriptExpression(_ se: SubscriptExpression, _ parentStmt: Node)
   -> [InterpretNode]
 {
   if se.inner is IntegerLiteral || se.inner is StringLiteral,
@@ -501,7 +517,7 @@ func abstractEvalGenericSubscriptExpression(_ se: SubscriptExpression, _ parentS
 
 }
 
-func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
+private func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
   if toEval is DictionaryLiteral {
     return [DictNode(node: toEval)]
   } else if let al = toEval as? ArrayLiteral {
@@ -529,14 +545,14 @@ func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
   return []
 }
 
-func isValidMethod(_ me: MethodExpression) -> Bool {
+private func isValidMethod(_ me: MethodExpression) -> Bool {
   if let meid = me.id as? IdExpression {
     return ["underscorify", "to_lower", "to_upper", "strip"].contains(meid.id)
   }
   return false
 }
 
-func applyMethod(varname: String, name: String) -> String {
+private func applyMethod(varname: String, name: String) -> String {
   switch name {
   case "underscorify":
     var res = ""

@@ -7,7 +7,7 @@ class ASTPatcher: CodeVisitor {
   public var multiSubdirNodes: [MultiSubdirCall] = []
   private var parent: String = ""
 
-  func isSubdirCall(node: Node) -> Bool {
+  private func isSubdirCall(node: Node) -> Bool {
     if let f = node as? FunctionExpression, let fid = f.id as? IdExpression, fid.id == "subdir",
       let alNode = f.argumentList, let al = alNode as? ArgumentList
     {
@@ -23,7 +23,7 @@ class ASTPatcher: CodeVisitor {
     return false
   }
 
-  func isMultiSubdirCall(node: Node) -> Bool {
+  private func isMultiSubdirCall(node: Node) -> Bool {
     if let f = node as? FunctionExpression, let fid = f.id as? IdExpression, fid.id == "subdir",
       let alNode = f.argumentList, let al = alNode as? ArgumentList
     {

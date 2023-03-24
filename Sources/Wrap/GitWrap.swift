@@ -92,7 +92,7 @@ public class GitWrap: VcsWrap {
     }
   }
 
-  func isValidCommitId(_ id: String) -> Bool {
+  private func isValidCommitId(_ id: String) -> Bool {
     if id.count != 40 && id.count != 64 { return false }
     return id.filter { $0.isHexDigit }.count == id.count
   }

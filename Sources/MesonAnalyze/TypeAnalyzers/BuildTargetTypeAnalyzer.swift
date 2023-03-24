@@ -1,7 +1,7 @@
 import MesonAST
 
 public class BuildTargetTypeAnalyzer: MesonTypeAnalyzer {
-  static let mappings: [String: String] = [
+  private static let mappings: [String: String] = [
     "executable": "exe", "shared_library": "lib", "shared_module": "build_tgt",
     "static_library": "lib", "both_libraries": "both_libs", "library": "lib", "jar": "jar",
   ]

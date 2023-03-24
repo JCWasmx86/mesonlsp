@@ -102,7 +102,7 @@ public class Wrap {
     try self.applyDiffFiles(path: path, packagesfilesPath: packagesfilesPath)
   }
 
-  func applyPatch(path: String, packagesfilesPath: String) throws {
+  private func applyPatch(path: String, packagesfilesPath: String) throws {
     if let patchDir = self.patchDirectory {
       let packagePath = Path(packagesfilesPath + "/" + patchDir)
       Self.LOG.info("Copying from \(packagePath) to \(path)")
@@ -123,7 +123,7 @@ public class Wrap {
     }
   }
 
-  func applyDiffFiles(path: String, packagesfilesPath: String) throws {
+  private func applyDiffFiles(path: String, packagesfilesPath: String) throws {
     if let diffs = diffFiles {
       for diff in diffs {
         Self.LOG.info("Applying diff \(diff)")
@@ -136,7 +136,7 @@ public class Wrap {
     }
   }
 
-  func mergeDirectories(from sourceURL: URL, to destinationURL: URL) throws {
+  private func mergeDirectories(from sourceURL: URL, to destinationURL: URL) throws {
     let fileManager = FileManager.default
     let fileUrls = try fileManager.contentsOfDirectory(
       at: sourceURL,

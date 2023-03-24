@@ -21,7 +21,7 @@ func formatFile(content: String, params: FormattingOptions) throws -> String? {
   return nil
 }
 
-func findMuon() -> String? {
+private func findMuon() -> String? {
   if let path = ProcessInfo.processInfo.environment["PATH"] {
     let fileManager = FileManager.default
     let parts = path.split(separator: ":")
@@ -30,7 +30,7 @@ func findMuon() -> String? {
   return nil
 }
 
-func writeCfgFile(params: FormattingOptions) -> String? {
+private func writeCfgFile(params: FormattingOptions) -> String? {
   var str = ""
   str += "max_line_len = 100\n"
   str += "space_array = false\n"

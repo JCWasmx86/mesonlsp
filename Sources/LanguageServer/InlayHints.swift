@@ -4,13 +4,13 @@ import MesonAST
 public class InlayHints: CodeVisitor {
   public var inlays: [InlayHint] = []
 
-  func makeHint(_ id: Node) {
+  private func makeHint(_ id: Node) {
     let pos = Position(line: Int(id.location.startLine), utf16index: Int(id.location.endColumn))
     let text = ":" + prettify(id.types, 0)
     self.inlays.append(InlayHint(position: pos, label: .string(text)))
   }
 
-  func prettify(_ types: [Type], _ depth: Int) -> String {
+  private func prettify(_ types: [Type], _ depth: Int) -> String {
     var strs: [String] = []
     for t in types {
       if t is Disabler && types.count > 1 { continue }

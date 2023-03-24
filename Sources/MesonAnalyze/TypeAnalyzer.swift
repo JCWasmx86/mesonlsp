@@ -173,7 +173,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     )
   }
 
-  func checkCondition(_ c: Node) -> Bool {
+  private func checkCondition(_ c: Node) -> Bool {
     var appended = false
     if let fn = c as? FunctionExpression, let fnid = fn.id as? IdExpression,
       fnid.id == "is_variable", let al = fn.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -267,7 +267,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitContinueStatement(node: ContinueNode) {}
 
-  func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
+  private func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
     let iterTypes = node.expression.types
     node.ids[0].types = [self.t.types["str"]!]
     let first = iterTypes.first { $0 is Dict }
@@ -296,7 +296,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func analyseIterationStatementSingleIdentifier(_ node: IterationStatement) {
+  private func analyseIterationStatementSingleIdentifier(_ node: IterationStatement) {
     let iterTypes = node.expression.types
     var res: [Type] = []
     var errs = 0
@@ -361,7 +361,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.applyDead(lastAlive, firstDead, lastDead)
   }
 
-  func checkIdentifier(_ node: IdExpression) {
+  private func checkIdentifier(_ node: IdExpression) {
     if !isSnakeCase(str: node.id) {
       self.metadata.registerDiagnostic(
         node: node,
@@ -370,7 +370,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func evalPlusEquals(_ l: Type, _ r: Type) -> Type? {
+  private func evalPlusEquals(_ l: Type, _ r: Type) -> Type? {
     if l is `IntType` && r is `IntType` {
       return self.t.types["int"]!
     } else if l is Str && r is Str {
@@ -387,8 +387,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return nil
   }
 
-  func evalAssignmentTypes(_ l: Type, _ r: Type, _ op: AssignmentOperator, _ newTypes: inout [Type])
-  {
+  private func evalAssignmentTypes(
+    _ l: Type,
+    _ r: Type,
+    _ op: AssignmentOperator,
+    _ newTypes: inout [Type]
+  ) {
     switch op {
     case .divequals:
       if l is `IntType` && r is `IntType` {
@@ -403,13 +407,13 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type]? {
+  private func evalAssignment(_ op: AssignmentOperator, _ lhs: [Type], _ rhs: [Type]) -> [Type]? {
     var newTypes: [Type] = []
     for l in lhs { for r in rhs { evalAssignmentTypes(l, r, op, &newTypes) } }
     return newTypes.isEmpty ? nil : newTypes
   }
 
-  func registerNeedForUse(_ node: IdExpression) {
+  private func registerNeedForUse(_ node: IdExpression) {
     self.variablesNeedingUse[self.variablesNeedingUse.count - 1].append(node)
   }
 
@@ -462,7 +466,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.metadata.registerIdentifier(id: lhsIdExpr)
   }
 
-  func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
+  private func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
     if fn.name == "get_variable" && node.argumentList != nil,
       let al = node.argumentList as? ArgumentList
     {
@@ -502,7 +506,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func analyzeOptsCalls(_ node: Node, _ sl: StringLiteral, _ opts: OptionState) {
+  private func analyzeOptsCalls(_ node: Node, _ sl: StringLiteral, _ opts: OptionState) {
     let optname = sl.contents()
     if let opt = opts.opts[optname] {
       if opt.deprecated {
@@ -580,7 +584,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func guessSetVariable(args: [Node], node: FunctionExpression) {
+  private func guessSetVariable(args: [Node], node: FunctionExpression) {
     let vars = Set(MesonAnalyze.guessSetVariable(fe: node))
     Self.LOG.info(
       "Guessed values to set_variable: \(vars) at \(node.file.file):\(node.location.format())"
@@ -634,7 +638,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
 
-  func guessMethod(node: MethodExpression, methodName: String, ownResultTypes: inout [Type]) -> Bool
+  private func guessMethod(node: MethodExpression, methodName: String, ownResultTypes: inout [Type])
+    -> Bool
   {
     let guessedMethod = self.t.lookupMethod(name: methodName)
     if let guessedM = guessedMethod {
@@ -654,7 +659,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return false
   }
 
-  func findMethod(
+  private func findMethod(
     node: MethodExpression,
     methodName: String,
     nAny: inout Int,
@@ -749,7 +754,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
   }
-  func checkKwargsAfterPositionalArguments(_ args: [Node]) {
+  private func checkKwargsAfterPositionalArguments(_ args: [Node]) {
     var kwargsOnly = false
     for arg in args {
       if kwargsOnly {
@@ -769,7 +774,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func checkKwargs(_ fn: Function, _ args: [Node], _ node: Node) {
+  private func checkKwargs(_ fn: Function, _ args: [Node], _ node: Node) {
     var usedKwargs: [String: KeywordItem] = [:]
     for arg in args where arg is KeywordItem {
       let k = (arg as! KeywordItem).key
@@ -801,7 +806,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func checkCall(node: Expression) {
+  private func checkCall(node: Expression) {
     let args: [Node]
     let fn: Function
     if let fne = node as? FunctionExpression {
@@ -848,7 +853,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return ret
   }
 
-  func ignoreIdExpression(node: IdExpression) -> Bool {
+  private func ignoreIdExpression(node: IdExpression) -> Bool {
     let parent = node.parent
     return (parent is FunctionExpression && (parent as! FunctionExpression).id.equals(right: node))
       || (parent is MethodExpression && (parent as! MethodExpression).id.equals(right: node))
@@ -883,7 +888,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.metadata.registerIdentifier(id: node)
   }
 
-  func registerUsed(_ id: String) {
+  private func registerUsed(_ id: String) {
     var new: [[IdExpression]] = []
     for arr in self.variablesNeedingUse.reversed() {
       var n: [IdExpression] = []
@@ -893,7 +898,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.variablesNeedingUse = new
   }
 
-  func isKnownId(id: IdExpression) -> Bool {
+  private func isKnownId(id: IdExpression) -> Bool {
     let parent = id.parent
     if let a = parent as? AssignmentStatement, let b = a.lhs as? IdExpression {
       if b.id == id.id && a.op == .equals { return true }
@@ -911,7 +916,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return self.scope.variables[id.id] != nil
   }
 
-  func isType(_ type: Type, _ name: String) -> Bool {
+  private func isType(_ type: Type, _ name: String) -> Bool {
     return type.name == name || type.name == "any"
   }
 
@@ -944,7 +949,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = dedup(types: newTypes)
   }
 
-  func isSpecial(_ types: [Type]) -> Bool {
+  private func isSpecial(_ types: [Type]) -> Bool {
     if types.count != 3 { return false }
     var counter = 0
     for t in types {
@@ -983,7 +988,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = node.value.types
   }
 
-  func isSnakeCase(str: String) -> Bool {
+  private func isSnakeCase(str: String) -> Bool {
     for s in str where s.isUppercase { return false }
     return true
   }
@@ -992,7 +997,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return types.map { $0.toString() }.sorted().joined(separator: "|")
   }
 
-  func checkNoEffect(_ b: Node) {
+  private func checkNoEffect(_ b: Node) {
     var noEffect = false
     if b is IntegerLiteral || b is StringLiteral || b is BooleanLiteral || b is ArrayLiteral
       || b is DictionaryLiteral
@@ -1017,7 +1022,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  func isDead(_ b: Node) -> Bool {
+  private func isDead(_ b: Node) -> Bool {
     // We could check, if it is e.g. an assert(false)
     if let fn = b as? FunctionExpression, let fnid = fn.id as? IdExpression,
       fnid.id == "error" || fnid.id == "subdir_done"
@@ -1027,7 +1032,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return false
   }
 
-  func applyDead(_ lastAlive: Node?, _ firstDead: Node?, _ lastDead: Node?) {
+  private func applyDead(_ lastAlive: Node?, _ firstDead: Node?, _ lastDead: Node?) {
     if lastAlive == nil { return }
     if firstDead == nil || lastDead == nil { return }
     self.metadata.registerDiagnostic(
@@ -1080,7 +1085,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return ret
   }
 
-  func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (Int, [Type]) {
+  private func evalBinaryExpression(_ op: BinaryOperator, _ lhs: [Type], _ rhs: [Type]) -> (
+    Int, [Type]
+  ) {
     var newTypes: [Type] = []
     var nErrors = 0
     for l in lhs {

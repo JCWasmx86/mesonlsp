@@ -24,7 +24,8 @@ public class ImportTypeAnalyzer: MesonTypeAnalyzer {
       ns.types["sourceset_module"]!,
     ]
   }
-  func nameToModule(name: String, ns: TypeNamespace) -> [Type]? {
+
+  private func nameToModule(name: String, ns: TypeNamespace) -> [Type]? {
     let mapping = [
       "cmake": ns.types["cmake_module"]!, "fs": ns.types["fs_module"]!,
       "gnome": ns.types["gnome_module"]!, "i18n": ns.types["i18n_module"]!,

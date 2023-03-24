@@ -60,7 +60,7 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func sendStats() {
+  private func sendStats() {
     #if os(Linux)
       Self.LOG.info("Collecting stats")
       let stats = collectStats()
@@ -80,7 +80,7 @@ public final class MesonServer: LanguageServer {
     #endif
   }
 
-  func scheduleNextTask() {
+  private func scheduleNextTask() {
     self.queue.asyncAfter(deadline: .now() + interval) {
       self.sendStats()
       self.scheduleNextTask()
@@ -113,7 +113,7 @@ public final class MesonServer: LanguageServer {
     _register(Self.didDeleteFiles)
   }
 
-  func inlayHints(_ req: Request<InlayHintRequest>) {
+  private func inlayHints(_ req: Request<InlayHintRequest>) {
     let begin = clock()
     let file = req.params.textDocument.uri.fileURL!.path
     if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast {
@@ -127,7 +127,7 @@ public final class MesonServer: LanguageServer {
     req.reply([])
   }
 
-  func highlight(_ req: Request<DocumentHighlightRequest>) {
+  private func highlight(_ req: Request<DocumentHighlightRequest>) {
     let begin = clock()
     let file = req.params.textDocument.uri.fileURL!.path
     if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast,
@@ -158,7 +158,7 @@ public final class MesonServer: LanguageServer {
     req.reply([])
   }
 
-  func complete(_ req: Request<CompletionRequest>) {
+  private func complete(_ req: Request<CompletionRequest>) {
     let begin = clock()
     var arr: [CompletionItem] = []
     let fp = req.params.textDocument.uri.fileURL!.path
@@ -211,7 +211,7 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
   }
 
-  func fillTypes(_ types: [Type]) -> Set<String> {
+  private func fillTypes(_ types: [Type]) -> Set<String> {
     var s: Set<String> = []
     for t in types {
       for m in self.ns.vtables[t.name]! {
@@ -232,7 +232,7 @@ public final class MesonServer: LanguageServer {
     return s
   }
 
-  func fillKwargs(_ callExpr: Node) -> Set<String> {
+  private func fillKwargs(_ callExpr: Node) -> Set<String> {
     var s: Set<String> = []
     if let fe = callExpr as? FunctionExpression, let f = fe.function {
       for arg in f.args where arg is Kwarg {
@@ -248,7 +248,7 @@ public final class MesonServer: LanguageServer {
     return s
   }
 
-  func enumerateUsedKwargs(_ al: ArgumentList) -> Set<String> {
+  private func enumerateUsedKwargs(_ al: ArgumentList) -> Set<String> {
     var usedKwargs: Set<String> = []
     for arg in al.args where arg is KeywordItem {
       let kwi = (arg as! KeywordItem)
@@ -259,7 +259,8 @@ public final class MesonServer: LanguageServer {
     return usedKwargs
   }
 
-  func afterDotCompletion(_ md: MesonMetadata, _ fp: String, _ line: Int, _ column: Int) -> [Type]?
+  private func afterDotCompletion(_ md: MesonMetadata, _ fp: String, _ line: Int, _ column: Int)
+    -> [Type]?
   {
     if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
       Self.LOG.info("Found id expr: \(idexpr.id)")
@@ -274,7 +275,7 @@ public final class MesonServer: LanguageServer {
     return nil
   }
 
-  func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
+  private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
     let begin = clock()
     if let t = self.tree {
       if let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path) {
@@ -308,7 +309,7 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
   }
 
-  func formatting(_ req: Request<DocumentFormattingRequest>) {
+  private func formatting(_ req: Request<DocumentFormattingRequest>) {
     let begin = clock()
     do {
       Self.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
@@ -352,12 +353,12 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
   }
 
-  func getContents(file: String) -> String? {
+  private func getContents(file: String) -> String? {
     if let sf = self.memfiles[file] { return sf }
     return try? String(contentsOfFile: file)
   }
 
-  func hoverFindCallable(
+  private func hoverFindCallable(
     _ file: String,
     _ line: Int,
     _ column: Int,
@@ -377,7 +378,8 @@ public final class MesonServer: LanguageServer {
       }
     }
   }
-  func hoverFindIdentifier(
+
+  private func hoverFindIdentifier(
     _ file: String,
     _ line: Int,
     _ column: Int,
@@ -392,7 +394,7 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func hover(_ req: Request<HoverRequest>) {
+  private func hover(_ req: Request<HoverRequest>) {
     let begin = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
@@ -442,7 +444,7 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "hover", begin: begin, end: clock())
   }
 
-  func callHover(content: String?, mdocs: String, function: Function?) -> String {
+  private func callHover(content: String?, mdocs: String, function: Function?) -> String {
     var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
     for arg in function!.args {
       if let pa = arg as? PositionalArgument {
@@ -470,7 +472,7 @@ public final class MesonServer: LanguageServer {
     return str
   }
 
-  func declaration(_ req: Request<DeclarationRequest>) {
+  private func declaration(_ req: Request<DeclarationRequest>) {
     let beginDeclaration = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
@@ -519,7 +521,7 @@ public final class MesonServer: LanguageServer {
     )
   }
 
-  func definition(_ req: Request<DefinitionRequest>) {
+  private func definition(_ req: Request<DefinitionRequest>) {
     let begin = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
@@ -553,7 +555,7 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
   }
 
-  func clearDiagnostics() {
+  private func clearDiagnostics() {
     if self.tree != nil && self.tree!.metadata != nil {
       for k in self.tree!.metadata!.diagnostics.keys {
         if self.tree!.metadata!.diagnostics[k] == nil { continue }
@@ -569,7 +571,7 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func rebuildTree() {
+  private func rebuildTree() {
     let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
     self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
     queue.async {
@@ -666,7 +668,7 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func sendNewDiagnostics(_ tmptree: MesonTree) {
+  private func sendNewDiagnostics(_ tmptree: MesonTree) {
     for k in tmptree.metadata!.diagnostics.keys {
       if tmptree.metadata!.diagnostics[k] == nil { continue }
       var arr: [Diagnostic] = []
@@ -695,13 +697,13 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
+  private func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
     self.openFiles.insert(file!)
     self.astCache.removeValue(forKey: file!)
   }
 
-  func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
+  private func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
@@ -710,7 +712,7 @@ public final class MesonServer: LanguageServer {
     self.rebuildTree()
   }
 
-  func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
+  private func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
     // Either the saves were changed or dropped, so use the contents
     // of the file
@@ -720,16 +722,18 @@ public final class MesonServer: LanguageServer {
     self.rebuildTree()
   }
 
-  func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
+  private func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
     let file = note.params.textDocument.uri.fileURL?.path
     Self.LOG.info("[Change] Adding \(file!) to memcache")
     self.memfiles[file!] = note.params.contentChanges[0].text
     self.rebuildTree()
   }
 
-  func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) { self.rebuildTree() }
+  private func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) {
+    self.rebuildTree()
+  }
 
-  func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
+  private func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
     for f in note.params.files {
       let path = f.uri.fileURL!.path
       if self.memfiles[path] != nil { self.memfiles.removeValue(forKey: path) }
@@ -739,7 +743,7 @@ public final class MesonServer: LanguageServer {
     self.rebuildTree()
   }
 
-  func capabilities() -> ServerCapabilities {
+  private func capabilities() -> ServerCapabilities {
     return ServerCapabilities(
       textDocumentSync: .options(
         TextDocumentSyncOptions(openClose: true, change: .full, save: .bool(true))
@@ -759,7 +763,7 @@ public final class MesonServer: LanguageServer {
     )
   }
 
-  func initialize(_ req: Request<InitializeRequest>) {
+  private func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
     if let clientInfo = p.clientInfo {
       Self.LOG.info("Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")")
@@ -770,27 +774,28 @@ public final class MesonServer: LanguageServer {
     req.reply(InitializeResult(capabilities: self.capabilities()))
   }
 
-  func clientInitialized(_: Notification<InitializedNotification>) {
+  private func clientInitialized(_: Notification<InitializedNotification>) {
     // Nothing to do.
   }
 
-  func cancelRequest(_ notification: Notification<CancelRequestNotification>) {
+  private func cancelRequest(_ notification: Notification<CancelRequestNotification>) {
     // No cancellation for anything supported (yet?)
   }
 
-  func shutdown(_ request: Request<ShutdownRequest>) {
+  private func shutdown(_ request: Request<ShutdownRequest>) {
     self.prepareForExit()
     #if os(Linux)
       self.server.stop()
     #endif
     request.reply(VoidResponse())
   }
-  func exit(_ notification: Notification<ExitNotification>) {
+
+  private func exit(_ notification: Notification<ExitNotification>) {
     self.prepareForExit()
     self.onExit()
   }
 
-  func generateHTML() -> String {
+  private func generateHTML() -> String {
     let header = """
       	<!DOCTYPE html>
       	<html>
