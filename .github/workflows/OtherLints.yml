@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Lint using shellcheck
+      - name: Lint using shfmt
         run: |
           wget https://github.com/mvdan/sh/releases/download/v3.6.0/shfmt_v3.6.0_linux_amd64
           chmod +x ./shfmt_v3.6.0_linux_amd64
