@@ -1,12 +1,15 @@
 name: Lint Check
 
-on: [push]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
-  build:
-
+  swiftlint:
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v3
       - name: Lint using SwiftLint
@@ -17,4 +20,70 @@ jobs:
           cd ..
           ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
           ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests
+          exit 1
+  swiftformat:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using swift-format
+        run: |
+          git clone https://github.com/apple/swift-format
+          cd swift-format
+          swift build
+          cd ..
+          ./swift-format/.build/debug/swift-format -i --recursive Package.swift Sources/ Tests
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git commit -a -m "Failed" || exit 0
+          git diff HEAD~1 | cat
+          exit 1
+  rome:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using rome
+        run: |
+          sudo apt install -y make
+          wget https://github.com/rome/tools/releases/download/cli%2Fv11.0.0/rome-linux-x64
+          chmod +x rome-linux-x64
+          ./rome-linux-x64 check Benchmarks/script.js
+          sudo cp rome-linux-x64 /usr/bin/rome
+          cd Benchmarks
+          make format
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git commit -a -m "Failed" || exit 0
+          git diff HEAD~1 | cat
+          exit 1
+  pylint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using pylint
+        run: |
+          pip install pylint
+          pylint collect_perf_data.py
+  shellcheck:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using shellcheck
+        run: |
+          sudo apt install -y xz-utils tar
+          wget https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz
+          tar xvf shellcheck-v0.9.0.linux.x86_64.tar.xz
+          ./shellcheck-v0.9.0/shellcheck *.sh
+  shfmt:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint using shfmt
+        run: |
+          wget https://github.com/mvdan/sh/releases/download/v3.6.0/shfmt_v3.6.0_linux_amd64
+          chmod +x ./shfmt_v3.6.0_linux_amd64
+          ./shfmt_v3.6.0_linux_amd64 -w -i 0 *.sh
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git commit -a -m "Failed" || exit 0
+          git diff HEAD~1 | cat
           exit 1
