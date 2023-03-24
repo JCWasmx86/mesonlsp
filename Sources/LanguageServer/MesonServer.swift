@@ -1,4 +1,6 @@
-import Atomics
+#if !os(Windows)
+  import Atomics
+#endif
 import Dispatch
 import Foundation
 import IOUtils
@@ -30,7 +32,12 @@ public final class MesonServer: LanguageServer {
   var docs: MesonDocs = MesonDocs()
   var openFiles: Set<String> = []
   var astCache: [String: Node] = [:]
-  let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
+  #if !os(Windows)
+    let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
+  #else
+    // Windows will be buggy, but as long as it works
+    var lastAskedForRebuild = 0
+  #endif
   let interval = DispatchTimeInterval.seconds(60)
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -499,8 +506,10 @@ public final class MesonServer: LanguageServer {
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
-        .description
+      let path = Path(
+        Path(file!).parent().description + Path.separator + sd.subdirname
+          + "\(Path.separator)meson.build"
+      ).description
       let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       let endDeclaration = clock()
@@ -543,8 +552,10 @@ public final class MesonServer: LanguageServer {
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(Path(file!).parent().description + "/" + sd.subdirname + "/meson.build")
-        .description
+      let path = Path(
+        Path(file!).parent().description + Path.separator + sd.subdirname
+          + "\(Path.separator)meson.build"
+      ).description
       let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
       req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
       Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
@@ -572,8 +583,13 @@ public final class MesonServer: LanguageServer {
   }
 
   private func rebuildTree() {
-    let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
-    self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
+    #if !os(Windows)
+      let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
+      self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
+    #else
+      let oldValue = self.lastAskedForRebuild + 1
+      self.lastAskedForRebuild += 1
+    #endif
     queue.async {
       let beginRebuilding = clock()
       self.clearDiagnostics()
@@ -583,7 +599,11 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endClearing)
       )
-      var newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #if !os(Windows)
+        var newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #else
+        var newValue = self.lastAskedForRebuild
+      #endif
       if oldValue != newValue {
         Self.LOG.info(
           "Cancelling parsing - After clearing diagnostics (\(oldValue) vs \(newValue))"
@@ -603,7 +623,11 @@ public final class MesonServer: LanguageServer {
         begin: Int(endClearing),
         end: Int(endParsingEntireTree)
       )
-      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #if !os(Windows)
+        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #else
+        newValue = self.lastAskedForRebuild
+      #endif
       if oldValue != newValue {
         Self.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
         return
@@ -614,7 +638,11 @@ public final class MesonServer: LanguageServer {
         cache: &self.astCache,
         memfiles: self.memfiles
       )
-      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #if !os(Windows)
+        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #else
+        newValue = self.lastAskedForRebuild
+      #endif
       if oldValue != newValue {
         Self.LOG.info("Cancelling build - After analyzing types (\(oldValue) vs \(newValue))")
         return
@@ -646,7 +674,11 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endSendingDiagnostics)
       )
-      newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #if !os(Windows)
+        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
+      #else
+        newValue = self.lastAskedForRebuild
+      #endif
       if oldValue != newValue {
         Self.LOG.info("Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))")
         if tmptree.metadata != nil {

@@ -19,12 +19,17 @@ public class Timing {
     if self._timings[name] == nil { self._timings[name] = TimingInformation(name: name) }
     self._timings[name]!.append(value: diff)
   }
+
   public func registerMeasurement(name: String, begin: Int, end: Int) {
     let diff = Double(end - begin) / (Double(CLOCKS_PER_SEC) / Self.MILLISECONDS_IN_SECOND)
     self.registerMeasurement(name: name, diff: diff)
   }
 
   public func registerMeasurement(name: String, begin: UInt, end: UInt) {
+    self.registerMeasurement(name: name, begin: Int(begin), end: Int(end))
+  }
+
+  public func registerMeasurement(name: String, begin: Int32, end: Int32) {
     self.registerMeasurement(name: name, begin: Int(begin), end: Int(end))
   }
 

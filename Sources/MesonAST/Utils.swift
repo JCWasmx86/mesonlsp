@@ -15,8 +15,11 @@ extension SwiftTreeSitter.Node {
 
 internal func string_value(file: MesonSourceFile, node: SwiftTreeSitter.Node) -> String {
   if let text = try? file.contents() {
-    let r2 = Range(node.range, in: text)!
-    return text[r2].trimmingCharacters(in: .whitespacesAndNewlines)
+    if let r2 = Range(node.range, in: text) {
+      return text[r2].trimmingCharacters(in: .whitespacesAndNewlines)
+    } else {
+      print("Unable to find range \(node.range.description) for text\n\(text)")
+    }
   }
   return ""
 }

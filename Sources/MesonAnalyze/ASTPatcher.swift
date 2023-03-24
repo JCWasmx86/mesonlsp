@@ -14,7 +14,10 @@ class ASTPatcher: CodeVisitor {
       let args = al.args
       for a in args where a is StringLiteral {
         if let sl = a as? StringLiteral {
-          if !Path(parent + "/" + sl.contents() + "/meson.build").exists { return false }
+          if !Path(parent + Path.separator + sl.contents() + "\(Path.separator)meson.build").exists
+          {
+            return false
+          }
           subdirs.append(sl.id)
           return true
         }

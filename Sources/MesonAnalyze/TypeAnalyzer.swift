@@ -63,7 +63,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.visitChildren(visitor: self)
     self.metadata.registerSubdirCall(call: node)
     let newPath =
-      Path(node.file.file).absolute().parent().description + "/" + node.subdirname + "/meson.build"
+      Path(node.file.file).absolute().parent().description + Path.separator + node.subdirname
+      + "\(Path.separator)meson.build"
     let subtree = self.tree.findSubdirTree(file: newPath)
     if let st = subtree {
       let tmptree = self.tree
@@ -91,7 +92,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     let base = Path(node.file.file).absolute().parent().description
     for subdirname in node.subdirnames {
       if subdirname.isEmpty { continue }
-      let newPath = base + "/" + subdirname + "/meson.build"
+      let newPath = base + Path.separator + subdirname + "\(Path.separator)meson.build"
       let subtree = self.tree.findSubdirTree(file: newPath)
       if let st = subtree {
         let tmptree = self.tree

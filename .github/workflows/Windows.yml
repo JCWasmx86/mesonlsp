@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: compnerd/gha-setup-swift@main
         with:
@@ -19,4 +19,8 @@ jobs:
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
-          swift build -v
+          swift build --static-swift-stdlib -c debug -vv -Xswiftc -v
+          .\.build\debug\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
+          .\.build\debug\Swift-MesonLSP.exe --test TestCases/Options/meson.build
+          .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
+          .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build

@@ -58,7 +58,11 @@ let package = Package(
           condition: .when(platforms: [.linux, .macOS])
         ), .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
-        .product(name: "Atomics", package: "swift-atomics"),
+        .product(
+          name: "Atomics",
+          package: "swift-atomics",
+          condition: .when(platforms: [.linux, .macOS])
+        ),
       ]
     ),
     .executableTarget(
@@ -74,7 +78,8 @@ let package = Package(
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
-      ]
+      ],
+      swiftSettings: [.unsafeFlags(["-parse-as-library"])]
     ), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
   ]
 )

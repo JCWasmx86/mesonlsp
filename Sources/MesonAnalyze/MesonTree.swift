@@ -108,8 +108,10 @@ public final class MesonTree: Hashable {
     for sd in astPatcher.subdirs {
       let sd1 = sd[1..<sd.count - 1]
       Self.LOG.debug("Subtree: \(sd1)")
-      let f = Path(Path(self.file).absolute().parent().description + "/" + sd1 + "/meson.build")
-        .normalize().description
+      let f = Path(
+        Path(self.file).absolute().parent().description + Path.separator + sd1
+          + "\(Path.separator)meson.build"
+      ).normalize().description
       let tree = Self(
         file: f,
         ns: ns,
@@ -131,19 +133,24 @@ public final class MesonTree: Hashable {
     for i in 0..<astPatcher.subdirs.count {
       let sd = astPatcher.subdirs[i]
       astPatcher.subdirNodes[i].fullFile =
-        Path(Path(self.file).parent().description + "/" + sd[1..<sd.count - 1] + "/meson.build")
-        .description
+        Path(
+          Path(self.file).parent().description + Path.separator + sd[1..<sd.count - 1]
+            + "\(Path.separator)meson.build"
+        ).description
     }
     self.parseOptions(parser: p)
   }
 
   private func readFile(_ name: String) -> String? {
-    do { return try Path(name).read() } catch { return nil }
+    do { return try Path(name).read().replacingOccurrences(of: "\r\n", with: "\n") } catch {
+      return nil
+    }
   }
 
   private func parseOptions(parser p: Parser) {
     if self.depth != 0 { return }
-    let f = Path(Path(self.file).parent().description + "/meson_options.txt").normalize()
+    let f = Path(Path(self.file).parent().description + "\(Path.separator)meson_options.txt")
+      .normalize()
     if !f.exists { self.options = nil }
     let text = self.readFile(f.description)
     guard let text = text else { return }
@@ -197,7 +204,8 @@ public final class MesonTree: Hashable {
         s.insert(heuristic)
         Self.LOG.info("Found subdir call using heuristics: \(heuristic)")
         let f = Path(
-          Path(self.file).absolute().parent().description + "/" + heuristic + "/meson.build"
+          Path(self.file).absolute().parent().description + Path.separator + heuristic
+            + "\(Path.separator)meson.build"
         ).normalize().description
         let tree = Self(
           file: f,

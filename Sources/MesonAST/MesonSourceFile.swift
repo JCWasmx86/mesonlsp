@@ -15,7 +15,7 @@ open class MesonSourceFile {
   open func contents() throws -> String {
     if self._cached { return self._contents }
     self._cached = true
-    self._contents = try Path(self.file).read()
+    self._contents = try Path(self.file).read().replacingOccurrences(of: "\r\n", with: "\n")
     return self._contents
   }
 }

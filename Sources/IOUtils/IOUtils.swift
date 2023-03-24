@@ -30,7 +30,11 @@ import Foundation
 /// Represents a filesystem path.
 public struct Path {
   /// The character used by the OS to separate two path elements
-  public static let separator = "/"
+  #if !os(Windows)
+    public static let separator = "/"
+  #else
+    public static let separator = "\\"
+  #endif
 
   /// The underlying string representation
   internal let path: String
@@ -108,7 +112,14 @@ extension Path {
   ///
   /// - Returns: `true` iff the path begins with a slash
   ///
-  public var isAbsolute: Bool { return path.hasPrefix(Path.separator) }
+  public var isAbsolute: Bool {
+    #if !os(Windows)
+      return path.hasPrefix(Path.separator)
+    #else
+      if self.path.count < 3 { return false }
+      return self.path[0].isLetter && self.path[1] == ":" && self.path[2] == "\\"
+    #endif
+  }
 
   /// Test whether a path is relative.
   ///
@@ -121,12 +132,15 @@ extension Path {
   /// - Returns: the absolute path in the actual filesystem
   ///
   public func absolute() -> Path {
-    if isAbsolute { return normalize() }
+    #if os(Windows)
+      return Path(URL(fileURLWithPath: self.path).absoluteURL.standardizedFileURL.path)
+    #else
+      if isAbsolute { return normalize() }
 
-    let expandedPath = Path(NSString(string: self.path).expandingTildeInPath)
-    if expandedPath.isAbsolute { return expandedPath.normalize() }
-
-    return (Path.current + self).normalize()
+      let expandedPath = Path(NSString(string: self.path).expandingTildeInPath)
+      if expandedPath.isAbsolute { return expandedPath.normalize() }
+      return (Path.current + self).normalize()
+    #endif
   }
 
   /// Normalizes the path, this cleans up redundant ".." and ".", double slashes
@@ -135,7 +149,10 @@ extension Path {
   /// - Returns: a new path made by removing extraneous path components from the underlying String
   ///   representation.
   ///
-  public func normalize() -> Path { return Path(NSString(string: self.path).standardizingPath) }
+  public func normalize() -> Path {
+    let r = Path(NSString(string: self.path).standardizingPath)
+    return r
+  }
 
   /// De-normalizes the path, by replacing the current user home directory with "~".
   ///
@@ -647,15 +664,20 @@ public func + (lhs: Path, rhs: String) -> Path { return lhs.path + rhs }
 
 /// Appends a String fragment to another String to produce a new Path
 internal func + (lhs: String, rhs: String) -> Path {
-  if rhs.hasPrefix(Path.separator) {
+  let rhsPath = Path(rhs)
+  if rhsPath.isAbsolute {
     // Absolute paths replace relative paths
-    return Path(rhs)
+    return rhsPath
   } else {
     var lSlice = NSString(string: lhs).pathComponents.fullSlice
     var rSlice = NSString(string: rhs).pathComponents.fullSlice
 
     // Get rid of trailing "/" at the left side
-    if lSlice.count > 1 && lSlice.last == Path.separator { lSlice.removeLast() }
+    #if !os(Windows)
+      if lSlice.count > 1 && lSlice.last == Path.separator { lSlice.removeLast() }
+    #else
+      if lSlice.count > 3 && lSlice.last == Path.separator { lSlice.removeLast() }
+    #endif
 
     // Advance after the first relevant "."
     lSlice = lSlice.filter { $0 != "." }.fullSlice
@@ -663,10 +685,14 @@ internal func + (lhs: String, rhs: String) -> Path {
 
     // Eats up trailing components of the left and leading ".." of the right side
     while lSlice.last != ".." && !lSlice.isEmpty && rSlice.first == ".." {
-      if lSlice.count > 1 || lSlice.first != Path.separator {
-        // A leading "/" is never popped
-        lSlice.removeLast()
-      }
+      #if !os(Windows)
+        if lSlice.count > 1 || lSlice.first != Path.separator {
+          // A leading "/" is never popped
+          lSlice.removeLast()
+        }
+      #else
+        if lSlice.count > 3 || !Path(components: lSlice).isAbsolute { lSlice.removeLast() }
+      #endif
       if !rSlice.isEmpty { rSlice.removeFirst() }
 
       switch (lSlice.isEmpty, rSlice.isEmpty) {
@@ -681,6 +707,13 @@ internal func + (lhs: String, rhs: String) -> Path {
 }
 
 extension Array { var fullSlice: ArraySlice<Element> { return self[self.indices.suffix(from: 0)] } }
+
+#if os(Windows)
+  extension StringProtocol {
+    subscript(offset: Int) -> Character { return self[index(startIndex, offsetBy: offset)] }
+  }
+#endif
+
 // swiftlint:enable todo
 // swiftlint:enable nesting
 // swiftlint:enable legacy_objc_type
