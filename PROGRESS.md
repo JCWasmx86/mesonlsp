@@ -72,3 +72,8 @@
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 ## Version n
 - [ ] Add Windows to CI
+  - [x] Compiles on Windows
+  - [x] Works using CLI
+  - [ ] Downloading wraps works
+  - [ ] LSP works
+  - [ ] Upload executable
