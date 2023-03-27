@@ -389,7 +389,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   private func checkIdentifier(_ node: IdExpression) {
-    if !isSnakeCase(str: node.id) {
+    if !isSnakeCase(str: node.id) && !isShoutingSnakeCase(str: node.id) {
       self.metadata.registerDiagnostic(
         node: node,
         diag: MesonDiagnostic(sev: .warning, node: node, message: "Expected snake case")
@@ -1063,6 +1063,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   private func isSnakeCase(str: String) -> Bool {
     for s in str where s.isUppercase { return false }
+    return true
+  }
+
+  private func isShoutingSnakeCase(str: String) -> Bool {
+    for s in str where s.isLowercase { return false }
     return true
   }
 
