@@ -72,6 +72,7 @@ public class OptionState {
     self.append(option: ComboOption("python.install_env", nil))
     self.append(option: StringOption("python.platlibdir", nil))
     self.append(option: StringOption("python.purelibdir", nil))
+    self.append(option: BoolOption("pkgconfig.relocatable", nil))
     for o in options { self.append(option: o) }
   }
 
