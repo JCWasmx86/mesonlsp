@@ -237,12 +237,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       idx += 1
     }
     var dedupedUnusedAssignments: Set<String> = []
-    var copied: [IdExpression] = []
+    var toInsert = self.variablesNeedingUse[self.variablesNeedingUse.count - 1]
     for n in allLeft where !dedupedUnusedAssignments.contains(n.id) {
       dedupedUnusedAssignments.insert(n.id)
-      copied.append(n)
+      toInsert.append(n)
     }
-    self.variablesNeedingUse[self.variablesNeedingUse.count - 1] += copied
     let types = self.stack.removeLast()
     // If: 1 c, 1 b
     // If,else if: 2c, 2b
