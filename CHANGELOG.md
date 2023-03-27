@@ -6,7 +6,7 @@
 - Warn about use of deprecated options
 - Add error, if an option does not exist
 - Check `compiler.get_id`, `compiler.get_argument_syntax`, `compiler.get_linker_id`, `build_machine.cpu_family` and `build_machine.system` against known values.
-- Regression: Major performance regression (10-20% depending on the project, due to implementing these advanced code analyzers)
+- Performance loss between 10% and 20% depending on the project, due to implementing these advanced code analyzers
 # 1.4.1 (Mar 20 2023)
 - Major code cleanups
 - Replaced PathKit dependency by a vendored version.
