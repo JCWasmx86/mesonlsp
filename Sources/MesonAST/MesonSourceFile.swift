@@ -10,8 +10,8 @@ open class MesonSourceFile {
     self.file = file
     self._contents = ""
     self._cached = false
-
   }
+
   open func contents() throws -> String {
     if self._cached { return self._contents }
     self._cached = true
