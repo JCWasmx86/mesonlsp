@@ -142,9 +142,13 @@ public final class MesonTree: Hashable {
   }
 
   private func readFile(_ name: String) -> String? {
-    do { return try Path(name).read().replacingOccurrences(of: "\r\n", with: "\n") } catch {
-      return nil
-    }
+    #if os(Windows)
+      do { return try Path(name).read().replacingOccurrences(of: "\r\n", with: "\n") } catch {
+        return nil
+      }
+    #else
+      do { return try Path(name).read() } catch { return nil }
+    #endif
   }
 
   private func parseOptions(parser p: Parser) {
