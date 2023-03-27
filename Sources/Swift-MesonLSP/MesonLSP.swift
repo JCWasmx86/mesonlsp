@@ -180,7 +180,6 @@ import Wrap
     #endif
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
-    close(STDOUT_FILENO)
     if dup2(STDERR_FILENO, STDOUT_FILENO) == -1 {
       fatalError("failed to redirect stdout -> stderr: \(strerror(errno)!)")
     }
@@ -191,7 +190,7 @@ import Wrap
         requests: builtinRequests,
         notifications: builtinNotifications + [DidSaveTextDocumentNotification.self]
       ),
-      inFD: FileHandle(fileDescriptor: STDIN_FILENO, closeOnDealloc: false),
+      inFD: FileHandle.standardInput,
       outFD: realStdoutHandle,
       syncRequests: false
     )
