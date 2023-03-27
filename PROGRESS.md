@@ -74,6 +74,6 @@
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
+  - [x] LSP works
   - [ ] Downloading wraps works
-  - [ ] LSP works
   - [ ] Upload executable/installer
