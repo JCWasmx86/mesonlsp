@@ -522,7 +522,13 @@ extension Path {
   ///
   /// - Returns: the normalized path of the parent directory
   ///
-  public func parent() -> Path { return self + ".." }
+  public func parent() -> Path {
+    #if !os(Windows)
+      return self + ".."
+    #else
+      return Path(URL(fileURLWithPath: self.path).deletingLastPathComponent().path).normalize()
+    #endif
+  }
 
   /// Performs a shallow enumeration in a directory
   ///
