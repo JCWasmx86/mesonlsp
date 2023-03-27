@@ -581,14 +581,14 @@ def analyze_file(file, commit, is_ci):
     absp = os.path.abspath(file)
     os.chdir(base_path())
     clone_projects(is_ci)
-    if not is_ci:
-        parse_gnome_elementary(ret, absp)
     ret["quick"] = {}
     quick_parse(ret, absp)
     ret["misc"] = {}
     misc_parse(ret, absp, is_ci)
     ret["projects"] = []
     projects_parse(ret, absp, is_ci)
+    if not is_ci:
+        parse_gnome_elementary(ret, absp)
     print(json.dumps(ret))
 
 
