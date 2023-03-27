@@ -95,5 +95,5 @@ error('foo')
 dead_code = 1 # ana:warn: Dead code
 unused_assignment = 1 # ana:warn: Unused assignment
 unused_assignment2 = 1
-unused_assignment3 = unused_assignment2 # ana:warn Unused assignment
-
+unused_assignment3 = unused_assignment2 # ana:warn: Unused assignment
+is_good_os = build_machine.system() != 'windows1' # ana:warn: Unknown operating system name

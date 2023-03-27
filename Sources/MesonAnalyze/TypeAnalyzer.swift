@@ -51,6 +51,33 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     "list.contains", "list.get", "list.length",
   ]
 
+  let compilerIds: Set<String> = [
+    "arm", "armclang", "ccomp", "ccrx", "clang", "clang-cl", "dmd", "emscripten", "flang", "g95",
+    "gcc", "intel", "intel-cl", "intel-llvm", "intel-llvm-cl", "lcc", "llvm", "mono", "msvc",
+    "nagfor", "nvidia_hpc", "open64", "pathscale", "pgi", "rustc", "sun", "c2000", "ti", "valac",
+    "xc16", "cython", "nasm", "yasm", "ml", "armasm",
+  ]
+
+  let argumentSyntaxes: Set<String> = ["gcc", "msvc", ""]
+
+  let linkerIds: Set<String> = [
+    "ld.bfd", "ld.gold", "ld.lld", "ld.mold", "ld.solaris", "ld.wasm", "ld64", "ld64.lld", "link",
+    "lld-link", "xilink", "optlink", "rlink", "xc16-ar", "ar2000", "ti-ar", "armlink", "pgi",
+    "nvlink", "ccomp",
+  ]
+
+  let cpuFamilies: Set<String> = [
+    "aarch64", "alpha", "arc", "arm", "avr", "c2000", "csky", "dspic", "e2k", "ft32", "ia64",
+    "loongarch64", "m68k", "microblaze", "mips", "mips64", "msp430", "parisc", "pic24", "ppc",
+    "ppc64", "riscv32", "riscv64", "rl78", "rx", "s390", "s390x", "sh4", "sparc", "sparc64",
+    "wasm32", "wasm64", "x86", "x86_64",
+  ]
+
+  let osNames: Set<String> = [
+    "android", "cygwin", "darwin", "dragonfly", "emscripten", "freebsd", "gnu", "haiku", "linux",
+    "netbsd", "openbsd", "windows", "sunos",
+  ]
+
   public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
     self.scope = parent
     self.tree = tree
@@ -947,6 +974,52 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     node.types = dedup(types: newTypes)
+    if node.parent! is AssignmentStatement || node.parent! is SelectionStatement {
+      if let me = node.lhs as? MethodExpression, let sl = node.rhs as? StringLiteral {
+        self.checkIfSpecialComparison(me, sl)
+      } else if let me = node.rhs as? MethodExpression, let sl = node.lhs as? StringLiteral {
+        self.checkIfSpecialComparison(me, sl)
+      }
+    }
+  }
+
+  private func checkIfSpecialComparison(_ me: MethodExpression, _ sl: StringLiteral) {
+    if let m = me.method {
+      let mid = m.id()
+      let arg = sl.contents()
+      if mid == "compiler.get_id", !self.compilerIds.contains(arg) {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown compiler id")
+        )
+      } else if mid == "compiler.get_argument_syntax", !self.argumentSyntaxes.contains(arg) {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(
+            sev: .warning,
+            node: sl,
+            message: "Unknown compiler argument syntax"
+          )
+        )
+      } else if mid == "compiler.get_linker_id",
+        !self.linkerIds.contains(arg) || self.compilerIds.contains(arg)
+      {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown linker id")
+        )
+      } else if mid == "build_machine.cpu_family", !self.cpuFamilies.contains(arg) {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown cpu family")
+        )
+      } else if mid == "build_machine.system", !self.osNames.contains(arg) {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown operating system name")
+        )
+      }
+    }
   }
 
   private func isSpecial(_ types: [Type]) -> Bool {
