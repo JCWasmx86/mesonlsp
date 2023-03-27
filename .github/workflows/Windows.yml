@@ -24,26 +24,3 @@ jobs:
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/Options/meson.build
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
-  windows571:
-    runs-on: windows-2019
-    steps:
-      - uses: compnerd/gha-setup-swift@main
-        with:
-          branch: swift-5.7.1-release
-          tag: 5.7.1-RELEASE
-      - name: Enable long paths on Windows
-        shell: powershell
-        run: |
-          Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
-      - uses: actions/checkout@v3
-      - run: |
-          cd ..\..
-          git clone https://github.com/JCWasmx86/Swift-MesonLSP b
-          cd b
-          curl -sOL https://aka.ms/vs/16/release/vs_community.exe
-          start /w vs_community.exe --passive --wait --norestart --nocache --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community" --add Microsoft.VisualStudio.Component.Windows10SDK.19041 --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64
-          swift build --static-swift-stdlib -c release -vv -Xswiftc -v
-          .\.build\release\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
-          .\.build\release\Swift-MesonLSP.exe --test TestCases/Options/meson.build
-          .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
-          .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
