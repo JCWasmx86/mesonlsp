@@ -76,4 +76,4 @@
   - [x] Works using CLI
   - [ ] Downloading wraps works
   - [ ] LSP works
-  - [ ] Upload executable
+  - [ ] Upload executable/installer
