@@ -1,196 +1,194 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "console-kit",
-        "repositoryURL": "https://github.com/vapor/console-kit.git",
-        "state": {
-          "branch": null,
-          "revision": "447f1046fb4e9df40973fe426ecb24a6f0e8d3b4",
-          "version": "4.6.0"
-        }
-      },
-      {
-        "package": "IndexStoreDB",
-        "repositoryURL": "https://github.com/apple/indexstore-db.git",
-        "state": {
-          "branch": "main",
-          "revision": "89ec16c2ac1bb271614e734a2ee792224809eb20",
-          "version": null
-        }
-      },
-      {
-        "package": "INIParser",
-        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-INIParser.git",
-        "state": {
-          "branch": null,
-          "revision": "d5f7373ea4affec9af8b9727f411b884288562f8",
-          "version": "4.0.0"
-        }
-      },
-      {
-        "package": "SourceKitLSP",
-        "repositoryURL": "https://github.com/apple/sourcekit-lsp",
-        "state": {
-          "branch": "main",
-          "revision": "3af2f1d58d6d47b9bc1b4729ca742ea764f10834",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser.git",
-        "state": {
-          "branch": null,
-          "revision": "fee6933f37fde9a5e12a1e4aeaa93fe60116ff2a",
-          "version": "1.2.2"
-        }
-      },
-      {
-        "package": "swift-asn1",
-        "repositoryURL": "https://github.com/apple/swift-asn1.git",
-        "state": {
-          "branch": null,
-          "revision": "805deae27a7506dcad043604c00a9dc52d465dcb",
-          "version": "0.7.0"
-        }
-      },
-      {
-        "package": "swift-atomics",
-        "repositoryURL": "https://github.com/apple/swift-atomics.git",
-        "state": {
-          "branch": null,
-          "revision": "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
-          "version": "1.0.3"
-        }
-      },
-      {
-        "package": "swift-certificates",
-        "repositoryURL": "https://github.com/apple/swift-certificates.git",
-        "state": {
-          "branch": null,
-          "revision": "54b9711034c0bd9b18f9ac0fb262d493130bcf13",
-          "version": "0.1.0"
-        }
-      },
-      {
-        "package": "swift-collections",
-        "repositoryURL": "https://github.com/apple/swift-collections.git",
-        "state": {
-          "branch": null,
-          "revision": "937e904258d22af6e447a0b72c0bc67583ef64a2",
-          "version": "1.0.4"
-        }
-      },
-      {
-        "package": "swift-crypto",
-        "repositoryURL": "https://github.com/apple/swift-crypto.git",
-        "state": {
-          "branch": null,
-          "revision": "da0fe44138ab86e380f40a2acbd8a611b07d3f64",
-          "version": "2.4.0"
-        }
-      },
-      {
-        "package": "swift-driver",
-        "repositoryURL": "https://github.com/apple/swift-driver.git",
-        "state": {
-          "branch": "main",
-          "revision": "dfd99405ba8bea6f6e71d06c256c6de704d5efda",
-          "version": null
-        }
-      },
-      {
-        "package": "llbuild",
-        "repositoryURL": "https://github.com/apple/swift-llbuild.git",
-        "state": {
-          "branch": "main",
-          "revision": "0d6e4f2db7fb3b8c9a48afb6a9a435736212cae0",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-log",
-        "repositoryURL": "https://github.com/apple/swift-log.git",
-        "state": {
-          "branch": null,
-          "revision": "32e8d724467f8fe623624570367e3d50c5638e46",
-          "version": "1.5.2"
-        }
-      },
-      {
-        "package": "SwiftPM",
-        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
-        "state": {
-          "branch": "main",
-          "revision": "bcc1083fd63cd0a885ea0df3462c0eb0fd388047",
-          "version": null
-        }
-      },
-      {
-        "package": "SwiftSyntax",
-        "repositoryURL": "https://github.com/apple/swift-syntax.git",
-        "state": {
-          "branch": "main",
-          "revision": "7e099edaa66de87fd12e04f6ce5a4c7eef009a40",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-system",
-        "repositoryURL": "https://github.com/apple/swift-system.git",
-        "state": {
-          "branch": null,
-          "revision": "836bc4557b74fe6d2660218d56e3ce96aff76574",
-          "version": "1.1.1"
-        }
-      },
-      {
-        "package": "swift-tools-support-core",
-        "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
-        "state": {
-          "branch": "main",
-          "revision": "cab96f6bcce855feec8b85286205a7d15a275b6a",
-          "version": null
-        }
-      },
-      {
-        "package": "Swifter",
-        "repositoryURL": "https://github.com/httpswift/swifter.git",
-        "state": {
-          "branch": null,
-          "revision": "9483a5d459b45c3ffd059f7b55f9638e268632fd",
-          "version": "1.5.0"
-        }
-      },
-      {
-        "package": "SwiftTreeSitter",
-        "repositoryURL": "https://github.com/ChimeHQ/SwiftTreeSitter",
-        "state": {
-          "branch": null,
-          "revision": "df25a52f72ebc5b50ae20d26d1363793408bb28b",
-          "version": "0.7.1"
-        }
-      },
-      {
-        "package": "TreeSitterMeson",
-        "repositoryURL": "https://github.com/JCWasmx86/tree-sitter-meson",
-        "state": {
-          "branch": null,
-          "revision": "3717c33105a66dd0ea4132419a32b79490ebe88c",
-          "version": "1.0.7"
-        }
-      },
-      {
-        "package": "Yams",
-        "repositoryURL": "https://github.com/jpsim/Yams.git",
-        "state": {
-          "branch": null,
-          "revision": "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
-          "version": "5.0.5"
-        }
+  "pins" : [
+    {
+      "identity" : "console-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/console-kit.git",
+      "state" : {
+        "revision" : "447f1046fb4e9df40973fe426ecb24a6f0e8d3b4",
+        "version" : "4.6.0"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "indexstore-db",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/indexstore-db.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "89ec16c2ac1bb271614e734a2ee792224809eb20"
+      }
+    },
+    {
+      "identity" : "perfect-iniparser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PerfectlySoft/Perfect-INIParser.git",
+      "state" : {
+        "revision" : "d5f7373ea4affec9af8b9727f411b884288562f8",
+        "version" : "4.0.0"
+      }
+    },
+    {
+      "identity" : "sourcekit-lsp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/sourcekit-lsp",
+      "state" : {
+        "branch" : "main",
+        "revision" : "3af2f1d58d6d47b9bc1b4729ca742ea764f10834"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "fee6933f37fde9a5e12a1e4aeaa93fe60116ff2a",
+        "version" : "1.2.2"
+      }
+    },
+    {
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "805deae27a7506dcad043604c00a9dc52d465dcb",
+        "version" : "0.7.0"
+      }
+    },
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swift-certificates",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-certificates.git",
+      "state" : {
+        "revision" : "54b9711034c0bd9b18f9ac0fb262d493130bcf13",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "937e904258d22af6e447a0b72c0bc67583ef64a2",
+        "version" : "1.0.4"
+      }
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "da0fe44138ab86e380f40a2acbd8a611b07d3f64",
+        "version" : "2.4.0"
+      }
+    },
+    {
+      "identity" : "swift-driver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-driver.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "fd78cd69ead02ccc46ce447c0ceaa5d9792138f1"
+      }
+    },
+    {
+      "identity" : "swift-llbuild",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-llbuild.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0d6e4f2db7fb3b8c9a48afb6a9a435736212cae0"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
+      }
+    },
+    {
+      "identity" : "swift-package-manager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-package-manager.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "2c9fa974bc6ed9662e9399b734a0567952fb3e1d"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-syntax.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7e099edaa66de87fd12e04f6ce5a4c7eef009a40"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "836bc4557b74fe6d2660218d56e3ce96aff76574",
+        "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "swift-tools-support-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-tools-support-core.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "cab96f6bcce855feec8b85286205a7d15a275b6a"
+      }
+    },
+    {
+      "identity" : "swifter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/httpswift/swifter.git",
+      "state" : {
+        "revision" : "9483a5d459b45c3ffd059f7b55f9638e268632fd",
+        "version" : "1.5.0"
+      }
+    },
+    {
+      "identity" : "swifttreesitter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/SwiftTreeSitter",
+      "state" : {
+        "revision" : "df25a52f72ebc5b50ae20d26d1363793408bb28b",
+        "version" : "0.7.1"
+      }
+    },
+    {
+      "identity" : "tree-sitter-meson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JCWasmx86/tree-sitter-meson",
+      "state" : {
+        "revision" : "3717c33105a66dd0ea4132419a32b79490ebe88c",
+        "version" : "1.0.7"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams.git",
+      "state" : {
+        "revision" : "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
+        "version" : "5.0.5"
+      }
+    }
+  ],
+  "version" : 2
 }
