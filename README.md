@@ -66,6 +66,7 @@ to `Swift-MesonLSP` and copy it to the right destination.
 
 ### Connect with your editor
 #### GNOME Builder Nightly
+**Currently broken due to libpeas API break**
 ```
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins
