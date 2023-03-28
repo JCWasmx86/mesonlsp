@@ -7,8 +7,6 @@ serve: FORCE
 	echo -n "," >> generated.js
 	cat v1.2.json >> generated.js
 	echo -n "," >> generated.js
-	cat v1.2.1.json >> generated.js
-	echo -n "," >> generated.js
 	cat v1.3.json >> generated.js
 	echo -n "," >> generated.js
 	cat v1.4.json >> generated.js
