@@ -1,3 +1,4 @@
+# Next (XXX XX 2023)
 # 1.5 (Mar 28 2023)
 - Add dead code detection
 - Add detection for code without effect
