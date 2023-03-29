@@ -215,6 +215,36 @@ function createOverviewCharts() {
     "Peak Heap (In MB)",
     ALL_BENCHMARKS.map((a) => a.misc.peak_heap.replace("M", "")),
   );
+
+  for (const element of ["gnome", "elementary"]) {
+    ctx = document.getElementById(element.replaceAll("-", "_"));
+    attachChart(
+      element.replaceAll("-", "_"),
+      "Time required for parsing (In ms)",
+      ALL_BENCHMARKS.map((a) => a.floss[element].parsing),
+    );
+    attachChart(
+      `${element}_allocs`.replaceAll("-", "_"),
+      "Memory allocations",
+      ALL_BENCHMARKS.map((a) => a.floss[element].memory_allocations),
+    );
+    attachChart(
+      `${element}_tmp_allocs`.replaceAll("-", "_"),
+      "Temporary memory allocations",
+      ALL_BENCHMARKS.map((a) => a.floss[element].temporary_memory_allocations),
+      false,
+    );
+    attachChart(
+      `${element}_rss`.replaceAll("-", "_"),
+      "Peak RSS (In MB)",
+      ALL_BENCHMARKS.map((a) => a.floss[element].peak_rss.replace("M", "")),
+    );
+    attachChart(
+      `${element}_heap`.replaceAll("-", "_"),
+      "Peak Heap (In MB)",
+      ALL_BENCHMARKS.map((a) => a.floss[element].peak_heap.replace("M", "")),
+    );
+  }
 }
 
 function appendTr(tr, txt) {
