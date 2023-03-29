@@ -33,6 +33,7 @@ public class MesonDocs {
     SourceSetDocProvider().addToDict(dict: &self.docs)
     WaylandDocProvider().addToDict(dict: &self.docs)
     WindowsDocProvider().addToDict(dict: &self.docs)
+    ModuleKwargDocProvider().addToDict(dict: &self.docs)
   }
 
   public func find_docs(id: String) -> String? { return self.docs[id] }
