@@ -1,6 +1,3 @@
-#if !os(Windows)
-  import Atomics
-#endif
 import Dispatch
 import Foundation
 import IOUtils
@@ -9,10 +6,14 @@ import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
+import Timing
+
+#if !os(Windows)
+  import Atomics
+#endif
 #if os(Linux)
   import Swifter
 #endif
-import Timing
 
 // There seem to be some name collisions
 public typealias MesonVoid = ()
@@ -284,33 +285,31 @@ public final class MesonServer: LanguageServer {
 
   private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
     let begin = clock()
-    if let t = self.tree {
-      if let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path) {
-        if let ast = mt.ast {
-          let sv = SymbolCodeVisitor()
-          var rep: [SymbolInformation] = []
-          ast.visit(visitor: sv)
-          for si in sv.symbols {
-            let name = si.name
-            let range =
-              Position(
-                line: Int(si.startLine),
-                utf16index: Int(si.startColumn)
-              )..<Position(line: Int(si.endLine), utf16index: Int(si.endColumn))
-            let kind = SymbolKind(rawValue: Int(si.kind))
-            rep.append(
-              SymbolInformation(
-                name: name,
-                kind: kind,
-                location: Location(uri: req.params.textDocument.uri, range: range)
-              )
-            )
-          }
-          req.reply(.symbolInformation(rep))
-          Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
-          return
-        }
+    if let t = self.tree,
+      let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path), let ast = mt.ast
+    {
+      let sv = SymbolCodeVisitor()
+      var rep: [SymbolInformation] = []
+      ast.visit(visitor: sv)
+      for si in sv.symbols {
+        let name = si.name
+        let range =
+          Position(
+            line: Int(si.startLine),
+            utf16index: Int(si.startColumn)
+          )..<Position(line: Int(si.endLine), utf16index: Int(si.endColumn))
+        let kind = SymbolKind(rawValue: Int(si.kind))
+        rep.append(
+          SymbolInformation(
+            name: name,
+            kind: kind,
+            location: Location(uri: req.params.textDocument.uri, range: range)
+          )
+        )
       }
+      req.reply(.symbolInformation(rep))
+      Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
+      return
     }
     req.reply(.symbolInformation([]))
     Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
@@ -372,17 +371,15 @@ public final class MesonServer: LanguageServer {
     _ function: inout Function?,
     _ content: inout String?
   ) {
-    if let m = self.tree!.metadata!.findMethodCallAt(file, line, column) {
-      if m.method != nil {
-        function = m.method!
-        content = m.method!.parent.toString() + "." + m.method!.name
-      }
+    if let m = self.tree!.metadata!.findMethodCallAt(file, line, column), m.method != nil {
+      function = m.method!
+      content = m.method!.parent.toString() + "." + m.method!.name
     }
-    if content == nil, let f = self.tree!.metadata!.findFunctionCallAt(file, line, column) {
-      if f.function != nil {
-        function = f.function!
-        content = f.function!.name
-      }
+    if content == nil, let f = self.tree!.metadata!.findFunctionCallAt(file, line, column),
+      f.function != nil
+    {
+      function = f.function!
+      content = f.function!.name
     }
   }
 
@@ -433,7 +430,7 @@ public final class MesonServer: LanguageServer {
       if function == nil {  // Kwarg docs
         let d = self.docs.find_docs(id: content!)
         content = (d ?? content!) + "\n\n*Types:*`" + (kwargTypes ?? "???") + "`"
-      } else if function != nil {
+      } else {
         let d = self.docs.find_docs(id: content!)
         if let mdocs = d {
           content = self.callHover(content: content, mdocs: mdocs, function: function)
@@ -483,26 +480,22 @@ public final class MesonServer: LanguageServer {
     let beginDeclaration = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
-    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
-      if let t = self.tree!.findDeclaration(node: i) {
-        let newFile = t.0
-        let line = t.1[0]
-        let column = t.1[1]
-        let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        Self.LOG.info("Found declaration")
-        req.reply(
-          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
-        )
-        let endDeclaration = clock()
-        Timing.INSTANCE.registerMeasurement(
-          name: "declaration",
-          begin: Int(beginDeclaration),
-          end: Int(endDeclaration)
-        )
-        return
-      } else {
-        Self.LOG.info("Found identifier")
-      }
+    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index),
+      let t = self.tree!.findDeclaration(node: i)
+    {
+      let newFile = t.0
+      let line = t.1[0]
+      let column = t.1[1]
+      let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
+      Self.LOG.info("Found declaration")
+      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+      let endDeclaration = clock()
+      Timing.INSTANCE.registerMeasurement(
+        name: "declaration",
+        begin: Int(beginDeclaration),
+        end: Int(endDeclaration)
+      )
+      return
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
@@ -534,21 +527,17 @@ public final class MesonServer: LanguageServer {
     let begin = clock()
     let location = req.params.position
     let file = req.params.textDocument.uri.fileURL?.path
-    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index) {
-      if let t = self.tree!.findDeclaration(node: i) {
-        let newFile = t.0
-        let line = t.1[0]
-        let column = t.1[1]
-        let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-        Self.LOG.info("Found definition")
-        req.reply(
-          .locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)])
-        )
-        Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
-        return
-      } else {
-        Self.LOG.info("Found identifier")
-      }
+    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index),
+      let t = self.tree!.findDeclaration(node: i)
+    {
+      let newFile = t.0
+      let line = t.1[0]
+      let column = t.1[1]
+      let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
+      Self.LOG.info("Found definition")
+      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
+      Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
+      return
     }
 
     if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
@@ -568,8 +557,8 @@ public final class MesonServer: LanguageServer {
 
   private func clearDiagnostics() {
     if self.tree != nil && self.tree!.metadata != nil {
-      for k in self.tree!.metadata!.diagnostics.keys {
-        if self.tree!.metadata!.diagnostics[k] == nil { continue }
+      for k in self.tree!.metadata!.diagnostics.keys
+      where self.tree!.metadata!.diagnostics[k] != nil {
         let arr: [Diagnostic] = []
         self.client.send(
           PublishDiagnosticsNotification(
@@ -681,9 +670,8 @@ public final class MesonServer: LanguageServer {
       #endif
       if oldValue != newValue {
         Self.LOG.info("Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))")
-        if tmptree.metadata != nil {
-          for k in tmptree.metadata!.diagnostics.keys {
-            if tmptree.metadata!.diagnostics[k] == nil { continue }
+        if let md = tmptree.metadata {
+          for k in md.diagnostics.keys where md.diagnostics[k] != nil {
             let arr: [Diagnostic] = []
             self.client.send(
               PublishDiagnosticsNotification(
@@ -691,7 +679,7 @@ public final class MesonServer: LanguageServer {
                 diagnostics: arr
               )
             )
-            tmptree.metadata!.diagnostics.removeValue(forKey: k)
+            md.diagnostics.removeValue(forKey: k)
           }
         }
         return
@@ -701,8 +689,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func sendNewDiagnostics(_ tmptree: MesonTree) {
-    for k in tmptree.metadata!.diagnostics.keys {
-      if tmptree.metadata!.diagnostics[k] == nil { continue }
+    for k in tmptree.metadata!.diagnostics.keys where tmptree.metadata!.diagnostics[k] != nil {
       var arr: [Diagnostic] = []
       let diags = tmptree.metadata!.diagnostics[k]!
       Self.LOG.info("Publishing \(diags.count) diagnostics for \(k)")
