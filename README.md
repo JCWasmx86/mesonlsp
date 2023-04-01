@@ -1,5 +1,6 @@
 # Swift-MesonLSP
 ![GitHub all releases](https://img.shields.io/github/downloads/JCWasmx86/Swift-MesonLSP/total?style=social)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/)
 
 A reimplementation of my Meson language server in Swift.
 
