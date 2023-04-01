@@ -199,7 +199,7 @@ public final class MesonServer: LanguageServer {
             }
           } else if let idexpr = md.findIdentifierAt(fp, line, column) {
             let currId = idexpr.id
-            for f in self.ns.functions where f.name.lowercased().hasPrefix(currId.lowercased()) {
+            for f in self.ns.functions where f.name.lowercased().contains(currId.lowercased()) {
               arr.append(CompletionItem(label: f.name, kind: .function))
             }
           }
