@@ -36,7 +36,7 @@ public final class MesonServer: LanguageServer {
   #if !os(Windows)
     let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
   #else
-    // Windows will be buggy, but as long as it works
+    // Windows will be a bit buggy, but as long as it works
     var lastAskedForRebuild = 0
   #endif
   let interval = DispatchTimeInterval.seconds(60)
