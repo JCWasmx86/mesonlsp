@@ -6,4 +6,8 @@ public final class Method: Function {
     super.init(name: name, returnTypes: returnTypes, args: args)
   }
   public override func id() -> String { return self.parent.name + "." + self.name }
+
+  public override func hash(into hasher: inout Hasher) {
+    hasher.combine("method" + self.name + self.id())
+  }
 }

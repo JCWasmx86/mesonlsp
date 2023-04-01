@@ -184,8 +184,17 @@ public final class MesonServer: LanguageServer {
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
-            let s: Set<String> = self.fillTypes(types)
-            for c in s { arr.append(CompletionItem(label: c, kind: .method)) }
+            let s: Set<Method> = self.fillTypes(types)
+            for c in s {
+              arr.append(
+                CompletionItem(
+                  label: c.name,
+                  kind: .method,
+                  insertText: createTextForFunction(c),
+                  insertTextFormat: .snippet
+                )
+              )
+            }
           }
         } else if let t = self.tree, let md = t.metadata {
           if let idexpr = md.findIdentifierAt(fp, line, column),
@@ -195,12 +204,26 @@ public final class MesonServer: LanguageServer {
             let usedKwargs: Set<String> = self.enumerateUsedKwargs(al)
             let s: Set<String> = self.fillKwargs(callExpr)
             for c in s where !usedKwargs.contains(c) {
-              arr.append(CompletionItem(label: c, kind: .keyword, insertText: "\(c): "))
+              arr.append(
+                CompletionItem(
+                  label: c,
+                  kind: .keyword,
+                  insertText: "\(c): ${1:\(c)}",
+                  insertTextFormat: .snippet
+                )
+              )
             }
           } else if let idexpr = md.findIdentifierAt(fp, line, column) {
             let currId = idexpr.id
             for f in self.ns.functions where f.name.lowercased().contains(currId.lowercased()) {
-              arr.append(CompletionItem(label: f.name, kind: .function))
+              arr.append(
+                CompletionItem(
+                  label: f.name,
+                  kind: .function,
+                  insertText: createTextForFunction(f),
+                  insertTextFormat: .snippet
+                )
+              )
             }
           }
         }
@@ -219,19 +242,39 @@ public final class MesonServer: LanguageServer {
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
   }
 
-  private func fillTypes(_ types: [Type]) -> Set<String> {
-    var s: Set<String> = []
+  private func createTextForFunction(_ m: Function) -> String {
+    var str = m.name + "("
+    var n = 1
+    for arg in m.args where arg is PositionalArgument {
+      let p = (arg as! PositionalArgument)
+      if !p.opt {
+        str += "${\(n):\(p.name)}, "
+        n += 1
+      }
+    }
+    for arg in m.args where arg is Kwarg {
+      let p = (arg as! Kwarg)
+      if !p.opt {
+        str += "\(p.name): ${\(n):\(p.name)}, "
+        n += 1
+      }
+    }
+    return (str + ")").replacingOccurrences(of: ", )", with: ")")
+  }
+
+  private func fillTypes(_ types: [Type]) -> Set<Method> {
+    var s: Set<Method> = []
     for t in types {
       for m in self.ns.vtables[t.name]! {
         Self.LOG.info("Inserting completion: \(m.name)")
-        s.insert(m.name)
+        s.insert(m)
       }
       if let t1 = t as? AbstractObject {
         var p = t1.parent
         while p != nil {
           for m in self.ns.vtables[p!.name]! {
             Self.LOG.info("Inserting completion: \(m.name)")
-            s.insert(m.name)
+            s.insert(m)
           }
           p = p!.parent
         }

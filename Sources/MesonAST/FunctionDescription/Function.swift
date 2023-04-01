@@ -1,4 +1,4 @@
-public class Function {
+public class Function: Equatable, Hashable {
   public let name: String
   public let returnTypes: [Type]
   public let args: [Argument]
@@ -36,4 +36,8 @@ public class Function {
   public func requiredKwargs() -> [String] {
     return Array(self.kwargs.values.filter { !$0.opt }.map { $0.name })
   }
+
+  public func hash(into hasher: inout Hasher) { hasher.combine("func" + self.name) }
+
+  public static func == (lhs: Function, rhs: Function) -> Bool { return lhs.id() == rhs.id() }
 }
