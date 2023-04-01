@@ -1,4 +1,4 @@
-# Next (XXX XX 2023)
+# 1.5.1 (Apr 02 2023)
 - Use snippets during auto completion
 - Setup [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/) for Fedora
 - Don't show message with memory stats in the editor anymore, as especially in VSCode is was quite annoying.
