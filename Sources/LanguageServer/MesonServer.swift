@@ -178,7 +178,7 @@ public final class MesonServer: LanguageServer {
       let column = pos.utf16index
       let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
       Self.LOG.info("Completion at: [\(line):\(column)]")
-      if line < lines.count {
+      if line < lines.count && lines[line].trimmingCharacters(in: .whitespaces).count >= 1 {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
@@ -253,7 +253,7 @@ public final class MesonServer: LanguageServer {
   ) {
     var n = prev.count - 1
     var invalid = false
-    while prev[n] != "." {
+    while prev[n] != "." && n >= 0 {
       Self.LOG.info("Finalcompletion: \(prev[0..<n])")
       if prev[n].isNumber || prev[n] == " " {
         invalid = true
