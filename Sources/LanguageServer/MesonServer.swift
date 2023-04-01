@@ -327,7 +327,7 @@ public final class MesonServer: LanguageServer {
             Position(
               line: 0,
               utf16index: 0
-            )..<Position(line: newLines.count, utf16index: endOfLastLine)
+            )..<Position(line: newLines.count + 2048, utf16index: endOfLastLine)
           let edit = TextEdit(range: range, newText: formatted)
           req.reply([edit])
           Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
