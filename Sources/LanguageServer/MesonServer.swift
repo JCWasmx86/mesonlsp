@@ -181,7 +181,6 @@ public final class MesonServer: LanguageServer {
       if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
-        Self.LOG.info("prev: `\(prev)`")
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
@@ -227,39 +226,7 @@ public final class MesonServer: LanguageServer {
               )
             }
           } else {
-            var n = prev.count - 1
-            var invalid = false
-            while prev[n] != "." {
-              Self.LOG.info("Finalcompletion: \(prev[0..<n])")
-              if prev[n] == "_" || prev[n].isNumber {
-                invalid = true
-                break
-              }
-              n -= 1
-              if n == -1 {
-                invalid = true
-                break
-              }
-            }
-            if !invalid {
-              Self.LOG.info(
-                "Finalcompletion2: Looking at (\(line):\(n)) instead of (\(line):\(column))"
-              )
-              let exprTypes = self.afterDotCompletion(md, fp, line, n)
-              if let types = exprTypes {
-                let s: Set<Method> = self.fillTypes(types)
-                for c in s {
-                  arr.append(
-                    CompletionItem(
-                      label: c.name,
-                      kind: .method,
-                      insertText: createTextForFunction(c),
-                      insertTextFormat: .snippet
-                    )
-                  )
-                }
-              }
-            }
+            finalAttempt(prev, line, fp, md, &arr)
           }
         }
       } else {
@@ -275,6 +242,45 @@ public final class MesonServer: LanguageServer {
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+  }
+
+  private func finalAttempt(
+    _ prev: String,
+    _ line: Int,
+    _ fp: String,
+    _ md: MesonMetadata,
+    _ arr: inout [CompletionItem]
+  ) {
+    var n = prev.count - 1
+    var invalid = false
+    while prev[n] != "." {
+      Self.LOG.info("Finalcompletion: \(prev[0..<n])")
+      if prev[n].isNumber || prev[n] == " " {
+        invalid = true
+        break
+      }
+      n -= 1
+      if n == -1 {
+        invalid = true
+        break
+      }
+    }
+    if invalid { return }
+    let exprTypes = self.afterDotCompletion(md, fp, line, n)
+    // The editor should filter this client side
+    if let types = exprTypes {
+      let s: Set<Method> = self.fillTypes(types)
+      for c in s {
+        arr.append(
+          CompletionItem(
+            label: c.name,
+            kind: .method,
+            insertText: createTextForFunction(c),
+            insertTextFormat: .snippet
+          )
+        )
+      }
+    }
   }
 
   private func createTextForFunction(_ m: Function) -> String {
