@@ -16,3 +16,5 @@ swiftlint --progress Sources/ Tests/ Package.swift
 for linting. No warnings should be shown, otherwise fix them or disable them for the
 part of the code, if there are good reasons.
 
+## Contact
+I made a matrix channel: [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org) Feel free to join
