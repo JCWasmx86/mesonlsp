@@ -39,7 +39,7 @@
 - [x] Symboltree
 - [x] Rudimentary autocompletion
 ## Version 2.0
-- [ ] Full autocompletion
+- [x] Usable autocompletion
 - [x] More diagnostics
   - [x] Unused variables
   - [x] Deprecated options
