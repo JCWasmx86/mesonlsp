@@ -75,16 +75,10 @@ public final class MesonServer: LanguageServer {
       let heap = stats[0]
       let stack = stats[1]
       let total = stats[2]
-      Self.LOG.info("Stack: \(stack) Heap: \(heap) Total: \(total)")
       let heapS = formatWithUnits(heap)
       let stackS = formatWithUnits(stack)
       let totalS = formatWithUnits(total)
-      self.client.send(
-        ShowMessageNotification(
-          type: .info,
-          message: "Heap usage: \(heapS) Stack usage: \(stackS) Total: \(totalS)"
-        )
-      )
+      Self.LOG.info("Stack: \(stackS) Heap: \(heapS) Total: \(totalS)")
     #endif
   }
 
