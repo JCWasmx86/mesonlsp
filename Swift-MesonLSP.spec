@@ -1,4 +1,5 @@
 %global debug_package %{nil}
+%undefine _auto_set_build_flags
 
 Name:           Swift-MesonLSP
 Version:        0.0.1
@@ -12,6 +13,7 @@ Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v1
 Requires:       bash
 BuildRequires:  swift-lang
 BuildRequires:  clang
+BuildRequires:  git
 
 %description
 A meson language server
@@ -21,14 +23,15 @@ A meson language server
 
 
 %build
-export CC=%{_bindir}/clang
-export CXX=%{_bindir}/clang++
+git clone https://github.com/JCWasmx86/Swift-MesonLSP
+cd Swift-MesonLSP
+git checkout v1.5
 swift build -c release --static-swift-stdlib -Xswiftc -g
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_bindir}
-cp .build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
+cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 
 %files
 %{_bindir}/Swift-MesonLSP
