@@ -453,6 +453,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       return
     }
+    guard node.op != nil else { return }
     guard let lhsIdExpr = node.lhs as? IdExpression else { return }
     if node.op == .equals {
       var arr = node.rhs.types
