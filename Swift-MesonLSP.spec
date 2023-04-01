@@ -14,7 +14,7 @@ Requires:       bash
 BuildRequires:  swift-lang
 BuildRequires:  clang
 BuildRequires:  git
-BuildRequires:  libcurl-devel
+
 %description
 A meson language server
 

@@ -1,7 +1,7 @@
 FROM ubuntu:22.04 AS stage1
 WORKDIR /app
 RUN apt-get update&&\
-    apt-get install zip wget git tar libcurl4 libcurl4-openssl-dev -y &&\
+    apt-get install zip wget git tar -y &&\
     apt-get clean -y &&\
     git clone https://github.com/JCWasmx86/Swift-MesonLSP &&\
     wget --progress=dot:giga https://download.swift.org/swift-5.8-release/ubuntu2004/swift-5.8-RELEASE/swift-5.8-RELEASE-ubuntu20.04.tar.gz &&\

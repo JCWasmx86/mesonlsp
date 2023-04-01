@@ -3,7 +3,6 @@
 - Setup [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/) for Fedora
 - Don't show message with memory stats in the editor anymore, as especially in VSCode is was quite annoying.
 - Move development from master to main branch
-- Don't download wraps using curl/wget. Download using builtin capabilities of FoundationNetworking instead
 # 1.5 (Mar 28 2023)
 - Add dead code detection
 - Add detection for code without effect
