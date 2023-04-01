@@ -1,5 +1,8 @@
 import Crypto
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 import IOUtils
 import Logging
 
@@ -31,6 +34,8 @@ public class Wrap {
     self.patchHash = patchHash
     self.patchDirectory = patchDirectory
     self.diffFiles = diffFiles
+    // See https://github.com/apple/swift-corelibs-foundation/issues/4644
+    _ = URLSession.shared
   }
 
   internal func applyProvides(_ provides: Provides) { self.provides = provides }
@@ -70,20 +75,16 @@ public class Wrap {
   internal func download(url: String, fallbackURL: String?, expectedHash: String) throws -> String {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + "/" + UUID().uuidString
+    let outURL = URL(fileURLWithPath: outputFile)
     Self.LOG.info("Attempting to download from \(url) to file \(outputFile)")
     do {
-      try self.assertRequired("wget")
-      try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
+      let d = try Data(contentsOf: URL(string: url)!)
+      try d.write(to: outURL)
     } catch {
-      do {
-        try self.assertRequired("curl")
-        try self.executeCommand(["curl", url, "-o", outputFile, "-s"])
-      } catch {
-        if let fb = fallbackURL {
-          return try download(url: fb, fallbackURL: nil, expectedHash: expectedHash)
-        }
-        throw error
+      if let fb = fallbackURL {
+        return try download(url: fb, fallbackURL: nil, expectedHash: expectedHash)
       }
+      throw error
     }
     let savedData = try Data(contentsOf: URL(fileURLWithPath: outputFile))
     let hashedBytes = Data(SHA256.hash(data: savedData)).hexStringEncoded()

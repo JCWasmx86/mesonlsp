@@ -76,6 +76,7 @@ jobs:
         run: swift test
       - name: Run integration tests
         run: |
+          sudo apt install -y libcurl4 libcurl4-openssl-dev
           swift build
           ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
@@ -92,6 +93,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run regression tests
         run: |
+          sudo apt install -y libcurl4 libcurl4-openssl-dev
           swift build -c release --static-swift-stdlib
           ./run_regression_tests.sh
   profiling:
@@ -104,7 +106,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
-          sudo apt install -y heaptrack git jq
+          sudo apt install -y heaptrack git jq libcurl4 libcurl4-openssl-dev
           swift build -c release --static-swift-stdlib
           ./collect_perf_data.py --ci .build/release/Swift-MesonLSP ${{ github.sha }} | jq >/tmp/${{ github.sha }}.json
           cat /tmp/${{ github.sha }}.json

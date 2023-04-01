@@ -1,6 +1,6 @@
 FROM fedora:37 AS stage1
 WORKDIR /app
-RUN dnf install zip swift-lang git libstdc++-static -y &&\
+RUN dnf install zip swift-lang git libstdc++-static libcurl-devel -y &&\
     dnf clean all &&\
     git clone https://github.com/JCWasmx86/Swift-MesonLSP
 WORKDIR /app/Swift-MesonLSP
