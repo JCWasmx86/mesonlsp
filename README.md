@@ -17,9 +17,9 @@ A reimplementation of my Meson language server in Swift.
 
 ## Limitations
 - Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
-- `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/master/TestCases/ComputeSetVariable/meson.build)
+- `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSetVariable/meson.build)
 - No wrap/subproject support
-- `subdir` with non-constant subdir name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/master/TestCases/ComputeSubdirs/meson.build)
+- `subdir` with non-constant subdir name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSubdirs/meson.build)
 - Type deduction is not 100% correct yet
 - Autocompletion is very flaky
 - Type definitions may have minor errors regarding:
@@ -42,7 +42,7 @@ in case you want to ask questions, get support or contribute.
 - GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 #### Ubuntu
 TBD: For the moment, just follow what the docker files do:
-- [Language Server](https://github.com/JCWasmx86/Swift-MesonLSP/blob/master/Dockerfile.ubuntu)
+- [Language Server](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/Dockerfile.ubuntu)
 - [GNOME-Builder plugin](https://github.com/JCWasmx86/GNOME-Builder-Plugins/blob/main/Dockerfile.ubuntu)
 ### Install the language server
 You can either [download](https://github.com/JCWasmx86/Swift-MesonLSP/releases/tag/v1.4) the file from the releases or build it yourself.
