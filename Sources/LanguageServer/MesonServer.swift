@@ -178,7 +178,7 @@ public final class MesonServer: LanguageServer {
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
-            let s: Set<Method> = self.fillTypes(types)
+            let s: Set<MesonAST.Method> = self.fillTypes(types)
             for c in s {
               arr.append(
                 CompletionItem(
@@ -263,7 +263,7 @@ public final class MesonServer: LanguageServer {
     let exprTypes = self.afterDotCompletion(md, fp, line, n)
     // The editor should filter this client side
     if let types = exprTypes {
-      let s: Set<Method> = self.fillTypes(types)
+      let s: Set<MesonAST.Method> = self.fillTypes(types)
       for c in s {
         arr.append(
           CompletionItem(
@@ -297,8 +297,8 @@ public final class MesonServer: LanguageServer {
     return (str + ")").replacingOccurrences(of: ", )", with: ")")
   }
 
-  private func fillTypes(_ types: [Type]) -> Set<Method> {
-    var s: Set<Method> = []
+  private func fillTypes(_ types: [Type]) -> Set<MesonAST.Method> {
+    var s: Set<MesonAST.Method> = []
     for t in types {
       for m in self.ns.vtables[t.name]! {
         Self.LOG.info("Inserting completion: \(m.name)")
