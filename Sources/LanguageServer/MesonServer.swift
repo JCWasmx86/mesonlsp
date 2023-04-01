@@ -181,6 +181,7 @@ public final class MesonServer: LanguageServer {
       if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
+        Self.LOG.info("prev: `\(prev)`")
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
@@ -224,6 +225,40 @@ public final class MesonServer: LanguageServer {
                   insertTextFormat: .snippet
                 )
               )
+            }
+          } else {
+            var n = prev.count - 1
+            var invalid = false
+            while prev[n] != "." {
+              Self.LOG.info("Finalcompletion: \(prev[0..<n])")
+              if prev[n] == "_" || prev[n].isNumber {
+                invalid = true
+                break
+              }
+              n -= 1
+              if n == -1 {
+                invalid = true
+                break
+              }
+            }
+            if !invalid {
+              Self.LOG.info(
+                "Finalcompletion2: Looking at (\(line):\(n)) instead of (\(line):\(column))"
+              )
+              let exprTypes = self.afterDotCompletion(md, fp, line, n)
+              if let types = exprTypes {
+                let s: Set<Method> = self.fillTypes(types)
+                for c in s {
+                  arr.append(
+                    CompletionItem(
+                      label: c.name,
+                      kind: .method,
+                      insertText: createTextForFunction(c),
+                      insertTextFormat: .snippet
+                    )
+                  )
+                }
+              }
             }
           }
         }
@@ -924,5 +959,22 @@ extension Double {
     let base = 10
     let divisor = pow(Double(base), Double(places))
     return (self * divisor).rounded() / divisor
+  }
+}
+
+extension String {
+  subscript(offset: Int) -> Character { return self[index(startIndex, offsetBy: offset)] }
+  subscript(_ range: CountableRange<Int>) -> String {
+    let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+    let end = index(
+      start,
+      offsetBy: min(self.count - range.lowerBound, range.upperBound - range.lowerBound)
+    )
+    return String(self[start..<end])
+  }
+
+  subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
+    let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+    return String(self[start...])
   }
 }
