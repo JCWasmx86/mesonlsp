@@ -70,6 +70,7 @@
 - [ ] Code actions
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
+- [ ] Automatic LSP tests
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
