@@ -71,6 +71,7 @@
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Automatic LSP tests
+- [ ] Don't depend on curl/wget CLI tools for downloading wraps
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
