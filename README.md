@@ -41,8 +41,7 @@ in case you want to ask questions, get support or contribute.
 - Language Server: `sudo dnf install swift-lang libstdc++-static`
 - GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 
-The language server will be packaged on [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/).
-There are currently no builds available
+The language server is packaged on [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/).
 #### Ubuntu
 TBD: For the moment, just follow what the docker files do:
 - [Language Server](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/Dockerfile.ubuntu)
