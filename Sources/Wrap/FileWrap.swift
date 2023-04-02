@@ -72,7 +72,7 @@ public class FileWrap: Wrap {
           attributes: nil
         )
       } catch let error {
-        print(error)// Ignore
+        print(error)  // Ignore
       }
       let wd = self.leadDirectoryMissing ? fullPath : path
       let fileName = sfn
