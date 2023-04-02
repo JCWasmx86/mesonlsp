@@ -138,7 +138,7 @@ public class Wrap {
     } catch {
       do {
         try self.assertRequired("curl")
-        try self.executeCommand(["curl", url, "-o", outputFile, "-s"])
+        try self.executeCommand(["curl", url, "-o", outputFile, "-s", "-L"])
       } catch {
         if let fb = fallbackURL {
           return try download(url: fb, fallbackURL: nil, expectedHash: expectedHash)
