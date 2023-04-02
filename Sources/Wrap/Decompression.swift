@@ -44,7 +44,9 @@ func writeEntries<T: ContainerEntry>(_ entries: [T], _ outputPath: String) throw
   }
 
   // Now, we create the rest of files.
-  for entry in entries where entry.info.type != .directory { try writeFile(entry, outputURL) }
+  for entry in entries where entry.info.type == .regular { try writeFile(entry, outputURL) }
+  for entry in entries where entry.info.type == .symbolicLink { try writeFile(entry, outputURL) }
+  for entry in entries where entry.info.type == .hardLink { try writeFile(entry, outputURL) }
 
   for tuple in directoryAttributes {
     try fileManager.setAttributes(tuple.attributes, ofItemAtPath: tuple.path)
@@ -113,7 +115,10 @@ private func writeFile<T: ContainerEntry>(_ entry: T, _ outputURL: URL) throws {
       throw WrapError.unarchiveFailed("Unable to get destination path for hard link \(entryName).")
     }
     // Note that the order of parameters is inversed for hard links.
-    try fileManager.linkItem(atPath: destinationPath, toPath: entryFullURL.path)
+    try fileManager.linkItem(
+      atPath: outputURL.appendingPathComponent(destinationPath, isDirectory: false).path,
+      toPath: entryFullURL.path
+    )
     // We cannot apply attributes to hard links.
     return
   } else if entry.info.type == .regular {
