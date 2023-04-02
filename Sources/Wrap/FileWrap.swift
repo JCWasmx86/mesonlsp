@@ -89,7 +89,6 @@ public class FileWrap: Wrap {
         throw WrapError.genericError("Unable to extract archive \(sfn)")
       }
       let outputdir = wd
-      print("Extracting", archiveFile, "to", outputdir)
       try extractArchive(type: type, file: archiveFile, outputDir: outputdir)
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
