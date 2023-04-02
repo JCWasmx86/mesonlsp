@@ -120,6 +120,8 @@ private func writeFile<T: ContainerEntry>(_ entry: T, _ outputURL: URL) throws {
     guard let entryData = entry.data else {
       throw WrapError.unarchiveFailed("Unable to get data for the entry \(entryName).")
     }
+    let parentURL = URL(fileURLWithPath: entryFullURL.path).deletingLastPathComponent()
+    try fileManager.createDirectory(at: parentURL, withIntermediateDirectories: true)
     try entryData.write(to: entryFullURL)
   } else {
     print(
@@ -143,5 +145,5 @@ private func writeFile<T: ContainerEntry>(_ entry: T, _ outputURL: URL) throws {
   }
 
   try fileManager.setAttributes(attributes, ofItemAtPath: entryFullURL.path)
-}// swiftlint:enable cyclomatic_complexity
+}  // swiftlint:enable cyclomatic_complexity
 // swiftlint:enable legacy_objc_type

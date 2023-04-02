@@ -71,22 +71,26 @@ public class FileWrap: Wrap {
           withIntermediateDirectories: true,
           attributes: nil
         )
-      } catch {
-        // Ignore
+      } catch let error {
+        print(error)// Ignore
       }
       let wd = self.leadDirectoryMissing ? fullPath : path
       let fileName = sfn
+      var type: ArchiveType = .zip
       if fileName.hasSuffix(".zip") {
-        try self.assertRequired("unzip")
-        try self.executeCommand(["unzip", archiveFile], wd)
-      } else if fileName.hasSuffix("tar.xz") || fileName.hasSuffix(".tar.bz2")
-        || fileName.hasSuffix(".tgz") || fileName.hasSuffix(".tar.gz")
-      {
-        try self.assertRequired("tar")
-        try self.executeCommand(["tar", "xf", archiveFile], wd)
+        type = .zip
+      } else if fileName.hasSuffix("tar.xz") {
+        type = .tarxz
+      } else if fileName.hasSuffix(".tar.bz2") {
+        type = .tarbz2
+      } else if fileName.hasSuffix(".tgz") || fileName.hasSuffix(".tar.gz") {
+        type = .targz
       } else {
         throw WrapError.genericError("Unable to extract archive \(sfn)")
       }
+      let outputdir = wd
+      print("Extracting", archiveFile, "to", outputdir)
+      try extractArchive(type: type, file: archiveFile, outputDir: outputdir)
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
