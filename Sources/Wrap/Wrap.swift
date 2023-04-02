@@ -70,26 +70,30 @@ public class Wrap {
       }
     }
   #else
-  	func getAbsolutePath(forExecutable executableName: String) throws -> String {
-		  let task = Process()
-		  task.executableURL = URL(fileURLWithPath: "C:\\Windows\\System32\\where.exe")
-		  task.arguments = [executableName]
+    func getAbsolutePath(forExecutable executableName: String) throws -> String {
+      let task = Process()
+      task.executableURL = URL(fileURLWithPath: "C:\\Windows\\System32\\where.exe")
+      task.arguments = [executableName]
 
-		  let pipe = Pipe()
-		  task.standardOutput = pipe
-		  task.standardError = pipe
+      let pipe = Pipe()
+      task.standardOutput = pipe
+      task.standardError = pipe
 
-		  try task.run()
-		  task.waitUntilExit()
+      try task.run()
+      task.waitUntilExit()
 
-		  let data = pipe.fileHandleForReading.readDataToEndOfFile()
-		  let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      let output = String(data: data, encoding: .utf8)?.trimmingCharacters(
+        in: .whitespacesAndNewlines
+      )
 
-		  if task.terminationStatus != 0 {
-		      fatalError("Command execution failed with exit code \(task.terminationStatus) in Wrap::Wrap::getAbsolutePath")
-		  }
-		  return output!
-		}
+      if task.terminationStatus != 0 {
+        fatalError(
+          "Command execution failed with exit code \(task.terminationStatus) in Wrap::Wrap::getAbsolutePath"
+        )
+      }
+      return output!
+    }
 
     internal func assertRequired(_ command: String) throws {
       let task = Process()
@@ -107,9 +111,7 @@ public class Wrap {
       guard let command = commands.first else { fatalError("Internal error") }
 
       let task = Process()
-      if cwd != nil {
-      	task.currentDirectoryPath = cwd!
-      }
+      if cwd != nil { task.currentDirectoryPath = cwd! }
       task.launchPath = try getAbsolutePath(forExecutable: command)
       task.arguments = Array(commands.dropFirst())
       print(task.launchPath, task.arguments)
