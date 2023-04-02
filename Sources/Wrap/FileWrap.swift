@@ -75,24 +75,39 @@ public class FileWrap: Wrap {
         print(error)  // Ignore
       }
       let wd = self.leadDirectoryMissing ? fullPath : path
-      let fileName = sfn
-      var type: ArchiveType = .zip
-      if fileName.hasSuffix(".zip") {
-        type = .zip
-      } else if fileName.hasSuffix("tar.xz") {
-        type = .tarxz
-      } else if fileName.hasSuffix(".tar.bz2") {
-        type = .tarbz2
-      } else if fileName.hasSuffix(".tgz") || fileName.hasSuffix(".tar.gz") {
-        type = .targz
-      } else {
-        throw WrapError.genericError("Unable to extract archive \(sfn)")
-      }
+      let downloaded = url.lastPathComponent
+      let type = try getArchiveType(downloaded, sfn)
       let outputdir = wd
       try extractArchive(type: type, file: archiveFile, outputDir: outputdir)
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.sourceURL))")
     }
+  }
+
+  private func getArchiveType(_ downloaded: String, _ sfn: String) throws -> ArchiveType {
+    var type: ArchiveType = .zip
+    if downloaded.hasSuffix(".zip") {
+      type = .zip
+    } else if downloaded.hasSuffix("tar.xz") {
+      type = .tarxz
+    } else if downloaded.hasSuffix(".tar.bz2") {
+      type = .tarbz2
+    } else if downloaded.hasSuffix(".tgz") || downloaded.hasSuffix(".tar.gz") {
+      type = .targz
+    } else {
+      if sfn.hasSuffix(".zip") {
+        type = .zip
+      } else if sfn.hasSuffix("tar.xz") {
+        type = .tarxz
+      } else if sfn.hasSuffix(".tar.bz2") {
+        type = .tarbz2
+      } else if sfn.hasSuffix(".tgz") || sfn.hasSuffix(".tar.gz") {
+        type = .targz
+      } else {
+        throw WrapError.genericError("Unable to extract archive \(sfn)")
+      }
+    }
+    return type
   }
 }
