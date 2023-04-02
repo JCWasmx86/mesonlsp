@@ -170,10 +170,11 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
 - [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
 - [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
+- [SWCompression](https://github.com/tsolomko/SWCompression) - A Swift framework for working with compression, archives and containers. 
 - [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
 - [swift-atomics](https://github.com/apple/swift-atomics.git) - Lowlevel atomic operations for Swift
-- [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-crypto](https://github.com/apple/swift-crypto) - Open-source implementation of a substantial portion of the API of Apple CryptoKit suitable for use on Linux platforms.
+- [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
 - [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
 - [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
