@@ -118,7 +118,7 @@ public class Wrap {
         fallbackURL: self.patchFallbackURL,
         expectedHash: hash
       )
-      try self.assertRequired("zip")
+      try self.assertRequired("unzip")
       try self.executeCommand(["unzip", handleToPath], Path(path).parent().description)
     }
   }
