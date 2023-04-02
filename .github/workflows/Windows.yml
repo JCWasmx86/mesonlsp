@@ -24,4 +24,6 @@ jobs:
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/Options/meson.build
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
-          .\run_wrap_tests.bat
+          mkdir __wrap_target
+          .\.build\debug\Swift-MesonLSP.exe --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap --wrap Wraps/turtle.wrap --wrap Wraps/sqlite.wrap --wrap Wraps/pango.wrap --wrap Wraps/turtle2.wrap --wrap Wraps/turtle3.wrap --wrap-output .\__wrap_target --wrap-package-files .\Wraps\packagefiles
+          
