@@ -1,3 +1,5 @@
+# Next (XXX XX 2023)
+- Don't depend on unzip/tar/xz/bzip2/gunzip for extracting wraps and their patches
 # 1.5.1 (Apr 02 2023)
 - Use snippets during auto completion
 - Setup [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/) for Fedora
