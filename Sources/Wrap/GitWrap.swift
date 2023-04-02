@@ -1,4 +1,5 @@
 import Foundation
+import IOUtils
 
 public class GitWrap: VcsWrap {
   public private(set) var depth: Int
@@ -43,7 +44,7 @@ public class GitWrap: VcsWrap {
       // Do something like https://github.com/mesonbuild/meson/blob/3e7c08f358e9bd91808c8ff3b76c11aedeb82f85/mesonbuild/wrap/wrap.py#L549
       let targetDirectory =
         self.directory ?? url.lastPathComponent.replacingOccurrences(of: ".git", with: "")
-      let fullPath = path + "/" + targetDirectory
+      let fullPath = "\(path)\(Path.separator)\(targetDirectory)"
       let isShallow = self.depth != 0 && self.depth != Int.max
       let depthOptions = isShallow ? ["--depth", self.depth.description] : []
       if isShallow && self.isValidCommitId(rev) {

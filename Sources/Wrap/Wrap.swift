@@ -69,7 +69,7 @@ public class Wrap {
 
   internal func download(url: String, fallbackURL: String?, expectedHash: String) throws -> String {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
-    let outputFile = tempPath + "/" + UUID().uuidString
+    let outputFile = tempPath + Path.separator + UUID().uuidString
     Self.LOG.info("Attempting to download from \(url) to file \(outputFile)")
     do {
       try self.assertRequired("wget")
@@ -104,7 +104,7 @@ public class Wrap {
 
   private func applyPatch(path: String, packagesfilesPath: String) throws {
     if let patchDir = self.patchDirectory {
-      let packagePath = Path(packagesfilesPath + "/" + patchDir)
+      let packagePath = Path(packagesfilesPath + Path.separator + patchDir)
       Self.LOG.info("Copying from \(packagePath) to \(path)")
       try mergeDirectories(
         from: URL(fileURLWithPath: packagePath.description),
@@ -127,7 +127,7 @@ public class Wrap {
     if let diffs = diffFiles {
       for diff in diffs {
         Self.LOG.info("Applying diff \(diff)")
-        let absoluteDiffPath = packagesfilesPath + "/" + diff
+        let absoluteDiffPath = packagesfilesPath + Path.separator + diff
         try self.executeCommand(
           ["git", "--work-tree", path, "apply", "-p1", absoluteDiffPath],
           path

@@ -1,4 +1,5 @@
 import Foundation
+import IOUtils
 
 public class FileWrap: Wrap {
   public private(set) var sourceURL: String?
@@ -53,7 +54,7 @@ public class FileWrap: Wrap {
           of: ".tar.bz2",
           with: ""
         ).replacingOccurrences(of: ".tgz", with: "")
-      let fullPath = path + "/" + targetDirectory
+      let fullPath = "\(path)\(Path.separator)\(targetDirectory)"
       // Alamofire does not fit in, as everything is synchronous
       // URLSession.shared does not seem to exist.
       // All other libraries I tried (SwiftHTTP, Just) didn't even compile
