@@ -41,31 +41,89 @@ public class Wrap {
     fatalError("Implement me")
   }
 
-  internal func assertRequired(_ command: String) throws {
-    let task = Process()
-    Self.LOG.info("Checking if `\(command)` exists")
-    task.arguments = ["-c", "which \(command)"]
-    task.executableURL = URL(fileURLWithPath: "/bin/sh")
-    try task.run()
-    task.waitUntilExit()
-    if task.terminationStatus != 0 {
-      throw WrapError.commandNotFound("Required command `\(command)` not found")
+  #if !os(Windows)
+    internal func assertRequired(_ command: String) throws {
+      let task = Process()
+      Self.LOG.info("Checking if `\(command)` exists")
+      task.arguments = ["-c", "which \(command)"]
+      task.executableURL = URL(fileURLWithPath: "/bin/sh")
+      try task.run()
+      task.waitUntilExit()
+      if task.terminationStatus != 0 {
+        throw WrapError.commandNotFound("Required command `\(command)` not found")
+      }
     }
-  }
 
-  internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
-    let task = Process()
-    let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
-    Self.LOG.info("Executing \"\(joined)\" at \(cwd ?? "???")")
-    task.arguments = ["-c", "\(joined)"]
-    task.executableURL = URL(fileURLWithPath: "/bin/sh")
-    if let c = cwd { task.currentDirectoryURL = URL(fileURLWithPath: c) }
-    try task.run()
-    task.waitUntilExit()
-    if task.terminationStatus != 0 {
-      throw WrapError.genericError("Command failed with code \(task.terminationStatus): \(joined)")
+    internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
+      let task = Process()
+      let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
+      Self.LOG.info("Executing \"\(joined)\" at \(cwd ?? "???")")
+      task.arguments = ["-c", "\(joined)"]
+      task.executableURL = URL(fileURLWithPath: "/bin/sh")
+      if let c = cwd { task.currentDirectoryURL = URL(fileURLWithPath: c) }
+      try task.run()
+      task.waitUntilExit()
+      if task.terminationStatus != 0 {
+        throw WrapError.genericError(
+          "Command failed with code \(task.terminationStatus): \(joined)"
+        )
+      }
     }
-  }
+  #else
+  	func getAbsolutePath(forExecutable executableName: String) throws -> String {
+		  let task = Process()
+		  task.executableURL = URL(fileURLWithPath: "C:\\Windows\\System32\\where.exe")
+		  task.arguments = [executableName]
+
+		  let pipe = Pipe()
+		  task.standardOutput = pipe
+		  task.standardError = pipe
+
+		  try task.run()
+		  task.waitUntilExit()
+
+		  let data = pipe.fileHandleForReading.readDataToEndOfFile()
+		  let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+		  if task.terminationStatus != 0 {
+		      fatalError("Command execution failed with exit code \(task.terminationStatus) in Wrap::Wrap::getAbsolutePath")
+		  }
+		  return output!
+		}
+
+    internal func assertRequired(_ command: String) throws {
+      let task = Process()
+      Self.LOG.info("Checking if `\(command)` exists")
+      task.arguments = [command]
+      task.executableURL = URL(fileURLWithPath: "C:\\Windows\\System32\\where.exe")
+      try task.run()
+      task.waitUntilExit()
+      if task.terminationStatus != 0 {
+        throw WrapError.commandNotFound("Required command `\(command)` not found")
+      }
+    }
+
+    internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
+      guard let command = commands.first else { fatalError("Internal error") }
+
+      let task = Process()
+      if cwd != nil {
+      	task.currentDirectoryPath = cwd!
+      }
+      task.launchPath = try getAbsolutePath(forExecutable: command)
+      task.arguments = Array(commands.dropFirst())
+      print(task.launchPath, task.arguments)
+
+      task.launch()
+      task.waitUntilExit()
+
+      if task.terminationStatus != 0 {
+        throw WrapError.genericError(
+          "Command execution failed with exit code \(task.terminationStatus)"
+        )
+      }
+    }
+  #endif
 
   internal func download(url: String, fallbackURL: String?, expectedHash: String) throws -> String {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path

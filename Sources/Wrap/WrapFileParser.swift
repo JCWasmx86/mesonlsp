@@ -7,7 +7,12 @@ public class WrapFileParser {
   public init(path: String) { self.path = path }
 
   public func parse() throws -> Wrap {
-    let ini = try INIParser(self.path)
+    #if !os(Windows)
+      let ini = try INIParser(self.path)
+    #else
+      let wincontents = try Path(self.path).read().replacingOccurrences(of: "\r\n", with: "\n")
+      let ini = try INIParser(string: wincontents)
+    #endif
     let provides = parseProvideSection(ini)
     let mapped = ini.sections.map { ($0, $1) }
     guard let firstSectionKV = mapped.first(where: { $0.0.hasPrefix("wrap-") }) else {
