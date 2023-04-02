@@ -5,7 +5,7 @@ RUN apt-get update&&\
     apt-get clean -y &&\
     git clone https://github.com/JCWasmx86/Swift-MesonLSP &&\
     wget --progress=dot:giga https://download.swift.org/swift-5.8-release/ubuntu1804/swift-5.8-RELEASE/swift-5.8-RELEASE-ubuntu18.04.tar.gz &&\
-    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install binutils gnupg2 libc6-dev libcurl4-openssl-dev libedit2 libgcc-10-dev libpython3.8 libsqlite3-0 libstdc++-10-dev libxml2-dev libz3-dev pkg-config tzdata unzip zlib1g-dev -y &&\
+    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install binutils gnupg2 libc6-dev libcurl4-openssl-dev libedit2 libgcc-8-dev libpython3.8 libsqlite3-0 libstdc++-8-dev libxml2-dev libz3-dev pkg-config tzdata unzip zlib1g-dev -y &&\
     apt-get clean -y &&\
     tar xzvf swift-5.8-RELEASE-ubuntu18.04.tar.gz &&\
     rm -f swift-5.8-RELEASE-ubuntu18.04.tar.gz
