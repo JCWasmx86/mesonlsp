@@ -112,7 +112,8 @@ public class Wrap {
 
       let task = Process()
       if cwd != nil { task.currentDirectoryPath = cwd! }
-      task.launchPath = try getAbsolutePath(forExecutable: command)
+      let lines = try getAbsolutePath(forExecutable: command)
+      task.launchPath = Array(lines.split(separator: "\r"))[0].description
       task.arguments = Array(commands.dropFirst())
       print(task.launchPath, task.arguments)
 
