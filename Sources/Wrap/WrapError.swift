@@ -1,4 +1,5 @@
 import Foundation
+import SWCompression
 
 public enum WrapError: Error {
   case genericError(String)
@@ -6,4 +7,5 @@ public enum WrapError: Error {
   case unknownWrapType(String)
   case commandNotFound(String)
   case validationError(String)
+  case unarchiveFailed(String)
 }
