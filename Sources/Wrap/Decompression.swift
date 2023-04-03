@@ -26,9 +26,15 @@ internal func extractArchive(type: ArchiveType, file: String, outputDir: String)
     let entries = try TarContainer.open(container: fileData)
     try writeEntries(entries, outputDir)
   case .zip:
-    let fileData = try Data(contentsOf: URL(fileURLWithPath: file), options: .mappedIfSafe)
-    let entries = try ZipContainer.open(container: fileData)
-    try writeEntries(entries, outputDir)
+    #if !os(Windows)
+      let fileData = try Data(contentsOf: URL(fileURLWithPath: file), options: .mappedIfSafe)
+      let entries = try ZipContainer.open(container: fileData)
+      try writeEntries(entries, outputDir)
+    #else
+      // See https://github.com/apple/swift-corelibs-foundation/issues/4731
+      // It contains a reduced example from SWCompression
+      throw WrapError.genericError("Extracting zip files on Windows currently not possible")
+    #endif
   }
 }
 
