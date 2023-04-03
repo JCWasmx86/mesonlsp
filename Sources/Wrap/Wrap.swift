@@ -115,7 +115,6 @@ public class Wrap {
       let lines = try getAbsolutePath(forExecutable: command)
       task.launchPath = Array(lines.split(separator: "\r"))[0].description
       task.arguments = Array(commands.dropFirst())
-      print(task.launchPath, task.arguments)
 
       task.launch()
       task.waitUntilExit()
