@@ -77,5 +77,9 @@
   - [x] Compiles on Windows
   - [x] Works using CLI
   - [x] LSP works
-  - [ ] Downloading wraps works
+  - [x] Downloading wraps works
+  - [ ] Setting up wraps works
+    - [x] wrap-git
+    - [x] wrap-svn/wrap-hg (Should work theoretically)
+    - [ ] wrap-file (Crashes sometimes)
   - [ ] Upload executable/installer
