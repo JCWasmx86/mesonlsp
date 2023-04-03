@@ -82,4 +82,8 @@
     - [x] wrap-git
     - [x] wrap-svn/wrap-hg (Should work theoretically)
     - [ ] wrap-file (Crashes sometimes)
+      - [x] tar.gz
+      - [x] tar.bz2
+      - [x] tar.xz
+      - [ ] zip
   - [ ] Upload executable/installer
