@@ -78,6 +78,7 @@ public class FileWrap: Wrap {
       let downloaded = url.lastPathComponent
       let type = try getArchiveType(downloaded, sfn)
       let outputdir = wd
+      Wrap.LOG.info("Extracting \(archiveFile) of type \(type) into \(outputdir)")
       try extractArchive(type: type, file: archiveFile, outputDir: outputdir)
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {

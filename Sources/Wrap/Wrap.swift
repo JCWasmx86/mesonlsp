@@ -4,7 +4,7 @@ import IOUtils
 import Logging
 
 public class Wrap {
-  private static let LOG: Logger = Logger(label: "Wrap::Wrap")
+  internal static let LOG: Logger = Logger(label: "Wrap::Wrap")
   public private(set) var directory: String?
   public private(set) var patchURL: String?
   public private(set) var patchFallbackURL: String?
