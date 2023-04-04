@@ -152,7 +152,7 @@ import Wrap
         nErrors += 1
       }
     }
-    _Exit(nErrors == 0 ? 0 : 1)
+    if nErrors != 0 { _Exit(1) }
   }
 
   public mutating func run() {
