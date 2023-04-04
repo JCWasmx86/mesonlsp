@@ -186,7 +186,8 @@ public class Wrap {
     if let diffs = diffFiles {
       for diff in diffs {
         Self.LOG.info("Applying diff \(diff)")
-        let absoluteDiffPath = packagesfilesPath + Path.separator + diff
+        let absoluteDiffPath = Path(packagesfilesPath + Path.separator + diff).absolute()
+          .description
         try self.assertRequired("git")
         try self.executeCommand(
           ["git", "--work-tree", ".", "apply", "-p1", absoluteDiffPath],
