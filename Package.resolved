@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
-        "version" : "1.0.3"
+        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
+        "version" : "1.1.0"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "4c5def5985d9e7559ecb3085d326873eca1b5f2c"
+        "revision" : "8c6d925b6c9a1a39d963dd9e98e57e59556b5fd3"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "92178c0b3ecaac0b49292a92dd81042dbff44619"
+        "revision" : "05356239a2b5b3f5c54653a70ec47cb17d5afd14"
       }
     },
     {
