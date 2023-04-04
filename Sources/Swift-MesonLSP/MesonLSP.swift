@@ -202,7 +202,6 @@ import Wrap
     clientConnection.start(receiveHandler: server) {
       server.prepareForExit()
       withExtendedLifetime(realStdoutHandle) {}
-      _Exit(0)
     }
     dispatchMain()
   }
