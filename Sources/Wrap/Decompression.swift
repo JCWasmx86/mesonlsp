@@ -48,9 +48,11 @@ func writeEntries<T: ContainerEntry>(_ entries: [T], _ outputPath: String) throw
   for entry in entries where entry.info.type == .symbolicLink { try writeFile(entry, outputURL) }
   for entry in entries where entry.info.type == .hardLink { try writeFile(entry, outputURL) }
 
-  for tuple in directoryAttributes {
-    try fileManager.setAttributes(tuple.attributes, ofItemAtPath: tuple.path)
-  }
+  #if !os(Windows)
+    for tuple in directoryAttributes {
+      try fileManager.setAttributes(tuple.attributes, ofItemAtPath: tuple.path)
+    }
+  #endif
 }
 
 // swiftlint:disable cyclomatic_complexity
