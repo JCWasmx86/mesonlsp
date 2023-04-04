@@ -11,6 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Collect coverage
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: |
           sudo apt install -y lcov
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
