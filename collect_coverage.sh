@@ -27,5 +27,6 @@ cd wrapdb/subprojects || exit
 	--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/packagefiles"
 cp default.profraw /tmp/data/wrapdb.profraw
 cd ../..
+rm -rf wrapdb
 llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb}.profraw -o default.profdata
 llvm-cov-15 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
