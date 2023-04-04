@@ -48,10 +48,10 @@
     {
       "identity" : "swcompression",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tsolomko/SWCompression.git",
+      "location" : "https://github.com/JCWasmx86/SWCompression.git",
       "state" : {
-        "revision" : "cd39ca0a3b269173bab06f68b182b72fa690765c",
-        "version" : "4.8.5"
+        "branch" : "develop",
+        "revision" : "0889f65b1d43b0b44acd67e2a947e310e404e107"
       }
     },
     {

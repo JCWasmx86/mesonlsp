@@ -25,7 +25,7 @@ let package = Package(
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
-    .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.5"),
+    .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
   ],
   targets: [
