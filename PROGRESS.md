@@ -81,9 +81,10 @@
   - [ ] Setting up wraps works
     - [x] wrap-git
     - [x] wrap-svn/wrap-hg (Should work theoretically)
-    - [ ] wrap-file (Crashes sometimes)
+    - [x] wrap-file (Crashes sometimes)
       - [x] tar.gz
       - [x] tar.bz2
       - [x] tar.xz
-      - [ ] zip
+      - [x] zip
+    - [ ] Applying diffs works
   - [ ] Upload executable/installer
