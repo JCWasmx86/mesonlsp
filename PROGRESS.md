@@ -78,7 +78,7 @@
   - [x] Works using CLI
   - [x] LSP works
   - [x] Downloading wraps works
-  - [ ] Setting up wraps works
+  - [x] Setting up wraps works
     - [x] wrap-git
     - [x] wrap-svn/wrap-hg (Should work theoretically)
     - [x] wrap-file (Crashes sometimes)
@@ -86,5 +86,5 @@
       - [x] tar.bz2
       - [x] tar.xz
       - [x] zip
-    - [ ] Applying diffs works
+    - [x] Applying diffs works
   - [ ] Upload executable/installer
