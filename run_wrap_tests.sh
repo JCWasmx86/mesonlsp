@@ -7,7 +7,7 @@ $LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap \
 	--wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap \
 	--wrap Wraps/turtle.wrap --wrap Wraps/sqlite.wrap \
 	--wrap Wraps/pango.wrap --wrap Wraps/turtle2.wrap \
-	--wrap Wraps/turtle3.wrap \
+	--wrap Wraps/turtle3.wrap --wrap Wraps/rubberband.wrap \
 	--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/Wraps/packagefiles" || exit
 cd __wrap_target || exit
 cd libswiftdemangle || exit
@@ -54,6 +54,11 @@ else
 fi
 cd ../turtle-21.3.2 || exit
 cd ../turtle-31.3.2 || exit
+cd ../rubberband-2.0.2 || exit
+if [ ! -f "meson.build" ]; then
+	echo "Missing meson.build"
+	exit 1
+fi
 cd ..
 cd ..
 rm -rf __wrap_target
