@@ -151,6 +151,8 @@ private func writeFile<T: ContainerEntry>(_ entry: T, _ outputURL: URL) throws {
     attributes[FileAttributeKey.posixPermissions] = NSNumber(value: permissions)
   }
 
-  try fileManager.setAttributes(attributes, ofItemAtPath: entryFullURL.path)
+  #if !os(Windows)
+    try fileManager.setAttributes(attributes, ofItemAtPath: entryFullURL.path)
+  #endif
 }  // swiftlint:enable cyclomatic_complexity
 // swiftlint:enable legacy_objc_type
