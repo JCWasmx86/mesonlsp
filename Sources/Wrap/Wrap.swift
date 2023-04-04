@@ -189,7 +189,7 @@ public class Wrap {
         let absoluteDiffPath = packagesfilesPath + Path.separator + diff
         try self.assertRequired("git")
         try self.executeCommand(
-          ["git", "--work-tree", path, "apply", "-p1", absoluteDiffPath],
+          ["git", "--work-tree", ".", "apply", "-p1", absoluteDiffPath],
           path
         )
       }
