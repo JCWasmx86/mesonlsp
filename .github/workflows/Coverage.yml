@@ -1,0 +1,21 @@
+name: Coverage
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+jobs:
+  coverage:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Collect coverage
+        run: |
+          sudo apt install -y lcov
+          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          llvm-profdata-15 --help
+          llvm-cov-15 --help
+          ./collect_coverage.sh
+          rm -rf repos __wrap_target
+          bash <(curl -s https://codecov.io/bash)
