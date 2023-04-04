@@ -19,5 +19,4 @@ jobs:
           llvm-profdata-15 --help
           llvm-cov-15 --help
           ./collect_coverage.sh
-          rm -rf repos __wrap_target
           bash <(curl -s https://codecov.io/bash)
