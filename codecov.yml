@@ -1,0 +1,3 @@
+ignore:
+  - "Sources/Timing"
+  - "Sources/Swift-MesonLSP"
