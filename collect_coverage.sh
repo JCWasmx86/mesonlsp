@@ -24,7 +24,7 @@ git clone --depth=1 https://github.com/mesonbuild/wrapdb
 cd wrapdb/subprojects || exit
 # shellcheck disable=2046
 ../../.build/debug/Swift-MesonLSP --wrap $(find . -maxdepth 1 -iname "*.wrap" | sed s/^.\\///g | paste -s | sed "s/\t/ --wrap /g") \
-  --wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/packagefiles"
+	--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/packagefiles"
 cp default.profraw /tmp/data/wrapdb.profraw
 cd ../..
 llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb}.profraw -o default.profdata
