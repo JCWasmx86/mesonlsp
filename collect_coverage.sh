@@ -17,7 +17,7 @@ mv default.profraw /tmp/data/tests.profraw
 	--wrap Wraps/turtle.wrap --wrap Wraps/sqlite.wrap \
 	--wrap Wraps/pango.wrap --wrap Wraps/turtle2.wrap \
 	--wrap Wraps/turtle3.wrap --wrap Wraps/rubberband.wrap \
-	--wrap Wraps/pidgin.wrap \
+	--wrap Wraps/pidgin.wrap --wrap Wraps/vorbis.wrap \
 	--wrap-output "$PWD/__wrap_target/" --wrap-package-files "$PWD/Wraps/packagefiles" || exit
 mv default.profraw /tmp/data/wraps.profraw
 rm -rf repos __wrap_target
