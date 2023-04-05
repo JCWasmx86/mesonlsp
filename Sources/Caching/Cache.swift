@@ -26,7 +26,7 @@ public class Cache {
     do {
       let data = try value.read()
       try Path(self.cacheDir.description + Path.separator + filename).write(data)
-      Self.LOG.info("Stored data for key `\(key)` in \(filename)")
+      Self.LOG.info("Stored \(data.count) bytes of data for key `\(key)` in \(filename)")
     } catch let error { Self.LOG.info("Caught error during copying file: \(error)") }
   }
 
