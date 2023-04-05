@@ -7,6 +7,7 @@ let package = Package(
   name: "Swift-MesonLSP",
   platforms: [.macOS("10.15.4")],
   products: [
+    .library(name: "Caching", targets: ["Caching"]),
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
     .library(name: "MesonAST", targets: ["MesonAST"]),
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
@@ -35,6 +36,13 @@ let package = Package(
       dependencies: [
         "Timing", "SwiftTreeSitter", "MesonAST", "IOUtils",
         .product(name: "Logging", package: "swift-log"),
+      ]
+    ),
+    .target(
+      name: "Caching",
+      dependencies: [
+        "IOUtils", .product(name: "Logging", package: "swift-log"),
+        .product(name: "Crypto", package: "swift-crypto"),
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
     .target(name: "IOUtils", dependencies: []),
