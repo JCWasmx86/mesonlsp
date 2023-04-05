@@ -159,6 +159,13 @@ import Wrap
   }
 
   func createSubproject() {
+    #if !os(Windows)
+      let console = Terminal()
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = .debug
+        return logger
+      }
+    #endif
     do { _ = try SubprojectState(rootDir: Path(self.path).absolute().description) } catch {
 
     }
