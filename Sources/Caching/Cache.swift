@@ -24,7 +24,8 @@ public class Cache {
   public func cacheData(key: String, value: Path) {
     let filename = self.hash(key) + ".cached"
     do {
-      try value.copy(self.cacheDir)
+      let data = try value.read()
+      try Path(self.cacheDir.description + Path.separator + filename).write(data)
       Self.LOG.info("Stored data for key `\(key)` in \(filename)")
     } catch let error { Self.LOG.info("Caught error during copying file: \(error)") }
   }

@@ -56,7 +56,7 @@ let package = Package(
     .target(
       name: "Wrap",
       dependencies: [
-        "IOUtils", "SWCompression", .product(name: "Crypto", package: "swift-crypto"),
+        "Caching", "IOUtils", "SWCompression", .product(name: "Crypto", package: "swift-crypto"),
         .product(name: "INIParser", package: "Perfect-INIParser"),
         .product(name: "Logging", package: "swift-log"),
       ]

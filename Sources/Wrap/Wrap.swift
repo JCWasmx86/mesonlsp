@@ -1,3 +1,4 @@
+import Caching
 import Crypto
 import Foundation
 import IOUtils
@@ -131,6 +132,7 @@ public class Wrap {
   #endif
 
   internal func download(url: String, fallbackURL: String?, expectedHash: String) throws -> String {
+    if let l = Cache.INSTANCE.lookupData(key: url) { return l }
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + Path.separator + UUID().uuidString
     Self.LOG.info("Attempting to download from \(url) to file \(outputFile)")
@@ -157,6 +159,7 @@ public class Wrap {
       }
       throw WrapError.validationError("Expected \(expectedHash), got \(hashedBytes)")
     }
+    Cache.INSTANCE.cacheData(key: url, value: Path(outputFile))
     return outputFile
   }
 
