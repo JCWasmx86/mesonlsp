@@ -12,6 +12,7 @@ let package = Package(
     .library(name: "LanguageServer", targets: ["LanguageServer"]),
     .library(name: "IOUtils", targets: ["IOUtils"]), .library(name: "Timing", targets: ["Timing"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
+    .library(name: "Subproject", targets: ["Subproject"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
     .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
   ],
@@ -37,6 +38,7 @@ let package = Package(
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
     .target(name: "IOUtils", dependencies: []),
+    .target(name: "Subproject", dependencies: ["Wrap", "IOUtils"]),
     .target(
       name: "Wrap",
       dependencies: [
@@ -70,7 +72,7 @@ let package = Package(
       name: "Swift-MesonLSP",
       dependencies: [
         "SwiftTreeSitter", "MesonAnalyze", "MesonAST", "LanguageServer", "Timing",
-        "TestingFramework", "Wrap",
+        "TestingFramework", "Wrap", "Subproject",
         .product(
           name: "ConsoleKit",
           package: "console-kit",
