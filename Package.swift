@@ -18,7 +18,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.2"),
-    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3"),
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.1.0"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "2.4.0"),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
