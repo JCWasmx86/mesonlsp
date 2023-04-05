@@ -1,9 +1,10 @@
 import Crypto
 import Foundation
+import IOUtils
 import Logging
 import Wrap
 
-public class Subproject {
+public final class Subproject {
   static let LOG: Logger = Logger(label: "Subproject::Subproject")
 
   public let name: String
@@ -12,15 +13,15 @@ public class Subproject {
   public var wrap: Wrap?
   // This is the path in $PROJECT_ROOT/subprojects/directory
   public let baseDirectory: String
-  // This is where the project was set up (nil, if wrap == nil)
+  // This is where the project was set up (If wrap == nil, it is equal to the baseDirectory)
   public let realDirectory: String?
+  private var runDiscover: Bool = false
 
-  public init(name: String, wrap: Wrap?, projectRoot: String, realDirectory: String?) throws {
+  public init(name: String, wrap: Wrap?, projectRoot: String) throws {
     self.name = name
     self.wrap = wrap
     if let w = self.wrap {
-      guard let wdir = w.directory else { fatalError("TODO") }
-      self.baseDirectory = "\(projectRoot)/subprojects/\(wdir)"
+      self.baseDirectory = "\(projectRoot)/subprojects/\(w.directoryNameAfterSetup)"
     } else {
       self.baseDirectory = "\(projectRoot)/subprojects/\(name)"
     }
@@ -38,7 +39,28 @@ public class Subproject {
       Self.LOG.info("Setting up \(name) in \(tempDirectory.absoluteString)")
       try w.setupDirectory(path: tempDirectory.absoluteString, packagefilesPath: packagefiles)
     } else {
-      self.realDirectory = nil
+      self.realDirectory = self.baseDirectory
+    }
+  }
+
+  internal func discoverMore(state: SubprojectState) throws {
+    if self.runDiscover { return }
+    self.runDiscover = true
+    // Assume that subprojects that aren't wrap based
+    // don't have any subprojects
+    if self.wrap == nil { return }
+    guard let realDir = self.realDirectory else { fatalError("Huh?") }
+    let subprojects = Path(realDir + "/" + "subprojects")
+    if !subprojects.exists {
+      Self.LOG.info("Subproject \(self.name) has no subprojects")
+      return
+    }
+    let children = try subprojects.children()
+    for c in children where c.isFile && c.lastComponent.hasSuffix(".wrap") {
+      state.registerSubproject(self, c)
+    }
+    for c in children where c.isDirectory && c.lastComponent != "packagefiles" {
+      state.registerSubproject(self, c)
     }
   }
 }

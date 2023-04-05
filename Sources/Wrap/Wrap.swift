@@ -14,6 +14,7 @@ public class Wrap {
   public private(set) var diffFiles: [String]?
   public private(set) var provides: Provides = Provides()
   public private(set) var wrapFile: String = ""
+  public private(set) var directoryNameAfterSetup: String = ""
 
   internal init(
     directory: String?,
@@ -162,6 +163,7 @@ public class Wrap {
   internal func postSetup(path: String, packagesfilesPath: String) throws {
     try self.applyPatch(path: path, packagesfilesPath: packagesfilesPath)
     try self.applyDiffFiles(path: path, packagesfilesPath: packagesfilesPath)
+    self.directoryNameAfterSetup = Path(path).lastComponent
   }
 
   private func applyPatch(path: String, packagesfilesPath: String) throws {
