@@ -35,9 +35,9 @@ public final class Subproject {
       tempDirectory.appendPathComponent(hashedBytes, isDirectory: true)
       tempDirectory.appendPathComponent(name + "\(Date().timeIntervalSince1970)", isDirectory: true)
       try fm.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
-      self.realDirectory = tempDirectory.absoluteString
-      Self.LOG.info("Setting up \(name) in \(tempDirectory.absoluteString)")
-      try w.setupDirectory(path: tempDirectory.absoluteString, packagefilesPath: packagefiles)
+      self.realDirectory = tempDirectory.absoluteURL.path
+      Self.LOG.info("Setting up \(name) in \(tempDirectory.absoluteURL.path)")
+      try w.setupDirectory(path: tempDirectory.absoluteURL.path, packagefilesPath: packagefiles)
     } else {
       self.realDirectory = self.baseDirectory
     }
@@ -50,7 +50,8 @@ public final class Subproject {
     // don't have any subprojects
     if self.wrap == nil { return }
     guard let realDir = self.realDirectory else { fatalError("Huh?") }
-    let subprojects = Path(realDir + "/" + "subprojects")
+    let subprojects = Path(realDir + "/" + self.wrap!.directoryNameAfterSetup + "/" + "subprojects")
+    print(subprojects)
     if !subprojects.exists {
       Self.LOG.info("Subproject \(self.name) has no subprojects")
       return
