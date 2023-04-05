@@ -29,5 +29,12 @@ cd wrapdb/subprojects || exit
 cp default.profraw /tmp/data/wrapdb.profraw
 cd ../..
 rm -rf wrapdb
-llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb}.profraw -o default.profdata
+git clone https://gitlab.freedesktop.org/gstreamer/gstreamer
+cd gstreamer || exit
+../.build/debug/Swift-MesonLSP --subproject --path .
+cp default.profraw /tmp/data/subproject.profraw
+# shellcheck disable=2103
+cd ..
+rm -rf gstreamer
+llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject}.profraw -o default.profdata
 llvm-cov-15 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
