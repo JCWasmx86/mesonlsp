@@ -2,3 +2,4 @@
 url = https://github.com/JCWasmx86/rustc-demangle
 revision = head
 depth = 1
+clone-recursive = true
