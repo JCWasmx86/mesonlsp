@@ -72,6 +72,7 @@
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
+- [ ] Document the language server
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
