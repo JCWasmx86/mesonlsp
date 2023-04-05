@@ -14,7 +14,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: |
-          sudo apt install -y lcov
+          sudo apt install -y lcov mercurial
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           llvm-profdata-15 --help
           llvm-cov-15 --help
