@@ -4,6 +4,7 @@ import ArgumentParser
 #endif
 import Dispatch
 import Foundation
+import IOUtils
 import LanguageServer
 import LanguageServerProtocol
 import LanguageServerProtocolJSONRPC
@@ -11,6 +12,7 @@ import Logging
 import LSPLogging
 import MesonAnalyze
 import MesonAST
+import Subproject
 import SwiftTreeSitter
 import TestingFramework
 import TreeSitterMeson
@@ -30,6 +32,7 @@ import Wrap
   @ArgumentParser.Flag var benchmark: Bool = false
   @ArgumentParser.Flag var interpret: Bool = false
   @ArgumentParser.Flag var keepCache: Bool = false
+  @ArgumentParser.Flag var subproject: Bool = false
 
   public init() {
 
@@ -155,10 +158,19 @@ import Wrap
     if nErrors != 0 { Foundation.exit(1) }
   }
 
+  func createSubproject() {
+    do { _ = try SubprojectState(rootDir: Path(self.path).absolute().description) } catch {
+
+    }
+  }
+
   public mutating func run() {
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
-    if self.wrap && !self.paths.isEmpty {
+    if subproject {
+      self.createSubproject()
+      return
+    } else if self.wrap && !self.paths.isEmpty {
       self.parseWraps()
       return
     } else if !lsp && paths.isEmpty && !self.benchmark && !self.interpret {
