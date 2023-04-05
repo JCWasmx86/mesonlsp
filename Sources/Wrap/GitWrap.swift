@@ -85,7 +85,9 @@ public class GitWrap: VcsWrap {
         )
       }
       if let pl = self.pushURL {
-        try self.executeCommand(["git", "-C", fullPath, "set-url", "--push", "origin", pl])
+        try self.executeCommand([
+          "git", "-C", fullPath, "remote", "set-url", "--push", "origin", pl,
+        ])
       }
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
     } else {
