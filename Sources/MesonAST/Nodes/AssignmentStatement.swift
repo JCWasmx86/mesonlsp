@@ -8,7 +8,7 @@ public enum AssignmentOperator {
   case plusequals
   case minusequals
 
-  static func fromString(str: String) -> AssignmentOperator? {
+  static func fromString(str: String) -> Self? {
     switch str {
     case "=": return .equals
     case "*=": return .mulequals

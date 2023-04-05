@@ -4,7 +4,7 @@ public enum UnaryOperator {
   case not
   case exclamationMark
   case minus
-  static func fromString(str: String) -> UnaryOperator? {
+  static func fromString(str: String) -> Self? {
     switch str {
     case "not": return .not
     case "!": return .exclamationMark

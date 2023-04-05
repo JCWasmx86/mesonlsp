@@ -18,7 +18,7 @@ public enum BinaryOperator {
   case or
   case and
 
-  static func fromString(str: String) -> BinaryOperator? {
+  static func fromString(str: String) -> Self? {
     switch str {
     case "+": return .plus
     case "-": return .minus

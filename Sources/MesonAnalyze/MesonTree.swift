@@ -236,7 +236,7 @@ public final class MesonTree: Hashable {
     }
   }
 
-  public func findSubdirTree(file: String) -> MesonTree? {
+  public func findSubdirTree(file: String) -> Self? {
     let p = Path(file).normalize().absolute().description
     if p == self.file { return self }
     for t in self.subfiles where t.file == p { return t }
