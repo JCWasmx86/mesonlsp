@@ -59,8 +59,8 @@ public class SubprojectState {
         if self.subprojects.count == old { break }
       }
     }
-    for err in self.errors { print(err) }
-    for s in self.subprojects { print(s) }
+    for err in self.errors { Self.LOG.info("Got error \(err)") }
+    for s in self.subprojects { Self.LOG.info("Got subproject \(s.description)") }
   }
   // swiftlint:enable cyclomatic_complexity
 
