@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import Wrap
 
-public class Subproject {
+public class Subproject: CustomStringConvertible {
   internal static let LOG: Logger = Logger(label: "Subproject::Subproject")
 
   public let name: String
@@ -23,4 +23,6 @@ public class Subproject {
   internal func discoverMore(state: SubprojectState) throws {
 
   }
+
+  public var description: String { return "Subproject(\(name),\(realpath))" }
 }

@@ -23,4 +23,8 @@ public class WrapBasedSubproject: Subproject {
     return url.appendingPathComponent("\(Date().timeIntervalSince1970)", isDirectory: true)
       .absoluteURL.path
   }
+
+  public override var description: String {
+    return "WrapSubproject(\(name),\(realpath),\(self.wrap.directoryNameAfterSetup))"
+  }
 }

@@ -43,7 +43,8 @@ public class SubprojectState {
       }
     }
     for child in children {
-      if child.isDirectory && child.lastComponent != "packagefiles"
+      if child.isDirectory
+        && (child.lastComponent != "packagefiles" && child.lastComponent != "packagecache")
         && !self.alreadyRegistered(child.lastComponent)
       {
         self.subprojects.append(try FolderSubproject(name: child.lastComponent))
@@ -58,6 +59,8 @@ public class SubprojectState {
         if self.subprojects.count == old { break }
       }
     }
+    for err in self.errors { print(err) }
+    for s in self.subprojects { print(s) }
   }
   // swiftlint:enable cyclomatic_complexity
 
