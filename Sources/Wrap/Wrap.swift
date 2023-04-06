@@ -23,11 +23,13 @@ public class Wrap {
   public private(set) var diffFiles: [String]?
   public private(set) var provides: Provides = Provides()
   public private(set) var wrapFile: String = ""
+  public private(set) var wrapHash: String = ""
   public private(set) var directoryNameAfterSetup: String = ""
 
   static let unused: () = { atexit(Wrap.CLEANUP_HANDLER) }()
 
   internal init(
+    wrapHash: String,
     directory: String?,
     patchURL: String?,
     patchFallbackURL: String?,
@@ -43,6 +45,7 @@ public class Wrap {
     self.patchHash = patchHash
     self.patchDirectory = patchDirectory
     self.diffFiles = diffFiles
+    self.wrapHash = wrapHash
     atexit(Self.CLEANUP_HANDLER)
   }
 

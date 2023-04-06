@@ -7,6 +7,7 @@ public class GitWrap: VcsWrap {
   public private(set) var cloneRecursive: Bool
 
   internal init(
+    wrapHash: String,
     directory: String?,
     patchURL: String?,
     patchFallbackURL: String?,
@@ -24,6 +25,7 @@ public class GitWrap: VcsWrap {
     self.pushURL = pushURL
     self.cloneRecursive = cloneRecursive
     super.init(
+      wrapHash: wrapHash,
       directory: directory,
       patchURL: patchURL,
       patchFallbackURL: patchFallbackURL,

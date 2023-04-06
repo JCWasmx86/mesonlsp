@@ -3,6 +3,7 @@ public class VcsWrap: Wrap {
   public private(set) var revision: String?
 
   internal init(
+    wrapHash: String,
     directory: String?,
     patchURL: String?,
     patchFallbackURL: String?,
@@ -16,6 +17,7 @@ public class VcsWrap: Wrap {
     self.url = url
     self.revision = revision
     super.init(
+      wrapHash: wrapHash,
       directory: directory,
       patchURL: patchURL,
       patchFallbackURL: patchFallbackURL,

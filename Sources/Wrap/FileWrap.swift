@@ -9,6 +9,7 @@ public class FileWrap: Wrap {
   public private(set) var leadDirectoryMissing: Bool
 
   internal init(
+    wrapHash: String,
     directory: String?,
     patchURL: String?,
     patchFallbackURL: String?,
@@ -28,6 +29,7 @@ public class FileWrap: Wrap {
     self.sourceHash = sourceHash
     self.leadDirectoryMissing = leadDirectoryMissing
     super.init(
+      wrapHash: wrapHash,
       directory: directory,
       patchURL: patchURL,
       patchFallbackURL: patchFallbackURL,

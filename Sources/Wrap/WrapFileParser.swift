@@ -1,3 +1,5 @@
+import Crypto
+import Foundation
 import INIParser
 import IOUtils
 
@@ -13,6 +15,8 @@ public class WrapFileParser {
       let wincontents = try Path(self.path).read().replacingOccurrences(of: "\r\n", with: "\n")
       let ini = try INIParser(string: wincontents)
     #endif
+    let contents = try Path(self.path).read()
+    let hash = Data(SHA256.hash(data: contents)).hexStringEncoded()
     let provides = parseProvideSection(ini)
     let mapped = ini.sections.map { ($0, $1) }
     guard let firstSectionKV = mapped.first(where: { $0.0.hasPrefix("wrap-") }) else {
@@ -39,6 +43,7 @@ public class WrapFileParser {
       var leadDirectoryMissing = false
       if let ldm = firstSection["lead_directory_missing"] { leadDirectoryMissing = ldm == "true" }
       ret = FileWrap(
+        wrapHash: hash,
         directory: directory,
         patchURL: patchURL,
         patchFallbackURL: patchFallbackURL,
@@ -62,6 +67,7 @@ public class WrapFileParser {
         var cloneRecursive = false
         if let cr = firstSection["clone-recursive"] { cloneRecursive = cr == "true" }
         ret = GitWrap(
+          wrapHash: hash,
           directory: directory,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
@@ -77,6 +83,7 @@ public class WrapFileParser {
         )
       } else if name == "wrap-svn" {
         ret = SvnWrap(
+          wrapHash: hash,
           directory: directory,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
@@ -89,6 +96,7 @@ public class WrapFileParser {
         )
       } else if name == "wrap-hg" {
         ret = HgWrap(
+          wrapHash: hash,
           directory: directory,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
