@@ -3,6 +3,7 @@
 - Build binaries for Ubuntu 18.04 and 20.04 in CI
 - Measure code coverage in CI
 - Cache downloaded wraps (wrap-file only) and downloaded patches
+- Setup [AUR package for Archlinux](https://aur.archlinux.org/packages/swift-mesonlsp)
 # 1.5.1 (Apr 02 2023)
 - Use snippets during auto completion
 - Setup [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/) for Fedora
