@@ -58,7 +58,7 @@
   - [x] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
   - [x] Setup subproject structure
-  - [ ] Load subprojects in `initialize`
+  - [x] Load subprojects in `initialize`
   - [ ] Wire it up so that the LSP functions work
   - [ ] Include in type analysis
 - [x] Highlighting
