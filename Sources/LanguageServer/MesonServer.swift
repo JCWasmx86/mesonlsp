@@ -6,6 +6,7 @@ import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
+import Subproject
 import Timing
 
 #if !os(Windows)
@@ -40,6 +41,7 @@ public final class MesonServer: LanguageServer {
     var lastAskedForRebuild = 0
   #endif
   let interval = DispatchTimeInterval.seconds(60)
+  var subprojects: SubprojectState?
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -860,6 +862,12 @@ public final class MesonServer: LanguageServer {
     )
   }
 
+  private func setupSubprojects() async {
+    do { self.subprojects = try SubprojectState(rootDir: self.path!) } catch let error {
+      Self.LOG.error("\(error)")
+    }
+  }
+
   private func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
     if let clientInfo = p.clientInfo {
@@ -867,6 +875,7 @@ public final class MesonServer: LanguageServer {
     }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
+    let task = Task { await self.setupSubprojects() }
     self.rebuildTree()
     req.reply(InitializeResult(capabilities: self.capabilities()))
   }

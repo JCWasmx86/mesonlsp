@@ -68,7 +68,7 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "MesonAnalyze", "Timing", "MesonDocs", "CMem", "IOUtils",
+        "MesonAnalyze", "Timing", "MesonDocs", "CMem", "IOUtils", "Subproject",
         .product(
           name: "Swifter",
           package: "swifter",
