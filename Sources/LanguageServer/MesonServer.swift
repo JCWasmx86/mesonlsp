@@ -8,6 +8,7 @@ import MesonAST
 import MesonDocs
 import Subproject
 import Timing
+import Wrap
 
 #if !os(Windows)
   import Atomics
@@ -28,6 +29,7 @@ public final class MesonServer: LanguageServer {
   var tree: MesonTree?
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
+  var task: Task<(), Error>?
   #if os(Linux)
     var server: HttpServer
   #endif
@@ -92,7 +94,9 @@ public final class MesonServer: LanguageServer {
   }
 
   public func prepareForExit() {
-
+    if let t = self.task { t.cancel() }
+    Self.LOG.warning("Killing \(Wrap.PROCESSES.count) processes")
+    Wrap.CLEANUP_HANDLER()
   }
 
   public override func _registerBuiltinHandlers() {
@@ -875,7 +879,7 @@ public final class MesonServer: LanguageServer {
     }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
-    let task = Task { await self.setupSubprojects() }
+    self.task = Task { await self.setupSubprojects() }
     self.rebuildTree()
     req.reply(InitializeResult(capabilities: self.capabilities()))
   }

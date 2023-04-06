@@ -6,6 +6,12 @@ import Logging
 
 public class Wrap {
   internal static let LOG: Logger = Logger(label: "Wrap::Wrap")
+  public static var PROCESSES: [Process] = []
+  public static let CLEANUP_HANDLER: @convention(c) () -> Void = {
+    PROCESSES.forEach { $0.terminate() }
+    PROCESSES.forEach { kill($0.processIdentifier, SIGKILL) }
+  }
+
   public private(set) var directory: String?
   public private(set) var patchURL: String?
   public private(set) var patchFallbackURL: String?
@@ -16,6 +22,8 @@ public class Wrap {
   public private(set) var provides: Provides = Provides()
   public private(set) var wrapFile: String = ""
   public private(set) var directoryNameAfterSetup: String = ""
+
+  static let unused: () = { atexit(Wrap.CLEANUP_HANDLER) }()
 
   internal init(
     directory: String?,
@@ -33,6 +41,7 @@ public class Wrap {
     self.patchHash = patchHash
     self.patchDirectory = patchDirectory
     self.diffFiles = diffFiles
+    atexit(Self.CLEANUP_HANDLER)
   }
 
   internal func applyProvides(_ provides: Provides) { self.provides = provides }
@@ -63,8 +72,10 @@ public class Wrap {
       task.arguments = ["-c", "\(joined)"]
       task.executableURL = URL(fileURLWithPath: "/bin/sh")
       if let c = cwd { task.currentDirectoryURL = URL(fileURLWithPath: c) }
+      Self.PROCESSES.append(task)
       try task.run()
       task.waitUntilExit()
+      Self.PROCESSES.remove(at: Self.PROCESSES.firstIndex(of: task)!)
       if task.terminationStatus != 0 {
         throw WrapError.genericError(
           "Command failed with code \(task.terminationStatus): \(joined)"
@@ -119,9 +130,10 @@ public class Wrap {
         Array(lines.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n"))[0]
         .description
       task.arguments = Array(commands.dropFirst())
-
+      Self.append(task)
       task.launch()
       task.waitUntilExit()
+      Self.remove(at: Self.PROCESSES.firstIndex(of: task)!)
 
       if task.terminationStatus != 0 {
         throw WrapError.genericError(
