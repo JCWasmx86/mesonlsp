@@ -4,6 +4,14 @@ import Foundation
 import IOUtils
 import Logging
 
+#if os(Windows)
+  import CRT
+#elseif os(Linux)
+  import Glibc
+#else
+  import Darwin
+#endif
+
 public class Wrap {
   internal static let LOG: Logger = Logger(label: "Wrap::Wrap")
   public static var PROCESSES: [Process] = []
@@ -130,10 +138,10 @@ public class Wrap {
         Array(lines.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n"))[0]
         .description
       task.arguments = Array(commands.dropFirst())
-      Self.append(task)
+      Self.PROCESSES.append(task)
       task.launch()
       task.waitUntilExit()
-      Self.remove(at: Self.PROCESSES.firstIndex(of: task)!)
+      Self.PROCESSES.remove(at: Self.PROCESSES.firstIndex(of: task)!)
 
       if task.terminationStatus != 0 {
         throw WrapError.genericError(
