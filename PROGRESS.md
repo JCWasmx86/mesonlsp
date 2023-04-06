@@ -57,6 +57,10 @@
   - [x] Use fallback URLs
   - [x] Apply to all files to WrapDB in CI
 - [ ] Full Subproject support
+  - [x] Setup subproject structure
+  - [ ] Load subprojects in `initialize`
+  - [ ] Wire it up so that the LSP functions work
+  - [ ] Include in type analysis
 - [x] Highlighting
 - [x] Cache tree from tree-sitter (And the AST that is generated from the tree-sitter tree!)
 - [x] More tests
