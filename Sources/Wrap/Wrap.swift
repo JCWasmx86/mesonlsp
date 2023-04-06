@@ -4,20 +4,14 @@ import Foundation
 import IOUtils
 import Logging
 
-#if os(Windows)
-  import CRT
-#elseif os(Linux)
-  import Glibc
-#else
-  import Darwin
-#endif
-
 public class Wrap {
   internal static let LOG: Logger = Logger(label: "Wrap::Wrap")
   public static var PROCESSES: [Process] = []
   public static let CLEANUP_HANDLER: @convention(c) () -> Void = {
     PROCESSES.forEach { $0.terminate() }
-    PROCESSES.forEach { kill($0.processIdentifier, SIGKILL) }
+    #if !os(Windows)
+      PROCESSES.forEach { kill($0.processIdentifier, SIGKILL) }
+    #endif
   }
 
   public private(set) var directory: String?
