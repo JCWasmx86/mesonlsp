@@ -77,6 +77,7 @@
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Document the language server
+- [ ] Add progress bar for setting up the subprojects (Requires upstream work)
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
