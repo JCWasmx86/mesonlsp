@@ -26,6 +26,8 @@ public class InlayHintsCollector: CodeVisitor {
         } else {
           strs.append("dict(" + prettify(dt.types, depth + 1) + ")")
         }
+      } else if t is MesonAST.Subproject {
+        strs.append("subproject")
       } else {
         strs.append(t.toString())
       }
