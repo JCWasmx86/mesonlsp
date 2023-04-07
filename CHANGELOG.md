@@ -1,4 +1,4 @@
-# Next (XXX XX 2023)
+# 1.6 (Apr 08 2023)
 - Don't depend on unzip/tar/xz/bzip2/gunzip for extracting wraps and their patches
 - Build binaries for Ubuntu 18.04 and 20.04 in CI
 - Measure code coverage in CI
