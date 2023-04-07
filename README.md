@@ -195,5 +195,10 @@ In this example, it took around half-second to parse the entire mesa meson files
   - [QEMU](https://gitlab.com/qemu-project/qemu)
   - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
   - [Systemd](https://github.com/systemd/systemd)
-- Somewhat flaky:
+- Somewhat working:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
+- Somewhat flaky to unusable
+  - [HeleNOS](http://www.helenos.org/)
+  - [picolibc](https://github.com/picolibc/picolibc)
+  - [DPDK](https://www.dpdk.org/)
+
