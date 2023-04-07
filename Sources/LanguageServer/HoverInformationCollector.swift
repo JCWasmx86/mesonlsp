@@ -56,6 +56,7 @@ internal func collectHoverInformation(
   Timing.INSTANCE.registerMeasurement(name: "hover", begin: begin, end: clock())
 }
 
+// swiftlint:disable function_parameter_count
 private func hoverFindCallable(
   _ file: String,
   _ line: Int,
@@ -118,4 +119,4 @@ private func callHover(content: String?, mdocs: String, function: Function?) -> 
     str += "\n*Returns:* " + function!.returnTypes.map { $0.toString() }.joined(separator: "|")
   }
   return str
-}
+}// swiftlint:enable function_parameter_count

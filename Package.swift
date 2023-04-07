@@ -49,7 +49,8 @@ let package = Package(
     .target(
       name: "Subproject",
       dependencies: [
-        "Wrap", "IOUtils", .product(name: "Logging", package: "swift-log"),
+        "Wrap", "IOUtils", "MesonAnalyze", "MesonAST",
+        .product(name: "Logging", package: "swift-log"),
         .product(name: "Crypto", package: "swift-crypto"),
       ]
     ),

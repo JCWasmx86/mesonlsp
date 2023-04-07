@@ -1,4 +1,6 @@
 import Foundation
+import MesonAnalyze
+import MesonAST
 import Wrap
 
 public class WrapBasedSubproject: Subproject {
@@ -16,6 +18,18 @@ public class WrapBasedSubproject: Subproject {
     self.destDir = destDir
     try super.init(name: wrapName, parent: parent)
     try self.wrap.setupDirectory(path: self.destDir, packagefilesPath: packagefiles)
+  }
+
+  public override func parse(_ ns: TypeNamespace) {
+    var cache: [String: MesonAST.Node] = [:]
+    let t = MesonTree(
+      file: self.destDir + "/" + self.wrap.directoryNameAfterSetup + "/meson.build",
+      ns: ns,
+      dontCache: [],
+      cache: &cache
+    )
+    t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
+    self.tree = t
   }
 
   public override var description: String {

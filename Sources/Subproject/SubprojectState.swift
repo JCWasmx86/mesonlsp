@@ -6,7 +6,7 @@ import Wrap
 public class SubprojectState {
   static let LOG: Logger = Logger(label: "Subproject::SubprojectState")
 
-  private var subprojects: [Subproject] = []
+  public private(set) var subprojects: [Subproject] = []
   private var errors: [Error] = []
 
   // swiftlint:disable cyclomatic_complexity

@@ -123,14 +123,44 @@ public final class MesonServer: LanguageServer {
     _register(Self.didDeleteFiles)
   }
 
-  private func findTree<R: RequestType>(_ req: Request<R>) -> MesonTree? { return self.tree }
+  private func findTree(_ uri: DocumentURI) -> MesonTree? {
+    guard let p = self.path else { return self.tree }
+    let rootPath = Path(p).absolute().normalize().description
+    if let url = uri.fileURL {
+      let filePath = Path(url.absoluteURL.path).absolute().normalize().description
+      // dropFirst to drop leading slash
+      let relativePath = filePath.replacingOccurrences(of: rootPath, with: "").dropFirst()
+        .description
+      if relativePath.hasPrefix("subprojects"), let s = self.subprojects {
+        let parts = relativePath.split(separator: Path.separator[0])
+        // At least subprojects/<name>/meson.build
+        if parts.count < 3 { return self.tree }
+        let name = parts[1]
+        var found = false
+        Self.LOG.info("subprojects/\(name)/")
+        let l = s.subprojects.map { $0.realpath }
+        Self.LOG.info("\(l)")
+        for sp in s.subprojects where sp.realpath.hasPrefix("subprojects/\(name)/") {
+          found = true
+          if let t = sp.tree {
+            Self.LOG.info("Found subproject `\(sp.description)` for path \(filePath)")
+            return t
+          }
+        }
+        // We found a matching subproject, but
+        // sadly it contains no MesonTree
+        if found { return nil }
+      }
+    }
+    return self.tree
+  }
 
   private func inlayHints(_ req: Request<InlayHintRequest>) {
-    collectInlayHints(self.findTree(req), req)
+    collectInlayHints(self.findTree(req.params.textDocument.uri), req)
   }
 
   private func highlight(_ req: Request<DocumentHighlightRequest>) {
-    highlightTree(self.findTree(req), req)
+    highlightTree(self.findTree(req.params.textDocument.uri), req)
   }
 
   private func complete(_ req: Request<CompletionRequest>) {
@@ -335,7 +365,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
-    collectDocumentSymbols(self.findTree(req), req)
+    collectDocumentSymbols(self.findTree(req.params.textDocument.uri), req)
   }
 
   private func formatting(_ req: Request<DocumentFormattingRequest>) {
@@ -388,15 +418,15 @@ public final class MesonServer: LanguageServer {
   }
 
   private func hover(_ req: Request<HoverRequest>) {
-    collectHoverInformation(self.findTree(req), req, docs)
+    collectHoverInformation(self.findTree(req.params.textDocument.uri), req, docs)
   }
 
   private func declaration(_ req: Request<DeclarationRequest>) {
-    findDeclaration(self.findTree(req), req, Self.LOG)
+    findDeclaration(self.findTree(req.params.textDocument.uri), req, Self.LOG)
   }
 
   private func definition(_ req: Request<DefinitionRequest>) {
-    findDefinition(self.findTree(req), req, Self.LOG)
+    findDefinition(self.findTree(req.params.textDocument.uri), req, Self.LOG)
   }
 
   private func clearDiagnostics() {
@@ -629,7 +659,11 @@ public final class MesonServer: LanguageServer {
   private func setupSubprojects() async {
     do { self.subprojects = try SubprojectState(rootDir: self.path!) } catch let error {
       Self.LOG.error("\(error)")
+      return
     }
+    Self.LOG.info("Setup all directories for subprojects")
+    for sp in self.subprojects!.subprojects { sp.parse(self.ns) }
+    Self.LOG.info("Setup all subprojects")
   }
 
   private func initialize(_ req: Request<InitializeRequest>) {
