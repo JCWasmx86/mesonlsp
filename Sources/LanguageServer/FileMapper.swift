@@ -17,12 +17,14 @@ internal class FileMapper {
         // These are automatically mapped into the project directory
         if s is FolderSubproject { continue }
         var pp = ""
-        if let csp = s as? CachedSubproject, let children = try? Path(csp.cachedPath).children(),
-          !children.isEmpty
-        {
-          pp =
-            Path(csp.cachedPath + "/\(children[0].lastComponent)/").absolute().normalize()
-            .description
+        if let csp = s as? CachedSubproject {
+          if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
+            pp =
+              Path(csp.cachedPath + "/\(children[0].lastComponent)/").absolute().normalize()
+              .description
+          } else {
+            continue
+          }
         } else if let wbsp = s as? WrapBasedSubproject {
           pp =
             Path(wbsp.destDir + "/" + wbsp.wrap.directoryNameAfterSetup + "/").absolute()
@@ -57,17 +59,19 @@ internal class FileMapper {
           // At least subprojects/<name>/meson.build
           if parts.count < 3 { return p.description }
           let name = parts[1]
-          Self.LOG.info("subprojects/\(name)/")
           for sp in s.subprojects where sp.realpath.hasPrefix("subprojects/\(name)/") {
+            if sp is FolderSubproject { continue }
             Self.LOG.info("Found subproject `\(sp.description)` for path \(p)")
             let joined = parts[2...].joined(separator: "/")
             let p1: String
-            if let csp = sp as? CachedSubproject,
-              let children = try? Path(csp.cachedPath).children(), !children.isEmpty
-            {
-              p1 =
-                Path(csp.cachedPath + "/\(children[0].lastComponent)/\(joined)").absolute()
-                .normalize().description
+            if let csp = sp as? CachedSubproject {
+              if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
+                p1 =
+                  Path(csp.cachedPath + "/\(children[0].lastComponent)/\(joined)").absolute()
+                  .normalize().description
+              } else {
+                continue
+              }
             } else if let wbsp = sp as? WrapBasedSubproject {
               p1 =
                 Path(wbsp.destDir + "/" + wbsp.wrap.directoryNameAfterSetup + "/" + joined)
