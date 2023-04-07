@@ -132,7 +132,7 @@ public final class MesonServer: LanguageServer {
       let relativePath = filePath.replacingOccurrences(of: rootPath, with: "").dropFirst()
         .description
       if relativePath.hasPrefix("subprojects"), let s = self.subprojects {
-        let parts = relativePath.split(separator: Path.separator[0])
+        let parts = relativePath.split(separator: "/")
         // At least subprojects/<name>/meson.build
         if parts.count < 3 { return self.tree }
         let name = parts[1]
