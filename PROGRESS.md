@@ -94,3 +94,4 @@
       - [x] zip
     - [x] Applying diffs works
   - [ ] Upload executable/installer (Debug build only, as release build requires more RAM than available)
+
