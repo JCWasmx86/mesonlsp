@@ -499,7 +499,8 @@ public final class MesonServer: LanguageServer {
         ns: self.ns,
         dontCache: self.openFiles,
         cache: &self.astCache,
-        memfiles: self.memfiles
+        memfiles: self.memfiles,
+        subprojectState: self.subprojects
       )
       #if !os(Windows)
         newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
@@ -664,7 +665,8 @@ public final class MesonServer: LanguageServer {
     Self.LOG.info("Setup all directories for subprojects")
     for sp in self.subprojects!.subprojects { sp.parse(self.ns) }
     self.mapper.subprojects = self.subprojects!
-    Self.LOG.info("Setup all subprojects")
+    Self.LOG.info("Setup all subprojects, rebuilding tree")
+    self.rebuildTree()
   }
 
   private func initialize(_ req: Request<InitializeRequest>) {

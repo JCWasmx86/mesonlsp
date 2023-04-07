@@ -173,7 +173,8 @@ public final class MesonTree: Hashable {
     depth: Int = 0,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String] = [:]
+    memfiles: [String: String] = [:],
+    subprojectState: SubprojectState? = nil
   ) {
     if self.ast == nil { return }
     let root = Scope()
@@ -183,7 +184,12 @@ public final class MesonTree: Hashable {
     root.variables.updateValue([self.ns.types["target_machine"]!], forKey: "target_machine")
     var options: [MesonOption] = []
     if let o = self.options { options = Array(o.opts.values) }
-    let t = TypeAnalyzer(parent: root, tree: self, options: options)
+    let t = TypeAnalyzer(
+      parent: root,
+      tree: self,
+      options: options,
+      subprojectState: subprojectState
+    )
     self.ast!.setParents()
     self.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)
     self.ast!.visit(visitor: t)

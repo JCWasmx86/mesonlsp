@@ -12,6 +12,18 @@ public func guessSetVariable(fe: FunctionExpression) -> [String] {
   return []
 }
 
+public func guessGetVariableMethod(me: MethodExpression) -> [String] {
+  if let al = me.argumentList as? ArgumentList, !al.args.isEmpty {
+    let exprToCalculate = al.args[0]
+    var parent: Node? = me
+    while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
+      || parent?.parent is BuildDefinition)
+    { parent = parent!.parent }
+    return calculateExpression(parent!, exprToCalculate)
+  }
+  return []
+}
+
 private func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [String] {
   let lhs = calculateExpression(parentExpr, be.lhs)
   let rhs = calculateExpression(parentExpr, be.rhs)

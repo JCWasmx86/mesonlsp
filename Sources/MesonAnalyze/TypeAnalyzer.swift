@@ -19,6 +19,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var ignoreUnknownIdentifer: [String] = []
   var depth: UInt = 0
   var variablesNeedingUse: [[IdExpression]] = []
+  var subprojectState: SubprojectState?
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
     "include_directories", "is_disabler", "is_variable", "join_paths", "structured_sources",
@@ -78,12 +79,18 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     "netbsd", "openbsd", "windows", "sunos",
   ]
 
-  public init(parent: Scope, tree: MesonTree, options: [MesonOption]) {
+  public init(
+    parent: Scope,
+    tree: MesonTree,
+    options: [MesonOption],
+    subprojectState: SubprojectState? = nil
+  ) {
     self.scope = parent
     self.tree = tree
     self.t = tree.ns
     self.options = options
     self.metadata = MesonMetadata()
+    self.subprojectState = subprojectState
   }
 
   public func visitSubdirCall(node: SubdirCall) {
@@ -731,6 +738,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         self.metadata.registerMethodCall(call: node)
         found = true
         checkerState.apply(node: node, metadata: self.metadata, f: m)
+        if let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
+          m.id() == "subproject.get_variable", let stO = t as? MesonAST.Subproject,
+          let s = self.subprojectState
+        {
+          let calculatedNames = Set(guessGetVariableMethod(me: node))
+          for subproject in s.subprojects where stO.names.contains(subproject.name) {
+            if let ast = subproject.tree, let sscope = ast.scope {
+              for name in calculatedNames where sscope.variables.keys.contains(name) {
+                ownResultTypes += sscope.variables[name]!
+              }
+            }
+          }
+        }
       }
     }
     return found
