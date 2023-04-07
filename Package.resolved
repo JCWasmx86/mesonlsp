@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "9a0d0cef3074ffd55c29fda568fa9b4c784a592b"
+        "revision" : "8f3fb1e992200378dd7105e77da25892937384d5"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "9ea801152b3ce2b6da462d750526decf394d8871"
+        "revision" : "6134c24cebdbf8f123c981fd3c3e30583a3064f9"
       }
     },
     {
