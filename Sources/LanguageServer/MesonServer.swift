@@ -140,7 +140,8 @@ public final class MesonServer: LanguageServer {
         Self.LOG.info("subprojects/\(name)/")
         let l = s.subprojects.map { $0.realpath }
         Self.LOG.info("\(l)")
-        for sp in s.subprojects where sp.realpath.hasPrefix("subprojects/\(name)/") {
+        for sp in s.subprojects
+        where sp.realpath.hasPrefix("subprojects\(Path.separator)\(name)\(Path.separator)") {
           found = true
           if let t = sp.tree {
             Self.LOG.info("Found subproject `\(sp.description)` for path \(filePath)")

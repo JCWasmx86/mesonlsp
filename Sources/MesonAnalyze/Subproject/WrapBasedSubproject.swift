@@ -1,4 +1,5 @@
 import Foundation
+import IOUtils
 import MesonAST
 import Wrap
 
@@ -22,7 +23,8 @@ public class WrapBasedSubproject: Subproject {
   public override func parse(_ ns: TypeNamespace) {
     var cache: [String: MesonAST.Node] = [:]
     let t = MesonTree(
-      file: self.destDir + "/" + self.wrap.directoryNameAfterSetup + "/meson.build",
+      file: self.destDir + Path.separator + self.wrap.directoryNameAfterSetup
+        + "\(Path.separator)meson.build",
       ns: ns,
       dontCache: [],
       cache: &cache

@@ -20,15 +20,16 @@ internal class FileMapper {
         if let csp = s as? CachedSubproject {
           if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
             pp =
-              Path(csp.cachedPath + "/\(children[0].lastComponent)/").absolute().normalize()
-              .description
+              Path(
+                csp.cachedPath + "\(Path.separator)\(children[0].lastComponent)\(Path.separator)"
+              ).absolute().normalize().description
           } else {
             continue
           }
         } else if let wbsp = s as? WrapBasedSubproject {
           pp =
-            Path(wbsp.destDir + "/" + wbsp.wrap.directoryNameAfterSetup + "/").absolute()
-            .normalize().description
+            Path(wbsp.destDir + Path.separator + wbsp.wrap.directoryNameAfterSetup + Path.separator)
+            .absolute().normalize().description
         } else {
           fatalError("Unimplemented")
         }
@@ -36,8 +37,8 @@ internal class FileMapper {
         if p.description.hasPrefix(real) {
           let relative = p.description.replacingOccurrences(of: real, with: "").dropFirst()
           Self.LOG.warning("Relative path is now: \(relative)")
-          let p1 = Path(self.rootDir + "/subprojects/" + relative).absolute().normalize()
-            .description
+          let p1 = Path(self.rootDir + "\(Path.separator)subprojects\(Path.separator)" + relative)
+            .absolute().normalize().description
           Self.LOG.info("Mapped from \(p) to \(p1)")
           return p1
         }
@@ -59,23 +60,28 @@ internal class FileMapper {
           // At least subprojects/<name>/meson.build
           if parts.count < 3 { return p.description }
           let name = parts[1]
-          for sp in s.subprojects where sp.realpath.hasPrefix("subprojects/\(name)/") {
+          for sp in s.subprojects
+          where sp.realpath.hasPrefix("subprojects\(Path.separator)\(name)\(Path.separator)") {
             if sp is FolderSubproject { continue }
             Self.LOG.info("Found subproject `\(sp.description)` for path \(p)")
-            let joined = parts[2...].joined(separator: "/")
+            let joined = parts[2...].joined(separator: Path.separator)
             let p1: String
             if let csp = sp as? CachedSubproject {
               if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
                 p1 =
-                  Path(csp.cachedPath + "/\(children[0].lastComponent)/\(joined)").absolute()
-                  .normalize().description
+                  Path(
+                    csp.cachedPath
+                      + "\(Path.separator)\(children[0].lastComponent)\(Path.separator)\(joined)"
+                  ).absolute().normalize().description
               } else {
                 continue
               }
             } else if let wbsp = sp as? WrapBasedSubproject {
               p1 =
-                Path(wbsp.destDir + "/" + wbsp.wrap.directoryNameAfterSetup + "/" + joined)
-                .absolute().normalize().description
+                Path(
+                  wbsp.destDir + Path.separator + wbsp.wrap.directoryNameAfterSetup + Path.separator
+                    + joined
+                ).absolute().normalize().description
             } else {
               fatalError("Unimplemented")
             }

@@ -13,7 +13,8 @@ public class CachedSubproject: Subproject {
     var cache: [String: MesonAST.Node] = [:]
     if let children = try? Path(self.cachedPath).children(), !children.isEmpty {
       let t = MesonTree(
-        file: self.cachedPath + "/" + (children[0].lastComponent) + "/meson.build",
+        file: self.cachedPath + Path.separator + (children[0].lastComponent)
+          + "\(Path.separator)meson.build",
         ns: ns,
         dontCache: [],
         cache: &cache

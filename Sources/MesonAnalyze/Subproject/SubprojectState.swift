@@ -11,7 +11,7 @@ public class SubprojectState {
 
   // swiftlint:disable cyclomatic_complexity
   public init(rootDir: String) throws {
-    let p = Path(rootDir + "/subprojects")
+    let p = Path(rootDir + "\(Path.separator)subprojects")
     if !p.exists {
       Self.LOG.info("No subprojects directory found")
       return
@@ -26,7 +26,7 @@ public class SubprojectState {
     do { try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true) } catch
     {}
     let setupCache = Path(url.absoluteURL.path)
-    let packagefiles = Path(p.description + "/packagefiles").absolute().description
+    let packagefiles = Path(p.description + "\(Path.separator)packagefiles").absolute().description
     let children = try p.children()
     for child in children {
       if child.isFile && child.lastComponent.hasSuffix(".wrap") {

@@ -1,4 +1,5 @@
 import Foundation
+import IOUtils
 import Logging
 import MesonAST
 import Wrap
@@ -15,9 +16,9 @@ public class Subproject: CustomStringConvertible {
     self.name = name
     self.parent = parent
     if let p = self.parent {
-      self.realpath = p.realpath + "subprojects/" + name + "/"
+      self.realpath = p.realpath + "subprojects/" + name + Path.separator
     } else {
-      self.realpath = "subprojects/" + name + "/"
+      self.realpath = "subprojects\(Path.separator)" + name + Path.separator
     }
     Self.LOG.info("Found subproject \(name) with the real path \(self.realpath)")
   }
@@ -28,7 +29,12 @@ public class Subproject: CustomStringConvertible {
 
   public func parse(_ ns: TypeNamespace) {
     var cache: [String: MesonAST.Node] = [:]
-    let t = MesonTree(file: self.realpath + "/meson.build", ns: ns, dontCache: [], cache: &cache)
+    let t = MesonTree(
+      file: self.realpath + "\(Path.separator)meson.build",
+      ns: ns,
+      dontCache: [],
+      cache: &cache
+    )
     t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     self.tree = t
   }
