@@ -49,7 +49,7 @@ public class SubprojectState {
             Self.LOG.info("Found cached wrap for hash \(w.wrapHash)")
             self.subprojects.append(
               try CachedSubproject(
-                name: child.lastComponent,
+                name: child.lastComponentWithoutExtension,
                 parent: nil,
                 path: cachedPath.description
               )
