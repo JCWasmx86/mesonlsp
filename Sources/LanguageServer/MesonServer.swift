@@ -40,6 +40,8 @@ public final class MesonServer: LanguageServer {
     let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
   #else
     // Windows will be a bit buggy, but as long as it works
+    // But in the next swift-atomics release, windows will probably
+    // be supported
     var lastAskedForRebuild = 0
   #endif
   let interval = DispatchTimeInterval.seconds(60)
