@@ -33,7 +33,7 @@ let package = Package(
     .target(
       name: "MesonAnalyze",
       dependencies: [
-        "Timing", "SwiftTreeSitter", "MesonAST", "IOUtils",
+        "Timing", "SwiftTreeSitter", "MesonAST", "IOUtils", "Wrap",
         .product(name: "Logging", package: "swift-log"),
       ]
     ),
