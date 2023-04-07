@@ -1,3 +1,4 @@
+import Foundation
 import IOUtils
 import Logging
 import Wrap
@@ -15,6 +16,16 @@ public class SubprojectState {
       Self.LOG.info("No subprojects directory found")
       return
     }
+    let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(
+      ".cache",
+      isDirectory: true
+    ).appendingPathComponent("swift-mesonlsp", isDirectory: true).appendingPathComponent(
+      "__wrap_setup_cache__",
+      isDirectory: true
+    )
+    do { try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true) } catch
+    {}
+    let setupCache = Path(url.absoluteURL.path)
     let packagefiles = Path(p.description + "/packagefiles").absolute().description
     let children = try p.children()
     for child in children {
@@ -22,14 +33,28 @@ public class SubprojectState {
         let wfp = WrapFileParser(path: child.absolute().description)
         do {
           let w = try wfp.parse()
-          self.subprojects.append(
-            try WrapBasedSubproject(
-              wrapName: child.lastComponentWithoutExtension,
-              wrap: w,
-              packagefiles: packagefiles,
-              parent: nil
+          let cachedPath = Path(setupCache.description + Path.separator + w.wrapHash)
+          if !cachedPath.exists {
+            Self.LOG.info("Unable to find cached setup wrap for hash \(w.wrapHash)")
+            self.subprojects.append(
+              try WrapBasedSubproject(
+                wrapName: child.lastComponentWithoutExtension,
+                wrap: w,
+                packagefiles: packagefiles,
+                parent: nil,
+                destDir: cachedPath.description
+              )
             )
-          )
+          } else {
+            Self.LOG.info("Found cached wrap for hash \(w.wrapHash)")
+            self.subprojects.append(
+              try CachedSubproject(
+                name: child.lastComponent,
+                parent: nil,
+                path: cachedPath.description
+              )
+            )
+          }
         } catch let error { self.errors.append(error) }
       } else {
         continue
@@ -47,7 +72,7 @@ public class SubprojectState {
         && (child.lastComponent != "packagefiles" && child.lastComponent != "packagecache")
         && !self.alreadyRegistered(child.lastComponent)
       {
-        self.subprojects.append(try FolderSubproject(name: child.lastComponent))
+        self.subprojects.append(try FolderSubproject(name: child.lastComponent, parent: nil))
       } else {
         continue
       }
