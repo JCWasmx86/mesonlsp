@@ -566,7 +566,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     } else {
       let names = Set(MesonAnalyze.guessSetVariable(fe: node))
       Self.LOG.info("Guessed args to `subproject` as \(names)")
-      node.types = [Subproject(names: Array(names))]
+      node.types = [MesonAST.Subproject(names: Array(names))]
     }
   }
 
@@ -1161,7 +1161,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else if let lt = t as? ListType {
         listtypes += lt.types
         gotList = true
-      } else if let st = t as? Subproject {
+      } else if let st = t as? MesonAST.Subproject {
         subprojectNames += st.names
         gotSubproject = true
       } else {
@@ -1172,7 +1172,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if !listtypes.isEmpty || gotList { ret.append(ListType(types: dedup(types: listtypes))) }
     if !dicttypes.isEmpty || gotDict { ret.append(Dict(types: dedup(types: dicttypes))) }
     if !subprojectNames.isEmpty || gotSubproject {
-      ret.append(Subproject(names: Array(Set(subprojectNames))))
+      ret.append(MesonAST.Subproject(names: Array(Set(subprojectNames))))
     }
     if hasAny { ret.append(self.t.types["any"]!) }
     if hasBool { ret.append(self.t.types["bool"]!) }

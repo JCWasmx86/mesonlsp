@@ -6,7 +6,6 @@ import Logging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
-import Subproject
 import Timing
 import Wrap
 

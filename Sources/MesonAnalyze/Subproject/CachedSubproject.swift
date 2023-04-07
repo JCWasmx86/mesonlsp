@@ -1,5 +1,4 @@
 import IOUtils
-import MesonAnalyze
 import MesonAST
 
 public class CachedSubproject: Subproject {

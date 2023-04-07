@@ -1,6 +1,5 @@
 import Foundation
 import Logging
-import MesonAnalyze
 import MesonAST
 import Wrap
 

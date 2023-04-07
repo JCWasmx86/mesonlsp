@@ -1,7 +1,7 @@
 import Foundation
 import IOUtils
 import Logging
-import Subproject
+import MesonAnalyze
 
 internal class FileMapper {
   static let LOG = Logger(label: "LanguageServer::FileMapper")

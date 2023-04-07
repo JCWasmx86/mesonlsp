@@ -12,7 +12,6 @@ import Logging
 import LSPLogging
 import MesonAnalyze
 import MesonAST
-import Subproject
 import SwiftTreeSitter
 import TestingFramework
 import TreeSitterMeson
