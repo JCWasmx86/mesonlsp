@@ -4,6 +4,7 @@
 - Measure code coverage in CI
 - Cache downloaded wraps (wrap-file only) and downloaded patches
 - Setup [AUR package for Archlinux](https://aur.archlinux.org/packages/swift-mesonlsp)
+- Implement read-only navigation for subprojects. Formatting won't be supported. Editing the meson code of subprojects that come from .wrap files is undefined behavior and may cause strange issues.
 # 1.5.1 (Apr 02 2023)
 - Use snippets during auto completion
 - Setup [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/) for Fedora
