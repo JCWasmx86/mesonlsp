@@ -555,17 +555,27 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
-  public func visitFunctionExpression(node: FunctionExpression) {
-    node.visitChildren(visitor: self)
-    guard let funcNameId = node.id as? IdExpression else { return }
-    let funcName = funcNameId.id
-    if let fn = self.t.lookupFunction(name: funcName) {
+  private func setFunctionCallTypes(node: FunctionExpression, fn: Function) {
+    if fn.name != "subproject" {
       node.types = self.typeanalyzersState.apply(
         node: node,
         options: self.options,
         f: fn,
         ns: self.t
       )
+    } else {
+      let names = Set(MesonAnalyze.guessSetVariable(fe: node))
+      Self.LOG.info("Guessed args to `subproject` as \(names)")
+      node.types = [Subproject(names: Array(names))]
+    }
+  }
+
+  public func visitFunctionExpression(node: FunctionExpression) {
+    node.visitChildren(visitor: self)
+    guard let funcNameId = node.id as? IdExpression else { return }
+    let funcName = funcNameId.id
+    if let fn = self.t.lookupFunction(name: funcName) {
+      self.setFunctionCallTypes(node: node, fn: fn)
       self.specialFunctionCallHandling(node, fn)
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
@@ -1126,6 +1136,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if types.isEmpty || types.count == 1 { return types }
     var listtypes: [Type] = []
     var dicttypes: [Type] = []
+    var subprojectNames: [String] = []
     var hasAny: Bool = false
     var hasBool: Bool = false
     var hasInt: Bool = false
@@ -1133,6 +1144,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var objs: [String: Type] = [:]
     var gotList: Bool = false
     var gotDict: Bool = false
+    var gotSubproject: Bool = false
     for t in types {
       if t is `Any` {
         hasAny = true
@@ -1149,6 +1161,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else if let lt = t as? ListType {
         listtypes += lt.types
         gotList = true
+      } else if let st = t as? Subproject {
+        subprojectNames += st.names
+        gotSubproject = true
       } else {
         objs[t.name] = t
       }
@@ -1156,6 +1171,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var ret: [Type] = []
     if !listtypes.isEmpty || gotList { ret.append(ListType(types: dedup(types: listtypes))) }
     if !dicttypes.isEmpty || gotDict { ret.append(Dict(types: dedup(types: dicttypes))) }
+    if !subprojectNames.isEmpty || gotSubproject {
+      ret.append(Subproject(names: Array(Set(subprojectNames))))
+    }
     if hasAny { ret.append(self.t.types["any"]!) }
     if hasBool { ret.append(self.t.types["bool"]!) }
     if hasInt { ret.append(self.t.types["int"]!) }
