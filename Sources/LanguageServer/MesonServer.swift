@@ -123,49 +123,14 @@ public final class MesonServer: LanguageServer {
     _register(Self.didDeleteFiles)
   }
 
+  private func findTree<R: RequestType>(_ req: Request<R>) -> MesonTree? { return self.tree }
+
   private func inlayHints(_ req: Request<InlayHintRequest>) {
-    let begin = clock()
-    let file = req.params.textDocument.uri.fileURL!.path
-    if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast {
-      let ih = InlayHints()
-      ast.visit(visitor: ih)
-      req.reply(ih.inlays)
-      Timing.INSTANCE.registerMeasurement(name: "inlayHints", begin: begin, end: clock())
-      return
-    }
-    Timing.INSTANCE.registerMeasurement(name: "inlayHints", begin: begin, end: clock())
-    req.reply([])
+    collectInlayHints(self.findTree(req), req)
   }
 
   private func highlight(_ req: Request<DocumentHighlightRequest>) {
-    let begin = clock()
-    let file = req.params.textDocument.uri.fileURL!.path
-    if let t = self.tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast,
-      let id = self.tree!.metadata!.findIdentifierAt(
-        file,
-        req.params.position.line,
-        req.params.position.utf16index
-      )
-    {
-      let hs = HighlightSearcher(varname: id.id)
-      ast.visit(visitor: hs)
-      var ret: [DocumentHighlight] = []
-      for a in hs.accesses {
-        let accessType: DocumentHighlightKind = a.0 == 2 ? .read : .write
-        let si = a.1
-        let range =
-          Position(
-            line: Int(si.startLine),
-            utf16index: Int(si.startColumn)
-          )..<Position(line: Int(si.endLine), utf16index: Int(si.endColumn))
-        ret.append(DocumentHighlight(range: range, kind: accessType))
-      }
-      Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
-      req.reply(ret)
-      return
-    }
-    Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
-    req.reply([])
+    highlightTree(self.findTree(req), req)
   }
 
   private func complete(_ req: Request<CompletionRequest>) {
@@ -370,35 +335,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
-    let begin = clock()
-    if let t = self.tree,
-      let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path), let ast = mt.ast
-    {
-      let sv = SymbolCodeVisitor()
-      var rep: [SymbolInformation] = []
-      ast.visit(visitor: sv)
-      for si in sv.symbols {
-        let name = si.name
-        let range =
-          Position(
-            line: Int(si.startLine),
-            utf16index: Int(si.startColumn)
-          )..<Position(line: Int(si.endLine), utf16index: Int(si.endColumn))
-        let kind = SymbolKind(rawValue: Int(si.kind))
-        rep.append(
-          SymbolInformation(
-            name: name,
-            kind: kind,
-            location: Location(uri: req.params.textDocument.uri, range: range)
-          )
-        )
-      }
-      req.reply(.symbolInformation(rep))
-      Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
-      return
-    }
-    req.reply(.symbolInformation([]))
-    Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
+    collectDocumentSymbols(self.findTree(req), req)
   }
 
   private func formatting(_ req: Request<DocumentFormattingRequest>) {
@@ -450,195 +387,16 @@ public final class MesonServer: LanguageServer {
     return try? String(contentsOfFile: file)
   }
 
-  private func hoverFindCallable(
-    _ file: String,
-    _ line: Int,
-    _ column: Int,
-    _ function: inout Function?,
-    _ content: inout String?
-  ) {
-    if let m = self.tree!.metadata!.findMethodCallAt(file, line, column), m.method != nil {
-      function = m.method!
-      content = m.method!.parent.toString() + "." + m.method!.name
-    }
-    if content == nil, let f = self.tree!.metadata!.findFunctionCallAt(file, line, column),
-      f.function != nil
-    {
-      function = f.function!
-      content = f.function!.name
-    }
-  }
-
-  private func hoverFindIdentifier(
-    _ file: String,
-    _ line: Int,
-    _ column: Int,
-    _ content: inout String?,
-    _ requery: inout Bool
-  ) {
-    if content == nil, let f = self.tree!.metadata!.findIdentifierAt(file, line, column) {
-      if !f.types.isEmpty {
-        content = f.types.map { $0.toString() }.joined(separator: "|")
-        requery = false
-      }
-    }
-  }
-
   private func hover(_ req: Request<HoverRequest>) {
-    let begin = clock()
-    let location = req.params.position
-    let file = req.params.textDocument.uri.fileURL?.path
-    var content: String?
-    var requery = true
-    var function: Function?
-    var kwargTypes: String?
-    self.hoverFindCallable(file!, location.line, location.utf16index, &function, &content)
-    self.hoverFindIdentifier(file!, location.line, location.utf16index, &content, &requery)
-    if content == nil,
-      let tuple = self.tree!.metadata!.findKwargAt(file!, location.line, location.utf16index)
-    {
-      let kw = tuple.0
-      let f = tuple.1
-      var fun: Function?
-      if let me = kw.parent!.parent as? MethodExpression {
-        fun = me.method
-      } else if let fe = kw.parent!.parent as? FunctionExpression {
-        fun = fe.function
-      }
-      if let k = kw.key as? IdExpression {
-        content = f.id() + "<" + k.id + ">"
-        if fun != nil, let f = fun!.kwargs[k.id] {
-          kwargTypes = f.types.map { $0.toString() }.joined(separator: "|")
-        }
-      }
-    }
-    if content != nil && requery {
-      if function == nil {  // Kwarg docs
-        let d = self.docs.find_docs(id: content!)
-        content = (d ?? content!) + "\n\n*Types:*`" + (kwargTypes ?? "???") + "`"
-      } else {
-        let d = self.docs.find_docs(id: content!)
-        if let mdocs = d {
-          content = self.callHover(content: content, mdocs: mdocs, function: function)
-        }
-      }
-    }
-    req.reply(
-      HoverResponse(
-        contents: content == nil
-          ? .markedStrings([])
-          : .markupContent(MarkupContent(kind: .markdown, value: content ?? "")),
-        range: nil
-      )
-    )
-    Timing.INSTANCE.registerMeasurement(name: "hover", begin: begin, end: clock())
-  }
-
-  private func callHover(content: String?, mdocs: String, function: Function?) -> String {
-    var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
-    for arg in function!.args {
-      if let pa = arg as? PositionalArgument {
-        str += "- "
-        if pa.opt { str += "\\[" }
-        str += "`" + pa.name + "`"
-        str += " "
-        str += pa.types.map { $0.toString() }.joined(separator: "|")
-        if pa.varargs { str += "..." }
-        if pa.opt { str += "\\]" }
-        str += "\n"
-      } else if let kw = arg as? Kwarg {
-        str += "- "
-        if kw.opt { str += "\\[" }
-        str += "`" + kw.name + "`"
-        str += ": "
-        str += kw.types.map({ $0.toString() }).joined(separator: "|")
-        if kw.opt { str += "\\]" }
-        str += "\n"
-      }
-    }
-    if !function!.returnTypes.isEmpty {
-      str += "\n*Returns:* " + function!.returnTypes.map { $0.toString() }.joined(separator: "|")
-    }
-    return str
+    collectHoverInformation(self.findTree(req), req, docs)
   }
 
   private func declaration(_ req: Request<DeclarationRequest>) {
-    let beginDeclaration = clock()
-    let location = req.params.position
-    let file = req.params.textDocument.uri.fileURL?.path
-    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index),
-      let t = self.tree!.findDeclaration(node: i)
-    {
-      let newFile = t.0
-      let line = t.1[0]
-      let column = t.1[1]
-      let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-      Self.LOG.info("Found declaration")
-      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
-      let endDeclaration = clock()
-      Timing.INSTANCE.registerMeasurement(
-        name: "declaration",
-        begin: Int(beginDeclaration),
-        end: Int(endDeclaration)
-      )
-      return
-    }
-
-    if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(
-        Path(file!).parent().description + Path.separator + sd.subdirname
-          + "\(Path.separator)meson.build"
-      ).description
-      let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
-      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
-      let endDeclaration = clock()
-      Timing.INSTANCE.registerMeasurement(
-        name: "declaration",
-        begin: Int(beginDeclaration),
-        end: Int(endDeclaration)
-      )
-      return
-    }
-    Self.LOG.warning("Found no declaration")
-    req.reply(.locations([]))
-    let endDeclaration = clock()
-    Timing.INSTANCE.registerMeasurement(
-      name: "declaration",
-      begin: Int(beginDeclaration),
-      end: Int(endDeclaration)
-    )
+    findDeclaration(self.findTree(req), req, Self.LOG)
   }
 
   private func definition(_ req: Request<DefinitionRequest>) {
-    let begin = clock()
-    let location = req.params.position
-    let file = req.params.textDocument.uri.fileURL?.path
-    if let i = self.tree!.metadata!.findIdentifierAt(file!, location.line, location.utf16index),
-      let t = self.tree!.findDeclaration(node: i)
-    {
-      let newFile = t.0
-      let line = t.1[0]
-      let column = t.1[1]
-      let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
-      Self.LOG.info("Found definition")
-      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: newFile)), range: range)]))
-      Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
-      return
-    }
-
-    if let sd = self.tree!.metadata!.findSubdirCallAt(file!, location.line, location.utf16index) {
-      let path = Path(
-        Path(file!).parent().description + Path.separator + sd.subdirname
-          + "\(Path.separator)meson.build"
-      ).description
-      let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
-      req.reply(.locations([.init(uri: DocumentURI(URL(fileURLWithPath: path)), range: range)]))
-      Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
-      return
-    }
-    Self.LOG.warning("Found no definition")
-    req.reply(.locations([]))
-    Timing.INSTANCE.registerMeasurement(name: "definition", begin: begin, end: clock())
+    findDefinition(self.findTree(req), req, Self.LOG)
   }
 
   private func clearDiagnostics() {

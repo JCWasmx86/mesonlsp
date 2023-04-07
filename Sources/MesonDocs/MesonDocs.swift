@@ -36,5 +36,5 @@ public class MesonDocs {
     ModuleKwargDocProvider().addToDict(dict: &self.docs)
   }
 
-  public func find_docs(id: String) -> String? { return self.docs[id] }
+  public func findDocs(id: String) -> String? { return self.docs[id] }
 }
