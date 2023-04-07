@@ -3,10 +3,16 @@ import LanguageServerProtocol
 import MesonAnalyze
 import Timing
 
-internal func collectDocumentSymbols(_ tree: MesonTree?, _ req: Request<DocumentSymbolRequest>) {
+internal func collectDocumentSymbols(
+  _ tree: MesonTree?,
+  _ req: Request<DocumentSymbolRequest>,
+  _ mapper: FileMapper
+) {
   let begin = clock()
-  if let t = tree, let mt = t.findSubdirTree(file: req.params.textDocument.uri.fileURL!.path),
-    let ast = mt.ast
+  if let t = tree,
+    let mt = t.findSubdirTree(
+      file: mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+    ), let ast = mt.ast
   {
     let sv = SymbolCodeVisitor()
     var rep: [SymbolInformation] = []

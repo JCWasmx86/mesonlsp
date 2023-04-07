@@ -46,6 +46,7 @@ public final class MesonServer: LanguageServer {
   #endif
   let interval = DispatchTimeInterval.seconds(60)
   var subprojects: SubprojectState?
+  var mapper: FileMapper = FileMapper()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -156,11 +157,11 @@ public final class MesonServer: LanguageServer {
   }
 
   private func inlayHints(_ req: Request<InlayHintRequest>) {
-    collectInlayHints(self.findTree(req.params.textDocument.uri), req)
+    collectInlayHints(self.findTree(req.params.textDocument.uri), req, self.mapper)
   }
 
   private func highlight(_ req: Request<DocumentHighlightRequest>) {
-    highlightTree(self.findTree(req.params.textDocument.uri), req)
+    highlightTree(self.findTree(req.params.textDocument.uri), req, self.mapper)
   }
 
   private func complete(_ req: Request<CompletionRequest>) {
@@ -365,7 +366,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
-    collectDocumentSymbols(self.findTree(req.params.textDocument.uri), req)
+    collectDocumentSymbols(self.findTree(req.params.textDocument.uri), req, self.mapper)
   }
 
   private func formatting(_ req: Request<DocumentFormattingRequest>) {
@@ -418,15 +419,15 @@ public final class MesonServer: LanguageServer {
   }
 
   private func hover(_ req: Request<HoverRequest>) {
-    collectHoverInformation(self.findTree(req.params.textDocument.uri), req, docs)
+    collectHoverInformation(self.findTree(req.params.textDocument.uri), req, self.mapper, docs)
   }
 
   private func declaration(_ req: Request<DeclarationRequest>) {
-    findDeclaration(self.findTree(req.params.textDocument.uri), req, Self.LOG)
+    findDeclaration(self.findTree(req.params.textDocument.uri), req, self.mapper, Self.LOG)
   }
 
   private func definition(_ req: Request<DefinitionRequest>) {
-    findDefinition(self.findTree(req.params.textDocument.uri), req, Self.LOG)
+    findDefinition(self.findTree(req.params.textDocument.uri), req, self.mapper, Self.LOG)
   }
 
   private func clearDiagnostics() {
@@ -663,6 +664,7 @@ public final class MesonServer: LanguageServer {
     }
     Self.LOG.info("Setup all directories for subprojects")
     for sp in self.subprojects!.subprojects { sp.parse(self.ns) }
+    self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects")
   }
 
@@ -673,6 +675,7 @@ public final class MesonServer: LanguageServer {
     }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
+    self.mapper.rootDir = self.path!
     self.task = Task { await self.setupSubprojects() }
     self.rebuildTree()
     req.reply(InitializeResult(capabilities: self.capabilities()))

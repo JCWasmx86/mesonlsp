@@ -4,8 +4,8 @@ import MesonAST
 import Wrap
 
 public class WrapBasedSubproject: Subproject {
-  private let wrap: Wrap
-  private let destDir: String
+  public let wrap: Wrap
+  public let destDir: String
 
   public init(
     wrapName: String,

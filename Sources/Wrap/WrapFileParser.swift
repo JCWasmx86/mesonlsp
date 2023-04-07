@@ -44,7 +44,7 @@ public class WrapFileParser {
       if let ldm = firstSection["lead_directory_missing"] { leadDirectoryMissing = ldm == "true" }
       ret = FileWrap(
         wrapHash: hash,
-        directory: directory,
+        directory: directory ?? Path(self.path).lastComponentWithoutExtension,
         patchURL: patchURL,
         patchFallbackURL: patchFallbackURL,
         patchFilename: patchFilename,
@@ -68,7 +68,7 @@ public class WrapFileParser {
         if let cr = firstSection["clone-recursive"] { cloneRecursive = cr == "true" }
         ret = GitWrap(
           wrapHash: hash,
-          directory: directory,
+          directory: directory ?? Path(self.path).lastComponentWithoutExtension,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
           patchFilename: patchFilename,
@@ -84,7 +84,7 @@ public class WrapFileParser {
       } else if name == "wrap-svn" {
         ret = SvnWrap(
           wrapHash: hash,
-          directory: directory,
+          directory: directory ?? Path(self.path).lastComponentWithoutExtension,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
           patchFilename: patchFilename,
@@ -97,7 +97,7 @@ public class WrapFileParser {
       } else if name == "wrap-hg" {
         ret = HgWrap(
           wrapHash: hash,
-          directory: directory,
+          directory: directory ?? Path(self.path).lastComponentWithoutExtension,
           patchURL: patchURL,
           patchFallbackURL: patchFallbackURL,
           patchFilename: patchFilename,

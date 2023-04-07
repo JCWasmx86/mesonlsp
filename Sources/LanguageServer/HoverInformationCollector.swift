@@ -8,19 +8,20 @@ import Timing
 internal func collectHoverInformation(
   _ tree: MesonTree?,
   _ req: Request<HoverRequest>,
+  _ mapper: FileMapper,
   _ docs: MesonDocs
 ) {
   let begin = clock()
   let location = req.params.position
-  let file = req.params.textDocument.uri.fileURL?.path
+  let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
   var content: String?
   var requery = true
   var function: Function?
   var kwargTypes: String?
-  hoverFindCallable(file!, location.line, location.utf16index, tree, &function, &content)
-  hoverFindIdentifier(file!, location.line, location.utf16index, tree, &content, &requery)
+  hoverFindCallable(file, location.line, location.utf16index, tree, &function, &content)
+  hoverFindIdentifier(file, location.line, location.utf16index, tree, &content, &requery)
   if content == nil, let t = tree,
-    let tuple = t.metadata!.findKwargAt(file!, location.line, location.utf16index)
+    let tuple = t.metadata!.findKwargAt(file, location.line, location.utf16index)
   {
     let kw = tuple.0
     let f = tuple.1
@@ -119,4 +120,4 @@ private func callHover(content: String?, mdocs: String, function: Function?) -> 
     str += "\n*Returns:* " + function!.returnTypes.map { $0.toString() }.joined(separator: "|")
   }
   return str
-}// swiftlint:enable function_parameter_count
+}  // swiftlint:enable function_parameter_count

@@ -3,9 +3,13 @@ import LanguageServerProtocol
 import MesonAnalyze
 import Timing
 
-internal func highlightTree(_ tree: MesonTree?, _ req: Request<DocumentHighlightRequest>) {
+internal func highlightTree(
+  _ tree: MesonTree?,
+  _ req: Request<DocumentHighlightRequest>,
+  _ mapper: FileMapper
+) {
   let begin = clock()
-  let file = req.params.textDocument.uri.fileURL!.path
+  let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
   if let t = tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast,
     let id = t.metadata!.findIdentifierAt(
       file,
