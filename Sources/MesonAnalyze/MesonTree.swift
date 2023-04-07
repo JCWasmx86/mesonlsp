@@ -12,7 +12,7 @@ public final class MesonTree: Hashable {
     let p = Parser()
     do { try p.setLanguage(tree_sitter_meson()) } catch { fatalError("Unable to set language") }
     return p
-  }()
+  }
   public let file: String
   public var ast: MesonAST.Node?
   public var subfiles: [MesonTree] = []
@@ -41,7 +41,7 @@ public final class MesonTree: Hashable {
         let text = self.readFile(self.file)
         guard let text = text else { return }
         let beginParsing = clock()
-        let tree = Self.PARSER.parse(text)
+        let tree = Self.PARSER().parse(text)
         let endParsing = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "parsing",
@@ -58,7 +58,7 @@ public final class MesonTree: Hashable {
         )
       } else if memfiles[self.file] != nil {
         let beginParsing = clock()
-        let tree = Self.PARSER.parse(memfiles[self.file]!.description)
+        let tree = Self.PARSER().parse(memfiles[self.file]!.description)
         let endParsing = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "parsing",
@@ -161,7 +161,7 @@ public final class MesonTree: Hashable {
     if !f.exists { self.options = nil }
     let text = self.readFile(f.description)
     guard let text = text else { return }
-    let tree = Self.PARSER.parse(text)
+    let tree = Self.PARSER().parse(text)
     let root = tree!.rootNode
     let visitor = OptionsExtractor()
     from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
