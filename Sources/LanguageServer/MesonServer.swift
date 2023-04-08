@@ -666,8 +666,8 @@ public final class MesonServer: LanguageServer {
     Self.LOG.info("Setup all directories for subprojects")
     for sp in self.subprojects!.subprojects { sp.parse(self.ns) }
     self.mapper.subprojects = self.subprojects!
-    Self.LOG.info("Setup all subprojects, rebuilding tree")
-    self.rebuildTree()
+    Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
+    if !self.subprojects!.subprojects.isEmpty { self.rebuildTree() }
   }
 
   private func initialize(_ req: Request<InitializeRequest>) {
