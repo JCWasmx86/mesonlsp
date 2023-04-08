@@ -36,6 +36,8 @@ public final class MesonServer: LanguageServer {
   var openFiles: Set<String> = []
   var openSubprojectFiles: [String: Set<String>] = [:]
   var astCache: [String: Node] = [:]
+  var astCaches: [String: [String: Node]] = [:]
+  var tasks: [String: Task<(), Error>] = [:]
   #if !os(Windows)
     let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
   #else
@@ -616,6 +618,29 @@ public final class MesonServer: LanguageServer {
     }
   }
 
+  private func rebuildSubproject(_ sb: MesonAnalyze.Subproject) {
+    if let fsp = sb as? FolderSubproject {
+      if let t = tasks[fsp.realpath] { t.cancel() }
+      var cache = self.astCaches[fsp.realpath]!
+      cache.removeAll()
+      tasks[fsp.realpath] = Task {
+        var astCacheTemp: [String: Node] = [:]
+        // It should be cached theoretically, but
+        // the caching seems to go wrong.
+        Self.LOG.info("Starting task")
+        fsp.parse(
+          ns,
+          dontCache: self.openSubprojectFiles[fsp.realpath]!,
+          cache: &astCacheTemp,
+          memfiles: self.memfiles
+        )
+        Self.LOG.info("Task ended \(Task.isCancelled)")
+      }
+    } else {
+      Self.LOG.error("Unable to rebuild subproject as it is not folder based!")
+    }
+  }
+
   private func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
     if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
       if sb is FolderSubproject {
@@ -626,6 +651,7 @@ public final class MesonServer: LanguageServer {
         }
         var s = self.openSubprojectFiles[sb.realpath]!
         s.insert(file!)
+        if var ac = self.astCaches[sb.realpath] { ac.removeValue(forKey: file!) }
       }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
@@ -639,6 +665,8 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Save] \(file!) in subproject \(sb.realpath)")
+        self.memfiles.removeValue(forKey: file!)
+        self.rebuildSubproject(sb)
       }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
@@ -659,6 +687,8 @@ public final class MesonServer: LanguageServer {
           var s = self.openSubprojectFiles[sb.realpath]!
           s.remove(file!)
         }
+        self.memfiles.removeValue(forKey: file!)
+        self.rebuildSubproject(sb)
       }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
@@ -676,10 +706,8 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Change] \(file!) in subproject \(sb.realpath)")
-        if self.openSubprojectFiles.keys.contains(sb.realpath) {
-          var s = self.openSubprojectFiles[sb.realpath]!
-          s.remove(file!)
-        }
+        self.memfiles[file!] = note.params.contentChanges[0].text
+        self.rebuildSubproject(sb)
       }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
@@ -729,7 +757,11 @@ public final class MesonServer: LanguageServer {
       return
     }
     Self.LOG.info("Setup all directories for subprojects")
-    for sp in self.subprojects!.subprojects { sp.parse(self.ns) }
+    for sp in self.subprojects!.subprojects {
+      var cache: [String: Node] = [:]
+      sp.parse(self.ns, dontCache: [], cache: &cache, memfiles: self.memfiles)
+      self.astCaches[sp.realpath] = cache
+    }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
     if !self.subprojects!.subprojects.isEmpty { self.rebuildTree() }

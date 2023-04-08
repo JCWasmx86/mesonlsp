@@ -27,15 +27,20 @@ public class Subproject: CustomStringConvertible {
 
   }
 
-  public func parse(_ ns: TypeNamespace) {
-    var cache: [String: MesonAST.Node] = [:]
+  public func parse(
+    _ ns: TypeNamespace,
+    dontCache: Set<String>,
+    cache: inout [String: MesonAST.Node],
+    memfiles: [String: String]
+  ) {
     let t = MesonTree(
       file: self.realpath + "\(Path.separator)meson.build",
       ns: ns,
-      dontCache: [],
-      cache: &cache
+      dontCache: dontCache,
+      cache: &cache,
+      memfiles: memfiles
     )
-    t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
+    t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
     self.tree = t
   }
 

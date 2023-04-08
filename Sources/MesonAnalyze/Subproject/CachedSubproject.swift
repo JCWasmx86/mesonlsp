@@ -9,17 +9,22 @@ public class CachedSubproject: Subproject {
     try super.init(name: name, parent: parent)
   }
 
-  public override func parse(_ ns: TypeNamespace) {
-    var cache: [String: MesonAST.Node] = [:]
+  public override func parse(
+    _ ns: TypeNamespace,
+    dontCache: Set<String>,
+    cache: inout [String: MesonAST.Node],
+    memfiles: [String: String]
+  ) {
     if let children = try? Path(self.cachedPath).children(), !children.isEmpty {
       let t = MesonTree(
         file: self.cachedPath + Path.separator + (children[0].lastComponent)
           + "\(Path.separator)meson.build",
         ns: ns,
-        dontCache: [],
-        cache: &cache
+        dontCache: dontCache,
+        cache: &cache,
+        memfiles: memfiles
       )
-      t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
+      t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
       self.tree = t
     }
   }
