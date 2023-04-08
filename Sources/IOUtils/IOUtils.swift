@@ -174,22 +174,6 @@ extension Path {
     }
     return !directory.boolValue
   }
-
-  /// Test whether a path is readable
-  ///
-  /// - Returns: `true` if the current process has read privileges for the file at path;
-  ///   otherwise `false` if the process does not have read privileges or the existence of the
-  ///   file could not be determined.
-  ///
-  public var isReadable: Bool { return Path.fileManager.isReadableFile(atPath: self.path) }
-
-  /// Test whether a path is writeable
-  ///
-  /// - Returns: `true` if the current process has write privileges for the file at path;
-  ///   otherwise `false` if the process does not have write privileges or the existence of the
-  ///   file could not be determined.
-  ///
-  public var isWritable: Bool { return Path.fileManager.isWritableFile(atPath: self.path) }
 }
 
 // MARK: Current Directory
