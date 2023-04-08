@@ -1,5 +1,6 @@
 # 2.0 (XXX XX XXXX)
 - Only rebuild tree after loading subprojects if a subproject was found
+- Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols
 # 1.6 (Apr 08 2023)
 - Don't depend on unzip/tar/xz/bzip2/gunzip for extracting wraps and their patches
 - Build binaries for Ubuntu 18.04 and 20.04 in CI
