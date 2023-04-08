@@ -411,6 +411,11 @@ public final class MesonServer: LanguageServer {
           let edit = TextEdit(range: range, newText: formatted)
           req.reply([edit])
           Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
+          if let sb = self.findSubprojectForUri(req.params.textDocument.uri),
+            let csp = sb as? FolderSubproject
+          {
+            self.rebuildSubproject(csp)
+          }
           return
         } else {
           Self.LOG.error("Unable to format file")
