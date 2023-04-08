@@ -78,6 +78,7 @@
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Document the language server
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
+- [ ] Switch from atomics to Task.isCancelled for cancellation of parsing
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
