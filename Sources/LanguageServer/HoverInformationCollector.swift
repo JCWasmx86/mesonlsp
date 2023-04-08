@@ -19,7 +19,7 @@ internal func collectHoverInformation(
   var function: Function?
   var kwargTypes: String?
   hoverFindCallable(file, location.line, location.utf16index, tree, &function, &content)
-  hoverFindIdentifier(file, location.line, location.utf16index, tree, &content, &requery)
+  hoverFindIdentifier(file, location.line, location.utf16index, docs, tree, &content, &requery)
   if content == nil, let t = tree,
     let tuple = t.metadata!.findKwargAt(file, location.line, location.utf16index)
   {
@@ -82,12 +82,17 @@ private func hoverFindIdentifier(
   _ file: String,
   _ line: Int,
   _ column: Int,
+  _ docs: MesonDocs,
   _ tree: MesonTree?,
   _ content: inout String?,
   _ requery: inout Bool
 ) {
   if content == nil, let t = tree, let f = t.metadata!.findIdentifierAt(file, line, column) {
-    if !f.types.isEmpty {
+    if f.types.count == 1 {
+      content = f.types[0].toString()
+      if let d = docs.findDocs(id: content!) { content = "\(content!)\n\n" + d + "\n" }
+      requery = false
+    } else if !f.types.isEmpty {
       content = f.types.map { $0.toString() }.joined(separator: "|")
       requery = false
     }
