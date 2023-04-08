@@ -79,6 +79,7 @@
 - [ ] Document the language server
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
 - [ ] Switch from atomics to Task.isCancelled for cancellation of parsing
+- [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
