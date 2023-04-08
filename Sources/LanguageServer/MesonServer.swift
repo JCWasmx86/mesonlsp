@@ -68,6 +68,7 @@ public final class MesonServer: LanguageServer {
       }
       super.init(client: client)
       self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
+      self.server["/caches"] = { _ in return HttpResponse.ok(.text(self.generateCacheHTML())) }
     #else
       super.init(client: client)
     #endif
@@ -656,6 +657,7 @@ public final class MesonServer: LanguageServer {
         }
         var s = self.openSubprojectFiles[sb.realpath]!
         s.insert(file!)
+        self.openSubprojectFiles[sb.realpath] = s
         if var ac = self.astCaches[sb.realpath] { ac.removeValue(forKey: file!) }
       }
     } else {
@@ -688,9 +690,10 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Close] \(file!) in subproject \(sb.realpath)")
-        if self.openSubprojectFiles.keys.contains(sb.realpath) {
-          var s = self.openSubprojectFiles[sb.realpath]!
+        Self.LOG.info("\(self.openSubprojectFiles.keys)")
+        if var s = self.openSubprojectFiles[sb.realpath] {
           s.remove(file!)
+          self.openSubprojectFiles[sb.realpath] = s
         }
         self.memfiles.removeValue(forKey: file!)
         self.rebuildSubproject(sb)
@@ -804,6 +807,41 @@ public final class MesonServer: LanguageServer {
   private func exit(_ notification: Notification<ExitNotification>) {
     self.prepareForExit()
     self.onExit()
+  }
+
+  private func generateCacheHTML() -> String {
+    let header = """
+      	<!DOCTYPE html>
+      	<html>
+      	<head>
+      	<meta http-equiv="refresh" content="5" />
+      	</head>
+      	<body>
+        <h1>Mainproject</h1>
+      	<h2>Open files</h2>
+      	<ul>
+      """
+    var body = ""
+    for o in self.openFiles { body += "<li>\(o)</li>\n" }
+    body += "</ul>\n"
+    body += "<h2>Cached ASTs</h2>\n<ul>\n"
+    for o in self.astCache.keys { body += "<li>\(o)</li>\n" }
+    body += "</ul>\n"
+    if self.subprojects != nil {
+      body += "<h1>Subprojects</h1>"
+      for s in self.subprojects!.subprojects {
+        body += "<h2>\(s.realpath)</h2>\n"
+        body += "<h3>Open files</h3>\n<ul>"
+        if let ac = self.openSubprojectFiles[s.realpath] {
+          for k in ac { body += "<li>\(k)</li>\n" }
+        }
+        body += "</ul><h3>Cached ASTs</h3>\n<ul>"
+        if let ac = self.astCaches[s.realpath] { for k in ac.keys { body += "<li>\(k)</li>\n" } }
+        body += "</ul>"
+      }
+    }
+    body += "</body></html>"
+    return header + body
   }
 
   private func generateHTML() -> String {
