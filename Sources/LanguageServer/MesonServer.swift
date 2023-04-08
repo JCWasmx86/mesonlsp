@@ -34,6 +34,7 @@ public final class MesonServer: LanguageServer {
   #endif
   var docs: MesonDocs = MesonDocs()
   var openFiles: Set<String> = []
+  var openSubprojectFiles: [String: Set<String>] = [:]
   var astCache: [String: Node] = [:]
   #if !os(Windows)
     let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
@@ -154,6 +155,32 @@ public final class MesonServer: LanguageServer {
       }
     }
     return self.tree
+  }
+
+  private func findSubprojectForUri(_ uri: DocumentURI) -> MesonAnalyze.Subproject? {
+    guard let p = self.path else { return nil }
+    let rootPath = Path(p).absolute().normalize().description
+    if let url = uri.fileURL {
+      let filePath = Path(url.absoluteURL.path).absolute().normalize().description
+      // dropFirst to drop leading slash
+      let relativePath = filePath.replacingOccurrences(of: rootPath, with: "").dropFirst()
+        .description
+      if relativePath.hasPrefix("subprojects"), let s = self.subprojects {
+        let parts = relativePath.split(separator: "/")
+        // At least subprojects/<name>/meson.build
+        if parts.count < 3 { return nil }
+        let name = parts[1]
+        if name == "packagefiles" || name == "packagecache" { return nil }
+        Self.LOG.info("subprojects/\(name)/")
+        let l = s.subprojects.map { $0.realpath }
+        Self.LOG.info("\(l)")
+        for sp in s.subprojects
+        where sp.realpath.hasPrefix("subprojects\(Path.separator)\(name)\(Path.separator)") {
+          return sp
+        }
+      }
+    }
+    return nil
   }
 
   private func inlayHints(_ req: Request<InlayHintRequest>) {
@@ -593,35 +620,70 @@ public final class MesonServer: LanguageServer {
   }
 
   private func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
-    let file = note.params.textDocument.uri.fileURL?.path
-    self.openFiles.insert(file!)
-    self.astCache.removeValue(forKey: file!)
+    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+      if sb is FolderSubproject {
+        let file = note.params.textDocument.uri.fileURL?.path
+        if !self.openSubprojectFiles.keys.contains(sb.realpath) {
+          self.openSubprojectFiles[sb.realpath] = []
+        }
+        var s = self.openSubprojectFiles[sb.realpath]!
+        s.insert(file!)
+      }
+    } else {
+      let file = note.params.textDocument.uri.fileURL?.path
+      self.openFiles.insert(file!)
+      self.astCache.removeValue(forKey: file!)
+    }
   }
 
   private func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
-    let file = note.params.textDocument.uri.fileURL?.path
-    // Either the saves were changed or dropped, so use the contents
-    // of the file
-    Self.LOG.info("[Save] Dropping \(file!) from memcache")
-    self.memfiles.removeValue(forKey: file!)
-    self.rebuildTree()
+    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+      if sb is FolderSubproject {}
+    } else {
+      let file = note.params.textDocument.uri.fileURL?.path
+      // Either the saves were changed or dropped, so use the contents
+      // of the file
+      Self.LOG.info("[Save] Dropping \(file!) from memcache")
+      self.memfiles.removeValue(forKey: file!)
+      self.rebuildTree()
+    }
   }
 
   private func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
-    let file = note.params.textDocument.uri.fileURL?.path
-    // Either the saves were changed or dropped, so use the contents
-    // of the file
-    Self.LOG.info("[Close] Dropping \(file!) from memcache")
-    self.openFiles.remove(file!)
-    self.memfiles.removeValue(forKey: file!)
-    self.rebuildTree()
+    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+      if sb is FolderSubproject {
+        let file = note.params.textDocument.uri.fileURL?.path
+        if self.openSubprojectFiles.keys.contains(sb.realpath) {
+          var s = self.openSubprojectFiles[sb.realpath]!
+          s.remove(file!)
+        }
+      }
+    } else {
+      let file = note.params.textDocument.uri.fileURL?.path
+      // Either the saves were changed or dropped, so use the contents
+      // of the file
+      Self.LOG.info("[Close] Dropping \(file!) from memcache")
+      self.openFiles.remove(file!)
+      self.memfiles.removeValue(forKey: file!)
+      self.rebuildTree()
+    }
   }
 
   private func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
-    let file = note.params.textDocument.uri.fileURL?.path
-    Self.LOG.info("[Change] Adding \(file!) to memcache")
-    self.memfiles[file!] = note.params.contentChanges[0].text
-    self.rebuildTree()
+    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+      if sb is FolderSubproject {
+        let file = note.params.textDocument.uri.fileURL?.path
+        if self.openSubprojectFiles.keys.contains(sb.realpath) {
+          var s = self.openSubprojectFiles[sb.realpath]!
+          s.remove(file!)
+        }
+      }
+    } else {
+      let file = note.params.textDocument.uri.fileURL?.path
+      Self.LOG.info("[Change] Adding \(file!) to memcache")
+      self.memfiles[file!] = note.params.contentChanges[0].text
+      self.rebuildTree()
+    }
   }
 
   private func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) {
