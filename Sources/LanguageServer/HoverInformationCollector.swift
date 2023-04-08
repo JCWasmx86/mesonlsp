@@ -90,7 +90,7 @@ private func hoverFindIdentifier(
   if content == nil, let t = tree, let f = t.metadata!.findIdentifierAt(file, line, column) {
     if f.types.count == 1 {
       content = f.types[0].toString()
-      if let d = docs.findDocs(id: content!) { content = "\(content!)\n\n" + d + "\n" }
+      if let d = docs.typeDocs[f.types[0].name] { content = "\(content!)\n\n" + d + "\n" }
       requery = false
     } else if !f.types.isEmpty {
       content = f.types.map { $0.toString() }.joined(separator: "|")
