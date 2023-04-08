@@ -27,7 +27,8 @@ public final class TypeNamespace {
       "windows_module": WindowsModule(), "cuda_module": CudaModule(),
       "icestorm_module": IcestormModule(), "qt4_module": Qt4Module(), "qt5_module": Qt5Module(),
       "qt6_module": Qt6Module(), "wayland_module": WaylandModule(), "simd_module": SIMDModule(),
-      "sourceset_module": SourcesetModule(), "sourceset": SourceSet(), "sourcefiles": SourceFiles(),
+      "sourceset_module": SourcesetModule(), "sourceset": SourceSet(),
+      "source_configuration": SourceConfiguration(),
     ]
     let str = self.types["str"]!
     let strL = [str]
@@ -4348,8 +4349,8 @@ public final class TypeNamespace {
         ]
       )
     ]
-    t = self.types["sourcefiles"]!
-    self.vtables["sourcefiles"] = [
+    t = self.types["source_configuration"]!
+    self.vtables["source_configuration"] = [
       Method(
         name: "sources",
         parent: t,
@@ -4426,7 +4427,7 @@ public final class TypeNamespace {
       Method(
         name: "apply",
         parent: t,
-        returnTypes: [self.types["sourcefiles"]!],
+        returnTypes: [self.types["source_configuration"]!],
         args: [
           PositionalArgument(name: "cfg", types: [self.types["cfg_data"]!, Dict(types: strL)]),
           Kwarg(name: "strict", opt: true, types: boolL),

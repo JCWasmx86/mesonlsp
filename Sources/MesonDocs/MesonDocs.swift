@@ -52,6 +52,52 @@ public class MesonDocs {
     "subproject":
       "This object is returned by `subproject()` and is an opaque object representing it.",
     "tgt": "Opaque base object for all Meson targets",
+    "cmake_module":
+      "This module provides helper tools for generating cmake package files. It also supports the usage of CMake based subprojects, similar to the normal Meson subprojects.",
+    "cmake_subproject": "This object is returned by the `cmake_module.subproject()`",
+    "cmake_subprojectoptions":
+      "This object is returned by the `cmake_module.subproject_options()` method and consumed by the `options` kwarg of the `subproject` method.",
+    "cuda_module":
+      "This module provides helper functionality related to the CUDA Toolkit and building code using it.",
+    "dlang_module":
+      "This module provides tools related to the D programming language.\n\nThe module only exposes one function, `generate_dub_file`, used to automatically generate Dub configuration files.",
+    "fs_module": "This module provides functions to inspect the file system.",
+    "gnome_module":
+      "This module provides helper tools for build operations needed when building Gnome/GLib programs.",
+    "hotdoc_module":
+      "This module provides helper functions for generating documentation using hotdoc.",
+    "icestorm_module":
+      "This module provides an experimental method to create FPGA bitstreams using the IceStorm suite of tools.",
+    "i18n_module": "This module provides internationalisation and localisation functionality.",
+    "java_module": "This module provides methods for generating headers for the JNI.",
+    "keyval_module":
+      "This module parses files consisting of a series of `key=value` lines. One use of this module is to load kconfig configurations in Meson projects.",
+    "pkgconfig_module": "This module is a simple generator for pkg-config files.",
+    "python3_module":
+      "This module provides support for dealing with Python 3. This module is deprecated and replaced by the `python` module.",
+    "python_module":
+      "This module provides support for finding and building extensions against python installations, be they python 2 or 3.",
+    "qt4_module":
+      "This module provides support for Qt4's moc, uic and rcc tools. It is used identically to the Qt 5 module.",
+    "qt5_module":
+      "The Qt5 module provides tools to automatically deal with the various tools and steps required for Qt.",
+    "qt6_module":
+      "The Qt6 module provides tools to automatically deal with the various tools and steps required for Qt.",
+    "rust_module":
+      "The rust module provides helper to integrate rust code into Meson. The goal is to make using rust in Meson more pleasant, while still remaining mesonic, this means that it attempts to make Rust work more like Meson, rather than Meson work more like rust.",
+    "simd_module":
+      "This module provides helper functionality to build code with SIMD instructions. Available since 0.42.0.",
+    "sourceset_module":
+      "This module provides support for building many targets against a single set of files; the choice of which files to include in each target depends on the contents of a dictionary or a `configuration_data` object.",
+    "sourceset":
+      "The `source_set` object provides methods to add files to a source set and to query it. The source set becomes immutable after any method but `add` is called.",
+    "source_configuration":
+      "The `source_configuration` object provides methods to query the result of an `apply` operation on a source set.",
+    "windows_module": "This module provides functionality used to build applications for Windows.",
+    "wayland_module":
+      "This module provides helper functions to find wayland protocol xmls and to generate .c and .h files using wayland-scanner",
+    "python_installation":
+      "The python_installation object is an external_program, with several added methods.",
   ]
 
   public init() {
