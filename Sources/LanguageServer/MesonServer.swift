@@ -171,9 +171,6 @@ public final class MesonServer: LanguageServer {
         if parts.count < 3 { return nil }
         let name = parts[1]
         if name == "packagefiles" || name == "packagecache" { return nil }
-        Self.LOG.info("subprojects/\(name)/")
-        let l = s.subprojects.map { $0.realpath }
-        Self.LOG.info("\(l)")
         for sp in s.subprojects
         where sp.realpath.hasPrefix("subprojects\(Path.separator)\(name)\(Path.separator)") {
           return sp
@@ -623,6 +620,7 @@ public final class MesonServer: LanguageServer {
     if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
+        Self.LOG.info("[Open] \(file!) in subproject \(sb.realpath)")
         if !self.openSubprojectFiles.keys.contains(sb.realpath) {
           self.openSubprojectFiles[sb.realpath] = []
         }
@@ -638,7 +636,10 @@ public final class MesonServer: LanguageServer {
 
   private func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
     if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
-      if sb is FolderSubproject {}
+      if sb is FolderSubproject {
+        let file = note.params.textDocument.uri.fileURL?.path
+        Self.LOG.info("[Save] \(file!) in subproject \(sb.realpath)")
+      }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
       // Either the saves were changed or dropped, so use the contents
@@ -653,6 +654,7 @@ public final class MesonServer: LanguageServer {
     if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
+        Self.LOG.info("[Close] \(file!) in subproject \(sb.realpath)")
         if self.openSubprojectFiles.keys.contains(sb.realpath) {
           var s = self.openSubprojectFiles[sb.realpath]!
           s.remove(file!)
@@ -673,6 +675,7 @@ public final class MesonServer: LanguageServer {
     if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
+        Self.LOG.info("[Change] \(file!) in subproject \(sb.realpath)")
         if self.openSubprojectFiles.keys.contains(sb.realpath) {
           var s = self.openSubprojectFiles[sb.realpath]!
           s.remove(file!)
