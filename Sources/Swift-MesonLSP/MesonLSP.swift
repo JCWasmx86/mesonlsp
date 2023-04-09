@@ -39,13 +39,6 @@ import Wrap
   }
 
   private func parseNTimes() {
-    #if !os(Windows)
-      let console = Terminal()
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = .debug
-        return logger
-      }
-    #endif
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
     var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
@@ -58,13 +51,6 @@ import Wrap
   }
 
   private func parseEachProject() {
-    #if !os(Windows)
-      let console = Terminal()
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = self.test ? .trace : .debug
-        return logger
-      }
-    #endif
     let logger = Logger(label: "Swift-MesonLSP::MesonLSP")
     let ns = TypeNamespace()
     if self.test {
@@ -131,13 +117,6 @@ import Wrap
   }
 
   private func parseWraps() {
-    #if !os(Windows)
-      let console = Terminal()
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = .debug
-        return logger
-      }
-    #endif
     let logger = Logger(label: "MesonLSP::parseWraps")
     var nErrors = 0
     logger.info("Packagefiles at: \(self.wrapPackageFiles)")
@@ -159,13 +138,6 @@ import Wrap
   }
 
   func createSubproject() {
-    #if !os(Windows)
-      let console = Terminal()
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = .debug
-        return logger
-      }
-    #endif
     do { _ = try SubprojectState(rootDir: Path(self.path).absolute().description) } catch {
 
     }
@@ -175,6 +147,14 @@ import Wrap
     Backtrace.install()
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
+    #if !os(Windows)
+      let console = Terminal()
+      let lsp = self.lsp
+      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+        logger.logLevel = lsp ? .info : .debug
+        return logger
+      }
+    #endif
     if subproject {
       self.createSubproject()
       return
@@ -191,13 +171,6 @@ import Wrap
       self.doBenchmark()
       return
     }
-    #if !os(Windows)
-      let console = Terminal()
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = .info
-        return logger
-      }
-    #endif
     let realStdout = dup(STDOUT_FILENO)
     if realStdout == -1 { fatalError("failed to dup stdout: \(strerror(errno)!)") }
     if dup2(STDERR_FILENO, STDOUT_FILENO) == -1 {
