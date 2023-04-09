@@ -11,8 +11,6 @@ import Wrap
 
 #if !os(Windows)
   import Atomics
-#endif
-#if os(Linux)
   import Swifter
 #endif
 
@@ -29,7 +27,7 @@ public final class MesonServer: LanguageServer {
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
   var task: Task<(), Error>?
-  #if os(Linux)
+  #if !os(Windows)
     var server: HttpServer
   #endif
   var docs: MesonDocs = MesonDocs()
@@ -53,7 +51,7 @@ public final class MesonServer: LanguageServer {
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
     self.ns = TypeNamespace()
-    #if os(Linux)
+    #if !os(Windows)
       self.server = HttpServer()
       for i in Self.MIN_PORT...Self.MAX_PORT {
         do {
@@ -795,7 +793,7 @@ public final class MesonServer: LanguageServer {
 
   private func shutdown(_ request: Request<ShutdownRequest>) {
     self.prepareForExit()
-    #if os(Linux)
+    #if !os(Windows)
       self.server.stop()
     #endif
     request.reply(VoidResponse())
