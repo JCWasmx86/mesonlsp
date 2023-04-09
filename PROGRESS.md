@@ -80,6 +80,8 @@
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
 - [ ] Switch from atomics to Task.isCancelled for cancellation of parsing
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
+- [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
+- [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
