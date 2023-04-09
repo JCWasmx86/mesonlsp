@@ -69,6 +69,7 @@
 - [x] Add swiftlint to CI
 - [x] Add swift-format to CI
 - [x] Add MacOS to CI
+- [x] Switch from atomics to Task.isCancelled for cancellation of parsing
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
@@ -78,7 +79,6 @@
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Document the language server
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
-- [ ] Switch from atomics to Task.isCancelled for cancellation of parsing
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
