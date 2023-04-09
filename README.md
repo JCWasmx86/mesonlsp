@@ -178,6 +178,7 @@ In this example, it took around half-second to parse the entire mesa meson files
 - [swift-crypto](https://github.com/apple/swift-crypto) - Open-source implementation of a substantial portion of the API of Apple CryptoKit suitable for use on Linux platforms.
 - [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
 - [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
+- [swift-backtrace](https://github.com/swift-server/swift-backtrace) - Backtraces for Swift on Linux and Windows 
 - [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
 - [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
 
