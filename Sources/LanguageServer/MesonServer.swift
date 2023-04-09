@@ -462,10 +462,11 @@ public final class MesonServer: LanguageServer {
     findDefinition(self.findTree(req.params.textDocument.uri), req, self.mapper, Self.LOG)
   }
 
-  private func clearDiagnostics() {
-    if self.tree != nil && self.tree!.metadata != nil {
-      for k in self.tree!.metadata!.diagnostics.keys
-      where self.tree!.metadata!.diagnostics[k] != nil {
+  private func clearDiagnostics() { self.clearDiagnosticsForTree(tree: self.tree) }
+
+  private func clearDiagnosticsForTree(tree: MesonTree?) {
+    if tree != nil && tree!.metadata != nil {
+      for k in tree!.metadata!.diagnostics.keys where tree!.metadata!.diagnostics[k] != nil {
         let arr: [Diagnostic] = []
         self.client.send(
           PublishDiagnosticsNotification(
@@ -473,7 +474,7 @@ public final class MesonServer: LanguageServer {
             diagnostics: arr
           )
         )
-        self.tree!.metadata!.diagnostics.removeValue(forKey: k)
+        tree!.metadata!.diagnostics.removeValue(forKey: k)
       }
     }
   }
@@ -578,25 +579,16 @@ public final class MesonServer: LanguageServer {
       #endif
       if oldValue != newValue {
         Self.LOG.info("Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))")
-        if let md = tmptree.metadata {
-          for k in md.diagnostics.keys where md.diagnostics[k] != nil {
-            let arr: [Diagnostic] = []
-            self.client.send(
-              PublishDiagnosticsNotification(
-                uri: DocumentURI(URL(fileURLWithPath: k)),
-                diagnostics: arr
-              )
-            )
-            md.diagnostics.removeValue(forKey: k)
-          }
-        }
+        self.clearDiagnosticsForTree(tree: tmptree)
         return
       }
       self.tree = tmptree
     }
   }
 
-  private func sendNewDiagnostics(_ tmptree: MesonTree) {
+  private func sendNewDiagnostics(_ tmptree: MesonTree?) {
+    guard let tmptree = tmptree else { return }
+    if tmptree.metadata == nil { return }
     for k in tmptree.metadata!.diagnostics.keys where tmptree.metadata!.diagnostics[k] != nil {
       var arr: [Diagnostic] = []
       let diags = tmptree.metadata!.diagnostics[k]!
@@ -630,16 +622,20 @@ public final class MesonServer: LanguageServer {
       var cache = self.astCaches[fsp.realpath]!
       cache.removeAll()
       tasks[fsp.realpath] = Task {
-        var astCacheTemp: [String: Node] = [:]
         // It should be cached theoretically, but
         // the caching seems to go wrong.
+        self.clearDiagnosticsForTree(tree: fsp.tree)
+        if Task.isCancelled { return }
         Self.LOG.info("Starting task")
+        var astCacheTemp: [String: Node] = [:]
         fsp.parse(
           ns,
           dontCache: self.openSubprojectFiles[fsp.realpath]!,
           cache: &astCacheTemp,
           memfiles: self.memfiles
         )
+        if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
+        if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
         Self.LOG.info("Task ended \(Task.isCancelled)")
       }
     } else {
@@ -768,6 +764,7 @@ public final class MesonServer: LanguageServer {
     for sp in self.subprojects!.subprojects {
       var cache: [String: Node] = [:]
       sp.parse(self.ns, dontCache: [], cache: &cache, memfiles: self.memfiles)
+      self.sendNewDiagnostics(sp.tree)
       self.astCaches[sp.realpath] = cache
     }
     self.mapper.subprojects = self.subprojects!
