@@ -10,7 +10,6 @@ import Timing
 import Wrap
 
 #if !os(Windows)
-  import Atomics
   import Swifter
 #endif
 
@@ -27,6 +26,7 @@ public final class MesonServer: LanguageServer {
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
   var task: Task<(), Error>?
+  var parseTask: Task<(), Error>?
   #if !os(Windows)
     var server: HttpServer
   #endif
@@ -36,14 +36,6 @@ public final class MesonServer: LanguageServer {
   var astCache: [String: Node] = [:]
   var astCaches: [String: [String: Node]] = [:]
   var tasks: [String: Task<(), Error>] = [:]
-  #if !os(Windows)
-    let lastAskedForRebuild = ManagedAtomic<UInt64>(0)
-  #else
-    // Windows will be a bit buggy, but as long as it works
-    // But in the next swift-atomics release, windows will probably
-    // be supported
-    var lastAskedForRebuild = 0
-  #endif
   let interval = DispatchTimeInterval.seconds(60)
   var subprojects: SubprojectState?
   var mapper: FileMapper = FileMapper()
@@ -102,6 +94,7 @@ public final class MesonServer: LanguageServer {
 
   public func prepareForExit() {
     if let t = self.task { t.cancel() }
+    if let t = self.parseTask { t.cancel() }
     self.tasks.values.forEach { $0.cancel() }
     Self.LOG.warning("Killing \(Wrap.PROCESSES.count) processes")
     Wrap.CLEANUP_HANDLER()
@@ -482,14 +475,8 @@ public final class MesonServer: LanguageServer {
   }
 
   private func rebuildTree() {
-    #if !os(Windows)
-      let oldValue = self.lastAskedForRebuild.load(ordering: .acquiring) + 1
-      self.lastAskedForRebuild.store(oldValue, ordering: .sequentiallyConsistent)
-    #else
-      let oldValue = self.lastAskedForRebuild + 1
-      self.lastAskedForRebuild += 1
-    #endif
-    queue.async {
+    if self.parseTask != nil { self.parseTask!.cancel() }
+    self.parseTask = Task {
       let beginRebuilding = clock()
       self.clearDiagnostics()
       let endClearing = clock()
@@ -498,15 +485,8 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endClearing)
       )
-      #if !os(Windows)
-        var newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
-      #else
-        var newValue = self.lastAskedForRebuild
-      #endif
-      if oldValue != newValue {
-        Self.LOG.info(
-          "Cancelling parsing - After clearing diagnostics (\(oldValue) vs \(newValue))"
-        )
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling parsing - After clearing diagnostics")
         return
       }
       let tmptree = MesonTree(
@@ -522,13 +502,8 @@ public final class MesonServer: LanguageServer {
         begin: Int(endClearing),
         end: Int(endParsingEntireTree)
       )
-      #if !os(Windows)
-        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
-      #else
-        newValue = self.lastAskedForRebuild
-      #endif
-      if oldValue != newValue {
-        Self.LOG.info("Cancelling build - After building tree (\(oldValue) vs \(newValue))")
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling build - After building tree")
         return
       }
       tmptree.analyzeTypes(
@@ -538,13 +513,8 @@ public final class MesonServer: LanguageServer {
         memfiles: self.memfiles,
         subprojectState: self.subprojects
       )
-      #if !os(Windows)
-        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
-      #else
-        newValue = self.lastAskedForRebuild
-      #endif
-      if oldValue != newValue {
-        Self.LOG.info("Cancelling build - After analyzing types (\(oldValue) vs \(newValue))")
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling build - After analyzing types")
         return
       }
       let endAnalyzingTypes = clock()
@@ -574,13 +544,8 @@ public final class MesonServer: LanguageServer {
         begin: Int(beginRebuilding),
         end: Int(endSendingDiagnostics)
       )
-      #if !os(Windows)
-        newValue = self.lastAskedForRebuild.load(ordering: .acquiring)
-      #else
-        newValue = self.lastAskedForRebuild
-      #endif
-      if oldValue != newValue {
-        Self.LOG.info("Cancelling build - After sending diagnostics (\(oldValue) vs \(newValue))")
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling build - After sending diagnostics")
         self.clearDiagnosticsForTree(tree: tmptree)
         return
       }
