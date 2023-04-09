@@ -70,14 +70,17 @@ public final class MesonServer: LanguageServer {
     #else
       super.init(client: client)
     #endif
-    self.queue.asyncAfter(deadline: .now() + interval) {
-      self.sendStats()
-      self.scheduleNextTask()
-    }
+
+    #if os(Linux)
+      self.queue.asyncAfter(deadline: .now() + interval) {
+        self.sendStats()
+        self.scheduleNextTask()
+      }
+    #endif
   }
 
-  private func sendStats() {
-    #if os(Linux)
+  #if os(Linux)
+    private func sendStats() {
       Self.LOG.info("Collecting stats")
       let stats = collectStats()
       let heap = stats[0]
@@ -87,15 +90,15 @@ public final class MesonServer: LanguageServer {
       let stackS = formatWithUnits(stack)
       let totalS = formatWithUnits(total)
       Self.LOG.info("Stack: \(stackS) Heap: \(heapS) Total: \(totalS)")
-    #endif
-  }
-
-  private func scheduleNextTask() {
-    self.queue.asyncAfter(deadline: .now() + interval) {
-      self.sendStats()
-      self.scheduleNextTask()
     }
-  }
+
+    private func scheduleNextTask() {
+      self.queue.asyncAfter(deadline: .now() + interval) {
+        self.sendStats()
+        self.scheduleNextTask()
+      }
+    }
+  #endif
 
   public func prepareForExit() {
     if let t = self.task { t.cancel() }
