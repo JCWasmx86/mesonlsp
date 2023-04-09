@@ -1,4 +1,5 @@
 import ArgumentParser
+import Backtrace
 #if !os(Windows)
   import ConsoleKit
 #endif
@@ -171,6 +172,7 @@ import Wrap
   }
 
   public mutating func run() {
+    Backtrace.install()
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
     if subproject {

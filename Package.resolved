@@ -82,6 +82,15 @@
       }
     },
     {
+      "identity" : "swift-backtrace",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-server/swift-backtrace.git",
+      "state" : {
+        "revision" : "f25620d5d05e2f1ba27154b40cafea2b67566956",
+        "version" : "1.3.3"
+      }
+    },
+    {
       "identity" : "swift-certificates",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-certificates.git",

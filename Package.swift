@@ -24,9 +24,10 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.1"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
+    .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
-    .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
+    .package(url: "https://github.com/swift-server/swift-backtrace.git", from: "1.3.3"),
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.6.0"),
   ],
   targets: [
@@ -87,6 +88,7 @@ let package = Package(
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
+        .product(name: "Backtrace", package: "swift-backtrace"),
       ],
       swiftSettings: [.unsafeFlags(["-parse-as-library"])]
     ), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
