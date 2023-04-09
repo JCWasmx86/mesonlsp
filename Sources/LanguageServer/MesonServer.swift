@@ -102,6 +102,7 @@ public final class MesonServer: LanguageServer {
 
   public func prepareForExit() {
     if let t = self.task { t.cancel() }
+    self.tasks.values.forEach { $0.cancel() }
     Self.LOG.warning("Killing \(Wrap.PROCESSES.count) processes")
     Wrap.CLEANUP_HANDLER()
   }
