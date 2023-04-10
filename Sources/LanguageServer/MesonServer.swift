@@ -727,6 +727,9 @@ public final class MesonServer: LanguageServer {
       Self.LOG.error("\(error)")
       return
     }
+    for err in self.subprojects!.errors {
+      Self.LOG.error("Got error during setting up subprojects: \(err)")
+    }
     Self.LOG.info("Setup all directories for subprojects")
     for sp in self.subprojects!.subprojects {
       var cache: [String: Node] = [:]

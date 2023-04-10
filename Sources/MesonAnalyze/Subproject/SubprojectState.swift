@@ -7,7 +7,7 @@ public class SubprojectState {
   static let LOG: Logger = Logger(label: "Subproject::SubprojectState")
 
   public private(set) var subprojects: [Subproject] = []
-  private var errors: [Error] = []
+  public private(set) var errors: [Error] = []
 
   // swiftlint:disable cyclomatic_complexity
   public init(rootDir: String) throws {
