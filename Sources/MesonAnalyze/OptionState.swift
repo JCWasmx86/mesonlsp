@@ -94,23 +94,43 @@ public class OptionState {
     self.append(
       option: BoolOption("vsenv", "Activate Visual Studio environment (Default: `false`)")
     )
-    self.append(option: BoolOption("b_asneeded", nil))
-    self.append(option: BoolOption("b_bitcode", nil))
-    self.append(option: ComboOption("b_colorout", nil))
-    self.append(option: BoolOption("b_coverage", nil))
-    self.append(option: BoolOption("b_lundef", nil))
-    self.append(option: BoolOption("b_lto", nil))
-    self.append(option: IntOption("b_lto_threads", nil))
-    self.append(option: ComboOption("b_lto_mode", nil))
-    self.append(option: BoolOption("b_thinlto_cache", nil))
-    self.append(option: StringOption("b_thinlto_cache_dir", nil))
-    self.append(option: ComboOption("b_ndebug", nil))
-    self.append(option: BoolOption("b_pch", nil))
-    self.append(option: BoolOption("b_pgo", nil))
-    self.append(option: ComboOption("b_sanitize", nil))
-    self.append(option: BoolOption("b_staticpic", nil))
-    self.append(option: BoolOption("b_pie", nil))
-    self.append(option: ComboOption("b_vscrt", nil))
+    self.append(
+      option: BoolOption("b_asneeded", "Use -Wl,--as-needed when linking (Default: `true`)")
+    )
+    self.append(option: BoolOption("b_bitcode", "Embed Apple bitcode (Default: `false`)"))
+    self.append(option: ComboOption("b_colorout", "Use colored output (Default: `always`)"))
+    self.append(option: BoolOption("b_coverage", "Enable coverage tracking (Default: `false`)"))
+    self.append(
+      option: BoolOption("b_lundef", "Don't allow undefined symbols when linking (Default: `true`)")
+    )
+    self.append(option: BoolOption("b_lto", "Use link time optimization (Default: `false`)"))
+    self.append(option: IntOption("b_lto_threads", "Use multiple threads for lto (Default: `0`)"))
+    self.append(option: ComboOption("b_lto_mode", "Select between lto modes (Default: `default`)"))
+    self.append(
+      option: BoolOption(
+        "b_thinlto_cache",
+        "Enable LLVM's ThinLTO cache for faster incremental builds (Default: `false`)"
+      )
+    )
+    self.append(
+      option: StringOption("b_thinlto_cache_dir", "Specify where to store ThinLTO cache objects")
+    )
+    self.append(option: ComboOption("b_ndebug", "Disabler asserts (Default: `false`)"))
+    self.append(option: BoolOption("b_pch", "Use precompiled headers (Default: `true`)"))
+    self.append(option: BoolOption("b_pgo", "Use profile guided optimization (Default: `off`)"))
+    self.append(option: ComboOption("b_sanitize", "Code sanitizer to use"))
+    self.append(
+      option: BoolOption(
+        "b_staticpic",
+        "Build static libraries as position independent (Default: `true`)"
+      )
+    )
+    self.append(
+      option: BoolOption("b_pie", "Build position independent executables (Default: `false`)")
+    )
+    self.append(
+      option: ComboOption("b_vscrt", "VS runtime library to use (Default: `from_buildtype`)")
+    )
     self.append(option: ArrayOption("c_args", nil))
     self.append(option: ArrayOption("c_link_args", nil))
     self.append(option: ComboOption("c_std", nil))
