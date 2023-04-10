@@ -23,4 +23,6 @@
 	curl https://raw.githubusercontent.com/ChimeHQ/SwiftTreeSitter/main/LICENSE
 	echo "tree-sitter-meson (https://github.com/bearcove/tree-sitter-meson)"
 	echo "Custom changes: https://github.com/bearcove/tree-sitter-meson/compare/main...JCWasmx86:tree-sitter-meson:main"
+	echo "The windows builds contains DLLs copied from the swift project."
+	curl https://raw.githubusercontent.com/apple/swift/main/LICENSE.txt
 } >"3rdparty.txt"
