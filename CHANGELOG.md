@@ -10,6 +10,7 @@
 - Detect subprojects that weren't setup fully and reattempt
 - Include license and 3rd party libraries in release artifacts
 - Show option documentation on hover
+- Show warning for duplicate keys in dictionary literals
 # 1.6 (Apr 08 2023)
 - Don't depend on unzip/tar/xz/bzip2/gunzip for extracting wraps and their patches
 - Build binaries for Ubuntu 18.04 and 20.04 in CI
