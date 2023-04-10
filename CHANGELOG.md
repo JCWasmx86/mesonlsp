@@ -7,6 +7,7 @@
 - Print backtrace on signal using swift-backtrace
 - Send diagnostics for subprojects to the editor
 - Drop swift-atomics dependency
+- Detect subprojects that weren't setup fully and reattempt
 # 1.6 (Apr 08 2023)
 - Don't depend on unzip/tar/xz/bzip2/gunzip for extracting wraps and their patches
 - Build binaries for Ubuntu 18.04 and 20.04 in CI
