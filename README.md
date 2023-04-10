@@ -38,20 +38,12 @@ I made a matrix channel: [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:ma
 in case you want to ask questions, get support or contribute.
 
 ## Installation
-### Dependencies
-#### Fedora
-- Language Server: `sudo dnf install swift-lang libstdc++-static`
-- GNOME-Builder plugin: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
-
-The language server is packaged on [COPR](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/).
-#### Arch Linux
-The language server is on [AUR](https://aur.archlinux.org/packages/swift-mesonlsp)
-#### Ubuntu
-TBD: For the moment, just follow what the docker files do:
-- [Language Server](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/Dockerfile.ubuntu)
-- [GNOME-Builder plugin](https://github.com/JCWasmx86/GNOME-Builder-Plugins/blob/main/Dockerfile.ubuntu)
 ### Install the language server
-You can either [download](https://github.com/JCWasmx86/Swift-MesonLSP/releases/tag/v1.4) the file from the releases or build it yourself.
+#### Easy way
+- For Fedora, a COPR is provided: https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/
+- For Arch, you can use the repo from [AUR](https://aur.archlinux.org/packages/swift-mesonlsp)
+- For Ubuntu 22.04, MacOS 12 and Windows, you can download binaries from the release section: https://github.com/JCWasmx86/Swift-MesonLSP/releases/tag/v1.6
+#### Compile from source
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
@@ -61,8 +53,12 @@ sudo cp .build/release/Swift-MesonLSP /usr/local/bin
 Or you can use podman (Maybe even docker, but only podman is tested):
 ```
 DOCKER_BUILDKIT=1 podman build --file Dockerfile --output out --no-cache .
-# If you want to use Ubuntu as docker image
+# If you want to use Ubuntu 22.04 as docker image
 DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu --output out --no-cache .
+# If you want to use Ubuntu 18.04 as docker image
+DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu1804 --output out --no-cache .
+# If you want to use Ubuntu 20.04 as docker image
+DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu2004 --output out --no-cache .
 ```
 This will place a file "Fedora37.zip" (Or Ubuntu22.04.zip) in the directory `out`. It contains
 two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
@@ -71,7 +67,10 @@ A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
 to `Swift-MesonLSP` and copy it to the right destination.
 
 ### Connect with your editor
+#### VSCode
+Install this fork of vscode-meson: https://github.com/JCWasmx86/vscode-meson
 #### GNOME Builder Nightly
+- Dependencies for Fedora: `sudo dnf install git vala meson gcc libgee-devel json-glib-devel gtk4-devel gtksourceview5-devel libadwaita-devel libpeas-devel template-glib-devel g++ libsoup3-devel`
 ```
 git clone https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins
@@ -125,12 +124,6 @@ Add this JSON to `:CocConfig`:
     }
 }
 ```
-#### VSCode
-Install this fork of vscode-meson: https://github.com/JCWasmx86/vscode-meson
-
-### Notes
-On Fedora, you can use the `install.sh` script. It will automatically install all dependencies. (It will ask you for
-your root password using `sudo`, but don't execute the script using `sudo`)
 
 ## Want to contribute?
 Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
