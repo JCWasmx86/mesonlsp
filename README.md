@@ -32,10 +32,6 @@ The first version, written in Vala, had some code maintenance problems because b
 I had the choice between untangling that mess or rewriting it as cleanly as possible.
 I have chosen the latter because I wanted to learn Swift.
 
-## Contact
-I made a matrix channel: [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org) Feel free to join
-in case you want to ask questions, get support or contribute.
-
 ## Installation
 ### Install the language server
 #### Easy way
@@ -187,7 +183,6 @@ In this example, it took around half-second to parse the entire mesa meson files
   - [QEMU](https://gitlab.com/qemu-project/qemu)
   - [rustc-demangle](https://github.com/JCWasmx86/rustc-demangle)
   - [Systemd](https://github.com/systemd/systemd)
-- Somewhat working:
   - [GStreamer](https://gitlab.freedesktop.org/gstreamer/gstreamer)
 - Somewhat flaky to unusable
   - [HeleNOS](http://www.helenos.org/)
