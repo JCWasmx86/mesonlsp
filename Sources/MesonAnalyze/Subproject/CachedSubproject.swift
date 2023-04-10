@@ -16,7 +16,7 @@ public class CachedSubproject: Subproject {
     memfiles: [String: String]
   ) {
     if let children = try? Path(self.cachedPath).children(),
-      let firstDirectory = children.first { $0.isDirectory }
+      let firstDirectory = children.first(where: { $0.isDirectory })
     {
       let t = MesonTree(
         file: self.cachedPath + Path.separator + (firstDirectory.lastComponent)
