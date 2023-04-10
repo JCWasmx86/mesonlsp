@@ -59,7 +59,7 @@ public class GitWrap: VcsWrap {
           "git", "-C", fullPath, "-c", "advice.detachedHead=false", "checkout", rev, "--",
         ])
       } else {
-        if isShallow {
+        if !isShallow {
           try self.executeCommand(["git", "clone", urlAsString, fullPath])
           if rev.lowercased() != "head" {
             do {
