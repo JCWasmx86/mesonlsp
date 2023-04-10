@@ -34,6 +34,7 @@ public class SubprojectState {
         do {
           let w = try wfp.parse()
           let cachedPath = Path(setupCache.description + Path.separator + w.wrapHash)
+          let checkFile = Path(cachedPath.description + "\(Path.separator)\(w.wrapHash).fullysetup")
           if !cachedPath.exists {
             Self.LOG.info("Unable to find cached setup wrap for hash \(w.wrapHash)")
             self.subprojects.append(
@@ -45,15 +46,39 @@ public class SubprojectState {
                 destDir: cachedPath.description
               )
             )
-          } else {
-            Self.LOG.info("Found cached wrap for hash \(w.wrapHash)")
-            self.subprojects.append(
-              try CachedSubproject(
-                name: child.lastComponentWithoutExtension,
-                parent: nil,
-                path: cachedPath.description
-              )
+            FileManager.default.createFile(
+              atPath: checkFile.description,
+              contents: Data(capacity: 1)
             )
+          } else {
+            if checkFile.exists {
+              Self.LOG.info("Found cached wrap for hash \(w.wrapHash)")
+              self.subprojects.append(
+                try CachedSubproject(
+                  name: child.lastComponentWithoutExtension,
+                  parent: nil,
+                  path: cachedPath.description
+                )
+              )
+            } else {
+              Self.LOG.warning(
+                "Wrap for hash \(w.wrapHash) does not seem to be setup fully. Reattempting"
+              )
+              try FileManager.default.removeItem(atPath: cachedPath.absolute().description)
+              self.subprojects.append(
+                try WrapBasedSubproject(
+                  wrapName: child.lastComponentWithoutExtension,
+                  wrap: w,
+                  packagefiles: packagefiles,
+                  parent: nil,
+                  destDir: cachedPath.description
+                )
+              )
+              FileManager.default.createFile(
+                atPath: checkFile.description,
+                contents: Data(capacity: 1)
+              )
+            }
           }
         } catch let error { self.errors.append(error) }
       } else {
