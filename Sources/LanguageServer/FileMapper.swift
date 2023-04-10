@@ -18,10 +18,12 @@ internal class FileMapper {
         if s is FolderSubproject { continue }
         var pp = ""
         if let csp = s as? CachedSubproject {
-          if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
+          if let children = try? Path(csp.cachedPath).children(),
+            let firstDirectory = children.first(where: { $0.isDirectory })
+          {
             pp =
               Path(
-                csp.cachedPath + "\(Path.separator)\(children[0].lastComponent)\(Path.separator)"
+                csp.cachedPath + "\(Path.separator)\(firstDirectory.lastComponent)\(Path.separator)"
               ).absolute().normalize().description
           } else {
             continue
@@ -67,11 +69,13 @@ internal class FileMapper {
             let joined = parts[2...].joined(separator: Path.separator)
             let p1: String
             if let csp = sp as? CachedSubproject {
-              if let children = try? Path(csp.cachedPath).children(), !children.isEmpty {
+              if let children = try? Path(csp.cachedPath).children(),
+                let firstDirectory = children.first(where: { $0.isDirectory })
+              {
                 p1 =
                   Path(
                     csp.cachedPath
-                      + "\(Path.separator)\(children[0].lastComponent)\(Path.separator)\(joined)"
+                      + "\(Path.separator)\(firstDirectory.lastComponent)\(Path.separator)\(joined)"
                   ).absolute().normalize().description
               } else {
                 continue

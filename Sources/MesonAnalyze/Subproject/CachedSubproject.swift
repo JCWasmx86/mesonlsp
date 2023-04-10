@@ -15,9 +15,11 @@ public class CachedSubproject: Subproject {
     cache: inout [String: MesonAST.Node],
     memfiles: [String: String]
   ) {
-    if let children = try? Path(self.cachedPath).children(), !children.isEmpty {
+    if let children = try? Path(self.cachedPath).children(),
+      let firstDirectory = children.first { $0.isDirectory }
+    {
       let t = MesonTree(
-        file: self.cachedPath + Path.separator + (children[0].lastComponent)
+        file: self.cachedPath + Path.separator + (firstDirectory.lastComponent)
           + "\(Path.separator)meson.build",
         ns: ns,
         dontCache: dontCache,
