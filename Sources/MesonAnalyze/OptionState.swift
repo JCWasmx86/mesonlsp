@@ -131,26 +131,60 @@ public class OptionState {
     self.append(
       option: ComboOption("b_vscrt", "VS runtime library to use (Default: `from_buildtype`)")
     )
-    self.append(option: ArrayOption("c_args", nil))
-    self.append(option: ArrayOption("c_link_args", nil))
-    self.append(option: ComboOption("c_std", nil))
-    self.append(option: StringOption("c_winlibs", nil))
-    self.append(option: IntOption("c_thread_count", nil))
-    self.append(option: ArrayOption("cpp_args", nil))
-    self.append(option: ArrayOption("cpp_link_args", nil))
-    self.append(option: ComboOption("cpp_std", nil))
-    self.append(option: BoolOption("cpp_debugstl", nil))
-    self.append(option: ComboOption("cpp_eh", nil))
-    self.append(option: BoolOption("cpp_rtti", nil))
-    self.append(option: IntOption("cpp_thread_count", nil))
-    self.append(option: StringOption("cpp_winlibs", nil))
-    self.append(option: ComboOption("fortran_std", nil))
-    self.append(option: StringOption("cuda_ccbindir", nil))
-    self.append(option: ArrayOption("objc_args", nil))
-    self.append(option: ComboOption("python.install_env", nil))
-    self.append(option: StringOption("python.platlibdir", nil))
-    self.append(option: StringOption("python.purelibdir", nil))
-    self.append(option: BoolOption("pkgconfig.relocatable", nil))
+    self.append(option: ArrayOption("c_args", "C compile arguments to use"))
+    self.append(option: ArrayOption("c_link_args", "C link arguments to use"))
+    self.append(option: ComboOption("c_std", "C language standard to use"))
+    self.append(option: StringOption("c_winlibs", "Standard Windows libs to link against"))
+    self.append(
+      option: IntOption(
+        "c_thread_count",
+        "Number of threads to use with emcc when using threads (Default: `4`)"
+      )
+    )
+    self.append(option: ArrayOption("cpp_args", "C++ compile arguments to use"))
+    self.append(option: ArrayOption("cpp_link_args", "C++ link arguments to use"))
+    self.append(option: ComboOption("cpp_std", "C++ language standard to use"))
+    self.append(option: BoolOption("cpp_debugstl", "C++ STL debug mode (Default: `false`)"))
+    self.append(option: ComboOption("cpp_eh", "C++ exception handling type (Default: `default`)"))
+    self.append(
+      option: BoolOption("cpp_rtti", "Whether to enable RTTI (Runtime type identification")
+    )
+    self.append(
+      option: IntOption(
+        "cpp_thread_count",
+        "Number of threads to use with emcc when using threads (Default: `4`)"
+      )
+    )
+    self.append(option: StringOption("cpp_winlibs", "Standard Windows libs to link against"))
+    self.append(option: ComboOption("fortran_std", "Fortran language standard to use"))
+    self.append(
+      option: StringOption("cuda_ccbindir", "CUDA non-default toolchain directory to use")
+    )
+    self.append(option: ArrayOption("objc_args", "Objective-C compile arguments to use"))
+    self.append(
+      option: ComboOption(
+        "python.install_env",
+        "Which python environment to install to (Default: `prefix`)"
+      )
+    )
+    self.append(
+      option: StringOption(
+        "python.platlibdir",
+        "Directory for site-specific, platform-specific files"
+      )
+    )
+    self.append(
+      option: StringOption(
+        "python.purelibdir",
+        "Directory for site-specific, non-platform-specific files"
+      )
+    )
+    self.append(
+      option: BoolOption(
+        "pkgconfig.relocatable",
+        "Generate the pkgconfig files as relocatable (Default: `false`)"
+      )
+    )
     for o in options { self.append(option: o) }
   }
 
