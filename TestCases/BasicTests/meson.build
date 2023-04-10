@@ -97,3 +97,8 @@ unused_assignment = 1 # ana:warn: Unused assignment
 unused_assignment2 = 1
 unused_assignment3 = unused_assignment2 # ana:warn: Unused assignment
 is_good_os = build_machine.system() != 'windows1' # ana:warn: Unknown operating system name
+dupdict = {
+  'foo': 'bar',
+  'bar': 'baz',
+  'foo': 'baz', # ana:warn: Duplicate key "foo"
+}

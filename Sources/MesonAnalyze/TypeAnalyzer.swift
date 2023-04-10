@@ -1085,6 +1085,23 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var t: [Type] = []
     for elem in node.values { t += elem.types }
     node.types = [Dict(types: dedup(types: t))]
+    var seenKeys: Set<String> = []
+    for keyV in node.values
+    where keyV is KeyValueItem && ((keyV as! KeyValueItem).key) is StringLiteral {
+      let sl = ((keyV as! KeyValueItem).key) as! StringLiteral
+      if seenKeys.contains(sl.contents()) {
+        self.metadata.registerDiagnostic(
+          node: sl,
+          diag: MesonDiagnostic(
+            sev: .warning,
+            node: sl,
+            message: "Duplicate key \"\(sl.contents())\""
+          )
+        )
+      } else {
+        seenKeys.insert(sl.contents())
+      }
+    }
   }
 
   public func visitKeyValueItem(node: KeyValueItem) {
