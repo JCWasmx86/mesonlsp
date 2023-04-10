@@ -25,4 +25,6 @@
 	echo "Custom changes: https://github.com/bearcove/tree-sitter-meson/compare/main...JCWasmx86:tree-sitter-meson:main"
 	echo "The windows builds contains DLLs copied from the swift project."
 	curl https://raw.githubusercontent.com/apple/swift/main/LICENSE.txt
+	echo "Contains a vendored version of PathKit (https://github.com/kylef/PathKit)"
+	curl https://raw.githubusercontent.com/kylef/PathKit/master/LICENSE
 } >"3rdparty.txt"
