@@ -502,9 +502,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   private func specialFunctionCallHandling(_ node: FunctionExpression, _ fn: Function) {
-    if fn.name == "get_variable" && node.argumentList != nil,
-      let al = node.argumentList as? ArgumentList
-    {
+    guard let al = node.argumentList as? ArgumentList else { return }
+    if fn.name == "get_variable" {
       let args = al.args
       if !args.isEmpty, let sl = args[0] as? StringLiteral {
         let varname = sl.contents()
@@ -523,9 +522,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           "get_variable (Imprecise): ??? = \(self.joinTypes(types: node.types)): Guessed variable names: \(guessedNames)"
         )
       }
-    } else if fn.name == "subdir" && node.argumentList != nil,
-      let al = node.argumentList as? ArgumentList
-    {
+    } else if fn.name == "subdir" {
       if let sl = al.args[0] as? StringLiteral {
         let s = sl.contents()
         self.metadata.registerDiagnostic(
@@ -533,9 +530,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
         )
       }
-    } else if fn.name == "get_option" && node.argumentList != nil,
-      let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
-      let sl = al.args[0] as? StringLiteral, let opts = self.tree.options
+    } else if fn.name == "get_option", !al.args.isEmpty, let sl = al.args[0] as? StringLiteral,
+      let opts = self.tree.options
     {
       self.analyzeOptsCalls(node, sl, opts)
     }
