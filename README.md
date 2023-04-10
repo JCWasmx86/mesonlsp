@@ -13,17 +13,16 @@ A reimplementation of my Meson language server in Swift.
 - A basic set of diagnostics
 - Formatting
 - Document symbols
-- Rudimentary autocompletion
+- Autocompletion
 - Inlay hints
 - Highlighting
+- Automatic subproject/wrap downloads
 
 ## Limitations
 - Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
 - `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSetVariable/meson.build)
-- No wrap/subproject support
 - `subdir` with non-constant subdir name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSubdirs/meson.build)
 - Type deduction is not 100% correct yet
-- Autocompletion is very flaky
 - Type definitions may have minor errors regarding:
   - Is this argument optional?
   - What is the type of the argument?
