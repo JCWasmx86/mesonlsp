@@ -1,4 +1,4 @@
-# 2.0 (XXX XX XXXX)
+# 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found
 - Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols
 - Show type documentation on hover, if identifier has only one type
