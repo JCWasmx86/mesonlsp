@@ -90,8 +90,8 @@
   - [x] Downloading wraps works
   - [x] Setting up wraps works
     - [x] wrap-git
-    - [x] wrap-svn/wrap-hg (Should work theoretically)
-    - [x] wrap-file (Crashes sometimes)
+    - [x] wrap-svn/wrap-hg
+    - [x] wrap-file
       - [x] tar.gz
       - [x] tar.bz2
       - [x] tar.xz
