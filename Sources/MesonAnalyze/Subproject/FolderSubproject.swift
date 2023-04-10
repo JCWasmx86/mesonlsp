@@ -10,7 +10,6 @@ public class FolderSubproject: Subproject {
     memfiles: [String: String]
   ) {
     if Task.isCancelled { return }
-    Self.LOG.info("\n\(cache)")
     let t = MesonTree(
       file: self.realpath + "\(Path.separator)meson.build",
       ns: ns,
