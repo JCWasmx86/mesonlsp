@@ -66,15 +66,23 @@ private func hoverFindCallable(
   _ function: inout Function?,
   _ content: inout String?
 ) {
-  if let t = tree, let m = t.metadata!.findMethodCallAt(file, line, column), m.method != nil {
-    function = m.method!
-    content = m.method!.parent.toString() + "." + m.method!.name
+  if let t = tree, let m = t.metadata!.findMethodCallAt(file, line, column), let method = m.method {
+    function = method
+    content = method.parent.toString() + "." + m.method!.name
   }
   if let t = tree, content == nil, let f = t.metadata!.findFunctionCallAt(file, line, column),
-    f.function != nil
+    let fn = f.function
   {
-    function = f.function!
-    content = f.function!.name
+    if fn.name == "get_option", let al = f.argumentList as? ArgumentList, !al.args.isEmpty,
+      let sl = al.args[0] as? StringLiteral, let opt = t.options,
+      let option = opt.opts[sl.contents()]
+    {
+      function = fn
+      content = "Option: \(option.name)\n\nType: \(option.type)\n\n\(option.description ?? "")"
+    } else {
+      function = fn
+      content = fn.name
+    }
   }
 }
 

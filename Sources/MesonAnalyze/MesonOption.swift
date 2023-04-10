@@ -2,6 +2,7 @@ public class MesonOption {
   public let name: String
   public let description: String?
   public let deprecated: Bool
+  public var type: String { return "<<>>" }
 
   public init(_ name: String, _ description: String?, _ deprecated: Bool = false) {
     self.name = name
@@ -10,26 +11,14 @@ public class MesonOption {
   }
 }
 
-public class StringOption: MesonOption {
+public class StringOption: MesonOption { public override var type: String { return "string" } }
 
-}
+public class IntOption: MesonOption { public override var type: String { return "int" } }
 
-public class IntOption: MesonOption {
+public class BoolOption: MesonOption { public override var type: String { return "boolean" } }
 
-}
+public class ComboOption: MesonOption { public override var type: String { return "combo" } }
 
-public class BoolOption: MesonOption {
+public class ArrayOption: MesonOption { public override var type: String { return "array" } }
 
-}
-
-public class ComboOption: MesonOption {
-
-}
-
-public class ArrayOption: MesonOption {
-
-}
-
-public class FeatureOption: MesonOption {
-
-}
+public class FeatureOption: MesonOption { public override var type: String { return "feature" } }

@@ -18,7 +18,7 @@ public final class MesonTree: Hashable {
   public var subfiles: [MesonTree] = []
   public var scope: Scope?
   var depth: Int
-  var options: OptionState?
+  public private(set) var options: OptionState?
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
   public var multiCallSubfiles: [MultiSubdirCall] = []
