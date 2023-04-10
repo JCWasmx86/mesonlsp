@@ -82,6 +82,7 @@
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
+- [ ] Investigate PGO
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
