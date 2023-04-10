@@ -2,40 +2,98 @@ public class OptionState {
   public var opts: [String: MesonOption] = [:]
 
   init(options: [MesonOption]) {
-    self.append(option: StringOption("prefix", nil))
-    self.append(option: StringOption("bindir", nil))
-    self.append(option: StringOption("datadir", nil))
-    self.append(option: StringOption("includedir", nil))
-    self.append(option: StringOption("infodir", nil))
-    self.append(option: StringOption("libdir", nil))
-    self.append(option: StringOption("licensedir", nil))
-    self.append(option: StringOption("libexecdir", nil))
-    self.append(option: StringOption("localedir", nil))
-    self.append(option: StringOption("localstatedir", nil))
-    self.append(option: StringOption("mandir", nil))
-    self.append(option: StringOption("sbindir", nil))
-    self.append(option: StringOption("sharedstatedir", nil))
-    self.append(option: StringOption("sysconfdir", nil))
-    self.append(option: FeatureOption("auto_features", nil))
-    self.append(option: ComboOption("backend", nil))
-    self.append(option: ComboOption("buildtype", nil))
-    self.append(option: BoolOption("debug", nil))
-    self.append(option: ComboOption("default_library", nil))
-    self.append(option: BoolOption("errorlogs", nil))
-    self.append(option: IntOption("install_umask", nil))
-    self.append(option: ComboOption("layout", nil))
-    self.append(option: ComboOption("optimization", nil))
-    self.append(option: ArrayOption("pkg_config_path", nil))
-    self.append(option: BoolOption("prefer_static", nil))
-    self.append(option: ArrayOption("cmake_prefix_path", nil))
-    self.append(option: BoolOption("stdsplit", nil))
-    self.append(option: BoolOption("strip", nil))
-    self.append(option: ComboOption("unity", nil))
-    self.append(option: IntOption("unity_size", nil))
-    self.append(option: ComboOption("warning_level", nil))
-    self.append(option: BoolOption("werror", nil))
-    self.append(option: ComboOption("wrap_mode", nil))
-    self.append(option: ArrayOption("force_fallback_for", nil))
+    self.append(
+      option: StringOption("prefix", "Installation prefix (`C:\\` or `/usr/local` by default)")
+    )
+    self.append(option: StringOption("bindir", "Executable directory (Default: `bin`)"))
+    self.append(option: StringOption("datadir", "Data file directory (Default: `share`)"))
+    self.append(option: StringOption("includedir", "Header file directory (Default: `include`)"))
+    self.append(option: StringOption("infodir", "Info page directory (Default: `share/info`)"))
+    self.append(option: StringOption("libdir", "Library directory"))
+    self.append(option: StringOption("licensedir", "Licenses directory (Empty by default)"))
+    self.append(
+      option: StringOption("libexecdir", "Library executable directory (Default: `libexec`)")
+    )
+    self.append(
+      option: StringOption("localedir", "Locale data directory (Default: `share/locale`)")
+    )
+    self.append(option: StringOption("localstatedir", "Localstate data directory (Default: `var`)"))
+    self.append(option: StringOption("mandir", "Manual page directory (Default: `share/man`)"))
+    self.append(option: StringOption("sbindir", "System executable directory (Default: `sbin`)"))
+    self.append(
+      option: StringOption(
+        "sharedstatedir",
+        "Architecture-independent data directory (Default: `com`)"
+      )
+    )
+    self.append(option: StringOption("sysconfdir", "Sysconf data directory (Default: `etc`)"))
+    self.append(
+      option: FeatureOption(
+        "auto_features",
+        "Override value of all `auto` features (Default: `auto`)"
+      )
+    )
+    self.append(option: ComboOption("backend", "Backend to use (Default: `ninja`)"))
+    self.append(option: ComboOption("buildtype", "Build type to use (Default: `debug`)"))
+    self.append(
+      option: BoolOption("debug", "Enable debug symbols and other information (Default: `true`)")
+    )
+    self.append(option: ComboOption("default_library", "Default library type (Default: `shared`)"))
+    self.append(
+      option: BoolOption(
+        "errorlogs",
+        "Whether to print the logs from failing tests (Default: `true`)"
+      )
+    )
+    self.append(
+      option: IntOption(
+        "install_umask",
+        "Default umask to apply on permissions of installed files. (Default: `022`)"
+      )
+    )
+    self.append(option: ComboOption("layout", "Build directory layout (Default: `mirror`)"))
+    self.append(option: ComboOption("optimization", "Optimization level (Default: `0`)"))
+    self.append(
+      option: ArrayOption(
+        "pkg_config_path",
+        "Additional paths for pkg-config to search before builtin paths (Default: Empty string)"
+      )
+    )
+    self.append(
+      option: BoolOption(
+        "prefer_static",
+        "Whether to try static linking before shared linking (Default: `false`)"
+      )
+    )
+    self.append(
+      option: ArrayOption(
+        "cmake_prefix_path",
+        "Additional prefixes for cmake to search before builtin paths (Default: Empty array)"
+      )
+    )
+    self.append(
+      option: BoolOption("stdsplit", "Split stdout and stderr in test logs (Default: `true`)")
+    )
+    self.append(option: BoolOption("strip", "Strip targets on install (Default: `false`"))
+    self.append(option: ComboOption("unity", "Unity build (Default: `off`)"))
+    self.append(option: IntOption("unity_size", "Unity file block size (Default: `4`)"))
+    self.append(
+      option: ComboOption(
+        "warning_level",
+        "Set the warning level. From 0 = none to everything = highest (Default: `1`)"
+      )
+    )
+    self.append(option: BoolOption("werror", "Treat warnings as errors (Default: `false`)"))
+    self.append(option: ComboOption("wrap_mode", "Wrap mode to use (Default: `default`)"))
+    self.append(
+      option: ArrayOption(
+        "force_fallback_for",
+        "Force fallback for those dependencies (Default: Empty array)"
+      )
+    )
+    self.append(
+      option: BoolOption("vsenv", "Activate Visual Studio environment (Default: `false`)")
+    )
     self.append(option: BoolOption("b_asneeded", nil))
     self.append(option: BoolOption("b_bitcode", nil))
     self.append(option: ComboOption("b_colorout", nil))
