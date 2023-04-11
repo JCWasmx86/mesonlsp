@@ -598,7 +598,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         }
       }
-      if node.argumentList != nil, let al = node.argumentList as? ArgumentList {
+      if let al = node.argumentList as? ArgumentList {
         for a in al.args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: fn)
         }
@@ -801,7 +801,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         }
       }
-      if node.argumentList != nil, let al = node.argumentList as? ArgumentList {
+      if let al = node.argumentList as? ArgumentList {
         for a in al.args where a is KeywordItem {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: node.method!)
         }
