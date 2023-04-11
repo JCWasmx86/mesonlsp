@@ -33,12 +33,30 @@ public class OptionState {
         "Override value of all `auto` features (Default: `auto`)"
       )
     )
-    self.append(option: ComboOption("backend", "Backend to use (Default: `ninja`)"))
-    self.append(option: ComboOption("buildtype", "Build type to use (Default: `debug`)"))
+    self.append(
+      option: ComboOption(
+        "backend",
+        "Backend to use (Default: `ninja`)",
+        ["ninja", "vs", "vs2010", "vs2012", "vs2013", "vs2015", "vs2017", "v2022", "xcode", "none"]
+      )
+    )
+    self.append(
+      option: ComboOption(
+        "buildtype",
+        "Build type to use (Default: `debug`)",
+        ["plain", "debug", "debugoptimized", "release", "minsize", "custom"]
+      )
+    )
     self.append(
       option: BoolOption("debug", "Enable debug symbols and other information (Default: `true`)")
     )
-    self.append(option: ComboOption("default_library", "Default library type (Default: `shared`)"))
+    self.append(
+      option: ComboOption(
+        "default_library",
+        "Default library type (Default: `shared`)",
+        ["shared", "static", "both"]
+      )
+    )
     self.append(
       option: BoolOption(
         "errorlogs",
@@ -51,8 +69,20 @@ public class OptionState {
         "Default umask to apply on permissions of installed files. (Default: `022`)"
       )
     )
-    self.append(option: ComboOption("layout", "Build directory layout (Default: `mirror`)"))
-    self.append(option: ComboOption("optimization", "Optimization level (Default: `0`)"))
+    self.append(
+      option: ComboOption(
+        "layout",
+        "Build directory layout (Default: `mirror`)",
+        ["mirror", "flat"]
+      )
+    )
+    self.append(
+      option: ComboOption(
+        "optimization",
+        "Optimization level (Default: `0`)",
+        ["plain", "0", "g", "1", "2", "3", "s"]
+      )
+    )
     self.append(
       option: ArrayOption(
         "pkg_config_path",
@@ -75,16 +105,25 @@ public class OptionState {
       option: BoolOption("stdsplit", "Split stdout and stderr in test logs (Default: `true`)")
     )
     self.append(option: BoolOption("strip", "Strip targets on install (Default: `false`"))
-    self.append(option: ComboOption("unity", "Unity build (Default: `off`)"))
+    self.append(
+      option: ComboOption("unity", "Unity build (Default: `off`)", ["on", "off", "subprojects"])
+    )
     self.append(option: IntOption("unity_size", "Unity file block size (Default: `4`)"))
     self.append(
       option: ComboOption(
         "warning_level",
-        "Set the warning level. From 0 = none to everything = highest (Default: `1`)"
+        "Set the warning level. From 0 = none to everything = highest (Default: `1`)",
+        ["0", "1", "2", "3", "everything"]
       )
     )
     self.append(option: BoolOption("werror", "Treat warnings as errors (Default: `false`)"))
-    self.append(option: ComboOption("wrap_mode", "Wrap mode to use (Default: `default`)"))
+    self.append(
+      option: ComboOption(
+        "wrap_mode",
+        "Wrap mode to use (Default: `default`)",
+        ["default", "nofallback", "nodownload", "forcefallback", "nopromote"]
+      )
+    )
     self.append(
       option: ArrayOption(
         "force_fallback_for",
@@ -115,10 +154,28 @@ public class OptionState {
     self.append(
       option: StringOption("b_thinlto_cache_dir", "Specify where to store ThinLTO cache objects")
     )
-    self.append(option: ComboOption("b_ndebug", "Disabler asserts (Default: `false`)"))
+    self.append(
+      option: ComboOption(
+        "b_ndebug",
+        "Disabler asserts (Default: `false`)",
+        ["true", "false", "if-release"]
+      )
+    )
     self.append(option: BoolOption("b_pch", "Use precompiled headers (Default: `true`)"))
-    self.append(option: BoolOption("b_pgo", "Use profile guided optimization (Default: `off`)"))
-    self.append(option: ComboOption("b_sanitize", "Code sanitizer to use"))
+    self.append(
+      option: ComboOption(
+        "b_pgo",
+        "Use profile guided optimization (Default: `off`)",
+        ["off", "generate", "use"]
+      )
+    )
+    self.append(
+      option: ComboOption(
+        "b_sanitize",
+        "Code sanitizer to use",
+        ["none", "address", "thread", "undefined", "memory", "leak", "address,undefined"]
+      )
+    )
     self.append(
       option: BoolOption(
         "b_staticpic",
@@ -129,11 +186,24 @@ public class OptionState {
       option: BoolOption("b_pie", "Build position independent executables (Default: `false`)")
     )
     self.append(
-      option: ComboOption("b_vscrt", "VS runtime library to use (Default: `from_buildtype`)")
+      option: ComboOption(
+        "b_vscrt",
+        "VS runtime library to use (Default: `from_buildtype`)",
+        ["none", "md", "mdd", "mt", "mtd", "from_buildtype", "static_from_buildtype"]
+      )
     )
     self.append(option: ArrayOption("c_args", "C compile arguments to use"))
     self.append(option: ArrayOption("c_link_args", "C link arguments to use"))
-    self.append(option: ComboOption("c_std", "C language standard to use"))
+    self.append(
+      option: ComboOption(
+        "c_std",
+        "C language standard to use",
+        [
+          "none", "c89", "c99", "c11", "c17", "c18", "c2x", "gnu89", "gnu99", "gnu11", "gnu17",
+          "gnu18", "gnu2x",
+        ]
+      )
+    )
     self.append(option: StringOption("c_winlibs", "Standard Windows libs to link against"))
     self.append(
       option: IntOption(
@@ -143,9 +213,25 @@ public class OptionState {
     )
     self.append(option: ArrayOption("cpp_args", "C++ compile arguments to use"))
     self.append(option: ArrayOption("cpp_link_args", "C++ link arguments to use"))
-    self.append(option: ComboOption("cpp_std", "C++ language standard to use"))
+    self.append(
+      option: ComboOption(
+        "cpp_std",
+        "C++ language standard to use",
+        [
+          "none", "c++98", "c++03", "c++11", "c++14", "c++17", "c++20", "c++2a", "c++1z", "gnu++03",
+          "gnu++11", "gnu++14", "gnu++17", "gnu++1z", "gnu++2a", "gnu++20", "vc++14", "vc++17",
+          "vc++latest",
+        ]
+      )
+    )
     self.append(option: BoolOption("cpp_debugstl", "C++ STL debug mode (Default: `false`)"))
-    self.append(option: ComboOption("cpp_eh", "C++ exception handling type (Default: `default`)"))
+    self.append(
+      option: ComboOption(
+        "cpp_eh",
+        "C++ exception handling type (Default: `default`)",
+        ["none", "default", "a", "s", "sc"]
+      )
+    )
     self.append(
       option: BoolOption("cpp_rtti", "Whether to enable RTTI (Runtime type identification")
     )
@@ -156,7 +242,13 @@ public class OptionState {
       )
     )
     self.append(option: StringOption("cpp_winlibs", "Standard Windows libs to link against"))
-    self.append(option: ComboOption("fortran_std", "Fortran language standard to use"))
+    self.append(
+      option: ComboOption(
+        "fortran_std",
+        "Fortran language standard to use",
+        ["none", "legacy", "f95", "f2003", "f2008", "f2018"]
+      )
+    )
     self.append(
       option: StringOption("cuda_ccbindir", "CUDA non-default toolchain directory to use")
     )
@@ -164,7 +256,8 @@ public class OptionState {
     self.append(
       option: ComboOption(
         "python.install_env",
-        "Which python environment to install to (Default: `prefix`)"
+        "Which python environment to install to (Default: `prefix`)",
+        ["auto", "prefix", "system", "venv"]
       )
     )
     self.append(

@@ -67,7 +67,7 @@ public class OptionsExtractor: CodeVisitor {
     case "boolean": self.options.append(BoolOption(name, description, deprecated))
     case "integer": self.options.append(IntOption(name, description, deprecated))
     case "string": self.options.append(StringOption(name, description, deprecated))
-    case "combo": self.options.append(ComboOption(name, description, deprecated, comboVals))
+    case "combo": self.options.append(ComboOption(name, description, comboVals, deprecated))
     case "feature": self.options.append(FeatureOption(name, description, deprecated))
     default: _ = 1
     }

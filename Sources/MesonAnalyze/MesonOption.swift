@@ -23,8 +23,8 @@ public class ComboOption: MesonOption {
   public init(
     _ name: String,
     _ description: String?,
-    _ deprecated: Bool = false,
-    _ vals: [String]? = nil
+    _ vals: [String]? = nil,
+    _ deprecated: Bool = false
   ) {
     self.values = vals
     super.init(name, description, deprecated)
