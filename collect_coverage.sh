@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 rm -rf .build
 swift build --static-swift-stdlib -c debug -Xswiftc -profile-generate -Xswiftc -profile-coverage-mapping
+cargo build --release
+sudo cp .build/debug/Swift-MesonLSP /usr/bin
 mkdir repos
 mkdir /tmp/data
+git clone https://github.com/hse-project/hse
+cd hse || exit
+git checkout ca2bccd60e29a74f2e8b587a9b8d4702c360865c
+../target/release/mesonlsp_tester
+mv default.profraw /tmp/data/lsp1.profraw
+../target/release/mesonlsp_tester
+mv default.profraw /tmp/data/lsp2.profraw
+../target/release/mesonlsp_tester
+mv default.profraw /tmp/data/lsp3.profraw
+cd ..
+rm -rf hse
 cd repos || exit
 for i in $(grep https <../collect_perf_data.py | grep ":" | sed 's/.*":."//g' | sed s/\",//g | sort | uniq); do
 	git clone --depth=1 "$i"
@@ -40,5 +53,5 @@ rm default.profraw
 # shellcheck disable=2103
 cd ..
 rm -rf gstreamer
-llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2}.profraw -o default.profdata
+llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,lsp1,lsp2,lsp3}.profraw -o default.profdata
 llvm-cov-15 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
