@@ -152,7 +152,8 @@ import Wrap
     #if !os(Windows)
       let console = Terminal()
       let lsp = self.lsp
-      LoggingSystem.bootstrap { label in var logger = ConsoleLogger(label: label, console: console)
+      LoggingSystem.bootstrap { label in
+        var logger = ConsoleLogger(label: label, console: console)
         logger.logLevel = lsp ? .info : .debug
         return logger
       }

@@ -196,7 +196,8 @@ extension LanguageServerEndpoint: MessageHandler {
       self.requestCancellation[key] = cancellationToken
 
       let request = Request(params, id: id, clientID: clientID, cancellation: cancellationToken) {
-        [weak self] result in self?.queue.async { self?.requestCancellation[key] = nil }
+        [weak self] result in
+        self?.queue.async { self?.requestCancellation[key] = nil }
         reply(result)
         self?._logResponse(result, id: id, method: R.method)
       }
