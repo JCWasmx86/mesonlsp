@@ -79,6 +79,10 @@ private func hoverFindCallable(
     {
       function = fn
       content = "Option: \(option.name)\n\nType: \(option.type)\n\n\(option.description ?? "")"
+      if let comboOpt = option as? ComboOption, let possibleValues = comboOpt.values {
+        let fullStr = possibleValues.sorted().map { "`\($0)`" }.joined(separator: " | ")
+        content = content! + "\n\nPossible values: \(fullStr)"
+      }
     } else {
       function = fn
       content = fn.name

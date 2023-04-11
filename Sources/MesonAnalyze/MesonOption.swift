@@ -17,7 +17,21 @@ public class IntOption: MesonOption { public override var type: String { return 
 
 public class BoolOption: MesonOption { public override var type: String { return "boolean" } }
 
-public class ComboOption: MesonOption { public override var type: String { return "combo" } }
+public class ComboOption: MesonOption {
+  public let values: [String]?
+
+  public init(
+    _ name: String,
+    _ description: String?,
+    _ deprecated: Bool = false,
+    _ vals: [String]? = nil
+  ) {
+    self.values = vals
+    super.init(name, description, deprecated)
+  }
+
+  public override var type: String { return "combo" }
+}
 
 public class ArrayOption: MesonOption { public override var type: String { return "array" } }
 
