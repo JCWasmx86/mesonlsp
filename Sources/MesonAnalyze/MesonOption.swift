@@ -33,6 +33,20 @@ public class ComboOption: MesonOption {
   public override var type: String { return "combo" }
 }
 
-public class ArrayOption: MesonOption { public override var type: String { return "array" } }
+public class ArrayOption: MesonOption {
+  public let choices: [String]?
+
+  public init(
+    _ name: String,
+    _ description: String?,
+    _ deprecated: Bool = false,
+    _ vals: [String]? = nil
+  ) {
+    self.choices = vals
+    super.init(name, description, deprecated)
+  }
+
+  public override var type: String { return "array" }
+}
 
 public class FeatureOption: MesonOption { public override var type: String { return "feature" } }

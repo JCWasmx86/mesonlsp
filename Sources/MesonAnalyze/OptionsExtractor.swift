@@ -63,7 +63,7 @@ public class OptionsExtractor: CodeVisitor {
     _ comboVals: [String]? = nil
   ) {
     switch type {
-    case "array": self.options.append(ArrayOption(name, description, deprecated))
+    case "array": self.options.append(ArrayOption(name, description, deprecated, comboVals))
     case "boolean": self.options.append(BoolOption(name, description, deprecated))
     case "integer": self.options.append(IntOption(name, description, deprecated))
     case "string": self.options.append(StringOption(name, description, deprecated))

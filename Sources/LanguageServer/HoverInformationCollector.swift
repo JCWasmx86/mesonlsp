@@ -82,6 +82,9 @@ private func hoverFindCallable(
       if let comboOpt = option as? ComboOption, let possibleValues = comboOpt.values {
         let fullStr = possibleValues.sorted().map { "`\($0)`" }.joined(separator: " | ")
         content = content! + "\n\nPossible values: \(fullStr)"
+      } else if let arrayOpt = option as? ArrayOption, let possibleValues = arrayOpt.choices {
+        let fullStr = possibleValues.sorted().map { "`\($0)`" }.joined(separator: " | ")
+        content = content! + "\n\nPossible values: \(fullStr)"
       }
     } else {
       function = fn
