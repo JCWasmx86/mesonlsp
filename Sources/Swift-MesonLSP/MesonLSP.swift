@@ -26,6 +26,7 @@ import Wrap
   @ArgumentParser.Option var wrapOutput: String = ""
   @ArgumentParser.Option var wrapPackageFiles: String = ""
   @ArgumentParser.Flag var lsp: Bool = false
+  @ArgumentParser.Flag var pgo: Bool = false
   @ArgumentParser.Flag var wrap: Bool = false
   @ArgumentParser.Flag var stdio: Bool = false
   @ArgumentParser.Flag var test: Bool = false
@@ -103,12 +104,13 @@ import Wrap
   }
 
   private func doBenchmark() {
+    let factor = self.pgo ? 1 : 10
     for path in paths {
       let ns = TypeNamespace()
       var cache: [String: MesonAST.Node] = [:]
       var t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
-      for _ in 0..<Self.NUM_PARSES * 10 {
+      for _ in 0..<Self.NUM_PARSES * factor {
         if !self.keepCache { cache.removeAll() }
         t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
