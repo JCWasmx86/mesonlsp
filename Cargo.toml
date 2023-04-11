@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-lsp = { git = "https://github.com/oxalica/async-lsp", features = ["default", "omni-trait"] }
+async-lsp = { git = "https://github.com/JCWasmx86/async-lsp", features = ["default", "omni-trait"] }
 lsp-types = "0.94.0"
 tokio = { version = "1.27.0", features = ["io-std", "io-util", "macros", "process", "rt", "time"] }
 tower = "0.4.13"

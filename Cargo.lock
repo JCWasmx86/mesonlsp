@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "async-lsp"
 version = "0.0.1"
-source = "git+https://github.com/oxalica/async-lsp#9770807bf0f7c7fbcd7311102ed709786d416fc3"
+source = "git+https://github.com/JCWasmx86/async-lsp#3f051b03a5889557bfc51b17d6b6ded93ed65532"
 dependencies = [
  "either",
  "futures",
