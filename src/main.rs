@@ -1,6 +1,7 @@
 use std::env::current_dir;
 use std::ops::ControlFlow;
 use std::process::Stdio;
+use std::{thread, time};
 
 use async_lsp::concurrency::ConcurrencyLayer;
 use async_lsp::panic::CatchUnwindLayer;
@@ -103,6 +104,10 @@ async fn main() {
     info!("Initialized: {init_ret:?}");
     server.initialized(InitializedParams {}).await.unwrap();
 
+    info!("Sleeping for 120 seconds");
+    let amount = time::Duration::from_secs(120);
+    thread::sleep(amount);
+
     // Shutdown.
     server.shutdown(()).await.unwrap();
     server.exit(()).await.unwrap();
@@ -110,4 +115,3 @@ async fn main() {
     server.emit(Stop).await.unwrap();
     frontend_fut.await.unwrap();
 }
-
