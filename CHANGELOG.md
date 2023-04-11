@@ -1,3 +1,5 @@
+# X.X (XXX XX XXXX)
+
 # 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found
 - Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols
