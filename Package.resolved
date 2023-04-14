@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "39f7c0ad3617bf1605a5e4244cf15dc404539fac"
+        "revision" : "10651226f1b78ddc9912ead0ca894766f79e63b9"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "da0fe44138ab86e380f40a2acbd8a611b07d3f64",
-        "version" : "2.4.0"
+        "revision" : "6d9c36b4beda0dae88feab6dc36206434bae713c",
+        "version" : "2.4.1"
       }
     },
     {
@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "82ef3e2f1c11c08543937a272810f94b8a5d1b74"
+        "revision" : "a234bef11190e4794812bb8f22944b2370e14a00"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5d83b595f9650c2f477fe757907d80265df6ad33"
+        "revision" : "5d7314acfd64dbc6ef3408d62c363f73e1963700"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "1ca3d9ef6bd214536d1806aadf6d63bd4b685546"
+        "revision" : "e92c9612fb219d9e33a3dd3be2cfd6d31dc7c073"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "cab96f6bcce855feec8b85286205a7d15a275b6a"
+        "revision" : "8b46709e9db631d86eb23e8e3a43cfb70992437b"
       }
     },
     {
