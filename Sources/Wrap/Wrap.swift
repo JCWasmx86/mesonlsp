@@ -26,8 +26,6 @@ public class Wrap {
   public private(set) var wrapHash: String = ""
   public private(set) var directoryNameAfterSetup: String = ""
 
-  static let unused: () = { atexit(Wrap.CLEANUP_HANDLER) }()
-
   internal init(
     wrapHash: String,
     directory: String?,
