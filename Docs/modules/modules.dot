@@ -1,0 +1,9 @@
+digraph G {
+	MesonAnalyze -> {MesonAST IOUtils Wrap}
+	Caching -> IOUtils
+	Wrap -> {Caching IOUtils}
+	TestingFramework -> MesonAnalyze
+	LanguageServer -> {MesonAnalyze Timing MesonDocs CMem IOUtils}
+	SwiftMesonLSP -> {MesonAnalyze MesonAST LanguageServer Timing TestingFramework Wrap}
+	MesonAST -> {IOUtils Timing}
+}
