@@ -73,16 +73,16 @@
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
-- [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
-- [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Document the language server
-- [ ] Add progress bar for setting up the subprojects (Requires upstream work)
-- [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 - [x] Investigate PGO (Does not seem to work on Linux)
+- [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
+- [ ] Autogenerate type definitions from JSON (Requires upstream work)
+- [ ] Add progress bar for setting up the subprojects (Requires upstream work)
+- [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
 - [ ] Add Windows to CI
   - [x] Compiles on Windows
