@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "Swift-MesonLSP",
-  platforms: [.macOS("10.15.4")],
+  platforms: [.macOS("12.0")],
   products: [
     .library(name: "Caching", targets: ["Caching"]),
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
