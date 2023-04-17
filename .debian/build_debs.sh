@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cd .debian || exit
 chmod 0755 DEBIAN
-mkdir -b usr/bin
+mkdir -p usr/bin
 cp ../out/Swift-MesonLSP usr/bin
 dpkg-deb --build .
 cp ..deb /Swift-MesonLSP-ubuntu-18.04.deb
