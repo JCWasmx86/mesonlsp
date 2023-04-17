@@ -1,8 +1,8 @@
-FROM debian:stable AS stage1
+FROM debian:testing AS stage1
 WORKDIR /app
 RUN apt-get update&&\
     apt-get install curl sudo -y &&\
-    curl -s https://archive.swiftlang.xyz/install.sh | sudo bash &&\
+    echo 5|curl -s https://archive.swiftlang.xyz/install.sh | sudo bash &&\
     apt update &&\
     apt install swiftlang -y &&\
     apt-get clean -y
@@ -11,6 +11,6 @@ RUN swift build -c release --static-swift-stdlib &&\
     mkdir -p /app/exportDir &&\
     cp .build/release/Swift-MesonLSP /app/exportDir
 WORKDIR /app/exportDir
-RUN zip -9 Debian-Stable.zip Swift-MesonLSP
+RUN zip -9 Debian-Testing.zip Swift-MesonLSP
 FROM scratch AS export-stage
-COPY --from=stage1 /app/exportDir/Debian-Stable.zip .
+COPY --from=stage1 /app/exportDir/Debian-Testing.zip .
