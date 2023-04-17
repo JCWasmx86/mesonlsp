@@ -180,7 +180,7 @@ jobs:
           cd ../out2
           unzip Ubuntu22.04.zip
           cd ..
-          ./debian/build_debs.sh
+          ./.debian/build_debs.sh
       - uses: actions/upload-artifact@v3
         with:
           name: Swift-MesonLSP-ubuntu-18.04.deb
