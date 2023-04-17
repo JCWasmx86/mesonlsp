@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 cd .debian || exit
-chmod 0755 DEBIAN
+chmod 0755 build/DEBIAN
 mkdir -p build/usr/bin
 cp ../out/Swift-MesonLSP build/usr/bin
 dpkg-deb --build build
