@@ -160,7 +160,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Run regression tests
+      - name: Build deb files
         run: |
           swift build -c release --static-swift-stdlib
           sudo apt purge -y podman
