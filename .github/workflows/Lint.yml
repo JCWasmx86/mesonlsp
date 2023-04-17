@@ -72,7 +72,7 @@ jobs:
           sudo apt install -y xz-utils tar
           wget https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz
           tar xvf shellcheck-v0.9.0.linux.x86_64.tar.xz
-          ./shellcheck-v0.9.0/shellcheck *.sh
+          ./shellcheck-v0.9.0/shellcheck *.sh .debian/*.sh
   shfmt:
     runs-on: ubuntu-22.04
     steps:
@@ -81,7 +81,7 @@ jobs:
         run: |
           wget https://github.com/mvdan/sh/releases/download/v3.6.0/shfmt_v3.6.0_linux_amd64
           chmod +x ./shfmt_v3.6.0_linux_amd64
-          ./shfmt_v3.6.0_linux_amd64 -w -i 0 *.sh
+          ./shfmt_v3.6.0_linux_amd64 -w -i 0 *.sh .debian/*.sh
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
           git commit -a -m "Failed" || exit 0
