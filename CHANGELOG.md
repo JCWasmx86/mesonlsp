@@ -1,5 +1,6 @@
 # X.X (XXX XX XXXX)
 - Show choices for array/combo options on hover
+- Build .deb files for Ubuntu 18.04/20.04/22.04 in CI
 # 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found
 - Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols
