@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           cd ..\..
-          git clone https://github.com/JCWasmx86/Swift-MesonLSP b
+          git clone https://github.com/JCWasmx86/Swift-MesonLSP b -Xswiftc -O
           cd b
           swift build --static-swift-stdlib -c debug
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
