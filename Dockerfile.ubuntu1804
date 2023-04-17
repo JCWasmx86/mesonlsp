@@ -11,11 +11,9 @@ RUN apt-get update&&\
     rm -f swift-5.8-RELEASE-ubuntu18.04.tar.gz
 WORKDIR /app/Swift-MesonLSP
 RUN /app/swift-5.8-RELEASE-ubuntu18.04/usr/bin/swift build -c release --static-swift-stdlib &&\
-    /app/swift-5.8-RELEASE-ubuntu18.04/usr/bin/swift build -c debug --static-swift-stdlib &&\
     mkdir -p /app/exportDir &&\
-    cp .build/release/Swift-MesonLSP /app/exportDir &&\
-    cp .build/debug/Swift-MesonLSP /app/exportDir/Swift-MesonLSP.debug
+    cp .build/release/Swift-MesonLSP /app/exportDir
 WORKDIR /app/exportDir
-RUN zip -9 Ubuntu18.04.zip Swift-MesonLSP.debug Swift-MesonLSP
+RUN zip -9 Ubuntu18.04.zip Swift-MesonLSP
 FROM scratch AS export-stage
 COPY --from=stage1 /app/exportDir/Ubuntu18.04.zip .
