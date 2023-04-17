@@ -1,13 +1,13 @@
 FROM debian:testing AS stage1
 WORKDIR /app
 RUN apt-get update&&\
-    apt-get install curl sudo -y &&\
-    echo 5|curl -s https://archive.swiftlang.xyz/install.sh | sudo bash &&\
-    apt update &&\
-    apt install swiftlang -y &&\
+    apt-get install zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget -y &&\
+    wget https://download.swift.org/swift-5.8-release/ubuntu2204/swift-5.8-RELEASE/swift-5.8-RELEASE-ubuntu22.04.tar.gz &&\
+    tar xvf swift-5.8-RELEASE-ubuntu22.04.tar.gz &&\
+    git clone https://github.com/JCWasmx86/Swift-MesonLSP &&\
     apt-get clean -y
 WORKDIR /app/Swift-MesonLSP
-RUN swift build -c release --static-swift-stdlib &&\
+RUN /app/swift-5.8-RELEASE-ubuntu22.04/usr/bin/swift build -c release --static-swift-stdlib &&\
     mkdir -p /app/exportDir &&\
     cp .build/release/Swift-MesonLSP /app/exportDir
 WORKDIR /app/exportDir

@@ -1,4 +1,4 @@
-FROM debian:stable AS stage1
+FROM debian:unstable AS stage1
 WORKDIR /app
 RUN apt-get update&&\
     apt-get install zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget -y &&\
@@ -11,6 +11,6 @@ RUN /app/swift-5.8-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-s
     mkdir -p /app/exportDir &&\
     cp .build/release/Swift-MesonLSP /app/exportDir
 WORKDIR /app/exportDir
-RUN zip -9 Debian-Stable.zip Swift-MesonLSP
+RUN zip -9 Debian-Unstable.zip Swift-MesonLSP
 FROM scratch AS export-stage
-COPY --from=stage1 /app/exportDir/Debian-Stable.zip .
+COPY --from=stage1 /app/exportDir/Debian-Unstable.zip .
