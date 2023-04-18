@@ -772,7 +772,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     if !found && ((nAny == types.count) || (bits == 0b111 && types.count == 3)) {
       found = guessMethod(node: node, methodName: methodName, ownResultTypes: &ownResultTypes)
     }
-    let onlyDisabler = types.count == 1 && (types[0] as? Disabler) != nil
+    let onlyDisabler = types.count == 1 && types[0] is Disabler
     if !found && !onlyDisabler {
       let t = joinTypes(types: types)
       self.metadata.registerDiagnostic(

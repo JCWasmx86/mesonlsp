@@ -10,6 +10,8 @@
 //
 // ===----------------------------------------------------------------------===//
 
+// Copied from here: https://github.com/apple/sourcekit-lsp/blob/main/Sources/SKCore/LanguageServer.swift
+// Modified
 import Dispatch
 import LanguageServerProtocol
 import LSPLogging

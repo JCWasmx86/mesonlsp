@@ -94,7 +94,8 @@
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
-- [ ] Add Windows to CI
+- [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
+- [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
   - [x] LSP works
@@ -108,5 +109,4 @@
       - [x] tar.xz
       - [x] zip
     - [x] Applying diffs works
-  - [ ] Upload executable/installer (Debug build only, as release build requires more RAM than available)
 
