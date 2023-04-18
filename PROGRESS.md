@@ -79,7 +79,7 @@
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 - [x] Investigate PGO (Does not seem to work on Linux)
-- [ ] Support apt-like
+- [x] Support apt-like
   - [x] Debian
     - [x] Stable
     - [x] Testing
@@ -88,7 +88,7 @@
     - [x] 18.04
     - [x] 20.04
     - [x] 22.04
-  - [ ] Setup apt repo in an external GitHub repo
+  - [x] Setup apt repo in an external GitHub repo
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Add progress bar for setting up the subprojects (Requires upstream work)
