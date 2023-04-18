@@ -245,6 +245,7 @@ public final class MesonServer: LanguageServer {
                 )
               )
             }
+            self.findMatchingIdentifiers(t, idexpr, &arr)
           } else {
             finalAttempt(prev, line, fp, md, &arr)
           }
@@ -262,6 +263,29 @@ public final class MesonServer: LanguageServer {
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+  }
+
+  private func findMatchingIdentifiers(
+    _ t: MesonTree,
+    _ idexpr: IdExpression,
+    _ arr: inout [CompletionItem]
+  ) {
+    guard let mt = t.metadata else { return }
+    guard let idexprs = mt.identifiers[idexpr.file.file] else { return }
+    let filtered =
+      Array(
+        idexprs.filter { $0.location.endLine < idexpr.location.startLine }.filter {
+          ($0.parent is AssignmentStatement
+            && ($0.parent as! AssignmentStatement).lhs.equals(right: $0))
+            || ($0.parent is IterationStatement
+              && ($0.parent as! IterationStatement).containsAsId($0))
+        }.map { $0.id }
+      ) + ["meson", "host_machine", "build_machine"]
+    let matching = Array(Set(filtered.filter { $0.lowercased().contains(idexpr.id.lowercased()) }))
+    Self.LOG.info("findMatchingIdentifiers - Found matching identifiers: \(matching)")
+    for m in matching {
+      arr.append(CompletionItem(label: m, kind: .variable, insertText: m, insertTextFormat: .plain))
+    }
   }
 
   private func finalAttempt(

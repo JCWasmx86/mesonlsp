@@ -73,6 +73,7 @@
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
+- [ ] Folding range
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [x] Document the language server

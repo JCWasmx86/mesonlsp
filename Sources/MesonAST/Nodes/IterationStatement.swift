@@ -67,5 +67,7 @@ public final class IterationStatement: Statement {
       arg.setParents()
     }
   }
-
+  public func containsAsId(_ idexpr: Node) -> Bool {
+    return self.ids.first { $0.equals(right: idexpr) } != nil
+  }
 }
