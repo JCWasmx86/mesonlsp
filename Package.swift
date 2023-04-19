@@ -17,7 +17,7 @@ let package = Package(
     .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
+    .package(url: "https://github.com/JCWasmx86/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.2"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "2.4.0"),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.2"),

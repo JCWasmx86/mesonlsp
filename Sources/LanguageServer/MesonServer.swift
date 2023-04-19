@@ -747,6 +747,16 @@ public final class MesonServer: LanguageServer {
   }
 
   private func setupSubprojects() async {
+    let token = ProgressToken.string(UUID().uuidString)
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: token)
+    do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
+    let beginMessage = WorkDoneProgress(
+      token: token,
+      value: WorkDoneProgressType.begin(
+        WorkDoneProgressBegin(title: "Querying subprojects", percentage: 0)
+      )
+    )
+    self.client.send(beginMessage)
     do { self.subprojects = try SubprojectState(rootDir: self.path!) } catch let error {
       Self.LOG.error("\(error)")
       return
@@ -755,15 +765,31 @@ public final class MesonServer: LanguageServer {
       Self.LOG.error("Got error during setting up subprojects: \(err)")
     }
     Self.LOG.info("Setup all directories for subprojects")
+    let count = Double(self.subprojects!.subprojects.count)
+    var n = 0
     for sp in self.subprojects!.subprojects {
+      let percentage = Int((Double(n + 1) / count) * 100)
+      let progressMessage = WorkDoneProgress(
+        token: token,
+        value: WorkDoneProgressType.report(
+          WorkDoneProgressReport(message: "Parsing subproject", percentage: percentage)
+        )
+      )
+      self.client.send(progressMessage)
       var cache: [String: Node] = [:]
       sp.parse(self.ns, dontCache: [], cache: &cache, memfiles: self.memfiles)
       self.sendNewDiagnostics(sp.tree)
       self.astCaches[sp.realpath] = cache
+      n += 1
     }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
     if !self.subprojects!.subprojects.isEmpty { self.rebuildTree() }
+    let endMessage = WorkDoneProgress(
+      token: token,
+      value: WorkDoneProgressType.end(WorkDoneProgressEnd())
+    )
+    self.client.send(endMessage)
   }
 
   private func initialize(_ req: Request<InitializeRequest>) {
