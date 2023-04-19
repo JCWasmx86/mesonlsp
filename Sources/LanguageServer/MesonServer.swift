@@ -39,6 +39,7 @@ public final class MesonServer: LanguageServer {
   let interval = DispatchTimeInterval.seconds(60)
   var subprojects: SubprojectState?
   var mapper: FileMapper = FileMapper()
+  var token: ProgressToken = ProgressToken.integer(0)
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -510,6 +511,7 @@ public final class MesonServer: LanguageServer {
         end: Int(endClearing)
       )
       if Task.isCancelled {
+        self.parseTask = nil
         Self.LOG.info("Cancelling parsing - After clearing diagnostics")
         return
       }
@@ -528,6 +530,7 @@ public final class MesonServer: LanguageServer {
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After building tree")
+        self.parseTask = nil
         return
       }
       tmptree.analyzeTypes(
@@ -539,6 +542,7 @@ public final class MesonServer: LanguageServer {
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After analyzing types")
+        self.parseTask = nil
         return
       }
       let endAnalyzingTypes = clock()
@@ -554,6 +558,7 @@ public final class MesonServer: LanguageServer {
           begin: Int(beginRebuilding),
           end: Int(endRebuilding)
         )
+        self.parseTask = nil
         return
       }
       self.sendNewDiagnostics(tmptree)
@@ -571,9 +576,11 @@ public final class MesonServer: LanguageServer {
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After sending diagnostics")
         self.clearDiagnosticsForTree(tree: tmptree)
+        self.parseTask = nil
         return
       }
       self.tree = tmptree
+      self.parseTask = nil
     }
   }
 
@@ -746,19 +753,36 @@ public final class MesonServer: LanguageServer {
     )
   }
 
+  private func onProgress(_ msg: String) {
+    let progressMessage = WorkDoneProgress(
+      token: self.token,
+      value: WorkDoneProgressType.report(
+        WorkDoneProgressReport(message: "Parsing subproject", percentage: 0)
+      )
+    )
+    self.client.send(progressMessage)
+  }
+
   private func setupSubprojects() async {
-    let token = ProgressToken.string(UUID().uuidString)
-    let workDoneCreate = CreateWorkDoneProgressRequest(token: token)
+    self.token = ProgressToken.string(UUID().uuidString)
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
-      token: token,
+      token: self.token,
       value: WorkDoneProgressType.begin(
         WorkDoneProgressBegin(title: "Querying subprojects", percentage: 0)
       )
     )
     self.client.send(beginMessage)
-    do { self.subprojects = try SubprojectState(rootDir: self.path!) } catch let error {
+    do {
+      self.subprojects = try SubprojectState(rootDir: self.path!, onProgress: onProgress)
+    } catch let error {
       Self.LOG.error("\(error)")
+      let endMessage = WorkDoneProgress(
+        token: self.token,
+        value: WorkDoneProgressType.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
       return
     }
     for err in self.subprojects!.errors {
@@ -770,7 +794,7 @@ public final class MesonServer: LanguageServer {
     for sp in self.subprojects!.subprojects {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
-        token: token,
+        token: self.token,
         value: WorkDoneProgressType.report(
           WorkDoneProgressReport(message: "Parsing subproject", percentage: percentage)
         )
@@ -786,7 +810,7 @@ public final class MesonServer: LanguageServer {
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
     if !self.subprojects!.subprojects.isEmpty { self.rebuildTree() }
     let endMessage = WorkDoneProgress(
-      token: token,
+      token: self.token,
       value: WorkDoneProgressType.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)

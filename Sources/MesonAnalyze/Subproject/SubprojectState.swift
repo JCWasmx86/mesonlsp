@@ -8,10 +8,12 @@ public class SubprojectState {
 
   public private(set) var subprojects: [Subproject] = []
   public private(set) var errors: [Error] = []
+  var onProgress: ((String) -> Void)?
 
   // swiftlint:disable cyclomatic_complexity
-  public init(rootDir: String) throws {
+  public init(rootDir: String, onProgress: ((String) -> Void)? = nil) throws {
     let p = Path(rootDir + "\(Path.separator)subprojects")
+    self.onProgress = onProgress
     if !p.exists {
       Self.LOG.info("No subprojects directory found")
       return
@@ -37,6 +39,7 @@ public class SubprojectState {
           let checkFile = Path(cachedPath.description + "\(Path.separator)\(w.wrapHash).fullysetup")
           if !cachedPath.exists {
             Self.LOG.info("Unable to find cached setup wrap for hash \(w.wrapHash)")
+            if self.onProgress != nil { self.onProgress!("Setting up wrap \(child.lastComponent)") }
             self.subprojects.append(
               try WrapBasedSubproject(
                 wrapName: child.lastComponentWithoutExtension,
@@ -65,6 +68,9 @@ public class SubprojectState {
                 "Wrap for hash \(w.wrapHash) does not seem to be setup fully. Reattempting"
               )
               try FileManager.default.removeItem(atPath: cachedPath.absolute().description)
+              if self.onProgress != nil {
+                self.onProgress!("Setting up wrap \(child.lastComponent)")
+              }
               self.subprojects.append(
                 try WrapBasedSubproject(
                   wrapName: child.lastComponentWithoutExtension,
