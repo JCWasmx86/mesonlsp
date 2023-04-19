@@ -22,7 +22,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var subprojectState: SubprojectState?
   var visitedFiles: [String] = []
   var foundVariables: [[String]] = []
-  var subproject: Subproject? = nil
+  var subproject: Subproject?
 
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
