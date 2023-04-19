@@ -20,6 +20,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var depth: UInt = 0
   var variablesNeedingUse: [[IdExpression]] = []
   var subprojectState: SubprojectState?
+  var visitedFiles: [String] = []
+  var foundVariables: [[String]] = []
+
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
     "include_directories", "is_disabler", "is_variable", "join_paths", "structured_sources",
@@ -163,7 +166,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitSourceFile(file: SourceFile) {
     self.depth += 1
     self.variablesNeedingUse.append([])
+    self.visitedFiles.append(file.file.file)
     file.visitChildren(visitor: self)
+    foundVariables.append(Array(self.scope.variables.keys))
     self.depth -= 1
     let needingUse = self.variablesNeedingUse.removeLast()
     if self.depth == 0 {

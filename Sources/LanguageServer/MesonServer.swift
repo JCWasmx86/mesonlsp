@@ -273,6 +273,19 @@ public final class MesonServer: LanguageServer {
   ) {
     guard let mt = t.metadata else { return }
     guard let idexprs = mt.identifiers[idexpr.file.file] else { return }
+    // We should add identifiers from parent files etc.
+    var other: [String] = []
+    var idx = 0
+    let mappedFile = self.mapper.fromSubprojectToCache(file: idexpr.file.file)
+    for f in t.visitedFiles {
+      if mappedFile == f {
+        Self.LOG.info("Found file in visited files. Breaking...")
+        break
+      }
+      other += t.foundVariables[idx]
+      Self.LOG.info("Adding variables from \(f) to completion")
+      idx += 1
+    }
     let filtered =
       Array(
         idexprs.filter { $0.location.endLine < idexpr.location.startLine }.filter {
@@ -281,7 +294,7 @@ public final class MesonServer: LanguageServer {
             || ($0.parent is IterationStatement
               && ($0.parent as! IterationStatement).containsAsId($0))
         }.map { $0.id }
-      ) + ["meson", "host_machine", "build_machine"]
+      ) + ["meson", "host_machine", "build_machine"] + other
     let matching = Array(Set(filtered.filter { $0.lowercased().contains(idexpr.id.lowercased()) }))
     Self.LOG.info("findMatchingIdentifiers - Found matching identifiers: \(matching)")
     for m in matching {

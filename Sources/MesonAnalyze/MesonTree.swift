@@ -22,6 +22,8 @@ public final class MesonTree: Hashable {
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
   public var multiCallSubfiles: [MultiSubdirCall] = []
+  public var visitedFiles: [String] = []
+  public var foundVariables: [[String]] = []
 
   public init(
     file: String,
@@ -195,6 +197,8 @@ public final class MesonTree: Hashable {
     self.ast!.visit(visitor: t)
     if self.depth == 0 { self.scope = t.scope }
     self.metadata = t.metadata
+    self.visitedFiles = t.visitedFiles
+    self.foundVariables = t.foundVariables
     for s in self.subfiles where s.ast != nil {
       assert(s.ast!.parent is SubdirCall || s.ast!.parent is MultiSubdirCall)
     }
