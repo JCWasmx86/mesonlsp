@@ -92,7 +92,7 @@
   - [x] Setup apt repo in an external GitHub repo
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
-- [ ] Add progress bar for setting up the subprojects (Requires upstream work)
+- [x] Add progress bar for setting up the subprojects (Requires upstream work)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
 - [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
