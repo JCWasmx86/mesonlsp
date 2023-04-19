@@ -1,3 +1,4 @@
 ignore:
-  - "Sources/Timing"
+  - "Sources/LanguageServer"
   - "Sources/Swift-MesonLSP"
+  - "Sources/Timing"
