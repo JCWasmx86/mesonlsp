@@ -511,7 +511,6 @@ public final class MesonServer: LanguageServer {
         end: Int(endClearing)
       )
       if Task.isCancelled {
-        self.parseTask = nil
         Self.LOG.info("Cancelling parsing - After clearing diagnostics")
         return
       }
@@ -530,7 +529,6 @@ public final class MesonServer: LanguageServer {
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After building tree")
-        self.parseTask = nil
         return
       }
       tmptree.analyzeTypes(
@@ -542,7 +540,6 @@ public final class MesonServer: LanguageServer {
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After analyzing types")
-        self.parseTask = nil
         return
       }
       let endAnalyzingTypes = clock()
@@ -558,7 +555,6 @@ public final class MesonServer: LanguageServer {
           begin: Int(beginRebuilding),
           end: Int(endRebuilding)
         )
-        self.parseTask = nil
         return
       }
       self.sendNewDiagnostics(tmptree)
@@ -576,11 +572,9 @@ public final class MesonServer: LanguageServer {
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After sending diagnostics")
         self.clearDiagnosticsForTree(tree: tmptree)
-        self.parseTask = nil
         return
       }
       self.tree = tmptree
-      self.parseTask = nil
     }
   }
 
@@ -808,7 +802,12 @@ public final class MesonServer: LanguageServer {
     }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
-    if !self.subprojects!.subprojects.isEmpty { self.rebuildTree() }
+    if !self.subprojects!.subprojects.isEmpty {
+      if self.parseTask != nil {
+        do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
+      }
+      self.rebuildTree()
+    }
     let endMessage = WorkDoneProgress(
       token: self.token,
       value: WorkDoneProgressType.end(WorkDoneProgressEnd())
