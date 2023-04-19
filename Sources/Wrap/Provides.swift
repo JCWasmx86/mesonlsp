@@ -1,6 +1,6 @@
 public class Provides {
   public private(set) var programNames: [String]
-  public private(set) var dependencyNames: [String: (String)]
+  public private(set) var dependencyNames: [String: String]
 
   internal init() {
     self.programNames = []
@@ -14,6 +14,6 @@ public class Provides {
   }
 
   internal func updateDependencies(name: String, varname: String) {
-    self.dependencyNames[name] = (varname)
+    self.dependencyNames[name] = varname
   }
 }

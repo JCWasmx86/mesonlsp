@@ -24,6 +24,7 @@ public final class MesonTree: Hashable {
   public var multiCallSubfiles: [MultiSubdirCall] = []
   public var visitedFiles: [String] = []
   public var foundVariables: [[String]] = []
+  public var subproject: Subproject?
 
   public init(
     file: String,
@@ -31,9 +32,11 @@ public final class MesonTree: Hashable {
     depth: Int = 0,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String] = [:]
+    memfiles: [String: String] = [:],
+    subproject: Subproject? = nil
   ) {
     self.ns = ns
+    self.subproject = subproject
     let pkp = Path(file).absolute().normalize()
     self.file = pkp.description
     self.ast = nil
@@ -190,7 +193,8 @@ public final class MesonTree: Hashable {
       parent: root,
       tree: self,
       options: options,
-      subprojectState: subprojectState
+      subprojectState: subprojectState,
+      subproject: self.subproject
     )
     self.ast!.setParents()
     self.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)

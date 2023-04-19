@@ -22,6 +22,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var subprojectState: SubprojectState?
   var visitedFiles: [String] = []
   var foundVariables: [[String]] = []
+  var subproject: Subproject? = nil
 
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
@@ -86,7 +87,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     parent: Scope,
     tree: MesonTree,
     options: [MesonOption],
-    subprojectState: SubprojectState? = nil
+    subprojectState: SubprojectState? = nil,
+    subproject: Subproject? = nil
   ) {
     self.scope = parent
     self.tree = tree
@@ -94,6 +96,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.options = options
     self.metadata = MesonMetadata()
     self.subprojectState = subprojectState
+    self.subproject = subproject
   }
 
   public func visitSubdirCall(node: SubdirCall) {
@@ -172,7 +175,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.depth -= 1
     let needingUse = self.variablesNeedingUse.removeLast()
     if self.depth == 0 {
+      var exportedVars: [String] = []
+      if let s = self.subproject as? WrapBasedSubproject {
+        exportedVars = Array(s.wrap.provides.dependencyNames.values)
+      }
       for n in needingUse {
+        if exportedVars.contains(n.id) { continue }
         self.metadata.registerDiagnostic(
           node: n,
           diag: MesonDiagnostic(sev: .warning, node: n, message: "Unused assignment")

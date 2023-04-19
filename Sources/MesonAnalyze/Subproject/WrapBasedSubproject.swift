@@ -32,7 +32,8 @@ public class WrapBasedSubproject: Subproject {
       ns: ns,
       dontCache: dontCache,
       cache: &cache,
-      memfiles: memfiles
+      memfiles: memfiles,
+      subproject: self
     )
     t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
     self.tree = t
