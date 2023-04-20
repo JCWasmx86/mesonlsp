@@ -74,6 +74,10 @@
 - [ ] Renaming
 - [ ] Code actions
   - [ ] Integer literal to decimal/binary/octal
+  - [ ] `static_library`/`shared_library`/`both_libraries` to `library`
+  - [ ] `shared_library` to `shared_module` (And reverse)
+  - [ ] Arrays passed to varargs function => Unpack them
+  - [ ] `configure_file(copy: true)` to `fs.copyfile()`
 - [ ] Folding range
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
