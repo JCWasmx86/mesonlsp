@@ -763,7 +763,7 @@ public final class MesonServer: LanguageServer {
   private func onProgress(_ msg: String) {
     let progressMessage = WorkDoneProgress(
       token: self.token,
-      value: WorkDoneProgressType.report(
+      value: WorkDoneProgressKind.report(
         WorkDoneProgressReport(message: "Parsing subproject", percentage: 0)
       )
     )
@@ -776,7 +776,7 @@ public final class MesonServer: LanguageServer {
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
       token: self.token,
-      value: WorkDoneProgressType.begin(
+      value: WorkDoneProgressKind.begin(
         WorkDoneProgressBegin(title: "Querying subprojects", percentage: 0)
       )
     )
@@ -787,7 +787,7 @@ public final class MesonServer: LanguageServer {
       Self.LOG.error("\(error)")
       let endMessage = WorkDoneProgress(
         token: self.token,
-        value: WorkDoneProgressType.end(WorkDoneProgressEnd())
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
       )
       self.client.send(endMessage)
       return
@@ -802,7 +802,7 @@ public final class MesonServer: LanguageServer {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
         token: self.token,
-        value: WorkDoneProgressType.report(
+        value: WorkDoneProgressKind.report(
           WorkDoneProgressReport(message: "Parsing subproject", percentage: percentage)
         )
       )
@@ -823,7 +823,7 @@ public final class MesonServer: LanguageServer {
     }
     let endMessage = WorkDoneProgress(
       token: self.token,
-      value: WorkDoneProgressType.end(WorkDoneProgressEnd())
+      value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)
   }
