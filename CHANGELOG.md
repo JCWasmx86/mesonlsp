@@ -6,6 +6,7 @@
 - Send progress of setting up the subprojects to the client ([Includes work upstream](https://github.com/apple/sourcekit-lsp/pull/732))
 - Fix crash, if setting up and parsing subprojects was faster than parsing the project itself.
 - Show error, if first statement in root meson.build is not a call to `project()`
+- Bump COPR to build for Fedora 38.
 # 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found
 - Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols
