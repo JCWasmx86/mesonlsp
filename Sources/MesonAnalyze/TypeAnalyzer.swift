@@ -23,6 +23,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var visitedFiles: [String] = []
   var foundVariables: [[String]] = []
   var subproject: Subproject?
+  var version: Version?
 
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
@@ -212,6 +213,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           id.id == "project"
         {
           // Found our project call
+          if let al = fne.argumentList as? ArgumentList {
+            for a in al.args
+            where (a is KeywordItem) && ((a as! KeywordItem).key is IdExpression)
+              && ((a as! KeywordItem).key as! IdExpression).id == "meson_version"
+            {
+              let value = (a as! KeywordItem).value
+              guard let sl = value as? StringLiteral else { continue }
+              self.version = Version.parseVersion(s: sl.contents())
+              break
+            }
+          }
         } else {
           self.metadata.registerDiagnostic(
             node: node.stmts[0],
