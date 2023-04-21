@@ -197,6 +197,33 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var lastAlive: Node?
     var firstDead: Node?
     var lastDead: Node?
+    if self.depth == 1 {
+      if node.stmts.isEmpty {
+        self.metadata.registerDiagnostic(
+          node: node,
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node,
+            message: "Missing project() call at top of file"
+          )
+        )
+      } else {
+        if let fne = node.stmts[0] as? FunctionExpression, let id = fne.id as? IdExpression,
+          id.id == "project"
+        {
+          // Found our project call
+        } else {
+          self.metadata.registerDiagnostic(
+            node: node.stmts[0],
+            diag: MesonDiagnostic(
+              sev: .error,
+              node: node.stmts[0],
+              message: "First statement is not a project() call"
+            )
+          )
+        }
+      }
+    }
     for b in node.stmts {
       self.checkNoEffect(b)
       if lastAlive == nil {

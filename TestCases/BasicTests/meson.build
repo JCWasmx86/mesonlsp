@@ -1,3 +1,4 @@
+dummy_before_project = 1 # ana:error: First statement is not a project() call
 project('foo', 'c')
 subdir('nonexisting') # ana:error: nonexisting/meson.build not found
 xY = 1 # ana:warn: Expected snake case
