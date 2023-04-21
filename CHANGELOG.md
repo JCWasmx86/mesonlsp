@@ -3,7 +3,7 @@
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI
 - Setup [APT Repo](https://github.com/JCWasmx86/swift-mesonlsp-apt-repo) for these distributions
 - Include identifiers in auto-completion
-- Send progress of setting up the subprojects to the client
+- Send progress of setting up the subprojects to the client ([Includes work upstream](https://github.com/apple/sourcekit-lsp/pull/732))
 - Fix crash, if setting up and parsing subprojects was faster than parsing the project itself.
 # 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found

@@ -39,10 +39,10 @@
     {
       "identity" : "sourcekit-lsp",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/JCWasmx86/sourcekit-lsp",
+      "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "f10e5c5d8d736fc4a91dd0b82b01570065edf2fd"
+        "revision" : "2f24c3c1976351295ef5ee3bcc16fb058ea27898"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-certificates.git",
       "state" : {
-        "revision" : "54b9711034c0bd9b18f9ac0fb262d493130bcf13",
-        "version" : "0.1.0"
+        "revision" : "5c05fab7fbb7e741ce30cf0344441191d5abe9f0",
+        "version" : "0.4.0"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "6d9c36b4beda0dae88feab6dc36206434bae713c",
-        "version" : "2.4.1"
+        "revision" : "33a20e650c33f6d72d822d558333f2085effa3dc",
+        "version" : "2.5.0"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "1828be2bd6afb0e69dccbc79d6e67d747e024be6"
+        "revision" : "c49480c03e55e65eca852e225f7a0b0acfc82967"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "3e3bd6a0cec2b8e52bce7fcb2ecaa69a33a8c6ce"
+        "revision" : "c6ea0d710c989d635627783e6fb8483bc0fa68b6"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "229b8e5df108e913ab4f4b3b41c6df01eaee90d4"
+        "revision" : "22c4a91c30f1414105192c61a8083546f0136fb5"
       }
     },
     {
