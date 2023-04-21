@@ -7,6 +7,7 @@
 - Fix crash, if setting up and parsing subprojects was faster than parsing the project itself.
 - Show error, if first statement in root meson.build is not a call to `project()`
 - Bump COPR to build for Fedora 38.
+- Show warnings for duplicate keyword arguments
 # 2.0 (Apr 11 2023)
 - Only rebuild tree after loading subprojects if a subproject was found
 - Rebuild trees of folder based subprojects. This allows e.g. editing while preserving features like hover/document symbols

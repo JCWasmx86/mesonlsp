@@ -885,6 +885,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     for arg in args where arg is KeywordItem {
       let k = (arg as! KeywordItem).key
       if let kId = k as? IdExpression {
+        if usedKwargs[kId.id] != nil {
+          self.metadata.registerDiagnostic(
+            node: arg,
+            diag: MesonDiagnostic(
+              sev: .warning,
+              node: arg,
+              message: "Duplicate key word argument \(kId.id)"
+            )
+          )
+          continue
+        }
         usedKwargs[kId.id] = (arg as! KeywordItem)
         if !fn.hasKwarg(name: kId.id) && kId.id != "kwargs" {
           self.metadata.registerDiagnostic(

@@ -103,3 +103,5 @@ dupdict = {
   'bar': 'baz',
   'foo': 'baz', # ana:warn: Duplicate key "foo"
 }
+build_target('foo', target_type: 'both_libraries', target_type: 'executable') # ana:warn: Duplicate key word argument target_type
+
