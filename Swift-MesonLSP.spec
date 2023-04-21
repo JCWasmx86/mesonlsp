@@ -2,8 +2,8 @@
 %undefine _auto_set_build_flags
 
 Name:           Swift-MesonLSP
-Version:        0.0.4
-Release:        2.0
+Version:        0.0.5
+Release:        2.1
 Summary:        Meson language server
 ExclusiveArch:  x86_64
 
@@ -37,6 +37,8 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
+* Sat Apr 21 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.5
+- Bump to v2.1
 * Sun Apr 2 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.4
 - Bump to v2.0
 * Sun Apr 2 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.3
