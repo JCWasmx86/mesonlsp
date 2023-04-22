@@ -78,7 +78,6 @@
   - [ ] `shared_library` to `shared_module` (And reverse)
   - [ ] Arrays passed to varargs function => Unpack them
   - [ ] `configure_file(copy: true)` to `fs.copyfile()`
-- [ ] Folding range
 - [ ] Automatic LSP tests
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [x] Document the language server
@@ -101,6 +100,7 @@
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
 - [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
+- [ ] Folding range
 - [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
