@@ -8,7 +8,7 @@ Summary:        Meson language server
 ExclusiveArch:  x86_64
 
 License:        GPL
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v2.0.tar.gz
+Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v2.1.tar.gz
 
 Requires:       bash
 BuildRequires:  swift-lang
@@ -19,13 +19,13 @@ BuildRequires:  git
 A meson language server
 
 %prep
-%setup -q -n Swift-MesonLSP-2.0
+%setup -q -n Swift-MesonLSP-2.1
 
 
 %build
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
-git checkout v2.0
+git checkout v2.1
 swift build -c release --static-swift-stdlib -Xswiftc -g
 
 %install
