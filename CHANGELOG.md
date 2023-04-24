@@ -1,3 +1,5 @@
+# X.X (XXX XX XXXX)
+
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI
