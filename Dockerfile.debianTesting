@@ -1,4 +1,4 @@
-FROM debian:testing AS stage1
+FROM debian:bookworm AS stage1
 WORKDIR /app
 RUN apt-get update&&\
     apt-get install zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget -y &&\
