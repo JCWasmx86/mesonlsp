@@ -82,6 +82,7 @@ jobs:
           ./do_meson_tests.sh
           ./run_regression_tests.sh
           yes | brew install mercurial
+          yes | brew install subversion
           ./run_wrap_tests.sh
           swift build -c release
           mkdir -p ${{ github.workspace }}/Artifacts
