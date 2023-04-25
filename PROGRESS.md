@@ -79,7 +79,6 @@
   - [ ] Arrays passed to varargs function => Unpack them
   - [ ] `configure_file(copy: true)` to `fs.copyfile()`
 - [ ] Automatic LSP tests
-- [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [x] Document the language server
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
@@ -99,6 +98,7 @@
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
+- [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
 - [ ] Folding range
 - [x] Add Windows to CI
