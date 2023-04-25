@@ -244,6 +244,7 @@ public final class TypeNamespace {
           Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -354,6 +355,7 @@ public final class TypeNamespace {
           Kwarg(name: "pic", opt: true, types: boolL), Kwarg(name: "pie", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -628,6 +630,7 @@ public final class TypeNamespace {
           ), Kwarg(name: "override_options", opt: true, types: strlistL),
           Kwarg(name: "pie", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -880,6 +883,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["extracted_obj"]!, self.types["file"]!, str])]
           ), Kwarg(name: "override_options", opt: true, types: strlistL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -986,6 +990,7 @@ public final class TypeNamespace {
           Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -1180,6 +1185,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["extracted_obj"]!, self.types["file"]!, str])]
           ), Kwarg(name: "override_options", opt: true, types: strlistL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -1284,6 +1290,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["extracted_obj"]!, self.types["file"]!, str])]
           ), Kwarg(name: "override_options", opt: true, types: strlistL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -1389,6 +1396,7 @@ public final class TypeNamespace {
           Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -1661,6 +1669,7 @@ public final class TypeNamespace {
             ]
           ), Kwarg(name: "install_tag", opt: true, types: strL),
           Kwarg(name: "skip_if_destdir", opt: true, types: boolL),
+          Kwarg(name: "dry_run", opt: true, types: boolL),
         ]
       ),
       Method(
@@ -1680,6 +1689,7 @@ public final class TypeNamespace {
         ]
       ), Method(name: "backend", parent: t, returnTypes: strL),
       Method(name: "build_root", parent: t, returnTypes: strL),
+      Method(name: "build_options", parent: t, returnTypes: strL),
       Method(name: "can_run_host_binaries", parent: t, returnTypes: boolL),
       Method(name: "current_build_dir", parent: t, returnTypes: strL),
       Method(name: "current_source_dir", parent: t, returnTypes: strL),
@@ -2282,6 +2292,11 @@ public final class TypeNamespace {
             opt: true,
             types: [ListType(types: [self.types["inc"]!]), self.types["inc"]!]
           ), Kwarg(name: "output", opt: true, types: strL),
+          Kwarg(
+            name: "dependencies",
+            opt: true,
+            types: [ListType(types: [self.types["dep"]!]), self.types["dep"]!]
+          ),
         ]
       ),
       Method(
@@ -2445,8 +2460,31 @@ public final class TypeNamespace {
         parent: t,
         returnTypes: [t],
         args: [PositionalArgument(name: "value", types: boolL)]
+      ),
+      Method(
+        name: "disable_if",
+        parent: t,
+        returnTypes: [t],
+        args: [
+          PositionalArgument(name: "value", types: boolL),
+          Kwarg(name: "error_message", opt: true, types: strL),
+        ]
       ), Method(name: "disabled", parent: t, returnTypes: boolL),
-      Method(name: "enabled", parent: t, returnTypes: boolL),
+      Method(
+        name: "enable_auto_if",
+        parent: t,
+        returnTypes: [t],
+        args: [PositionalArgument(name: "value", types: boolL)]
+      ),
+      Method(
+        name: "enable_if",
+        parent: t,
+        returnTypes: [t],
+        args: [
+          PositionalArgument(name: "value", types: boolL),
+          Kwarg(name: "error_message", opt: true, types: strL),
+        ]
+      ), Method(name: "enabled", parent: t, returnTypes: boolL),
       Method(
         name: "require",
         parent: t,
@@ -3580,6 +3618,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["extracted_obj"]!, self.types["file"]!, str])]
           ), Kwarg(name: "override_options", opt: true, types: [ListType(types: strL)]),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -3772,6 +3811,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["extracted_obj"]!, self.types["file"]!, str])]
           ), Kwarg(name: "override_options", opt: true, types: [ListType(types: strL)]),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
+          Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,
@@ -4006,7 +4046,6 @@ public final class TypeNamespace {
           ),
         ]
       ),
-
       Method(
         name: "preprocess",
         parent: t,
@@ -4149,7 +4188,6 @@ public final class TypeNamespace {
           ),
         ]
       ),
-
       Method(
         name: "preprocess",
         parent: t,
@@ -4192,7 +4230,6 @@ public final class TypeNamespace {
           ),
         ]
       ),
-
       Method(
         name: "compile_translations",
         parent: t,

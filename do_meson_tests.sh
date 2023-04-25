@@ -29,14 +29,14 @@ export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
 git clone https://github.com/mesonbuild/meson.git || exit
 cd "meson/test cases" || exit
-git checkout 7186279ffaf8b5827d5ba4eedbe9249bc48f82c7
+git checkout e1de1bae0997f38370bb9cae3f158af9ae3f14ac
 for i in *; do
 	echo "Entering testdir \"$i\""
 	cd "$i" || exit
 	for j in *; do
 		echo "Testing \"$i//$j\""
 		cd "$j" || exit
-		output=$($LSPPATH meson.build)
+		output=$($LSPPATH meson.build | grep -v testcase | grep -v expect_error)
 		testname="$i/$j"
 		# shellcheck disable=SC2235
 		if echo "$output" | grep -q "🔴"; then
@@ -55,6 +55,9 @@ for i in *; do
 					[ "$testname" == "failing/57 assign custom target index" ] ||
 					[ "$testname" == "failing/5 misplaced option" ] ||
 					[ "$testname" == "failing/97 subdir parse error" ] ||
+					[ "$testname" == "failing/130 invalid ast" ] ||
+					[ "$testname" == "failing/131 invalid project function" ] ||
+					[ "$testname" == "failing/1 project not first" ] ||
 					[ "$testname" == "unit/21 exit status" ]); then
 				:
 			elif [ "$(echo "$output" | grep -c 🔴)" -eq 2 ] && [ "$testname" == "failing/55 or on new line" ]; then
