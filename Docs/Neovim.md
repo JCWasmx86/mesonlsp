@@ -1,4 +1,6 @@
 # Integration with Neovim
+**Note**: Neovim is not tested extensively
+
 Add this JSON to `:CocConfig`:
 ```
 {

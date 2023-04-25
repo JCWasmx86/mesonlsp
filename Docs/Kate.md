@@ -1,4 +1,7 @@
 # Integrate with Kate
+**Note**: Kate is not tested extensively
+
+
 Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
 {
