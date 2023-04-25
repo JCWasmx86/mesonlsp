@@ -44,7 +44,7 @@ jobs:
         with:
           name: Fedora38.zip
           path: /Fedora38.zip
-  macos:
+  macos12:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -66,6 +66,29 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS12.zip
+          path: ${{ github.workspace }}/Artifacts
+  macos13:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on MacOS 13
+        run: |
+          swift build
+          swift test
+          ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
+          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
+          ./do_meson_tests.sh
+          ./run_regression_tests.sh
+          yes | brew install mercurial
+          ./run_wrap_tests.sh
+          swift build -c release
+          mkdir -p ${{ github.workspace }}/Artifacts
+          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
+      - uses: actions/upload-artifact@v3
+        with:
+          name: MacOS13.zip
           path: ${{ github.workspace }}/Artifacts
   ubuntu1804:
     runs-on: ubuntu-22.04
