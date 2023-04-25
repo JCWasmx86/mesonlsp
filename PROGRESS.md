@@ -83,6 +83,7 @@
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 - [x] Investigate PGO (Does not seem to work on Linux)
+- [ ] Check if `CollectionOfOne` speeds up TypeAnalyzer
 - [x] Support apt-like
   - [x] Debian
     - [x] Stable
