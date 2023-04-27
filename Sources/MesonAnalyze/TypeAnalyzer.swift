@@ -918,8 +918,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
-    for requiredKwarg in fn.requiredKwargs() where usedKwargs[requiredKwarg] == nil {
-      if usedKwargs["kwargs"] == nil {
+    if usedKwargs["kwargs"] == nil {
+      for requiredKwarg in fn.requiredKwargs() where usedKwargs[requiredKwarg] == nil {
         self.metadata.registerDiagnostic(
           node: node,
           diag: MesonDiagnostic(
