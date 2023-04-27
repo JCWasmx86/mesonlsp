@@ -945,9 +945,11 @@ public final class MesonServer: LanguageServer {
         	<title>Status for Swift-MesonLSP</title>
         	</head>
         	<body>
-        	<ul>
         """
-      var body = ""
+      var body =
+        "<h2>Available commands</h2> muon is required for formatting, patch/git is used for applying patches to wraps; "
+      body +=
+        "Additionally, git is used for git wraps. Svn/Hg are used for wraps, too. wget or curl are used for downloading file wraps and patches for all wraps<ul>"
       let commands = ["muon", "patch", "git", "svn", "hg", "wget", "curl"]
       for c in commands { body += "<li>\(self.isAvailable(c)) \(c)</li>" }
       body += "<ul></body></html>"
