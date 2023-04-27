@@ -21,8 +21,8 @@ jobs:
           args: Swift-MesonLSP.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-  build-macos:
-    name: Build and upload
+  build-macos12:
+    name: Build and upload macOS 12
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -35,5 +35,21 @@ jobs:
         uses: JasonEtco/upload-to-release@master
         with:
           args: Swift-MesonLSP-MacOS.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  build-macos13:
+    name: Build and upload macOS 13
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          swift build -c release
+          ./create_license_bundle.sh
+          zip -9jpr Swift-MesonLSP-MacOS13.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: Swift-MesonLSP-MacOS13.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
