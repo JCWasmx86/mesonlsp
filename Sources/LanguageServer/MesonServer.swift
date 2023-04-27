@@ -904,7 +904,7 @@ public final class MesonServer: LanguageServer {
       for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
       body += "</table>"
     }
-    if let sb = self.subprojects {
+    if let sb = self.subprojects, !sb.subprojects.isEmpty {
       body += "<h2>Subprojects</h2>"
       for b in sb.subprojects where b.tree != nil && b.tree!.ast != nil {
         body += "<h3>\(b.description)</h3>"
@@ -921,7 +921,6 @@ public final class MesonServer: LanguageServer {
         body += "</table>"
       }
     }
-
     body += "</body>"
     return header + body
   }
