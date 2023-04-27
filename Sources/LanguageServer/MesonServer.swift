@@ -61,6 +61,7 @@ public final class MesonServer: LanguageServer {
       self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
       self.server["/caches"] = { _ in return HttpResponse.ok(.text(self.generateCacheHTML())) }
       self.server["/count"] = { _ in return HttpResponse.ok(.text(self.generateCountHTML())) }
+      self.server["/status"] = { _ in return HttpResponse.ok(.text(self.generateStatusHTML())) }
     #else
       super.init(client: client)
     #endif
@@ -922,6 +923,34 @@ public final class MesonServer: LanguageServer {
       }
     }
     body += "</body>"
+    return header + body
+  }
+
+  private func isAvailable(_ command: String) -> String {
+    let task = Process()
+    task.arguments = ["-c", "which \(command)"]
+    task.executableURL = URL(fileURLWithPath: "/bin/sh")
+    do { try task.run() } catch { return "" }
+    task.waitUntilExit()
+    if task.terminationStatus != 0 { return "🔴" }
+    return "🟢"
+  }
+
+  private func generateStatusHTML() -> String {
+    let header = """
+      	<!DOCTYPE html>
+      	<html>
+      	<head>
+      	<meta charset="utf-8">
+      	<title>Status for Swift-MesonLSP</title>
+      	</head>
+      	<body>
+      	<ul>
+      """
+    var body = ""
+    let commands = ["muon", "patch", "git", "svn", "hg", "wget", "curl"]
+    for c in commands { body += "<li>\(self.isAvailable(c)) \(c)</li>" }
+    body += "<ul></body></html>"
     return header + body
   }
 
