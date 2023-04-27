@@ -351,9 +351,26 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.overriddenVariables.removeLast()
   }
 
-  public func visitBreakStatement(node: BreakNode) {}
+  public func visitBreakStatement(node: BreakNode) { self.checkIfInLoop(node, "break") }
 
-  public func visitContinueStatement(node: ContinueNode) {}
+  public func visitContinueStatement(node: ContinueNode) { self.checkIfInLoop(node, "continue") }
+
+  func checkIfInLoop(_ node: Node, _ str: String) {
+    var parent = node.parent
+    while parent != nil {
+      if parent is IterationStatement { return }
+      if parent is BuildDefinition { break }
+      parent = parent!.parent
+    }
+    self.metadata.registerDiagnostic(
+      node: node,
+      diag: MesonDiagnostic(
+        sev: .error,
+        node: node,
+        message: "\(str) statements are only allowed inside loops"
+      )
+    )
+  }
 
   private func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
     let iterTypes = node.expression.types

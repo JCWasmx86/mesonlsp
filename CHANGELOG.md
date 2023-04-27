@@ -5,6 +5,7 @@
 - Add `/count` endpoint that shows the amount of nodes for each (sub)project. It probably won't have any use for endusers.
 - Add `/status` endpoint that shows	if all required	programs were found
 - Show error, if there are more than two identifiers in iteration statements.
+- Show error for `break`s/`continue`s outside of loops
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI

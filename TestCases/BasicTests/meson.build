@@ -108,3 +108,6 @@ empty_var = message('') # ana:error: Can't assign from void
 foreach iterp, iterq, iterr : {} # ana:error: Iteration statement expects only one or two identifiers
 endforeach
 
+continue # ana:error: continue statements are only allowed inside loops
+break # ana:error: break statements are only allowed inside loops
+
