@@ -4,6 +4,7 @@ import SwiftTreeSitter
 public class SubdirCall: FunctionExpression {
   public var subdirname: String
   public var fullFile: String
+  public var file_: MesonAST.Node?
 
   init(file: MesonSourceFile, node: FunctionExpression) {
     if let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
@@ -35,4 +36,6 @@ public class SubdirCall: FunctionExpression {
     self.argumentList?.parent = self
     self.argumentList?.setParents()
   }
+
+  public func append(_ tree: MesonAST.Node?) { if tree != nil { self.file_ = tree! } }
 }

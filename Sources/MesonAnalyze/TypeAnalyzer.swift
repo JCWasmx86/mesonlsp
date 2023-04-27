@@ -115,6 +115,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       st.ast?.parent = node
       st.ast?.visit(visitor: self)
       self.tree = tmptree
+      node.append(st.ast)
     } else {
       self.metadata.registerDiagnostic(
         node: node,
@@ -143,6 +144,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         st.ast?.parent = node
         st.ast?.visit(visitor: self)
         self.tree = tmptree
+        node.append(st.ast)
       } else {
         Self.LOG.warning("Not found (Multisubdir): \(subdirname)")
       }

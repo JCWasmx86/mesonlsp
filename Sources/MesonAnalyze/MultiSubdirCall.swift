@@ -4,6 +4,7 @@ import SwiftTreeSitter
 public class MultiSubdirCall: FunctionExpression {
   public var subdirnames: [String]
   public var fullFiles: [String]
+  public var files: [MesonAST.Node] = []
 
   init(file: MesonSourceFile, node: FunctionExpression) {
     self.subdirnames = []
@@ -31,6 +32,8 @@ public class MultiSubdirCall: FunctionExpression {
     self.argumentList?.parent = self
     self.argumentList?.setParents()
   }
+
+  public func append(_ tree: MesonAST.Node?) { if tree != nil { self.files.append(tree!) } }
 
   public func heuristics() -> [String] { return MesonAnalyze.guessSetVariable(fe: self) }
 }

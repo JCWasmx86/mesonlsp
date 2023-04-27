@@ -60,6 +60,7 @@ public final class MesonServer: LanguageServer {
       super.init(client: client)
       self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
       self.server["/caches"] = { _ in return HttpResponse.ok(.text(self.generateCacheHTML())) }
+      self.server["/count"] = { _ in return HttpResponse.ok(.text(self.generateCountHTML())) }
     #else
       super.init(client: client)
     #endif
@@ -641,7 +642,7 @@ public final class MesonServer: LanguageServer {
         )
         if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
         if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
-        Self.LOG.info("Task ended \(Task.isCancelled)")
+        Self.LOG.info("Task ended, cancelled: \(Task.isCancelled)")
       }
     } else {
       Self.LOG.error("Unable to rebuild subproject as it is not folder based!")
@@ -860,6 +861,69 @@ public final class MesonServer: LanguageServer {
   private func exit(_ notification: Notification<ExitNotification>) {
     self.prepareForExit()
     self.onExit()
+  }
+
+  private func generateCountHTML() -> String {
+    let header = """
+      	<!DOCTYPE html>
+      	<html>
+      	<head>
+      	<style>
+      	table {
+      		font-family: arial, sans-serif;
+      		border-collapse: collapse;
+      		width: 100%;
+      	}
+
+      	td, th {
+      		border: 1px solid #dddddd;
+      		text-align: left;
+      		padding: 8px;
+      	}
+
+      	tr:nth-child(even) {
+      		background-color: #dddddd;
+      	}
+      	</style>
+      	</head>
+      	<body>
+      """
+    var body = ""
+    if let t = self.tree, let ast = t.ast {
+      let visitor = NodeCounter()
+      // NodeCounter: Visit subdircalls
+      ast.visit(visitor: visitor)
+      body = """
+        <h1>Main project</h1>
+        <table>
+        	<tr>
+        		<th>Type</th>
+        		<th>Count</th>
+        	</tr>
+        """
+      for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
+      body += "</table>"
+    }
+    if let sb = self.subprojects {
+      body += "<h2>Subprojects</h2>"
+      for b in sb.subprojects where b.tree != nil && b.tree!.ast != nil {
+        body += "<h3>\(b.description)</h3>"
+        body += """
+          	<table>
+          	<tr>
+          		<th>Type</th>
+          		<th>Count</th>
+          	</tr>
+          """
+        let visitor = NodeCounter()
+        b.tree?.ast?.visit(visitor: visitor)
+        for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
+        body += "</table>"
+      }
+    }
+
+    body += "</body>"
+    return header + body
   }
 
   private func generateCacheHTML() -> String {
