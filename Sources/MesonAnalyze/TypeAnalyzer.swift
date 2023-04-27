@@ -533,6 +533,21 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.variablesNeedingUse[self.variablesNeedingUse.count - 1].append(node)
   }
 
+  private func extractVoidAssignment(_ node: AssignmentStatement) {
+    var name = ""
+    if let fe = node.rhs as? FunctionExpression, let f = fe.function {
+      name = f.id()
+    } else if let me = node.rhs as? MethodExpression, let m = me.method {
+      name = m.id()
+    }
+    if !name.hasPrefix("install_") {
+      self.metadata.registerDiagnostic(
+        node: node.lhs,
+        diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can't assign from void")
+      )
+    }
+  }
+
   public func visitAssignmentStatement(node: AssignmentStatement) {
     node.visitChildren(visitor: self)
     if !(node.lhs is IdExpression) {
@@ -545,10 +560,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     guard node.op != nil else { return }
     guard let lhsIdExpr = node.lhs as? IdExpression else { return }
     if node.rhs.types.isEmpty && (node.rhs is FunctionExpression || node.lhs is MethodExpression) {
-      self.metadata.registerDiagnostic(
-        node: node.lhs,
-        diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can't assign from void")
-      )
+      self.extractVoidAssignment(node)
       return
     }
     if node.op == .equals {
