@@ -105,4 +105,6 @@ dupdict = {
 }
 build_target('foo', target_type: 'both_libraries', target_type: 'executable') # ana:warn: Duplicate key word argument target_type
 empty_var = message('') # ana:error: Can't assign from void
+foreach iterp, iterq, iterr : {} # ana:error: Iteration statement expects only one or two identifiers
+endforeach
 

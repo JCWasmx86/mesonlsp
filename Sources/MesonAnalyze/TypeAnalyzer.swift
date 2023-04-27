@@ -376,11 +376,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     if let id0Expr = (node.ids[0] as? IdExpression), let id1Expr = (node.ids[1] as? IdExpression) {
       self.applyToStack(id1Expr.id, node.ids[1].types)
-      self.applyToStack(id0Expr.id, node.ids[0].types)
       self.scope.variables[id1Expr.id] = node.ids[1].types
+      self.checkIdentifier(id1Expr)
+      self.applyToStack(id0Expr.id, node.ids[0].types)
       self.scope.variables[id0Expr.id] = node.ids[0].types
       self.checkIdentifier(id0Expr)
-      self.checkIdentifier(id1Expr)
     }
   }
 
@@ -428,6 +428,17 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       analyseIterationStatementSingleIdentifier(node)
     } else if node.ids.count == Self.ITERATION_DICT_VAR_COUNT {
       analyseIterationStatementTwoIdentifiers(node)
+    } else {
+      self.metadata.registerDiagnostic(
+        begin: node.ids[0],
+        end: node.ids[node.ids.count - 1],
+        diag: MesonDiagnostic(
+          sev: .error,
+          begin: node.ids[0],
+          end: node.ids[node.ids.count - 1],
+          message: "Iteration statement expects only one or two identifiers"
+        )
+      )
     }
     var lastAlive: Node?
     var firstDead: Node?
