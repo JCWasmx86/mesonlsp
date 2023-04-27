@@ -78,6 +78,7 @@
   - [ ] `shared_library` to `shared_module` (And reverse)
   - [ ] Arrays passed to varargs function => Unpack them
   - [ ] `configure_file(copy: true)` to `fs.copyfile()`
+  - [ ] Create dependency using `declare_dependency` from library
 - [ ] Automatic LSP tests
 - [x] Document the language server
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
