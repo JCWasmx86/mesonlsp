@@ -544,7 +544,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     guard node.op != nil else { return }
     guard let lhsIdExpr = node.lhs as? IdExpression else { return }
-    if node.rhs.types.isEmpty {
+    if node.rhs.types.isEmpty && (node.rhs is FunctionExpression || node.lhs is MethodExpression) {
       self.metadata.registerDiagnostic(
         node: node.lhs,
         diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can't assign from void")
