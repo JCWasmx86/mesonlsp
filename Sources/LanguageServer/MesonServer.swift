@@ -864,191 +864,192 @@ public final class MesonServer: LanguageServer {
     self.onExit()
   }
 
-  private func generateCountHTML() -> String {
-    let header = """
-      	<!DOCTYPE html>
-      	<html>
-      	<head>
-      	<style>
-      	table {
-      		font-family: arial, sans-serif;
-      		border-collapse: collapse;
-      		width: 100%;
-      	}
+  #if !os(Windows)
+    private func generateCountHTML() -> String {
+      let header = """
+        	<!DOCTYPE html>
+        	<html>
+        	<head>
+        	<style>
+        	table {
+        		font-family: arial, sans-serif;
+        		border-collapse: collapse;
+        		width: 100%;
+        	}
 
-      	td, th {
-      		border: 1px solid #dddddd;
-      		text-align: left;
-      		padding: 8px;
-      	}
+        	td, th {
+        		border: 1px solid #dddddd;
+        		text-align: left;
+        		padding: 8px;
+        	}
 
-      	tr:nth-child(even) {
-      		background-color: #dddddd;
-      	}
-      	</style>
-      	</head>
-      	<body>
-      """
-    var body = ""
-    if let t = self.tree, let ast = t.ast {
-      let visitor = NodeCounter()
-      // NodeCounter: Visit subdircalls
-      ast.visit(visitor: visitor)
-      body = """
-        <h1>Main project</h1>
-        <table>
-        	<tr>
-        		<th>Type</th>
-        		<th>Count</th>
-        	</tr>
+        	tr:nth-child(even) {
+        		background-color: #dddddd;
+        	}
+        	</style>
+        	</head>
+        	<body>
         """
-      for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
-      body += "</table>"
-    }
-    if let sb = self.subprojects, !sb.subprojects.isEmpty {
-      body += "<h2>Subprojects</h2>"
-      for b in sb.subprojects where b.tree != nil && b.tree!.ast != nil {
-        body += "<h3>\(b.description)</h3>"
-        body += """
-          	<table>
+      var body = ""
+      if let t = self.tree, let ast = t.ast {
+        let visitor = NodeCounter()
+        ast.visit(visitor: visitor)
+        body = """
+          <h1>Main project</h1>
+          <table>
           	<tr>
           		<th>Type</th>
           		<th>Count</th>
           	</tr>
           """
-        let visitor = NodeCounter()
-        b.tree?.ast?.visit(visitor: visitor)
         for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
         body += "</table>"
       }
-    }
-    body += "</body>"
-    return header + body
-  }
-
-  private func isAvailable(_ command: String) -> String {
-    let task = Process()
-    task.arguments = ["-c", "which \(command)"]
-    task.executableURL = URL(fileURLWithPath: "/bin/sh")
-    do { try task.run() } catch { return "" }
-    task.waitUntilExit()
-    if task.terminationStatus != 0 { return "🔴" }
-    return "🟢"
-  }
-
-  private func generateStatusHTML() -> String {
-    let header = """
-      	<!DOCTYPE html>
-      	<html>
-      	<head>
-      	<meta charset="utf-8">
-      	<title>Status for Swift-MesonLSP</title>
-      	</head>
-      	<body>
-      	<ul>
-      """
-    var body = ""
-    let commands = ["muon", "patch", "git", "svn", "hg", "wget", "curl"]
-    for c in commands { body += "<li>\(self.isAvailable(c)) \(c)</li>" }
-    body += "<ul></body></html>"
-    return header + body
-  }
-
-  private func generateCacheHTML() -> String {
-    let header = """
-      	<!DOCTYPE html>
-      	<html>
-      	<head>
-      	<meta http-equiv="refresh" content="5" />
-      	</head>
-      	<body>
-        <h1>Mainproject</h1>
-      	<h2>Open files</h2>
-      	<ul>
-      """
-    var body = ""
-    for o in self.openFiles { body += "<li>\(o)</li>\n" }
-    body += "</ul>\n"
-    body += "<h2>Cached ASTs</h2>\n<ul>\n"
-    for o in self.astCache.keys { body += "<li>\(o)</li>\n" }
-    body += "</ul>\n"
-    if self.subprojects != nil {
-      body += "<h1>Subprojects</h1>"
-      for s in self.subprojects!.subprojects {
-        body += "<h2>\(s.realpath)</h2>\n"
-        body += "<h3>Open files</h3>\n<ul>"
-        if let ac = self.openSubprojectFiles[s.realpath] {
-          for k in ac { body += "<li>\(k)</li>\n" }
+      if let sb = self.subprojects, !sb.subprojects.isEmpty {
+        body += "<h2>Subprojects</h2>"
+        for b in sb.subprojects where b.tree != nil && b.tree!.ast != nil {
+          body += "<h3>\(b.description)</h3>"
+          body += """
+            	<table>
+            	<tr>
+            		<th>Type</th>
+            		<th>Count</th>
+            	</tr>
+            """
+          let visitor = NodeCounter()
+          b.tree?.ast?.visit(visitor: visitor)
+          for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
+          body += "</table>"
         }
-        body += "</ul><h3>Cached ASTs</h3>\n<ul>"
-        if let ac = self.astCaches[s.realpath] { for k in ac.keys { body += "<li>\(k)</li>\n" } }
-        body += "</ul>"
       }
+      body += "</body>"
+      return header + body
     }
-    body += "</body></html>"
-    return header + body
-  }
 
-  private func generateHTML() -> String {
-    let header = """
-      	<!DOCTYPE html>
-      	<html>
-      	<head>
-      	<meta http-equiv="refresh" content="5" />
-      	<style>
-      	table {
-      		font-family: arial, sans-serif;
-      		border-collapse: collapse;
-      		width: 100%;
-      	}
-
-      	td, th {
-      		border: 1px solid #dddddd;
-      		text-align: left;
-      		padding: 8px;
-      	}
-
-      	tr:nth-child(even) {
-      		background-color: #dddddd;
-      	}
-      	</style>
-      	</head>
-      	<body>
-
-      	<h2>Timing information</h2>
-
-      	<table>
-      		<tr>
-      			<th>Identifier</th>
-      			<th>Hits</th>
-      			<th>Min</th>
-      			<th>Max</th>
-      			<th>Median</th>
-      			<th>Average</th>
-      			<th>Standard deviation</th>
-      			<th>Sum</th>
-      		</tr>
-      """
-    var str = ""
-    for t in Timing.INSTANCE.timings() {
-      let rounding = 2
-      str.append(
-        "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>"
-          + "<td>\(t.min().round(to: rounding))</td>" + "<td>\(t.max().round(to: rounding))</td>"
-          + "<td>\(t.median().round(to: rounding))</td>"
-          + "<td>\(t.average().round(to: rounding))</td>"
-          + "<td>\(t.stddev().round(to: rounding))</td>"
-          + "<td>\(t.sum().round(to: rounding))</td></tr>"
-      )
+    private func isAvailable(_ command: String) -> String {
+      let task = Process()
+      task.arguments = ["-c", "which \(command)"]
+      task.executableURL = URL(fileURLWithPath: "/bin/sh")
+      do { try task.run() } catch { return "🔴" }
+      task.waitUntilExit()
+      if task.terminationStatus != 0 { return "🔴" }
+      return "🟢"
     }
-    let footer = """
-      	</table>
 
-      	</body>
-      	</html>
-      """
-    return header + str + footer
-  }
+    private func generateStatusHTML() -> String {
+      let header = """
+        	<!DOCTYPE html>
+        	<html>
+        	<head>
+        	<meta charset="utf-8">
+        	<title>Status for Swift-MesonLSP</title>
+        	</head>
+        	<body>
+        	<ul>
+        """
+      var body = ""
+      let commands = ["muon", "patch", "git", "svn", "hg", "wget", "curl"]
+      for c in commands { body += "<li>\(self.isAvailable(c)) \(c)</li>" }
+      body += "<ul></body></html>"
+      return header + body
+    }
+
+    private func generateCacheHTML() -> String {
+      let header = """
+        	<!DOCTYPE html>
+        	<html>
+        	<head>
+        	<meta http-equiv="refresh" content="5" />
+        	</head>
+        	<body>
+          <h1>Mainproject</h1>
+        	<h2>Open files</h2>
+        	<ul>
+        """
+      var body = ""
+      for o in self.openFiles { body += "<li>\(o)</li>\n" }
+      body += "</ul>\n"
+      body += "<h2>Cached ASTs</h2>\n<ul>\n"
+      for o in self.astCache.keys { body += "<li>\(o)</li>\n" }
+      body += "</ul>\n"
+      if self.subprojects != nil {
+        body += "<h1>Subprojects</h1>"
+        for s in self.subprojects!.subprojects {
+          body += "<h2>\(s.realpath)</h2>\n"
+          body += "<h3>Open files</h3>\n<ul>"
+          if let ac = self.openSubprojectFiles[s.realpath] {
+            for k in ac { body += "<li>\(k)</li>\n" }
+          }
+          body += "</ul><h3>Cached ASTs</h3>\n<ul>"
+          if let ac = self.astCaches[s.realpath] { for k in ac.keys { body += "<li>\(k)</li>\n" } }
+          body += "</ul>"
+        }
+      }
+      body += "</body></html>"
+      return header + body
+    }
+
+    private func generateHTML() -> String {
+      let header = """
+        	<!DOCTYPE html>
+        	<html>
+        	<head>
+        	<meta http-equiv="refresh" content="5" />
+        	<style>
+        	table {
+        		font-family: arial, sans-serif;
+        		border-collapse: collapse;
+        		width: 100%;
+        	}
+
+        	td, th {
+        		border: 1px solid #dddddd;
+        		text-align: left;
+        		padding: 8px;
+        	}
+
+        	tr:nth-child(even) {
+        		background-color: #dddddd;
+        	}
+        	</style>
+        	</head>
+        	<body>
+
+        	<h2>Timing information</h2>
+
+        	<table>
+        		<tr>
+        			<th>Identifier</th>
+        			<th>Hits</th>
+        			<th>Min</th>
+        			<th>Max</th>
+        			<th>Median</th>
+        			<th>Average</th>
+        			<th>Standard deviation</th>
+        			<th>Sum</th>
+        		</tr>
+        """
+      var str = ""
+      for t in Timing.INSTANCE.timings() {
+        let rounding = 2
+        str.append(
+          "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>"
+            + "<td>\(t.min().round(to: rounding))</td>" + "<td>\(t.max().round(to: rounding))</td>"
+            + "<td>\(t.median().round(to: rounding))</td>"
+            + "<td>\(t.average().round(to: rounding))</td>"
+            + "<td>\(t.stddev().round(to: rounding))</td>"
+            + "<td>\(t.sum().round(to: rounding))</td></tr>"
+        )
+      }
+      let footer = """
+        	</table>
+
+        	</body>
+        	</html>
+        """
+      return header + str + footer
+    }
+  #endif
 }
 
 extension Double {
