@@ -1,6 +1,7 @@
 # X.X (XXX XX XXXX)
 - Build on macOS 13 in CI
 - Upload macOS 13 binaries to releases
+- Show error, if there is an assignment statement from void
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI

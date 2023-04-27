@@ -514,6 +514,13 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     guard node.op != nil else { return }
     guard let lhsIdExpr = node.lhs as? IdExpression else { return }
+    if node.rhs.types.isEmpty {
+      self.metadata.registerDiagnostic(
+        node: node.lhs,
+        diag: MesonDiagnostic(sev: .error, node: node.lhs, message: "Can't assign from void")
+      )
+      return
+    }
     if node.op == .equals {
       var arr = node.rhs.types
       if arr.isEmpty, let arrLit = node.rhs as? ArrayLiteral, arrLit.args.isEmpty {
