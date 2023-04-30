@@ -1,0 +1,6 @@
+project('Swift-MesonLSP', 'swift', 'c')
+logging_proj = subproject('logging')
+logging_dep = logging_proj.get_variable('swift_log_dep')
+crypto_proj = subproject('crypto')
+crypto_dep = crypto_proj.get_variable('crypto_dep')
+subdir('Sources')
