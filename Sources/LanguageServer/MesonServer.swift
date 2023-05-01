@@ -123,6 +123,11 @@ public final class MesonServer: LanguageServer {
     _register(Self.inlayHints)
     _register(Self.didCreateFiles)
     _register(Self.didDeleteFiles)
+    _register(Self.codeActions)
+  }
+
+  private func codeActions(_ req: Request<CodeActionRequest>) {
+    req.reply(CodeActionRequestResponse(codeActions: [], clientCapabilities: nil))
   }
 
   private func findTree(_ uri: DocumentURI) -> MesonTree? {
@@ -755,6 +760,7 @@ public final class MesonServer: LanguageServer {
       documentHighlightProvider: .bool(true),
       documentSymbolProvider: .bool(true),
       workspaceSymbolProvider: .bool(true),
+      codeActionProvider: .bool(true),
       documentFormattingProvider: .bool(true),
       declarationProvider: .bool(true),
       workspace: WorkspaceServerCapabilities(),
