@@ -23,6 +23,10 @@ if max_open_fds < 65536
     )
 endif
 
+if build_machine.system() != 'linux'
+    error('Unsupported OS for compilation: @0@'.format(build_machine.system()))
+endif
+
 logging_proj = subproject('logging')
 logging_dep = logging_proj.get_variable('swift_log_dep')
 crypto_proj = subproject('crypto')
