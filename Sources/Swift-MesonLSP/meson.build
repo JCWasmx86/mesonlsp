@@ -5,6 +5,7 @@ lspjsonrpc_dep = sk_proj.get_variable('lspjsonrpc_dep')
 executable(
     'Swift-MesonLSP',
     'MesonLSP.swift',
+    install: true,
     dependencies: [
         argparser_dep,
         backtrace_dep,
