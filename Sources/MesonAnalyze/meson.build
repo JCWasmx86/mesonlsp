@@ -1,3 +1,7 @@
+tree_sitter_meson_dep = subproject(
+    'treesittermeson',
+).get_variable('tree_sitter_meson_dep')
+
 mesonanalyze_lib = static_library(
     'MesonAnalyze',
     'Checkers/Checker.swift',
@@ -49,23 +53,19 @@ mesonanalyze_lib = static_library(
         logging_dep,
         mesonast_dep,
         wrap_dep,
-        subproject('treesittermeson').get_variable('tree_sitter_meson_dep'),
+        tree_sitter_meson_dep,
     ],
-    link_with: [
-        timing_lib,
-        subproject('treesittermeson').get_variable('tree_sitter_meson_lib'),
-    ],
+    link_with: timing_lib,
 )
 mesonanalyze_dep = declare_dependency(
     dependencies: [
         logging_dep,
         mesonast_dep,
         wrap_dep,
-        subproject('treesittermeson').get_variable('tree_sitter_meson_dep'),
+        tree_sitter_meson_dep,
     ],
     link_with: [
         timing_lib,
-        subproject('treesittermeson').get_variable('tree_sitter_meson_lib'),
         mesonanalyze_lib,
     ],
 )

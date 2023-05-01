@@ -1,3 +1,8 @@
+swcompression_dep = subproject(
+    'swcompression',
+).get_variable('swcompression_dep')
+iniparser_dep = subproject('iniparser').get_variable('iniparser_dep')
+
 c = configure_file(copy: true, input: 'Wrap.swift', output: '_Wrap.swift')
 wrap_lib = static_library(
     'Wrap',
@@ -13,8 +18,8 @@ wrap_lib = static_library(
     'FileWrap.swift',
     dependencies: [
         caching_dep,
-        subproject('swcompression').get_variable('swcompression_dep'),
-        subproject('iniparser').get_variable('iniparser_dep'),
+        swcompression_dep,
+        iniparser_dep,
     ],
     link_with: ioutils_lib,
 )
@@ -22,7 +27,7 @@ wrap_dep = declare_dependency(
     link_with: [wrap_lib, ioutils_lib],
     dependencies: [
         caching_dep,
-        subproject('swcompression').get_variable('swcompression_dep'),
-        subproject('iniparser').get_variable('iniparser_dep'),
+        swcompression_dep,
+        iniparser_dep,
     ],
 )

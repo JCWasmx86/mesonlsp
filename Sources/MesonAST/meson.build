@@ -1,4 +1,7 @@
 swifttreesitter_proj = subproject('swifttreesitter')
+swifttreesitter_lib = swifttreesitter_proj.get_variable('swifttreesitter_lib')
+tree_sitter_dep = swifttreesitter_proj.get_variable('tree_sitter_dep')
+
 mesonast_lib = static_library(
     'MesonAST',
     'Nodes/FunctionExpression.swift',
@@ -106,15 +109,15 @@ mesonast_lib = static_library(
     'TypeNamespace.swift',
     link_with: [
         ioutils_lib,
-        swifttreesitter_proj.get_variable('swifttreesitter_lib'),
+        swifttreesitter_lib,
     ],
-    dependencies: [swifttreesitter_proj.get_variable('tree_sitter_dep')],
+    dependencies: tree_sitter_dep,
 )
 mesonast_dep = declare_dependency(
     link_with: [
         mesonast_lib,
         ioutils_lib,
-        swifttreesitter_proj.get_variable('swifttreesitter_lib'),
+        swifttreesitter_lib,
     ],
-    dependencies: [swifttreesitter_proj.get_variable('tree_sitter_dep')],
+    dependencies: tree_sitter_dep,
 )
