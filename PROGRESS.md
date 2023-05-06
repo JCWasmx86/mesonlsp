@@ -96,6 +96,7 @@
     - [x] 20.04
     - [x] 22.04
   - [x] Setup apt repo in an external GitHub repo
+- [ ] Update git repos of subprojects, when a branch was specified as revision
 - [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
