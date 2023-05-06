@@ -73,7 +73,7 @@
 ## Version 3.0
 - [ ] Renaming
 - [ ] Code actions
-  - [ ] Integer literal to decimal/binary/octal
+  - [x] Integer literal to decimal/binary/octal
   - [ ] `static_library`/`shared_library`/`both_libraries` to `library`
   - [ ] `shared_library` to `shared_module` (And reverse)
   - [ ] Arrays passed to varargs function => Unpack them
