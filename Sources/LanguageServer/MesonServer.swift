@@ -40,6 +40,7 @@ public final class MesonServer: LanguageServer {
   var subprojects: SubprojectState?
   var mapper: FileMapper = FileMapper()
   var token: ProgressToken = ProgressToken.integer(0)
+  let codeActionState = CodeActionState()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -127,7 +128,27 @@ public final class MesonServer: LanguageServer {
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {
-    req.reply(CodeActionRequestResponse(codeActions: [], clientCapabilities: nil))
+    let uri = req.params.textDocument.uri
+    let range = req.params.range
+    let cav = CodeActionVisitor(range)
+    if let tree = self.findTree(uri), let ast = tree.ast { ast.visit(visitor: cav) }
+    var actions: [CodeAction] = []
+    for node in cav.applicableNodes { actions += self.codeActionState.apply(uri: uri, node: node) }
+    Self.LOG.info(
+      "Found \(actions.count) code actions at \(uri):\(range): \(actions.map { $0.title })"
+    )
+    req.reply(
+      CodeActionRequestResponse(
+        codeActions: actions,
+        clientCapabilities: TextDocumentClientCapabilities.CodeAction(
+          codeActionLiteralSupport: TextDocumentClientCapabilities.CodeAction
+            .CodeActionLiteralSupport(
+              codeActionKind: TextDocumentClientCapabilities.CodeAction.CodeActionLiteralSupport
+                .CodeActionKind(valueSet: [])
+            )
+        )
+      )
+    )
   }
 
   private func findTree(_ uri: DocumentURI) -> MesonTree? {
