@@ -7,6 +7,7 @@
 - Show error, if there are more than two identifiers in iteration statements.
 - Show error for `break`s/`continue`s outside of loops
 - Add codeaction for converting integer literals to other bases
+- Auto complete subproject variables in `subproject.get_variable()`
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI

@@ -85,7 +85,7 @@
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 - [x] Investigate PGO (Does not seem to work on Linux)
 - [ ] Check if `CollectionOfOne` speeds up TypeAnalyzer
-- [ ] Autocomplete variable names in `subproj.get_variable()`
+- [x] Autocomplete variable names in `subproj.get_variable()`
 - [x] Support apt-like
   - [x] Debian
     - [x] Stable
