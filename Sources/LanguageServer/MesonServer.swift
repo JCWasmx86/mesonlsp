@@ -246,6 +246,7 @@ public final class MesonServer: LanguageServer {
             }
           }
         } else if let t = self.tree, let md = t.metadata {
+          self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
           if let idexpr = md.findIdentifierAt(fp, line, column),
             let al = idexpr.parent as? ArgumentList
           {
@@ -292,6 +293,50 @@ public final class MesonServer: LanguageServer {
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+  }
+
+  private func subprojectGetVariableSpecialCase(
+    _ fp: String,
+    _ line: Int,
+    _ column: Int,
+    _ md: MesonMetadata,
+    _ arr: inout [CompletionItem]
+  ) {
+    if let mexpr = md.findFullMethodCallAt(fp, line, column), let m = mexpr.method,
+      m.id() == "subproject.get_variable", let al = mexpr.argumentList as? ArgumentList,
+      !al.args.isEmpty, al.args[0] is StringLiteral,
+      let subprojects = self.findSubproject(mexpr.obj.types), !subprojects.names.isEmpty,
+      let ssT = self.subprojects
+    {
+      Self.LOG.info(
+        "Found special call to subproject.get_variable for subprojects \(subprojects.names)"
+      )
+      var names: Set<String> = []
+      for subproject in ssT.subprojects where subprojects.names.contains(subproject.name) {
+        if let ast = subproject.tree, let sscope = ast.scope {
+          sscope.variables.keys.forEach { names.insert($0) }
+        }
+      }
+      for c in names {
+        if c == "meson" || c == "build_machine" || c == "target_machine" || c == "host_machine" {
+          continue
+        }
+        arr.append(
+          CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
+        )
+      }
+    }
+  }
+
+  private func findSubproject(_ types: [Type]) -> MesonAST.Subproject? {
+    return types.filter { $0 is MesonAST.Subproject }.map { $0 as! MesonAST.Subproject }.first
+  }
+
+  private func contains(_ node: Node, _ line: Int, _ column: Int) -> Bool {
+    if node.location.startLine <= line && node.location.endLine >= line {
+      if node.location.startColumn <= column && node.location.endColumn >= column { return true }
+    }
+    return false
   }
 
   private func findMatchingIdentifiers(
