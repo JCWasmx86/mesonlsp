@@ -494,11 +494,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     } else if let ll = l as? ListType, let lr = r as? ListType {
       return ListType(types: dedup(types: ll.types + lr.types))
     } else if let ll = l as? ListType {
-      return ListType(types: dedup(types: ll.types + [r]))
+      return ListType(types: dedup(types: ll.types + CollectionOfOne(r)))
     } else if let dl = l as? Dict, let dr = r as? Dict {
       return Dict(types: dedup(types: dl.types + dr.types))
     } else if let dl = l as? Dict {
-      return Dict(types: dedup(types: dl.types + [r]))
+      return Dict(types: dedup(types: dl.types + CollectionOfOne(r)))
     }
     return nil
   }
@@ -1411,11 +1411,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           } else if let ll = l as? ListType, let lr = r as? ListType {
             newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
           } else if let ll = l as? ListType {
-            newTypes.append(ListType(types: dedup(types: ll.types + [r])))
+            newTypes.append(ListType(types: dedup(types: ll.types + CollectionOfOne(r))))
           } else if let dl = l as? Dict, let dr = r as? Dict {
             newTypes.append(Dict(types: dedup(types: dl.types + dr.types)))
           } else if let dl = l as? Dict {
-            newTypes.append(Dict(types: dedup(types: dl.types + [r])))
+            newTypes.append(Dict(types: dedup(types: dl.types + CollectionOfOne(r))))
           } else {
             nErrors += 1
           }
