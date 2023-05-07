@@ -22,6 +22,10 @@ ls_lib = static_library(
     'InlayHints.swift',
     'InlayHintsCollector.swift',
     'NodeCounter.swift',
+    'CodeActions/CodeActionProvider.swift',
+    'CodeActions/CodeActionState.swift',
+    'CodeActions/CodeActionVisitor.swift',
+    'CodeActions/IntegerToBase.swift',
     'MesonServer.swift',
     dependencies: [
         cmem_dep,
