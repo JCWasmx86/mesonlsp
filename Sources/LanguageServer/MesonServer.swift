@@ -128,6 +128,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {
+    let begin = clock()
     let uri = req.params.textDocument.uri
     let range = req.params.range
     let cav = CodeActionVisitor(range)
@@ -149,6 +150,7 @@ public final class MesonServer: LanguageServer {
         )
       )
     )
+    Timing.INSTANCE.registerMeasurement(name: "codeaction", begin: begin, end: clock())
   }
 
   private func findTree(_ uri: DocumentURI) -> MesonTree? {
