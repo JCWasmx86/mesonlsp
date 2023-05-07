@@ -132,7 +132,12 @@ public final class MesonServer: LanguageServer {
     let uri = req.params.textDocument.uri
     let range = req.params.range
     let cav = CodeActionVisitor(range)
-    if let tree = self.findTree(uri), let ast = tree.ast { ast.visit(visitor: cav) }
+    let file = uri.fileURL!.absoluteURL.path
+    if let tree = self.findTree(uri), let ast = tree.ast, let a = tree.findSubdirTree(file: file),
+      let a2 = a.ast
+    {
+      a2.visit(visitor: cav)
+    }
     var actions: [CodeAction] = []
     for node in cav.applicableNodes { actions += self.codeActionState.apply(uri: uri, node: node) }
     Self.LOG.info(
