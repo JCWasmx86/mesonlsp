@@ -128,6 +128,6 @@ class ObjectDocProvider: DocProvider {
     dict["runresult.stderr"] = "The standard error produced when the command was run."
     dict["runresult.stdout"] = "The standard out produced when the command was run."
     dict["subproject.found"] = "Returns whether the subproject was successfully setup."
-    dict["subproject.get_variable"] = "Fetches the specified variable from inside the subproject."
+    dict["subproject().get_variable"] = "Fetches the specified variable from inside the subproject."
   }
 }
