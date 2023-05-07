@@ -27,6 +27,8 @@ ls_lib = static_library(
     'CodeActions/CodeActionVisitor.swift',
     'CodeActions/IntegerToBase.swift',
     'CodeActions/LibraryToGeneric.swift',
+    'CodeActions/SharedLibraryToModule.swift',
+    'CodeActions/SharedModuleToLibrary.swift',
     'MesonServer.swift',
     dependencies: [
         cmem_dep,

@@ -1,11 +1,9 @@
 import LanguageServerProtocol
 import MesonAST
 
-class LibraryToGenericCodeActionProvider: CodeActionProvider {
+class SharedModuleToLibraryCodeActionProvider: CodeActionProvider {
   func findCodeActionsForNode(uri: DocumentURI, node: Node) -> [CodeAction] {
-    if let fexpr = node as? FunctionExpression, let f = fexpr.function,
-      f.id() == "static_library" || f.id() == "shared_library" || f.id() == "both_libraries"
-    {
+    if let fexpr = node as? FunctionExpression, let f = fexpr.function, f.id() == "shared_module" {
       let range =
         Position(
           line: Int(fexpr.id.location.startLine),
@@ -14,11 +12,11 @@ class LibraryToGenericCodeActionProvider: CodeActionProvider {
           line: Int(fexpr.id.location.endLine),
           utf16index: Int(fexpr.id.location.endColumn)
         )
-      let changes = [uri: [TextEdit(range: range, newText: "library")]]
+      let changes = [uri: [TextEdit(range: range, newText: "shared_library")]]
       let edit = WorkspaceEdit(changes: changes)
       return [
         CodeAction(
-          title: "Use library() instead of \(f.id())()",
+          title: "Use shared_library() instead of shared_module()",
           kind: CodeActionKind.refactor,
           edit: edit
         )

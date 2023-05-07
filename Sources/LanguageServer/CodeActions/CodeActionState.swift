@@ -4,6 +4,7 @@ import MesonAST
 class CodeActionState {
   let providers: [CodeActionProvider] = [
     IntegerToBaseCodeActionProvider(), LibraryToGenericCodeActionProvider(),
+    SharedLibraryToModuleCodeActionProvider(), SharedModuleToLibraryCodeActionProvider(),
   ]
 
   public func apply(uri: DocumentURI, node: Node) -> [CodeAction] {
