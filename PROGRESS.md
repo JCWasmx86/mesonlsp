@@ -75,7 +75,7 @@
 - [ ] Code actions
   - [x] Integer literal to decimal/binary/octal
   - [x] `static_library`/`shared_library`/`both_libraries` to `library`
-  - [ ] `shared_library` to `shared_module` (And reverse)
+  - [x] `shared_library` to `shared_module` (And reverse)
   - [ ] Arrays passed to varargs function => Unpack them
   - [ ] `configure_file(copy: true)` to `fs.copyfile()`
   - [ ] Create dependency using `declare_dependency` from library
