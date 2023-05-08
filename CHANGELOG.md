@@ -10,6 +10,7 @@
 - Auto complete subproject variables in `subproject.get_variable()`
 - Add code action to switch from `static_library()` etc to `library()`
 - Add code action to convert from `shared_library` to `shared_module` and reverse
+- Add code action to sort filenames in calls to `executable`, `library` and similar. (Only works, if everything is a string literal)
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI

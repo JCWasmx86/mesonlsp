@@ -62,5 +62,11 @@ public final class ArgumentList: Expression {
     return nil
   }
 
+  public func countPositionalArgs() -> Int {
+    var cnter = 0
+    for a in self.args where a as? KeywordItem == nil { cnter += 1 }
+    return cnter
+  }
+
   public var description: String { return "(ArgumentList \(args))" }
 }
