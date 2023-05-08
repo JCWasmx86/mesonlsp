@@ -133,7 +133,7 @@ public final class MesonServer: LanguageServer {
     let range = req.params.range
     let cav = CodeActionVisitor(range)
     let file = uri.fileURL!.absoluteURL.path
-    if let tree = self.findTree(uri), let ast = tree.ast, let a = tree.findSubdirTree(file: file),
+    if let tree = self.findTree(uri), tree.ast != nil, let a = tree.findSubdirTree(file: file),
       let a2 = a.ast
     {
       a2.visit(visitor: cav)
