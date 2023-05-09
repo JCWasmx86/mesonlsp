@@ -1,8 +1,9 @@
 import LanguageServerProtocol
+import MesonAnalyze
 import MesonAST
 
 class SharedLibraryToModuleCodeActionProvider: CodeActionProvider {
-  func findCodeActionsForNode(uri: DocumentURI, node: Node) -> [CodeAction] {
+  func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
     if let fexpr = node as? FunctionExpression, let f = fexpr.function,
       let al = fexpr.argumentList as? ArgumentList, f.id() == "shared_library",
       al.getKwarg(name: "darwin_versions") == nil && al.getKwarg(name: "soversion") == nil

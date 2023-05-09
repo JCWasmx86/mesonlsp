@@ -1,4 +1,5 @@
 import LanguageServerProtocol
+import MesonAnalyze
 import MesonAST
 
 class CodeActionState {
@@ -9,7 +10,7 @@ class CodeActionState {
     SortFilenamesIASCodeActionProvider(),
   ]
 
-  public func apply(uri: DocumentURI, node: Node) -> [CodeAction] {
-    return self.providers.flatMap { $0.findCodeActionsForNode(uri: uri, node: node) }
+  public func apply(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
+    return self.providers.flatMap { $0.findCodeActionsForNode(uri: uri, node: node, tree: tree) }
   }
 }

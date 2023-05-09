@@ -1,8 +1,9 @@
 import LanguageServerProtocol
+import MesonAnalyze
 import MesonAST
 
 class SortFilenamesSAICodeActionProvider: CodeActionProvider {
-  func findCodeActionsForNode(uri: DocumentURI, node: Node) -> [CodeAction] {
+  func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
     if let fexpr = node as? FunctionExpression, let al = fexpr.argumentList as? ArgumentList,
       let f = fexpr.function, let count = self.sourceFunc(f), self.validArgs(al, count)
     {

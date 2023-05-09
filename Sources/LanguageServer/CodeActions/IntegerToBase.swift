@@ -1,8 +1,9 @@
 import LanguageServerProtocol
+import MesonAnalyze
 import MesonAST
 
 class IntegerToBaseCodeActionProvider: CodeActionProvider {
-  func findCodeActionsForNode(uri: DocumentURI, node: Node) -> [CodeAction] {
+  func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
     var actions: [CodeAction] = []
     if let il = node as? IntegerLiteral {
       let strvalue = il.value.lowercased()
