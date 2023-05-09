@@ -5,7 +5,8 @@ class CodeActionState {
   let providers: [CodeActionProvider] = [
     IntegerToBaseCodeActionProvider(), LibraryToGenericCodeActionProvider(),
     SharedLibraryToModuleCodeActionProvider(), SharedModuleToLibraryCodeActionProvider(),
-    SortFilenamesCodeActionProvider(),
+    SortFilenamesCodeActionProvider(), SortFilenamesSAICodeActionProvider(),
+    SortFilenamesIASCodeActionProvider(),
   ]
 
   public func apply(uri: DocumentURI, node: Node) -> [CodeAction] {
