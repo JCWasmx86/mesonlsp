@@ -4,19 +4,19 @@ import MesonAST
 class SortFilenamesCodeActionProvider: CodeActionProvider {
   func findCodeActionsForNode(uri: DocumentURI, node: Node) -> [CodeAction] {
     if let fexpr = node as? FunctionExpression, let al = fexpr.argumentList as? ArgumentList,
-      let f = fexpr.function, self.sourceFunc(f), self.validArgs(al)
+      let f = fexpr.function, let count = self.sourceFunc(f), self.validArgs(al, count)
     {
       let strLiterals = al.args.filter { $0 as? KeywordItem == nil }.map {
         ($0 as! StringLiteral).contents()
-      }[1...]
+      }[count...]
       let sortedStrLiterals = strLiterals.sorted(by: sortFunc)
       if strLiterals.elementsEqual(sortedStrLiterals) { return [] }
-      if al.args.filter({ $0 as? KeywordItem == nil }).count - 1 != strLiterals.count {
+      if al.args.filter({ $0 as? KeywordItem == nil }).count - count != strLiterals.count {
         fatalError(
-          "Oops: Expected \(al.args.filter { $0 as? KeywordItem == nil }.count - 1), got \(strLiterals.count)"
+          "Oops: Expected \(al.args.filter { $0 as? KeywordItem == nil }.count - count), got \(strLiterals.count)"
         )
       }
-      let strNodes = al.args.filter { $0 as? KeywordItem == nil }[1...].reversed()
+      let strNodes = al.args.filter { $0 as? KeywordItem == nil }[count...].reversed()
       var n = 0
       let revSortedStrs = sortedStrLiterals.reversed()
       var edits: [TextEdit] = []
@@ -56,19 +56,26 @@ class SortFilenamesCodeActionProvider: CodeActionProvider {
     return a <= b
   }
 
-  func validArgs(_ al: ArgumentList) -> Bool {
+  func validArgs(_ al: ArgumentList, _ count: Int) -> Bool {
     let args = al.args
     // It does not make sense to sort one string/identifier
-    if al.countPositionalArgs() < 3 { return false }
-    return args.filter { $0 as? KeywordItem == nil }[1...].filter { ($0 as? StringLiteral) != nil }
-      .count == al.countPositionalArgs() - 1
+    if al.countPositionalArgs() < (count + 1) { return false }
+    return args.filter { $0 as? KeywordItem == nil }[count...].filter {
+      ($0 as? StringLiteral) != nil
+    }.count == al.countPositionalArgs() - count
   }
 
   // We will have to special case files(), include_directories(), install_data()
-  func sourceFunc(_ f: Function) -> Bool {
+  func sourceFunc(_ f: Function) -> Int? {
     let id = f.id()
-    return id == "both_libraries" || id == "build_target" || id == "executable" || id == "jar"
+    if id == "both_libraries" || id == "build_target" || id == "executable" || id == "jar"
       || id == "library" || id == "shared_library" || id == "shared_module"
       || id == "static_library"
+    {
+      return 1
+    } else if id == "files" || id == "include_directories" || id == "install_data" {
+      return 0
+    }
+    return nil
   }
 }
