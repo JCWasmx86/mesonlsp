@@ -8,7 +8,6 @@ class SortFilenamesIASCodeActionProvider: CodeActionProvider {
     {
       let toSort = al.args.filter { $0 as? KeywordItem == nil }[count...]
       let sortedNodes = toSort.sorted(by: sortFunc)
-      // if toSort.elementsEqual(sortedNodes) { return [] }
       if al.args.filter({ $0 as? KeywordItem == nil }).count - count != toSort.count {
         fatalError(
           "Oops: Expected \(al.args.filter { $0 as? KeywordItem == nil }.count - count), got \(toSort.count)"
@@ -26,12 +25,17 @@ class SortFilenamesIASCodeActionProvider: CodeActionProvider {
             utf16index: Int(il.location.startColumn)
           )..<Position(line: Int(il.location.endLine), utf16index: Int(il.location.endColumn))
         let nodeToAdd = revSortedNodes[revSortedNodes.index(revSortedNodes.startIndex, offsetBy: n)]
+        if nodeToAdd.equals(right: il) {
+          n += 1
+          continue
+        }
         let str =
           nodeToAdd is IdExpression
           ? (nodeToAdd as! IdExpression).id : ("'" + (nodeToAdd as! StringLiteral).contents() + "'")
         edits.append(TextEdit(range: range, newText: str))
         n += 1
       }
+      if edits.isEmpty { return [] }
       return [
         CodeAction(
           title: "Sort filenames (Identifiers after string literals)",
