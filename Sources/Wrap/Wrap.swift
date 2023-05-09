@@ -25,6 +25,7 @@ public class Wrap {
   public private(set) var wrapFile: String = ""
   public private(set) var wrapHash: String = ""
   public private(set) var directoryNameAfterSetup: String = ""
+  public private(set) var fullPath: String = "<<>>"
 
   internal init(
     wrapHash: String,
@@ -53,6 +54,10 @@ public class Wrap {
 
   public func setupDirectory(path: String, packagefilesPath: String) throws {
     fatalError("Implement me")
+  }
+
+  public func update() throws {
+
   }
 
   #if !os(Windows)
@@ -182,6 +187,7 @@ public class Wrap {
     try self.applyPatch(path: path, packagesfilesPath: packagesfilesPath)
     try self.applyDiffFiles(path: path, packagesfilesPath: packagesfilesPath)
     self.directoryNameAfterSetup = Path(path).lastComponent
+    self.fullPath = path
   }
 
   private func applyPatch(path: String, packagesfilesPath: String) throws {

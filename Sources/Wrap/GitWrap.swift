@@ -92,13 +92,35 @@ public class GitWrap: VcsWrap {
         ])
       }
       try self.postSetup(path: fullPath, packagesfilesPath: packagefilesPath)
+      self.setupPullable(fullPath, rev)
     } else {
       throw WrapError.genericError("Malformed URL: \(String(describing: self.url))")
+    }
+  }
+
+  private func setupPullable(_ fullPath: String, _ rev: String) {
+    var canPull = true
+    do {
+      try self.executeCommand(["git", "-C", fullPath, "pull", "origin"])
+      Self.LOG.info("It seems to be a pull-able repo")
+    } catch { canPull = false }
+    if canPull && !self.isValidCommitId(rev) {
+      FileManager.default.createFile(
+        atPath: Path(fullPath + "\(Path.separator).git_pullable").description,
+        contents: Data(capacity: 1)
+      )
     }
   }
 
   private func isValidCommitId(_ id: String) -> Bool {
     if id.count != 40 && id.count != 64 { return false }
     return id.filter { $0.isHexDigit }.count == id.count
+  }
+
+  public override func update() throws {
+    if self.directoryNameAfterSetup.isEmpty { return }
+    let p = Path("\(self.fullPath)\(Path.separator).git_pullable")
+    if !p.exists { return }
+    try self.executeCommand(["git", "-C", fullPath, "pull", "origin"])
   }
 }
