@@ -99,12 +99,13 @@ public class GitWrap: VcsWrap {
   }
 
   private func setupPullable(_ fullPath: String, _ rev: String) {
+    if !self.isValidCommitId(rev) { return }
     var canPull = true
     do {
       try self.executeCommand(["git", "-C", fullPath, "pull", "origin"])
       Self.LOG.info("It seems to be a pull-able repo")
     } catch { canPull = false }
-    if canPull && !self.isValidCommitId(rev) {
+    if canPull {
       FileManager.default.createFile(
         atPath: Path(fullPath + "\(Path.separator).git_pullable").description,
         contents: Data(capacity: 1)
