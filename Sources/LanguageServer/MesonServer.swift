@@ -884,7 +884,7 @@ public final class MesonServer: LanguageServer {
       let progressMessage = WorkDoneProgress(
         token: self.token,
         value: WorkDoneProgressKind.report(
-          WorkDoneProgressReport(message: "Parsing subproject", percentage: percentage)
+          WorkDoneProgressReport(message: "Parsing subproject \(sp.name)", percentage: percentage)
         )
       )
       self.client.send(progressMessage)
@@ -896,6 +896,54 @@ public final class MesonServer: LanguageServer {
     }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
+    if !self.subprojects!.subprojects.isEmpty {
+      if self.parseTask != nil {
+        do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
+      }
+      self.rebuildTree()
+    }
+    let endMessage = WorkDoneProgress(
+      token: self.token,
+      value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+    )
+    self.client.send(endMessage)
+    await self.updateSubprojects()
+  }
+
+  private func updateSubprojects() async {
+    self.token = ProgressToken.string(UUID().uuidString)
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token)
+    do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
+    let beginMessage = WorkDoneProgress(
+      token: self.token,
+      value: WorkDoneProgressKind.begin(
+        WorkDoneProgressBegin(title: "Updating subprojects", percentage: 0)
+      )
+    )
+    self.client.send(beginMessage)
+    let count = Double(self.subprojects!.subprojects.count)
+    var n = 0
+    for s in self.subprojects!.subprojects {
+      n += 1
+      let percentage = Int((Double(n + 1) / count) * 100)
+      let progressMessage = WorkDoneProgress(
+        token: self.token,
+        value: WorkDoneProgressKind.report(
+          WorkDoneProgressReport(message: "Updating subproject \(s.name)", percentage: percentage)
+        )
+      )
+      self.client.send(progressMessage)
+      do {
+        try s.update()
+        var cache: [String: Node] = [:]
+        let dontCache: Set<String> =
+          (s is FolderSubproject)
+          ? (self.openSubprojectFiles[(s as! FolderSubproject).realpath] ?? []) : []
+        s.parse(self.ns, dontCache: dontCache, cache: &cache, memfiles: self.memfiles)
+        self.sendNewDiagnostics(s.tree)
+        self.astCaches[s.realpath] = cache
+      } catch let err { Self.LOG.info("\(err)") }
+    }
     if !self.subprojects!.subprojects.isEmpty {
       if self.parseTask != nil {
         do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }

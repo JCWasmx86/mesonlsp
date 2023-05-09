@@ -42,7 +42,7 @@ public class CachedSubproject: Subproject {
         + "\(Path.separator).git_pullable"
       if !Path(pullable).exists { return }
       Self.LOG.info("Updating \(self)")
-      try executeCommand(["git", "pull", "-C", Path(pullable).parent().description, "origin"])
+      try executeCommand(["git", "-C", Path(pullable).parent().description, "pull", "origin"])
       Self.LOG.info("Was successful updating \(self)")
     }
   }
