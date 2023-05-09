@@ -13,6 +13,7 @@ ls_lib = static_library(
     'CodeActions/CodeActionProvider.swift',
     'CodeActions/CodeActionState.swift',
     'CodeActions/CodeActionVisitor.swift',
+    'CodeActions/CopyFileCodeActionProvider.swift',
     'CodeActions/IntegerToBase.swift',
     'CodeActions/LibraryToGeneric.swift',
     'CodeActions/SharedLibraryToModule.swift',

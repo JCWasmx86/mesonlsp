@@ -139,7 +139,7 @@ public final class MesonServer: LanguageServer {
     {
       a2.visit(visitor: cav)
       for node in cav.applicableNodes {
-        actions += self.codeActionState.apply(uri: uri, node: node, tree: a)
+        actions += self.codeActionState.apply(uri: uri, node: node, tree: tree)
       }
     }
     Self.LOG.info(
