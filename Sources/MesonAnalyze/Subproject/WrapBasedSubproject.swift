@@ -39,6 +39,8 @@ public class WrapBasedSubproject: Subproject {
     self.tree = t
   }
 
+  public override func update() throws { try self.wrap.update() }
+
   public override var description: String {
     return "WrapSubproject(\(name),\(realpath),\(self.wrap.directoryNameAfterSetup))"
   }

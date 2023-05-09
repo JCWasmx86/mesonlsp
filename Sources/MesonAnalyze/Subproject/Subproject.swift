@@ -44,5 +44,7 @@ public class Subproject: CustomStringConvertible {
     self.tree = t
   }
 
+  public func update() throws {}
+
   public var description: String { return "Subproject(\(name),\(realpath))" }
 }

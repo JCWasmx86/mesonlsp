@@ -31,6 +31,18 @@ public class CachedSubproject: Subproject {
     }
   }
 
+  public override func update() {
+    if let children = try? Path(self.cachedPath).children(),
+      let firstDirectory = children.first(where: { $0.isDirectory })
+    {
+      let pullable =
+        self.cachedPath + Path.separator + (firstDirectory.lastComponent)
+        + "\(Path.separator).git_pullable"
+      if !Path(pullable).exists { return }
+      Self.LOG.info("Updating \(self)")
+    }
+  }
+
   public override var description: String {
     return "CachedSubproject(\(name),\(realpath),\(cachedPath))"
   }
