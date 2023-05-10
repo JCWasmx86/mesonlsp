@@ -1,5 +1,5 @@
-argparser_dep = subproject('argument-parser').get_variable('argumentparser_dep')
-backtrace_dep = subproject('backtrace').get_variable('backtrace_dep')
+argparser_dep = subproject('swift-argument-parser').get_variable('argumentparser_dep')
+backtrace_dep = subproject('swift-backtrace').get_variable('backtrace_dep')
 consolekit_dep = subproject('consolekit').get_variable('consolekit_dep')
 lspjsonrpc_dep = sk_proj.get_variable('lspjsonrpc_dep')
 executable(

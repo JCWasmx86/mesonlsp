@@ -1,4 +1,4 @@
 bitbytedata.wrap
-system.wrap
-tools-support-core.wrap
+swift-system.wrap
+swift-tools-support-core.wrap
 */

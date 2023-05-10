@@ -27,9 +27,9 @@ if build_machine.system() != 'linux'
     error('Unsupported OS for compilation: @0@'.format(build_machine.system()))
 endif
 
-logging_proj = subproject('logging')
+logging_proj = subproject('swift-log')
 logging_dep = logging_proj.get_variable('swift_log_dep')
-crypto_proj = subproject('crypto')
+crypto_proj = subproject('swift-crypto')
 crypto_dep = crypto_proj.get_variable('crypto_dep')
 
 subdir('Sources')
