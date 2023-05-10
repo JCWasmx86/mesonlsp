@@ -39,7 +39,7 @@ public final class MesonServer: LanguageServer {
   let interval = DispatchTimeInterval.seconds(60)
   var subprojects: SubprojectState?
   var mapper: FileMapper = FileMapper()
-  var token: ProgressToken = ProgressToken.integer(0)
+  var token: ProgressToken?
   let codeActionState = CodeActionState()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -101,6 +101,13 @@ public final class MesonServer: LanguageServer {
     if let t = self.parseTask { t.cancel() }
     self.tasks.values.forEach { $0.cancel() }
     Self.LOG.warning("Killing \(Wrap.PROCESSES.count) processes")
+    if let t = self.token {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+    }
     Wrap.CLEANUP_HANDLER()
   }
 
@@ -845,7 +852,7 @@ public final class MesonServer: LanguageServer {
 
   private func onProgress(_ msg: String) {
     let progressMessage = WorkDoneProgress(
-      token: self.token,
+      token: self.token!,
       value: WorkDoneProgressKind.report(
         WorkDoneProgressReport(message: "Parsing subproject", percentage: 0)
       )
@@ -855,10 +862,10 @@ public final class MesonServer: LanguageServer {
 
   private func setupSubprojects() async {
     self.token = ProgressToken.string(UUID().uuidString)
-    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token)
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token!)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
-      token: self.token,
+      token: self.token!,
       value: WorkDoneProgressKind.begin(
         WorkDoneProgressBegin(title: "Querying subprojects", percentage: 0)
       )
@@ -869,7 +876,7 @@ public final class MesonServer: LanguageServer {
     } catch let error {
       Self.LOG.error("\(error)")
       let endMessage = WorkDoneProgress(
-        token: self.token,
+        token: self.token!,
         value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
       )
       self.client.send(endMessage)
@@ -884,7 +891,7 @@ public final class MesonServer: LanguageServer {
     for sp in self.subprojects!.subprojects {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
-        token: self.token,
+        token: self.token!,
         value: WorkDoneProgressKind.report(
           WorkDoneProgressReport(message: "Parsing subproject \(sp.name)", percentage: percentage)
         )
@@ -905,19 +912,20 @@ public final class MesonServer: LanguageServer {
       self.rebuildTree()
     }
     let endMessage = WorkDoneProgress(
-      token: self.token,
+      token: self.token!,
       value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)
+    self.token = nil
     await self.updateSubprojects()
   }
 
   private func updateSubprojects() async {
     self.token = ProgressToken.string(UUID().uuidString)
-    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token)
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token!)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
-      token: self.token,
+      token: self.token!,
       value: WorkDoneProgressKind.begin(
         WorkDoneProgressBegin(title: "Updating subprojects", percentage: 0)
       )
@@ -929,7 +937,7 @@ public final class MesonServer: LanguageServer {
       n += 1
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
-        token: self.token,
+        token: self.token!,
         value: WorkDoneProgressKind.report(
           WorkDoneProgressReport(message: "Updating subproject \(s.name)", percentage: percentage)
         )
@@ -953,10 +961,11 @@ public final class MesonServer: LanguageServer {
       self.rebuildTree()
     }
     let endMessage = WorkDoneProgress(
-      token: self.token,
+      token: self.token!,
       value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)
+    self.token = nil
   }
 
   private func initialize(_ req: Request<InitializeRequest>) {
