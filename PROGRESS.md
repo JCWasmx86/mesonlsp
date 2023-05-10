@@ -97,11 +97,12 @@
     - [x] 22.04
   - [x] Setup apt repo in an external GitHub repo
 - [x] Update git repos of subprojects, when a branch was specified as revision
-- [ ] Typechecking of arguments (Depends on generating of type definitions from JSON)
-- [ ] Autogenerate type definitions from JSON (Requires upstream work)
+- [ ] Basic typechecking of arguments (Not every error will be caught)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
-- [ ] Get docs from embedded JSON file, not from the MesonDocs/ module
 ## Version n
+- [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
+- [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
+- [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
 - [ ] Folding range
