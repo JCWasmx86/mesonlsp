@@ -78,7 +78,7 @@
   - [x] `shared_library` to `shared_module` (And reverse)
   - [ ] Arrays passed to varargs function => Unpack them
   - [x] `configure_file(copy: true)` to `fs.copyfile()`
-  - [ ] Create dependency using `declare_dependency` from library
+  - [x] Create dependency using `declare_dependency` from library
   - [x] Sort filenames
 - [ ] Automatic LSP tests
 - [x] Document the language server
