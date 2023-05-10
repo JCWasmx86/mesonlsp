@@ -72,11 +72,10 @@
 - [x] Switch from atomics to Task.isCancelled for cancellation of parsing
 ## Version 3.0
 - [ ] Renaming
-- [ ] Code actions
+- [x] Code actions
   - [x] Integer literal to decimal/binary/octal
   - [x] `static_library`/`shared_library`/`both_libraries` to `library`
   - [x] `shared_library` to `shared_module` (And reverse)
-  - [ ] Arrays passed to varargs function => Unpack them
   - [x] `configure_file(copy: true)` to `fs.copyfile()`
   - [x] Create dependency using `declare_dependency` from library
   - [x] Sort filenames
