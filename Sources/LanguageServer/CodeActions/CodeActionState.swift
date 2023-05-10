@@ -8,6 +8,7 @@ class CodeActionState {
     SharedLibraryToModuleCodeActionProvider(), SharedModuleToLibraryCodeActionProvider(),
     SortFilenamesCodeActionProvider(), SortFilenamesSAICodeActionProvider(),
     SortFilenamesIASCodeActionProvider(), CopyFileCodeActionProvider(),
+    DeclareDependencyCodeActionProvider(),
   ]
 
   public func apply(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
