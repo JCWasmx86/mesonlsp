@@ -1,4 +1,5 @@
 # 2.2 (May 13 2023)
+**Note: All codeactions insert code unformatted**
 - Build on macOS 13 in CI
 - Upload macOS 13 binaries to releases
 - Show error, if there is an assignment statement from void
