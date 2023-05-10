@@ -17,12 +17,9 @@ public class CachedSubproject: Subproject {
     cache: inout [String: MesonAST.Node],
     memfiles: [String: String]
   ) {
-    if let children = try? Path(self.cachedPath).children(),
-      let firstDirectory = children.first(where: { $0.isDirectory })
-    {
+    if let fp = self.fullPath() {
       let t = MesonTree(
-        file: self.cachedPath + Path.separator + (firstDirectory.lastComponent)
-          + "\(Path.separator)meson.build",
+        file: fp + "\(Path.separator)meson.build",
         ns: ns,
         dontCache: dontCache,
         cache: &cache,
@@ -34,12 +31,8 @@ public class CachedSubproject: Subproject {
   }
 
   public override func update() throws {
-    if let children = try? Path(self.cachedPath).children(),
-      let firstDirectory = children.first(where: { $0.isDirectory })
-    {
-      let pullable =
-        self.cachedPath + Path.separator + (firstDirectory.lastComponent)
-        + "\(Path.separator).git_pullable"
+    if let fp = self.fullPath() {
+      let pullable = fp + "\(Path.separator).git_pullable"
       if !Path(pullable).exists { return }
       Self.LOG.info("Updating \(self)")
       let exitCode = try Processes.executeCommand([
@@ -54,5 +47,14 @@ public class CachedSubproject: Subproject {
 
   public override var description: String {
     return "CachedSubproject(\(name),\(realpath),\(cachedPath))"
+  }
+
+  private func fullPath() -> String? {
+    if let children = try? Path(self.cachedPath).children(),
+      let firstDirectory = children.first(where: { $0.isDirectory })
+    {
+      return self.cachedPath + Path.separator + firstDirectory.lastComponent
+    }
+    return nil
   }
 }
