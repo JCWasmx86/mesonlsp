@@ -829,7 +829,7 @@ public final class MesonServer: LanguageServer {
       ),
       hoverProvider: .bool(true),
       completionProvider: .some(
-        CompletionOptions(resolveProvider: false, triggerCharacters: ["."])
+        CompletionOptions(resolveProvider: false, triggerCharacters: [".", "_"])
       ),
       definitionProvider: .bool(true),
       documentHighlightProvider: .bool(true),
