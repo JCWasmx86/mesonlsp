@@ -10,6 +10,7 @@ c = configure_file(
 )
 ls_lib = static_library(
     'LanguageServer',
+    c,
     'CodeActions/CodeActionProvider.swift',
     'CodeActions/CodeActionState.swift',
     'CodeActions/CodeActionVisitor.swift',
@@ -34,7 +35,6 @@ ls_lib = static_library(
     'MesonServer.swift',
     'NodeCounter.swift',
     'StatsCollector.swift',
-    c,
     dependencies: [
         cmem_dep,
         lsp_dep,
