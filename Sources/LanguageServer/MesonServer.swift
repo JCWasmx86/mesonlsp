@@ -609,8 +609,8 @@ public final class MesonServer: LanguageServer {
       let endClearing = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "clearingDiagnostics",
-        begin: Int(beginRebuilding),
-        end: Int(endClearing)
+        begin: beginRebuilding,
+        end: endClearing
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling parsing - After clearing diagnostics")
@@ -626,8 +626,8 @@ public final class MesonServer: LanguageServer {
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "parsingEntireTree",
-        begin: Int(endClearing),
-        end: Int(endParsingEntireTree)
+        begin: endClearing,
+        end: endParsingEntireTree
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After building tree")
@@ -647,15 +647,15 @@ public final class MesonServer: LanguageServer {
       let endAnalyzingTypes = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "analyzingTypes",
-        begin: Int(endParsingEntireTree),
-        end: Int(endAnalyzingTypes)
+        begin: endParsingEntireTree,
+        end: endAnalyzingTypes
       )
       if tmptree.metadata == nil {
         let endRebuilding = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "rebuildTree",
-          begin: Int(beginRebuilding),
-          end: Int(endRebuilding)
+          begin: beginRebuilding,
+          end: endRebuilding
         )
         return
       }
@@ -663,13 +663,13 @@ public final class MesonServer: LanguageServer {
       let endSendingDiagnostics = clock()
       Timing.INSTANCE.registerMeasurement(
         name: "sendingDiagnostics",
-        begin: Int(endAnalyzingTypes),
-        end: Int(endSendingDiagnostics)
+        begin: endAnalyzingTypes,
+        end: endSendingDiagnostics
       )
       Timing.INSTANCE.registerMeasurement(
         name: "rebuildTree",
-        begin: Int(beginRebuilding),
-        end: Int(endSendingDiagnostics)
+        begin: beginRebuilding,
+        end: endSendingDiagnostics
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After sending diagnostics")

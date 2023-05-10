@@ -30,12 +30,7 @@ internal func findDeclaration(
         )
       ])
     )
-    let endDeclaration = clock()
-    Timing.INSTANCE.registerMeasurement(
-      name: "declaration",
-      begin: Int(beginDeclaration),
-      end: Int(endDeclaration)
-    )
+    Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
     return
   }
 
@@ -54,20 +49,10 @@ internal func findDeclaration(
         )
       ])
     )
-    let endDeclaration = clock()
-    Timing.INSTANCE.registerMeasurement(
-      name: "declaration",
-      begin: Int(beginDeclaration),
-      end: Int(endDeclaration)
-    )
+    Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
     return
   }
   logger.warning("Found no declaration")
   req.reply(.locations([]))
-  let endDeclaration = clock()
-  Timing.INSTANCE.registerMeasurement(
-    name: "declaration",
-    begin: Int(beginDeclaration),
-    end: Int(endDeclaration)
-  )
+  Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
 }
