@@ -29,31 +29,31 @@ class DeclareDependencyCodeActionProvider: CodeActionProvider {
       let nextLine = Int(fexpr.parent!.location.endLine + 1)
       var str = "\(dependencyName) = declare_dependency(\n"
       if dImportDirs != nil {
-        str += "d_import_dirs: " + self.stringValue(node: dImportDirs!) + ",\n"
+        str += "d_import_dirs: " + Shared.stringValue(node: dImportDirs!) + ",\n"
       }
       if dModuleVersions != nil {
-        str += "d_module_versions: " + self.stringValue(node: dModuleVersions!) + ",\n"
+        str += "d_module_versions: " + Shared.stringValue(node: dModuleVersions!) + ",\n"
       }
       if dependencies != nil {
-        str += "dependencies: " + self.stringValue(node: dependencies!) + ",\n"
+        str += "dependencies: " + Shared.stringValue(node: dependencies!) + ",\n"
       }
       if includeDirectories != nil {
-        str += "include_directories: " + self.stringValue(node: includeDirectories!) + ",\n"
+        str += "include_directories: " + Shared.stringValue(node: includeDirectories!) + ",\n"
       }
-      if linkArgs != nil { str += "link_args: " + self.stringValue(node: linkArgs!) + ",\n" }
-      if linkWhole != nil { str += "link_whole: " + self.stringValue(node: linkWhole!) + ",\n" }
+      if linkArgs != nil { str += "link_args: " + Shared.stringValue(node: linkArgs!) + ",\n" }
+      if linkWhole != nil { str += "link_whole: " + Shared.stringValue(node: linkWhole!) + ",\n" }
       if linkWith != nil {
         if linkWith is IdExpression {
           str += "link_with: [\((linkWith as! IdExpression).id), \(libname)],\n"
         } else if linkWith is ArrayLiteral {
-          let s = self.stringValue(node: linkWith!)[1...]
+          let s = Shared.stringValue(node: linkWith!)[1...]
           str += "link_with: [\(libname), " + s + ",\n"
         }
       } else {
         str += "link_with: [\(libname)],\n"
       }
-      if objects != nil { str += "objects: " + self.stringValue(node: objects!) + ",\n" }
-      if version != nil { str += "version: " + self.stringValue(node: version!) + ",\n" }
+      if objects != nil { str += "objects: " + Shared.stringValue(node: objects!) + ",\n" }
+      if version != nil { str += "version: " + Shared.stringValue(node: version!) + ",\n" }
       str += ")\n"
       let range = Position(line: nextLine, utf16index: 0)..<Position(line: nextLine, utf16index: 0)
       let textEdit = TextEdit(range: range, newText: str)
@@ -70,29 +70,6 @@ class DeclareDependencyCodeActionProvider: CodeActionProvider {
     return []
   }
   // swiftlint:enable cyclomatic_complexity
-
-  private func stringValue(node: Node) -> String {
-    do {
-      let string = try node.file.contents()
-      let lines = string.split(separator: "\n", omittingEmptySubsequences: false)
-      if node.location.startLine == node.location.endLine {
-        let line = lines[Int(node.location.startLine)]
-        let sI = line.index(line.startIndex, offsetBy: Int(node.location.startColumn))
-        let eI = line.index(line.startIndex, offsetBy: Int(node.location.endColumn - 1))
-        return String(line[sI...eI])
-      }
-      let firstLine = String(lines[Int(node.location.startLine - 1)])
-      let sI = firstLine.index(firstLine.startIndex, offsetBy: Int(node.location.startColumn))
-      let firstLine1 = String(firstLine[sI...])
-      let lastLine = lines[Int(node.location.endLine - 1)]
-      let eI = lastLine.index(lastLine.startIndex, offsetBy: Int(node.location.endColumn - 1))
-      let lastLine1 = String(lastLine[...eI])
-      let sI1 = lines.index(lines.startIndex, offsetBy: Int(node.location.startLine))
-      let eI1 = lines.index(lines.startIndex, offsetBy: Int(node.location.endLine - 1))
-      let concatenated: String = Array(lines[sI1..<eI1].map { String($0) }).joined(separator: "\n")
-      return String(firstLine1) + "\n" + concatenated + "\n" + String(lastLine1)
-    } catch { return "Something went wrong" }
-  }
 
   private func createsLibrary(_ f: Function) -> Bool {
     let id = f.id()

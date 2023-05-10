@@ -15,17 +15,17 @@ class CopyFileCodeActionProvider: CodeActionProvider {
       let install_mode = al.getKwarg(name: "install_mode")
       let install_tag = al.getKwarg(name: "install_tag")
       var str = ""
-      str += self.stringValue(node: input) + ",\n"
-      str += self.stringValue(node: output) + ",\n"
-      if install != nil { str += "install: " + self.stringValue(node: install!) + ",\n" }
+      str += Shared.stringValue(node: input) + ",\n"
+      str += Shared.stringValue(node: output) + ",\n"
+      if install != nil { str += "install: " + Shared.stringValue(node: install!) + ",\n" }
       if install_dir != nil {
-        str += "install_dir: " + self.stringValue(node: install_dir!) + ",\n"
+        str += "install_dir: " + Shared.stringValue(node: install_dir!) + ",\n"
       }
       if install_mode != nil {
-        str += "install_mode: " + self.stringValue(node: install_mode!) + ",\n"
+        str += "install_mode: " + Shared.stringValue(node: install_mode!) + ",\n"
       }
       if install_tag != nil {
-        str += "install_tag: " + self.stringValue(node: install_tag!) + ",\n"
+        str += "install_tag: " + Shared.stringValue(node: install_tag!) + ",\n"
       }
       var replacementString = "import('fs').copyfile"
       if let scope = tree.scope {
@@ -50,29 +50,6 @@ class CopyFileCodeActionProvider: CodeActionProvider {
       ]
     }
     return []
-  }
-
-  private func stringValue(node: Node) -> String {
-    do {
-      let string = try node.file.contents()
-      let lines = string.split(separator: "\n", omittingEmptySubsequences: false)
-      if node.location.startLine == node.location.endLine {
-        let line = lines[Int(node.location.startLine)]
-        let sI = line.index(line.startIndex, offsetBy: Int(node.location.startColumn))
-        let eI = line.index(line.startIndex, offsetBy: Int(node.location.endColumn - 1))
-        return String(line[sI...eI])
-      }
-      let firstLine = String(lines[Int(node.location.startLine - 1)])
-      let sI = firstLine.index(firstLine.startIndex, offsetBy: Int(node.location.startColumn))
-      let firstLine1 = String(firstLine[sI...])
-      let lastLine = lines[Int(node.location.endLine - 1)]
-      let eI = lastLine.index(lastLine.startIndex, offsetBy: Int(node.location.endColumn - 1))
-      let lastLine1 = String(lastLine[...eI])
-      let sI1 = lines.index(lines.startIndex, offsetBy: Int(node.location.startLine))
-      let eI1 = lines.index(lines.startIndex, offsetBy: Int(node.location.endLine - 1))
-      let concatenated: String = Array(lines[sI1..<eI1].map { String($0) }).joined(separator: "\n")
-      return String(firstLine1) + "\n" + concatenated + "\n" + String(lastLine1)
-    } catch { return "Something went wrong" }
   }
 
   private func expectedArgs(_ al: ArgumentList) -> Bool {
