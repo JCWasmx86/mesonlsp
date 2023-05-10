@@ -1,5 +1,4 @@
 import Foundation
-import SWCompression
 
 public enum WrapError: Error {
   case genericError(String)
