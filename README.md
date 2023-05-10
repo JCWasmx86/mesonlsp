@@ -3,6 +3,7 @@
 [![AUR Version](https://img.shields.io/aur/version/swift-mesonlsp)](https://aur.archlinux.org/packages/swift-mesonlsp/)
 [![codecov](https://codecov.io/github/JCWasmx86/Swift-MesonLSP/branch/main/graph/badge.svg?token=5OV4WH5DL1)](https://codecov.io/github/JCWasmx86/Swift-MesonLSP)
 [![Maintainability](https://api.codeclimate.com/v1/badges/33406057e9c73bcd3e89/maintainability)](https://codeclimate.com/github/JCWasmx86/Swift-MesonLSP/maintainability)
+
 A reimplementation of my Meson language server in Swift.
 
 ## Current feature set
