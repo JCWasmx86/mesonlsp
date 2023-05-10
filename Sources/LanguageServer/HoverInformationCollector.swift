@@ -50,7 +50,13 @@ internal func collectHoverInformation(
   req.reply(
     HoverResponse(
       contents: content == nil
-        ? .markedStrings([]) : .markupContent(MarkupContent(kind: .markdown, value: content ?? "")),
+        ? .markedStrings([])
+        : .markupContent(
+          MarkupContent(
+            kind: .markdown,
+            value: content!.trimmingCharacters(in: .whitespacesAndNewlines)
+          )
+        ),
       range: nil
     )
   )
