@@ -50,6 +50,7 @@ mesonanalyze_lib = static_library(
     'MultiSubdirCall.swift',
     'SubdirCall.swift',
     'TypeAnalyzer.swift',
+    'Shared.swift',
     dependencies: [
         logging_dep,
         mesonast_dep,

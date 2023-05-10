@@ -5,7 +5,7 @@ import MesonAST
 class SortFilenamesCodeActionProvider: CodeActionProvider {
   func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
     if let fexpr = node as? FunctionExpression, let al = fexpr.argumentList as? ArgumentList,
-      let f = fexpr.function, let count = self.sourceFunc(f), self.validArgs(al, count)
+      let f = fexpr.function, let count = Shared.isSortableFunction(f), self.validArgs(al, count)
     {
       let strLiterals = al.args.filter { $0 as? KeywordItem == nil }.map {
         ($0 as! StringLiteral).contents()
@@ -22,12 +22,8 @@ class SortFilenamesCodeActionProvider: CodeActionProvider {
       let revSortedStrs = sortedStrLiterals.reversed()
       var edits: [TextEdit] = []
       while n < nodes.count {
-        let il = nodes[nodes.index(nodes.startIndex, offsetBy: n)]
-        let range =
-          Position(
-            line: Int(il.location.startLine),
-            utf16index: Int(il.location.startColumn)
-          )..<Position(line: Int(il.location.endLine), utf16index: Int(il.location.endColumn))
+        let node = nodes[nodes.index(nodes.startIndex, offsetBy: n)]
+        let range = Shared.nodeToRange(node)
         edits.append(
           TextEdit(
             range: range,
@@ -64,19 +60,5 @@ class SortFilenamesCodeActionProvider: CodeActionProvider {
     return args.filter { $0 as? KeywordItem == nil }[count...].filter {
       ($0 as? StringLiteral) != nil
     }.count == al.countPositionalArgs() - count
-  }
-
-  // We will have to special case files(), include_directories(), install_data()
-  func sourceFunc(_ f: Function) -> Int? {
-    let id = f.id()
-    if id == "both_libraries" || id == "build_target" || id == "executable" || id == "jar"
-      || id == "library" || id == "shared_library" || id == "shared_module"
-      || id == "static_library"
-    {
-      return 1
-    } else if id == "files" || id == "include_directories" || id == "install_data" {
-      return 0
-    }
-    return nil
   }
 }

@@ -65,11 +65,7 @@ class IntegerToBaseCodeActionProvider: CodeActionProvider {
   ) -> CodeAction {
     let newValue =
       val.hasPrefix("-") ? (p + "-" + val.replacingOccurrences(of: "-", with: "")) : (p + val)
-    let range =
-      Position(
-        line: Int(il.location.startLine),
-        utf16index: Int(il.location.startColumn)
-      )..<Position(line: Int(il.location.endLine), utf16index: Int(il.location.endColumn))
+    let range = Shared.nodeToRange(il)
     let changes = [uri: [TextEdit(range: range, newText: newValue)]]
     let edit = WorkspaceEdit(changes: changes)
     return CodeAction(title: title + " (\(newValue))", kind: CodeActionKind.refactor, edit: edit)

@@ -36,21 +36,9 @@ class CopyFileCodeActionProvider: CodeActionProvider {
         }
         if name != nil { replacementString = name! + ".copyfile" }
       }
-      let editArgumentList = TextEdit(
-        range: Position(
-          line: Int(al.location.startLine),
-          utf16index: Int(al.location.startColumn)
-        )..<Position(line: Int(al.location.endLine), utf16index: Int(al.location.endColumn)),
-        newText: str
-      )
+      let editArgumentList = TextEdit(range: Shared.nodeToRange(al), newText: str)
       let fn = fexpr.id
-      let editFunctionName = TextEdit(
-        range: Position(
-          line: Int(fn.location.startLine),
-          utf16index: Int(fn.location.startColumn)
-        )..<Position(line: Int(fn.location.endLine), utf16index: Int(fn.location.endColumn)),
-        newText: replacementString
-      )
+      let editFunctionName = TextEdit(range: Shared.nodeToRange(fn), newText: replacementString)
       let changes = [uri: [editArgumentList, editFunctionName]]
       let edit = WorkspaceEdit(changes: changes)
       return [

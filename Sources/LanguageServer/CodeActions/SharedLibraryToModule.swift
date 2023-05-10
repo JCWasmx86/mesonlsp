@@ -9,14 +9,7 @@ class SharedLibraryToModuleCodeActionProvider: CodeActionProvider {
       al.getKwarg(name: "darwin_versions") == nil && al.getKwarg(name: "soversion") == nil
         && al.getKwarg(name: "version") == nil
     {
-      let range =
-        Position(
-          line: Int(fexpr.id.location.startLine),
-          utf16index: Int(fexpr.id.location.startColumn)
-        )..<Position(
-          line: Int(fexpr.id.location.endLine),
-          utf16index: Int(fexpr.id.location.endColumn)
-        )
+      let range = Shared.nodeToRange(fexpr.id)
       let changes = [uri: [TextEdit(range: range, newText: "shared_module")]]
       let edit = WorkspaceEdit(changes: changes)
       return [
