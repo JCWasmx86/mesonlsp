@@ -44,7 +44,7 @@ let package = Package(
         .product(name: "Crypto", package: "swift-crypto"),
       ]
     ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
-    .target(name: "IOUtils", dependencies: []),
+    .target(name: "IOUtils", dependencies: [.product(name: "Logging", package: "swift-log")]),
     .target(
       name: "Wrap",
       dependencies: [

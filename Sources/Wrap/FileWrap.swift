@@ -58,7 +58,9 @@ public class FileWrap: Wrap {
         ).replacingOccurrences(of: ".tgz", with: "")
       let fullPath = "\(path)\(Path.separator)\(targetDirectory)"
       // Alamofire does not fit in, as everything is synchronous
-      // URLSession.shared does not seem to exist.
+      // URLSession.shared comes with a FoundationNetworking dependency, that
+      // can only be linked statically by linking curl statically => Won't be done
+      // due to security'
       // All other libraries I tried (SwiftHTTP, Just) didn't even compile
       // So declare defeat and simply shell out to curl/wget, as one of those is always
       // installed.
@@ -88,29 +90,26 @@ public class FileWrap: Wrap {
     }
   }
 
-  private func getArchiveType(_ downloaded: String, _ sfn: String) throws -> ArchiveType {
-    var type: ArchiveType = .zip
-    if downloaded.hasSuffix(".zip") {
-      type = .zip
-    } else if downloaded.hasSuffix("tar.xz") {
-      type = .tarxz
-    } else if downloaded.hasSuffix(".tar.bz2") {
-      type = .tarbz2
-    } else if downloaded.hasSuffix(".tgz") || downloaded.hasSuffix(".tar.gz") {
-      type = .targz
-    } else {
-      if sfn.hasSuffix(".zip") {
-        type = .zip
-      } else if sfn.hasSuffix("tar.xz") {
-        type = .tarxz
-      } else if sfn.hasSuffix(".tar.bz2") {
-        type = .tarbz2
-      } else if sfn.hasSuffix(".tgz") || sfn.hasSuffix(".tar.gz") {
-        type = .targz
-      } else {
-        throw WrapError.genericError("Unable to extract archive \(sfn)")
-      }
+  private func getArchiveType(_ str: String) -> ArchiveType? {
+    if str.hasSuffix(".zip") {
+      return .zip
+    } else if str.hasSuffix("tar.xz") {
+      return .tarxz
+    } else if str.hasSuffix(".tar.bz2") {
+      return .tarbz2
+    } else if str.hasSuffix(".tgz") || str.hasSuffix(".tar.gz") {
+      return .targz
     }
-    return type
+    return nil
+  }
+
+  private func getArchiveType(_ downloaded: String, _ sfn: String) throws -> ArchiveType {
+    if let at = self.getArchiveType(downloaded) {
+      return at
+    } else if let at = self.getArchiveType(sfn) {
+      return at
+    } else {
+      throw WrapError.genericError("Unable to extract archive \(sfn)")
+    }
   }
 }

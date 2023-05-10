@@ -6,13 +6,6 @@ import Logging
 
 public class Wrap {
   internal static let LOG: Logger = Logger(label: "Wrap::Wrap")
-  public static var PROCESSES: [Process] = []
-  public static let CLEANUP_HANDLER: @convention(c) () -> Void = {
-    PROCESSES.forEach { $0.terminate() }
-    #if !os(Windows)
-      PROCESSES.forEach { kill($0.processIdentifier, SIGKILL) }
-    #endif
-  }
 
   public private(set) var directory: String?
   public private(set) var patchURL: String?
@@ -45,7 +38,6 @@ public class Wrap {
     self.patchDirectory = patchDirectory
     self.diffFiles = diffFiles
     self.wrapHash = wrapHash
-    atexit(Self.CLEANUP_HANDLER)
   }
 
   internal func applyProvides(_ provides: Provides) { self.provides = provides }
@@ -60,6 +52,14 @@ public class Wrap {
 
   }
 
+  internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
+    let terminationStatus = try Processes.executeCommand(commands, cwd)
+    let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
+    if terminationStatus != 0 {
+      throw WrapError.genericError("Command failed with code \(terminationStatus): \(joined)")
+    }
+  }
+
   #if !os(Windows)
     internal func assertRequired(_ command: String) throws {
       let task = Process()
@@ -72,50 +72,7 @@ public class Wrap {
         throw WrapError.commandNotFound("Required command `\(command)` not found")
       }
     }
-
-    internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
-      let task = Process()
-      let joined = commands.map { "\'\($0)\'" }.joined(separator: " ")
-      Self.LOG.info("Executing \"\(joined)\" at \(cwd ?? "???")")
-      task.arguments = ["-c", "\(joined)"]
-      task.executableURL = URL(fileURLWithPath: "/bin/sh")
-      if let c = cwd { task.currentDirectoryURL = URL(fileURLWithPath: c) }
-      Self.PROCESSES.append(task)
-      try task.run()
-      task.waitUntilExit()
-      Self.PROCESSES.remove(at: Self.PROCESSES.firstIndex(of: task)!)
-      if task.terminationStatus != 0 {
-        throw WrapError.genericError(
-          "Command failed with code \(task.terminationStatus): \(joined)"
-        )
-      }
-    }
   #else
-    func getAbsolutePath(forExecutable executableName: String) throws -> String {
-      let task = Process()
-      task.executableURL = URL(fileURLWithPath: "C:\\Windows\\System32\\where.exe")
-      task.arguments = [executableName]
-
-      let pipe = Pipe()
-      task.standardOutput = pipe
-      task.standardError = pipe
-
-      try task.run()
-      task.waitUntilExit()
-
-      let data = pipe.fileHandleForReading.readDataToEndOfFile()
-      let output = String(data: data, encoding: .utf8)?.trimmingCharacters(
-        in: .whitespacesAndNewlines
-      )
-
-      if task.terminationStatus != 0 {
-        fatalError(
-          "Command execution failed with exit code \(task.terminationStatus) in Wrap::Wrap::getAbsolutePath"
-        )
-      }
-      return output!
-    }
-
     internal func assertRequired(_ command: String) throws {
       let task = Process()
       Self.LOG.info("Checking if `\(command)` exists")
@@ -125,28 +82,6 @@ public class Wrap {
       task.waitUntilExit()
       if task.terminationStatus != 0 {
         throw WrapError.commandNotFound("Required command `\(command)` not found")
-      }
-    }
-
-    internal func executeCommand(_ commands: [String], _ cwd: String? = nil) throws {
-      guard let command = commands.first else { fatalError("Internal error") }
-
-      let task = Process()
-      if cwd != nil { task.currentDirectoryPath = cwd! }
-      let lines = try getAbsolutePath(forExecutable: command)
-      task.launchPath =
-        Array(lines.replacingOccurrences(of: "\r\n", with: "\n").split(separator: "\n"))[0]
-        .description
-      task.arguments = Array(commands.dropFirst())
-      Self.PROCESSES.append(task)
-      task.launch()
-      task.waitUntilExit()
-      Self.PROCESSES.remove(at: Self.PROCESSES.firstIndex(of: task)!)
-
-      if task.terminationStatus != 0 {
-        throw WrapError.genericError(
-          "Command execution failed with exit code \(task.terminationStatus)"
-        )
       }
     }
   #endif

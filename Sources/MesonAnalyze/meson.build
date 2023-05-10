@@ -40,6 +40,7 @@ mesonanalyze_lib = static_library(
     'Subproject/CachedSubproject.swift',
     'Subproject/FolderSubproject.swift',
     'Subproject/SubprojectState.swift',
+    'Subproject/SubprojectError.swift',
     'SetVariableGuess.swift',
     'MesonOption.swift',
     'OptionsExtractor.swift',

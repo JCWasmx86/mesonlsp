@@ -1,5 +1,5 @@
 # IOUtils module
-This module is a vendored and stripped down copy of [PathKit](https://github.com/kylef/PathKit) (BSD 2-Clause License).
+This module contains a vendored and stripped down copy of [PathKit](https://github.com/kylef/PathKit) (BSD 2-Clause License).
 It is used through the entire code as it simplifies a few path operations.
 
 ## License

@@ -100,7 +100,7 @@ public final class MesonServer: LanguageServer {
     if let t = self.task { t.cancel() }
     if let t = self.parseTask { t.cancel() }
     self.tasks.values.forEach { $0.cancel() }
-    Self.LOG.warning("Killing \(Wrap.PROCESSES.count) processes")
+    Self.LOG.warning("Killing \(Processes.PROCESSES.count) processes")
     if let t = self.token {
       let endMessage = WorkDoneProgress(
         token: t,
@@ -108,7 +108,7 @@ public final class MesonServer: LanguageServer {
       )
       self.client.send(endMessage)
     }
-    Wrap.CLEANUP_HANDLER()
+    Processes.CLEANUP_HANDLER()
   }
 
   public override func _registerBuiltinHandlers() {
