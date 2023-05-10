@@ -8,6 +8,7 @@ class SortFilenamesIASCodeActionProvider: CodeActionProvider {
       let f = fexpr.function, let count = self.sourceFunc(f), self.validArgs(al, count)
     {
       let toSort = al.args.filter { $0 as? KeywordItem == nil }[count...]
+      if toSort.filter({ $0 as? IdExpression != nil }).isEmpty { return [] }
       let sortedNodes = toSort.sorted(by: sortFunc)
       if al.args.filter({ $0 as? KeywordItem == nil }).count - count != toSort.count {
         fatalError(
