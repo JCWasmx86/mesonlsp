@@ -74,9 +74,9 @@ class DeclareDependencyCodeActionProvider: CodeActionProvider {
   private func stringValue(node: Node) -> String {
     do {
       let string = try node.file.contents()
-      let lines = string.split(separator: "\n")
+      let lines = string.split(separator: "\n", omittingEmptySubsequences: false)
       if node.location.startLine == node.location.endLine {
-        let line = lines[Int(node.location.startLine - 1)]
+        let line = lines[Int(node.location.startLine)]
         let sI = line.index(line.startIndex, offsetBy: Int(node.location.startColumn))
         let eI = line.index(line.startIndex, offsetBy: Int(node.location.endColumn - 1))
         return String(line[sI...eI])
