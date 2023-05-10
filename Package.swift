@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "Swift-MesonLSP",
-  platforms: [.macOS(.v12)],
+  platforms: [.macOS("12.0")],
   products: [
     .library(name: "Caching", targets: ["Caching"]),
     .library(name: "MesonAnalyze", targets: ["MesonAnalyze"]),
@@ -15,7 +15,6 @@ let package = Package(
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
     .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
-    .library(name: "CMesonDocs", targets: ["CMesonDocs"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
@@ -44,9 +43,7 @@ let package = Package(
         "IOUtils", .product(name: "Logging", package: "swift-log"),
         .product(name: "Crypto", package: "swift-crypto"),
       ]
-    ), .systemLibrary(name: "CMem"),
-    .target(name: "CMesonDocs", dependencies: [], sources: ["shim.cpp"]),
-    .target(name: "Timing", dependencies: []),
+    ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
     .target(name: "IOUtils", dependencies: [.product(name: "Logging", package: "swift-log")]),
     .target(
       name: "Wrap",
@@ -55,12 +52,7 @@ let package = Package(
         .product(name: "INIParser", package: "Perfect-INIParser"),
         .product(name: "Logging", package: "swift-log"),
       ]
-    ),
-    .target(
-      name: "MesonDocs",
-      dependencies: ["CMesonDocs"],
-      swiftSettings: [.unsafeFlags(["-I", "Sources/CxxTest", "-enable-experimental-cxx-interop"])]
-    ),
+    ), .target(name: "MesonDocs", dependencies: []),
     .target(
       name: "TestingFramework",
       dependencies: ["MesonAnalyze", .product(name: "Logging", package: "swift-log")]
@@ -75,8 +67,7 @@ let package = Package(
           condition: .when(platforms: [.linux, .macOS])
         ), .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
-      ],
-      swiftSettings: [.unsafeFlags(["-I", "Sources/CxxTest", "-enable-experimental-cxx-interop"])]
+      ]
     ),
     .executableTarget(
       name: "Swift-MesonLSP",
@@ -93,17 +84,7 @@ let package = Package(
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Backtrace", package: "swift-backtrace"),
       ],
-      swiftSettings: [
-        .unsafeFlags(["-parse-as-library"]),
-        .unsafeFlags(["-I", "Sources/CxxTest", "-enable-experimental-cxx-interop"]),
-      ],
-      linkerSettings: [
-        .linkedLibrary("swiftCxx"),
-        .unsafeFlags([
-          "-L/usr/libexec/swift/5.7/lib/swift/linux/", "-L/usr/libexec/swift/5.8/lib/swift/linux/",
-        ]),
-      ]
-
+      swiftSettings: [.unsafeFlags(["-parse-as-library"])]
     ), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
   ]
 )

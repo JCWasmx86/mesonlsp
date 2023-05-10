@@ -1,4 +1,0 @@
-module CMesonDocs {
-	header "include/shim.hpp"
-	requires cplusplus
-}
