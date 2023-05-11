@@ -298,14 +298,7 @@ public final class MesonServer: LanguageServer {
         }
       } else {
         Self.LOG.error("Line out of bounds: \(line) > \(lines.count)")
-      }  // 1. Get the nearest node
-      // 2. If it is an identifier and parent is build_definition/iterS/selectS
-      // 2.1. Calculate function names
-      // 2.2. Calculate matching identifier names
-      // 3. If it is an identifier and parent is keyworditem/methodcall/functionexpression
-      // 3.1. Calculate, whether it matches kwargs
-      // 4. If it is an expression like this "<sth>.", attempt to deduce the methods
-      // of <sth>
+      }
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
