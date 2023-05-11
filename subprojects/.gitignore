@@ -2,7 +2,6 @@ bitbytedata/
 bitbytedata.wrap
 consolekit/
 iniparser/
-packagefiles/
 sourcekit-lsp/
 swcompression/
 swift-argument-parser/
