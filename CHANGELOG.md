@@ -15,6 +15,8 @@
 - Update subprojects on launch
 - Add code action for moving to `fs.copyfile()` from `configure_file(copy: true)`. Note the refactored code won't be formatted.
 - Add code action to create dependency from library
+- Add a very experimental meson build system. Requires a [meson fork](https://github.com/JCWasmx86/meson/tree/swift). Don't rely on it, as the buildsystem may be removed
+  without any further notice. It's just a Proof-of-concept.
 # 2.1 (Apr 22 2023)
 - Show choices for array/combo options on hover
 - Build .deb files for Ubuntu 18.04/20.04/22.04 and Debian stable/testing/unstable in CI
