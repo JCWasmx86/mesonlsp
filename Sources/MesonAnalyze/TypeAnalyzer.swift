@@ -61,7 +61,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     "arm", "armclang", "ccomp", "ccrx", "clang", "clang-cl", "dmd", "emscripten", "flang", "g95",
     "gcc", "intel", "intel-cl", "intel-llvm", "intel-llvm-cl", "lcc", "llvm", "mono", "msvc",
     "nagfor", "nvidia_hpc", "open64", "pathscale", "pgi", "rustc", "sun", "c2000", "ti", "valac",
-    "xc16", "cython", "nasm", "yasm", "ml", "armasm",
+    "xc16", "cython", "nasm", "yasm", "ml", "armasm", "mwasmarm", "mwasmeppc",
   ]
 
   let argumentSyntaxes: Set<String> = ["gcc", "msvc", ""]
@@ -69,7 +69,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   let linkerIds: Set<String> = [
     "ld.bfd", "ld.gold", "ld.lld", "ld.mold", "ld.solaris", "ld.wasm", "ld64", "ld64.lld", "link",
     "lld-link", "xilink", "optlink", "rlink", "xc16-ar", "ar2000", "ti-ar", "armlink", "pgi",
-    "nvlink", "ccomp",
+    "nvlink", "ccomp", "mwldarm", "mwldeppc",
   ]
 
   let cpuFamilies: Set<String> = [
