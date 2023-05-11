@@ -355,7 +355,6 @@ public final class MesonServer: LanguageServer {
   ) {
     guard let mt = t.metadata else { return }
     guard let idexprs = mt.identifiers[idexpr.file.file] else { return }
-    // We should add identifiers from parent files etc.
     var other: [String] = []
     var idx = 0
     let mappedFile = self.mapper.fromSubprojectToCache(file: idexpr.file.file)
