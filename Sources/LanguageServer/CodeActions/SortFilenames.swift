@@ -7,9 +7,9 @@ class SortFilenamesCodeActionProvider: CodeActionProvider {
     if let fexpr = node as? FunctionExpression, let al = fexpr.argumentList as? ArgumentList,
       let f = fexpr.function, let count = Shared.isSortableFunction(f), self.validArgs(al, count)
     {
-      let strLiterals = al.args.filter { $0 as? KeywordItem == nil }.map {
+      let strLiterals = al.args.filter { $0 as? KeywordItem == nil }[count...].map {
         ($0 as! StringLiteral).contents()
-      }[count...]
+      }
       let sortedStrLiterals = strLiterals.sorted(by: sortFunc)
       if strLiterals.elementsEqual(sortedStrLiterals) { return [] }
       if al.args.filter({ $0 as? KeywordItem == nil }).count - count != strLiterals.count {
