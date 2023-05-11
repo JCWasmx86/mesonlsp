@@ -1,3 +1,4 @@
 [wrap-git]
-url = https://github.com/JCWasmx86/Perfect-INIParser.git
+url = https://github.com/PerfectlySoft/Perfect-INIParser.git
 revision = head
+patch_directory = iniparser

@@ -1,0 +1,4 @@
+[wrap-git]
+url = https://github.com/apple/swift-tools-support-core.git
+revision = head
+patch_directory = swift-tools-support-core

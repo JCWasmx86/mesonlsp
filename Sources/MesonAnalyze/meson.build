@@ -45,7 +45,6 @@ mesonanalyze_lib = static_library(
     'OptionsExtractor.swift',
     'Scope.swift',
     'SetVariableGuess.swift',
-    'Shared.swift',
     'SubdirCall.swift',
     'Symbol.swift',
     'SymbolVisitor.swift',

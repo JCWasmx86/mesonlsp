@@ -1,3 +1,4 @@
 [wrap-git]
-url = https://github.com/JCWasmx86/sourcekit-lsp.git
+url = https://github.com/apple/sourcekit-lsp.git
 revision = head
+patch_directory = sourcekit-lsp

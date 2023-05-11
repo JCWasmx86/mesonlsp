@@ -1,3 +1,4 @@
 [wrap-git]
-url = https://github.com/JCWasmx86/swift-backtrace.git
+url = https://github.com/swift-server/swift-backtrace.git
 revision = head
+patch_directory = swift-backtrace

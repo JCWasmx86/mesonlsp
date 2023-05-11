@@ -108,16 +108,14 @@ mesonast_lib = static_library(
     'TypeNamespace.swift',
     'Utils.swift',
     link_with: [
-        ioutils_lib,
         swifttreesitter_lib,
     ],
-    dependencies: tree_sitter_dep,
+    dependencies: [tree_sitter_dep, ioutils_dep],
 )
 mesonast_dep = declare_dependency(
     link_with: [
         mesonast_lib,
-        ioutils_lib,
         swifttreesitter_lib,
     ],
-    dependencies: tree_sitter_dep,
+    dependencies: [tree_sitter_dep, ioutils_dep],
 )

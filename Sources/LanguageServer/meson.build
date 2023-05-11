@@ -18,6 +18,7 @@ ls_lib = static_library(
     'CodeActions/DeclareDependency.swift',
     'CodeActions/IntegerToBase.swift',
     'CodeActions/LibraryToGeneric.swift',
+    'CodeActions/Shared.swift',
     'CodeActions/SharedLibraryToModule.swift',
     'CodeActions/SharedModuleToLibrary.swift',
     'CodeActions/SortFilenames.swift',
