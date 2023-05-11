@@ -722,12 +722,8 @@ public final class MesonServer: LanguageServer {
         if Task.isCancelled { return }
         Self.LOG.info("Starting task")
         var astCacheTemp: [String: Node] = [:]
-        fsp.parse(
-          ns,
-          dontCache: self.openSubprojectFiles[fsp.realpath]!,
-          cache: &astCacheTemp,
-          memfiles: self.memfiles
-        )
+        let files = self.openSubprojectFiles[fsp.realpath]
+        fsp.parse(ns, dontCache: files ?? [], cache: &astCacheTemp, memfiles: self.memfiles)
         if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
         if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
         Self.LOG.info("Task ended, cancelled: \(Task.isCancelled)")
