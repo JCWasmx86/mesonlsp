@@ -3,6 +3,12 @@
 
 import PackageDescription
 
+#if os(Windows)
+  #if swift(>=5.8)
+    #error("Windows builds will crash, if compiled using 5.8.")
+  #endif
+#endif
+
 let package = Package(
   name: "Swift-MesonLSP",
   platforms: [.macOS("12.0")],
