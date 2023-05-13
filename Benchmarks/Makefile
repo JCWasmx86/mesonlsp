@@ -22,6 +22,8 @@ serve: FORCE
 	cat v2.0.json >> generated.js
 	echo -n "," >> generated.js
 	cat v2.1.json >> generated.js
+	echo -n "," >> generated.js
+	cat v2.2.json >> generated.js
 	echo "];" >> generated.js
 	python -m http.server
 FORCE: ;
