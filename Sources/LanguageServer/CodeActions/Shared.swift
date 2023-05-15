@@ -2,8 +2,8 @@ import Foundation
 import LanguageServerProtocol
 import MesonAST
 
-internal struct Shared {
-  internal static func isSortableFunction(_ f: Function) -> Int? {
+public struct Shared {
+  public static func isSortableFunction(_ f: Function) -> Int? {
     let id = f.id()
     if id == "both_libraries" || id == "build_target" || id == "executable" || id == "jar"
       || id == "library" || id == "shared_library" || id == "shared_module"
@@ -16,7 +16,7 @@ internal struct Shared {
     return nil
   }
 
-  internal static func stringValue(node: Node) -> String {
+  public static func stringValue(node: Node) -> String {
     do {
       let string = try node.file.contents()
       let lines = string.split(separator: "\n", omittingEmptySubsequences: false)

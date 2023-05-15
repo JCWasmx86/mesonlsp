@@ -92,5 +92,6 @@ let package = Package(
       ],
       swiftSettings: [.unsafeFlags(["-parse-as-library"])]
     ), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
+    .testTarget(name: "LanguageServerTests", dependencies: ["LanguageServer"]),
   ]
 )
