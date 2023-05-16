@@ -12,3 +12,4 @@ failures.txt
 3rdparty.txt
 target/
 /target
+.gdb_history
