@@ -1,3 +1,4 @@
+import Dispatch
 #if os(Windows)
   import CRT
 #elseif os(Linux)
@@ -9,6 +10,8 @@
 public class Timing {
   public static let INSTANCE = Timing()
   static let MILLISECONDS_IN_SECOND: Double = 1000
+  static let SEMAPHORE = DispatchSemaphore(value: 1)
+
   private var _timings: [String: TimingInformation] = [:]
 
   private init() {
@@ -16,8 +19,10 @@ public class Timing {
   }
 
   public func registerMeasurement(name: String, diff: Double) {
+    Self.SEMAPHORE.wait()
     if self._timings[name] == nil { self._timings[name] = TimingInformation(name: name) }
     self._timings[name]!.append(value: diff)
+    Self.SEMAPHORE.signal()
   }
 
   public func registerMeasurement(name: String, begin: Int, end: Int) {
