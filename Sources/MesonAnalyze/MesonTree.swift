@@ -32,7 +32,7 @@ public final class MesonTree: Hashable {
     depth: Int = 0,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String] = [:],
+    memfiles: [String: String],
     subproject: Subproject? = nil
   ) {
     self.ns = ns

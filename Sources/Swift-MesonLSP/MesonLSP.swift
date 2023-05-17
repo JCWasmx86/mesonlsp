@@ -42,11 +42,11 @@ import Wrap
   private func parseNTimes() {
     let ns = TypeNamespace()
     var cache: [String: MesonAST.Node] = [:]
-    var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
+    var t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
     t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     for _ in 0..<Self.NUM_PARSES {
       if !self.keepCache { cache.removeAll() }
-      t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache)
+      t = MesonTree(file: self.path, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
     }
   }
@@ -63,7 +63,7 @@ import Wrap
       var fail = false
       var cache: [String: MesonAST.Node] = [:]
       for p in self.paths {
-        let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+        let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
         if !self.keepCache { cache.removeAll() }
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
         var s: Set<MesonTree> = [t]
@@ -90,7 +90,7 @@ import Wrap
   private func parseAndPrintDiagnostics(ns: TypeNamespace) {
     for p in self.paths {
       var cache: [String: MesonAST.Node] = [:]
-      let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache)
+      let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       if let mt = t.metadata {
         for kv in mt.diagnostics {
@@ -108,11 +108,11 @@ import Wrap
     for path in paths {
       let ns = TypeNamespace()
       var cache: [String: MesonAST.Node] = [:]
-      var t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+      var t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
       t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       for _ in 0..<Self.NUM_PARSES * factor {
         if !self.keepCache { cache.removeAll() }
-        t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache)
+        t = MesonTree(file: path, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
       }
     }
