@@ -608,13 +608,12 @@ public final class MesonServer: LanguageServer {
         Self.LOG.info("Cancelling parsing - After clearing diagnostics")
         return
       }
-      var astCache: [String: Node] = [:]
       let tmptree = MesonTree(
         file: self.path! + "/meson.build",
         ns: self.ns,
-        dontCache: [],  // self.openFiles,
-        cache: &astCache,
-        memfiles: [:]  // self.memfiles
+        dontCache: self.openFiles,
+        cache: &self.astCache,
+        memfiles: self.memfiles
       )
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
