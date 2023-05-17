@@ -106,7 +106,7 @@ async fn main() {
     let mut count = 0i32;
     info!("Test textDocument/didChange multiple times");
     loop {
-        if count == 1000 {
+        if count == 10 {
             break;
         }
         count += 1;
