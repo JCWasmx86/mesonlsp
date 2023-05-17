@@ -42,7 +42,8 @@ public final class MesonTree: Hashable {
     self.ast = nil
     self.depth = depth
     if dontCache.contains(self.file) || cache[self.file] == nil {
-      if memfiles[self.file] == nil && pkp.exists {
+      let memfile = memfiles[self.file]
+      if memfile == nil && pkp.exists {
         let text = self.readFile(self.file)
         guard let text = text else { return }
         let beginParsing = clock()
@@ -61,9 +62,9 @@ public final class MesonTree: Hashable {
           begin: Int(endParsing),
           end: Int(endBuildingAst)
         )
-      } else if memfiles[self.file] != nil {
+      } else if memfile != nil {
         let beginParsing = clock()
-        let tree = Self.PARSER().parse(memfiles[self.file]!.description)
+        let tree = Self.PARSER().parse(memfile!.description)
         let endParsing = clock()
         Timing.INSTANCE.registerMeasurement(
           name: "parsing",
@@ -72,7 +73,7 @@ public final class MesonTree: Hashable {
         )
         let root = tree!.rootNode
         self.ast = from_tree(
-          file: MemoryFile(file: self.file, contents: memfiles[self.file]!.description),
+          file: MemoryFile(file: self.file, contents: memfile!.description),
           tree: root
         )
         let endBuildingAst = clock()
