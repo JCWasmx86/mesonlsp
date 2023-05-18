@@ -50,7 +50,7 @@ async fn main() {
         .with_writer(std::io::stderr)
         .init();
 
-    let child = tokio::process::Command::new(".build/release/Swift-MesonLSP")
+    let child = tokio::process::Command::new("Swift-MesonLSP")
         .arg("--lsp")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -106,7 +106,7 @@ async fn main() {
     let mut count = 0i32;
     info!("Test textDocument/didChange multiple times");
     loop {
-        if count == 10 {
+        if count == 1000 {
             break;
         }
         count += 1;

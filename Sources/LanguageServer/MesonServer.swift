@@ -20,6 +20,7 @@ public final class MesonServer: LanguageServer {
   static let LOG = Logger(label: "LanguageServer::MesonServer")
   static let MIN_PORT = 65000
   static let MAX_PORT = 65550
+  var memfilesQueue = DispatchQueue(label: "mesonserver.memfiles")
   var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
@@ -560,7 +561,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func getContents(file: String) -> String? {
-    if let sf = self.memfiles[file] { return sf }
+    if let sf = memfilesQueue.sync(execute: { self.memfiles[file] }) { return sf }
     return try? String(contentsOfFile: file)
   }
 
@@ -613,7 +614,7 @@ public final class MesonServer: LanguageServer {
         ns: self.ns,
         dontCache: self.openFiles,
         cache: &self.astCache,
-        memfiles: self.memfiles
+        memfiles: memfilesQueue.sync { self.memfiles }
       )
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
@@ -629,7 +630,7 @@ public final class MesonServer: LanguageServer {
         ns: self.ns,
         dontCache: self.openFiles,
         cache: &self.astCache,
-        memfiles: self.memfiles,
+        memfiles: memfilesQueue.sync { self.memfiles },
         subprojectState: self.subprojects
       )
       if Task.isCancelled {
@@ -715,7 +716,12 @@ public final class MesonServer: LanguageServer {
         Self.LOG.info("Starting task")
         var astCacheTemp: [String: Node] = [:]
         let files = self.openSubprojectFiles[fsp.realpath]
-        fsp.parse(ns, dontCache: files ?? [], cache: &astCacheTemp, memfiles: self.memfiles)
+        fsp.parse(
+          ns,
+          dontCache: files ?? [],
+          cache: &astCacheTemp,
+          memfiles: memfilesQueue.sync { self.memfiles }
+        )
         if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
         if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
         Self.LOG.info("Task ended, cancelled: \(Task.isCancelled)")
@@ -750,7 +756,7 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Save] \(file!) in subproject \(sb.realpath)")
-        self.memfiles.removeValue(forKey: file!)
+        memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
         self.rebuildSubproject(sb)
       }
     } else {
@@ -758,7 +764,7 @@ public final class MesonServer: LanguageServer {
       // Either the saves were changed or dropped, so use the contents
       // of the file
       Self.LOG.info("[Save] Dropping \(file!) from memcache")
-      self.memfiles.removeValue(forKey: file!)
+      memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
       self.rebuildTree()
     }
   }
@@ -773,7 +779,7 @@ public final class MesonServer: LanguageServer {
           s.remove(file!)
           self.openSubprojectFiles[sb.realpath] = s
         }
-        self.memfiles.removeValue(forKey: file!)
+        memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
         self.rebuildSubproject(sb)
       }
     } else {
@@ -782,7 +788,7 @@ public final class MesonServer: LanguageServer {
       // of the file
       Self.LOG.info("[Close] Dropping \(file!) from memcache")
       self.openFiles.remove(file!)
-      self.memfiles.removeValue(forKey: file!)
+      memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
       self.rebuildTree()
     }
   }
@@ -792,13 +798,13 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Change] \(file!) in subproject \(sb.realpath)")
-        self.memfiles[file!] = note.params.contentChanges[0].text
+        memfilesQueue.sync { self.memfiles[file!] = note.params.contentChanges[0].text }
         self.rebuildSubproject(sb)
       }
     } else {
       let file = note.params.textDocument.uri.fileURL?.path
       Self.LOG.info("[Change] Adding \(file!) to memcache")
-      self.memfiles[file!] = note.params.contentChanges[0].text
+      memfilesQueue.sync { self.memfiles[file!] = note.params.contentChanges[0].text }
       self.rebuildTree()
     }
   }
@@ -810,7 +816,9 @@ public final class MesonServer: LanguageServer {
   private func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
     for f in note.params.files {
       let path = f.uri.fileURL!.path
-      if self.memfiles[path] != nil { self.memfiles.removeValue(forKey: path) }
+      if memfilesQueue.sync(execute: { self.memfiles[path] }) != nil {
+        memfilesQueue.sync { self.memfiles.removeValue(forKey: path) }
+      }
       if self.openFiles.contains(path) { self.openFiles.remove(path) }
       if self.astCache[path] != nil { self.astCache.removeValue(forKey: path) }
     }
@@ -886,7 +894,12 @@ public final class MesonServer: LanguageServer {
       )
       self.client.send(progressMessage)
       var cache: [String: Node] = [:]
-      sp.parse(self.ns, dontCache: [], cache: &cache, memfiles: self.memfiles)
+      sp.parse(
+        self.ns,
+        dontCache: [],
+        cache: &cache,
+        memfiles: memfilesQueue.sync { self.memfiles }
+      )
       self.sendNewDiagnostics(sp.tree)
       self.astCaches[sp.realpath] = cache
       n += 1
@@ -937,7 +950,12 @@ public final class MesonServer: LanguageServer {
         let dontCache: Set<String> =
           (s is FolderSubproject)
           ? (self.openSubprojectFiles[(s as! FolderSubproject).realpath] ?? []) : []
-        s.parse(self.ns, dontCache: dontCache, cache: &cache, memfiles: self.memfiles)
+        s.parse(
+          self.ns,
+          dontCache: dontCache,
+          cache: &cache,
+          memfiles: memfilesQueue.sync { self.memfiles }
+        )
         self.sendNewDiagnostics(s.tree)
         self.astCaches[s.realpath] = cache
       } catch let err { Self.LOG.info("\(err)") }
