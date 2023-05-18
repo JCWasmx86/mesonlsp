@@ -1,5 +1,5 @@
 # 2.3 (XXX XX 2023)
-
+- Fix race condition that lead to crashes, especially during initialization
 # 2.2 (May 13 2023)
 **Note: All codeactions insert code unformatted**
 - Build on macOS 13 in CI
