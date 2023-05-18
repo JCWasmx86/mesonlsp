@@ -13,3 +13,4 @@ failures.txt
 target/
 /target
 .gdb_history
+build
