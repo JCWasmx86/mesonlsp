@@ -12,7 +12,7 @@ endif
 
 .PHONY: all test clean
 all: build
-build: $(wildcard Sources/**/*.swift Tests/**/*.swift Package.swift)
+build: $(wildcard Sources/**/*.swift Tests/**/*.swift Package.swift Package.resolved)
 	swift build -c $(CONFIGURATION) --static-swift-stdlib -Xswiftc -g
 	touch build
 install: build
