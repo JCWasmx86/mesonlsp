@@ -14,7 +14,7 @@ endif
 all: build
 build: $(wildcard Sources/**/*.swift Tests/**/*.swift Package.swift Package.resolved)
 	swift build -c $(CONFIGURATION) --static-swift-stdlib -Xswiftc -g
-	touch build
+	@touch build
 install: build
 	pkill -9 Swift-MesonLSP || true
 	cp .build/$(CONFIGURATION)/Swift-MesonLSP $(PREFIX)/bin
