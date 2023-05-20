@@ -27,3 +27,4 @@ If there is an integer literal in the range of the code action request, parse it
 - Extract the library variable name
 - Call `declare_dependency` with the extracted arguments and additionally link against the library variable name
 - Set the name of the dependency to `$LIBNAME | sed s/_lib$/_dep/g` if it ends with `_lib`, else just append `_dep`
+
