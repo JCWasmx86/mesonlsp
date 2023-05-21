@@ -840,12 +840,24 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           let s = self.subprojectState
         {
           let calculatedNames = Set(guessGetVariableMethod(me: node))
+          var foundVariables = false
           for subproject in s.subprojects where stO.names.contains(subproject.name) {
             if let ast = subproject.tree, let sscope = ast.scope {
               for name in calculatedNames where sscope.variables.keys.contains(name) {
                 ownResultTypes += sscope.variables[name]!
+                foundVariables = true
               }
             }
+          }
+          if !calculatedNames.isEmpty && !foundVariables {
+            self.metadata.registerDiagnostic(
+              node: node,
+              diag: MesonDiagnostic(
+                sev: .error,
+                node: node,
+                message: "Unable to find variables called \(calculatedNames) in subprojects"
+              )
+            )
           }
         }
       }
