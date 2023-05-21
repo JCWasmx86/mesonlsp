@@ -148,8 +148,6 @@ async fn main() {
         }));
     }
     join_all(futures).await;
-    // Shutdown.
-    // server.shutdown(()).await.unwrap();
     server.exit(()).unwrap();
 
     server.emit(Stop).unwrap();
