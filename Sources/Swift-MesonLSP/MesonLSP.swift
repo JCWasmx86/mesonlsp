@@ -34,6 +34,7 @@ import Wrap
   @ArgumentParser.Flag var interpret: Bool = false
   @ArgumentParser.Flag var keepCache: Bool = false
   @ArgumentParser.Flag var subproject: Bool = false
+  @ArgumentParser.Flag var dot: Bool = false
 
   public init() {
 
@@ -145,19 +146,34 @@ import Wrap
     }
   }
 
+  func doDot() {
+    let ns = TypeNamespace()
+    let p = Path(self.path).absolute().description
+    var cache: [String: MesonAST.Node] = [:]
+    let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
+    t.analyzeTypes(ns: ns, dontCache: [], cache: &cache)
+    let dv = DotVisitor(tree: t)
+    t.ast?.visit(visitor: dv)
+    print(dv.generateDot())
+  }
+
   public mutating func run() {
     Backtrace.install()
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
     #if !os(Windows)
       let console = Terminal()
+      let dot = self.dot
       LoggingSystem.bootstrap { label in
         var logger = ConsoleLogger(label: label, console: console)
-        logger.logLevel = .info
+        logger.logLevel = dot ? .error : .info
         return logger
       }
     #endif
-    if subproject {
+    if self.dot {
+      self.doDot()
+      return
+    } else if subproject {
       self.createSubproject()
       return
     } else if self.wrap && !self.paths.isEmpty {

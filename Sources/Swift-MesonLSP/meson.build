@@ -6,6 +6,7 @@ consolekit_dep = subproject('consolekit').get_variable('consolekit_dep')
 lspjsonrpc_dep = sk_proj.get_variable('lspjsonrpc_dep')
 executable(
     'Swift-MesonLSP',
+    'DotVisitor.swift',
     'MesonLSP.swift',
     install: true,
     dependencies: [
