@@ -671,6 +671,15 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       let names = Set(MesonAnalyze.guessSetVariable(fe: node))
       Self.LOG.info("Guessed args to `subproject` as \(names)")
       node.types = [MesonAST.Subproject(names: Array(names))]
+      if let ssT = self.subprojectState {
+      	var n = names
+      	for s in ssT.subprojects where n.contains(s.name) {
+					n.remove(s.name)
+				}
+				if !n.isEmpty {
+					self.metadata.registerDiagnostic(node: node, diag: MesonDiagnostic(sev: .error, node: node, message: "Unable to find subprojects \(n)"))
+				}
+      }
     }
   }
 
