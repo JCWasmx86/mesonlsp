@@ -890,7 +890,7 @@ public final class MesonServer: LanguageServer {
       let attributes = try fileManager.attributesOfItem(atPath: path)
       return attributes[.modificationDate] as? Date
     } catch {
-      Self.LOG.error("Error: \(error)")
+      if Path(path).exists { Self.LOG.error("Error: \(error)") }
       return nil
     }
   }
