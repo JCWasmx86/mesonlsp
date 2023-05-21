@@ -38,9 +38,11 @@ public final class MesonServer: LanguageServer {
   var astCaches: [String: [String: Node]] = [:]
   var tasks: [String: Task<(), Error>] = [:]
   let interval = DispatchTimeInterval.seconds(60)
+  let mtimeChecker = DispatchTimeInterval.milliseconds(300)
   var subprojects: SubprojectState?
   var mapper: FileMapper = FileMapper()
   var token: ProgressToken?
+  var subprojectsDirectoryMtime: Date?
   let codeActionState = CodeActionState()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -74,6 +76,32 @@ public final class MesonServer: LanguageServer {
         self.scheduleNextTask()
       }
     #endif
+  }
+
+  private func checkMtime() {
+    if let date = self.getDirectoryModificationTime(
+      path: self.path! + "\(Path.separator)subprojects"
+    ) {
+      if let oldDate = self.subprojectsDirectoryMtime {
+        if date > oldDate {
+          Self.LOG.info("subprojects/ was modified. Recreating subprojects")
+          Task.detached {
+            self.subprojects = nil
+            await self.setupSubprojects()
+          }
+        }
+      } else {
+        Self.LOG.info("subprojects/ was added. Setting up subprojects")
+        Task.detached { await self.setupSubprojects() }
+      }
+    }
+  }
+
+  private func scheduleNextMtimeCheck() {
+    self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
+      self.checkMtime()
+      self.scheduleNextMtimeCheck()
+    }
   }
 
   #if os(Linux)
@@ -856,12 +884,24 @@ public final class MesonServer: LanguageServer {
     self.client.send(progressMessage)
   }
 
+  private func getDirectoryModificationTime(path: String) -> Date? {
+    do {
+      let fileManager = FileManager.default
+      let attributes = try fileManager.attributesOfItem(atPath: path)
+      return attributes[.modificationDate] as? Date
+    } catch {
+      Self.LOG.error("Error: \(error)")
+      return nil
+    }
+  }
+
   private func setupSubprojects() async {
-    self.token = ProgressToken.string(UUID().uuidString)
-    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token!)
+    let t = ProgressToken.string(UUID().uuidString)
+    self.token = t
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: t)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
-      token: self.token!,
+      token: t,
       value: WorkDoneProgressKind.begin(
         WorkDoneProgressBegin(title: "Querying subprojects", percentage: 0)
       )
@@ -869,10 +909,16 @@ public final class MesonServer: LanguageServer {
     self.client.send(beginMessage)
     do {
       self.subprojects = try SubprojectState(rootDir: self.path!, onProgress: onProgress)
+      self.subprojectsDirectoryMtime = self.getDirectoryModificationTime(
+        path: self.path! + "\(Path.separator)subprojects"
+      )
+      if let date = self.subprojectsDirectoryMtime {
+        Self.LOG.info("subprojects/ directory was modified \(date)")
+      }
     } catch let error {
       Self.LOG.error("\(error)")
       let endMessage = WorkDoneProgress(
-        token: self.token!,
+        token: t,
         value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
       )
       self.client.send(endMessage)
@@ -887,7 +933,7 @@ public final class MesonServer: LanguageServer {
     for sp in self.subprojects!.subprojects {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
-        token: self.token!,
+        token: t,
         value: WorkDoneProgressKind.report(
           WorkDoneProgressReport(message: "Parsing subproject \(sp.name)", percentage: percentage)
         )
@@ -913,20 +959,25 @@ public final class MesonServer: LanguageServer {
       self.rebuildTree()
     }
     let endMessage = WorkDoneProgress(
-      token: self.token!,
+      token: t,
       value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)
     self.token = nil
     await self.updateSubprojects()
+    self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
+      self.checkMtime()
+      self.scheduleNextMtimeCheck()
+    }
   }
 
   private func updateSubprojects() async {
-    self.token = ProgressToken.string(UUID().uuidString)
-    let workDoneCreate = CreateWorkDoneProgressRequest(token: self.token!)
+    let t = ProgressToken.string(UUID().uuidString)
+    self.token = t
+    let workDoneCreate = CreateWorkDoneProgressRequest(token: t)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
-      token: self.token!,
+      token: t,
       value: WorkDoneProgressKind.begin(
         WorkDoneProgressBegin(title: "Updating subprojects", percentage: 0)
       )
@@ -938,7 +989,7 @@ public final class MesonServer: LanguageServer {
       n += 1
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
-        token: self.token!,
+        token: t,
         value: WorkDoneProgressKind.report(
           WorkDoneProgressReport(message: "Updating subproject \(s.name)", percentage: percentage)
         )
@@ -967,7 +1018,7 @@ public final class MesonServer: LanguageServer {
       self.rebuildTree()
     }
     let endMessage = WorkDoneProgress(
-      token: self.token!,
+      token: t,
       value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
     )
     self.client.send(endMessage)
