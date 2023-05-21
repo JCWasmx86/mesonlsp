@@ -18,8 +18,12 @@ build: $(wildcard Sources/**/*.swift Tests/**/*.swift Package.swift Package.reso
 install: build
 	pkill -9 Swift-MesonLSP || true
 	cp .build/$(CONFIGURATION)/Swift-MesonLSP $(PREFIX)/bin
-test:
+test: build
 	swift test
+	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/BasicTests/meson.build
+	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/Options/meson.build
+	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
+	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
 clean:
 	swift package clean
 
