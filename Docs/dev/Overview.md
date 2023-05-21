@@ -9,4 +9,6 @@
 - `TestCases` contains some basic test cases for e.g. the `TypeAnalyzer`
 - `Tests` contains XCTest-based tests
 - `Wraps` contains test cases for wrap support
+- `docker` contains all dockerfiles
+- `scripts` contains a huge number of different scripts (E.g. for code coverage collection, profiling, etc.)
 

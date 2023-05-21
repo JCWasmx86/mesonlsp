@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile --output out .
           sudo cp out/Fedora37.zip /Fedora37.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -38,7 +38,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.fedora38 --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.fedora38 --output out .
           sudo cp out/Fedora38.zip /Fedora38.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -56,10 +56,10 @@ jobs:
           ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
-          ./do_meson_tests.sh
-          ./run_regression_tests.sh
+          ./scripts/do_meson_tests.sh
+          ./scripts/run_regression_tests.sh
           yes | brew install mercurial
-          ./run_wrap_tests.sh
+          ./scripts/run_wrap_tests.sh
           swift build -c release
           mkdir -p ${{ github.workspace }}/Artifacts
           sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
@@ -79,11 +79,11 @@ jobs:
           ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
-          ./do_meson_tests.sh
-          ./run_regression_tests.sh
+          ./scripts/do_meson_tests.sh
+          ./scripts/run_regression_tests.sh
           yes | brew install mercurial
           yes | brew install subversion
-          ./run_wrap_tests.sh
+          ./scripts/run_wrap_tests.sh
           swift build -c release
           mkdir -p ${{ github.workspace }}/Artifacts
           sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
@@ -104,7 +104,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu1804 --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu1804 --output out .
           sudo cp out/Ubuntu18.04.zip /Ubuntu18.04.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -123,7 +123,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu2004 --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu2004 --output out .
           sudo cp out/Ubuntu20.04.zip /Ubuntu20.04.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -142,7 +142,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu --output out .
           sudo cp out/Ubuntu22.04.zip /Ubuntu22.04.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -161,7 +161,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianStable --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
           sudo cp out/Debian-Stable.zip /Debian-Stable.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -180,7 +180,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianTesting --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out .
           sudo cp out/Debian-Testing.zip /Debian-Testing.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -199,7 +199,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianUnstable --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out .
           sudo cp out/Debian-Unstable.zip /Debian-Unstable.zip
       - uses: actions/upload-artifact@v3
         with:
@@ -221,8 +221,8 @@ jobs:
           ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
           ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
-          ./do_meson_tests.sh
-          ./run_wrap_tests.sh
+          ./scripts/do_meson_tests.sh
+          ./scripts/run_wrap_tests.sh
           git clone https://github.com/mesonbuild/wrapdb
           mkdir wo
           for i in wrapdb/subprojects/*.wrap; do .build/debug/Swift-MesonLSP --wrap $i --wrap-package-files "./wrapdb/subprojects/packagefiles" --wrap-output ./wo/ || exit 1; done
@@ -270,9 +270,9 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman dpkg
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu1804 --output out .
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu2004 --output out1 .
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.ubuntu --output out2 .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu1804 --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu2004 --output out1 .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu --output out2 .
           cd out
           unzip Ubuntu18.04.zip
           cd ../out1
@@ -307,9 +307,9 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman dpkg
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianStable --output out .
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianTesting --output out1 .
-          DOCKER_BUILDKIT=1 docker build --file Dockerfile.debianUnstable --output out2 .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out1 .
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out2 .
           cd out
           unzip Debian-Stable.zip
           cd ../out1

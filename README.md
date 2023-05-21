@@ -48,13 +48,13 @@ sudo cp .build/release/Swift-MesonLSP /usr/local/bin
 ```
 Or you can use podman (Maybe even docker, but only podman is tested):
 ```
-DOCKER_BUILDKIT=1 podman build --file Dockerfile --output out --no-cache .
+DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile --output out --no-cache .
 # If you want to use Ubuntu 22.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu --output out --no-cache .
+DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu --output out --no-cache .
 # If you want to use Ubuntu 18.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu1804 --output out --no-cache .
+DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu1804 --output out --no-cache .
 # If you want to use Ubuntu 20.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file Dockerfile.ubuntu2004 --output out --no-cache .
+DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu2004 --output out --no-cache .
 ```
 This will place a file "Fedora37.zip" (Or Ubuntu22.04.zip) in the directory `out`. It contains
 two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
