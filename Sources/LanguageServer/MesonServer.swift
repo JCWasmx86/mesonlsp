@@ -898,9 +898,11 @@ public final class MesonServer: LanguageServer {
     }
   }
 
+  // swiftlint:disable cyclomatic_complexity
   private func setupSubprojects() async {
     let t = ProgressToken.string(UUID().uuidString)
     self.token = t
+    let old = self.subprojects
     let workDoneCreate = CreateWorkDoneProgressRequest(token: t)
     do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
@@ -931,6 +933,7 @@ public final class MesonServer: LanguageServer {
         )
         self.client.send(endMessage)
         self.token = nil
+        self.subprojects = old
         return
       }
       if let date = self.subprojectsDirectoryMtime {
@@ -943,6 +946,7 @@ public final class MesonServer: LanguageServer {
         value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
       )
       self.client.send(endMessage)
+      self.subprojects = old
       return
     }
     for err in self.subprojects!.errors {
@@ -985,13 +989,17 @@ public final class MesonServer: LanguageServer {
     )
     self.client.send(endMessage)
     self.token = nil
-    if Task.isCancelled { return }
+    if Task.isCancelled {
+      self.subprojects = old
+      return
+    }
     await self.updateSubprojects()
     self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
       self.checkMtime()
       self.scheduleNextMtimeCheck()
     }
   }
+  // swiftlint:enable cyclomatic_complexity
 
   private func updateSubprojects() async {
     let t = ProgressToken.string(UUID().uuidString)

@@ -49,6 +49,7 @@ public class GitWrap: VcsWrap {
       let fullPath = "\(path)\(Path.separator)\(targetDirectory)"
       let isShallow = self.depth != 0 && self.depth != Int.max
       let depthOptions = isShallow ? ["--depth", self.depth.description] : []
+      self.deleteFolder(fullPath)
       if isShallow && self.isValidCommitId(rev) {
         try self.executeCommand([
           "git", "-c", "init.defaultBranch=mesonlsp-dummy-branch", "init", fullPath,
@@ -110,6 +111,13 @@ public class GitWrap: VcsWrap {
         atPath: Path(fullPath + "\(Path.separator).git_pullable").description,
         contents: Data(capacity: 1)
       )
+    }
+  }
+
+  private func deleteFolder(_ fullPath: String) {
+    let fileManager = FileManager.default
+    do { try fileManager.removeItem(atPath: fullPath) } catch {
+      Self.LOG.info("Failed deleting \(fullPath)")
     }
   }
 
