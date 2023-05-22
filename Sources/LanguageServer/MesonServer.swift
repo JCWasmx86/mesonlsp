@@ -26,7 +26,7 @@ public final class MesonServer: LanguageServer {
   var tree: MesonTree?
   var ns: TypeNamespace
   var memfiles: [String: String] = [:]
-  var task: Task<(), Error>?
+  var parseSubprojectTask: Task<(), Error>?
   var parseTask: Task<(), Error>?
   #if !os(Windows)
     var server: HttpServer
@@ -85,14 +85,16 @@ public final class MesonServer: LanguageServer {
       if let oldDate = self.subprojectsDirectoryMtime {
         if date > oldDate {
           Self.LOG.info("subprojects/ was modified. Recreating subprojects")
-          Task.detached {
+          if let t = self.parseSubprojectTask { t.cancel() }
+          self.parseSubprojectTask = Task.detached {
             self.subprojects = nil
             await self.setupSubprojects()
           }
         }
       } else {
         Self.LOG.info("subprojects/ was added. Setting up subprojects")
-        Task.detached { await self.setupSubprojects() }
+        if let t = self.parseSubprojectTask { t.cancel() }
+        self.parseSubprojectTask = Task.detached { await self.setupSubprojects() }
       }
     }
   }
@@ -126,7 +128,7 @@ public final class MesonServer: LanguageServer {
   #endif
 
   public func prepareForExit() {
-    if let t = self.task { t.cancel() }
+    if let t = self.parseSubprojectTask { t.cancel() }
     if let t = self.parseTask { t.cancel() }
     self.tasks.values.forEach { $0.cancel() }
     Self.LOG.warning("Killing \(Processes.PROCESSES.count) processes")
@@ -875,6 +877,7 @@ public final class MesonServer: LanguageServer {
   }
 
   private func onProgress(_ msg: String) {
+    if self.token == nil { return }
     let progressMessage = WorkDoneProgress(
       token: self.token!,
       value: WorkDoneProgressKind.report(
@@ -907,11 +910,29 @@ public final class MesonServer: LanguageServer {
       )
     )
     self.client.send(beginMessage)
+    if Task.isCancelled {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      self.token = nil
+      return
+    }
     do {
       self.subprojects = try SubprojectState(rootDir: self.path!, onProgress: onProgress)
       self.subprojectsDirectoryMtime = self.getDirectoryModificationTime(
         path: self.path! + "\(Path.separator)subprojects"
       )
+      if Task.isCancelled {
+        let endMessage = WorkDoneProgress(
+          token: t,
+          value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+        )
+        self.client.send(endMessage)
+        self.token = nil
+        return
+      }
       if let date = self.subprojectsDirectoryMtime {
         Self.LOG.info("subprojects/ directory was modified \(date)")
       }
@@ -964,6 +985,7 @@ public final class MesonServer: LanguageServer {
     )
     self.client.send(endMessage)
     self.token = nil
+    if Task.isCancelled { return }
     await self.updateSubprojects()
     self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
       self.checkMtime()
@@ -997,6 +1019,15 @@ public final class MesonServer: LanguageServer {
       self.client.send(progressMessage)
       do {
         try s.update()
+        if Task.isCancelled {
+          let endMessage = WorkDoneProgress(
+            token: t,
+            value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+          )
+          self.client.send(endMessage)
+          self.token = nil
+          return
+        }
         var cache: [String: Node] = [:]
         let dontCache: Set<String> =
           (s is FolderSubproject)
@@ -1033,7 +1064,7 @@ public final class MesonServer: LanguageServer {
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
     self.mapper.rootDir = self.path!
-    self.task = Task { await self.setupSubprojects() }
+    self.parseSubprojectTask = Task { await self.setupSubprojects() }
     self.rebuildTree()
     req.reply(InitializeResult(capabilities: self.capabilities()))
   }
