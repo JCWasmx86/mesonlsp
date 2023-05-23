@@ -179,6 +179,18 @@ public final class MesonServer: LanguageServer {
       for node in cav.applicableNodes {
         actions += self.codeActionState.apply(uri: uri, node: node, tree: tree)
       }
+      if self.tree?.findSubdirTree(
+        file: Path(uri.fileURL!.absoluteURL.path).absolute().normalize().description
+      ) != nil {
+        for node in cav.applicableNodes {
+          actions += self.codeActionState.applyToMainTree(
+            uri: uri,
+            node: node,
+            tree: tree,
+            subprojects: self.subprojects
+          )
+        }
+      }
     }
     Self.LOG.info(
       "Found \(actions.count) code actions at \(uri):\(range): \(actions.map { $0.title })"
