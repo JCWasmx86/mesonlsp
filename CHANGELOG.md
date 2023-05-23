@@ -3,6 +3,7 @@
 - Show error if variable does not exist in subproject
 - Show error if subproject does not exist
 - Added the ability to the CLI of the language server to generate a graph of the subdirectory structure.
+- Add code action to automatically download wrap from WrapDB
 # 2.2 (May 13 2023)
 **Note: All codeactions insert code unformatted**
 - Build on macOS 13 in CI
