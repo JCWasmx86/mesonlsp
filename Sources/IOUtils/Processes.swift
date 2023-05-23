@@ -69,4 +69,14 @@ public struct Processes {
       return task.terminationStatus
     }
   #endif
+
+  public static func download(url: String, outputFile: String) throws {
+    do {
+      _ = try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
+    } catch {
+      do { _ = try self.executeCommand(["curl", url, "-o", outputFile, "-s", "-L"]) } catch {
+        throw error
+      }
+    }
+  }
 }

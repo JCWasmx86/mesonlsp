@@ -14,6 +14,7 @@ wrap_lib = static_library(
     'Provides.swift',
     'SvnWrap.swift',
     'VcsWrap.swift',
+    'WrapDB.swift',
     'WrapError.swift',
     'WrapFileParser.swift',
     dependencies: [
