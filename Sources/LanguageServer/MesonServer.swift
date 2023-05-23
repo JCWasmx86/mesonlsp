@@ -48,6 +48,11 @@ public final class MesonServer: LanguageServer {
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
     self.ns = TypeNamespace()
+    Task.detached {
+      do { try await WrapDB.INSTANCE.initDB() } catch {
+        Self.LOG.error("Failed to init WrapDB: \(error)")
+      }
+    }
     #if !os(Windows)
       self.server = HttpServer()
       for i in Self.MIN_PORT...Self.MAX_PORT {
@@ -187,7 +192,8 @@ public final class MesonServer: LanguageServer {
             uri: uri,
             node: node,
             tree: tree,
-            subprojects: self.subprojects
+            subprojects: self.subprojects,
+            rootDirectory: self.path!
           )
         }
       }

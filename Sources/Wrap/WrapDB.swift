@@ -1,5 +1,6 @@
 import Foundation
 import IOUtils
+import Logging
 
 public enum WrapDBError: Error {
   case badJSON
@@ -9,6 +10,7 @@ public enum WrapDBError: Error {
 
 public class WrapDB {
   public static let INSTANCE = WrapDB()
+  static let LOG = Logger(label: "Wrap::WrapDB")
   internal var wraps: [String: WrapDBEntry] = [:]
 
   private init() {
@@ -19,6 +21,7 @@ public class WrapDB {
     // Download https://wrapdb.mesonbuild.com/v2/releases.json
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + Path.separator + UUID().uuidString
+    Self.LOG.info("Downloading WrapDB data from https://wrapdb.mesonbuild.com/v2/releases.json")
     try Processes.download(
       url: "https://wrapdb.mesonbuild.com/v2/releases.json",
       outputFile: outputFile
@@ -31,6 +34,7 @@ public class WrapDB {
     else { throw WrapDBError.badJSON }
     var wraps: [String: WrapDBEntry] = [:]
     for (dependencyName, dependencyData) in jsonObject {
+      Self.LOG.info("Found available wrap: \(dependencyName)")
       if let dependencyInfo = dependencyData as? [String: Any] {
         let dependencyNames = dependencyInfo["dependency_names"] as? [String]
         let versions = dependencyInfo["versions"] as? [String]
@@ -43,6 +47,7 @@ public class WrapDB {
   public func containsWrap(_ name: String) -> Bool { return self.wraps[name] != nil }
 
   public func downloadWrapToString(_ name: String) throws -> String {
+    Self.LOG.info("Attempting to download wrap \(name)")
     guard let w = self.wraps[name] else { throw WrapDBError.noSuchWrap }
     guard let wrapversion = w.versions?.first else { throw WrapDBError.noVersion }
     // URL is https://wrapdb.mesonbuild.com/v2/{name}_{version}-{revision}/{name}.wrap
@@ -50,6 +55,7 @@ public class WrapDB {
     let tempPath = FileManager.default.temporaryDirectory.standardizedFileURL.path
     let outputFile = tempPath + Path.separator + UUID().uuidString
     let url = "https://wrapdb.mesonbuild.com/v2/\(name)_\(wrapversion)/\(name).wrap"
+    Self.LOG.info("Attempting to download wrap \(name) from \(url)")
     try Processes.download(url: url, outputFile: outputFile)
     return try Path(outputFile).read()
   }

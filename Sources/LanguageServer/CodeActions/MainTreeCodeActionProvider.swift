@@ -7,6 +7,7 @@ protocol MainTreeCodeActionProvider {
     uri: DocumentURI,
     node: Node,
     tree: MesonTree,
-    subprojects: SubprojectState?
+    subprojects: SubprojectState?,
+    rootDirectory: String
   ) -> [CodeAction]
 }

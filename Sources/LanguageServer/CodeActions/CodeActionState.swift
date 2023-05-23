@@ -10,9 +10,7 @@ class CodeActionState {
     SortFilenamesIASCodeActionProvider(), CopyFileCodeActionProvider(),
     DeclareDependencyCodeActionProvider(),
   ]
-  let mainTreeProviders: [MainTreeCodeActionProvider] = [
-
-    ]
+  let mainTreeProviders: [MainTreeCodeActionProvider] = [DownloadFromWrapDBCodeActionProvider()]
 
   public func apply(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
     return self.providers.flatMap { $0.findCodeActionsForNode(uri: uri, node: node, tree: tree) }
@@ -22,10 +20,17 @@ class CodeActionState {
     uri: DocumentURI,
     node: Node,
     tree: MesonTree,
-    subprojects: SubprojectState?
+    subprojects: SubprojectState?,
+    rootDirectory: String
   ) -> [CodeAction] {
     return self.mainTreeProviders.flatMap {
-      $0.findCodeActionsForNode(uri: uri, node: node, tree: tree, subprojects: subprojects)
+      $0.findCodeActionsForNode(
+        uri: uri,
+        node: node,
+        tree: tree,
+        subprojects: subprojects,
+        rootDirectory: rootDirectory
+      )
     }
   }
 }
