@@ -79,8 +79,8 @@
   - [x] `configure_file(copy: true)` to `fs.copyfile()`
   - [x] Create dependency using `declare_dependency` from library
   - [x] Sort filenames
+  - [x] Download wrap for missing subproject from WrapDB
 - [ ] Automatic LSP tests
-- [x] Add way to download .wrap files from WrapDB automatically
 - [x] Document the language server
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
