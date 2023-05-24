@@ -72,6 +72,8 @@
 - [x] Switch from atomics to Task.isCancelled for cancellation of parsing
 ## Version 3.0
 - [ ] Renaming
+  - [ ] Rename loop variables
+  - [ ] Rename local variables
 - [x] Code actions
   - [x] Integer literal to decimal/binary/octal
   - [x] `static_library`/`shared_library`/`both_libraries` to `library`
