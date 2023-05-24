@@ -168,6 +168,11 @@ public final class MesonServer: LanguageServer {
     _register(Self.didCreateFiles)
     _register(Self.didDeleteFiles)
     _register(Self.codeActions)
+    _register(Self.rename)
+  }
+
+  private func rename(_ req: Request<RenameRequest>) {
+    req.reply(.failure(ResponseError(code: .requestFailed, message: "Not implemented")))
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {
@@ -888,6 +893,7 @@ public final class MesonServer: LanguageServer {
       workspaceSymbolProvider: .bool(true),
       codeActionProvider: .bool(true),
       documentFormattingProvider: .bool(true),
+      renameProvider: .bool(true),
       declarationProvider: .bool(true),
       workspace: WorkspaceServerCapabilities(),
       inlayHintProvider: .bool(true)
