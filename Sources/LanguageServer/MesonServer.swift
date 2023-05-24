@@ -172,7 +172,28 @@ public final class MesonServer: LanguageServer {
   }
 
   private func rename(_ req: Request<RenameRequest>) {
-    req.reply(.failure(ResponseError(code: .requestFailed, message: "Not implemented")))
+    let params = req.params
+    guard
+      let id = self.tree?.metadata?.findIdentifierAt(
+        params.textDocument.uri.fileURL!.absoluteURL.path,
+        params.position.line,
+        params.position.utf16index
+      )
+    else {
+      req.reply(
+        .failure(
+          ResponseError(code: .requestFailed, message: "No identifier found at this location!")
+        )
+      )
+      return
+    }
+    guard let parentLoop = id.parent as? IterationStatement else {
+      req.reply(
+        .failure(ResponseError(code: .requestFailed, message: "Can only rename loop variables."))
+      )
+      return
+    }
+    req.reply(WorkspaceEdit(changes: [:]))
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {
