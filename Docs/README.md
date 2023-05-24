@@ -13,4 +13,5 @@
 ## Developers
 - [Overview](dev/Overview.md)
 - [Modules](modules/README.md)
+- [Renaming](dev/Renaming.md)
 
