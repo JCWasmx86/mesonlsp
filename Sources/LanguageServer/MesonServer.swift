@@ -193,7 +193,15 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    req.reply(WorkspaceEdit(changes: [:]))
+    if !parentLoop.containsAsId(id) {
+      req.reply(
+        .failure(ResponseError(code: .requestFailed, message: "Can only rename loop variables."))
+      )
+      return
+    }
+    let lvr = LoopVariableRename(id.id, params.newName)
+    parentLoop.visit(visitor: lvr)
+    req.reply(WorkspaceEdit(changes: lvr.edits))
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {

@@ -1,7 +1,19 @@
+import Foundation
+import IOUtils
+import LanguageServerProtocol
 import MesonAnalyze
 import MesonAST
 
 internal class LoopVariableRename: ExtendedCodeVisitor {
+  internal var edits: [DocumentURI: [TextEdit]] = [:]
+  private let oldName: String
+  private let newName: String
+
+  internal init(_ oldName: String, _ newName: String) {
+    self.oldName = oldName
+    self.newName = newName
+  }
+
   func visitSubdirCall(node: MesonAnalyze.SubdirCall) { node.visitChildren(visitor: self) }
 
   func visitMultiSubdirCall(node: MesonAnalyze.MultiSubdirCall) {
@@ -50,7 +62,20 @@ internal class LoopVariableRename: ExtendedCodeVisitor {
 
   func visitMethodExpression(node: MesonAST.MethodExpression) { node.visitChildren(visitor: self) }
 
-  func visitIdExpression(node: MesonAST.IdExpression) { node.visitChildren(visitor: self) }
+  func visitIdExpression(node: MesonAST.IdExpression) {
+    node.visitChildren(visitor: self)
+    if node.id != self.oldName { return }
+    // Don't rename functions/keyword arguments'
+    if let kw = node.parent as? KeywordItem, kw.key.equals(right: node) { return }
+    if let fn = node.parent as? FunctionExpression, fn.id.equals(right: node) { return }
+    if let fn = node.parent as? MethodExpression, fn.id.equals(right: node) { return }
+    let d = DocumentURI(
+      URL(fileURLWithPath: Path(node.file.file).normalize().absolute().description)
+    )
+    let range = Shared.nodeToRange(node)
+    let textEdit = TextEdit(range: range, newText: newName)
+    self.edits[d] = (self.edits[d] ?? []) + [textEdit]
+  }
 
   func visitBinaryExpression(node: MesonAST.BinaryExpression) { node.visitChildren(visitor: self) }
 
