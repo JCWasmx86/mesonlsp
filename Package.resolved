@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "ff59c1ae62330c375860d6de736986ccb930e984"
+        "revision" : "b7d427069c869efa1ae8764879935e6b877dab59"
       }
     },
     {
@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "935daac854ce7468b8c181e0ab959fe4d6436cdc"
+        "revision" : "99cb8b141bc0ac78b2078a3fd6b821daedc1e70d"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "2782139361b4558c05073c68ab1898f218db5640"
+        "revision" : "4c0ad1b5bb993df41850dd7e733dad6c1d1c73a2"
       }
     },
     {
