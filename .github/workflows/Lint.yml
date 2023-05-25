@@ -44,7 +44,7 @@ jobs:
       - name: Lint using rome
         run: |
           sudo apt install -y make
-          wget https://github.com/rome/tools/releases/download/cli%2Fv11.0.0/rome-linux-x64
+          wget https://github.com/rome/tools/releases/download/cli%2Fv12.1.2/rome-linux-x64
           chmod +x rome-linux-x64
           ./rome-linux-x64 check Benchmarks/script.js
           sudo cp rome-linux-x64 /usr/bin/rome
