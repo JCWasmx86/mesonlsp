@@ -24,6 +24,10 @@ test: build
 	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/Options/meson.build
 	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
 	.build/$(CONFIGURATION)/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
+format:
+	swift-format -i --recursive Package.swift Sources/ Tests/
+lint:
+	swiftlint --progress Sources/ Tests/ Package.swift
 clean:
 	swift package clean
 
