@@ -197,6 +197,18 @@ public final class MesonServer: LanguageServer {
       req.reply(WorkspaceEdit(changes: lvr.edits))
       return
     }
+    if let kw = id.parent as? KeywordItem, kw.key.equals(right: id) {
+      req.reply(WorkspaceEdit(changes: [:]))
+      return
+    }
+    if let fn = id.parent as? FunctionExpression, fn.id.equals(right: id) {
+      req.reply(WorkspaceEdit(changes: [:]))
+      return
+    }
+    if let fn = id.parent as? MethodExpression, fn.id.equals(right: id) {
+      req.reply(WorkspaceEdit(changes: [:]))
+      return
+    }
     var edits: [DocumentURI: [TextEdit]] = [:]
     for m in t.metadata!.identifiers.keys {
       let ids = t.metadata!.identifiers[m]!
