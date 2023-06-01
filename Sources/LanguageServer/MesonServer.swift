@@ -191,21 +191,25 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    guard let parentLoop = id.parent as? IterationStatement else {
-      req.reply(
-        .failure(ResponseError(code: .requestFailed, message: "Can only rename loop variables."))
-      )
+    if let parentLoop = id.parent as? IterationStatement, parentLoop.containsAsId(id) {
+      let lvr = LoopVariableRename(id.id, params.newName, t)
+      parentLoop.visit(visitor: lvr)
+      req.reply(WorkspaceEdit(changes: lvr.edits))
       return
     }
-    if !parentLoop.containsAsId(id) {
-      req.reply(
-        .failure(ResponseError(code: .requestFailed, message: "Can only rename loop variables."))
-      )
-      return
+    var edits: [DocumentURI: [TextEdit]] = [:]
+    for m in t.metadata!.identifiers.keys {
+      let ids = t.metadata!.identifiers[m]!
+      ids.filter { $0.id == id.id }.forEach {
+        let d = DocumentURI(
+          URL(fileURLWithPath: Path($0.file.file).normalize().absolute().description)
+        )
+        let range = Shared.nodeToRange($0)
+        let textEdit = TextEdit(range: range, newText: params.newName)
+        edits[d] = (edits[d] ?? []) + [textEdit]
+      }
     }
-    let lvr = LoopVariableRename(id.id, params.newName, t)
-    parentLoop.visit(visitor: lvr)
-    req.reply(WorkspaceEdit(changes: lvr.edits))
+    req.reply(WorkspaceEdit(changes: edits))
   }
 
   private func codeActions(_ req: Request<CodeActionRequest>) {
