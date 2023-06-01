@@ -113,7 +113,7 @@ public final class TypeNamespace {
         returnTypes: [self.types["alias_tgt"]!],
         args: [
           PositionalArgument(name: "target_name", types: strL),
-          PositionalArgument(name: "dep", varargs: true, opt: false, types: [self.types["dep"]!]),
+          PositionalArgument(name: "dep", varargs: true, opt: false, types: [self.types["tgt"]!]),
         ]
       ),
       Function(
@@ -143,8 +143,12 @@ public final class TypeNamespace {
             name: "depends",
             opt: true,
             types: [ListType(types: [self.types["build_tgt"]!, self.types["custom_tgt"]!])]
-          ), Kwarg(name: "env", opt: true, types: [str, ListType(types: strL), Dict(types: strL)]),
-          Kwarg(name: "priority", opt: true, types: inttL),
+          ),
+          Kwarg(
+            name: "env",
+            opt: true,
+            types: [str, ListType(types: strL), Dict(types: strL), self.types["env"]!]
+          ), Kwarg(name: "priority", opt: true, types: inttL),
           Kwarg(name: "protocol", opt: true, types: strL),
           Kwarg(name: "should_fail", opt: true, types: boolL),
           Kwarg(name: "suite", opt: true, types: [str, ListType(types: strL)]),
@@ -527,7 +531,10 @@ public final class TypeNamespace {
           PositionalArgument(
             name: "env",
             opt: true,
-            types: [str, ListType(types: strL), Dict(types: strL), Dict(types: strlistL)]
+            types: [
+              str, ListType(types: strL), Dict(types: strL), Dict(types: strlistL),
+              self.types["env"]!,
+            ]
           ), Kwarg(name: "method", opt: true, types: strL),
           Kwarg(name: "separator", opt: true, types: strL),
         ]
@@ -1504,8 +1511,12 @@ public final class TypeNamespace {
             name: "depends",
             opt: true,
             types: [ListType(types: [self.types["build_tgt"]!, self.types["custom_tgt"]!])]
-          ), Kwarg(name: "env", opt: true, types: [str, ListType(types: strL), Dict(types: strL)]),
-          Kwarg(name: "is_parallel", opt: true, types: boolL),
+          ),
+          Kwarg(
+            name: "env",
+            opt: true,
+            types: [str, ListType(types: strL), Dict(types: strL), self.types["env"]!]
+          ), Kwarg(name: "is_parallel", opt: true, types: boolL),
           Kwarg(name: "priority", opt: true, types: inttL),
           Kwarg(name: "protocol", opt: true, types: strL),
           Kwarg(name: "should_fail", opt: true, types: boolL),
@@ -1528,7 +1539,8 @@ public final class TypeNamespace {
                 self.types["file"]!, str,
               ])
             ]
-          ), Kwarg(name: "fallback", opt: true, types: strL), Kwarg(name: "input", types: strL),
+          ), Kwarg(name: "fallback", opt: true, types: strL),
+          Kwarg(name: "input", types: [str, self.types["file"]!]),
           Kwarg(name: "output", types: strL), Kwarg(name: "replace_string", opt: true, types: strL),
         ]
       ),
@@ -1793,8 +1805,7 @@ public final class TypeNamespace {
         parent: t,
         returnTypes: [t],
         args: [
-          PositionalArgument(name: "fmt", types: [t]),
-          PositionalArgument(name: "value", varargs: true, opt: true, types: [intt, boolt, t]),
+          PositionalArgument(name: "value", varargs: true, opt: true, types: [intt, boolt, t])
         ]
       ),
       Method(
@@ -2041,7 +2052,7 @@ public final class TypeNamespace {
           ), Kwarg(name: "header_no_builtin_args", opt: true, types: boolL),
           Kwarg(name: "header_prefix", opt: true, types: strL),
           Kwarg(name: "required", opt: true, types: [boolt, self.types["feature"]!]),
-          Kwarg(name: "static", opt: true, types: strL),
+          Kwarg(name: "static", opt: true, types: boolL),
         ]
       ),
       Method(
@@ -2607,7 +2618,7 @@ public final class TypeNamespace {
         parent: t,
         returnTypes: [self.types["dep"]!],
         args: [
-          PositionalArgument(name: "tgt", types: [self.types["cmake_tgt"]!]),
+          PositionalArgument(name: "tgt", types: [self.types["cmake_tgt"]!, str]),
           Kwarg(name: "include_type", opt: true, types: strL),
         ]
       ),
@@ -4278,8 +4289,12 @@ public final class TypeNamespace {
             name: "depends",
             opt: true,
             types: [ListType(types: [self.types["build_tgt"]!, self.types["custom_tgt"]!])]
-          ), Kwarg(name: "env", opt: true, types: [str, ListType(types: strL), Dict(types: strL)]),
-          Kwarg(name: "is_parallel", opt: true, types: boolL),
+          ),
+          Kwarg(
+            name: "env",
+            opt: true,
+            types: [str, ListType(types: strL), Dict(types: strL), self.types["env"]!]
+          ), Kwarg(name: "is_parallel", opt: true, types: boolL),
           Kwarg(name: "priority", opt: true, types: inttL),
           Kwarg(name: "should_fail", opt: true, types: boolL),
           Kwarg(name: "suite", opt: true, types: [str, ListType(types: strL)]),
@@ -4414,9 +4429,9 @@ public final class TypeNamespace {
             opt: true,
             types: [
               str, self.types["file"]!, self.types["generated_list"]!, self.types["custom_tgt"]!,
-              self.types["custom_idx"]!,
+              self.types["custom_idx"]!, self.types["dep"]!,
             ]
-          ), Kwarg(name: "when", opt: true, types: [ListType(types: [self.types["dep"]!])]),
+          ), Kwarg(name: "when", opt: true, types: [str, ListType(types: [self.types["dep"]!])]),
           Kwarg(
             name: "if_true",
             opt: true,

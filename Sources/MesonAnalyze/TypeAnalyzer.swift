@@ -1037,6 +1037,65 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
     checkKwargs(fn, args, node)
+    checkArgTypes(fn, args, node)
+  }
+
+  private func checkArgTypes(_ fn: Function, _ args: [Node], _ node: Node) {
+    var posArgsIdx = 0
+    for arg in args {
+      if arg is KeywordItem {
+        let givenTypes = (arg as! KeywordItem).value.types
+        guard let kwarg = fn.kwargs[((arg as! KeywordItem).key as! IdExpression).id] else {
+          continue
+        }
+        let expectedTypes = kwarg.types
+        self.checkTypes(fn, arg, expectedTypes, givenTypes)
+      } else {
+        if let posArg = fn.posArg(posArgsIdx) { self.checkTypes(fn, arg, posArg.types, arg.types) }
+        posArgsIdx += 1
+      }
+    }
+  }
+
+  private func atleastPartiallyCompatible(_ given: [Type], _ expected: [Type]) -> Bool {
+    if given.isEmpty { return true }
+    for g in given {
+      if g is `Any` { return true }
+      for e in expected where self.compatible(g, e) || e is `Any` { return true }
+    }
+    return false
+  }
+
+  private func checkTypes(_ fn: Function, _ arg: Node, _ expected: [Type], _ given: [Type]) {
+    if self.atleastPartiallyCompatible(given, expected) { return }
+    self.metadata.registerDiagnostic(
+      node: arg,
+      diag: MesonDiagnostic(
+        sev: .error,
+        node: arg,
+        message: "Expected \(self.joinTypes(types: expected)), got \(self.joinTypes(types: given))"
+      )
+    )
+  }
+
+  private func compatible(_ given: Type, _ expected: Type) -> Bool {
+    if given.toString() == expected.toString() { return true }
+    if let g = given as? AbstractObject, let p = g.parent, self.compatible(p, expected) {
+      return true
+    }
+    if let l = given as? ListType, let r = expected as? ListType {
+      return self.atleastPartiallyCompatible(l.types, r.types)
+    }
+    if let r = expected as? ListType, self.atleastPartiallyCompatible([given], r.types) {
+      return true
+    }
+    if let l = given as? ListType, self.atleastPartiallyCompatible(l.types, [expected]) {
+      return true
+    }
+    if let l = given as? Dict, let r = expected as? Dict {
+      return self.atleastPartiallyCompatible(l.types, r.types)
+    }
+    return false
   }
 
   public func evalStack(name: String) -> [Type] {

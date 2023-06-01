@@ -42,5 +42,18 @@ public class Function: Equatable, Hashable {
 
   public func hash(into hasher: inout Hasher) { hasher.combine("func" + self.name) }
 
+  public func posArg(_ idx: Int) -> PositionalArgument? {
+    var i = 0
+    var last: PositionalArgument?
+    for a in self.args {
+      if let b = a as? PositionalArgument {
+        if idx == i { return b }
+        last = b
+        i += 1
+      }
+    }
+    return last
+  }
+
   public static func == (lhs: Function, rhs: Function) -> Bool { return lhs.id() == rhs.id() }
 }
