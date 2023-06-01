@@ -6,18 +6,44 @@ import MesonAST
 
 internal class LoopVariableRename: ExtendedCodeVisitor {
   internal var edits: [DocumentURI: [TextEdit]] = [:]
+  private var tree: MesonTree
   private let oldName: String
   private let newName: String
 
-  internal init(_ oldName: String, _ newName: String) {
+  internal init(_ oldName: String, _ newName: String, _ tree: MesonTree) {
     self.oldName = oldName
     self.newName = newName
+    self.tree = tree
   }
 
-  func visitSubdirCall(node: MesonAnalyze.SubdirCall) { node.visitChildren(visitor: self) }
+  func visitSubdirCall(node: MesonAnalyze.SubdirCall) {
+    node.visitChildren(visitor: self)
+    let newPath =
+      Path(node.file.file).absolute().parent().description + Path.separator + node.subdirname
+      + "\(Path.separator)meson.build"
+    let subtree = self.tree.findSubdirTree(file: newPath)
+    if let st = subtree {
+      let tmptree = self.tree
+      self.tree = st
+      st.ast?.visit(visitor: self)
+      self.tree = tmptree
+    }
+  }
 
   func visitMultiSubdirCall(node: MesonAnalyze.MultiSubdirCall) {
     node.visitChildren(visitor: self)
+    let base = Path(node.file.file).absolute().parent().description
+    for subdirname in node.subdirnames {
+      if subdirname.isEmpty { continue }
+      let newPath = base + Path.separator + subdirname + "\(Path.separator)meson.build"
+      let subtree = self.tree.findSubdirTree(file: newPath)
+      if let st = subtree {
+        let tmptree = self.tree
+        self.tree = st
+        st.ast?.visit(visitor: self)
+        self.tree = tmptree
+      }
+    }
   }
 
   func visitSourceFile(file: MesonAST.SourceFile) { file.visitChildren(visitor: self) }

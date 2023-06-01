@@ -173,8 +173,12 @@ public final class MesonServer: LanguageServer {
 
   private func rename(_ req: Request<RenameRequest>) {
     let params = req.params
+    guard let t = self.tree else {
+      req.reply(.failure(ResponseError(code: .requestFailed, message: "No tree available!")))
+      return
+    }
     guard
-      let id = self.tree?.metadata?.findIdentifierAt(
+      let id = t.metadata?.findIdentifierAt(
         params.textDocument.uri.fileURL!.absoluteURL.path,
         params.position.line,
         params.position.utf16index
@@ -199,7 +203,7 @@ public final class MesonServer: LanguageServer {
       )
       return
     }
-    let lvr = LoopVariableRename(id.id, params.newName)
+    let lvr = LoopVariableRename(id.id, params.newName, t)
     parentLoop.visit(visitor: lvr)
     req.reply(WorkspaceEdit(changes: lvr.edits))
   }

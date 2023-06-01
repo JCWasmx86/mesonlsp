@@ -21,6 +21,7 @@ public class DotVisitor: ExtendedCodeVisitor {
       self.moves[f] = (self.moves[f] ?? []) + [Path(newPath).absolute().normalize().description]
       self.depth += 1
       let tmptree = self.tree
+      self.tree = st
       st.ast?.visit(visitor: self)
       self.tree = tmptree
       self.depth -= 1
@@ -40,6 +41,7 @@ public class DotVisitor: ExtendedCodeVisitor {
         self.moves[f] = (self.moves[f] ?? []) + [Path(newPath).absolute().normalize().description]
         self.depth += 1
         let tmptree = self.tree
+        self.tree = st
         st.ast?.visit(visitor: self)
         self.tree = tmptree
         self.depth -= 1
