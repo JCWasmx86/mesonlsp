@@ -37,8 +37,8 @@ jobs:
     steps:
       - uses: compnerd/gha-setup-swift@main
         with:
-          branch: swift-5.8-release
-          tag: 5.8-RELEASE
+          branch: swift-5.8.1-release
+          tag: 5.8.1-RELEASE
       - name: Enable long paths on Windows
         shell: powershell
         run: |
