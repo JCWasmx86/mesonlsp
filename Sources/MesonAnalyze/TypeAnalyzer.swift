@@ -815,6 +815,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     return false
   }
 
+  // swiftlint:disable cyclomatic_complexity
   private func findMethod(
     node: MethodExpression,
     methodName: String,
@@ -838,6 +839,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         bits |= (1 << 2)
         continue
       }
+      if methodName == "get" { continue }
       if let m = t.getMethod(name: methodName, ns: self.t) {
         ownResultTypes += self.typeanalyzersState.apply(
           node: node,
@@ -876,8 +878,54 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
+    if methodName == "get" && node.obj.types.first(where: { $0 is ListType }) != nil,
+      let al = node.argumentList as? ArgumentList, let il = al.args.first,
+      il.types.first(where: { $0 is `IntType` }) != nil
+    {
+      let m = self.t.vtables["list"]![1]
+      ownResultTypes = self.typeanalyzersState.apply(
+        node: node,
+        options: self.options,
+        f: m,
+        ns: self.t
+      )
+      node.method = m
+      self.metadata.registerMethodCall(call: node)
+      checkerState.apply(node: node, metadata: self.metadata, f: m)
+      return true
+    }
+    if methodName == "get" && node.obj.types.first(where: { $0 is Dict }) != nil,
+      let al = node.argumentList as? ArgumentList, let sl = al.args.first,
+      sl.types.first(where: { $0 is Str }) != nil
+    {
+      let m = self.t.vtables["dict"]![0]
+      ownResultTypes = self.typeanalyzersState.apply(
+        node: node,
+        options: self.options,
+        f: m,
+        ns: self.t
+      )
+      node.method = m
+      self.metadata.registerMethodCall(call: node)
+      checkerState.apply(node: node, metadata: self.metadata, f: m)
+      return true
+    }
+    if methodName == "get" && node.obj.types.first(where: { $0 is CfgData }) != nil {
+      let m = self.t.vtables["cfg_data"]![0]
+      ownResultTypes = self.typeanalyzersState.apply(
+        node: node,
+        options: self.options,
+        f: m,
+        ns: self.t
+      )
+      node.method = m
+      self.metadata.registerMethodCall(call: node)
+      checkerState.apply(node: node, metadata: self.metadata, f: m)
+      return true
+    }
     return found
   }
+  // swiftlint:enable cyclomatic_complexity
 
   public func visitMethodExpression(node: MethodExpression) {
     node.visitChildren(visitor: self)
