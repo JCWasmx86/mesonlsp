@@ -1108,7 +1108,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   private func atleastPartiallyCompatible(_ given: [Type], _ expected: [Type]) -> Bool {
     if given.isEmpty { return true }
     for g in given {
-      if g is `Any` { return true }
+      if g is `Any` || g is Disabler { return true }
       for e in expected where self.compatible(g, e) || e is `Any` { return true }
     }
     return false

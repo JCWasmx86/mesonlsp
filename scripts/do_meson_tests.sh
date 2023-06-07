@@ -23,7 +23,7 @@
 # frameworks/4 qt: Bad search for the missing method, if it couldn't be inferred due to having no string literal as argument
 # unit/21 exit status: Expected failure
 # unit/25 non-permitted kwargs: Expected failure
-swift build -c release --static-swift-stdlib || exit
+swift build -c release --static-swift-stdlib -Xswiftc -g || exit
 export LSPPATH=$PWD/.build/release/Swift-MesonLSP
 export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
