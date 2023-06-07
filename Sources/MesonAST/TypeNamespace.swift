@@ -480,7 +480,11 @@ public final class TypeNamespace {
             opt: true,
             types: [ListType(types: [str, self.types["inc"]!])]
           ), Kwarg(name: "d_module_versions", opt: true, types: [str, intt, ListType(types: sil)]),
-          Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
+          Kwarg(
+            name: "dependencies",
+            opt: true,
+            types: [ListType(types: [self.types["dep"]!, str, self.types["file"]!])]
+          ),
           Kwarg(
             name: "include_directories",
             opt: true,
