@@ -5,6 +5,7 @@
 - Added the ability to the CLI of the language server to generate a graph of the subdirectory structure.
 - Add code action to automatically download wrap from WrapDB
 - Renaming support. Please note that this is somewhat experimental and may break. So make backups before attempting to rename variables.
+- Do basic typechecking of arguments.
 # 2.2 (May 13 2023)
 **Note: All codeactions insert code unformatted**
 - Build on macOS 13 in CI

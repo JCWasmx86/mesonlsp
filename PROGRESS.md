@@ -100,7 +100,7 @@
     - [x] 22.04
   - [x] Setup apt repo in an external GitHub repo
 - [x] Update git repos of subprojects, when a branch was specified as revision
-- [ ] Basic typechecking of arguments (Not every error will be caught)
+- [x] Basic typechecking of arguments (Not every error will be caught)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
