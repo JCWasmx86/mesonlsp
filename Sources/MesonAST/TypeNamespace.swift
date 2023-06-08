@@ -193,8 +193,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
@@ -301,8 +304,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
@@ -614,8 +620,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(
             name: "dependencies",
@@ -883,8 +892,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
           Kwarg(
@@ -991,8 +1003,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
@@ -1190,8 +1205,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "darwin_versions", opt: true, types: [str, intt, ListType(types: strL)]),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
@@ -1296,8 +1314,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(name: "dependencies", opt: true, types: [ListType(types: [self.types["dep"]!])]),
           Kwarg(
@@ -1401,8 +1422,11 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
-          Kwarg(name: "d_import_dirs", opt: true, types: strlistL),
-          Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
+          Kwarg(
+            name: "d_import_dirs",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "d_module_versions", opt: true, types: [ListType(types: sil)]),
           Kwarg(name: "d_unittest", opt: true, types: boolL),
           Kwarg(
             name: "dependencies",
@@ -3373,7 +3397,6 @@ public final class TypeNamespace {
           Kwarg(name: "gst_list_plugins_page", opt: true, types: strL),
           Kwarg(name: "gst_dl_sources", opt: true, types: [str, strlist]),
           Kwarg(name: "gst_c_source_filters", opt: true, types: strlistL),
-          Kwarg(name: "c_smart_index", opt: true, types: strL),
           Kwarg(name: "c_index", opt: true, types: strL),
         ]
       ),
