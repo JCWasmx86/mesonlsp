@@ -34,7 +34,8 @@ function attachChart(name, label, data, beginAtZero) {
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
   const ctx = document.getElementById(name);
   const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
-  beginAtZero = typeof beginAtZero !== "undefined" ? beginAtZero : true;
+  const realBeginAtZero =
+    typeof beginAtZero !== "undefined" ? beginAtZero : true;
   new Chart(ctx, {
     type: "bar",
     data: {
@@ -50,7 +51,7 @@ function attachChart(name, label, data, beginAtZero) {
     options: {
       scales: {
         y: {
-          beginAtZero: beginAtZero,
+          beginAtZero: realBeginAtZero,
         },
       },
     },
@@ -458,7 +459,7 @@ function initAllCharts() {
   let sum = undefined;
   for (const benchmark of ALL_BENCHMARKS) {
     for (const [key, value] of Object.entries(benchmark.quick)) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.hasOwn(obj, key)) {
         obj[key].push(value);
       } else {
         obj[key] = [value];
