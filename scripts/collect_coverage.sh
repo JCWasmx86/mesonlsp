@@ -47,5 +47,5 @@ rm default.profraw
 # shellcheck disable=2103
 cd ..
 rm -rf gstreamer
-llvm-profdata-15 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2}.profraw -o default.profdata
-llvm-cov-15 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
+llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2}.profraw -o default.profdata
+llvm-cov-16 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov

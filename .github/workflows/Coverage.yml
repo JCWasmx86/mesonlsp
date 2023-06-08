@@ -16,8 +16,8 @@ jobs:
         run: |
           sudo apt install -y lcov mercurial
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-          llvm-profdata-15 --help
-          llvm-cov-15 --help
+          llvm-profdata-16 --help
+          llvm-cov-16 --help
           cargo --help
           ./scripts/collect_coverage.sh
           bash <(curl -s https://codecov.io/bash)
