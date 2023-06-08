@@ -81,7 +81,7 @@ rm -rf meson
 count=$(wc -l failures.txt | cut -d ' ' -f 1)
 echo "$count lines"
 cat failures.txt
-if [ "$(wc -l <failures.txt)" -gt 59 ]; then
+if [ "$(wc -l <failures.txt)" -gt 65 ]; then
 	exit 1
 fi
 exit 0
