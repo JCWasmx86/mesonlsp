@@ -1,4 +1,4 @@
-# 2.3 (XXX XX 2023)
+# 2.3 (Jun 09 2023)
 - Fix race condition that lead to crashes, especially during initialization
 - Show error if variable does not exist in subproject
 - Show error if subproject does not exist
