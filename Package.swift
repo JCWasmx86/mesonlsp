@@ -91,7 +91,13 @@ let package = Package(
         .product(name: "Backtrace", package: "swift-backtrace"),
       ],
       swiftSettings: [.unsafeFlags(["-parse-as-library"])]
-    ), .testTarget(name: "Swift-MesonLSPTests", dependencies: ["Swift-MesonLSP"]),
-    .testTarget(name: "LanguageServerTests", dependencies: ["LanguageServer"]),
+    ),
+    .testTarget(
+      name: "Swift-MesonLSPTests",
+      dependencies: [
+        "MesonAnalyze", "MesonAST", .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
+        "SwiftTreeSitter",
+      ]
+    ), .testTarget(name: "LanguageServerTests", dependencies: ["LanguageServer"]),
   ]
 )
