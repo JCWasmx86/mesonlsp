@@ -2754,7 +2754,7 @@ public final class TypeNamespace {
         name: "add_cmake_defines",
         parent: t,
         returnTypes: [],
-        args: [PositionalArgument(name: "defines", types: [Dict(types: strL)])]
+        args: [PositionalArgument(name: "defines", types: [Dict(types: [str, boolt])])]
       ),
       Method(
         name: "set_override_option",
