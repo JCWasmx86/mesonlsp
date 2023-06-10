@@ -13,7 +13,7 @@ jobs:
       - name: Build
         run: |
           swift build -c release --static-swift-stdlib
-          ./create_license_bundle.sh
+          ./scripts/create_license_bundle.sh
           zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
@@ -29,7 +29,7 @@ jobs:
       - name: Build
         run: |
           swift build -c release
-          ./create_license_bundle.sh
+          ./scripts/create_license_bundle.sh
           zip -9jpr Swift-MesonLSP-MacOS.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: |
           swift build -c release
-          ./create_license_bundle.sh
+          ./scripts/create_license_bundle.sh
           zip -9jpr Swift-MesonLSP-MacOS13.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
