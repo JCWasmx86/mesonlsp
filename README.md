@@ -18,6 +18,7 @@ A reimplementation of my Meson language server in Swift.
 - Highlighting
 - Automatic subproject/wrap downloads
 - Code actions
+- Renaming
 
 ## Limitations
 - Not as efficient as it could be: On each `textDocument/didChange` notification, the entire tree is newly typechecked. ASTs without type annotations are cached.
