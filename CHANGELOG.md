@@ -1,3 +1,5 @@
+# X.X (XXX XX 2023)
+- Auto-complete pkg-config package names in `dependency('foo')`
 # 2.3 (Jun 10 2023)
 - Fix race condition that lead to crashes, especially during initialization
 - Show error if variable does not exist in subproject

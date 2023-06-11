@@ -43,6 +43,7 @@ public final class MesonServer: LanguageServer {
   var mapper: FileMapper = FileMapper()
   var token: ProgressToken?
   var subprojectsDirectoryMtime: Date?
+  var pkgNames: Set<String> = []
   let codeActionState = CodeActionState()
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -81,6 +82,24 @@ public final class MesonServer: LanguageServer {
         self.scheduleNextTask()
       }
     #endif
+    let task = Process()
+    let pipe = Pipe()
+    let inPipe = Pipe()
+    task.standardOutput = pipe
+    task.arguments = ["--list-package-names"]
+    inPipe.fileHandleForWriting.write("".data(using: .utf8)!)
+    inPipe.fileHandleForWriting.closeFile()
+    task.standardInput = inPipe
+    task.executableURL = URL(fileURLWithPath: "/usr/bin/pkg-config")
+    do {
+      try task.run()
+      task.waitUntilExit()
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      let output = String(data: data, encoding: .utf8)
+      output!.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).forEach {
+        self.pkgNames.insert(String($0))
+      }
+    } catch { Self.LOG.error("\(error)") }
   }
 
   private func checkMtime() {
@@ -366,6 +385,7 @@ public final class MesonServer: LanguageServer {
           }
         } else if let t = self.tree, let md = t.metadata {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
+          self.dependencySpecialCase(fp, line, column, md, &arr)
           if let idexpr = md.findIdentifierAt(fp, line, column),
             let al = idexpr.parent as? ArgumentList
           {
@@ -405,6 +425,26 @@ public final class MesonServer: LanguageServer {
     }
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+  }
+
+  private func dependencySpecialCase(
+    _ fp: String,
+    _ line: Int,
+    _ column: Int,
+    _ md: MesonMetadata,
+    _ arr: inout [CompletionItem]
+  ) {
+    if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
+      f.id() == "dependency", let al = fexpr.argumentList as? ArgumentList, !al.args.isEmpty,
+      al.args[0] is StringLiteral
+    {
+      Self.LOG.info("Found special call to dependency")
+      for c in self.pkgNames {
+        arr.append(
+          CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
+        )
+      }
+    }
   }
 
   private func subprojectGetVariableSpecialCase(
