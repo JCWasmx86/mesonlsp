@@ -750,6 +750,14 @@ public final class MesonServer: LanguageServer {
   private func rebuildTree() {
     if self.parseTask != nil { self.parseTask!.cancel() }
     self.parseTask = Task {
+      do {
+        // 100 ms
+        try await Task.sleep(nanoseconds: 100 * 1_000_000)
+      } catch { Self.LOG.error("Error during sleeping: \(error)") }
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling parsing - After sleeping")
+        return
+      }
       let beginRebuilding = clock()
       self.clearDiagnostics()
       let endClearing = clock()
