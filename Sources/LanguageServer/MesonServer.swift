@@ -45,6 +45,7 @@ public final class MesonServer: LanguageServer {
   var subprojectsDirectoryMtime: Date?
   var pkgNames: Set<String> = []
   let codeActionState = CodeActionState()
+  var stats: [String: [(Date, UInt64)]] = [:]
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -72,11 +73,17 @@ public final class MesonServer: LanguageServer {
       self.server["/caches"] = { _ in return HttpResponse.ok(.text(self.generateCacheHTML())) }
       self.server["/count"] = { _ in return HttpResponse.ok(.text(self.generateCountHTML())) }
       self.server["/status"] = { _ in return HttpResponse.ok(.text(self.generateStatusHTML())) }
+      #if os(Linux)
+        self.server["/stats"] = { _ in return HttpResponse.ok(.text(self.generateStatsHTML())) }
+      #endif
     #else
       super.init(client: client)
     #endif
 
     #if os(Linux)
+      stats["notifications"] = []
+      stats["requests"] = []
+      stats["memory_usage"] = []
       self.queue.asyncAfter(deadline: .now() + interval) {
         self.sendStats()
         self.scheduleNextTask()
@@ -141,6 +148,10 @@ public final class MesonServer: LanguageServer {
       let stackS = formatWithUnits(stack)
       let totalS = formatWithUnits(total)
       Self.LOG.info("Stack: \(stackS) Heap: \(heapS) Total: \(totalS)")
+      let date = Date()
+      self.stats["notifications"]!.append((date, UInt64(self.notificationCount)))
+      self.stats["requests"]!.append((date, UInt64(self.requestCount)))
+      self.stats["memory_usage"]!.append((date, total))
     }
 
     private func scheduleNextTask() {
@@ -1212,6 +1223,74 @@ public final class MesonServer: LanguageServer {
   }
 
   #if !os(Windows)
+    #if os(Linux)
+      private func generateStatsHTML() -> String {
+        if self.stats.isEmpty || self.stats["notifications"]!.isEmpty {
+          return "Please wait a bit!"
+        }
+        let rows = self.stats["notifications"]!.map { $0.0 }
+        var x: [Int] = []
+        var n = 0
+        for _ in rows.reversed() {
+          x.append(-n)
+          n += 1
+        }
+        let nNotifications = self.stats["notifications"]!.map { $0.1 }
+        let nRequests = self.stats["requests"]!.map { $0.1 }
+        let memoryUsage = self.stats["memory_usage"]!.map { Double($0.1) / (1024 * 1024) }
+        let html = """
+          <!DOCTYPE html>
+          <html>
+          <head>
+          	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          </head>
+          <body>
+          	<div><canvas id="chart"></canvas></div>
+          	<script>
+          	const tags = [@0@];
+          	const ctx = document.getElementById("chart");
+          	new Chart(ctx, {
+          		type: "line",
+          		data: {
+          			labels: tags,
+          			datasets: [
+          				{
+          				  label: "Number of notifications",
+          				  data: [@1@],
+          				  borderColor: "#1c71d8",
+          				},
+          				{
+          				  label: "Number of requests",
+          				  data: [@2@],
+          				  borderColor: "#c01c28",
+          				},
+          				{
+          				  label: "Memory usage in MB",
+          				  data: [@3@],
+          				  borderColor: "#613583",
+          				},
+          			],
+          		},
+          	});
+          	</script>
+          </body>
+          </html>
+          """
+        return html.replacingOccurrences(
+          of: "@0@",
+          with: x.reversed().map { String($0) }.joined(separator: ", ")
+        ).replacingOccurrences(
+          of: "@1@",
+          with: nNotifications.map { String($0) }.joined(separator: ", ")
+        ).replacingOccurrences(
+          of: "@2@",
+          with: nRequests.map { String($0) }.joined(separator: ", ")
+        ).replacingOccurrences(
+          of: "@3@",
+          with: memoryUsage.map { String($0) }.joined(separator: ", ")
+        )
+      }
+    #endif
     private func generateCountHTML() -> String {
       let header = """
         	<!DOCTYPE html>
