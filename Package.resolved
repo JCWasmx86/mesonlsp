@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tsolomko/BitByteData",
       "state" : {
-        "revision" : "b4b41619522aacd7aae7b02fa8360833e796a03d",
-        "version" : "2.0.2"
+        "revision" : "36df26fe4586b4f23d76cfd8b47076998343a2b2",
+        "version" : "2.0.3"
       }
     },
     {
@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "c24fe5fd40554f5ef698866b453d733fb886460d"
+        "revision" : "9e78be1ef49ced05d27d1587f1d5c9a9accbc38a"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "55006dce81ae70cd8f2b78479038423eeebde1e4"
+        "revision" : "cefff2b292828883fe2df768e8edfc6c520199f8"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "ee682e50abd21fec41207a75832992a1a485d5df"
+        "revision" : "ee21d9cddb639a87bd58c8ced7347a3b1788fccf"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "033ab451dcbb525de4dc9eaf506fdbc30812de28"
+        "revision" : "9b384c84b725f29b900f90aa5d827876e8245b0d"
       }
     },
     {
