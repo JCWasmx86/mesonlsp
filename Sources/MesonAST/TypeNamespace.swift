@@ -3052,6 +3052,7 @@ public final class TypeNamespace {
             opt: true,
             types: [ListType(types: [self.types["dep"]!, self.types["build_tgt"]!])]
           ), Kwarg(name: "extra_args", opt: true, types: [ListType(types: strL)]),
+          Kwarg(name: "env", opt: true, types: [ListType(types: strL), Dict(types: strL)]),
           Kwarg(name: "export_packages", opt: true, types: [ListType(types: strL)]),
           Kwarg(
             name: "sources",
