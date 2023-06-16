@@ -1220,6 +1220,19 @@ public final class MesonServer: LanguageServer {
     self.parseSubprojectTask = Task { await self.setupSubprojects() }
     self.rebuildTree()
     req.reply(InitializeResult(capabilities: self.capabilities()))
+    self.client.send(
+      LogMessageNotification(
+        type: .info,
+        message: "Swift-MesonLSP is licensed under the terms of the GNU General Public License v3.0"
+      )
+    )
+    self.client.send(
+      LogMessageNotification(
+        type: .info,
+        message:
+          "Need help? - Open a discussion here: https://github.com/JCWasmx86/Swift-MesonLSP/discussions or join https://matrix.to/#/#mesonlsp:matrix.org"
+      )
+    )
   }
 
   private func clientInitialized(_: Notification<InitializedNotification>) {
