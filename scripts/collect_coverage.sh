@@ -17,7 +17,7 @@ mv default.profraw /tmp/data/sb2.profraw
 cd ..
 rm -rf hse
 cd repos || exit
-for i in $(grep https <../collect_perf_data.py | grep ":" | sed 's/.*":."//g' | sed s/\",//g | sort | uniq); do
+for i in $(grep https <../scripts/collect_perf_data.py | grep ":" | sed 's/.*":."//g' | sed s/\",//g | sort | uniq); do
 	git clone --depth=1 "$i"
 done
 cd ..
