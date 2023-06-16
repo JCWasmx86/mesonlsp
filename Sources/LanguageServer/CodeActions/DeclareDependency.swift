@@ -26,6 +26,17 @@ class DeclareDependencyCodeActionProvider: CodeActionProvider {
         dependencyName = "dep_" + libname
       }
       if let scope = tree.scope, scope.variables[dependencyName] != nil { return [] }
+      if let scope = tree.scope, scope.variables["dep_" + libname] != nil { return [] }
+      if let scope = tree.scope,
+        scope.variables[libname.replacingOccurrences(of: "lib_", with: "dep_")] != nil
+      {
+        return []
+      }
+      if let scope = tree.scope,
+        scope.variables[libname.replacingOccurrences(of: "_lib", with: "_dep")] != nil
+      {
+        return []
+      }
       let nextLine = Int(fexpr.parent!.location.endLine + 1)
       var str = "\(dependencyName) = declare_dependency(\n"
       if dImportDirs != nil {
