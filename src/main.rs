@@ -11,10 +11,11 @@ use async_lsp::LanguageServer;
 use futures::future::join_all;
 use lsp_types::notification::{PublishDiagnostics, ShowMessage};
 use lsp_types::{
-    ClientCapabilities, DidChangeTextDocumentParams, DidOpenTextDocumentParams, HoverParams,
-    InitializeParams, InitializedParams, Position, TextDocumentContentChangeEvent,
-    TextDocumentIdentifier, TextDocumentItem, TextDocumentPositionParams, Url,
-    VersionedTextDocumentIdentifier, WindowClientCapabilities, WorkDoneProgressParams,
+    ClientCapabilities, DidChangeTextDocumentParams, DidOpenTextDocumentParams,
+    DidSaveTextDocumentParams, DocumentSymbolParams, HoverParams, InitializeParams,
+    InitializedParams, Position, TextDocumentContentChangeEvent, TextDocumentIdentifier,
+    TextDocumentItem, TextDocumentPositionParams, Url, VersionedTextDocumentIdentifier,
+    WindowClientCapabilities, WorkDoneProgressParams,
 };
 use std::fs;
 use tokio::io::BufReader;
@@ -148,6 +149,58 @@ async fn main() {
         }));
     }
     join_all(futures).await;
+    count = 0;
+    futures = vec![];
+    let mut futures2 = vec![];
+    loop {
+        if count == 10000 {
+            break;
+        }
+        count += 1;
+        server
+            .did_change(DidChangeTextDocumentParams {
+                text_document: VersionedTextDocumentIdentifier {
+                    uri: file_uri.clone(),
+                    version: count,
+                },
+                content_changes: vec![TextDocumentContentChangeEvent {
+                    text: text.clone(),
+                    range: None,
+                    range_length: None,
+                }],
+            })
+            .unwrap();
+        let t: &str = to_find[(count as usize) % to_find.len()];
+        let var_pos = text.find(t).unwrap();
+        futures.push(server.hover(HoverParams {
+            text_document_position_params: TextDocumentPositionParams {
+                text_document: TextDocumentIdentifier {
+                    uri: file_uri.clone(),
+                },
+                position: Position::new(0, var_pos as _),
+            },
+            work_done_progress_params: WorkDoneProgressParams::default(),
+        }));
+        futures2.push(server.document_symbol(DocumentSymbolParams {
+            text_document: TextDocumentIdentifier {
+                uri: file_uri.clone(),
+            },
+            partial_result_params: lsp_types::PartialResultParams {
+                partial_result_token: None,
+            },
+            work_done_progress_params: WorkDoneProgressParams::default(),
+        }));
+        server
+            .did_save(DidSaveTextDocumentParams {
+                text_document: TextDocumentIdentifier {
+                    uri: file_uri.clone(),
+                },
+                text: Some(text.clone()),
+            })
+            .unwrap();
+    }
+    join_all(futures).await;
+    join_all(futures2).await;
     server.exit(()).unwrap();
 
     server.emit(Stop).unwrap();
