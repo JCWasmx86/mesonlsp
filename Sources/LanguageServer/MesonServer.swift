@@ -84,6 +84,13 @@ public final class MesonServer: LanguageServer {
       stats["notifications"] = []
       stats["requests"] = []
       stats["memory_usage"] = []
+
+      let total = collectStats()[2]
+      let date = Date()
+      self.stats["notifications"]!.append((date, UInt64(self.notificationCount)))
+      self.stats["requests"]!.append((date, UInt64(self.requestCount)))
+      self.stats["memory_usage"]!.append((date, total))
+
       self.queue.asyncAfter(deadline: .now() + interval) {
         self.sendStats()
         self.scheduleNextTask()
