@@ -2,12 +2,18 @@
 rm -rf .build
 swift build --static-swift-stdlib -c debug -Xswiftc -profile-generate -Xswiftc -profile-coverage-mapping
 cargo build --release
+swift test --enable-code-coverage
 sudo cp .build/debug/Swift-MesonLSP /usr/bin
 mkdir repos
 mkdir /tmp/data
+cp .build/debug/codecov/default.profdata /tmp/data/swifttests.profdata
 git clone https://github.com/hse-project/hse
 cd hse || exit
 git checkout ca2bccd60e29a74f2e8b587a9b8d4702c360865c
+../.build/debug/Swift-MesonLSP --subproject --path .
+mv default.profraw /tmp/data/sb1.profraw
+../.build/debug/Swift-MesonLSP --subproject --path .
+mv default.profraw /tmp/data/sb2.profraw
 cd ..
 rm -rf hse
 cd repos || exit
@@ -47,5 +53,6 @@ rm default.profraw
 # shellcheck disable=2103
 cd ..
 rm -rf gstreamer
-llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2}.profraw -o default.profdata
-llvm-cov-16 export --instr-profile default.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
+llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2}.profraw -o default.profdata
+llvm-profdata-16 merge /tmp/data/swifttests.profdata default.profdata -o merged.profdata
+llvm-cov-16 export --instr-profile merged.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
