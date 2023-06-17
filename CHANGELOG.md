@@ -3,6 +3,7 @@
 - Add /stats endpoint on Linux. It shows the amount of requests, notifications and the memory usage over the time.
 - Only start rebuilding a tree, if it hasn't changed for 100ms. This lowers the CPU load and decreases the growth of the memory usage.
 - Misc bug fixes
+- Auto-complete option names in `get_option()`
 # 2.3 (Jun 10 2023)
 - Fix race condition that lead to crashes, especially during initialization
 - Show error if variable does not exist in subproject
