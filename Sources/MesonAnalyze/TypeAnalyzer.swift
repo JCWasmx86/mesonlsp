@@ -571,6 +571,20 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       if arr.isEmpty, let dictLit = node.rhs as? DictionaryLiteral, dictLit.values.isEmpty {
         arr = [Dict(types: [])]
       }
+      if lhsIdExpr.id == "meson" || lhsIdExpr.id == "build_machine"
+        || lhsIdExpr.id == "target_machine" || lhsIdExpr.id == "host_machine"
+      {
+        self.metadata.registerDiagnostic(
+          node: node,
+          diag: MesonDiagnostic(
+            sev: .error,
+            node: node,
+            message: "Attempted to re-assign to existing, read-only variable"
+          )
+        )
+        self.metadata.registerIdentifier(id: lhsIdExpr)
+        return
+      }
       lhsIdExpr.types = arr
       self.checkIdentifier(lhsIdExpr)
       self.applyToStack(lhsIdExpr.id, arr)

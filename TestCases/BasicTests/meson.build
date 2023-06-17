@@ -111,3 +111,5 @@ endforeach
 continue # ana:error: continue statements are only allowed inside loops
 break # ana:error: break statements are only allowed inside loops
 
+meson = 1 # ana:error: Attempted to re-assign to existing, read-only variable
+
