@@ -35,6 +35,7 @@ import Wrap
   @ArgumentParser.Flag var keepCache: Bool = false
   @ArgumentParser.Flag var subproject: Bool = false
   @ArgumentParser.Flag var dot: Bool = false
+  @ArgumentParser.Flag var subprojectParse: Bool = false
 
   public init() {
 
@@ -157,6 +158,24 @@ import Wrap
     print(dv.generateDot())
   }
 
+  func doSubprojectParse() {
+    let logger = Logger(label: "MesonLSP::doSubprojectParse")
+    let ns = TypeNamespace()
+    for p in self.paths {
+      let p = Path(p).absolute().parent().absolute().description
+      var cache: [String: MesonAST.Node] = [:]
+      let t = MesonTree(file: p, ns: ns, dontCache: [], cache: &cache, memfiles: [:])
+      do {
+        let subprojects = try SubprojectState(rootDir: p) { msg in logger.info("\(msg)") }
+        for sp in subprojects.subprojects {
+          sp.parse(ns, dontCache: [], cache: &cache, memfiles: [:])
+        }
+        t.analyzeTypes(ns: ns, dontCache: [], cache: &cache, subprojectState: subprojects)
+        for sp in subprojects.subprojects { try sp.update() }
+      } catch { logger.error("\(error)") }
+    }
+  }
+
   public mutating func run() {
     Backtrace.install()
     // LSP-Logging
@@ -170,7 +189,10 @@ import Wrap
         return logger
       }
     #endif
-    if self.dot {
+    if self.subprojectParse {
+      self.doSubprojectParse()
+      return
+    } else if self.dot {
       self.doDot()
       return
     } else if subproject {
