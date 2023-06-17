@@ -14,6 +14,10 @@ git checkout ca2bccd60e29a74f2e8b587a9b8d4702c360865c
 mv default.profraw /tmp/data/sb1.profraw
 ../.build/debug/Swift-MesonLSP --subproject --path .
 mv default.profraw /tmp/data/sb2.profraw
+../.build/debug/Swift-MesonLSP --subproject-parse meson.build
+mv default.profraw /tmp/data/spp.profraw
+../.build/debug/Swift-MesonLSP --subproject-parse meson.build
+mv default.profraw /tmp/data/spp2.profraw
 cd ..
 rm -rf hse
 cd repos || exit
@@ -53,6 +57,6 @@ rm default.profraw
 # shellcheck disable=2103
 cd ..
 rm -rf gstreamer
-llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2}.profraw -o default.profdata
+llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2,spp,spp2}.profraw -o default.profdata
 llvm-profdata-16 merge /tmp/data/swifttests.profdata default.profdata -o merged.profdata
 llvm-cov-16 export --instr-profile merged.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
