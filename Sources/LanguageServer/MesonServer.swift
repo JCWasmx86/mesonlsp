@@ -404,6 +404,7 @@ public final class MesonServer: LanguageServer {
         } else if let t = self.tree, let md = t.metadata {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
           self.dependencySpecialCase(fp, line, column, md, &arr)
+          self.getOptionSpecialCase(t, fp, line, column, md, &arr)
           if let idexpr = md.findIdentifierAt(fp, line, column),
             let al = idexpr.parent as? ArgumentList
           {
@@ -464,6 +465,30 @@ public final class MesonServer: LanguageServer {
       }
     }
   }
+
+  // swiftlint:disable function_parameter_count
+  private func getOptionSpecialCase(
+    _ t: MesonTree,
+    _ fp: String,
+    _ line: Int,
+    _ column: Int,
+    _ md: MesonMetadata,
+    _ arr: inout [CompletionItem]
+  ) {
+    Self.LOG.info("\(t.options)")
+    if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
+      f.id() == "get_option", let al = fexpr.argumentList as? ArgumentList, !al.args.isEmpty,
+      al.args[0] is StringLiteral, let opts = t.options
+    {
+      Self.LOG.info("Found special call to get_option")
+      for c in opts.opts.keys {
+        arr.append(
+          CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
+        )
+      }
+    }
+  }
+  // swiftlint:enable function_parameter_count
 
   private func subprojectGetVariableSpecialCase(
     _ fp: String,
