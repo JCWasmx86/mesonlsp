@@ -111,6 +111,43 @@ function initHTML() {
   }
 }
 
+function fillPerformanceChart() {
+  const tags = ALL_BENCHMARKS.map((a) => a.commit).slice(1);
+  const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
+  const arr = [];
+  for (let i = 0; i < tags.length; i++) {
+    for (const element of ELEMENT_NAMES) {
+      const counts = ALL_BENCHMARKS.map((a) => findProject(a, element).parsing);
+      const diff = counts[i + 1] / counts[i];
+      arr.push({ x: i, y: diff });
+    }
+  }
+  const ctx = document.getElementById("performanceChanges");
+  new Chart(ctx, {
+    type: "scatter",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Performance changes to prior version",
+          labels: tags,
+          data: arr,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "linear",
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+
 function createOverviewCharts() {
   initHTML();
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
@@ -155,6 +192,7 @@ function createOverviewCharts() {
   );
   attachChart("avgRss", "Peak RSS (In MB)", avgData("peak_rss"));
   attachChart("avgHeap", "Peak Heap (In MB)", avgData("peak_heap"));
+  fillPerformanceChart();
   for (const element of ELEMENT_NAMES) {
     ctx = document.getElementById(element.replaceAll("-", "_"));
     attachChart(
