@@ -475,7 +475,6 @@ public final class MesonServer: LanguageServer {
     _ md: MesonMetadata,
     _ arr: inout [CompletionItem]
   ) {
-    Self.LOG.info("\(t.options)")
     if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
       f.id() == "get_option", let al = fexpr.argumentList as? ArgumentList, !al.args.isEmpty,
       al.args[0] is StringLiteral, let opts = t.options
