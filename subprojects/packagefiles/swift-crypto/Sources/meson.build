@@ -1,5 +1,0 @@
-subdir('CCryptoBoringSSL')
-subdir('CCryptoBoringSSLShims')
-subdir('CryptoBoringWrapper')
-subdir('Crypto')
-subdir('_CryptoExtras')

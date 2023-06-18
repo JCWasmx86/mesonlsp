@@ -1,5 +1,0 @@
-[wrap-git]
-url = https://github.com/ChimeHQ/SwiftTreeSitter.git
-revision = head
-clone-recursive = true
-patch_directory = swifttreesitter

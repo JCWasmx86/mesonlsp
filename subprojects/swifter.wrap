@@ -1,4 +1,0 @@
-[wrap-git]
-url = https://github.com/httpswift/swifter.git
-revision = head
-patch_directory = swifter

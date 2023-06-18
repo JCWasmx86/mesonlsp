@@ -1,5 +1,0 @@
-project('sourcekit-lsp', 'swift')
-tscproj = subproject('swift-tools-support-core')
-tscbasic_dep = tscproj.get_variable('tscbasic_dep')
-tscutility_dep = tscproj.get_variable('tscutility_dep')
-subdir('Sources')

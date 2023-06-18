@@ -1,4 +1,0 @@
-[wrap-git]
-url = https://github.com/vapor/console-kit.git
-revision = head
-patch_directory = console-kit

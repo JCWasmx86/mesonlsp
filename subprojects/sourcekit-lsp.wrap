@@ -1,4 +1,0 @@
-[wrap-git]
-url = https://github.com/apple/sourcekit-lsp.git
-revision = head
-patch_directory = sourcekit-lsp
