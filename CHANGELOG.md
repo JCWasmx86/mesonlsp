@@ -1,3 +1,5 @@
+# X.X (XXX XX 2023)
+
 # 2.3.1 (Jun 18 2023)
 - Auto-complete pkg-config package names in `dependency('foo')`
 - Add /stats endpoint on Linux. It shows the amount of requests, notifications and the memory usage over the time.
