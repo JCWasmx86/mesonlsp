@@ -119,7 +119,7 @@ function fillPerformanceChart() {
     for (const element of ELEMENT_NAMES) {
       const counts = ALL_BENCHMARKS.map((a) => findProject(a, element).parsing);
       const diff = counts[i + 1] / counts[i];
-      arr.push({ x: i, y: diff });
+      arr.push({ x: i, y: diff * 100 });
     }
   }
   const ctx = document.getElementById("performanceChanges");
