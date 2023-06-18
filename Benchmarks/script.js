@@ -482,6 +482,42 @@ function createChartCanvas(fullName, nameID) {
   allChartsDiv.appendChild(document.createElement("hr"));
 }
 
+function initAllProjectsPerformanceTable(obj) {
+  const tags = ALL_BENCHMARKS.map((a) => a.commit).slice(1);
+  const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
+  const arr = [];
+  for (const [key, value] of Object.entries(obj)) {
+    for (let i = 1; i < value.length; i++) {
+      const diff = value[i] / value[i - 1];
+      arr.push({ x: i, y: diff * 100 });
+    }
+  }
+  const ctx = document.getElementById("allProjectsPerformance");
+  new Chart(ctx, {
+    type: "scatter",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Performance changes to prior version",
+          labels: tags,
+          data: arr,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "linear",
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+
 function percentifyArray(array) {
   const percentages = [0.0];
   for (let i = 1; i < ALL_BENCHMARKS.length; i++) {
@@ -568,4 +604,5 @@ function initAllCharts() {
     }
   }
   tableDiv.appendChild(table);
+  initAllProjectsPerformanceTable(obj);
 }
