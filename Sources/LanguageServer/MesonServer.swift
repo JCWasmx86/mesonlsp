@@ -159,6 +159,11 @@ public final class MesonServer: LanguageServer {
       self.stats["notifications"]!.append((date, UInt64(self.notificationCount)))
       self.stats["requests"]!.append((date, UInt64(self.requestCount)))
       self.stats["memory_usage"]!.append((date, total))
+      for n in self.requests { self.stats[n.0] = (self.stats[n.0] ?? []) + [(date, UInt64(n.1))] }
+
+      for n in self.notifications {
+        self.stats[n.0] = (self.stats[n.0] ?? []) + [(date, UInt64(n.1))]
+      }
     }
 
     private func scheduleNextTask() {

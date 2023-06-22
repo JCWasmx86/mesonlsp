@@ -49,6 +49,8 @@ open class LanguageServerEndpoint {
 
   internal var notificationCount = 0
   internal var requestCount = 0
+  internal var notifications: [String: UInt] = [:]
+  internal var requests: [String: UInt] = [:]
 
   public struct RequestCancelKey: Hashable {
     public var client: ObjectIdentifier
@@ -88,6 +90,7 @@ open class LanguageServerEndpoint {
 
   open func _logRequest<R>(_ request: Request<R>) {
     self.requestCount += 1
+    self.requests[R.method] = (self.requests[R.method] ?? 0) + 1
     logAsync { currentLevel in
       guard currentLevel >= LogLevel.debug else {
         return "\(type(of: self)): Request<\(R.method)(\(request.id))>"
@@ -97,6 +100,7 @@ open class LanguageServerEndpoint {
   }
   open func _logNotification<N>(_ notification: Notification<N>) {
     self.notificationCount += 1
+    self.notifications[N.method] = (self.notifications[N.method] ?? 0) + 1
     logAsync { currentLevel in
       guard currentLevel >= LogLevel.debug else {
         return "\(type(of: self)): Notification<\(N.method)>"
