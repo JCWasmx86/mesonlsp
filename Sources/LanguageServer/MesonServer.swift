@@ -1339,13 +1339,13 @@ public final class MesonServer: LanguageServer {
         for n in self.notifications.keys {
           if self.stats[n] == nil { continue }
           htmln +=
-            "<h3>\(n)</h3>\n<div><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
+            "<h3>\(n)</h3>\n<div style=\"position: relative; height:40vh; width:80vw\"><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
         }
         var htmlr = ""
         for n in self.requests.keys {
           if self.stats[n] == nil { continue }
           htmlr +=
-            "<h3>\(n)</h3>\n<div><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
+            "<h3>\(n)</h3>\n<div style=\"position: relative; height:40vh; width:80vw\"><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
         }
         let html = """
           <!DOCTYPE html>
