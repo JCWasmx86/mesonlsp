@@ -15,3 +15,5 @@
 - [Modules](modules/README.md)
 - [Renaming](dev/Renaming.md)
 - [Endpoints of the webserver](dev/Endpoints.md)
+- [Code coverage](dev/CodeCoverage.md)
+
