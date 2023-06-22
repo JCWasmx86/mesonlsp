@@ -26,3 +26,18 @@ In this example, it took around half-second to parse the entire mesa meson files
 
 **Note:** The identifiers used may change at any time.
 
+# `/caches`
+This page lists the open files and the cached ASTs for the main project and each subproject.
+
+# `/count`
+This page is counting the number of occurences of each node type. This could be used e.g. for creating a correlation between the time needed for parsing/type-checking
+and the node types. Currently it's just some tables.
+
+# `/status`
+This page checks, if each tool that is used by `Swift-MesonLSP` can be found and used.
+
+# `/stats`
+**Note**: This one is only available on Linux!
+
+This is just a simple chart using `chart.js` correlating memory usage, the number of notifications and the number of requests.
+
