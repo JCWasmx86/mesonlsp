@@ -1325,7 +1325,7 @@ public final class MesonServer: LanguageServer {
             		},
             	});
             """
-          var nn = self.stats[n]!.map { $0.1 }
+          var nn = Array(self.stats[n]!.reversed().map { $0.1 })
           while nn.count < x.count { nn.append(0) }
           var mm = Array(memoryUsage.reversed()[0..<nn.count].reversed())
           while mm.count < x.count { mm.append(0) }
