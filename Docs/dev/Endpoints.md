@@ -39,5 +39,6 @@ This page checks, if each tool that is used by `Swift-MesonLSP` can be found and
 # `/stats`
 **Note**: This one is only available on Linux!
 
-This is just a simple chart using `chart.js` correlating memory usage, the number of notifications and the number of requests.
+This is just a simple chart using `chart.js` correlating memory usage, the number of notifications and the number of requests. The measurement unit
+is one minute.
 
