@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "99d316a9ecb9aaf3082d55043868aa1256de1b5f"
+        "revision" : "b9cd96b9d5fd9d59ce5a58622cda685e540152a6"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "94cbd45426f30ddd7a48f0d3392e24a416a28cef"
+        "revision" : "809cb152a303926b243edb09ba4f0590e4b0c8b7"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "80cf536a566c9de830787ab95dc912bb514d8a76"
+        "revision" : "a9cff1a33af9f5b1a9cc26a5d35049ffa3a3eda8"
       }
     },
     {
@@ -203,8 +203,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
-        "version" : "5.0.5"
+        "revision" : "0d9ee7ea8c4ebd4a489ad7a73d5c6cad55d6fed3",
+        "version" : "5.0.6"
       }
     }
   ],
