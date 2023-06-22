@@ -1301,6 +1301,52 @@ public final class MesonServer: LanguageServer {
         let nNotifications = self.stats["notifications"]!.map { $0.1 }
         let nRequests = self.stats["requests"]!.map { $0.1 }
         let memoryUsage = self.stats["memory_usage"]!.map { Double($0.1) / (1024 * 1024) }
+        var s = ""
+        for n in Array(self.notifications.keys) + Array(self.requests.keys) {
+          if self.stats[n] == nil { continue }
+          s += "ctx = document.getElementById(\"chart\(n.hash)\");"
+          s += """
+            	new Chart(ctx, {
+            		type: "line",
+            		data: {
+                  labels: tags,
+                  datasets: [
+                    {
+                        label: "Number of requests to `\(n)`",
+                        data: [@1@],
+                        borderColor: "#1c71d8",
+                    },
+                    {
+                        label: "Memory usage in MB",
+                        data: [@2@],
+                        borderColor: "#613583",
+                    },
+                  ],
+            		},
+            	});
+            """
+          var nn = self.stats[n]!.map { $0.1 }
+          while nn.count < x.count { nn.append(0) }
+          var mm = Array(memoryUsage.reversed()[0..<nn.count].reversed())
+          while mm.count < x.count { mm.append(0) }
+          s = s.replacingOccurrences(
+            of: "@1@",
+            with: nn.reversed().map { String($0) }.joined(separator: ", ")
+          )
+          s = s.replacingOccurrences(of: "@2@", with: mm.map { String($0) }.joined(separator: ", "))
+        }
+        var htmln = ""
+        for n in self.notifications.keys {
+          if self.stats[n] == nil { continue }
+          htmln +=
+            "<h3>\(n)</h3>\n<div><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
+        }
+        var htmlr = ""
+        for n in self.requests.keys {
+          if self.stats[n] == nil { continue }
+          htmlr +=
+            "<h3>\(n)</h3>\n<div><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
+        }
         let html = """
           <!DOCTYPE html>
           <html>
@@ -1308,10 +1354,15 @@ public final class MesonServer: LanguageServer {
           	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           </head>
           <body>
+            <h1>General</h1>
           	<div><canvas id="chart"></canvas></div>
+          	<h2>Notifications</h2>
+            \(htmln)
+          	<h2>Requests</h2>
+            \(htmlr)
           	<script>
           	const tags = [@0@];
-          	const ctx = document.getElementById("chart");
+          	let ctx = document.getElementById("chart");
           	new Chart(ctx, {
           		type: "line",
           		data: {
@@ -1335,6 +1386,7 @@ public final class MesonServer: LanguageServer {
           			],
           		},
           	});
+            \(s)
           	</script>
           </body>
           </html>
