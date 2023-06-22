@@ -7,6 +7,9 @@ ELEMENT_NAMES = [
   "postgres",
 ];
 
+tempAllocGraph = null;
+allocGraph = null;
+
 function openTab(evt, tabName) {
   const tabcontent = document.getElementsByClassName("tabcontent");
   for (let i = 0; i < tabcontent.length; i++) {
@@ -111,26 +114,51 @@ function initHTML() {
   }
 }
 
+function regression(pts) {
+  let xs = 0;
+  let ys = 0;
+  let xxs = 0;
+  let xys = 0;
+  let yys = 0;
+  for (let i = 0; i < pts.length; i++) {
+    xs += pts[i].x;
+    ys += pts[i].y;
+    xxs += pts[i].x * pts[i].x;
+    xys += pts[i].x * pts[i].y;
+    yys += pts[i].y * pts[i].y;
+  }
+  const div = pts.length * xxs - xs * xs;
+  const gain = (pts.length * xys - xs * ys) / div;
+  const offset = (ys * xxs - xs * xys) / div;
+  return { a: gain, b: offset };
+}
+
 function fillPerformanceChart() {
-  const tags = ALL_BENCHMARKS.map((a) => a.commit).slice(1);
   const colors = ["#1c71d8", "#c01c28", "#613583", "#26a269", "#000000"];
   const arr = [];
-  for (let i = 0; i < tags.length; i++) {
+  for (let i = 0; i < ALL_BENCHMARKS.length; i++) {
     for (const element of ELEMENT_NAMES) {
       const counts = ALL_BENCHMARKS.map((a) => findProject(a, element).parsing);
       const diff = counts[i + 1] / counts[i];
       arr.push({ x: i, y: diff * 100 });
     }
+    let counts = ALL_BENCHMARKS.map((a) => a.misc.parsing);
+    let diff = counts[i + 1] / counts[i];
+    arr.push({ x: i, y: diff * 100 });
+    counts = ALL_BENCHMARKS.map((a) => a.floss.gnome.parsing);
+    diff = counts[i + 1] / counts[i];
+    arr.push({ x: i, y: diff * 100 });
+    counts = ALL_BENCHMARKS.map((a) => a.floss.elementary.parsing);
+    diff = counts[i + 1] / counts[i];
+    arr.push({ x: i, y: diff * 100 });
   }
   const ctx = document.getElementById("performanceChanges");
   new Chart(ctx, {
     type: "scatter",
     data: {
-      labels: tags,
       datasets: [
         {
           label: "Performance changes to prior version",
-          labels: tags,
           data: arr,
         },
       ],
@@ -455,6 +483,185 @@ function changedVersions() {
       newData.misc.peak_rss.replace("M", ""),
     ),
   );
+  const colors = ["#1c71d8", "#c01c28", "#613583", "#000000"];
+  let ctx = document.getElementById("alloc_perf");
+  let oldScatter = [];
+  let newScatter = [];
+  for (const element of ELEMENT_NAMES) {
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
+    oldScatter.push({ x: p.parsing, y: p.memory_allocations });
+    newScatter.push({ x: p1.parsing, y: p1.memory_allocations });
+  }
+  oldScatter.push({
+    x: oldData.floss.gnome.parsing,
+    y: oldData.floss.gnome.memory_allocations,
+  });
+  newScatter.push({
+    x: newData.floss.gnome.parsing,
+    y: newData.floss.gnome.memory_allocations,
+  });
+  oldScatter.push({
+    x: oldData.floss.elementary.parsing,
+    y: oldData.floss.elementary.memory_allocations,
+  });
+  newScatter.push({
+    x: newData.floss.elementary.parsing,
+    y: newData.floss.elementary.memory_allocations,
+  });
+  oldScatter.push({
+    x: oldData.misc.parsing,
+    y: oldData.misc.memory_allocations,
+  });
+  newScatter.push({
+    x: newData.misc.parsing,
+    y: newData.misc.memory_allocations,
+  });
+  if (allocGraph !== null) {
+    allocGraph.destroy();
+    tempAllocGraph.destroy();
+  }
+  let highestX = -1;
+  for (let i = 0; i < oldScatter.length; i++) {
+    highestX = Math.max(highestX, Math.max(oldScatter[i].x, newScatter[i].x));
+  }
+  let oldGraphParams = regression(oldScatter);
+  let oldGraph = [
+    { x: 0, y: oldGraphParams.b },
+    { x: highestX, y: oldGraphParams.a * highestX + oldGraphParams.b },
+  ];
+  console.log(`Memory allocations, old: ${JSON.stringify(oldGraphParams)}`);
+  let newGraphParams = regression(newScatter);
+  let newGraph = [
+    { x: 0, y: newGraphParams.b },
+    { x: highestX, y: newGraphParams.a * highestX + newGraphParams.b },
+  ];
+  console.log(`Memory allocations, new: ${JSON.stringify(newGraphParams)}`);
+  allocGraph = new Chart(ctx, {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: `Parsing - Memory allocations mapping: ${oldData.commit}`,
+          type: "scatter",
+          data: oldScatter,
+        },
+        {
+          label: `Parsing - Memory allocations mapping: ${newData.commit}`,
+          type: "scatter",
+          data: newScatter,
+        },
+        {
+          label: `Approx. Parsing - Memory allocations mapping: ${oldData.commit}`,
+          type: "line",
+          data: oldGraph,
+        },
+        {
+          label: `Approx. Parsing - Memory allocations mapping: ${newData.commit}`,
+          type: "line",
+          data: newGraph,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "linear",
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  ctx = document.getElementById("temp_alloc_perf");
+  oldScatter = [];
+  newScatter = [];
+  for (const element of ELEMENT_NAMES) {
+    const p = findProject(oldData, element);
+    const p1 = findProject(newData, element);
+    oldScatter.push({ x: p.parsing, y: p.temporary_memory_allocations });
+    newScatter.push({ x: p1.parsing, y: p1.temporary_memory_allocations });
+  }
+  oldScatter.push({
+    x: oldData.floss.gnome.parsing,
+    y: oldData.floss.gnome.temporary_memory_allocations,
+  });
+  newScatter.push({
+    x: newData.floss.gnome.parsing,
+    y: newData.floss.gnome.temporary_memory_allocations,
+  });
+  oldScatter.push({
+    x: oldData.floss.elementary.parsing,
+    y: oldData.floss.elementary.temporary_memory_allocations,
+  });
+  newScatter.push({
+    x: newData.floss.elementary.parsing,
+    y: newData.floss.elementary.temporary_memory_allocations,
+  });
+  oldScatter.push({
+    x: oldData.misc.parsing,
+    y: oldData.misc.temporary_memory_allocations,
+  });
+  newScatter.push({
+    x: newData.misc.parsing,
+    y: newData.misc.temporary_memory_allocations,
+  });
+  highestX = -1;
+  for (let i = 0; i < oldScatter.length; i++) {
+    highestX = Math.max(highestX, Math.max(oldScatter[i].x, newScatter[i].x));
+  }
+  oldGraphParams = regression(oldScatter);
+  oldGraph = [
+    { x: 0, y: oldGraphParams.b },
+    { x: highestX, y: oldGraphParams.a * highestX + oldGraphParams.b },
+  ];
+  console.log(
+    `Temporary memory allocations, old: ${JSON.stringify(oldGraphParams)}`,
+  );
+  newGraphParams = regression(newScatter);
+  newGraph = [
+    { x: 0, y: newGraphParams.b },
+    { x: highestX, y: newGraphParams.a * highestX + newGraphParams.b },
+  ];
+  console.log(
+    `Temporary memory allocations, new: ${JSON.stringify(newGraphParams)}`,
+  );
+  tempAllocGraph = new Chart(ctx, {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: `Parsing - Temporary memory allocations mapping: ${oldData.commit}`,
+          data: oldScatter,
+        },
+        {
+          label: `Parsing - Temporary memory allocations mapping: ${newData.commit}`,
+          data: newScatter,
+        },
+        {
+          label: `Approx. Parsing - Temporary memory allocations mapping: ${oldData.commit}`,
+          type: "line",
+          data: oldGraph,
+        },
+        {
+          label: `Approx. Parsing - Temporary memory allocations mapping: ${newData.commit}`,
+          type: "line",
+          data: newGraph,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "linear",
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
 }
 
 function createChartCanvas(fullName, nameID) {
@@ -555,7 +762,7 @@ function initAllCharts() {
     if (sum === undefined) {
       sum = value;
     } else {
-      sum.map(function (num, idx) {
+      sum = sum.map(function (num, idx) {
         return num + value[idx];
       });
     }
