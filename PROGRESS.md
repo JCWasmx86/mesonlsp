@@ -82,7 +82,6 @@
   - [x] Create dependency using `declare_dependency` from library
   - [x] Sort filenames
   - [x] Download wrap for missing subproject from WrapDB
-- [ ] Automatic LSP tests
 - [x] Document the language server
 - [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [ ] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
@@ -109,6 +108,7 @@
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
 - [ ] Folding range
+- [ ] Automatic LSP tests
 - [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
