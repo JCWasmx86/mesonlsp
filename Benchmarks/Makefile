@@ -29,6 +29,7 @@ serve: FORCE
 	echo -n "," >> generated.js
 	cat v2.3.1.json >> generated.js
 	echo "];" >> generated.js
+	./extract_git_data.sh >> generated.js
 	python -m http.server
 FORCE: ;
 

@@ -811,5 +811,35 @@ function initAllCharts() {
     }
   }
   tableDiv.appendChild(table);
+  attachChart(
+    "commits",
+    "Commits",
+    DIFFS.map(a => a[3]),
+  );
+  attachChart(
+    "filechanges",
+    "Changed files",
+    DIFFS.map(a => a[0]),
+  );
+  const adds = DIFFS.map(a => a[1]);
+  const rms = DIFFS.map(a => a[2]);
+  const tags = ALL_BENCHMARKS.map((a) => a.commit);
+  const ctx = document.getElementById("insertDeletes");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: tags,
+      datasets: [
+        {
+          label: "Insertions",
+          data: adds,
+        },
+        {
+          label: "Deletions",
+          data: rms,
+        },
+      ],
+    },
+  });
   initAllProjectsPerformanceTable(obj);
 }

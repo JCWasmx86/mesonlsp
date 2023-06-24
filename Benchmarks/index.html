@@ -16,6 +16,7 @@
 			<button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>
 			<button class="tablinks" onclick="openTab(event, 'Comparisons')">Comparisons</button>
 		  <button class="tablinks" onclick="openTab(event, 'PPC')">Per project charts</button>
+		  <button class="tablinks" onclick="openTab(event, 'Git')">Git stats</button>
 			<button class="tablinks" onclick="openTab(event, 'About')">About</button>
 		</div>
 
@@ -102,6 +103,15 @@
 			<div class="horizontal">
 				<div class="child"><canvas id="alloc_perf"></canvas></div>
 				<div class="child"><canvas id="temp_alloc_perf"></canvas></div>
+			</div>
+		</div>
+
+		<div id="Git" class="tabcontent">
+		  <h3>Git stats</h3>
+		  <div class="horizontal">
+				<div class="child"><canvas id="commits"></canvas></div>
+				<div class="child"><canvas id="filechanges"></canvas></div>
+				<div class="child"><canvas id="insertDeletes"></canvas></div>
 			</div>
 		</div>
 
