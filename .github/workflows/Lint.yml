@@ -79,9 +79,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Lint using shfmt
         run: |
-          wget https://github.com/mvdan/sh/releases/download/v3.6.0/shfmt_v3.6.0_linux_amd64
-          chmod +x ./shfmt_v3.6.0_linux_amd64
-          ./shfmt_v3.6.0_linux_amd64 -w -i 0 scripts/*.sh .debian/*.sh Benchmarks/*.sh
+          wget https://github.com/mvdan/sh/releases/download/v3.7.0/shfmt_v3.7.0_linux_amd64
+          chmod +x ./shfmt_v3.7.0_linux_amd64
+          ./shfmt_v3.7.0_linux_amd64 -w -i 0 scripts/*.sh .debian/*.sh Benchmarks/*.sh
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
           git commit -a -m "Failed" || exit 0
