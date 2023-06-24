@@ -7,6 +7,10 @@ sudo cp .build/debug/Swift-MesonLSP /usr/bin
 mkdir repos
 mkdir /tmp/data
 cp .build/debug/codecov/default.profdata /tmp/data/swifttests.profdata
+sudo mv /usr/bin/curl curl1
+swift test --enable-code-coverage
+cp .build/debug/codecov/default.profdata /tmp/data/swifttests2.profdata
+sudo mv curl1 /usr/bin/curl
 git clone https://github.com/hse-project/hse
 cd hse || exit
 git checkout ca2bccd60e29a74f2e8b587a9b8d4702c360865c
@@ -58,5 +62,5 @@ rm default.profraw
 cd ..
 rm -rf gstreamer
 llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2,spp,spp2}.profraw -o default.profdata
-llvm-profdata-16 merge /tmp/data/swifttests.profdata default.profdata -o merged.profdata
+llvm-profdata-16 merge /tmp/data/swifttests.profdata /tmp/data/swifttests2.profdata default.profdata -o merged.profdata
 llvm-cov-16 export --instr-profile merged.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
