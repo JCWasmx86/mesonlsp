@@ -71,10 +71,19 @@ public struct Processes {
   #endif
 
   public static func download(url: String, outputFile: String) throws {
-    do { _ = try self.executeCommand(["curl", url, "-o", outputFile, "-s", "-L"]) } catch {
+    do {
+      let status = try self.executeCommand(["curl", url, "-o", outputFile, "-s", "-L"])
+      if status != 0 {
+        _ = try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
+      }
+    } catch let err {
+      LOG.warning("\(err)")
       do {
         _ = try self.executeCommand(["wget", url, "-O", outputFile, "-q", "-o", "/dev/stderr"])
-      } catch { throw error }
+      } catch let err2 {
+        LOG.warning("\(err2)")
+        throw err2
+      }
     }
   }
 }
