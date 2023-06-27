@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "d66705c8a5b5a7974f515a1df668ea4ed61385fe"
+        "revision" : "869fd0a595ba71bb4abcca055e1c78bcfe2dc5b1"
       }
     },
     {
@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "b9cd96b9d5fd9d59ce5a58622cda685e540152a6"
+        "revision" : "ba8ed956cc2160006743b0594ab489be0adf21b0"
       }
     },
     {
@@ -141,7 +141,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "809cb152a303926b243edb09ba4f0590e4b0c8b7"
+        "revision" : "696e9d7d5d32397b7ee1c2e1967822de3853227c"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "a9cff1a33af9f5b1a9cc26a5d35049ffa3a3eda8"
+        "revision" : "27428755c8f747cb1c22ec387a83a97da7a94b87"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "8a19fe97b27e867c20a11ce68bf3716f8b36d51e"
+        "revision" : "22d6015ae37f53ee9f3c3b80f90386bf41585336"
       }
     },
     {
