@@ -1028,7 +1028,7 @@ public final class MesonServer: LanguageServer {
     self.rebuildTree()
   }
 
-  private func capabilities() -> ServerCapabilities {
+  private func capabilities(_ supportsRenaming: Bool) -> ServerCapabilities {
     return ServerCapabilities(
       textDocumentSync: .options(
         TextDocumentSyncOptions(openClose: true, change: .full, save: .bool(true))
@@ -1043,7 +1043,7 @@ public final class MesonServer: LanguageServer {
       workspaceSymbolProvider: .bool(true),
       codeActionProvider: .bool(true),
       documentFormattingProvider: .bool(true),
-      renameProvider: .bool(true),
+      renameProvider: .bool(supportsRenaming),
       declarationProvider: .bool(true),
       workspace: WorkspaceServerCapabilities(),
       inlayHintProvider: .bool(true)
@@ -1240,15 +1240,22 @@ public final class MesonServer: LanguageServer {
 
   private func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
+    var supportsRenaming = false
     if let clientInfo = p.clientInfo {
       Self.LOG.info("Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")")
+      if p.clientInfo!.name == "gnome-builder" { supportsRenaming = true }
+    }
+    if !supportsRenaming {
+      Self.LOG.info(
+        "Renaming is disabled as it is broken outside of GNOME Builder. Use GNOME Builder for an optimal experience."
+      )
     }
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
     self.mapper.rootDir = self.path!
     self.parseSubprojectTask = Task { await self.setupSubprojects() }
     self.rebuildTree()
-    req.reply(InitializeResult(capabilities: self.capabilities()))
+    req.reply(InitializeResult(capabilities: self.capabilities(supportsRenaming)))
     self.client.send(
       LogMessageNotification(
         type: .info,
