@@ -1,3 +1,5 @@
+# 2.3.5 (Jul 01 2023)
+- Minor fixes
 # 2.3.4 (Jul 01 2023)
 - Test uploading to swift-mesonlsp-apt-repo
 # 2.3.3 (Jul 01 2023)

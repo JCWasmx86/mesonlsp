@@ -115,7 +115,7 @@ jobs:
           unzip Ubuntu22.04.zip
           cd ..
           sudo ./.debian/build_debs_ubuntu.sh
-          rm -rf out1 out2 out3
+          rm -rf out out1 out2
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out1 .
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out2 .
