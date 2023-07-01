@@ -1,3 +1,5 @@
+# 2.3.4 (Jul 01 2023)
+- Test uploading to swift-mesonlsp-apt-repo
 # 2.3.3 (Jul 01 2023)
 - Fix typo
 # 2.3.2 (Jul 01 2023)
