@@ -36,6 +36,7 @@ jobs:
         with:
           file: Swift-MesonLSP-macos12.zip
           verbose: true
+          update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
   build-macos13:
@@ -53,5 +54,6 @@ jobs:
         with:
           file: Swift-MesonLSP-macos13.zip
           verbose: true
+          update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
