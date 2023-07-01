@@ -2,6 +2,7 @@
 - Remove meson buildsystem introduced in v2.2
 - Only enable renaming in GNOME-Builder. It is broken in VSCode and Kate at least. (See #7 and #8)
 - Regression fixes for codeactions
+(Note this release is only submitted to COPR and available via the Github Actions tab due to testing I need to do)
 # 2.3.1 (Jun 18 2023)
 - Auto-complete pkg-config package names in `dependency('foo')`
 - Add /stats endpoint on Linux. It shows the amount of requests, notifications and the memory usage over the time.
