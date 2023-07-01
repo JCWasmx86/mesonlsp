@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-./create_license_bundle.sh
+./scripts/create_license_bundle.sh
 cd .debian || exit
 chmod 0755 build/DEBIAN
 mkdir -p build/usr/share/Swift-MesonLSP
