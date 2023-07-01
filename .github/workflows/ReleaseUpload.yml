@@ -83,4 +83,4 @@ jobs:
         run: rpmbuild -bs Swift-MesonLSP.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
 
       - name: Submit the build by uploading the source RPM
-        run: copr build JCWasmx86/Swift-MesonLSP *.src.rpm
+        run: copr build jcwasmx86/Swift-MesonLSP *.src.rpm
