@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update AUR package
-        uses: aksh1618/update-aur-package@v1.0.5
+        uses: JCWasmx86/update-aur-package@master
         with:
           package_name: swift-mesonlsp
           commit_username: "JCWasmx86"
