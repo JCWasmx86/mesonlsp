@@ -59,11 +59,20 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  aur-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update AUR package
+        uses: aksh1618/update-aur-package@v1.0.5
+        with:
+          package_name: swift-mesonlsp
+          commit_username: "JCWasmx86"
+          commit_email: JCWasmx86@t-online.de
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
   trigger-copr:
     name: Submit a COPR
     container: fedora:latest
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out proper version of sources
         uses: actions/checkout@v1
@@ -89,7 +98,6 @@ jobs:
   update-apt-repo:
     name: Update APT repo
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out proper version of sources
         uses: actions/checkout@v1
