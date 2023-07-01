@@ -1,4 +1,6 @@
-# 2.3.2 (Jul 02 2023)
+# 2.3.3 (Jul 01 2023)
+- Fix typo
+# 2.3.2 (Jul 01 2023)
 - Remove meson buildsystem introduced in v2.2
 - Only enable renaming in GNOME-Builder. It is broken in VSCode and Kate at least. (See #7 and #8)
 - Regression fixes for codeactions
