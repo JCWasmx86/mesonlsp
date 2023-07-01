@@ -57,3 +57,30 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  trigger-copr:
+    name: Submit a COPR
+    container: fedora:latest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out proper version of sources
+        uses: actions/checkout@v1
+
+      - name: Install API token for copr-cli
+        env:
+          API_TOKEN_CONTENT: ${{ secrets.COPR_API_TOKEN }}
+        run: |
+          mkdir -p "$HOME/.config"
+          echo "$API_TOKEN_CONTENT" > "$HOME/.config/copr"
+
+      - name: Install tooling for source RPM build
+        run: |
+          dnf -y install @development-tools @rpm-development-tools
+          dnf -y install copr-cli make
+          wget https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz
+
+      - name: Build the source RPM
+        run: rpmbuild -bs Swift-MesonLSP.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
+
+      - name: Submit the build by uploading the source RPM
+        run: copr build JCWasmx86/Swift-MesonLSP *.src.rpm
