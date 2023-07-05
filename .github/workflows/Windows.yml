@@ -19,12 +19,24 @@ jobs:
         shell: powershell
         run: |
           Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+      - name: Get swap file information
+        shell: powershell
+        run: |
+          wmic pagefile
+      - name: Add another swap file
+        shell: powershell
+        run: |
+          wmic pagefileset create name="C:\\pagefile2.sys" initialsize=4096, maximumsize=4096
+      - name: Get swap file information again
+        shell: powershell
+        run: |
+          wmic pagefile
       - uses: actions/checkout@v3
       - run: |
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
-          swift build --static-swift-stdlib -c debug
+          swift build -c release
           swift test
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
           .\.build\debug\Swift-MesonLSP.exe --test TestCases/Options/meson.build
