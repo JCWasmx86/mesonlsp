@@ -178,7 +178,6 @@ jobs:
             swift build -c release
           }
           $destinationFilePath = "$env:GITHUB_WORKSPACE"
-          mkdir $destinationFilePath
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\Foundation.dll" -Destination $destinationFilePath -Force
