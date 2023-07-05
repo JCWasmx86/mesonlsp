@@ -202,7 +202,7 @@ jobs:
         shell: powershell
         run: |
           cd ${{ github.workspace }}
-          $sourcePath = ${{ github.workspace }}
+          $sourcePath = "${{ github.workspace }}"
           $zipFilePath = "${{ github.workspace }}/Swift-MesonLSP-win64.zip"
           $files = Get-ChildItem -Path $sourcePath -Filter *.dll, *.exe, COPYING, 3rdparty.txt -File
           Compress-Archive -Path $files.FullName -DestinationPath $zipFilePath
