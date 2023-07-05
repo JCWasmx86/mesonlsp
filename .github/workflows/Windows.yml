@@ -19,10 +19,16 @@ jobs:
         shell: powershell
         run: |
           Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
-      - name: Get swap file information
+      - name: Get page file information
         shell: powershell
         run: |
-          wmic pagefile
+          $csys = Get-WmiObject Win32_ComputerSystem -EnableAllPrivileges
+          $csys.AutomaticManagedPageFile = $False
+          $computersys.Put()
+          $pagefile = Get-WmiObject -Query "Select * from Win32_PageFileSetting Where Name like '%pagefile.sys'"
+          $pagefile.InitialSize = 4096
+          $pagefile.MaximumSize = 8192
+          $pagefile.Put()
       - name: Update swapfile
         shell: powershell
         run: |
