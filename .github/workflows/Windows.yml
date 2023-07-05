@@ -11,10 +11,6 @@ jobs:
   windows-573:
     runs-on: windows-2019
     steps:
-      - uses: compnerd/gha-setup-swift@main
-        with:
-          branch: swift-5.7.3-release
-          tag: 5.7.3-RELEASE
       - name: Enable long paths on Windows
         shell: powershell
         run: |
@@ -37,6 +33,10 @@ jobs:
         shell: powershell
         run: |
           wmic pagefile
+      - uses: compnerd/gha-setup-swift@main
+        with:
+          branch: swift-5.7.3-release
+          tag: 5.7.3-RELEASE
       - uses: actions/checkout@v3
       - run: |
           cd ..\..
