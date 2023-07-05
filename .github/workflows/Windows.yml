@@ -40,7 +40,7 @@ jobs:
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
-          swift build -c release
+          swift build -c release -v
           .\.build\release\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
           .\.build\release\Swift-MesonLSP.exe --test TestCases/Options/meson.build
           .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
