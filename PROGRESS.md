@@ -106,7 +106,6 @@
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
-- [ ] Emit [SCIP](https://github.com/sourcegraph/scip) files
 - [ ] Folding range
 - [ ] Automatic LSP tests
 - [x] Add Windows to CI
