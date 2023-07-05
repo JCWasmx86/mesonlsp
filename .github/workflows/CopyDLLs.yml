@@ -39,7 +39,7 @@ jobs:
       - name: Create zip archive
         run: |
           $zipPath = "$env:GITHUB_WORKSPACE\build.zip"
-          Compress-Archive "$env:GITHUB_WORKSPACE\*.dll" "$env:GITHUB_WORKSPACE\COPYING" $env:GITHUB_WORKSPACE\*.exe" -DestinationPath $zipPath
+          Compress-Archive "$env:GITHUB_WORKSPACE\*.dll" "$env:GITHUB_WORKSPACE\COPYING" "$env:GITHUB_WORKSPACE\*.exe" -DestinationPath $zipPath
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
