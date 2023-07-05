@@ -46,6 +46,36 @@ jobs:
           .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
           mkdir __wrap_target
           .\.build\release\Swift-MesonLSP.exe --wrap Wraps\rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps\libswiftdemangle2.wrap --wrap Wraps\miniz.wrap --wrap Wraps\turtle.wrap --wrap Wraps\sqlite.wrap --wrap Wraps\pango.wrap --wrap Wraps\turtle2.wrap --wrap Wraps\turtle3.wrap --wrap Wraps\rubberband.wrap --wrap-output __wrap_target --wrap-package-files .\Wraps\packagefiles
+      - name: Copy DLL files
+        shell: powershell
+        run: |
+          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts"
+          mkdir $destinationFilePath
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\Foundation.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swift_Concurrency.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCore.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCRT.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftDispatch.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftWinSDK.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icudt69.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuin69.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuuc69.dll" -Destination $destinationFilePath -Force
+      - name: Copy Swift-MesonLSP.exe
+        run: |
+          $sourceFilePath = "$env:GITHUB_WORKSPACE\.build\release\Swift-MesonLSP.exe"
+          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts\Swift-MesonLSP.exe"
+          Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force
+      - name: Create license bundle
+        shell: bash
+        run: |
+          ./scripts/create_license_bundle.sh
+          cp 3rdparty.txt Artifacts
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows
+          path: ${{ github.workspace }}/Artifacts
   windows-58:
     runs-on: windows-2019
     steps:
