@@ -204,7 +204,7 @@ jobs:
           cd ${{ github.workspace }}
           $sourcePath = "${{ github.workspace }}"
           $zipFilePath = "${{ github.workspace }}/Swift-MesonLSP-win64.zip"
-          $files = Get-ChildItem -Path $sourcePath -Filter *.dll, *.exe, COPYING, 3rdparty.txt -File
+          $files = @("*.dll", "*.exe", "COPYING", "3rdparty.txt") | %{ Get-ChildItem -File $sourcePath -Filter $_ }
           Compress-Archive -Path $files.FullName -DestinationPath $zipFilePath
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
