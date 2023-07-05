@@ -19,6 +19,7 @@ jobs:
       - name: Copy DLL files
         shell: powershell
         run: |
+          Get-ChildItem -Path C:\ -Filter BlocksRuntime.dll
           $sourcePaths = @('C:\', 'D:\')
           $destinationPath = $env:GITHUB_WORKSPACE
           $dllFiles = @(
