@@ -40,12 +40,12 @@ jobs:
           cd b
           swift build -c release
           swift test
-          .\.build\debug\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
-          .\.build\debug\Swift-MesonLSP.exe --test TestCases/Options/meson.build
-          .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
-          .\.build\debug\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
+          .\.build\release\Swift-MesonLSP.exe --test TestCases/BasicTests/meson.build
+          .\.build\release\Swift-MesonLSP.exe --test TestCases/Options/meson.build
+          .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSubdirs/meson.build
+          .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
           mkdir __wrap_target
-          .\.build\debug\Swift-MesonLSP.exe --wrap Wraps\rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps\libswiftdemangle2.wrap --wrap Wraps\miniz.wrap --wrap Wraps\turtle.wrap --wrap Wraps\sqlite.wrap --wrap Wraps\pango.wrap --wrap Wraps\turtle2.wrap --wrap Wraps\turtle3.wrap --wrap Wraps\rubberband.wrap --wrap-output __wrap_target --wrap-package-files .\Wraps\packagefiles
+          .\.build\release\Swift-MesonLSP.exe --wrap Wraps\rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps\libswiftdemangle2.wrap --wrap Wraps\miniz.wrap --wrap Wraps\turtle.wrap --wrap Wraps\sqlite.wrap --wrap Wraps\pango.wrap --wrap Wraps\turtle2.wrap --wrap Wraps\turtle3.wrap --wrap Wraps\rubberband.wrap --wrap-output __wrap_target --wrap-package-files .\Wraps\packagefiles
   windows-58:
     runs-on: windows-2019
     steps:
