@@ -142,3 +142,76 @@ jobs:
           cd apt
           cp /*.deb .
           . update.sh
+  windows-573:
+    runs-on: windows-2019
+    steps:
+      - name: Enable long paths
+        shell: powershell
+        run: |
+          Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+      - name: Get page file information
+        shell: powershell
+        run: |
+          wmic pagefile
+      - name: Configure pagefile
+        uses: al-cheb/configure-pagefile-action@v1.3
+        with:
+          minimum-size: 3GB
+          maximum-size: 8GB
+          disk-root: "D:"
+      - name: Get page file information again
+        shell: powershell
+        run: |
+          wmic pagefile
+      - uses: compnerd/gha-setup-swift@main
+        with:
+          branch: swift-5.7.3-release
+          tag: 5.7.3-RELEASE
+      - uses: actions/checkout@v3
+      - name: Build and test
+        shell: powershell
+        run: |
+          cd ..\..
+          git clone https://github.com/JCWasmx86/Swift-MesonLSP b
+          cd b
+          while (-not (Test-Path ".build\\release\\Swift-MesonLSP.exe")) {
+            swift build -c release
+          }
+          $destinationFilePath = "$env:GITHUB_WORKSPACE"
+          mkdir $destinationFilePath
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\Foundation.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swift_Concurrency.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCore.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCRT.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftDispatch.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftWinSDK.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icudt69.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuin69.dll" -Destination $destinationFilePath -Force
+          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuuc69.dll" -Destination $destinationFilePath -Force
+          $sourceFilePath = ".build\release\Swift-MesonLSP.exe"
+          $destinationFilePath = "$env:GITHUB_WORKSPACE\Swift-MesonLSP.exe"
+          Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force
+      - name: Create license bundle
+        shell: bash
+        run: |
+          ./scripts/create_license_bundle.sh
+          cd ../../b || exit 0
+          ./scripts/create_license_bundle.sh || true
+      - name: Zip it up
+        shell: powershell
+        run: |
+          cd ${{ github.workspace }}
+          $sourcePath = ${{ github.workspace }}
+          $zipFilePath = "${{ github.workspace }}/Swift-MesonLSP-win64.zip"
+          $files = Get-ChildItem -Path $sourcePath -Filter *.dll, *.exe, COPYING, 3rdparty.txt -File
+          Compress-Archive -Path $files.FullName -DestinationPath $zipFilePath
+      - name: Upload to release
+        uses: xresloader/upload-to-github-release@main
+        with:
+          file: Swift-MesonLSP-win64.zip
+          verbose: true
+          update_latest_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
