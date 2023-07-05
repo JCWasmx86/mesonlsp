@@ -34,7 +34,9 @@ jobs:
           branch: swift-5.7.3-release
           tag: 5.7.3-RELEASE
       - uses: actions/checkout@v3
-      - run: |
+      - name: Build and test
+        shell: powershell
+        run: |
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
@@ -46,9 +48,6 @@ jobs:
           .\.build\release\Swift-MesonLSP.exe --test TestCases/ComputeSetVariable/meson.build
           mkdir __wrap_target
           .\.build\release\Swift-MesonLSP.exe --wrap Wraps\rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap --wrap Wraps\libswiftdemangle2.wrap --wrap Wraps\miniz.wrap --wrap Wraps\turtle.wrap --wrap Wraps\sqlite.wrap --wrap Wraps\pango.wrap --wrap Wraps\turtle2.wrap --wrap Wraps\turtle3.wrap --wrap Wraps\rubberband.wrap --wrap-output __wrap_target --wrap-package-files .\Wraps\packagefiles
-      - name: Copy DLL files
-        shell: powershell
-        run: |
           $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts"
           mkdir $destinationFilePath
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
@@ -69,7 +68,8 @@ jobs:
         shell: bash
         run: |
           ./scripts/create_license_bundle.sh
-          cp 3rdparty.txt Artifacts
+          cp 3rdparty.txt Artifacts || true
+          cp 3rdparty.txt ${{ github.workspace }}/Artifacts || true
       - uses: actions/upload-artifact@v3
         with:
           name: Windows
