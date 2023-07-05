@@ -23,10 +23,10 @@ jobs:
         shell: powershell
         run: |
           wmic pagefile
-      - name: Add another swap file
+      - name: Update swapfile
         shell: powershell
         run: |
-          wmic pagefileset create name="C:\\pagefile2.sys" initialsize=4096, maximumsize=4096
+          wmic pagefileset where name="d:\\pagefile.sys" set InitialSize=2048,MaximumSize=8192
       - name: Get swap file information again
         shell: powershell
         run: |
