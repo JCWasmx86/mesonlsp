@@ -20,7 +20,7 @@ jobs:
         run: |
           $csys = Get-WmiObject Win32_ComputerSystem -EnableAllPrivileges
           $csys.AutomaticManagedPageFile = $False
-          $computersys.Put()
+          $csys.Put()
           $pagefile = Get-WmiObject -Query "Select * from Win32_PageFileSetting Where Name like '%pagefile.sys'"
           $pagefile.InitialSize = 4096
           $pagefile.MaximumSize = 8192
