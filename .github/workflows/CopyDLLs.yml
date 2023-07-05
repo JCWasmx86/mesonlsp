@@ -45,8 +45,9 @@ jobs:
           $zipPath = "$env:GITHUB_WORKSPACE\build.zip"
           Compress-Archive -Path $env:GITHUB_WORKSPACE\*.dll,$env:GITHUB_WORKSPACE\COPYING,$env:GITHUB_WORKSPACE\*.exe,$env:GITHUB_WORKSPACE\3rdparty.txt -DestinationPath $zipPath
           dir
+          Copy-Item "$zipPath" D:\a\
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: build-artifact
-          path: $env:GITHUB_WORKSPACE\build.zip
+          path: D:\a\build.zip
