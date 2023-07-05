@@ -19,7 +19,8 @@ jobs:
       - name: Copy DLL files
         shell: powershell
         run: |
-          $destinationPath = $env:GITHUB_WORKSPACE
+          $destinationPath = $env:GITHUB_WORKSPACE/Artifacts
+          mkdir $destinationFilePath
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\Foundation.dll" -Destination $destinationFilePath -Force
@@ -34,20 +35,14 @@ jobs:
       - name: Copy foo.exe
         run: |
           $sourceFilePath = "$env:GITHUB_WORKSPACE\Benchmarks\script.js"
-          $destinationFilePath = "$env:GITHUB_WORKSPACE\foo.exe"
+          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts\foo.exe"
           Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force
       - name: Create license bundle
         shell: bash
         run: |
           ./scripts/create_license_bundle.sh
-      - name: Create zip archive
-        run: |
-          $zipPath = "$env:GITHUB_WORKSPACE\build.zip"
-          Compress-Archive -Path $env:GITHUB_WORKSPACE\*.dll,$env:GITHUB_WORKSPACE\COPYING,$env:GITHUB_WORKSPACE\*.exe,$env:GITHUB_WORKSPACE\3rdparty.txt -DestinationPath $zipPath
-          dir
-          Copy-Item "$zipPath" D:\a\
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+          cp 3rdparty.txt Artifacts
+      - uses: actions/upload-artifact@v3
         with:
-          name: build-artifact
-          path: D:\a\build.zip
+          name: Windows.zip
+          path: ${{ github.workspace }}/Artifacts
