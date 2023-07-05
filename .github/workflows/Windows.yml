@@ -19,16 +19,12 @@ jobs:
         shell: powershell
         run: |
           wmic pagefile
-      - name: Get page file information
-        shell: powershell
-        run: |
-          $csys = Get-WmiObject Win32_ComputerSystem -EnableAllPrivileges
-          $csys.AutomaticManagedPageFile = $False
-          $csys.Put()
-          $pagefile = Get-WmiObject -Query "Select * from Win32_PageFileSetting Where Name like '%pagefile.sys'"
-          $pagefile.InitialSize = 4096
-          $pagefile.MaximumSize = 8192
-          $pagefile.Put()
+      - name: Configure pagefile
+        uses: al-cheb/configure-pagefile-action@v1.3
+        with:
+          minimum-size: 3GB
+          maximum-size: 8GB
+          disk-root: "D:"
       - name: Get page file information again
         shell: powershell
         run: |
