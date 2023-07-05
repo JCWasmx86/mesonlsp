@@ -18,6 +18,10 @@ jobs:
       - name: Get page file information
         shell: powershell
         run: |
+          wmic pagefile
+      - name: Get page file information
+        shell: powershell
+        run: |
           $csys = Get-WmiObject Win32_ComputerSystem -EnableAllPrivileges
           $csys.AutomaticManagedPageFile = $False
           $csys.Put()
@@ -25,11 +29,7 @@ jobs:
           $pagefile.InitialSize = 4096
           $pagefile.MaximumSize = 8192
           $pagefile.Put()
-      - name: Update swapfile
-        shell: powershell
-        run: |
-          wmic pagefileset where name="d:\\pagefile.sys" set InitialSize=2048,MaximumSize=8192
-      - name: Get swap file information again
+      - name: Get page file information again
         shell: powershell
         run: |
           wmic pagefile
