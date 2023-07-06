@@ -2,13 +2,13 @@
 %undefine _auto_set_build_flags
 
 Name:           Swift-MesonLSP
-Version:        0.0.19
-Release:        2.3.12
+Version:        0.0.20
+Release:        2.3.13
 Summary:        Meson language server
 ExclusiveArch:  x86_64
 
 License:        GPL
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v2.3.12.tar.gz
+Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v2.3.13.tar.gz
 
 Requires:       bash
 BuildRequires:  swift-lang
@@ -19,13 +19,13 @@ BuildRequires:  git
 A meson language server
 
 %prep
-%setup -q -n Swift-MesonLSP-2.3.12
+%setup -q -n Swift-MesonLSP-2.3.13
 
 
 %build
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
-git checkout v2.3.12
+git checkout v2.3.13
 swift build -c release --static-swift-stdlib -Xswiftc -g
 
 %install
@@ -37,6 +37,8 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
+* Thu Jul 06 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.20
+- Bump to v2.3.13
 * Wed Jul 05 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.19
 - Bump to v2.3.12
 * Wed Jul 05 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.18
