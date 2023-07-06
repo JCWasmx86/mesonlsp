@@ -1,3 +1,5 @@
+# 2.3.15 (Jul 06 2023)
+- Minor fixes
 # 2.3.14 (Jul 06 2023)
 - Minor fixes
 # 2.3.13 (Jul 06 2023)
