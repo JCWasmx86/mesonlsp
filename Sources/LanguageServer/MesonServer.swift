@@ -410,6 +410,7 @@ public final class MesonServer: LanguageServer {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
           self.dependencySpecialCase(fp, line, column, md, &arr)
           self.getOptionSpecialCase(t, fp, line, column, md, &arr)
+          self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
           if let idexpr = md.findIdentifierAt(fp, line, column),
             let al = idexpr.parent as? ArgumentList
           {
@@ -469,6 +470,48 @@ public final class MesonServer: LanguageServer {
         )
       }
     }
+  }
+
+  // swiftlint:disable function_parameter_count
+  private func sourceFilesSpecialCase(
+    _ t: MesonTree,
+    _ fp: String,
+    _ line: Int,
+    _ column: Int,
+    _ md: MesonMetadata,
+    _ arr: inout [CompletionItem]
+  ) {
+    if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
+      self.isSourceFileFunction(f.id())
+    {
+      Self.LOG.info("Found special call to a function taking source files")
+      var keys: [String] = []
+      do {
+        let children = try Path(fexpr.file.file).parent().children()
+        for c in children {
+          if c.isDirectory { continue }
+          let ext = c.lastComponent.replacing(c.lastComponentWithoutExtension, with: "")
+            .lowercased()
+          if ext == ".c" || ext == ".cpp" || ext == ".vala" || ext == ".d" || ext == ".rs"
+            || ext == ".h" || ext == ".hpp"
+          {
+            keys.append(c.lastComponent)
+          }
+        }
+      } catch let e { Self.LOG.error("\(e)") }
+      for c in keys {
+        arr.append(
+          CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
+        )
+      }
+    }
+  }
+  // swiftlint:enable function_parameter_count
+
+  private func isSourceFileFunction(_ s: String) -> Bool {
+    return s == "both_libraries" || s == "build_target" || s == "executable" || s == "files"
+      || s == "jar" || s == "library" || s == "shared_library" || s == "static_library"
+      || s == "shared_module"
   }
 
   // swiftlint:disable function_parameter_count

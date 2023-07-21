@@ -68,7 +68,11 @@ public class MesonMetadata {
 
   func contains(_ node: Node, _ line: Int, _ column: Int) -> Bool {
     if node.location.startLine <= line && node.location.endLine >= line {
-      if node.location.startColumn <= column && node.location.endColumn >= column { return true }
+      if node.location.startLine == node.location.endLine {
+        if node.location.startColumn <= column && node.location.endColumn >= column { return true }
+        return false
+      }
+      return true
     }
     return false
   }
