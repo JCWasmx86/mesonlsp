@@ -1,3 +1,5 @@
+# X.X.X (XXX XX 2023)
+- Emit deprecation warnings based on `meson_version` (#9)
 # 2.3.15 (Jul 06 2023)
 - Minor fixes
 # 2.3.14 (Jul 06 2023)
