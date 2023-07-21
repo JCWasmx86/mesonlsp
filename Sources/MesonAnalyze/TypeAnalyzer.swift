@@ -194,8 +194,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   public func visitBuildDefinition(node: BuildDefinition) {
-    node.visitChildren(visitor: self)
-
     var lastAlive: Node?
     var firstDead: Node?
     var lastDead: Node?
@@ -222,6 +220,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
               let value = (a as! KeywordItem).value
               guard let sl = value as? StringLiteral else { continue }
               self.version = Version.parseVersion(s: sl.contents())
+              Self.LOG.info("Version = \(sl.contents())")
               break
             }
           }
@@ -237,6 +236,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         }
       }
     }
+    node.visitChildren(visitor: self)
     for b in node.stmts {
       self.checkNoEffect(b)
       if lastAlive == nil {
@@ -701,6 +701,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
   }
 
+  // swiftlint:disable cyclomatic_complexity
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
     guard let funcNameId = node.id as? IdExpression else { return }
@@ -744,6 +745,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           }
         }
       }
+      if self.version != nil,
+        let alts = DeprecationState.check(name: fn.id(), version: self.version!)
+      {
+        self.registerDeprecated(fn.id(), node.id, alts)
+      }
     } else {
       self.metadata.registerDiagnostic(
         node: node,
@@ -751,6 +757,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
     }
   }
+  // swiftlint:enable cyclomatic_complexity
 
   private func guessSetVariable(args: [Node], node: FunctionExpression) {
     let vars = Set(MesonAnalyze.guessSetVariable(fe: node))
@@ -766,7 +773,25 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
 
-  public func visitKeywordItem(node: KeywordItem) { node.visitChildren(visitor: self) }
+  public func visitKeywordItem(node: KeywordItem) {
+    node.visitChildren(visitor: self)
+    if let id = node.key as? IdExpression, self.version != nil {
+      if let alts = DeprecationState.check(name: "<\(id.id)>", version: self.version!) {
+        self.registerDeprecated("Keyword \(id.id)", node.key, alts)
+      }
+    }
+  }
+
+  private func registerDeprecated(_ s: String, _ n: Node, _ alternatives: [String]) {
+    self.metadata.registerDiagnostic(
+      node: n,
+      diag: MesonDiagnostic(
+        sev: .warning,
+        node: n,
+        message: "\(s) is deprecated. Use one of these: \(alternatives.joined(separator: ", "))"
+      )
+    )
+  }
 
   public func visitConditionalExpression(node: ConditionalExpression) {
     node.visitChildren(visitor: self)
@@ -932,7 +957,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return found
   }
-  // swiftlint:enable cyclomatic_complexity
 
   public func visitMethodExpression(node: MethodExpression) {
     node.visitChildren(visitor: self)
@@ -969,6 +993,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       Self.LOG.info("Ignoring invalid method for disabler")
     } else {
       if let args = node.argumentList, args is ArgumentList {
+        if self.version != nil,
+          let alts = DeprecationState.check(name: node.method!.id(), version: self.version!)
+        {
+          self.registerDeprecated(node.method!.id(), node.id, alts)
+        }
         self.checkCall(node: node)
       } else if node.argumentList == nil {
         if node.method!.minPosArgs() != 0 {
@@ -988,8 +1017,15 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           self.metadata.registerKwarg(item: a as! KeywordItem, f: node.method!)
         }
       }
+      if self.version != nil,
+        let alts = DeprecationState.check(name: node.method!.id(), version: self.version!)
+      {
+        self.registerDeprecated(node.method!.id(), node.id, alts)
+      }
     }
   }
+  // swiftlint:enable cyclomatic_complexity
+
   private func checkKwargsAfterPositionalArguments(_ args: [Node]) {
     var kwargsOnly = false
     for arg in args {

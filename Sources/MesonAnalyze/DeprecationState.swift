@@ -36,8 +36,14 @@ public class DeprecationState {
       since: "0.55.0",
       alternatives: ["external_program.full_path"]
     ),
-
   ]
+
+  public static func check(name: String, version: Version) -> [String]? {
+    guard let data = Self.map[name] else { return nil }
+    let deprecated_since = data.since
+    if deprecated_since.before(version) { return data.alternatives }
+    return nil
+  }
 }
 
 public class DeprecationData {

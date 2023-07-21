@@ -41,4 +41,6 @@ public class Version {
     let substring = s[len...]
     return Version(substring, op)
   }
+
+  public func before(_ other: Version) -> Bool { return self.versionString < other.versionString }
 }
