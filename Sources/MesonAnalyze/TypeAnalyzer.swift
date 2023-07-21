@@ -11,7 +11,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var t: TypeNamespace
   var tree: MesonTree
   var metadata: MesonMetadata
-  let checkerState: CheckerState = CheckerState()
   let typeanalyzersState: TypeAnalyzersState = TypeAnalyzersState()
   let options: [MesonOption]
   var stack: [[String: [Type]]] = []
@@ -711,7 +710,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       self.specialFunctionCallHandling(node, fn)
       node.function = fn
       self.metadata.registerFunctionCall(call: node)
-      checkerState.apply(node: node, metadata: self.metadata, f: fn)
       if let args = node.argumentList, args is ArgumentList {
         self.checkCall(node: node)
       } else if node.argumentList == nil {
@@ -822,7 +820,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       node.method = guessedM
       self.metadata.registerMethodCall(call: node)
-      checkerState.apply(node: node, metadata: self.metadata, f: guessedM)
       node.types = dedup(types: ownResultTypes)
       return true
     }
@@ -864,7 +861,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         node.method = m
         self.metadata.registerMethodCall(call: node)
         found = true
-        checkerState.apply(node: node, metadata: self.metadata, f: m)
         if let al = node.argumentList as? ArgumentList, !al.args.isEmpty,
           m.id() == "subproject.get_variable", let stO = t as? MesonAST.Subproject,
           let s = self.subprojectState
@@ -905,7 +901,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       node.method = m
       self.metadata.registerMethodCall(call: node)
-      checkerState.apply(node: node, metadata: self.metadata, f: m)
       return true
     }
     if methodName == "get" && node.obj.types.first(where: { $0 is Dict }) != nil,
@@ -921,7 +916,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       node.method = m
       self.metadata.registerMethodCall(call: node)
-      checkerState.apply(node: node, metadata: self.metadata, f: m)
       return true
     }
     if methodName == "get" && node.obj.types.first(where: { $0 is CfgData }) != nil {
@@ -934,7 +928,6 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       )
       node.method = m
       self.metadata.registerMethodCall(call: node)
-      checkerState.apply(node: node, metadata: self.metadata, f: m)
       return true
     }
     return found
