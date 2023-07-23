@@ -490,8 +490,10 @@ public final class MesonServer: LanguageServer {
         let children = try Path(fexpr.file.file).parent().children()
         for c in children {
           if c.isDirectory { continue }
-          let ext = c.lastComponent.replacing(c.lastComponentWithoutExtension, with: "")
-            .lowercased()
+          let ext = c.lastComponent.replacingOccurrences(
+            of: c.lastComponentWithoutExtension,
+            with: ""
+          ).lowercased()
           if ext == ".c" || ext == ".cpp" || ext == ".vala" || ext == ".d" || ext == ".rs"
             || ext == ".h" || ext == ".hpp"
           {
