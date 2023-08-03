@@ -2,6 +2,9 @@ public final class TypeNamespace {
   public let functions: [Function]
   public let types: [String: Type]
   public var vtables: [String: [Method]]
+  public let strType: Type
+  public let boolType: Type
+  public let intType: Type
 
   public init() {
     types = [
@@ -30,6 +33,9 @@ public final class TypeNamespace {
       "sourceset_module": SourcesetModule(), "sourceset": SourceSet(),
       "source_configuration": SourceConfiguration(),
     ]
+    strType = self.types["str"]!
+    intType = self.types["int"]!
+    boolType = self.types["bool"]!
     let str = self.types["str"]!
     let strL = [str]
     let strlist = ListType(types: strL)

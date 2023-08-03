@@ -373,7 +373,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   private func analyseIterationStatementTwoIdentifiers(_ node: IterationStatement) {
     let iterTypes = node.expression.types
-    node.ids[0].types = [self.t.types["str"]!]
+    node.ids[0].types = [self.t.strType]
     let first = iterTypes.first { $0 is Dict }
     if let dd = first, let ddd = dd as? Dict {
       node.ids[1].types = ddd.types
@@ -407,7 +407,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     var foundDict = false
     for l in iterTypes {
       if l is RangeType {
-        res.append(self.t.types["int"]!)
+        res.append(self.t.intType)
       } else if let lt = l as? ListType {
         res += lt.types
       } else {
@@ -487,9 +487,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   private func evalPlusEquals(_ l: Type, _ r: Type) -> Type? {
     if l is `IntType` && r is `IntType` {
-      return self.t.types["int"]!
+      return self.t.intType
     } else if l is Str && r is Str {
-      return self.t.types["str"]!
+      return self.t.strType
     } else if let ll = l as? ListType, let lr = r as? ListType {
       return ListType(types: dedup(types: ll.types + lr.types))
     } else if let ll = l as? ListType {
@@ -511,12 +511,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     switch op {
     case .divequals:
       if l is `IntType` && r is `IntType` {
-        newTypes.append(self.t.types["int"]!)
+        newTypes.append(self.t.intType)
       } else if l is Str && r is Str {
-        newTypes.append(self.t.types["str"]!)
+        newTypes.append(self.t.strType)
       }
     case .minusequals, .modequals, .mulequals:
-      if l is `IntType` && r is `IntType` { newTypes.append(self.t.types["int"]!) }
+      if l is `IntType` && r is `IntType` { newTypes.append(self.t.intType) }
     case .plusequals: if let t = evalPlusEquals(l, r) { newTypes.append(t) }
     default: _ = 1
     }
@@ -809,8 +809,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitUnaryExpression(node: UnaryExpression) {
     node.visitChildren(visitor: self)
     switch node.op! {
-    case .minus: node.types = [self.t.types["int"]!]
-    case .not, .exclamationMark: node.types = [self.t.types["bool"]!]
+    case .minus: node.types = [self.t.intType]
+    case .not, .exclamationMark: node.types = [self.t.boolType]
     }
   }
 
@@ -823,7 +823,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else if let lt = t as? ListType {
         newTypes += lt.types
       } else if t is Str {
-        newTypes += [self.t.types["str"]!]
+        newTypes += [self.t.strType]
       } else if t is CustomTgt {
         newTypes += [self.t.types["custom_idx"]!]
       }
@@ -1351,7 +1351,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return counter == 3
   }
-  public func visitStringLiteral(node: StringLiteral) { node.types = [self.t.types["str"]!] }
+  public func visitStringLiteral(node: StringLiteral) { node.types = [self.t.strType] }
 
   public func visitArrayLiteral(node: ArrayLiteral) {
     node.visitChildren(visitor: self)
@@ -1360,9 +1360,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     node.types = [ListType(types: dedup(types: t))]
   }
 
-  public func visitBooleanLiteral(node: BooleanLiteral) { node.types = [self.t.types["bool"]!] }
+  public func visitBooleanLiteral(node: BooleanLiteral) { node.types = [self.t.boolType] }
 
-  public func visitIntegerLiteral(node: IntegerLiteral) { node.types = [self.t.types["int"]!] }
+  public func visitIntegerLiteral(node: IntegerLiteral) { node.types = [self.t.intType] }
 
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
     node.visitChildren(visitor: self)
@@ -1496,9 +1496,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       ret.append(MesonAST.Subproject(names: Array(Set(subprojectNames))))
     }
     if hasAny { ret.append(self.t.types["any"]!) }
-    if hasBool { ret.append(self.t.types["bool"]!) }
-    if hasInt { ret.append(self.t.types["int"]!) }
-    if hasStr { ret.append(self.t.types["str"]!) }
+    if hasBool { ret.append(self.t.boolType) }
+    if hasInt { ret.append(self.t.intType) }
+    if hasStr { ret.append(self.t.strType) }
     ret += objs.values
     return ret
   }
@@ -1519,71 +1519,71 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         switch op {
         case .and, .or:
           if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else {
             nErrors += 1
           }
         case .div:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
+            newTypes.append(self.t.intType)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["str"]!)
+            newTypes.append(self.t.strType)
           } else {
             nErrors += 1
           }
         case .equalsEquals:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else {
             nErrors += 1
           }
         case .ge, .gt, .le, .lt:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else {
             nErrors += 1
           }
-        case .IN: newTypes.append(self.t.types["bool"]!)
+        case .IN: newTypes.append(self.t.boolType)
         case .minus, .modulo, .mul:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
+            newTypes.append(self.t.intType)
           } else {
             nErrors += 1
           }
         case .notEquals:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "bool") && isType(r, "bool") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "dict") && isType(r, "dict") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if isType(l, "list") && isType(r, "list") {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else if l is AbstractObject && r is AbstractObject && l.name == r.name {
-            newTypes.append(self.t.types["bool"]!)
+            newTypes.append(self.t.boolType)
           } else {
             nErrors += 1
           }
-        case .notIn: newTypes.append(self.t.types["bool"]!)
+        case .notIn: newTypes.append(self.t.boolType)
         case .plus:
           if isType(l, "int") && isType(r, "int") {
-            newTypes.append(self.t.types["int"]!)
+            newTypes.append(self.t.intType)
           } else if isType(l, "str") && isType(r, "str") {
-            newTypes.append(self.t.types["str"]!)
+            newTypes.append(self.t.strType)
           } else if let ll = l as? ListType, let lr = r as? ListType {
             newTypes.append(ListType(types: dedup(types: ll.types + lr.types)))
           } else if let ll = l as? ListType {
