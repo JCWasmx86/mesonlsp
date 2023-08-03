@@ -61,6 +61,6 @@ rm default.profraw
 # shellcheck disable=2103
 cd ..
 rm -rf gstreamer
-llvm-profdata-16 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2,spp,spp2}.profraw -o default.profdata
-llvm-profdata-16 merge /tmp/data/swifttests.profdata /tmp/data/swifttests2.profdata default.profdata -o merged.profdata
-llvm-cov-16 export --instr-profile merged.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
+llvm-profdata-17 merge -sparse /tmp/data/{repos,tests,wraps,wrapdb,subproject,subproject2,sb1,sb2,spp,spp2}.profraw -o default.profdata
+llvm-profdata-17 merge /tmp/data/swifttests.profdata /tmp/data/swifttests2.profdata default.profdata -o merged.profdata
+llvm-cov-17 export --instr-profile merged.profdata .build/debug/Swift-MesonLSP -format lcov | swift demangle >out.lcov
