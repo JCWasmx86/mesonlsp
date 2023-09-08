@@ -262,7 +262,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
@@ -380,7 +380,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "pie", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
@@ -714,7 +714,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "pie", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
@@ -747,6 +747,7 @@ public final class TypeNamespace {
           Kwarg(name: "disabler", opt: true, types: boolL),
           Kwarg(name: "native", opt: true, types: boolL),
           Kwarg(name: "required", opt: true, types: [boolt, self.types["feature"]!]),
+          Kwarg(name: "default_options", opt: true, types: [strlist, strdict]),
           Kwarg(name: "version", opt: true, types: strL),
         ]
       ),
@@ -976,7 +977,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
@@ -1089,7 +1090,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
@@ -1131,7 +1132,7 @@ public final class TypeNamespace {
         args: [
           PositionalArgument(name: "project_name", types: strL),
           PositionalArgument(name: "language", varargs: true, opt: true, types: strL),
-          Kwarg(name: "default_options", opt: true, types: [strlist, strDict]),
+          Kwarg(name: "default_options", opt: true, types: [strlist, strdict]),
           Kwarg(name: "license_files", opt: true, types: [strlist, str]),
           Kwarg(name: "license", opt: true, types: [ListType(types: strL), str]),
           Kwarg(name: "meson_version", opt: true, types: strL),
@@ -1295,7 +1296,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
@@ -1408,7 +1409,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
@@ -1527,7 +1528,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "pic", opt: true, types: boolL),
           Kwarg(name: "prelink", opt: true, types: boolL),
           Kwarg(name: "rust_crate_type", opt: true, types: strL),
@@ -2168,6 +2169,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["inc"]!]), self.types["inc"]!]
           ), Kwarg(name: "name", opt: true, types: strL),
           Kwarg(name: "no_builtin_args", opt: true, types: boolL),
+          Kwarg(name: "werror", opt: true, types: boolL),
         ]
       ),
       Method(
@@ -2464,6 +2466,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["inc"]!]), self.types["inc"]!]
           ), Kwarg(name: "name", opt: true, types: strL),
           Kwarg(name: "no_builtin_args", opt: true, types: boolL),
+          Kwarg(name: "werror", opt: true, types: boolL),
         ]
       ),
       Method(
@@ -2510,6 +2513,7 @@ public final class TypeNamespace {
             types: [ListType(types: [self.types["inc"]!]), self.types["inc"]!]
           ), Kwarg(name: "name", opt: true, types: strL),
           Kwarg(name: "no_builtin_args", opt: true, types: boolL),
+          Kwarg(name: "werror", opt: true, types: boolL),
         ]
       ),
       Method(
@@ -3848,7 +3852,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
@@ -4048,7 +4052,7 @@ public final class TypeNamespace {
           Kwarg(
             name: "override_options",
             opt: true,
-            types: [strlist, Dict(types: [self.t.types["any"]!])]
+            types: [strlist, Dict(types: [self.types["any"]!])]
           ), Kwarg(name: "rust_crate_type", opt: true, types: strL),
           Kwarg(name: "rust_dependency_map", opt: true, types: [Dict(types: strL)]),
           Kwarg(
