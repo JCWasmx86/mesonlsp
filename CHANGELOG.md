@@ -1,3 +1,5 @@
+# 2.4.1 (Sep XX 2023)
+- Bump API definitions to mesonbuild/meson#6cfd2b4d5bd30b372268c25308b1cb00afd0996d
 # 2.4 (Sep 02 2023)
 - Emit deprecation warnings based on `meson_version` (#9)
 - Add basic file auto-completion
