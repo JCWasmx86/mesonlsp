@@ -13,7 +13,7 @@ A reimplementation of my Meson language server in Swift.
 - A basic set of diagnostics
 - Formatting
 - Document symbols
-- Autocompletion
+- Autocompletion (Somewhat working)
 - Inlay hints
 - Highlighting
 - Automatic subproject/wrap downloads
