@@ -388,7 +388,7 @@ public final class MesonServer: LanguageServer {
       let column = pos.utf16index
       let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
       Self.LOG.info("Completion at: [\(line):\(column)]")
-      if line < lines.count && lines[line].trimmingCharacters(in: .whitespaces).count >= 1 {
+      if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
         if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
@@ -405,6 +405,17 @@ public final class MesonServer: LanguageServer {
                 )
               )
             }
+          }
+        } else if prev.isEmpty {
+          for f in self.ns.functions {
+            arr.append(
+              CompletionItem(
+                label: f.name,
+                kind: .function,
+                insertText: createTextForFunction(f),
+                insertTextFormat: .snippet
+              )
+            )
           }
         } else if let t = self.tree, let md = t.metadata {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
