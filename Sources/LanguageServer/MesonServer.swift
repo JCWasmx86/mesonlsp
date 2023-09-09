@@ -391,7 +391,7 @@ public final class MesonServer: LanguageServer {
       if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
-        if prev.hasSuffix("."), let t = self.tree, let md = t.metadata {
+        if prev.hasSuffix(".") || prev.hasSuffix(")"), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
             let s: Set<MesonAST.Method> = self.fillTypes(types)
