@@ -1,4 +1,4 @@
-# 2.4.1 (Sep XX 2023)
+# 2.4.1 (Sep 12 2023)
 - Bump API definitions to mesonbuild/meson#6cfd2b4d5bd30b372268c25308b1cb00afd0996d
 - Improve auto-completion
 # 2.4 (Sep 02 2023)
