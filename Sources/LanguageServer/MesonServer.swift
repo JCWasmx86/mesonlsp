@@ -406,6 +406,23 @@ public final class MesonServer: LanguageServer {
                 )
               )
             }
+          } else {
+            let errorId = self.extractErrorId(prev)
+            Self.LOG.info("\(errorId)")
+            if let err = errorId {
+              let types = md.findAllTypes(fp, err)
+              let s: Set<MesonAST.Method> = self.fillTypes(types)
+              for c in s {
+                arr.append(
+                  CompletionItem(
+                    label: c.name,
+                    kind: .method,
+                    insertText: createTextForFunction(c),
+                    insertTextFormat: .snippet
+                  )
+                )
+              }
+            }
           }
         } else if prev.isEmpty {
           for f in self.ns.functions {
@@ -465,6 +482,25 @@ public final class MesonServer: LanguageServer {
   }
 
   // swiftlint:enable cyclomatic_complexity
+
+  private func extractErrorId(_ prev: String) -> String? {
+    if prev.isEmpty { return nil }
+    var ret = ""
+    var idx = prev.count - 1
+    Self.LOG.info("\(prev)")
+    while idx > 0 {
+      idx -= 1
+      let c = prev[idx]
+      Self.LOG.info("\(c)")
+      if c.isWhitespace {
+        return ret
+      } else if !(c.isLetter || c.isNumber || c == "_") {
+        return ret
+      }
+      ret = "\(c)\(ret)"
+    }
+    return ret
+  }
 
   private func dependencySpecialCase(
     _ fp: String,

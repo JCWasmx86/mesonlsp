@@ -150,4 +150,10 @@ public class MesonMetadata {
   public func findFullArrayAccessAt(_ path: String, _ line: Int, _ column: Int)
     -> SubscriptExpression?
   { return self.findArrayAccessAt(path, line, column) }
+
+  public func findAllTypes(_ path: String, _ identifier: String) -> [Type] {
+    var ret: [Type] = []
+    if let arr = self.identifiers[path] { for i in arr where i.id == identifier { ret += i.types } }
+    return ret
+  }
 }
