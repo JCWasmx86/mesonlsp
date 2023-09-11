@@ -3,6 +3,7 @@ import MesonAST
 public class MesonMetadata {
   public var subdirCalls: [String: [SubdirCall]] = [:]
   public var methodCalls: [String: [MethodExpression]] = [:]
+  public var arrayAccesses: [String: [SubscriptExpression]] = [:]
   public var functionCalls: [String: [FunctionExpression]] = [:]
   public var identifiers: [String: [IdExpression]] = [:]
   public var kwargs: [String: [(KeywordItem, Function)]] = [:]
@@ -15,6 +16,14 @@ public class MesonMetadata {
       self.subdirCalls.updateValue([call], forKey: call.file.file)
     } else {
       self.subdirCalls[call.file.file]!.append(call)
+    }
+  }
+
+  public func registerArrayAccess(node: SubscriptExpression) {
+    if self.arrayAccesses[node.file.file] == nil {
+      self.arrayAccesses.updateValue([node], forKey: node.file.file)
+    } else {
+      self.arrayAccesses[node.file.file]!.append(node)
     }
   }
 
@@ -129,4 +138,16 @@ public class MesonMetadata {
     }
     return nil
   }
+
+  public func findArrayAccessAt(_ path: String, _ line: Int, _ column: Int) -> SubscriptExpression?
+  {
+    if let arr = self.arrayAccesses[path] {
+      for m in arr where self.contains(m, line, column) { return m }
+    }
+    return nil
+  }
+
+  public func findFullArrayAccessAt(_ path: String, _ line: Int, _ column: Int)
+    -> SubscriptExpression?
+  { return self.findArrayAccessAt(path, line, column) }
 }

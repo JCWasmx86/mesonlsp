@@ -748,6 +748,9 @@ public final class MesonServer: LanguageServer {
     } else if let me = md.findFullMethodCallAt(fp, line, column - 1), me.method != nil {
       Self.LOG.info("Found method expr: \(me.method!.id())")
       return me.types
+    } else if let aa = md.findFullArrayAccessAt(fp, line, column - 1) {
+      Self.LOG.info("Found subscript expression")
+      return aa.types
     }
     return nil
   }

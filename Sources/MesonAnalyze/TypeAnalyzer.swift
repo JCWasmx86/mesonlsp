@@ -829,6 +829,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
     }
     node.types = dedup(types: newTypes)
+    self.metadata.registerArrayAccess(node: node)
   }
 
   private func guessMethod(node: MethodExpression, methodName: String, ownResultTypes: inout [Type])
