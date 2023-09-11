@@ -376,6 +376,7 @@ public final class MesonServer: LanguageServer {
     highlightTree(self.findTree(req.params.textDocument.uri), req, self.mapper)
   }
 
+  // swiftlint:disable cyclomatic_complexity
   private func complete(_ req: Request<CompletionRequest>) {
     let begin = clock()
     var arr: [CompletionItem] = []
@@ -462,6 +463,8 @@ public final class MesonServer: LanguageServer {
     req.reply(CompletionList(isIncomplete: false, items: arr))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
   }
+
+  // swiftlint:enable cyclomatic_complexity
 
   private func dependencySpecialCase(
     _ fp: String,
