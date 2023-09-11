@@ -1,3 +1,4 @@
+import Logging
 import MesonAST
 
 public class MesonMetadata {
@@ -77,11 +78,14 @@ public class MesonMetadata {
 
   func contains(_ node: Node, _ line: Int, _ column: Int) -> Bool {
     if node.location.startLine <= line && node.location.endLine >= line {
-      if node.location.startLine == node.location.endLine {
-        if node.location.startColumn <= column && node.location.endColumn >= column { return true }
-        return false
+      if node.location.startLine == node.location.endLine && node.location.startColumn <= column
+        && node.location.endColumn >= column
+      {
+        return true
       }
-      return true
+      if node.location.startLine > line && node.location.endLine < line { return true }
+      if node.location.startLine == line && node.location.startColumn <= column { return true }
+      if node.location.endLine == line && node.location.endColumn >= column { return true }
     }
     return false
   }
@@ -113,6 +117,9 @@ public class MesonMetadata {
     -> FunctionExpression?
   {
     if let arr = self.functionCalls[path] {
+      for f in arr where self.contains(f, line, column) {
+        Logger(label: "").info("\(f) \(line) \(column) \(f.location.format())")
+      }
       for f in arr where self.contains(f, line, column) { return f }
     }
     return nil

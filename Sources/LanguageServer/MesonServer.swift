@@ -392,6 +392,7 @@ public final class MesonServer: LanguageServer {
       if line < lines.count {
         let str = lines[line]
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
+        Self.LOG.info("Prev = '\(prev)'")
         if prev.hasSuffix(".") || prev.hasSuffix(")"), let t = self.tree, let md = t.metadata {
           let exprTypes = self.afterDotCompletion(md, fp, line, column)
           if let types = exprTypes {
@@ -408,7 +409,6 @@ public final class MesonServer: LanguageServer {
             }
           } else {
             let errorId = self.extractErrorId(prev)
-            Self.LOG.info("\(errorId)")
             if let err = errorId {
               let types = md.findAllTypes(fp, err)
               let s: Set<MesonAST.Method> = self.fillTypes(types)
@@ -424,18 +424,8 @@ public final class MesonServer: LanguageServer {
               }
             }
           }
-        } else if prev.isEmpty {
-          for f in self.ns.functions {
-            arr.append(
-              CompletionItem(
-                label: f.name,
-                kind: .function,
-                insertText: createTextForFunction(f),
-                insertTextFormat: .snippet
-              )
-            )
-          }
-        } else if let t = self.tree, let md = t.metadata {
+        }
+        if let t = self.tree, let md = t.metadata {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
           self.dependencySpecialCase(fp, line, column, md, &arr)
           self.getOptionSpecialCase(t, fp, line, column, md, &arr)
@@ -469,8 +459,59 @@ public final class MesonServer: LanguageServer {
               )
             }
             self.findMatchingIdentifiers(t, idexpr, &arr)
+          }
+          finalAttempt(prev, line, fp, md, &arr)
+        }
+        if prev.isEmpty || prev == ")" {
+          if let t = self.tree, let md = t.metadata,
+            let call = md.findFullMethodCallAt(fp, line, column),
+            let al = call.argumentList as? ArgumentList
+          {
+            let usedKwargs: Set<String> = self.enumerateUsedKwargs(al)
+            let s: Set<String> = self.fillKwargs(call)
+            for c in s where !usedKwargs.contains(c) {
+              arr.insert(
+                CompletionItem(
+                  label: c,
+                  kind: .keyword,
+                  insertText: "\(c): ${1:\(c)}",
+                  insertTextFormat: .snippet
+                ),
+                at: 0
+              )
+            }
+          } else if let t = self.tree, let md = t.metadata,
+            let call = md.findFullFunctionCallAt(fp, line, column),
+            let al = call.argumentList as? ArgumentList
+          {
+            let usedKwargs: Set<String> = self.enumerateUsedKwargs(al)
+            let s: Set<String> = self.fillKwargs(call)
+            for c in s where !usedKwargs.contains(c) {
+              arr.insert(
+                CompletionItem(
+                  label: c,
+                  kind: .keyword,
+                  insertText: "\(c): ${1:\(c)}",
+                  insertTextFormat: .snippet
+                ),
+                at: 0
+              )
+            }
+            self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
+            self.dependencySpecialCase(fp, line, column, md, &arr)
+            self.getOptionSpecialCase(t, fp, line, column, md, &arr)
+            self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
           } else {
-            finalAttempt(prev, line, fp, md, &arr)
+            for f in self.ns.functions {
+              arr.append(
+                CompletionItem(
+                  label: f.name,
+                  kind: .function,
+                  insertText: createTextForFunction(f),
+                  insertTextFormat: .snippet
+                )
+              )
+            }
           }
         }
       } else {
@@ -676,6 +717,7 @@ public final class MesonServer: LanguageServer {
     _ arr: inout [CompletionItem]
   ) {
     var n = prev.count - 1
+    if n <= 0 { return }
     var invalid = false
     while prev[n] != "." && n >= 0 {
       Self.LOG.info("Finalcompletion: \(prev[0..<n])")
