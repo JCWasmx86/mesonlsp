@@ -1099,7 +1099,7 @@ public final class MesonServer: LanguageServer {
       if sb is FolderSubproject {
         let file = note.params.textDocument.uri.fileURL?.path
         Self.LOG.info("[Save] \(file!) in subproject \(sb.realpath)")
-        memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
         self.rebuildSubproject(sb)
       }
     } else {
@@ -1107,7 +1107,7 @@ public final class MesonServer: LanguageServer {
       // Either the saves were changed or dropped, so use the contents
       // of the file
       Self.LOG.info("[Save] Dropping \(file!) from memcache")
-      memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+      _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
       self.rebuildTree()
     }
   }
@@ -1122,7 +1122,7 @@ public final class MesonServer: LanguageServer {
           s.remove(file!)
           self.openSubprojectFiles[sb.realpath] = s
         }
-        memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
         self.rebuildSubproject(sb)
       }
     } else {
@@ -1131,7 +1131,7 @@ public final class MesonServer: LanguageServer {
       // of the file
       Self.LOG.info("[Close] Dropping \(file!) from memcache")
       self.openFiles.remove(file!)
-      memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+      _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
       self.rebuildTree()
     }
   }
@@ -1160,7 +1160,7 @@ public final class MesonServer: LanguageServer {
     for f in note.params.files {
       let path = f.uri.fileURL!.path
       if memfilesQueue.sync(execute: { self.memfiles[path] }) != nil {
-        memfilesQueue.sync { self.memfiles.removeValue(forKey: path) }
+        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: path) }
       }
       if self.openFiles.contains(path) { self.openFiles.remove(path) }
       if self.astCache[path] != nil { self.astCache.removeValue(forKey: path) }
