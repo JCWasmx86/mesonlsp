@@ -1,4 +1,3 @@
-import Logging
 import MesonAST
 
 public class MesonMetadata {
@@ -83,7 +82,7 @@ public class MesonMetadata {
       {
         return true
       }
-      if node.location.startLine > line && node.location.endLine < line { return true }
+      if node.location.startLine < line && node.location.endLine > line { return true }
       if node.location.startLine == line && node.location.startColumn <= column { return true }
       if node.location.endLine == line && node.location.endColumn >= column { return true }
     }
@@ -117,9 +116,6 @@ public class MesonMetadata {
     -> FunctionExpression?
   {
     if let arr = self.functionCalls[path] {
-      for f in arr where self.contains(f, line, column) {
-        Logger(label: "").info("\(f) \(line) \(column) \(f.location.format())")
-      }
       for f in arr where self.contains(f, line, column) { return f }
     }
     return nil

@@ -463,6 +463,12 @@ public final class MesonServer: LanguageServer {
           finalAttempt(prev, line, fp, md, &arr)
         }
         if prev.isEmpty || prev == ")" {
+          if let t = self.tree, let md = t.metadata {
+            self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
+            self.dependencySpecialCase(fp, line, column, md, &arr)
+            self.getOptionSpecialCase(t, fp, line, column, md, &arr)
+            self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
+          }
           if let t = self.tree, let md = t.metadata,
             let call = md.findFullMethodCallAt(fp, line, column),
             let al = call.argumentList as? ArgumentList
@@ -497,10 +503,6 @@ public final class MesonServer: LanguageServer {
                 at: 0
               )
             }
-            self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
-            self.dependencySpecialCase(fp, line, column, md, &arr)
-            self.getOptionSpecialCase(t, fp, line, column, md, &arr)
-            self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
           } else {
             for f in self.ns.functions {
               arr.append(
@@ -528,11 +530,9 @@ public final class MesonServer: LanguageServer {
     if prev.isEmpty { return nil }
     var ret = ""
     var idx = prev.count - 1
-    Self.LOG.info("\(prev)")
     while idx > 0 {
       idx -= 1
       let c = prev[idx]
-      Self.LOG.info("\(c)")
       if c.isWhitespace {
         return ret
       } else if !(c.isLetter || c.isNumber || c == "_") {
