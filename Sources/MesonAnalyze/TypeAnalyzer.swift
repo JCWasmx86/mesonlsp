@@ -1352,7 +1352,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     }
     return counter == 3
   }
-  public func visitStringLiteral(node: StringLiteral) { node.types = [self.t.strType] }
+  public func visitStringLiteral(node: StringLiteral) {
+    node.types = [self.t.strType]
+    self.metadata.registerStringLiteral(node: node)
+  }
 
   public func visitArrayLiteral(node: ArrayLiteral) {
     node.visitChildren(visitor: self)

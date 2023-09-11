@@ -6,6 +6,7 @@ public class MesonMetadata {
   public var arrayAccesses: [String: [SubscriptExpression]] = [:]
   public var functionCalls: [String: [FunctionExpression]] = [:]
   public var identifiers: [String: [IdExpression]] = [:]
+  public var stringLiterals: [String: [StringLiteral]] = [:]
   public var kwargs: [String: [(KeywordItem, Function)]] = [:]
   public var diagnostics: [String: [MesonDiagnostic]] = [:]
 
@@ -24,6 +25,14 @@ public class MesonMetadata {
       self.arrayAccesses.updateValue([node], forKey: node.file.file)
     } else {
       self.arrayAccesses[node.file.file]!.append(node)
+    }
+  }
+
+  public func registerStringLiteral(node: StringLiteral) {
+    if self.stringLiterals[node.file.file] == nil {
+      self.stringLiterals.updateValue([node], forKey: node.file.file)
+    } else {
+      self.stringLiterals[node.file.file]!.append(node)
     }
   }
 
@@ -138,6 +147,13 @@ public class MesonMetadata {
   public func findKwargAt(_ path: String, _ line: Int, _ column: Int) -> (KeywordItem, Function)? {
     if let arr = self.kwargs[path] {
       for f in arr where self.contains(f.0.key, line, column) { return f }
+    }
+    return nil
+  }
+
+  public func findStringLiteralAt(_ path: String, _ line: Int, _ column: Int) -> StringLiteral? {
+    if let arr = self.stringLiterals[path] {
+      for s in arr where self.contains(s, line, column) { return s }
     }
     return nil
   }

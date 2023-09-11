@@ -429,7 +429,7 @@ public final class MesonServer: LanguageServer {
         }
         if let t = self.tree, let md = t.metadata {
           self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
-          self.dependencySpecialCase(fp, line, column, md, &arr)
+          self.dependencySpecialCase(fp, line, column, md, prev, &arr)
           self.getOptionSpecialCase(t, fp, line, column, md, &arr)
           self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
           if let idexpr = md.findIdentifierAt(fp, line, column),
@@ -467,7 +467,7 @@ public final class MesonServer: LanguageServer {
         if prev.isEmpty || prev == ")" {
           if let t = self.tree, let md = t.metadata {
             self.subprojectGetVariableSpecialCase(fp, line, column, md, &arr)
-            self.dependencySpecialCase(fp, line, column, md, &arr)
+            self.dependencySpecialCase(fp, line, column, md, prev, &arr)
             self.getOptionSpecialCase(t, fp, line, column, md, &arr)
             self.sourceFilesSpecialCase(t, fp, line, column, md, &arr)
           }
@@ -545,11 +545,13 @@ public final class MesonServer: LanguageServer {
     return ret
   }
 
+  // swiftlint:disable function_parameter_count
   private func dependencySpecialCase(
     _ fp: String,
     _ line: Int,
     _ column: Int,
     _ md: MesonMetadata,
+    _ prev: String,
     _ arr: inout [CompletionItem]
   ) {
     if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
@@ -557,15 +559,20 @@ public final class MesonServer: LanguageServer {
       al.args[0] is StringLiteral
     {
       Self.LOG.info("Found special call to dependency")
+      let inLiteral = md.findStringLiteralAt(fp, line, column) != nil || prev.hasSuffix("'")
       for c in self.pkgNames {
         arr.append(
-          CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
+          CompletionItem(
+            label: c,
+            kind: .variable,
+            insertText: inLiteral ? c : "'\(c)'",
+            insertTextFormat: .snippet
+          )
         )
       }
     }
   }
 
-  // swiftlint:disable function_parameter_count
   private func sourceFilesSpecialCase(
     _ t: MesonTree,
     _ fp: String,
