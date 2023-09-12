@@ -20,6 +20,12 @@ A reimplementation of my Meson language server in Swift.
 - Code actions
 - Renaming
 
+![Auto Completion](Docs/img/auto-completion.png)
+![Diagnostics](Docs/img/diags.png)
+![Hover](Docs/img/hover.png)
+![Hover](Docs/img/hover2.png)
+![Inlay Hints](Docs/img/inlay.png)
+![Special integration for pkg-config](Docs/img/pkgconfig.png)
 ## Limitations
 - `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSetVariable/meson.build)
 - `subdir` with non-constant subdir name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSubdirs/meson.build)
