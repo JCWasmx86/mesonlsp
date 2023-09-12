@@ -113,8 +113,11 @@ jobs:
           sudo apt-get -y install podman dpkg reprepro
           podman --version
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu1804 --output out .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu2004 --output out1 .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu --output out2 .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           cd out
           unzip Ubuntu18.04.zip
           cd ../out1
@@ -125,8 +128,11 @@ jobs:
           sudo ./.debian/build_debs_ubuntu.sh
           rm -rf out out1 out2
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out1 .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out2 .
+          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
           cd out
           unzip Debian-Stable.zip
           cd ../out1
