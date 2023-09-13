@@ -9,6 +9,19 @@ import PackageDescription
   #endif
 #endif
 
+#if swift(<5.9) || os(Windows)
+  let backtraceDeps = [
+    Package.Dependency.package(
+      url: "https://github.com/swift-server/swift-backtrace.git",
+      from: "1.3.4"
+    )
+  ]
+  let backtraceProducts = [Target.Dependency.product(name: "Backtrace", package: "swift-backtrace")]
+#else
+  let backtraceDeps: [Package.Dependency] = []
+  let backtraceProducts: [Target.Dependency] = []
+#endif
+
 let package = Package(
   name: "Swift-MesonLSP",
   platforms: [.macOS("12.0")],
@@ -25,16 +38,15 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "2.5.0"), // Should be 2.6.0, but sadly SwiftPM depends on 2.5.0
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "2.5.0"),  // Should be 2.6.0, but sadly SwiftPM depends on 2.5.0
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.2"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
-    .package(url: "https://github.com/swift-server/swift-backtrace.git", from: "1.3.4"),
     .package(url: "https://github.com/vapor/console-kit.git", from: "4.7.0"),
-  ],
+  ] + backtraceDeps,
   targets: [
     .target(
       name: "MesonAnalyze",
@@ -88,8 +100,7 @@ let package = Package(
         .product(name: "TreeSitterMeson", package: "tree-sitter-meson"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
-        .product(name: "Backtrace", package: "swift-backtrace"),
-      ],
+      ] + backtraceProducts,
       swiftSettings: [.unsafeFlags(["-parse-as-library"])]
     ),
     .testTarget(
