@@ -1,5 +1,7 @@
 import ArgumentParser
-import Backtrace
+#if swift(<5.9) || os(Windows)
+  import Backtrace
+#endif
 #if !os(Windows)
   import ConsoleKit
 #endif
@@ -177,7 +179,9 @@ import Wrap
   }
 
   public mutating func run() {
-    Backtrace.install()
+    #if swift(<5.9) || os(Windows)
+      Backtrace.install()
+    #endif
     // LSP-Logging
     Logger.shared.currentLevel = self.stdio ? .error : .info
     #if !os(Windows)
