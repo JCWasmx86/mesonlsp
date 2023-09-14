@@ -1359,8 +1359,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitArrayLiteral(node: ArrayLiteral) {
     node.visitChildren(visitor: self)
-    var t: [Type] = []
-    for elem in node.args { t += elem.types }
+    let t = node.args.flatMap { $0.types }
     node.types = [ListType(types: dedup(types: t))]
   }
 
@@ -1370,8 +1369,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   public func visitDictionaryLiteral(node: DictionaryLiteral) {
     node.visitChildren(visitor: self)
-    var t: [Type] = []
-    for elem in node.values { t += elem.types }
+    let t = node.values.flatMap { $0.types }
     node.types = [Dict(types: dedup(types: t))]
     var seenKeys: Set<String> = []
     for keyV in node.values
