@@ -1,3 +1,5 @@
+# 2.4.2 (Sep XX 2023)
+- Add preliminary Swift 5.9 support
 # 2.4.1 (Sep 12 2023)
 - Bump API definitions to mesonbuild/meson#6cfd2b4d5bd30b372268c25308b1cb00afd0996d
 - Huge improvements to auto-completion
