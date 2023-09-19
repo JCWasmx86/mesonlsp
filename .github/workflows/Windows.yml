@@ -123,9 +123,6 @@ jobs:
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCRT.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftDispatch.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftWinSDK.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icudt69.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuin69.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\icu-69.1\\usr\\bin\\icuuc69.dll" -Destination $destinationFilePath -Force
           $sourceFilePath = ".build\release\Swift-MesonLSP.exe"
           $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts\Swift-MesonLSP.exe"
           Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force
