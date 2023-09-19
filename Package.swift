@@ -4,7 +4,7 @@
 import PackageDescription
 
 #if os(Windows)
-  #if swift(>=5.8)
+  #if swift(>=5.8) && swift(<5.9)
     #error("Windows builds will crash, if compiled using 5.8.")
   #endif
 #endif
