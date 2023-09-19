@@ -134,5 +134,5 @@ jobs:
           cp 3rdparty.txt ${{ github.workspace }}/Artifacts || true
       - uses: actions/upload-artifact@v3
         with:
-          name: Windows
+          name: Windows-5.9
           path: ${{ github.workspace }}/Artifacts
