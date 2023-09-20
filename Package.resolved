@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/console-kit.git",
       "state" : {
-        "revision" : "9a12000f4064a2bdc49068d7258292ec1bdc88fc",
-        "version" : "4.7.0"
+        "revision" : "dcaea6c7f6e29d3ffb80975b24319af85c0afef0",
+        "version" : "4.8.0"
       }
     },
     {
@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "07debd537e3cb689cc82678144cd0890dbc5417f"
+        "revision" : "e21aaac23b0e229c2590e4c9892085643755d506"
       }
     },
     {
@@ -70,6 +70,15 @@
       "state" : {
         "revision" : "a53d9f676cbc84ccc1643cf559a470ee5732ebb6",
         "version" : "0.8.0"
+      }
+    },
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
+        "version" : "1.1.0"
       }
     },
     {
@@ -114,7 +123,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "a21309614cdf51914d4d7553ba64365e1abd0f70"
+        "revision" : "d7649346869862135f269c4383298b494cb9b6c2"
       }
     },
     {
@@ -123,7 +132,7 @@
       "location" : "https://github.com/apple/swift-llbuild.git",
       "state" : {
         "branch" : "main",
-        "revision" : "b054f4ade87460612e102869a6b5628348f2b413"
+        "revision" : "9990e67355d395abb92134f49eab55eea0186b87"
       }
     },
     {
@@ -136,12 +145,21 @@
       }
     },
     {
+      "identity" : "swift-nio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio.git",
+      "state" : {
+        "revision" : "cf281631ff10ec6111f2761052aa81896a83a007",
+        "version" : "2.58.0"
+      }
+    },
+    {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "77e77a5d96023a94c385bb6689a19d5405a2ebac"
+        "revision" : "6ba5b96ab587c204bd7a799ccaf2ae24be208853"
       }
     },
     {
@@ -150,7 +168,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "af32a12da99a128bbe323b12b5dddefade5eebd1"
+        "revision" : "ad30a7b60b39c1c1c6e37a8c58ff428656d21e40"
       }
     },
     {
@@ -168,7 +186,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5446eabed71cd8baac396ea70e90ccf68449d312"
+        "revision" : "3b13e439a341bbbfe0f710c7d1be37221745ef1a"
       }
     },
     {
