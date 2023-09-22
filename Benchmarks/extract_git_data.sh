@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 echo "DIFFS= ["
 
-tags=$(git tag | grep -v v1.2.1 | grep -v v2.3.3 | grep -v v2.3.4 | grep -v v2.3.5 | grep -v v2.3.6 | grep -v 2.3.7 | grep -v 2.3.8 | grep -v 2.3.9 | grep -v 2.3.10 | grep -v 2.3.11 | grep -v 2.3.12 | grep -v 2.3.13 | grep -v 2.3.14 | grep -v 2.3.15)
+tags=$(git tag | grep -v v1.2.1 | grep -v v2.3.3 | grep -v v2.3.4 | grep -v v2.3.5 | grep -v v2.3.6 | grep -v 2.3.7 | grep -v 2.3.8 | grep -v 2.3.9 | grep -v 2.3.10 | grep -v 2.3.11 | grep -v 2.3.12 | grep -v 2.3.13 | grep -v 2.3.14 | grep -v 2.3.15 | grep -v 2.4.3)
 previous_tag=""
 for tag in $tags; do
 	if [[ $tag == "v1.0" ]]; then
