@@ -39,7 +39,7 @@ let package = Package(
     .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "2.5.0"),  // Should be 2.6.0, but sadly SwiftPM depends on 2.5.0
-    .package(url: "https://github.com/apple/swift-log.git", from: "1.5.3"),
+    .package(url: "https://github.com/JCWasmx86/swift-log.git", branch: "main"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.2"),
     .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
