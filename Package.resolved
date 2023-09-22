@@ -123,7 +123,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d7649346869862135f269c4383298b494cb9b6c2"
+        "revision" : "c458271fa59910a74d60a51d4c3054c30c76a75a"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "cf281631ff10ec6111f2761052aa81896a83a007",
-        "version" : "2.58.0"
+        "revision" : "3db5c4aeee8100d2db6f1eaf3864afdad5dc68fd",
+        "version" : "2.59.0"
       }
     },
     {
@@ -159,7 +159,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "6ba5b96ab587c204bd7a799ccaf2ae24be208853"
+        "revision" : "d0ae2c5e848b439f8001cebe72701dc56c014b90"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "ad30a7b60b39c1c1c6e37a8c58ff428656d21e40"
+        "revision" : "e8e50f8c655a4010f211d41a7a7362e441d1b411"
       }
     },
     {
@@ -183,10 +183,10 @@
     {
       "identity" : "swift-tools-support-core",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-tools-support-core.git",
+      "location" : "https://github.com/JCWasmx86/swift-tools-support-core.git",
       "state" : {
         "branch" : "main",
-        "revision" : "3b13e439a341bbbfe0f710c7d1be37221745ef1a"
+        "revision" : "f452f5019ab2157d5f2c7835d6fbbacb4a0b2342"
       }
     },
     {
