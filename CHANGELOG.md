@@ -1,5 +1,5 @@
 # 2.4.3 (Sep 22 2023)
-- Switch to swift-log fork to fix compilation failures on Fedora 39 and Arch-Linux.
+- Switch to swift-log/swift-tools-support-core fork to fix compilation failures on Fedora 39 and Arch-Linux.
 # 2.4.2 (Sep 19 2023)
 - Add preliminary Swift 5.9 support
 - Minor internal improvements
