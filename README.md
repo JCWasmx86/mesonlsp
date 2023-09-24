@@ -72,7 +72,7 @@ to `Swift-MesonLSP` and copy it to the right destination.
 ### Connect with your editor
 #### VSCode
 Install this fork of vscode-meson: https://github.com/JCWasmx86/vscode-meson
-#### GNOME Builder Nightly
+#### GNOME Builder 45 and GNOME Builder Nightly
 You have to do nothing. The editor already has the support code for Swift-MesonLSP. All you have to do is
 installing the language server.
 #### Kate
