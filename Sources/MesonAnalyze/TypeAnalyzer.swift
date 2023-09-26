@@ -1,3 +1,4 @@
+import Foundation
 import IOUtils
 import Logging
 import MesonAST
@@ -1023,9 +1024,65 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       {
         self.registerDeprecated(node.method!.id(), node.id, alts)
       }
+      if let sl = node.obj as? StringLiteral, node.method!.id() == "str.format" {
+        var args: [Node] = []
+        if let al = node.argumentList as? ArgumentList { args = al.args }
+        self.checkFormat(sl, args)
+      }
     }
   }
   // swiftlint:enable cyclomatic_complexity
+
+  private func checkFormat(_ sl: StringLiteral, _ args: [Node]) {
+    let s = sl.contents()
+    var idx = 0
+    for arg in args {
+      if !s.contains("@\(idx)@") {
+        self.metadata.registerDiagnostic(
+          node: arg,
+          diag: MesonDiagnostic(
+            sev: .warning,
+            node: arg,
+            message: "Unused parameter in format() call"
+          )
+        )
+      }
+      idx += 1
+    }
+    do {
+      let pattern = #"@(\d+)@"#
+      let regex = try NSRegularExpression(pattern: pattern, options: [])
+      let matches = regex.matches(in: s, options: [], range: NSRange(s.startIndex..., in: s))
+
+      var found = Set<UInt>()
+      for match in matches {
+        if let range = Range(match.range(at: 1), in: s) {
+          let matchedSubstring = String(s[range])
+          let asInt = UInt(matchedSubstring)!
+          if asInt >= args.count { found.insert(asInt) }
+        }
+      }
+      if found.isEmpty {
+        if args.isEmpty {
+          self.metadata.registerDiagnostic(
+            node: sl.parent!,
+            diag: MesonDiagnostic(
+              sev: .warning,
+              node: sl.parent!,
+              message: "Pointless str.format() call"
+            )
+          )
+        }
+        return
+      }
+      let params = found.map { "@\($0)@" }.joined(separator: ", ")
+      self.metadata.registerDiagnostic(
+        node: sl,
+        diag: MesonDiagnostic(sev: .error, node: sl, message: "Parameters out of bounds: \(params)")
+      )
+    } catch { Self.LOG.error("Error: \(error)") }
+
+  }
 
   private func checkKwargsAfterPositionalArguments(_ args: [Node]) {
     var kwargsOnly = false
