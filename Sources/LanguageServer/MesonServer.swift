@@ -841,6 +841,8 @@ public final class MesonServer: LanguageServer {
     } else if let aa = md.findFullArrayAccessAt(fp, line, column - 1) {
       Self.LOG.info("Found subscript expression")
       return aa.types
+    } else if let sl = md.findStringLiteralAt(fp, line, column - 1) {
+      return sl.types
     }
     return nil
   }
