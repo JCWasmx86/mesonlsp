@@ -1,5 +1,5 @@
 # X.Y.Z (XXX XX 2023)
-
+- Add auto-completion after string literals
 # 2.4.3 (Sep 22 2023)
 - Switch to swift-log/swift-tools-support-core fork to fix compilation failures on Fedora 39 and Arch-Linux.
 # 2.4.2 (Sep 19 2023)
