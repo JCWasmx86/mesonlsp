@@ -17,7 +17,8 @@ cd systemd || exit
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
 cd gtk || exit
-[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+# Undefined variables in dead code
+[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "4" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
