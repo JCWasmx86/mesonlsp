@@ -18,9 +18,10 @@ jobs:
           cd swiftlint
           swift build
           cd ..
+          sudo apt install -y strace
           sudo cp /usr/share/swift/usr/lib/libsourcekitdInProc.so /usr/lib
           sudo cp /usr/local/lib/libsourcekitdInProc.so /usr/lib64 || true
-          ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
+          strace -f ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
           ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests
           exit 1
   swiftformat:
