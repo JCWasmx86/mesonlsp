@@ -22,8 +22,8 @@ cd gtk || exit
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
-# Type error in rarely used codepath (Solaris) (Probably)
-[ "$($LSPPATH meson.build | grep 🔴 -c)" -le "1" ] || exit 1
+# Type error in rarely used codepath (Solaris) (Probably) and parameter OOB
+[ "$($LSPPATH meson.build | grep 🔴 -c)" -le "2" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gnome-builder
 cd gnome-builder || exit
