@@ -1,4 +1,4 @@
-# X.Y.Z (XXX XX 2023)
+# 2.4.4 (Sep 30 2023)
 - Add partial auto-completion after string literals
 - Add diagnostics for `str.format()`
 # 2.4.3 (Sep 22 2023)
