@@ -391,6 +391,7 @@ public final class MesonServer: LanguageServer {
       Self.LOG.info("Completion at: [\(line):\(column)]")
       if line < lines.count {
         let str = lines[line]
+        Self.LOG.info("Entire line: '\(str)'")
         let prev = str.prefix(column + 1).description.trimmingCharacters(in: .whitespaces)
         Self.LOG.info("Prev = '\(prev)'")
         if prev.hasSuffix(".") || (prev.hasSuffix(")") && !prev.hasSuffix(" )")), let t = self.tree,
@@ -710,10 +711,10 @@ public final class MesonServer: LanguageServer {
             || ($0.parent is IterationStatement
               && ($0.parent as! IterationStatement).containsAsId($0))
         }.map { $0.id }
-      ) + ["meson", "host_machine", "build_machine"] + other
+      ) + other
     let matching = Array(Set(filtered.filter { $0.lowercased().contains(idexpr.id.lowercased()) }))
     Self.LOG.info("findMatchingIdentifiers - Found matching identifiers: \(matching)")
-    for m in matching {
+    for m in matching + ["meson", "host_machine", "build_machine"] {
       arr.append(CompletionItem(label: m, kind: .variable, insertText: m, insertTextFormat: .plain))
     }
   }
@@ -730,7 +731,7 @@ public final class MesonServer: LanguageServer {
     var invalid = false
     while prev[n] != "." && n >= 0 {
       Self.LOG.info("Finalcompletion: \(prev[0..<n])")
-      if prev[n].isNumber || prev[n] == " " {
+      if prev[n].isNumber || prev[n] == " " || prev[n] == "(" {
         invalid = true
         break
       }
@@ -826,9 +827,14 @@ public final class MesonServer: LanguageServer {
     return usedKwargs
   }
 
-  private func afterDotCompletion(_ md: MesonMetadata, _ fp: String, _ line: Int, _ column: Int)
-    -> [Type]?
-  {
+  private func afterDotCompletion(
+    _ md: MesonMetadata,
+    _ fp: String,
+    _ line: Int,
+    _ column: Int,
+    _ recurse: Bool = true
+  ) -> [Type]? {
+    Self.LOG.info("Starting afterDotCompletion: \(fp)[\(line):\(column)]")
     if let idexpr = md.findIdentifierAt(fp, line, column - 1) {
       Self.LOG.info("Found id expr: \(idexpr.id)")
       return idexpr.types
@@ -844,6 +850,11 @@ public final class MesonServer: LanguageServer {
     } else if let sl = md.findStringLiteralAt(fp, line, column - 1) {
       return sl.types
     }
+    if recurse && column > 0 {
+      Self.LOG.info("afterDotCompletion - recursing")
+      return self.afterDotCompletion(md, fp, line, column - 1, false)
+    }
+    Self.LOG.info("Ending afterDotCompletion without results")
     return nil
   }
 
@@ -902,6 +913,7 @@ public final class MesonServer: LanguageServer {
 
   private func getContents(file: String) -> String? {
     if let sf = memfilesQueue.sync(execute: { self.memfiles[file] }) { return sf }
+    Self.LOG.warning("Unable to find \(file) in memfiles")
     return try? String(contentsOfFile: file)
   }
 
@@ -1024,6 +1036,7 @@ public final class MesonServer: LanguageServer {
         return
       }
       self.tree = tmptree
+      self.parseTask = nil
     }
   }
 
