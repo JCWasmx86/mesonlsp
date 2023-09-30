@@ -1,6 +1,7 @@
 # 2.4.4 (Sep 30 2023)
 - Add partial auto-completion after string literals
 - Add diagnostics for `str.format()`
+- Improve other aspects of auto-completion
 # 2.4.3 (Sep 22 2023)
 - Switch to swift-log/swift-tools-support-core fork to fix compilation failures on Fedora 39 and Arch-Linux.
 # 2.4.2 (Sep 19 2023)
