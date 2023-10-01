@@ -1,4 +1,4 @@
-# 2.4.4 (Sep 30 2023)
+# 2.4.4 (Sep 31 2023)
 - Add partial auto-completion after string literals
 - Add diagnostics for `str.format()`
 - Improve other aspects of auto-completion

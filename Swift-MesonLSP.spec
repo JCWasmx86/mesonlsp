@@ -37,7 +37,7 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
-* Sat Sep 30 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.27
+* Sun Sep 31 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.27
 - Bump to v2.4.4
 * Fri Sep 22 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.26
 - Bump to v2.4.3
