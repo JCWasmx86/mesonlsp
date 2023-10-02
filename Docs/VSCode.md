@@ -1,2 +1,3 @@
 # Integration with VSCode/Codium
-- Install this fork of vscode-meson: https://github.com/JCWasmx86/vscode-meson
+Install the official meson extension. If you don't have Swift-MesonLSP in the PATH,
+it will ask you whether it should download the language server.
