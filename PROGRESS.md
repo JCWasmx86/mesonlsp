@@ -83,7 +83,7 @@
   - [x] Sort filenames
   - [x] Download wrap for missing subproject from WrapDB
 - [x] Document the language server
-- [ ] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
+- [x] Add to [vscode-meson](https://github.com/mesonbuild/vscode-meson/pull/123) upstream
 - [x] Upstream GNOME Builder plugin (See [issue #629](https://gitlab.gnome.org/GNOME/gnome-builder/-/issues/629))
 - [x] Investigate PGO (Does not seem to work on Linux)
 - [x] Check if `CollectionOfOne` speeds up TypeAnalyzer (Not tested, but requires too many other changes)
