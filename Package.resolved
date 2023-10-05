@@ -42,7 +42,7 @@
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "05b3abd4ed8cbea7fa6539ad9deaf8abe8abafcd"
+        "revision" : "2e25499aa3a1f2a5760a7bc1f301fcf8b65d6f35"
       }
     },
     {
@@ -159,7 +159,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e36943bdaec8654a807ea27c22594de11af1be39"
+        "revision" : "058574d8aa40dbc7d9208b44164d8cff622b9b72"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "f9744529b24e6a118ca29c12dfdc1103a3738819"
+        "revision" : "9f092859bb08d259fa6e3421a10238a47e168f04"
       }
     },
     {
