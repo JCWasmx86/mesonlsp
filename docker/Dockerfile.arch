@@ -4,4 +4,4 @@ WORKDIR /app
 RUN pacman -S git --noconfirm
 RUN git clone https://github.com/JCWasmx86/Swift-MesonLSP
 WORKDIR /app/Swift-MesonLSP
-RUN swift build && swift test
+RUN swift build && swift test && exit 0
