@@ -122,28 +122,30 @@ private func hoverFindIdentifier(
 
 private func callHover(content: String?, mdocs: String, function: Function?) -> String {
   var str = "`" + content! + "`\n\n" + mdocs + "\n\n"
+  if !function!.returnTypes.isEmpty {
+    str +=
+      "\n**Returns:** `" + function!.returnTypes.map { $0.toString() }.joined(separator: "|") + "`"
+  }
+  if function!.args.isEmpty { return str }
+
+  str += "\n\n**Parameters:**\n"
   for arg in function!.args {
     if let pa = arg as? PositionalArgument {
       str += "- "
       if pa.opt { str += "\\[" }
-      str += "`" + pa.name + "`"
-      str += " "
-      str += pa.types.map { $0.toString() }.joined(separator: "|")
+      str += "`\(pa.name) "
+      str += pa.types.map { $0.toString() }.joined(separator: "|") + "`"
       if pa.varargs { str += "..." }
       if pa.opt { str += "\\]" }
       str += "\n"
     } else if let kw = arg as? Kwarg {
       str += "- "
       if kw.opt { str += "\\[" }
-      str += "`" + kw.name + "`"
-      str += ": "
-      str += kw.types.map({ $0.toString() }).joined(separator: "|")
+      str += "`\(kw.name): "
+      str += kw.types.map({ $0.toString() }).joined(separator: "|") + "`"
       if kw.opt { str += "\\]" }
       str += "\n"
     }
-  }
-  if !function!.returnTypes.isEmpty {
-    str += "\n*Returns:* " + function!.returnTypes.map { $0.toString() }.joined(separator: "|")
   }
   return str
 }  // swiftlint:enable function_parameter_count
