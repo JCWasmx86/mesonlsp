@@ -24,8 +24,15 @@ func formatFile(content: String, params: FormattingOptions) throws -> String? {
 private func findMuon() -> String? {
   if let path = ProcessInfo.processInfo.environment["PATH"] {
     let fileManager = FileManager.default
-    let parts = path.split(separator: ":")
-    for p in parts where fileManager.fileExists(atPath: p + "/muon") { return p + "/muon" }
+    #if os(Windows)
+      let parts = path.split(separator: ";")
+      for p in parts where fileManager.fileExists(atPath: p + "\\muon.exe") {
+        return p + "\\muon.exe"
+      }
+    #else
+      let parts = path.split(separator: ":")
+      for p in parts where fileManager.fileExists(atPath: p + "/muon") { return p + "/muon" }
+    #endif
   }
   return nil
 }
