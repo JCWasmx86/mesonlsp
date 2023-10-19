@@ -43,7 +43,8 @@ cd GNOME-Builder-Plugins || exit
 cd .. || exit
 git clone --depth=1 https://gitlab.com/qemu-project/qemu
 cd qemu || exit
-[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "0" ] || exit 1
+# Error: /qga/meson.build:149:8: 🔴 Unknown identifier `project`
+[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "1" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/harfbuzz/harfbuzz
 cd harfbuzz || exit
