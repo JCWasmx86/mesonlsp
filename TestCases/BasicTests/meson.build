@@ -6,8 +6,8 @@ x = (
     foo # ana:error: Unknown identifier `foo`
 )
 x = [] # ana:var: x = list()
-x.foo() # ana:error: No method foo found for types `list()'
-foo() # ana:error: Unknown function foo
+x.foo() # ana:error: No method `foo` found for types `list()'
+foo() # ana:error: Unknown function `foo`
 dependency() # ana:error: Expected 1 positional arguments, but got none!
 sett = ['foo', 1] # ana:var: sett = list(int|str)
 set_variable('abc', sett) # ana:var: abc = list(int|str)

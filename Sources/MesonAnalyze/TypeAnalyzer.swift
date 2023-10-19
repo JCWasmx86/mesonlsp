@@ -754,7 +754,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     } else {
       self.metadata.registerDiagnostic(
         node: node,
-        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function \(funcName)")
+        diag: MesonDiagnostic(sev: .error, node: node, message: "Unknown function `\(funcName)`")
       )
     }
   }
@@ -988,7 +988,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         diag: MesonDiagnostic(
           sev: .error,
           node: node,
-          message: "No method \(methodName) found for types `\(t)'"
+          message: "No method `\(methodName)` found for types `\(t)'"
         )
       )
     } else if !found && onlyDisabler {
