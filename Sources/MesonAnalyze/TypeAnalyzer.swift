@@ -59,12 +59,12 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   let compilerIds: Set<String> = [
     "arm", "armclang", "ccomp", "ccrx", "clang", "clang-cl", "dmd", "emscripten", "flang", "g95",
-    "gcc", "intel", "intel-cl", "intel-llvm", "intel-llvm-cl", "lcc", "llvm", "mono", "msvc",
+    "gcc", "intel", "intel-cl", "icc", "intel-llvm", "intel-llvm-cl", "lcc", "llvm", "mono", "msvc",
     "nagfor", "nvidia_hpc", "open64", "pathscale", "pgi", "rustc", "sun", "c2000", "ti", "valac",
     "xc16", "cython", "nasm", "yasm", "ml", "armasm", "mwasmarm", "mwasmeppc",
   ]
 
-  let argumentSyntaxes: Set<String> = ["gcc", "msvc", ""]
+  let argumentSyntaxes: Set<String> = ["gcc", "msvc", "gnu", ""]
 
   let linkerIds: Set<String> = [
     "ld.bfd", "ld.gold", "ld.lld", "ld.mold", "ld.solaris", "ld.wasm", "ld64", "ld64.lld", "link",
@@ -74,8 +74,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
 
   let cpuFamilies: Set<String> = [
     "aarch64", "alpha", "arc", "arm", "avr", "c2000", "csky", "dspic", "e2k", "ft32", "ia64",
-    "loongarch64", "m68k", "microblaze", "mips", "mips64", "msp430", "parisc", "pic24", "ppc",
-    "ppc64", "riscv32", "riscv64", "rl78", "rx", "s390", "s390x", "sh4", "sparc", "sparc64",
+    "loongarch64", "m68k", "microblaze", "mips", "mips32", "mips64", "msp430", "parisc", "pic24",
+    "ppc", "ppc64", "riscv32", "riscv64", "rl78", "rx", "s390", "s390x", "sh4", "sparc", "sparc64",
     "wasm32", "wasm64", "x86", "x86_64",
   ]
 
