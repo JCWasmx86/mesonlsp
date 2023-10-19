@@ -211,6 +211,19 @@ public final class MesonServer: LanguageServer {
     _register(Self.didDeleteFiles)
     _register(Self.codeActions)
     _register(Self.rename)
+    _register(Self.semanticTokenFull)
+  }
+
+  private func semanticTokenFull(_ req: Request<DocumentSemanticTokensRequest>) {
+    let begin = clock()
+    if let t = self.findTree(req.params.textDocument.uri), let ast = t.ast {
+      let stv = SemanticTokenVisitor()
+      ast.visit(visitor: stv)
+      req.reply(DocumentSemanticTokensResponse(data: stv.finish()))
+    } else {
+      req.reply(DocumentSemanticTokensResponse(data: []))
+    }
+    Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
   }
 
   private func rename(_ req: Request<RenameRequest>) {
@@ -1193,6 +1206,10 @@ public final class MesonServer: LanguageServer {
   }
 
   private func capabilities(_ supportsRenaming: Bool) -> ServerCapabilities {
+    let legend = SemanticTokensLegend(
+      tokenTypes: ["substitute", "variable", "function", "method", "keyword", "string", "number"],
+      tokenModifiers: []
+    )
     return ServerCapabilities(
       textDocumentSync: .options(
         TextDocumentSyncOptions(openClose: true, change: .full, save: .bool(true))
@@ -1210,6 +1227,11 @@ public final class MesonServer: LanguageServer {
       renameProvider: .bool(supportsRenaming),
       declarationProvider: .bool(true),
       workspace: WorkspaceServerCapabilities(),
+      semanticTokensProvider: SemanticTokensOptions(
+        legend: legend,
+        range: .bool(false),
+        full: .value(SemanticTokensOptions.SemanticTokensFullOptions(delta: false))
+      ),
       inlayHintProvider: .bool(true)
     )
   }
