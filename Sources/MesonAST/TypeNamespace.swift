@@ -3488,7 +3488,7 @@ public final class TypeNamespace {
           Kwarg(name: "gi_c_sources", opt: true, types: strlistL),
           Kwarg(name: "gi_c_source_filters", opt: true, types: strlistL),
           Kwarg(name: "gi_index", opt: true, types: strL),
-          Kwarg(name: "gi_smart_index", opt: true, types: strL),
+          Kwarg(name: "gi_smart_index", opt: true, types: [strt, boolt]),
           Kwarg(name: "gi_sources", opt: true, types: strlistL),
           Kwarg(name: "disable_incremental_build", opt: true, types: boolL),
           Kwarg(name: "gi_order_generated_subpages", opt: true, types: boolL),
