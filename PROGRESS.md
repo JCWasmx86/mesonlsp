@@ -101,6 +101,8 @@
 - [x] Update git repos of subprojects, when a branch was specified as revision
 - [x] Basic typechecking of arguments (Not every error will be caught)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
+## Version 4.0
+- [ ] Semantic tokens
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
