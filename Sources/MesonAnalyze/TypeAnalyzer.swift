@@ -187,6 +187,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
       for n in needingUse {
         if exportedVars.contains(n.id) { continue }
+        if let ass = n.parent as? AssignmentStatement, let rhs = ass.rhs as? FunctionExpression,
+          let fnid = rhs.id as? IdExpression, fnid.id == "declare_dependency"
+        {
+          continue
+        }
         self.metadata.registerDiagnostic(
           node: n,
           diag: MesonDiagnostic(sev: .warning, node: n, message: "Unused assignment")
