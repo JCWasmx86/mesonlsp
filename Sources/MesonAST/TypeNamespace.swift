@@ -3463,6 +3463,7 @@ public final class TypeNamespace {
             types: [
               ListType(types: [
                 str, self.types["lib"]!, self.types["custom_tgt"]!, self.types["custom_idx"]!,
+                self.types["dep"]!,
               ])
             ]
           ),
@@ -3478,6 +3479,12 @@ public final class TypeNamespace {
             opt: true,
             types: [ListType(types: [self.types["hotdoc_target"]!])]
           ), Kwarg(name: "install", opt: true, types: boolL),
+          Kwarg(
+            name: "c_include_directories",
+            opt: true,
+            types: [ListType(types: [str, self.types["inc"]!])]
+          ), Kwarg(name: "console", opt: true, types: boolL),
+          Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "gi_c_sources", opt: true, types: strlistL),
           Kwarg(name: "gi_c_source_filters", opt: true, types: strlistL),
           Kwarg(name: "gi_index", opt: true, types: strL),
