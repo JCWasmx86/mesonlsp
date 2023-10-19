@@ -12,7 +12,6 @@ import LanguageServer
 import LanguageServerProtocol
 import LanguageServerProtocolJSONRPC
 import Logging
-import LSPLogging
 import MesonAnalyze
 import MesonAST
 import SwiftTreeSitter
@@ -182,8 +181,6 @@ import Wrap
     #if swift(<5.9) || os(Windows)
       Backtrace.install()
     #endif
-    // LSP-Logging
-    Logger.shared.currentLevel = self.stdio ? .error : .info
     #if !os(Windows)
       let console = Terminal()
       let dot = self.dot

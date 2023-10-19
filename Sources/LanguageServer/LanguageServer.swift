@@ -91,34 +91,22 @@ open class LanguageServerEndpoint {
   open func _logRequest<R>(_ request: Request<R>) {
     self.requestCount += 1
     self.requests[R.method] = (self.requests[R.method] ?? 0) + 1
-    logAsync { currentLevel in
-      guard currentLevel >= LogLevel.debug else {
-        return "\(type(of: self)): Request<\(R.method)(\(request.id))>"
-      }
-      return "\(type(of: self)): \(request)"
-    }
+    logger.log("Received request: \(request.forLogging)")
   }
   open func _logNotification<N>(_ notification: Notification<N>) {
     self.notificationCount += 1
     self.notifications[N.method] = (self.notifications[N.method] ?? 0) + 1
-    logAsync { currentLevel in
-      guard currentLevel >= LogLevel.debug else {
-        return "\(type(of: self)): Notification<\(N.method)>"
-      }
-      return "\(type(of: self)): \(notification)"
-    }
+    logger.log("Received notification: \(notification.forLogging)")
   }
   open func _logResponse<Response>(_ result: LSPResult<Response>, id: RequestID, method: String) {
-    logAsync { currentLevel in
-      guard currentLevel >= LogLevel.debug else {
-        return "\(type(of: self)): Response<\(method)(\(id))>"
-      }
-      return """
-        \(type(of: self)): Response<\(method)(\(id))>(
-          \(result)
-        )
-        """
-    }
+    logger.log(
+      """
+      Sending response:
+      Response<\(method, privacy: .public)(\(id, privacy: .public))>(
+        \(String(describing: result))
+      )
+      """
+    )
   }
 }
 
