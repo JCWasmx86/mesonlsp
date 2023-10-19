@@ -14,7 +14,7 @@
 // Modified
 import Dispatch
 import LanguageServerProtocol
-import LSPLogging
+import Logging
 
 public typealias Notification = LanguageServerProtocol.Notification
 
@@ -34,7 +34,7 @@ open class LanguageServer: LanguageServerEndpoint {
 
 /// An abstract language client or server.
 open class LanguageServerEndpoint {
-
+  static let LOGGER = Logger(label: "LanguageServer::LanguageServerEndpoint")
   /// The server's request queue.
   ///
   /// All incoming requests start on this queue, but should reply or move to another queue as soon as possible to avoid blocking.
@@ -91,22 +91,15 @@ open class LanguageServerEndpoint {
   open func _logRequest<R>(_ request: Request<R>) {
     self.requestCount += 1
     self.requests[R.method] = (self.requests[R.method] ?? 0) + 1
-    logger.log("Received request: \(request.forLogging)")
+    Self.LOGGER.info("Received request: \(R.method)<\(request.id)>")
   }
   open func _logNotification<N>(_ notification: Notification<N>) {
     self.notificationCount += 1
     self.notifications[N.method] = (self.notifications[N.method] ?? 0) + 1
-    logger.log("Received notification: \(notification.forLogging)")
+    Self.LOGGER.info("Received notification: \(N.method)")
   }
   open func _logResponse<Response>(_ result: LSPResult<Response>, id: RequestID, method: String) {
-    logger.log(
-      """
-      Sending response:
-      Response<\(method, privacy: .public)(\(id, privacy: .public))>(
-        \(String(describing: result))
-      )
-      """
-    )
+    Self.LOGGER.info("Reply: \(method)<\(id)>")
   }
 }
 
