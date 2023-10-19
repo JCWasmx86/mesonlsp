@@ -4,6 +4,7 @@
 - Improve error messages for unknown functions/methods (Related to vscode-meson#159
 - Improve meson API coverage (Related to vscode-meson#159)
 - Add a few missing compiler/argument/arch ids (Related to vscode-meson#159)
+- Don't detect assignments from `declare_dependency` as unused assignments
 # 2.4.4 (Sep 31 2023)
 - Add partial auto-completion after string literals
 - Add diagnostics for `str.format()`
