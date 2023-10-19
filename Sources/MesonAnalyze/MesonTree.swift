@@ -183,7 +183,8 @@ public final class MesonTree: Hashable {
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
     memfiles: [String: String] = [:],
-    subprojectState: SubprojectState? = nil
+    subprojectState: SubprojectState? = nil,
+    analysisOptions: AnalysisOptions = AnalysisOptions()
   ) {
     if self.ast == nil { return }
     let root = Scope()
@@ -198,7 +199,8 @@ public final class MesonTree: Hashable {
       tree: self,
       options: options,
       subprojectState: subprojectState,
-      subproject: self.subproject
+      subproject: self.subproject,
+      analysisOptions: analysisOptions
     )
     self.ast!.setParents()
     self.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)

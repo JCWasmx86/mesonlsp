@@ -24,6 +24,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   var foundVariables: [[String]] = []
   var subproject: Subproject?
   var version: Version?
+  var analysisOptions: AnalysisOptions
 
   let pureFunctions: Set<String> = [
     "disabler", "environment", "files", "generator", "get_variable", "import",
@@ -89,7 +90,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     tree: MesonTree,
     options: [MesonOption],
     subprojectState: SubprojectState? = nil,
-    subproject: Subproject? = nil
+    subproject: Subproject? = nil,
+    analysisOptions: AnalysisOptions
   ) {
     self.scope = parent
     self.tree = tree
@@ -98,6 +100,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.metadata = MesonMetadata()
     self.subprojectState = subprojectState
     self.subproject = subproject
+    self.analysisOptions = analysisOptions
   }
 
   public func visitSubdirCall(node: SubdirCall) {
@@ -478,6 +481,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   private func checkIdentifier(_ node: IdExpression) {
+    if self.analysisOptions.disableNameLinting { return }
     if !isSnakeCase(str: node.id) && !isShoutingSnakeCase(str: node.id) {
       self.metadata.registerDiagnostic(
         node: node,
@@ -1357,15 +1361,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   }
 
   private func checkIfSpecialComparison(_ me: MethodExpression, _ sl: StringLiteral) {
-    if let m = me.method {
+    if let m = me.method, !self.analysisOptions.disableAllIdLinting {
       let mid = m.id()
       let arg = sl.contents()
-      if mid == "compiler.get_id", !self.compilerIds.contains(arg) {
+      if mid == "compiler.get_id", !self.compilerIds.contains(arg),
+        !self.analysisOptions.disableCompilerIdLinting
+      {
         self.metadata.registerDiagnostic(
           node: sl,
           diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown compiler id")
         )
-      } else if mid == "compiler.get_argument_syntax", !self.argumentSyntaxes.contains(arg) {
+      } else if mid == "compiler.get_argument_syntax", !self.argumentSyntaxes.contains(arg),
+        !self.analysisOptions.disableCompilerArgumentIdLinting
+      {
         self.metadata.registerDiagnostic(
           node: sl,
           diag: MesonDiagnostic(
@@ -1375,18 +1383,23 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           )
         )
       } else if mid == "compiler.get_linker_id",
-        !self.linkerIds.contains(arg) || self.compilerIds.contains(arg)
+        !self.linkerIds.contains(arg) || self.compilerIds.contains(arg),
+        !self.analysisOptions.disableLinkerIdLinting
       {
         self.metadata.registerDiagnostic(
           node: sl,
           diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown linker id")
         )
-      } else if mid == "build_machine.cpu_family", !self.cpuFamilies.contains(arg) {
+      } else if mid == "build_machine.cpu_family", !self.cpuFamilies.contains(arg),
+        !self.analysisOptions.disableCpuFamilyLinting
+      {
         self.metadata.registerDiagnostic(
           node: sl,
           diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown cpu family")
         )
-      } else if mid == "build_machine.system", !self.osNames.contains(arg) {
+      } else if mid == "build_machine.system", !self.osNames.contains(arg),
+        !self.analysisOptions.disableOsFamilyLinting
+      {
         self.metadata.registerDiagnostic(
           node: sl,
           diag: MesonDiagnostic(sev: .warning, node: sl, message: "Unknown operating system name")
