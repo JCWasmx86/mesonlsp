@@ -8,7 +8,7 @@ public final class StringLiteral: Expression {
   public let location: Location
   public weak var parent: Node?
   private let cache: String
-  private let isFormat: Bool
+  public let isFormat: Bool
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
     self.isFormat = node.child(at: 0)!.nodeType == "string_format"

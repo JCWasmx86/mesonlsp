@@ -111,6 +111,24 @@ public class SemanticTokenVisitor: CodeVisitor {
 
   public func visitStringLiteral(node: StringLiteral) {
     node.visitChildren(visitor: self)
+    if node.isFormat {
+      let pattern = #"@([a-zA-Z_][a-zA-Z_\d]*)@"#
+      // swiftlint:disable force_try
+      let regex = try! NSRegularExpression(pattern: pattern, options: [])
+      // swiftlint:enable force_try
+      let matches = regex.matches(
+        in: node.contents(),
+        options: [],
+        range: NSRange(node.contents().startIndex..., in: node.contents())
+      )
+      for match in matches {
+        let range = match.range
+        tokens.append([
+          node.location.startLine, node.location.startColumn + UInt32(range.location + 1),
+          UInt32(range.length), UInt32(1), 0,
+        ])
+      }
+    }
     guard let parentMethodCall = node.parent as? MethodExpression else { return }
     guard let method = parentMethodCall.method else { return }
     if method.id() != "str.format" { return }
