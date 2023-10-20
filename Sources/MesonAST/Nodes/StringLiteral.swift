@@ -8,8 +8,10 @@ public final class StringLiteral: Expression {
   public let location: Location
   public weak var parent: Node?
   private let cache: String
+  private let isFormat: Bool
 
   init(file: MesonSourceFile, node: SwiftTreeSitter.Node) {
+    self.isFormat = node.child(at: 0)!.nodeType == "string_format"
     self.file = file
     self.location = Location(node: node)
     self.id = string_value(file: file, node: node)
@@ -25,17 +27,31 @@ public final class StringLiteral: Expression {
     self.id = "\"\(contents)\""
     self.location = Location(0, 0, 1, 1)
     self.cache = contents
+    self.isFormat = false
   }
 
-  fileprivate init(file: MesonSourceFile, location: Location, id: String, cache: String) {
+  fileprivate init(
+    file: MesonSourceFile,
+    location: Location,
+    id: String,
+    cache: String,
+    isFormat: Bool
+  ) {
     self.file = file
     self.location = location
     self.id = id
     self.cache = cache
+    self.isFormat = isFormat
   }
   public func clone() -> Node {
     let location = self.location.clone()
-    return Self(file: file, location: location, id: self.id, cache: self.cache)
+    return Self(
+      file: file,
+      location: location,
+      id: self.id,
+      cache: self.cache,
+      isFormat: self.isFormat
+    )
   }
   public func visit(visitor: CodeVisitor) { visitor.visitStringLiteral(node: self) }
   public func visitChildren(visitor: CodeVisitor) {}
