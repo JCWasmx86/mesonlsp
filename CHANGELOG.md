@@ -5,6 +5,7 @@
 - Improve meson API coverage (Related to vscode-meson#159)
 - Add a few missing compiler/argument/arch ids (Related to vscode-meson#159)
 - Don't detect assignments from `declare_dependency` as unused assignments
+- Improve heuristics for `subdir(x)` with non-constant values of `x` (#18)
 # 2.4.4 (Sep 31 2023)
 - Add partial auto-completion after string literals
 - Add diagnostics for `str.format()`
