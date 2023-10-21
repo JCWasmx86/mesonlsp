@@ -124,8 +124,49 @@ private func calculateSubscriptExpression(_ sse: SubscriptExpression, _ parentEx
   let outer = abstractEval(parentExpr, sse.outer)
   let inner = abstractEval(parentExpr, sse.inner)
   var ret: [String] = []
-  for o in outer { for i in inner { calculateEvalSubscriptExpression(i: i, o: o, ret: &ret) } }
+  for o in outer {
+    for i in inner { calculateEvalSubscriptExpression(i: i, o: o, ret: &ret) }
+    if let dictN = o.node as? DictionaryLiteral, inner.isEmpty {
+      for k in dictN.values where (k is KeyValueItem) && ((k as! KeyValueItem).key is StringLiteral)
+      {
+        if let keySL = (k as! KeyValueItem).value as? StringLiteral { ret.append(keySL.contents()) }
+      }
+    }
+  }
   return ret
+}
+
+func allStringCombinations(_ arrays: [[String]]) -> [String] {
+  if arrays.isEmpty {
+    return []
+  } else if arrays.count == 1 {
+    return arrays[0]
+  } else {
+    let restCombinations = allStringCombinations(Array(arrays.dropFirst()))
+    let firstArray = arrays[0]
+    var combinations: [String] = []
+    for string in firstArray {
+      for combination in restCombinations { combinations.append(string + "/" + combination) }
+    }
+    return combinations
+  }
+}
+
+private func calculateFunctionExpression(_ fe: FunctionExpression, _ parentExpr: Node) -> [String] {
+  if let fn = fe.function, fn.id() != "join_paths" {
+    return []
+  } else if fe.function == nil {
+    if (fe.id as! IdExpression).id != "join_paths" { return [] }
+  }
+  guard let al = fe.argumentList as? ArgumentList else { return [] }
+  var items: [[InterpretNode]] = []
+  for a in al.args {
+    if a is KeywordItem { continue }
+    items.append(abstractEval(parentExpr, a))
+  }
+  return allAbstractStringCombinations(items).filter { $0.node is StringLiteral }.map {
+    ($0.node as! StringLiteral).contents()
+  }
 }
 
 private func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
@@ -149,6 +190,8 @@ private func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [
     return calculateIdExpression(idexpr, parentExpr)
   } else if let sse = argExpression as? SubscriptExpression {
     return calculateSubscriptExpression(sse, parentExpr)
+  } else if let fe = argExpression as? FunctionExpression {
+    return calculateFunctionExpression(fe, parentExpr)
   }
   return []
 }
@@ -386,7 +429,17 @@ private func abstractEvalSubscriptExpression(_ sse: SubscriptExpression, _ paren
   let outer = abstractEval(parentStmt, sse.outer)
   let inner = abstractEval(parentStmt, sse.inner)
   var ret: [InterpretNode] = []
-  for o in outer { for i in inner { abstractEvalComputeSubscript(i: i, o: o, ret: &ret) } }
+  for o in outer {
+    for i in inner { abstractEvalComputeSubscript(i: i, o: o, ret: &ret) }
+    if let dictN = o.node as? DictionaryLiteral, inner.isEmpty {
+      for k in dictN.values where (k is KeyValueItem) && ((k as! KeyValueItem).key is StringLiteral)
+      {
+        if let keySL = (k as! KeyValueItem).value as? StringLiteral {
+          ret.append(StringNode(node: keySL))
+        }
+      }
+    }
+  }
   return ret
 }
 
@@ -526,9 +579,47 @@ private func abstractEvalGenericSubscriptExpression(_ se: SubscriptExpression, _
     return abstractEvalSplitWithSubscriptExpression(idx, sl, outerME, parentStmt)
   }
   return abstractEvalSubscriptExpression(se, parentStmt)
-
 }
 
+func allAbstractStringCombinations(_ arrays: [[InterpretNode]]) -> [InterpretNode] {
+  if arrays.isEmpty {
+    return []
+  } else if arrays.count == 1 {
+    return arrays[0]
+  } else {
+    let restCombinations = allAbstractStringCombinations(Array(arrays.dropFirst()))
+    let firstArray = arrays[0]
+    var combinations: [InterpretNode] = []
+    for string in firstArray {
+      if let o1 = string.node as? StringLiteral {
+        for combination in restCombinations {
+          if let sl = combination.node as? StringLiteral {
+            combinations.append(
+              ArtificalStringNode(contents: o1.contents() + "/" + (sl.contents()))
+            )
+          }
+        }
+      }
+    }
+    return combinations
+  }
+}
+
+private func abstractEvalFunction(_ fe: FunctionExpression, _ parentStmt: Node) -> [InterpretNode] {
+  guard let fn = fe.function else { return [] }
+  guard let al = fe.argumentList as? ArgumentList else { return [] }
+  if fn.id() == "join_paths" {
+    var items: [[InterpretNode]] = []
+    for a in al.args {
+      if a is KeywordItem { continue }
+      items.append(abstractEval(parentStmt, a))
+    }
+    return allAbstractStringCombinations(items)
+  }
+  return []
+}
+
+// swiftlint:disable cyclomatic_complexity
 private func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode] {
   if toEval is DictionaryLiteral {
     return [DictNode(node: toEval)]
@@ -553,8 +644,16 @@ private func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode]
     return abstractEval(parentStmt, ce.ifTrue) + abstractEval(parentStmt, ce.ifFalse)
   } else if let sse = toEval as? SubscriptExpression {
     return abstractEvalGenericSubscriptExpression(sse, parentStmt)
+  } else if let fe = toEval as? FunctionExpression, isValidFunction(fe) {
+    return abstractEvalFunction(fe, parentStmt)
   }
   return []
+}
+// swiftlint:enable cyclomatic_complexity
+
+private func isValidFunction(_ fe: FunctionExpression) -> Bool {
+  if let fn = fe.function { return ["join_paths"].contains(fn.id()) }
+  return false
 }
 
 private func isValidMethod(_ me: MethodExpression) -> Bool {

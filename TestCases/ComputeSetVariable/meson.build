@@ -272,3 +272,26 @@ endforeach
 # ana:var: filesystem_enabledfoo = str
 # ana:var: lua_factory_enabledfoo = str
 # ana:var: youtube_enabledfoo = str
+
+supported_arch = {
+    'x86' : 'x86',
+    'x86_64' : 'x86'
+}
+arch = host_machine.cpu()
+xyz = 'arch' / supported_arch[arch] #join_paths('arch', supported_arch[arch])
+set_variable(xyz, true)
+set_variable('arch1' / supported_arch[arch], true)
+# ana:var: arch1/x86 = bool
+
+set_variable(join_paths('a', 'b'), 1)
+# ana:var: a/b = int
+xyz = join_paths('a1', 'b')
+set_variable(xyz, 1)
+# ana:var: a1/b = int
+supported_arch1 = {
+    'x86' : 'x861',
+    'x86_64' : 'x861'
+}
+arch1 = host_machine.cpu()
+set_variable(join_paths('arch', supported_arch1[arch1]), true)
+# ana:var: arch/x861 = bool

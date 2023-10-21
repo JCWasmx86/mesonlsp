@@ -225,9 +225,13 @@ public final class MesonTree: Hashable {
     var s: Set<String> = []
     for msc in self.multiCallSubfiles {
       let heuristics = msc.heuristics()
+      if heuristics.isEmpty {
+        Self.LOG.warning("Failed to find heuristics at \(msc.file.file):\(msc.location.format())")
+        continue
+      }
       msc.subdirnames = heuristics
       for heuristic in heuristics {
-        if heuristic.isEmpty || s.contains(heuristic) { continue }
+        if s.contains(heuristic) { continue }
         s.insert(heuristic)
         Self.LOG.info("Found subdir call using heuristics: \(heuristic)")
         let f = Path(

@@ -74,3 +74,10 @@ foreach entry : configurations2
 endforeach
 # ana:var: hash2_private = int
 # ana:var: hash2_public = int
+supported_arch = {
+    'x86' : 'x86',
+    'x86_64' : 'x86'
+}
+arch = host_machine.cpu()
+subdir(join_paths('arch', supported_arch[arch]))
+# ana:var: issue18 = bool
