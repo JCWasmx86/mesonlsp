@@ -102,6 +102,7 @@
 - [x] Basic typechecking of arguments (Not every error will be caught)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
 ## Version 4.0
+- [ ] Migrate to ChimeHQ infrastructure
 - [ ] Semantic tokens
   - [x] Single-line strings
   - [ ] Multi-line strings
