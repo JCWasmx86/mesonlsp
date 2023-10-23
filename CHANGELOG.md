@@ -1,3 +1,5 @@
+# 3.0.4 (Oct 23 2023)
+- Fix accidental regressions with the release process
 # 3.0.3 (Oct 23 2023)
 - Fix accidental regressions with the release process
 # 3.0.2 (Oct 23 2023)
