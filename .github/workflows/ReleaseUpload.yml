@@ -180,7 +180,8 @@ jobs:
           cd ..\..
           git clone https://github.com/JCWasmx86/Swift-MesonLSP b
           cd b
-          swift build -c release -v$destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts"
+          swift build -c release -v
+          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts"
           mkdir $destinationFilePath
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
           Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force

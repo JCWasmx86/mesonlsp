@@ -1,4 +1,6 @@
 # 3.0.1 (Oct 23 2023)
+- Fix accidental regressions with the release process
+# 3.0.1 (Oct 23 2023)
 - Fix upload of Windows binaries
 # 3.0.0 (Oct 23 2023)
 - Improve formatting support on Windows (Or add it, if it ever worked)
