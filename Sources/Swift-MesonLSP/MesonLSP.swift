@@ -169,7 +169,13 @@ import Wrap
       do {
         let subprojects = try SubprojectState(rootDir: p) { msg in logger.info("\(msg)") }
         for sp in subprojects.subprojects {
-          sp.parse(ns, dontCache: [], cache: &cache, memfiles: [:])
+          sp.parse(
+            ns,
+            dontCache: [],
+            cache: &cache,
+            memfiles: [:],
+            analysisOptions: AnalysisOptions()
+          )
         }
         t.analyzeTypes(ns: ns, dontCache: [], cache: &cache, subprojectState: subprojects)
         for sp in subprojects.subprojects { try sp.update() }

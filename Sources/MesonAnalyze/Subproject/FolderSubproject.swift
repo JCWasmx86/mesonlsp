@@ -7,7 +7,8 @@ public class FolderSubproject: Subproject {
     _ ns: TypeNamespace,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String]
+    memfiles: [String: String],
+    analysisOptions: AnalysisOptions
   ) {
     if Task.isCancelled { return }
     let t = MesonTree(
@@ -18,7 +19,13 @@ public class FolderSubproject: Subproject {
       memfiles: memfiles
     )
     if Task.isCancelled { return }
-    t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
+    t.analyzeTypes(
+      ns: ns,
+      dontCache: dontCache,
+      cache: &cache,
+      memfiles: memfiles,
+      analysisOptions: analysisOptions
+    )
     if Task.isCancelled { return }
     self.tree = t
   }

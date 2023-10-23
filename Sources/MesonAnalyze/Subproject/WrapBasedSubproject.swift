@@ -24,7 +24,8 @@ public class WrapBasedSubproject: Subproject {
     _ ns: TypeNamespace,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String]
+    memfiles: [String: String],
+    analysisOptions: AnalysisOptions
   ) {
     let t = MesonTree(
       file: self.destDir + Path.separator + self.wrap.directoryNameAfterSetup
@@ -35,7 +36,13 @@ public class WrapBasedSubproject: Subproject {
       memfiles: memfiles,
       subproject: self
     )
-    t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
+    t.analyzeTypes(
+      ns: ns,
+      dontCache: dontCache,
+      cache: &cache,
+      memfiles: memfiles,
+      analysisOptions: analysisOptions
+    )
     self.tree = t
   }
 

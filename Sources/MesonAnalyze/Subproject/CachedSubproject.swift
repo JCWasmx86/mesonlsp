@@ -15,7 +15,8 @@ public class CachedSubproject: Subproject {
     _ ns: TypeNamespace,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String]
+    memfiles: [String: String],
+    analysisOptions: AnalysisOptions
   ) {
     if let fp = self.fullPath() {
       let t = MesonTree(
@@ -25,7 +26,13 @@ public class CachedSubproject: Subproject {
         cache: &cache,
         memfiles: memfiles
       )
-      t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
+      t.analyzeTypes(
+        ns: ns,
+        dontCache: dontCache,
+        cache: &cache,
+        memfiles: memfiles,
+        analysisOptions: analysisOptions
+      )
       self.tree = t
     }
   }

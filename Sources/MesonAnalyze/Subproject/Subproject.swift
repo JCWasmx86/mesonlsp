@@ -31,7 +31,8 @@ public class Subproject: CustomStringConvertible {
     _ ns: TypeNamespace,
     dontCache: Set<String>,
     cache: inout [String: MesonAST.Node],
-    memfiles: [String: String]
+    memfiles: [String: String],
+    analysisOptions: AnalysisOptions
   ) {
     let t = MesonTree(
       file: self.realpath + "\(Path.separator)meson.build",
@@ -40,7 +41,13 @@ public class Subproject: CustomStringConvertible {
       cache: &cache,
       memfiles: memfiles
     )
-    t.analyzeTypes(ns: ns, dontCache: dontCache, cache: &cache, memfiles: memfiles)
+    t.analyzeTypes(
+      ns: ns,
+      dontCache: dontCache,
+      cache: &cache,
+      memfiles: memfiles,
+      analysisOptions: analysisOptions
+    )
     self.tree = t
   }
 

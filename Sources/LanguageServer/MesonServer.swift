@@ -46,6 +46,11 @@ public final class MesonServer: LanguageServer {
   var pkgNames: Set<String> = []
   let codeActionState = CodeActionState()
   var stats: [String: [(Date, UInt64)]] = [:]
+  var analysisOptions = AnalysisOptions()
+  var otherSettings = OtherSettings(
+    ignoreDiagnosticsFromSubprojects: nil,
+    neverDownloadAutomatically: false
+  )
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
@@ -212,6 +217,7 @@ public final class MesonServer: LanguageServer {
     _register(Self.codeActions)
     _register(Self.rename)
     _register(Self.semanticTokenFull)
+    _register(Self.didChangeConfiguration)
   }
 
   private func semanticTokenFull(_ req: Request<DocumentSemanticTokensRequest>) {
@@ -1010,7 +1016,8 @@ public final class MesonServer: LanguageServer {
         dontCache: self.openFiles,
         cache: &self.astCache,
         memfiles: memfilesQueue.sync { self.memfiles },
-        subprojectState: self.subprojects
+        subprojectState: self.subprojects,
+        analysisOptions: self.analysisOptions
       )
       if Task.isCancelled {
         Self.LOG.info("Cancelling build - After analyzing types")
@@ -1100,7 +1107,8 @@ public final class MesonServer: LanguageServer {
           ns,
           dontCache: files ?? [],
           cache: &astCacheTemp,
-          memfiles: memfilesQueue.sync { self.memfiles }
+          memfiles: memfilesQueue.sync { self.memfiles },
+          analysisOptions: self.analysisOptions
         )
         if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
         if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
@@ -1192,6 +1200,63 @@ public final class MesonServer: LanguageServer {
   private func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) {
     self.rebuildTree()
   }
+
+  // swiftlint:disable cyclomatic_complexity
+  private func didChangeConfiguration(_ note: Notification<DidChangeConfigurationNotification>) {
+    let config = note.params.settings
+    if case .unknown(let settings) = config {
+      // swiftlint:disable force_try
+      let dict = try! settings.asDictionary()
+      // swiftlint:enable force_try
+      if let others = dict["others"] as? [String: Any] {
+        var ignoreDiagnosticsFromSubprojects: [String]?
+        var neverDownloadAutomatically = false
+        if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? Bool {
+          ignoreDiagnosticsFromSubprojects = ignore ? [] : nil
+        } else if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? [Any] {
+          ignoreDiagnosticsFromSubprojects = Array(
+            ignore.filter { $0 as? String != nil }.map { $0 as! String }
+          )
+        }
+        if let neverDownload = others["neverDownloadAutomatically"] as? Bool {
+          neverDownloadAutomatically = neverDownload
+        }
+        self.otherSettings = OtherSettings(
+          ignoreDiagnosticsFromSubprojects: ignoreDiagnosticsFromSubprojects,
+          neverDownloadAutomatically: neverDownloadAutomatically
+        )
+      }
+      if let lintings = dict["linting"] as? [String: Any] {
+        var disableNameLinting = false
+        var disableAllIdLinting = false
+        var disableCompilerIdLinting = false
+        var disableCompilerArgumentIdLinting = false
+        var disableLinkerIdLinting = false
+        var disableCpuFamilyLinting = false
+        var disableOsFamilyLinting = false
+        if let d = lintings["disableNameLinting"] as? Bool { disableNameLinting = d }
+        if let d = lintings["disableAllIdLinting"] as? Bool { disableAllIdLinting = d }
+        if let d = lintings["disableCompilerIdLinting"] as? Bool { disableCompilerIdLinting = d }
+        if let d = lintings["disableCompilerArgumentIdLinting"] as? Bool {
+          disableCompilerArgumentIdLinting = d
+        }
+        if let d = lintings["disableLinkerIdLinting"] as? Bool { disableLinkerIdLinting = d }
+        if let d = lintings["disableCpuFamilyLinting"] as? Bool { disableCpuFamilyLinting = d }
+        if let d = lintings["disableOsFamilyLinting"] as? Bool { disableOsFamilyLinting = d }
+        self.analysisOptions = AnalysisOptions(
+          disableNameLinting: disableNameLinting,
+          disableAllIdLinting: disableAllIdLinting,
+          disableCompilerIdLinting: disableCompilerIdLinting,
+          disableCompilerArgumentIdLinting: disableCompilerArgumentIdLinting,
+          disableLinkerIdLinting: disableLinkerIdLinting,
+          disableCpuFamilyLinting: disableCpuFamilyLinting,
+          disableOsFamilyLinting: disableOsFamilyLinting
+        )
+      }
+      self.rebuildTree()
+    }
+  }
+  // swiftlint:enable cyclomatic_complexity
 
   private func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
     for f in note.params.files {
@@ -1329,9 +1394,14 @@ public final class MesonServer: LanguageServer {
         self.ns,
         dontCache: [],
         cache: &cache,
-        memfiles: memfilesQueue.sync { self.memfiles }
+        memfiles: memfilesQueue.sync { self.memfiles },
+        analysisOptions: analysisOptions
       )
-      self.sendNewDiagnostics(sp.tree)
+      var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
+      if let idfs = self.otherSettings.ignoreDiagnosticsFromSubprojects {
+        if idfs.isEmpty { sendDiags = false } else { sendDiags = !idfs.contains(sp.name) }
+      }
+      if sendDiags { self.sendNewDiagnostics(sp.tree) }
       self.astCaches[sp.realpath] = cache
       n += 1
     }
@@ -1404,7 +1474,8 @@ public final class MesonServer: LanguageServer {
           self.ns,
           dontCache: dontCache,
           cache: &cache,
-          memfiles: memfilesQueue.sync { self.memfiles }
+          memfiles: memfilesQueue.sync { self.memfiles },
+          analysisOptions: self.analysisOptions
         )
         self.sendNewDiagnostics(s.tree)
         self.astCaches[s.realpath] = cache
@@ -1803,5 +1874,26 @@ extension String {
   subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
     let start = index(startIndex, offsetBy: max(0, range.lowerBound))
     return String(self[start...])
+  }
+}
+
+class OtherSettings {
+  public let ignoreDiagnosticsFromSubprojects: [String]?
+  public let neverDownloadAutomatically: Bool
+
+  public init(ignoreDiagnosticsFromSubprojects: [String]?, neverDownloadAutomatically: Bool) {
+    self.ignoreDiagnosticsFromSubprojects = ignoreDiagnosticsFromSubprojects
+    self.neverDownloadAutomatically = neverDownloadAutomatically
+  }
+}
+
+extension Encodable {
+  func asDictionary() throws -> [String: Any] {
+    let data = try JSONEncoder().encode(self)
+    guard
+      let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+    else { fatalError("Why????") }
+    return dictionary
   }
 }
