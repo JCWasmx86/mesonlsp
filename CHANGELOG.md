@@ -1,4 +1,4 @@
-# 3.0.0 (Oct XX 2023)
+# 3.0.0 (Oct 23 2023)
 - Improve formatting support on Windows (Or add it, if it ever worked)
 - Improve layout of tooltips of functions/methods. (#13)
 - Improve error messages for unknown functions/methods (Related to vscode-meson#159
