@@ -9,6 +9,7 @@
   - [Kate](Kate.md)
   - [Neovim](Neovim.md)
   - [VSCode/Codium](VSCode.md)
+- [Configuration](Configuration.md)
 
 ## Developers
 - [Overview](dev/Overview.md)
