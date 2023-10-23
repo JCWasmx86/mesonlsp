@@ -1288,7 +1288,10 @@ public final class MesonServer: LanguageServer {
 
   private func capabilities(_ supportsRenaming: Bool) -> ServerCapabilities {
     let legend = SemanticTokensLegend(
-      tokenTypes: ["substitute", "variable", "function", "method", "keyword", "string", "number"],
+      tokenTypes: [
+        "substitute", "substitute_bounds", "variable", "function", "method", "keyword", "string",
+        "number",
+      ],
       tokenModifiers: []
     )
     return ServerCapabilities(

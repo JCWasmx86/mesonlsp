@@ -10,7 +10,10 @@ public class SemanticTokenVisitor: CodeVisitor {
   private func makeSemanticToken(_ id: Node, _ type: String) {
     if id.location.startLine != id.location.endLine { return }
     // Sync with MesonServer
-    let types = ["substitute", "variable", "function", "method", "keyword", "string", "number"]
+    let types = [
+      "substitute", "substitute_bounds", "variable", "function", "method", "keyword", "string",
+      "number",
+    ]
     var idx = 0
     for t in types {
       if type != t { idx += 1 }
@@ -101,8 +104,8 @@ public class SemanticTokenVisitor: CodeVisitor {
 
   public func visitIdExpression(node: IdExpression) {
     let id = node.id
-    if id == "meson" || id == "host_machine" || id == "target_machine" {
-      self.makeSemanticToken(node, "variable")
+    if id == "meson" || id == "host_machine" || id == "target_machine" || id == "build_machine" {
+      self.makeSemanticToken(node, "keyword")
     }
     node.visitChildren(visitor: self)
   }
@@ -110,6 +113,7 @@ public class SemanticTokenVisitor: CodeVisitor {
   public func visitBinaryExpression(node: BinaryExpression) { node.visitChildren(visitor: self) }
 
   public func visitStringLiteral(node: StringLiteral) {
+    // Clean+Dedup
     node.visitChildren(visitor: self)
     if node.isFormat {
       let pattern = #"@([a-zA-Z_][a-zA-Z_\d]*)@"#
@@ -125,7 +129,16 @@ public class SemanticTokenVisitor: CodeVisitor {
         let range = match.range
         tokens.append([
           node.location.startLine, node.location.startColumn + UInt32(range.location + 1),
-          UInt32(range.length), UInt32(1), 0,
+          UInt32(1), UInt32(1), 0,
+        ])
+        tokens.append([
+          node.location.startLine, node.location.startColumn + UInt32(range.location + 2),
+          UInt32(range.length - 2), UInt32(2), 0,
+        ])
+        tokens.append([
+          node.location.startLine,
+          node.location.startColumn + UInt32(range.location + range.length), UInt32(1), UInt32(1),
+          0,
         ])
       }
     }
@@ -145,8 +158,16 @@ public class SemanticTokenVisitor: CodeVisitor {
     for match in matches {
       let range = match.range
       tokens.append([
-        node.location.startLine, node.location.startColumn + UInt32(range.location + 1),
-        UInt32(range.length), UInt32(1), 0,
+        node.location.startLine, node.location.startColumn + UInt32(range.location + 1), UInt32(1),
+        UInt32(1), 1,
+      ])
+      tokens.append([
+        node.location.startLine, node.location.startColumn + UInt32(range.location + 2),
+        UInt32(range.length - 2), UInt32(7), 0,
+      ])
+      tokens.append([
+        node.location.startLine, node.location.startColumn + UInt32(range.location + range.length),
+        UInt32(1), UInt32(1), 1,
       ])
     }
   }

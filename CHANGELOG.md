@@ -1,5 +1,7 @@
-# 3.X.Y (XXX XX 2023)
-
+# 3.0.5 (Oct 23 2023)
+- Fix semantic tokens
+- Minor improvements to the hover-tooltip
+- Differentiate `@`s and the variable between in format-strings
 # 3.0.4 (Oct 23 2023)
 - Fix accidental regressions with the release process
 # 3.0.3 (Oct 23 2023)
