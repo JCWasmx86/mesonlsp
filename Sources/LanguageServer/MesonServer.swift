@@ -1292,7 +1292,7 @@ public final class MesonServer: LanguageServer {
         "substitute", "substitute_bounds", "variable", "function", "method", "keyword", "string",
         "number",
       ],
-      tokenModifiers: []
+      tokenModifiers: ["readonly", "defaultLibrary"]
     )
     return ServerCapabilities(
       textDocumentSync: .options(

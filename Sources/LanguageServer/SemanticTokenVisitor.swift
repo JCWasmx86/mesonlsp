@@ -7,7 +7,7 @@ public class SemanticTokenVisitor: CodeVisitor {
   static let LOG = Logger(label: "LanguageServer::SemanticTokenVisitor")
   public var tokens: [[UInt32]] = []
 
-  private func makeSemanticToken(_ id: Node, _ type: String) {
+  private func makeSemanticToken(_ id: Node, _ type: String, _ modifiers: UInt32) {
     if id.location.startLine != id.location.endLine { return }
     // Sync with MesonServer
     let types = [
@@ -22,7 +22,7 @@ public class SemanticTokenVisitor: CodeVisitor {
     if idx == types.count { return }
     tokens.append([
       id.location.startLine, id.location.startColumn,
-      id.location.endColumn - id.location.startColumn, UInt32(idx), 0,
+      id.location.endColumn - id.location.startColumn, UInt32(idx + 1), modifiers,
     ])
   }
 
@@ -105,7 +105,7 @@ public class SemanticTokenVisitor: CodeVisitor {
   public func visitIdExpression(node: IdExpression) {
     let id = node.id
     if id == "meson" || id == "host_machine" || id == "target_machine" || id == "build_machine" {
-      self.makeSemanticToken(node, "keyword")
+      self.makeSemanticToken(node, "variable", UInt32(0b11))
     }
     node.visitChildren(visitor: self)
   }
@@ -159,7 +159,7 @@ public class SemanticTokenVisitor: CodeVisitor {
       let range = match.range
       tokens.append([
         node.location.startLine, node.location.startColumn + UInt32(range.location + 1), UInt32(1),
-        UInt32(1), 1,
+        UInt32(1), 0,
       ])
       tokens.append([
         node.location.startLine, node.location.startColumn + UInt32(range.location + 2),
@@ -167,7 +167,7 @@ public class SemanticTokenVisitor: CodeVisitor {
       ])
       tokens.append([
         node.location.startLine, node.location.startColumn + UInt32(range.location + range.length),
-        UInt32(1), UInt32(1), 1,
+        UInt32(1), UInt32(1), 0,
       ])
     }
   }
