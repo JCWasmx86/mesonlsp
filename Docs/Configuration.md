@@ -8,13 +8,13 @@ The format is:
     "neverDownloadAutomatically": false
   },
   "linting": {
-    "disableNameLinting": true/false,
-    "disableAllIdLinting": true/false,
-    "disableCompilerIdLinting": true/false
-    "disableCompilerArgumentIdLinting": true/false,
-    "disableLinkerIdLinting": true/false,
-    "disableCpuFamilyLinting": true/false,
-    "disableOsFamilyLinting": true/false,
+    "disableNameLinting": false,
+    "disableAllIdLinting": false,
+    "disableCompilerIdLinting": false
+    "disableCompilerArgumentIdLinting": false,
+    "disableLinkerIdLinting": false,
+    "disableCpuFamilyLinting": false,
+    "disableOsFamilyLinting": false
   }
 }
 ```
