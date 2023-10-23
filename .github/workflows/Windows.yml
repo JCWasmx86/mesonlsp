@@ -9,7 +9,7 @@ on:
 
 jobs:
   windows-573:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Enable long paths on Windows
         shell: powershell
@@ -75,7 +75,7 @@ jobs:
           path: ${{ github.workspace }}/Artifacts
 
   windows-59:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Enable long paths on Windows
         shell: powershell
