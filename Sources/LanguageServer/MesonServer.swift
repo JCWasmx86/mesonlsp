@@ -1038,6 +1038,10 @@ public final class MesonServer: LanguageServer {
         )
         return
       }
+      if Task.isCancelled {
+        Self.LOG.info("Cancelling build - Before sending diagnostics")
+        return
+      }
       self.sendNewDiagnostics(tmptree)
       let endSendingDiagnostics = clock()
       Timing.INSTANCE.registerMeasurement(
@@ -1110,8 +1114,12 @@ public final class MesonServer: LanguageServer {
           memfiles: memfilesQueue.sync { self.memfiles },
           analysisOptions: self.analysisOptions
         )
-        if !Task.isCancelled { self.sendNewDiagnostics(fsp.tree) }
-        if Task.isCancelled { self.clearDiagnosticsForTree(tree: fsp.tree) }
+        var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
+        if let idfs = self.otherSettings.ignoreDiagnosticsFromSubprojects {
+          if idfs.isEmpty { sendDiags = false } else { sendDiags = !idfs.contains(sb.name) }
+        }
+        if !Task.isCancelled && sendDiags { self.sendNewDiagnostics(fsp.tree) }
+        if Task.isCancelled || !sendDiags { self.clearDiagnosticsForTree(tree: fsp.tree) }
         Self.LOG.info("Task ended, cancelled: \(Task.isCancelled)")
       }
     } else {
@@ -1200,63 +1208,71 @@ public final class MesonServer: LanguageServer {
   private func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) {
     self.rebuildTree()
   }
-
   // swiftlint:disable cyclomatic_complexity
-  private func didChangeConfiguration(_ note: Notification<DidChangeConfigurationNotification>) {
-    let config = note.params.settings
-    if case .unknown(let settings) = config {
-      // swiftlint:disable force_try
-      let dict = try! settings.asDictionary()
-      // swiftlint:enable force_try
-      if let others = dict["others"] as? [String: Any] {
-        var ignoreDiagnosticsFromSubprojects: [String]?
-        var neverDownloadAutomatically = false
-        if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? Bool {
-          ignoreDiagnosticsFromSubprojects = ignore ? [] : nil
-        } else if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? [Any] {
-          ignoreDiagnosticsFromSubprojects = Array(
-            ignore.filter { $0 as? String != nil }.map { $0 as! String }
-          )
-        }
-        if let neverDownload = others["neverDownloadAutomatically"] as? Bool {
-          neverDownloadAutomatically = neverDownload
-        }
-        self.otherSettings = OtherSettings(
-          ignoreDiagnosticsFromSubprojects: ignoreDiagnosticsFromSubprojects,
-          neverDownloadAutomatically: neverDownloadAutomatically
+  private func parseOptions(settings: LSPAny) {
+    // swiftlint:disable force_try
+    let dict = try! settings.asDictionary()
+    // swiftlint:enable force_try
+    if let others = dict["others"] as? [String: Any] {
+      var ignoreDiagnosticsFromSubprojects: [String]?
+      var neverDownloadAutomatically = false
+      if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? Bool {
+        ignoreDiagnosticsFromSubprojects = ignore ? [] : nil
+      } else if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? [Any] {
+        ignoreDiagnosticsFromSubprojects = Array(
+          ignore.filter { $0 as? String != nil }.map { $0 as! String }
         )
       }
-      if let lintings = dict["linting"] as? [String: Any] {
-        var disableNameLinting = false
-        var disableAllIdLinting = false
-        var disableCompilerIdLinting = false
-        var disableCompilerArgumentIdLinting = false
-        var disableLinkerIdLinting = false
-        var disableCpuFamilyLinting = false
-        var disableOsFamilyLinting = false
-        if let d = lintings["disableNameLinting"] as? Bool { disableNameLinting = d }
-        if let d = lintings["disableAllIdLinting"] as? Bool { disableAllIdLinting = d }
-        if let d = lintings["disableCompilerIdLinting"] as? Bool { disableCompilerIdLinting = d }
-        if let d = lintings["disableCompilerArgumentIdLinting"] as? Bool {
-          disableCompilerArgumentIdLinting = d
-        }
-        if let d = lintings["disableLinkerIdLinting"] as? Bool { disableLinkerIdLinting = d }
-        if let d = lintings["disableCpuFamilyLinting"] as? Bool { disableCpuFamilyLinting = d }
-        if let d = lintings["disableOsFamilyLinting"] as? Bool { disableOsFamilyLinting = d }
-        self.analysisOptions = AnalysisOptions(
-          disableNameLinting: disableNameLinting,
-          disableAllIdLinting: disableAllIdLinting,
-          disableCompilerIdLinting: disableCompilerIdLinting,
-          disableCompilerArgumentIdLinting: disableCompilerArgumentIdLinting,
-          disableLinkerIdLinting: disableLinkerIdLinting,
-          disableCpuFamilyLinting: disableCpuFamilyLinting,
-          disableOsFamilyLinting: disableOsFamilyLinting
-        )
+      if let neverDownload = others["neverDownloadAutomatically"] as? Bool {
+        neverDownloadAutomatically = neverDownload
       }
-      self.rebuildTree()
+      self.otherSettings = OtherSettings(
+        ignoreDiagnosticsFromSubprojects: ignoreDiagnosticsFromSubprojects,
+        neverDownloadAutomatically: neverDownloadAutomatically
+      )
     }
+    if let lintings = dict["linting"] as? [String: Any] {
+      var disableNameLinting = false
+      var disableAllIdLinting = false
+      var disableCompilerIdLinting = false
+      var disableCompilerArgumentIdLinting = false
+      var disableLinkerIdLinting = false
+      var disableCpuFamilyLinting = false
+      var disableOsFamilyLinting = false
+      if let d = lintings["disableNameLinting"] as? Bool { disableNameLinting = d }
+      if let d = lintings["disableAllIdLinting"] as? Bool { disableAllIdLinting = d }
+      if let d = lintings["disableCompilerIdLinting"] as? Bool { disableCompilerIdLinting = d }
+      if let d = lintings["disableCompilerArgumentIdLinting"] as? Bool {
+        disableCompilerArgumentIdLinting = d
+      }
+      if let d = lintings["disableLinkerIdLinting"] as? Bool { disableLinkerIdLinting = d }
+      if let d = lintings["disableCpuFamilyLinting"] as? Bool { disableCpuFamilyLinting = d }
+      if let d = lintings["disableOsFamilyLinting"] as? Bool { disableOsFamilyLinting = d }
+      self.analysisOptions = AnalysisOptions(
+        disableNameLinting: disableNameLinting,
+        disableAllIdLinting: disableAllIdLinting,
+        disableCompilerIdLinting: disableCompilerIdLinting,
+        disableCompilerArgumentIdLinting: disableCompilerArgumentIdLinting,
+        disableLinkerIdLinting: disableLinkerIdLinting,
+        disableCpuFamilyLinting: disableCpuFamilyLinting,
+        disableOsFamilyLinting: disableOsFamilyLinting
+      )
+    }
+    self.tasks.values.forEach { $0.cancel() }
+    self.parseTask?.cancel()
+    if let t = self.parseSubprojectTask { t.cancel() }
+    self.parseSubprojectTask = Task.detached {
+      self.subprojects = nil
+      await self.setupSubprojects()
+    }
+    self.rebuildTree()
   }
   // swiftlint:enable cyclomatic_complexity
+
+  private func didChangeConfiguration(_ note: Notification<DidChangeConfigurationNotification>) {
+    let config = note.params.settings
+    if case .unknown(let settings) = config { self.parseOptions(settings: settings) }
+  }
 
   private func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
     for f in note.params.files {
@@ -1374,12 +1390,15 @@ public final class MesonServer: LanguageServer {
       self.subprojects = old
       return
     }
+    if self.subprojects == nil { return }
     for err in self.subprojects!.errors {
       Self.LOG.error("Got error during setting up subprojects: \(err)")
     }
     Self.LOG.info("Setup all directories for subprojects")
+    if self.subprojects == nil { return }
     let count = Double(self.subprojects!.subprojects.count)
     var n = 0
+    if self.subprojects == nil { return }
     for sp in self.subprojects!.subprojects {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
@@ -1401,12 +1420,18 @@ public final class MesonServer: LanguageServer {
       if let idfs = self.otherSettings.ignoreDiagnosticsFromSubprojects {
         if idfs.isEmpty { sendDiags = false } else { sendDiags = !idfs.contains(sp.name) }
       }
-      if sendDiags { self.sendNewDiagnostics(sp.tree) }
+      if sendDiags {
+        self.sendNewDiagnostics(sp.tree)
+      } else {
+        self.clearDiagnosticsForTree(tree: sp.tree)
+      }
       self.astCaches[sp.realpath] = cache
       n += 1
     }
+    if self.subprojects == nil { return }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
+    if self.subprojects == nil { return }
     if !self.subprojects!.subprojects.isEmpty {
       if self.parseTask != nil {
         do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
@@ -1443,8 +1468,10 @@ public final class MesonServer: LanguageServer {
       )
     )
     self.client.send(beginMessage)
+    if self.subprojects == nil { return }
     let count = Double(self.subprojects!.subprojects.count)
     var n = 0
+    if self.subprojects == nil { return }
     for s in self.subprojects!.subprojects {
       n += 1
       let percentage = Int((Double(n + 1) / count) * 100)
@@ -1477,10 +1504,19 @@ public final class MesonServer: LanguageServer {
           memfiles: memfilesQueue.sync { self.memfiles },
           analysisOptions: self.analysisOptions
         )
-        self.sendNewDiagnostics(s.tree)
+        var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
+        if let idfs = self.otherSettings.ignoreDiagnosticsFromSubprojects {
+          if idfs.isEmpty { sendDiags = false } else { sendDiags = !idfs.contains(s.name) }
+        }
+        if sendDiags {
+          self.sendNewDiagnostics(s.tree)
+        } else {
+          self.clearDiagnosticsForTree(tree: s.tree)
+        }
         self.astCaches[s.realpath] = cache
       } catch let err { Self.LOG.info("\(err)") }
     }
+    if self.subprojects == nil { return }
     if !self.subprojects!.subprojects.isEmpty {
       if self.parseTask != nil {
         do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
@@ -1510,8 +1546,12 @@ public final class MesonServer: LanguageServer {
     if p.rootPath == nil { fatalError("Nothing else supported other than using rootPath") }
     self.path = p.rootPath
     self.mapper.rootDir = self.path!
-    self.parseSubprojectTask = Task { await self.setupSubprojects() }
-    self.rebuildTree()
+    if let settings = p.initializationOptions {
+      self.parseOptions(settings: settings)
+    } else {
+      self.parseSubprojectTask = Task { await self.setupSubprojects() }
+      self.rebuildTree()
+    }
     req.reply(InitializeResult(capabilities: self.capabilities(supportsRenaming)))
     Self.LOG.info(
       "Swift-MesonLSP is licensed under the terms of the GNU General Public License v3.0"

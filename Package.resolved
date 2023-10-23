@@ -39,10 +39,10 @@
     {
       "identity" : "sourcekit-lsp",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/sourcekit-lsp",
+      "location" : "https://github.com/JCWasmx86/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "8dd93d10c8e3d317e924f3fb12cd57bd7bbbf126"
+        "revision" : "e7f5ed8297a664dfe79643198730b1a31dac1493"
       }
     },
     {
