@@ -15,6 +15,16 @@ public class FoldingRangeVisitor: CodeVisitor {
 
   public func visitSelectionStatement(node: SelectionStatement) {
     node.visitChildren(visitor: self)
+    var idx = 0
+    for block in node.blocks {
+      idx += 1
+      if block.isEmpty { continue }
+      var startLine = block[0].location.startLine - 1
+      if idx - 1 < node.conditions.count { startLine = node.conditions[idx - 1].location.endLine }
+      self.ranges.append(
+        FoldingRange(startLine: Int(startLine), endLine: Int(block.last!.location.endLine))
+      )
+    }
   }
 
   public func visitBreakStatement(node: BreakNode) { node.visitChildren(visitor: self) }

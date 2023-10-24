@@ -106,9 +106,9 @@
 - [ ] Semantic tokens
   - [x] Single-line strings
   - [ ] Multi-line strings
-- [ ] Folding range
+- [x] Folding range
   - [x] Foreach-Loops
-  - [ ] Selection-Statements
+  - [x] Selection-Statements
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
