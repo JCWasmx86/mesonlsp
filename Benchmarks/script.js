@@ -762,9 +762,7 @@ function initAllCharts() {
     if (sum === undefined) {
       sum = value;
     } else {
-      sum = sum.map(function (num, idx) {
-        return num + value[idx];
-      });
+      sum = sum.map((num, idx) => num + value[idx]);
     }
   }
   attachChart("ppc", "Time required for parsing (In ms, summed up)", sum);
@@ -824,7 +822,7 @@ function initAllCharts() {
   const adds = DIFFS.map((a) => a[1]);
   const rms = DIFFS.map((a) => a[2]);
   const tags = ALL_BENCHMARKS.map((a) => a.commit);
-  const ctx = document.getElementById("insertDeletes");
+  let ctx = document.getElementById("insertDeletes");
   new Chart(ctx, {
     type: "line",
     data: {
@@ -842,4 +840,41 @@ function initAllCharts() {
     },
   });
   initAllProjectsPerformanceTable(obj);
+  const days = Array(7).fill(0);
+  const daynames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  for (let i = 0; i < DAYS.length; i++) {
+    days[daynames.indexOf(DAYS[i][1])] = DAYS[i][0];
+  }
+  ctx = document.getElementById("days");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: daynames,
+      datasets: [
+        {
+          label: "No. of Commits",
+          data: days,
+        },
+      ],
+    },
+  });
+  const hours = Array.apply(null, Array(24)).map((x, i) => i);
+  const hourCommits = Array(24).fill(0);
+  for (let i = 0; i < HOURS.length; i++) {
+    hourCommits[HOURS[i][1]] = HOURS[i][0];
+  }
+  console.log(hourCommits);
+  ctx = document.getElementById("hours");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: hours,
+      datasets: [
+        {
+          label: "No. of Commits",
+          data: hourCommits,
+        },
+      ],
+    },
+  });
 }
