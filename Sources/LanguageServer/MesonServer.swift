@@ -49,7 +49,8 @@ public final class MesonServer: LanguageServer {
   var analysisOptions = AnalysisOptions()
   var otherSettings = OtherSettings(
     ignoreDiagnosticsFromSubprojects: nil,
-    neverDownloadAutomatically: false
+    neverDownloadAutomatically: false,
+    disableInlayHints: false
   )
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -388,6 +389,10 @@ public final class MesonServer: LanguageServer {
   }
 
   private func inlayHints(_ req: Request<InlayHintRequest>) {
+    if self.otherSettings.disableInlayHints {
+      req.reply([])
+      return
+    }
     collectInlayHints(self.findTree(req.params.textDocument.uri), req, self.mapper)
   }
 
@@ -1216,6 +1221,7 @@ public final class MesonServer: LanguageServer {
     if let others = dict["others"] as? [String: Any] {
       var ignoreDiagnosticsFromSubprojects: [String]?
       var neverDownloadAutomatically = false
+      var disableInlayHints = false
       if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? Bool {
         ignoreDiagnosticsFromSubprojects = ignore ? [] : nil
       } else if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? [Any] {
@@ -1226,9 +1232,13 @@ public final class MesonServer: LanguageServer {
       if let neverDownload = others["neverDownloadAutomatically"] as? Bool {
         neverDownloadAutomatically = neverDownload
       }
+      if let disableInlay = others["disableInlayHints"] as? Bool {
+        disableInlayHints = disableInlay
+      }
       self.otherSettings = OtherSettings(
         ignoreDiagnosticsFromSubprojects: ignoreDiagnosticsFromSubprojects,
-        neverDownloadAutomatically: neverDownloadAutomatically
+        neverDownloadAutomatically: neverDownloadAutomatically,
+        disableInlayHints: disableInlayHints
       )
     }
     if let lintings = dict["linting"] as? [String: Any] {
@@ -1316,7 +1326,7 @@ public final class MesonServer: LanguageServer {
         range: .bool(false),
         full: .value(SemanticTokensOptions.SemanticTokensFullOptions(delta: false))
       ),
-      inlayHintProvider: .bool(true)
+      inlayHintProvider: .bool(!self.otherSettings.disableInlayHints)
     )
   }
 
@@ -1923,10 +1933,16 @@ extension String {
 class OtherSettings {
   public let ignoreDiagnosticsFromSubprojects: [String]?
   public let neverDownloadAutomatically: Bool
+  public let disableInlayHints: Bool
 
-  public init(ignoreDiagnosticsFromSubprojects: [String]?, neverDownloadAutomatically: Bool) {
+  public init(
+    ignoreDiagnosticsFromSubprojects: [String]?,
+    neverDownloadAutomatically: Bool,
+    disableInlayHints: Bool
+  ) {
     self.ignoreDiagnosticsFromSubprojects = ignoreDiagnosticsFromSubprojects
     self.neverDownloadAutomatically = neverDownloadAutomatically
+    self.disableInlayHints = disableInlayHints
   }
 }
 
