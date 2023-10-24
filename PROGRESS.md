@@ -115,6 +115,7 @@
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Automatic LSP tests
+- [ ] Actions need cleanup
 - [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
