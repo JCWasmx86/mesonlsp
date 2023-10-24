@@ -1,3 +1,5 @@
+# 3.0.7 (Oct XX 2023)
+- Support folding ranges
 # 3.0.6 (Oct 24 2023)
 - Add semantic tokens for functions and methods
 - Add `others.disableInlayHints` configuration option for disabling inlay hints (#15)
