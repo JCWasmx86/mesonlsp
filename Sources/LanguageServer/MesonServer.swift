@@ -1326,7 +1326,7 @@ public final class MesonServer: LanguageServer {
         range: .bool(false),
         full: .value(SemanticTokensOptions.SemanticTokensFullOptions(delta: false))
       ),
-      inlayHintProvider: .bool(!self.otherSettings.disableInlayHints)
+      inlayHintProvider: .bool(true)
     )
   }
 
