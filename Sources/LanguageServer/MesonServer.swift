@@ -223,7 +223,10 @@ public final class MesonServer: LanguageServer {
 
   private func semanticTokenFull(_ req: Request<DocumentSemanticTokensRequest>) {
     let begin = clock()
-    if let t = self.findTree(req.params.textDocument.uri), let ast = t.ast {
+    let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+    if let t = self.findTree(req.params.textDocument.uri), let mt = t.findSubdirTree(file: file),
+      let ast = mt.ast
+    {
       let stv = SemanticTokenVisitor()
       ast.visit(visitor: stv)
       req.reply(DocumentSemanticTokensResponse(data: stv.finish()))
