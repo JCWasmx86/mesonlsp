@@ -2,13 +2,13 @@
 %undefine _auto_set_build_flags
 
 Name:           Swift-MesonLSP
-Version:        0.0.33
-Release:        3.0.6
+Version:        3.0.6
+Release:        0.1
 Summary:        Meson language server
 ExclusiveArch:  x86_64
 
-License:        GPL
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v3.0.6.tar.gz
+License:        GPL-3.0-or-later
+Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v%{version}.tar.gz
 
 Requires:       bash
 BuildRequires:  swift-lang
@@ -19,13 +19,12 @@ BuildRequires:  git
 A meson language server
 
 %prep
-%setup -q -n Swift-MesonLSP-3.0.6
-
+%setup -q -n Swift-MesonLSP-%{version}
 
 %build
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
 cd Swift-MesonLSP
-git checkout v3.0.6
+git checkout v%{version}
 swift build -c release --static-swift-stdlib -Xswiftc -g
 
 %install
@@ -37,6 +36,11 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
+* Mon Oct 24 2023 FeRD (Frank Dana) <ferdnyc@gmail.com> - 3.0.6-0.1
+- Fix versioning
+- Use SPDX license tag
+- Use %%{version} for easier specfile maintenance
+
 * Mon Oct 24 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.34
 - Bump to v3.0.6
 * Mon Oct 23 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.33
