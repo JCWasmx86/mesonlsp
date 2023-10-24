@@ -219,6 +219,7 @@ public final class MesonServer: LanguageServer {
     _register(Self.rename)
     _register(Self.semanticTokenFull)
     _register(Self.didChangeConfiguration)
+    _register(Self.foldingRanges)
   }
 
   private func semanticTokenFull(_ req: Request<DocumentSemanticTokensRequest>) {
@@ -234,6 +235,21 @@ public final class MesonServer: LanguageServer {
       req.reply(DocumentSemanticTokensResponse(data: []))
     }
     Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
+  }
+
+  private func foldingRanges(_ req: Request<FoldingRangeRequest>) {
+    let begin = clock()
+    let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+    if let t = self.findTree(req.params.textDocument.uri), let mt = t.findSubdirTree(file: file),
+      let ast = mt.ast
+    {
+      let stv = FoldingRangeVisitor()
+      ast.visit(visitor: stv)
+      req.reply(stv.ranges)
+    } else {
+      req.reply([])
+    }
+    Timing.INSTANCE.registerMeasurement(name: "foldingRanges", begin: begin, end: clock())
   }
 
   private func rename(_ req: Request<RenameRequest>) {
@@ -1322,6 +1338,7 @@ public final class MesonServer: LanguageServer {
       codeActionProvider: .bool(true),
       documentFormattingProvider: .bool(true),
       renameProvider: .bool(supportsRenaming),
+      foldingRangeProvider: .bool(true),
       declarationProvider: .bool(true),
       workspace: WorkspaceServerCapabilities(),
       semanticTokensProvider: SemanticTokensOptions(
