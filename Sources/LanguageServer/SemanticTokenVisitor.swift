@@ -7,22 +7,17 @@ public class SemanticTokenVisitor: CodeVisitor {
   static let LOG = Logger(label: "LanguageServer::SemanticTokenVisitor")
   public var tokens: [[UInt32]] = []
 
-  private func makeSemanticToken(_ id: Node, _ type: String, _ modifiers: UInt32) {
+  private func makeSemanticToken(_ id: Node, _ idx: Int, _ modifiers: UInt32) {
     if id.location.startLine != id.location.endLine { return }
     // Sync with MesonServer
     let types = [
       "substitute", "substitute_bounds", "variable", "function", "method", "keyword", "string",
       "number",
     ]
-    var idx = 0
-    for t in types {
-      if type != t { idx += 1 }
-      break
-    }
-    if idx == types.count { return }
+    if idx >= types.count { return }
     tokens.append([
       id.location.startLine, id.location.startColumn,
-      id.location.endColumn - id.location.startColumn, UInt32(idx + 1), modifiers,
+      id.location.endColumn - id.location.startColumn, UInt32(idx), modifiers,
     ])
   }
 
@@ -84,6 +79,7 @@ public class SemanticTokenVisitor: CodeVisitor {
 
   public func visitFunctionExpression(node: FunctionExpression) {
     node.visitChildren(visitor: self)
+    self.makeSemanticToken(node.id, 3, UInt32(0))
   }
 
   public func visitArgumentList(node: ArgumentList) { node.visitChildren(visitor: self) }
@@ -100,12 +96,15 @@ public class SemanticTokenVisitor: CodeVisitor {
     node.visitChildren(visitor: self)
   }
 
-  public func visitMethodExpression(node: MethodExpression) { node.visitChildren(visitor: self) }
+  public func visitMethodExpression(node: MethodExpression) {
+    self.makeSemanticToken(node.id, 4, UInt32(0))
+    node.visitChildren(visitor: self)
+  }
 
   public func visitIdExpression(node: IdExpression) {
     let id = node.id
     if id == "meson" || id == "host_machine" || id == "target_machine" || id == "build_machine" {
-      self.makeSemanticToken(node, "variable", UInt32(0b11))
+      self.makeSemanticToken(node, 2, UInt32(0b11))
     }
     node.visitChildren(visitor: self)
   }
