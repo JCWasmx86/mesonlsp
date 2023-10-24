@@ -1,3 +1,5 @@
+# 3.0.6 (XXX XX 2023)
+
 # 3.0.5 (Oct 23 2023)
 - Fix semantic tokens
 - Minor improvements to the hover-tooltip
