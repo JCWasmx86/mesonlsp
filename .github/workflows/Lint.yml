@@ -9,20 +9,17 @@ on:
 
 jobs:
   swiftlint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/realm/swiftlint:latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Lint using SwiftLint
-        run: |
-          git clone https://github.com/realm/swiftlint
-          cd swiftlint
-          swift build
-          cd ..
-          sudo apt install -y strace
-          sudo cp /usr/share/swift/usr/lib/libsourcekitdInProc.so /usr/lib
-          sudo cp /usr/local/lib/libsourcekitdInProc.so /usr/lib64 || true
-          LINUX_SOURCEKIT_LIB_PATH=/usr/lib/libsourcekitdInProc.so ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
-          LINUX_SOURCEKIT_LIB_PATH=/usr/lib/libsourcekitdInProc.so ./swiftlint/.build/debug/swiftlint Package.swift Sources/ Tests
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: SwiftLint
+      run: |
+          swiftlint Package.swift Sources/ Tests |& grep Found.0 && exit 0
+          swiftlint Package.swift Sources/ Tests
           exit 1
   swiftformat:
     runs-on: ubuntu-22.04
