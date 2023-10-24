@@ -22,9 +22,9 @@ done
 echo "]"
 
 echo "HOURS = ["
-git log --format=%aD|sed s/...,.......//g|sed 's/^ //g'|cut -d ' ' -f2|cut -d ':' -f1|sort|uniq -c|sed 's/^ *//g'|sed s/\ 0/\ /g|sed s/^/[/g|sed s/\ /,/g|sed s/$/],/g
+git log --format=%aD | sed s/...,.......//g | sed 's/^ //g' | cut -d ' ' -f2 | cut -d ':' -f1 | sort | uniq -c | sed 's/^ *//g' | sed s/\ 0/\ /g | sed s/^/[/g | sed s/\ /,/g | sed s/$/],/g
 echo "]"
 
 echo "DAYS = ["
-git log --format=%aD|sort|sed s/,.*//g|sort|uniq -c|sort -h|sed s/^\ *//g|sed 's/ /, \"/g'|sed s/$/\"],/g|sed s/^/[/g
+git log --format=%aD | sort | sed s/,.*//g | sort | uniq -c | sort -h | sed s/^\ *//g | sed 's/ /, \"/g' | sed s/$/\"],/g | sed s/^/[/g
 echo "]"
