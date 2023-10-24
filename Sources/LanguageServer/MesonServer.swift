@@ -1457,7 +1457,6 @@ public final class MesonServer: LanguageServer {
       self.scheduleNextMtimeCheck()
     }
   }
-  // swiftlint:enable cyclomatic_complexity
 
   private func updateSubprojects() async {
     let t = ProgressToken.string(UUID().uuidString)
@@ -1533,6 +1532,7 @@ public final class MesonServer: LanguageServer {
     self.client.send(endMessage)
     self.token = nil
   }
+  // swiftlint:enable cyclomatic_complexity
 
   private func initialize(_ req: Request<InitializeRequest>) {
     let p = req.params
