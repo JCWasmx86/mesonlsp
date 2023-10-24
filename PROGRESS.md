@@ -106,12 +106,12 @@
 - [ ] Semantic tokens
   - [x] Single-line strings
   - [ ] Multi-line strings
+- [ ] Folding range
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
-- [ ] Folding range
 - [ ] Automatic LSP tests
 - [x] Add Windows to CI
   - [x] Compiles on Windows
