@@ -36,12 +36,12 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
-* Mon Oct 24 2023 FeRD (Frank Dana) <ferdnyc@gmail.com> - 3.0.6-0.1
+* Tue Oct 24 2023 FeRD (Frank Dana) <ferdnyc@gmail.com> - 3.0.6-0.1
 - Fix versioning
 - Use SPDX license tag
 - Use %%{version} for easier specfile maintenance
 
-* Mon Oct 24 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.34
+* Tue Oct 24 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.34
 - Bump to v3.0.6
 * Mon Oct 23 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.33
 - Bump to v3.0.5
@@ -55,13 +55,13 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 - Bump to v3.0.1
 * Mon Oct 23 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.28
 - Bump to v3.0.0
-* Sun Sep 31 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.27
+* Sun Oct 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.27
 - Bump to v2.4.4
 * Fri Sep 22 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.26
 - Bump to v2.4.3
 * Wed Sep 20 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.25
 - Bump to v2.4.2
-* Tue Sep 11 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.24
+* Mon Sep 11 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.24
 - Bump to v2.4.1
 * Sat Sep 02 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.23
 - Bump to v2.4
@@ -79,27 +79,27 @@ cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
 - Bump to v2.3.10
 * Wed Jul 05 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.16
 - Bump to v2.3.9
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.15
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.15
 - Bump to v2.3.8
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.14
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.14
 - Bump to v2.3.7
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.13
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.13
 - Bump to v2.3.6
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.12
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.12
 - Bump to v2.3.5
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.11
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.11
 - Bump to v2.3.4
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.10
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.10
 - Bump to v2.3.3
-* Sun Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.9
+* Sat Jul 01 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.9
 - Bump to v2.3.2
-* Thu Jun 16 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.8
+* Fri Jun 16 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.8
 - Bump to v2.3.1
 * Thu Jun 8 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.7
 - Bump to v2.3
 * Sat May 13 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.6
 - Bump to v2.2
-* Sat Apr 21 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.5
+* Fri Apr 21 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.5
 - Bump to v2.1
 * Sun Apr 2 2023 JCWasmx86 <JCWasmx86@t-online.de> - 0.0.4
 - Bump to v2.0
