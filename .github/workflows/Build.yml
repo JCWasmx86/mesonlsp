@@ -76,6 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build on Ubuntu ${{ matrix.version }}
+        shell: bash
         run: |
           apt install lsb-release -y|| true
           apt install lsb-core -y || true
