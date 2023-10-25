@@ -23,4 +23,4 @@ case "$ubuntu_version" in
 	exit 1
 	;;
 esac
-apt install -y wget
+apt install -y wget git
