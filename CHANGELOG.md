@@ -1,4 +1,4 @@
-# 3.0.7 (Oct XX 2023)
+# 3.0.7 (Oct 25 2023)
 - Support folding ranges
 - @ferdnyc fixed the COPR versioning (#19)
 - Fix bug that caused "Updating subprojects" to be persistent.
