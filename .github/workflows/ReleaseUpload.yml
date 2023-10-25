@@ -1,5 +1,9 @@
 name: Release-Upload
 
+# In the future we should refacot this workflow, too
+# We will have single workflows for each debian/ubuntu version
+# Then for debian and ubuntu there will be a workflow that takes the zips and creates debs.
+# Those deb files will be pushed to the repo by another workflow
 on:
   release:
   workflow_dispatch:
