@@ -202,33 +202,22 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Download artifact for stable
-        id: download-artifact-stable
-        uses: dawidd6/action-download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Debian-Stable.zip
-          skip_unpack: false
-          path: ./out
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-      - name: Download artifact for testing
-        id: download-artifact-testing
-        uses: dawidd6/action-download-artifact@v2
+          path: out
+      - uses: actions/download-artifact@v3
         with:
           name: Debian-Testing.zip
-          skip_unpack: false
-          path: ./out1
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-      - name: Download artifact for unstable
-        id: download-artifact-unstable
-        uses: dawidd6/action-download-artifact@v2
+          path: out1
+      - uses: actions/download-artifact@v3
         with:
           name: Debian-Unstable.zip
-          skip_unpack: false
-          path: ./out2
-          workflow: ${{ github.event.workflow_run.workflow_id }}
+          path: out2
       - name: Build deb files
         run: |
           sudo apt-get -y install dpkg
+          find out out1 out2
           cd out
           unzip Debian-Stable.zip
           cd ../out1
