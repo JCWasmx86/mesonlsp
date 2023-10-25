@@ -6,6 +6,7 @@
   available as wrap!
 - Deduplicate CompletionItems
 - Improve CI
+- Wait until the meson source tree is rebuilt, before building completions. This may improve the UX of the auto-completion.
 # 3.0.6 (Oct 24 2023)
 - Add semantic tokens for functions and methods
 - Add `others.disableInlayHints` configuration option for disabling inlay hints (#15)
