@@ -66,7 +66,7 @@ jobs:
         with:
           name: MacOS${{ matrix.version }}.zip
           path: ${{ github.workspace }}/Artifacts
-  ubuntu:
+  ubuntu_in_container:
     strategy:
       matrix:
         version: ["18.04", "20.04", "22.04"]
@@ -93,11 +93,14 @@ jobs:
         with:
           name: Ubuntu${{ matrix.version }}.zip
           path: /Ubuntu${{ matrix.version }}.zip
-  debian-stable:
+  debian:
+    strategy:
+      matrix:
+        version: ["Stable", "Testing", "Unstable"]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Build on Debian Stable
+      - name: Build on Debian ${{ matrix.version }}
         run: |
           sudo apt purge -y podman
           sudo mkdir -p /etc/apt/keyrings
@@ -106,50 +109,12 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman
           podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
-          sudo cp out/Debian-Stable.zip /Debian-Stable.zip
+          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debian${{ matrix.version }} --output out .
+          sudo cp out/Debian-${{ matrix.version }}.zip /Debian-${{ matrix.version }}.zip
       - uses: actions/upload-artifact@v3
         with:
-          name: Debian-Stable.zip
-          path: /Debian-Stable.zip
-  debian-testing:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Debian Testing
-        run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out .
-          sudo cp out/Debian-Testing.zip /Debian-Testing.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Debian-Testing.zip
-          path: /Debian-Testing.zip
-  debian-unstable:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Debian Unstable
-        run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out .
-          sudo cp out/Debian-Unstable.zip /Debian-Unstable.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Debian-Unstable.zip
-          path: /Debian-Unstable.zip
+          name: Debian-${{ matrix.version }}.zip
+          path: /Debian-${{ matrix.version }}.zip
   tests:
     runs-on: ubuntu-22.04
     steps:
