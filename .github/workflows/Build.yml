@@ -145,7 +145,7 @@ jobs:
           swift build -c release --static-swift-stdlib
           ./scripts/run_regression_tests.sh
   build-debs-ubuntu:
-    needs: ubuntu
+    needs: ubuntu_in_container
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
