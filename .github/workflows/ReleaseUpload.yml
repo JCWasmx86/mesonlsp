@@ -298,9 +298,10 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         shell: bash
         run: |
-          sudo apt-get -y install podman dpkg reprepro unzip
+          sudo apt-get update -y
+          sudo apt-get -y install podman dpkg reprepro unzip sudo || sudo apt-get -y install podman dpkg reprepro unzip
           ls
-          cp -v *.deb /
+          sudo cp -v *.deb /
           git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/swift-mesonlsp-apt-repo target
           cd target
           git config --global user.email "JCWasmx86@t-online.de"
