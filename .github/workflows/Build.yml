@@ -77,14 +77,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build on Ubuntu ${{ matrix.version }}
         run: |
-          apt install -y sudo
-          sudo apt install lsb-release || true
-          sudo apt install lsb-core
+          apt install lsb-release -y|| true
+          apt install lsb-core -y || true
           ./scripts/ci_ubuntu_install.sh
           pushd /
-          sudo wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
-          sudo tar xzvf swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
-          sudo rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          tar xzvf swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
           export PATH=$PATH:/swift-5.9-RELEASE-ubuntu${{ matrix.version }}/usr/bin
           popd
           ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
