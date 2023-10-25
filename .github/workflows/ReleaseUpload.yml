@@ -119,10 +119,10 @@ jobs:
         apt-get update -y
         apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
         pushd /
-        wget https://download.swift.org/swift-5.9-release/ubuntu2204/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu22.04.tar.gz
-        tar xvf swift-5.9-RELEASE-ubuntu22.04.tar.gz
+        wget https://download.swift.org/swift-5.9-release/ubuntu2204/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
+        tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
         popd
-        /swift-5.9-RELEASE-ubuntu22.04/usr/bin/swift build -c release --static-swift-stdlib
+        /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
         cp .build/release/Swift-MesonLSP .
         zip -9 Debian-Testing.zip Swift-MesonLSP
         cp Debian-Testing.zip /
