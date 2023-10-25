@@ -157,7 +157,6 @@ jobs:
           skip_unpack: false
           path: ./out
           run_id: ${{ github.event.workflow_run.id }}
-          allow_forks: false
       - name: Download artifact for 20.04
         id: download-artifact-2004
         uses: dawidd6/action-download-artifact@v2
@@ -166,7 +165,6 @@ jobs:
           skip_unpack: false
           path: ./out1
           run_id: ${{ github.event.workflow_run.id }}
-          allow_forks: false
       - name: Download artifact for 22.04
         id: download-artifact-2204
         uses: dawidd6/action-download-artifact@v2
@@ -175,7 +173,6 @@ jobs:
           skip_unpack: false
           path: ./out2
           run_id: ${{ github.event.workflow_run.id }}
-          allow_forks: false
       - name: Build deb files
         run: |
           sudo apt-get -y install dpkg
