@@ -1423,15 +1423,36 @@ public final class MesonServer: LanguageServer {
       self.subprojects = old
       return
     }
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     for err in self.subprojects!.errors {
       Self.LOG.error("Got error during setting up subprojects: \(err)")
     }
     Self.LOG.info("Setup all directories for subprojects")
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     let count = Double(self.subprojects!.subprojects.count)
     var n = 0
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     for sp in self.subprojects!.subprojects {
       let percentage = Int((Double(n + 1) / count) * 100)
       let progressMessage = WorkDoneProgress(
@@ -1461,10 +1482,24 @@ public final class MesonServer: LanguageServer {
       self.astCaches[sp.realpath] = cache
       n += 1
     }
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     self.mapper.subprojects = self.subprojects!
     Self.LOG.info("Setup all subprojects, rebuilding tree (If there were any found)")
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     if !self.subprojects!.subprojects.isEmpty {
       if self.parseTask != nil {
         do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
@@ -1500,10 +1535,24 @@ public final class MesonServer: LanguageServer {
       )
     )
     self.client.send(beginMessage)
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     let count = Double(self.subprojects!.subprojects.count)
     var n = 0
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     for s in self.subprojects!.subprojects {
       n += 1
       let percentage = Int((Double(n + 1) / count) * 100)
@@ -1548,7 +1597,14 @@ public final class MesonServer: LanguageServer {
         self.astCaches[s.realpath] = cache
       } catch let err { Self.LOG.info("\(err)") }
     }
-    if self.subprojects == nil { return }
+    if self.subprojects == nil {
+      let endMessage = WorkDoneProgress(
+        token: t,
+        value: WorkDoneProgressKind.end(WorkDoneProgressEnd())
+      )
+      self.client.send(endMessage)
+      return
+    }
     if !self.subprojects!.subprojects.isEmpty {
       if self.parseTask != nil {
         do { try await self.parseTask!.value } catch let err { Self.LOG.info("\(err)") }
