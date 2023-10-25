@@ -12,8 +12,6 @@ jobs:
       image: ghcr.io/greyltc-org/archlinux-aur:yay
     steps:
     - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
     - name: Build on arch
       run: |
         aur-install swift-bin
@@ -32,8 +30,6 @@ jobs:
       image: fedora:${{ matrix.version }}
     steps:
     - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
     - name: Build on Fedora ${{ matrix.version }}
       run: |
         sudo dnf install zip swift-lang git libstdc++-static -y
@@ -77,10 +73,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:${{ matrix.version }}
-    - name: Build on Ubuntu ${{ matrix.version }}
-      run: |
-        ./scripts/ci_ubuntu_install.sh
-        ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Ubuntu ${{ matrix.version }}
+        run: |
+          ./scripts/ci_ubuntu_install.sh
+          ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
     - uses: actions/upload-artifact@v3
       with:
         name: Ubuntu${{ matrix.version }}.zip
