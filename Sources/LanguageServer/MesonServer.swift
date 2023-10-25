@@ -1396,7 +1396,11 @@ public final class MesonServer: LanguageServer {
       return
     }
     do {
-      self.subprojects = try SubprojectState(rootDir: self.path!, onProgress: onProgress)
+      self.subprojects = try SubprojectState(
+        rootDir: self.path!,
+        onProgress: onProgress,
+        disableDownloads: self.otherSettings.neverDownloadAutomatically
+      )
       self.subprojectsDirectoryMtime = self.getDirectoryModificationTime(
         path: self.path! + "\(Path.separator)subprojects"
       )

@@ -11,7 +11,11 @@ public class SubprojectState {
   var onProgress: ((String) -> Void)?
 
   // swiftlint:disable cyclomatic_complexity
-  public init(rootDir: String, onProgress: ((String) -> Void)? = nil) throws {
+  public init(
+    rootDir: String,
+    onProgress: ((String) -> Void)? = nil,
+    disableDownloads: Bool = false
+  ) throws {
     let p = Path(rootDir + "\(Path.separator)subprojects")
     self.onProgress = onProgress
     if !p.exists {
@@ -31,6 +35,7 @@ public class SubprojectState {
     let packagefiles = Path(p.description + "\(Path.separator)packagefiles").absolute().description
     let children = try p.children()
     for child in children {
+      if disableDownloads { continue }
       if child.isFile && child.lastComponent.hasSuffix(".wrap") {
         let wfp = WrapFileParser(path: child.absolute().description)
         do {
