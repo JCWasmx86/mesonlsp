@@ -4,6 +4,7 @@
 - Fix bug that caused "Updating subprojects" to be persistent.
 - Disable downloads of wraps/subprojects, if `others.neverDownloadAutomatically` is set. This *will* show you errors, for every `subproject('XXX')` call that is only
   available as wrap!
+- Deduplicate CompletionItems
 # 3.0.6 (Oct 24 2023)
 - Add semantic tokens for functions and methods
 - Add `others.disableInlayHints` configuration option for disabling inlay hints (#15)
