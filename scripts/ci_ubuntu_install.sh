@@ -3,6 +3,8 @@
 . /etc/os-release
 ubuntu_version=$VERSION_ID
 echo "Detected Ubuntu version: $ubuntu_version"
+export DEBIAN_FRONTEND=noninteractive
+export TZ=Etc/UTC
 case "$ubuntu_version" in
 "18.04")
         apt update
