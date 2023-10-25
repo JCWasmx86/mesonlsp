@@ -424,6 +424,9 @@ public final class MesonServer: LanguageServer {
     let begin = clock()
     var arr: [CompletionItem] = []
     let fp = req.params.textDocument.uri.fileURL!.path
+    while self.parseTask != nil {
+
+    }
     if let t = self.tree, let mt = t.findSubdirTree(file: fp), mt.ast != nil,
       let content = self.getContents(file: fp)
     {
