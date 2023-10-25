@@ -78,11 +78,14 @@ jobs:
         with:
           name: Fedora39.zip
           path: /Fedora39.zip
-  macos12:
-    runs-on: macos-12
+  macos:
+    strategy:
+      matrix:
+        version: [12, 13]
+    runs-on: macos-${{ matrix.version }}
     steps:
       - uses: actions/checkout@v3
-      - name: Build on MacOS 12
+      - name: Build on MacOS ${{ matrix.version }}
         run: |
           swift build
           swift test
@@ -93,37 +96,14 @@ jobs:
           ./scripts/do_meson_tests.sh
           ./scripts/run_regression_tests.sh
           yes | brew install mercurial
+          yes | brew install subversion || true
           ./scripts/run_wrap_tests.sh
           swift build -c release
           mkdir -p ${{ github.workspace }}/Artifacts
           sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
       - uses: actions/upload-artifact@v3
         with:
-          name: MacOS12.zip
-          path: ${{ github.workspace }}/Artifacts
-  macos13:
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on MacOS 13
-        run: |
-          swift build
-          swift test
-          ./.build/debug/Swift-MesonLSP --test TestCases/BasicTests/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/Options/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSubdirs/meson.build
-          ./.build/debug/Swift-MesonLSP --test TestCases/ComputeSetVariable/meson.build
-          ./scripts/do_meson_tests.sh
-          ./scripts/run_regression_tests.sh
-          yes | brew install mercurial
-          yes | brew install subversion
-          ./scripts/run_wrap_tests.sh
-          swift build -c release
-          mkdir -p ${{ github.workspace }}/Artifacts
-          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
-      - uses: actions/upload-artifact@v3
-        with:
-          name: MacOS13.zip
+          name: MacOS${{ matrix.version }}.zip
           path: ${{ github.workspace }}/Artifacts
   ubuntu1804:
     runs-on: ubuntu-22.04
