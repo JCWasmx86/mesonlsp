@@ -84,29 +84,120 @@ jobs:
 
       - name: Submit the build by uploading the source RPM
         run: copr build jcwasmx86/Swift-MesonLSP *.src.rpm
-  update-apt-repo:
-    name: Update APT repo
+  debian_stable_in_container:
     runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
     steps:
-      - name: Check out proper version of sources
-        uses: actions/checkout@v1
-      - name: Build and upload deb files
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+    - uses: actions/checkout@v1
+    - name: Build on Debian Stable
+      shell: bash
+      run: |
+        apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
+        pushd /
+        wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
+        tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
+        popd
+        /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
+        cp .build/release/Swift-MesonLSP .
+        zip -9 Debian-Stable.zip Swift-MesonLSP
+        cp Debian-Stable.zip /
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Debian-Stable.zip
+        path: /Debian-Stable.zip
+  debian_testing_in_container:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build on Debian Testing
+      shell: bash
+      run: |
+        apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
+        pushd /
+        wget https://download.swift.org/swift-5.9-release/ubuntu2204/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu22.04.tar.gz
+        tar xvf swift-5.9-RELEASE-ubuntu22.04.tar.gz
+        popd
+        /swift-5.9-RELEASE-ubuntu22.04/usr/bin/swift build -c release --static-swift-stdlib
+        cp .build/release/Swift-MesonLSP .
+        zip -9 Debian-Testing.zip Swift-MesonLSP
+        cp Debian-Testing.zip /
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Debian-Testing.zip
+        path: /Debian-Testing.zip
+  debian_unstable_in_container:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:sid
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build on Debian Unstable
+      shell: bash
+      run: |
+        apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
+        pushd /
+        wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
+        tar xvf swift-5.9-RELEASE-ubuntu22.04.tar.gz
+        popd
+        /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
+        cp .build/release/Swift-MesonLSP .
+        zip -9 Debian-Unstable.zip Swift-MesonLSP
+        cp Debian-Unstable.zip /
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Debian-Unstable.zip
+        path: /Debian-Unstable.zip
+  ubuntu_in_container:
+    strategy:
+      matrix:
+        version: ["18.04", "20.04", "22.04"]
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Ubuntu ${{ matrix.version }}
+        shell: bash
         run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman dpkg reprepro
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu1804 --output out .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu2004 --output out1 .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu --output out2 .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
+          apt install lsb-release -y|| true
+          apt install lsb-core -y || true
+          ./scripts/ci_ubuntu_install.sh
+          pushd /
+          wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          tar xzvf swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          export PATH=$PATH:/swift-5.9-RELEASE-ubuntu${{ matrix.version }}/usr/bin
+          popd
+          swift --version
+          ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Ubuntu${{ matrix.version }}.zip
+          path: /Ubuntu${{ matrix.version }}.zip
+  build-debs-ubuntu:
+    needs: ubuntu_in_container
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: Ubuntu18.04.zip
+          path: out
+      - uses: actions/download-artifact@v3
+        with:
+          name: Ubuntu20.04.zip
+          path: out1
+      - uses: actions/download-artifact@v3
+        with:
+          name: Ubuntu22.04.zip
+          path: out2
+      - name: Build deb files
+        run: |
+          sudo apt-get -y install dpkg
+          find out out1 out2
           cd out
           unzip Ubuntu18.04.zip
           cd ../out1
@@ -115,13 +206,39 @@ jobs:
           unzip Ubuntu22.04.zip
           cd ..
           sudo ./.debian/build_debs_ubuntu.sh
-          rm -rf out out1 out2
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out1 .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out2 .
-          docker system prune -af && docker image prune -af && docker system prune -af --volumes && docker system df
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-18.04.deb
+          path: /Swift-MesonLSP-ubuntu-18.04.deb
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-20.04.deb
+          path: /Swift-MesonLSP-ubuntu-20.04.deb
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-22.04.deb
+          path: /Swift-MesonLSP-ubuntu-22.04.deb
+  build-debs-debian:
+    needs: ["debian_stable_in_container", "debian_testing_in_container", "debian_unstable_in_container"]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: Debian-Stable.zip
+          path: out
+      - uses: actions/download-artifact@v3
+        with:
+          name: Debian-Testing.zip
+          path: out1
+      - uses: actions/download-artifact@v3
+        with:
+          name: Debian-Unstable.zip
+          path: out2
+      - name: Build deb files
+        run: |
+          sudo apt-get -y install dpkg
+          find out out1 out2
           cd out
           unzip Debian-Stable.zip
           cd ../out1
@@ -130,6 +247,57 @@ jobs:
           unzip Debian-Unstable.zip
           cd ..
           sudo ./.debian/build_debs_debian.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-stable.deb
+          path: /Swift-MesonLSP-debian-stable.deb
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-testing.deb
+          path: /Swift-MesonLSP-debian-testing.deb
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-unstable.deb
+          path: /Swift-MesonLSP-debian-unstable.deb
+  update-apt-repo:
+    name: Update APT repo
+    needs: ["build-debs-debian", "build-debs-ubuntu"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proper version of sources
+        uses: actions/checkout@v1
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-stable.deb
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-testing.deb
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-debian-unstable.deb
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-18.04.deb
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-20.04.deb
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: Swift-MesonLSP-ubuntu-22.04.deb
+          path: .
+      - name: Build and upload deb files
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        shell: bash
+        run: |
+          sudo apt-get -y install podman dpkg reprepro unzip
+          ls
+          cp -v *.deb /
           git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/swift-mesonlsp-apt-repo target
           cd target
           git config --global user.email "JCWasmx86@t-online.de"
