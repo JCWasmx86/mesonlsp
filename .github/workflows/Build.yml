@@ -70,63 +70,21 @@ jobs:
         with:
           name: MacOS${{ matrix.version }}.zip
           path: ${{ github.workspace }}/Artifacts
-  ubuntu1804:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Ubuntu 18.04
-        run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu1804 --output out .
-          sudo cp out/Ubuntu18.04.zip /Ubuntu18.04.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Ubuntu18.04.zip
-          path: /Ubuntu18.04.zip
-  ubuntu2004:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Ubuntu 20.04
-        run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu2004 --output out .
-          sudo cp out/Ubuntu20.04.zip /Ubuntu20.04.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Ubuntu20.04.zip
-          path: /Ubuntu20.04.zip
-  ubuntu2204:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Ubuntu 22.04
-        run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.ubuntu --output out .
-          sudo cp out/Ubuntu22.04.zip /Ubuntu22.04.zip
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Ubuntu22.04.zip
-          path: /Ubuntu22.04.zip
+  ubuntu:
+    strategy:
+      matrix:
+        version: ["18.04", "20.04", "22.04"]
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:${{ matrix.version }}
+    - name: Build on Ubuntu ${{ matrix.version }}
+      run: |
+        ./scripts/ci_ubuntu_install.sh
+        ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Ubuntu${{ matrix.version }}.zip
+        path: /Ubuntu${{ matrix.version }}.zip
   debian-stable:
     runs-on: ubuntu-22.04
     steps:
