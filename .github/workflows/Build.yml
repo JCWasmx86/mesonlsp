@@ -149,30 +149,18 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Download artifact for 18.04
-        id: download-artifact-1804
-        uses: dawidd6/action-download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Ubuntu18.04.zip
-          skip_unpack: false
-          path: ./out
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-      - name: Download artifact for 20.04
-        id: download-artifact-2004
-        uses: dawidd6/action-download-artifact@v2
+          path: out
+      - uses: actions/download-artifact@v3
         with:
           name: Ubuntu20.04.zip
-          skip_unpack: false
-          path: ./out1
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-      - name: Download artifact for 22.04
-        id: download-artifact-2204
-        uses: dawidd6/action-download-artifact@v2
+          path: out1
+      - uses: actions/download-artifact@v3
         with:
           name: Ubuntu22.04.zip
-          skip_unpack: false
-          path: ./out2
-          workflow: ${{ github.event.workflow_run.workflow_id }}
+          path: out2
       - name: Build deb files
         run: |
           sudo apt-get -y install dpkg
