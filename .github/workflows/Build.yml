@@ -6,6 +6,28 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 jobs:
+  arch_in_container:
+    runs-on: ubuntu-latest
+      container: ghcr.io/greyltc-org/archlinux-aur:yay
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Build on arch
+      run: |
+        aur-install swift-bin
+        pacman -S zip git --noconfirm
+        swift build
+        cp .build/debug/Swift-MesonLSP Swift-MesonLSP.debug
+        swift test || exit 1
+        swift build -c release --static-swift-stdlib
+        cp .build/release/Swift-MesonLSP Swift-MesonLSP
+        zip -9 ArchLinux.zip Swift-MesonLSP.debug Swift-MesonLSP
+        sudo cp ArchLinux.zip /
+    - uses: actions/upload-artifact@v3
+        with:
+          name: ArchLinux.zip
+          path: /ArchLinux.zip
   fedora:
     runs-on: ubuntu-22.04
     steps:
