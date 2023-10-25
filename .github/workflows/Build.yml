@@ -153,7 +153,7 @@ jobs:
         id: download-artifact-1804
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu18.04.zip
+          name: Ubuntu18.04
           skip_unpack: false
           path: ./out
           run_id: ${{ github.event.workflow_run.id }}
@@ -161,7 +161,7 @@ jobs:
         id: download-artifact-2004
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu20.04.zip
+          name: Ubuntu20.04
           skip_unpack: false
           path: ./out1
           run_id: ${{ github.event.workflow_run.id }}
@@ -169,7 +169,7 @@ jobs:
         id: download-artifact-2204
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu22.04.zip
+          name: Ubuntu22.04
           skip_unpack: false
           path: ./out2
           run_id: ${{ github.event.workflow_run.id }}
