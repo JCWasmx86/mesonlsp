@@ -23,38 +23,23 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-  build-macos12:
-    name: Build and upload macOS 12
-    runs-on: macos-12
+  build-macos:
+    strategy:
+      matrix:
+        version: [12, 13]
+    name: Build and upload macOS ${{ matrix.version }}
+    runs-on: macos-${{ matrix.version }}
     steps:
       - uses: actions/checkout@v3
       - name: Build
         run: |
           swift build -c release
           ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP-macos12.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
+          zip -9jpr Swift-MesonLSP-macos${{ matrix.version }}.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: Swift-MesonLSP-macos12.zip
-          verbose: true
-          update_latest_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-  build-macos13:
-    name: Build and upload macOS 13
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: |
-          swift build -c release
-          ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP-macos13.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
-      - name: Upload to release
-        uses: xresloader/upload-to-github-release@main
-        with:
-          file: Swift-MesonLSP-macos13.zip
+          file: Swift-MesonLSP-macos${{ matrix.version }}.zip
           verbose: true
           update_latest_release: true
         env:
