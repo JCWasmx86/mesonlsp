@@ -153,26 +153,26 @@ jobs:
         id: download-artifact-1804
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu18.04
+          name: Ubuntu18.04.zip
           skip_unpack: false
           path: ./out
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Download artifact for 20.04
         id: download-artifact-2004
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu20.04
+          name: Ubuntu20.04.zip
           skip_unpack: false
           path: ./out1
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Download artifact for 22.04
         id: download-artifact-2204
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Ubuntu22.04
+          name: Ubuntu22.04.zip
           skip_unpack: false
           path: ./out2
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Build deb files
         run: |
           sudo apt-get -y install dpkg
@@ -206,26 +206,26 @@ jobs:
         id: download-artifact-stable
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Debian-Stable
+          name: Debian-Stable.zip
           skip_unpack: false
           path: ./out
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Download artifact for testing
         id: download-artifact-testing
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Debian-Testing
+          name: Debian-Testing.zip
           skip_unpack: false
           path: ./out1
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Download artifact for unstable
         id: download-artifact-unstable
         uses: dawidd6/action-download-artifact@v2
         with:
-          name: Debian-Unstable
+          name: Debian-Unstable.zip
           skip_unpack: false
           path: ./out2
-          run_id: ${{ github.event.workflow_run.id }}
+          workflow: ${{ github.event.workflow_run.workflow_id }}
       - name: Build deb files
         run: |
           sudo apt-get -y install dpkg
