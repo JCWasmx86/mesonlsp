@@ -77,6 +77,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build on Ubuntu ${{ matrix.version }}
         run: |
+          sudo apt install lsb-release || true
+          sudo apt install lsb-core
           ./scripts/ci_ubuntu_install.sh
           pushd /
           sudo wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
