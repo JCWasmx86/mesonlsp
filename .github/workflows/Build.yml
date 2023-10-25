@@ -87,7 +87,6 @@ jobs:
           rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
           export PATH=$PATH:/swift-5.9-RELEASE-ubuntu${{ matrix.version }}/usr/bin
           popd
-          ls
           swift --version
           ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
       - uses: actions/upload-artifact@v3
