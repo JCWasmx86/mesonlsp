@@ -78,6 +78,12 @@ jobs:
       - name: Build on Ubuntu ${{ matrix.version }}
         run: |
           ./scripts/ci_ubuntu_install.sh
+          pushd /
+          sudo wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          sudo tar xzvf swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          sudo rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
+          export PATH=$PATH:/swift-5.9-RELEASE-ubuntu${{ matrix.version }}/usr/bin
+          popd
           ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
       - uses: actions/upload-artifact@v3
         with:
