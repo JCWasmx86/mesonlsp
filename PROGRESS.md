@@ -106,6 +106,7 @@
 - [ ] Semantic tokens
   - [x] Single-line strings
   - [ ] Multi-line strings
+- [x] Actions need cleanup
 - [x] Folding range
   - [x] Foreach-Loops
   - [x] Selection-Statements
@@ -115,7 +116,6 @@
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
 - [ ] Automatic LSP tests
-- [ ] Actions need cleanup
 - [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
