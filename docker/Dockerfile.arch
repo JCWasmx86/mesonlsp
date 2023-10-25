@@ -1,8 +1,0 @@
-FROM ghcr.io/greyltc-org/archlinux-aur:yay
-RUN aur-install swift-bin
-WORKDIR /app
-RUN pacman -S git --noconfirm
-RUN git clone https://github.com/JCWasmx86/Swift-MesonLSP
-WORKDIR /app/Swift-MesonLSP
-RUN swift build && swift test && exit 0
-RUN exit 1
