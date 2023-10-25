@@ -26,9 +26,9 @@ jobs:
         zip -9 ArchLinux.zip Swift-MesonLSP.debug Swift-MesonLSP
         sudo cp ArchLinux.zip /
     - uses: actions/upload-artifact@v3
-        with:
-          name: ArchLinux.zip
-          path: /ArchLinux.zip
+      with:
+        name: ArchLinux.zip
+        path: /ArchLinux.zip
   fedora:
     runs-on: ubuntu-22.04
     steps:
