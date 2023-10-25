@@ -8,7 +8,8 @@ on:
 jobs:
   arch_in_container:
     runs-on: ubuntu-latest
-      container: ghcr.io/greyltc-org/archlinux-aur:yay
+    container:
+      image: ghcr.io/greyltc-org/archlinux-aur:yay
     steps:
     - uses: actions/checkout@v1
       with:
