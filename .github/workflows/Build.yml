@@ -202,18 +202,33 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Download artifact for stable
+        id: download-artifact-stable
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Debian-Stable
+          skip_unpack: false
+          path: ./out
+          run_id: ${{ github.event.workflow_run.id }}
+      - name: Download artifact for testing
+        id: download-artifact-testing
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Debian-Testing
+          skip_unpack: false
+          path: ./out1
+          run_id: ${{ github.event.workflow_run.id }}
+      - name: Download artifact for unstable
+        id: download-artifact-unstable
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Debian-Unstable
+          skip_unpack: false
+          path: ./out2
+          run_id: ${{ github.event.workflow_run.id }}
       - name: Build deb files
         run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman dpkg
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianStable --output out .
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianTesting --output out1 .
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debianUnstable --output out2 .
+          sudo apt-get -y install dpkg
           cd out
           unzip Debian-Stable.zip
           cd ../out1
