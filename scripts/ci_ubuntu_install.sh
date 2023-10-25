@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-ubuntu_version=$(lsb_release -rs)
+. /etc/os-release
+ubuntu_version=$VERSION_ID
 echo "Detected Ubuntu version: $ubuntu_version"
 case "$ubuntu_version" in
 "18.04")
