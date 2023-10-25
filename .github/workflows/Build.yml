@@ -79,10 +79,10 @@ jobs:
         run: |
           ./scripts/ci_ubuntu_install.sh
           ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
-    - uses: actions/upload-artifact@v3
-      with:
-        name: Ubuntu${{ matrix.version }}.zip
-        path: /Ubuntu${{ matrix.version }}.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Ubuntu${{ matrix.version }}.zip
+          path: /Ubuntu${{ matrix.version }}.zip
   debian-stable:
     runs-on: ubuntu-22.04
     steps:
