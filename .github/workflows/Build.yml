@@ -145,6 +145,7 @@ jobs:
           swift build -c release --static-swift-stdlib
           ./scripts/run_regression_tests.sh
   build-debs-ubuntu:
+    needs: ubuntu
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -181,6 +182,7 @@ jobs:
           name: Swift-MesonLSP-ubuntu-22.04.deb
           path: /Swift-MesonLSP-ubuntu-22.04.deb
   build-debs-debian:
+    needs: debian
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
