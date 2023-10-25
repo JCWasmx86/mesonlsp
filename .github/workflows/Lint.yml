@@ -72,7 +72,7 @@ jobs:
           sudo apt install -y xz-utils tar
           wget https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz
           tar xvf shellcheck-v0.9.0.linux.x86_64.tar.xz
-          ./shellcheck-v0.9.0/shellcheck scripts/*.sh .debian/*.sh Benchmarks/*.sh
+          ./shellcheck-v0.9.0/shellcheck -x scripts/*.sh .debian/*.sh Benchmarks/*.sh
   shfmt:
     runs-on: ubuntu-22.04
     steps:
