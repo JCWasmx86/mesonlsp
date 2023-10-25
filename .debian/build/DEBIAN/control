@@ -1,5 +1,5 @@
 Package: swift-mesonlsp
-Version: 3.0.9
+Version: 3.0.10
 Architecture: amd64
 Maintainer: JCWasmx86 <JCWasmx86@t-online.de>
 Description: Language server for meson
