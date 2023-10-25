@@ -566,7 +566,13 @@ public final class MesonServer: LanguageServer {
         Self.LOG.error("Line out of bounds: \(line) > \(lines.count)")
       }
     }
-    req.reply(CompletionList(isIncomplete: false, items: arr))
+    var insertions: Set<String> = []
+    var realRet: [CompletionItem] = []
+    for completion in arr where !insertions.contains(completion.insertText!) {
+      insertions.insert(completion.insertText!)
+      realRet.append(completion)
+    }
+    req.reply(CompletionList(isIncomplete: false, items: realRet))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
   }
 
