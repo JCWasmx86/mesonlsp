@@ -2,9 +2,9 @@ name: Lint Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -13,11 +13,11 @@ jobs:
     container:
       image: ghcr.io/realm/swiftlint:latest
     steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: SwiftLint
-      run: |
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: SwiftLint
+        run: |
           swiftlint Package.swift Sources/ Tests 2>&1 |grep Found.0 && exit 0
           swiftlint Package.swift Sources/ Tests
           exit 1

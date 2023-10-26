@@ -1,9 +1,9 @@
 name: Build on platforms
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 jobs:
   arch_in_container:
@@ -11,16 +11,16 @@ jobs:
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:yay
     steps:
-    - uses: actions/checkout@v1
-    - name: Build on arch
-      run: |
-        aur-install swift-bin
-        pacman -S zip git --noconfirm
-        ./scripts/ci_create_zip.sh ArchLinux
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ArchLinux.zip
-        path: /ArchLinux.zip
+      - uses: actions/checkout@v1
+      - name: Build on arch
+        run: |
+          aur-install swift-bin
+          pacman -S zip git --noconfirm
+          ./scripts/ci_create_zip.sh ArchLinux
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ArchLinux.zip
+          path: /ArchLinux.zip
   fedora_in_container:
     strategy:
       matrix:
@@ -29,16 +29,16 @@ jobs:
     container:
       image: fedora:${{ matrix.version }}
     steps:
-    - uses: actions/checkout@v1
-    - name: Build on Fedora ${{ matrix.version }}
-      run: |
-        sudo dnf install zip swift-lang git libstdc++-static -y
-        sudo dnf clean all
-        ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
-    - uses: actions/upload-artifact@v3
-      with:
-        name: Fedora${{ matrix.version }}.zip
-        path: /Fedora${{ matrix.version }}.zip
+      - uses: actions/checkout@v1
+      - name: Build on Fedora ${{ matrix.version }}
+        run: |
+          sudo dnf install zip swift-lang git libstdc++-static -y
+          sudo dnf clean all
+          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Fedora${{ matrix.version }}.zip
+          path: /Fedora${{ matrix.version }}.zip
   macos:
     strategy:
       matrix:
