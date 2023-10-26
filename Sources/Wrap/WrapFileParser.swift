@@ -20,7 +20,7 @@ public class WrapFileParser {
     let provides = parseProvideSection(ini)
     let mapped = ini.sections.map { ($0, $1) }
     guard let firstSectionKV = mapped.first(where: { $0.0.hasPrefix("wrap-") }) else {
-      throw WrapError.noWrapSectionFound("Unable to find ini section starting with wrap-")
+      throw WrapError.noWrapSectionFound("Unable to find ini section starting with wrap- in \(self.path)")
     }
     let name = firstSectionKV.0
     let firstSection = firstSectionKV.1
