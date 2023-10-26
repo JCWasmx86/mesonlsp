@@ -114,6 +114,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build on Debian ${{ matrix.cfg.name }}
+        shell: bash
         run: |
           apt-get update -y
           apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
