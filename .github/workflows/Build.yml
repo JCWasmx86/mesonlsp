@@ -104,7 +104,7 @@ jobs:
           TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
           echo "::set-output name=matrix::$TASKS"
   debian:
-    needs: [ matrix ]
+    needs: [matrix]
     strategy:
       matrix:
         cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}

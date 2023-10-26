@@ -80,13 +80,27 @@ jobs:
 
       - name: Submit the build by uploading the source RPM
         run: copr build jcwasmx86/Swift-MesonLSP *.src.rpm
-  debian_stable_in_container:
+  matrix:
     runs-on: ubuntu-latest
-    container:
-      image: debian:bullseye
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v1
-      - name: Build on Debian Stable
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
+          echo "::set-output name=matrix::$TASKS"
+  debian:
+    needs: [matrix]
+    strategy:
+      matrix:
+        cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    runs-on: ubuntu-22.04
+    container:
+      image: debian:${{ matrix.cfg.image }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Debian ${{ matrix.cfg.name }}
         shell: bash
         run: |
           apt-get update -y
@@ -97,58 +111,12 @@ jobs:
           popd
           /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
           cp .build/release/Swift-MesonLSP .
-          zip -9 Debian-Stable.zip Swift-MesonLSP
-          cp Debian-Stable.zip /
+          zip -9 Debian-${{ matrix.cfg.name }}.zip Swift-MesonLSP
+          sudo cp Debian-${{ matrix.cfg.name }}.zip /
       - uses: actions/upload-artifact@v3
         with:
-          name: Debian-Stable.zip
-          path: /Debian-Stable.zip
-  debian_testing_in_container:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bullseye
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build on Debian Testing
-        shell: bash
-        run: |
-          apt-get update -y
-          apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
-          pushd /
-          wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          popd
-          /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
-          cp .build/release/Swift-MesonLSP .
-          zip -9 Debian-Testing.zip Swift-MesonLSP
-          cp Debian-Testing.zip /
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Debian-Testing.zip
-          path: /Debian-Testing.zip
-  debian_unstable_in_container:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:sid
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build on Debian Unstable
-        shell: bash
-        run: |
-          apt-get update -y
-          apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
-          pushd /
-          wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          popd
-          /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
-          cp .build/release/Swift-MesonLSP .
-          zip -9 Debian-Unstable.zip Swift-MesonLSP
-          cp Debian-Unstable.zip /
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Debian-Unstable.zip
-          path: /Debian-Unstable.zip
+          name: Debian-${{ matrix.cfg.name }}.zip
+          path: /Debian-${{ matrix.cfg.name }}.zip
   ubuntu_in_container:
     strategy:
       matrix:
@@ -218,12 +186,7 @@ jobs:
           name: Swift-MesonLSP-ubuntu-22.04.deb
           path: /Swift-MesonLSP-ubuntu-22.04.deb
   build-debs-debian:
-    needs:
-      [
-        "debian_stable_in_container",
-        "debian_testing_in_container",
-        "debian_unstable_in_container",
-      ]
+    needs: ["debian"]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
