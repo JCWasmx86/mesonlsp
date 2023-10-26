@@ -1,0 +1,14 @@
+[
+	{
+		"name": "Stable",
+		"image": "bullseye"
+	},
+	{
+		"name": "Testing",
+		"image": "bookworm"
+	},
+	{
+		"name": "Unstable",
+		"image": "sid"
+	}
+]

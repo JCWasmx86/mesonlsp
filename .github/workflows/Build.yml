@@ -93,28 +93,42 @@ jobs:
         with:
           name: Ubuntu${{ matrix.version }}.zip
           path: /Ubuntu${{ matrix.version }}.zip
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
+          echo "::set-output name=matrix::$TASKS"
   debian:
+    needs: [ matrix ]
     strategy:
       matrix:
-        version: ["Stable", "Testing", "Unstable"]
+        cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
     runs-on: ubuntu-22.04
+    container:
+      image: debian:${{ matrix.cfg.image }}
     steps:
       - uses: actions/checkout@v3
-      - name: Build on Debian ${{ matrix.version }}
+      - name: Build on Debian ${{ matrix.cfg.name }}
         run: |
-          sudo apt purge -y podman
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
-          sudo apt-get update
-          sudo apt-get -y install podman
-          podman --version
-          DOCKER_BUILDKIT=1 docker build --file docker/Dockerfile.debian${{ matrix.version }} --output out .
-          sudo cp out/Debian-${{ matrix.version }}.zip /Debian-${{ matrix.version }}.zip
+          apt-get update -y
+          apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
+          pushd /
+          wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
+          tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
+          popd
+          /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
+          cp .build/release/Swift-MesonLSP .
+          zip -9 Debian-${{ matrix.cfg.name }}.zip Swift-MesonLSP
+          sudo cp Debian-${{ matrix.cfg.name }}.zip /
       - uses: actions/upload-artifact@v3
         with:
-          name: Debian-${{ matrix.version }}.zip
-          path: /Debian-${{ matrix.version }}.zip
+          name: Debian-${{ matrix.cfg.name }}.zip
+          path: /Debian-${{ matrix.cfg.name }}.zip
   tests:
     runs-on: ubuntu-22.04
     steps:
