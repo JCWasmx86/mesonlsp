@@ -19,6 +19,8 @@ A reimplementation of my Meson language server in Swift.
 - Automatic subproject/wrap downloads
 - Code actions
 - Renaming
+- Semantic Highlighting
+- Folding
 
 ![Auto Completion](Docs/img/auto-completion.png)
 ![Diagnostics](Docs/img/diags.png)
