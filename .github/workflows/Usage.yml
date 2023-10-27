@@ -12,7 +12,7 @@ jobs:
       - name: Set Start Date
         run: echo "START_DATE=$(date -d "$(date +'%Y%m01') 1 month ago" +'%Y-%m-%d')" >> $GITHUB_ENV
       - name: Set End Date
-        run: echo "END_DATE=$(date -d "$(date +'%Y%m01') 1 days ago" +'%Y-%m-%d')" >> $GITHUB_ENV
+        run: echo "END_DATE=$(date -d "$(date) 1 days ago" +'%Y-%m-%d')" >> $GITHUB_ENV
       - uses: muno92/gha-usage@v1
         with:
           repo: ${{ github.repository }}
