@@ -1,5 +1,5 @@
-# X.X.X (XXX XX 2023)
-- Provide universal binaries (x86_64, arm64)
+# 3.0.14 (Oct 27 2023)
+- Provide universal binaries (x86_64, arm64, by @fwcd, #23)
 # 3.0.13 (Oct 25 2023)
 - Test-Release for enhanced release workflow
 # 3.0.12 (Oct 25 2023)
