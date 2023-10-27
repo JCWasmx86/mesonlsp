@@ -318,7 +318,7 @@ jobs:
            git config --global user.name "JCWasmx86"
            git commit -a -m "Swift-MesonLSP: Bump to ${{ github.ref_name }}"
            git push --set-upstream origin bump-${{ github.ref_name }}
-           gh pr create --title "Swift-MesonLSP: Bump to ${{ github.ref_name }}" --body "Automated PR created due to a release upstream!" --repo JCWasmx86/vscode-meson
+           gh pr create --title "Swift-MesonLSP: Bump to ${{ github.ref_name }}" --body "Automated PR created due to a release upstream!" --repo mesonbuild/vscode-meson
   windows-59:
     runs-on: windows-2019
     steps:
