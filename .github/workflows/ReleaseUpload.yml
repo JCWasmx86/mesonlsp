@@ -314,7 +314,7 @@ jobs:
            git config --global user.email "JCWasmx86@t-online.de"
            git config --global user.name "JCWasmx86"
            git commit -a -m "Swift-MesonLSP: Bump to ${{ github.ref_name }}"
-           git push
+           git push --set-upstream origin bump-${{ github.ref_name }}
   windows-59:
     runs-on: windows-2019
     steps:
