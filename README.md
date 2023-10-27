@@ -118,18 +118,6 @@ Add this JSON to `:CocConfig`:
 ## Want to contribute?
 Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
 free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
-### Dependencies
-- [ConsoleKit](https://github.com/vapor/console-kit.git) - APIs for creating interactive CLI tools. (Used the loghandler from there to have nice logs)
-- [Perfect-INIParser](https://github.com/PerfectlySoft/Perfect-INIParser) - A lightweight INI file parser in Server Side Swift 
-- [sourcekit-lsp](https://github.com/apple/sourcekit-lsp) - Language Server Protocol implementation for Swift and C-based languages. (I used the JSONRPC definitions from them)
-- [SWCompression](https://github.com/tsolomko/SWCompression) - A Swift framework for working with compression, archives and containers. 
-- [swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
-- [swift-crypto](https://github.com/apple/swift-crypto) - Open-source implementation of a substantial portion of the API of Apple CryptoKit suitable for use on Linux platforms.
-- [Swifter](https://github.com/httpswift/swifter) - Tiny http server engine written in Swift programming language.
-- [swift-log](https://github.com/apple/swift-log) - A Logging API for Swift
-- [swift-backtrace](https://github.com/swift-server/swift-backtrace) - Backtraces for Swift on Linux and Windows 
-- [SwiftTreeSitter](https://github.com/ChimeHQ/SwiftTreeSitter) - Swift API for the tree-sitter incremental parsing system
-- [tree-sitter-meson](https://github.com/JCWasmx86/tree-sitter-meson) - A tree-sitter grammar for meson.build files. Forked and enhanced by me.
 
 ### Projects I tested the language server with
 - Working fine:
