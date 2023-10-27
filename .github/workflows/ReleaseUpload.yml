@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: |
-          swift build -c release
+          swift build -c release --arch x86_64 --arch arm64
           ./scripts/create_license_bundle.sh
           zip -9jpr Swift-MesonLSP-macos${{ matrix.version }}.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
