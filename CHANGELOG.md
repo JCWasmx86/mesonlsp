@@ -1,3 +1,5 @@
+# X.X.X (XXX XX 2023)
+
 # 3.0.13 (Oct 25 2023)
 - Test-Release for enhanced release workflow
 # 3.0.12 (Oct 25 2023)
