@@ -47,7 +47,7 @@ I have chosen the latter because I wanted to learn Swift.
 - For Fedora, a COPR is provided: https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/
 - For Arch, you can use the repo from [AUR](https://aur.archlinux.org/packages/swift-mesonlsp)
 - For Ubuntu 18.04,20.04,22.04 and Debian Bullseye, Bookworm, Sid you can use: https://github.com/JCWasmx86/swift-mesonlsp-apt-repo
-- For Ubuntu 22.04, MacOS 12 and Windows, you can download binaries from the release section: https://github.com/JCWasmx86/Swift-MesonLSP/releases/latest
+- For Ubuntu 22.04, MacOS 12, MacOS 13 and Windows, you can download binaries from the release section: https://github.com/JCWasmx86/Swift-MesonLSP/releases/latest
 #### Compile from source
 ```
 git clone https://github.com/JCWasmx86/Swift-MesonLSP
