@@ -14,7 +14,8 @@ def update_typescript(file):
         elif 'name: "Swift-MesonLSP.zip",' in value:
             lines[idx + 1] = f'      hash: "{sys.argv[4]}",\n'
         elif "static override version: string =" in value:
-            lines[idx] = f'  static override version: string = "{sys.argv[5]}";\n'
+            fixed_version = sys.argv[5].replace("v", "")
+            lines[idx] = f'  static override version: string = "{fixed_version}";\n'
     with open(file, "w", encoding="utf-8") as filep:
         filep.write("".join(lines).strip() + "\n")
 
