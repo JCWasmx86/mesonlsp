@@ -273,6 +273,40 @@ jobs:
           cd apt
           cp /*.deb .
           . update.sh
+  update-vscode-meson:
+    runs-on: ubuntu-latest
+    needs: ["build-ubuntu", "build-macos", "windows-59"]
+    steps:
+       - name: Check out proper version of sources
+         uses: actions/checkout@v3
+       - uses: actions/download-artifact@v3
+         with:
+           name: Swift-MesonLSP-win64.zip
+           path: .
+       - uses: actions/download-artifact@v3
+         with:
+           name: Swift-MesonLSP-macos12.zip
+           path: .
+       - uses: actions/download-artifact@v3
+         with:
+           name: Swift-MesonLSP.zip
+           path: .
+       - name: Create JCWasmx86/vscode-meson branch
+         env:
+           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+         shell: bash
+         run: |
+           git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/vscode-meson
+           cd vscode-meson
+           git checkout -b bump-${{ github.ref_name }}
+           WIN64_HASH=$(sha256sum ../Swift-MesonLSP-win64.zip|awk '{print $1}')
+           MACOS12_HASH=$(sha256sum ../Swift-MesonLSP-macos12.zip|awk '{print $1}')
+           LINUX_HASH=$(sha256sum ../Swift-MesonLSP.zip|awk '{print $1}')
+           ../scripts/release_update_vscode.py ./src/lsp/swift-mesonlsp.ts $WIN64_HASH $MACOS12_HASH $LINUX_HASH ${{ github.ref_name }} ./CHANGELOG.md
+           git config --global user.email "JCWasmx86@t-online.de"
+           git config --global user.name "JCWasmx86"
+           git commit -a -m "Swift-MesonLSP: Bump to ${{ github.ref_name }}"
+           git push
   windows-59:
     runs-on: windows-2019
     steps:
