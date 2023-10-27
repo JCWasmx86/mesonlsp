@@ -61,7 +61,7 @@ jobs:
           ./scripts/run_wrap_tests.sh
           swift build -c release --arch x86_64 --arch arm64
           mkdir -p ${{ github.workspace }}/Artifacts
-          sudo cp .build/release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
+          sudo cp .build/apple/Products/Release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS${{ matrix.version }}.zip
