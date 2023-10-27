@@ -302,6 +302,7 @@ jobs:
        - name: Create JCWasmx86/vscode-meson branch
          env:
            API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
          shell: bash
          run: |
            git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/vscode-meson
@@ -315,6 +316,7 @@ jobs:
            git config --global user.name "JCWasmx86"
            git commit -a -m "Swift-MesonLSP: Bump to ${{ github.ref_name }}"
            git push --set-upstream origin bump-${{ github.ref_name }}
+           gh pr create --reviewer tristan957 --title "Swift-MesonLSP: Bump to ${{ github.ref_name }}" --body "Automated PR created due to an release upstream!" --repo mesonbuild/vscode-meson
   windows-59:
     runs-on: windows-2019
     steps:
