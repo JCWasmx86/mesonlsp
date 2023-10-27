@@ -14,7 +14,7 @@ jobs:
         run: |
           swift build -c release --static-swift-stdlib
           ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP.zip .build/apple/Products/Release/Swift-MesonLSP 3rdparty.txt COPYING
+          zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
@@ -39,7 +39,7 @@ jobs:
         run: |
           swift build -c release --arch x86_64 --arch arm64
           ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP-macos${{ matrix.version }}.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
+          zip -9jpr Swift-MesonLSP-macos${{ matrix.version }}.zip .build/apple/Products/Release/Swift-MesonLSP 3rdparty.txt COPYING
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
