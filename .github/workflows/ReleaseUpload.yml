@@ -386,6 +386,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: Windows-5.9
+          name: Swift-MesonLSP-win64.zip
           path: Swift-MesonLSP-win64.zip
 
