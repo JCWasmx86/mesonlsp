@@ -15,7 +15,8 @@ def update_typescript(file):
             lines[idx + 1] = f'      hash: "{sys.argv[4]}",\n'
         elif "static override version: string =" in value:
             lines[idx] = f'  static override version: string = "{sys.argv[5]}";\n'
-    print("".join(lines).strip())
+    with open(file, "w", encoding="utf-8") as filep:
+        filep.write("".join(lines).strip())
 
 
 def update_changelog(changelog_file):
@@ -31,7 +32,8 @@ def update_changelog(changelog_file):
         new_lines.append("")
     new_lines.append(f"- Bump Swift-MesonLSP to {sys.argv[5]}")
     new_lines += list(map(lambda x: x.strip(), lines[old_idx:]))
-    print("\n".join(new_lines))
+    with open(changelog_file, "w", encoding="utf-8") as filep:
+        filep.write("\n".join(new_lines))
 
 
 if __name__ == "__main__":
