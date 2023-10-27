@@ -72,13 +72,13 @@ A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
 to `Swift-MesonLSP` and copy it to the right destination.
 
 ### Connect with your editor
-#### VSCode
+#### VSCode (Official support)
 Install the official meson extension. If you don't have Swift-MesonLSP in the PATH,
 it will ask you whether it should download the language server.
-#### GNOME Builder 45 and GNOME Builder Nightly
+#### GNOME Builder 45 and GNOME Builder Nightly (Official support)
 You have to do nothing. The editor already has the support code for Swift-MesonLSP. All you have to do is
 installing the language server.
-#### Kate
+#### Kate (No official support)
 Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
 {
@@ -100,7 +100,7 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
 After that, a dialog should be shown asking you to confirm that the language server may be started.
 
-#### neovim
+#### neovim (No official support)
 Add this JSON to `:CocConfig`:
 ```
 {
