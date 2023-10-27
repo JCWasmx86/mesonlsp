@@ -23,6 +23,10 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP.zip
+          path: /Swift-MesonLSP.zip
   build-macos:
     strategy:
       matrix:
@@ -44,6 +48,10 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Swift-MesonLSP-macos${{ matrix.version }}.zip
+          path: Swift-MesonLSP-macos${{ matrix.version }}.zip
   aur-publish:
     runs-on: ubuntu-latest
     steps:
@@ -376,3 +384,8 @@ jobs:
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows-5.9
+          path: Swift-MesonLSP-win64.zip
+
