@@ -62,9 +62,6 @@ open class LanguageServerEndpoint {
     }
   }
 
-  /// The set of outstanding requests that may be cancelled.
-  public var requestCancellation: [RequestCancelKey: CancellationToken] = [:]
-
   /// Creates a language server for the given client.
   public init() {
 
@@ -181,14 +178,7 @@ extension LanguageServerEndpoint: MessageHandler {
 
     queue.async {
 
-      let cancellationToken = CancellationToken()
-      let key = RequestCancelKey(client: clientID, request: id)
-
-      self.requestCancellation[key] = cancellationToken
-
-      let request = Request(params, id: id, clientID: clientID, cancellation: cancellationToken) {
-        [weak self] result in
-        self?.queue.async { self?.requestCancellation[key] = nil }
+      let request = Request(params, id: id, clientID: clientID) { [weak self] result in
         reply(result)
         self?._logResponse(result, id: id, method: R.method)
       }
