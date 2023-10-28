@@ -111,6 +111,7 @@
   - [x] Foreach-Loops
   - [x] Selection-Statements
 - [x] Automatic update of vscode-meson
+- [ ] Improve heuristics for subdir etc.
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
