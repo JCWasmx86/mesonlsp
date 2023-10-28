@@ -110,6 +110,7 @@
 - [x] Folding range
   - [x] Foreach-Loops
   - [x] Selection-Statements
+- [x] Automatic update of vscode-meson
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
@@ -132,4 +133,3 @@
     - [x] Applying diffs works
 - [ ] Maybe contact Jetbrains (See: https://matrix.to/#/!GNNuZCPFOXyoAJPmtC:matrix.org/$Q0nPPHlWA_tSn0R_DuFn49yDmlkTLru7R1QnfnkQSVc?via=matrix.org&via=gnome.org&via=fedora.im)
 - [ ] Add support for linting/completion of *.wrap files
-- [ ] Automatic update of vscode-meson
