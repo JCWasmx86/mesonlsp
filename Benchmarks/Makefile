@@ -40,6 +40,9 @@ serve: FORCE
 	cat v3.0.0.json >> generated.js
 	echo "];" >> generated.js
 	./extract_git_data.sh >> generated.js
+	echo "COMMIT_STATS = " >> generated.js
+	./extract_tuples.py >> generated.js
+	echo ";" >> generated.js
 	python -m http.server
 FORCE: ;
 

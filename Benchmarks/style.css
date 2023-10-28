@@ -69,7 +69,8 @@ table {
   width: 100%;
 }
 
-td, th {
+td,
+th {
   border: 1px solid #deddda;
   text-align: left;
   padding: 8px;
@@ -83,4 +84,28 @@ tr:nth-child(even) {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+#heatmap-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 1px;
+}
+#heatmap {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.heatmap-cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  min-width: 10px;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1px solid #deddda;
 }
