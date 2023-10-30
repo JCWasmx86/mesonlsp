@@ -112,12 +112,27 @@
   - [x] Selection-Statements
 - [x] Automatic update of vscode-meson
 - [ ] Improve heuristics for subdir etc.
+- [ ] More Codeactions
+  - [ ] `''.format(x,y,z)` where the arguments are only identifiers, convert to format string
+- [ ] More tests
+  - [ ] LSP-Tests using pygls
+  - [ ] Other tests using XCTest
+    - [ ] Find declaration
+    - [ ] Find definition
+    - [ ] Document symbols
+    - [ ] Folding ranges
+    - [ ] Formatting
+    - [ ] Highlighting
+    - [ ] Hover
+    - [ ] Inlay hints
+    - [ ] Semantic Tokens
+    - [ ] Completion
+    - [ ] Typeanalyzer
 ## Version n
 - [ ] Full typechecking of arguments (Depends on generating of type definitions from JSON)
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
-- [ ] Automatic LSP tests
 - [x] Add Windows to CI
   - [x] Compiles on Windows
   - [x] Works using CLI
