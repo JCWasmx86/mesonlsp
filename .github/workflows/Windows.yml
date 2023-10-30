@@ -89,7 +89,7 @@ jobs:
         uses: al-cheb/configure-pagefile-action@v1.3
         with:
           minimum-size: 3GB
-          maximum-size: 10GB
+          maximum-size: 20GB
           disk-root: "D:"
       - name: Get page file information again
         shell: powershell
