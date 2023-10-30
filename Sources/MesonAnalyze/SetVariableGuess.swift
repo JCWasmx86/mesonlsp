@@ -250,10 +250,25 @@ private func analyseIterationStatement(
       }
     }
   }
+  var idx = 0
   for b in its.ids {
     if let idexpr = b as? IdExpression, idexpr.id == toResolve.id {
-      return abstractEval(parentExpr.parent!, its.expression) + tmp
+      let vals = abstractEval(parentExpr.parent!, its.expression) + tmp
+      if its.ids.count == 1 { return vals }
+      let asDicts = Array(
+        vals.filter { $0 is DictNode }.map { $0 as! DictNode }.map { $0.node }.filter {
+          $0 is DictionaryLiteral
+        }.map { $0 as! DictionaryLiteral }
+      )
+      let asKeyValueItems = asDicts.flatMap { $0.values }.filter { $0 is KeyValueItem }.map {
+        $0 as! KeyValueItem
+      }
+      if idx == 0 {
+        return Array(asKeyValueItems.map { $0.key }.flatMap { abstractEval($0.parent!, $0) })
+      }
+      return Array(asKeyValueItems.map { $0.value }.flatMap { abstractEval($0, $0) })
     }
+    idx += 1
   }
   return resolveArrayOrDict(its, toResolve) + tmp
 }
@@ -646,6 +661,8 @@ private func abstractEval(_ parentStmt: Node, _ toEval: Node) -> [InterpretNode]
     return abstractEvalGenericSubscriptExpression(sse, parentStmt)
   } else if let fe = toEval as? FunctionExpression, isValidFunction(fe) {
     return abstractEvalFunction(fe, parentStmt)
+  } else if let ass = toEval as? AssignmentStatement {
+    return abstractEval(parentStmt, ass.rhs)
   }
   return []
 }

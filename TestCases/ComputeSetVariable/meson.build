@@ -295,3 +295,28 @@ supported_arch1 = {
 arch1 = host_machine.cpu()
 set_variable(join_paths('arch', supported_arch1[arch1]), true)
 # ana:var: arch/x861 = bool
+
+monitors = {}
+if enable_afc
+  monitors += {'Afc': true}
+endif
+if enable_goa
+  monitors += {'Goa': false}
+endif
+if enable_gphoto2
+  monitors += {'GPhoto2': true}
+endif
+monitors += {'MTP': false}
+foreach monitor, monitor_test: monitors
+  monitor_name = monitor.to_lower()
+  set_variable(monitor_name, true)
+endforeach
+# ana:var: afc = bool
+# ana:var: goa = bool
+# ana:var: mtp = bool
+other_dict = {'abcabc': 'dict11111', 'bbcbbc': 'dict22222'}
+foreach a, b: other_dict
+  set_variable(b, true)
+endforeach
+# ana:var: dict11111 = bool
+# ana:var: dict22222 = bool
