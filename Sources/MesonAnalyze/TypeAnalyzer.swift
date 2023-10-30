@@ -1065,40 +1065,38 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       }
       idx += 1
     }
-    do {
-      let matches = Self.STR_FORMAT_REGEX.matches(
-        in: s,
-        options: [],
-        range: NSRange(s.startIndex..., in: s)
-      )
+    let matches = Self.STR_FORMAT_REGEX.matches(
+      in: s,
+      options: [],
+      range: NSRange(s.startIndex..., in: s)
+    )
 
-      var found = Set<UInt>()
-      for match in matches {
-        if let range = Range(match.range(at: 1), in: s) {
-          let matchedSubstring = String(s[range])
-          let asInt = UInt(matchedSubstring)!
-          if asInt >= args.count { found.insert(asInt) }
-        }
+    var found = Set<UInt>()
+    for match in matches {
+      if let range = Range(match.range(at: 1), in: s) {
+        let matchedSubstring = String(s[range])
+        let asInt = UInt(matchedSubstring)!
+        if asInt >= args.count { found.insert(asInt) }
       }
-      if found.isEmpty {
-        if args.isEmpty {
-          self.metadata.registerDiagnostic(
+    }
+    if found.isEmpty {
+      if args.isEmpty {
+        self.metadata.registerDiagnostic(
+          node: sl.parent!,
+          diag: MesonDiagnostic(
+            sev: .warning,
             node: sl.parent!,
-            diag: MesonDiagnostic(
-              sev: .warning,
-              node: sl.parent!,
-              message: "Pointless str.format() call"
-            )
+            message: "Pointless str.format() call"
           )
-        }
-        return
+        )
       }
-      let params = found.map { "@\($0)@" }.joined(separator: ", ")
-      self.metadata.registerDiagnostic(
-        node: sl,
-        diag: MesonDiagnostic(sev: .error, node: sl, message: "Parameters out of bounds: \(params)")
-      )
-    } catch { Self.LOG.error("Error: \(error)") }
+      return
+    }
+    let params = found.map { "@\($0)@" }.joined(separator: ", ")
+    self.metadata.registerDiagnostic(
+      node: sl,
+      diag: MesonDiagnostic(sev: .error, node: sl, message: "Parameters out of bounds: \(params)")
+    )
 
   }
 
