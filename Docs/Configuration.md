@@ -6,7 +6,8 @@ The format is:
   "others": {
     "ignoreDiagnosticsFromSubprojects": false,
     "neverDownloadAutomatically": false,
-    "disableInlayHints": true
+    "disableInlayHints": true,
+    "muonPath": "someAbsolutePath"
   },
   "linting": {
     "disableNameLinting": false,
@@ -22,6 +23,7 @@ The format is:
 - `others.ignoreDiagnosticsFromSubprojects`: If true, no diagnostics from subprojects will be shown. If it is an array of strings, the diagnostics from these subprojects will be ignored.
 - `others.neverDownloadAutomatically`: If true, no subprojects/wraps are downloaded automatically. **Currently unimplemented**
 - `others.disableInlayHints`: If true, no inlay hints will be shown.
+- `others.muonPath`: Set the path to muon which will be used for formatting.
 - `linting.disableNameLinting`: Disable checking, whether the variable names are snake case
 - `linting.disableAllIdLinting`: Disables checking of all following options.
 - `linting.disableCompilerIdLinting`: Disables the comparison of string literals with the results of `compiler.get_id()` and emitting a warning, if unknown string.
