@@ -9,7 +9,10 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   static let ITERATION_DICT_VAR_COUNT = 2
   static let GET_SET_VARIABLE_ARG_COUNT_MAX = 2
   // swiftlint:disable force_try
-  static let REGEX = try! NSRegularExpression(pattern: #"@([a-zA-Z_][a-zA-Z_\d]*)@"#, options: [])
+  static let FORMAT_STRING_REGEX = try! NSRegularExpression(
+    pattern: #"@([a-zA-Z_][a-zA-Z_\d]*)@"#,
+    options: []
+  )
   // swiftlint:enable force_try
   var scope: Scope
   var t: TypeNamespace
@@ -1435,7 +1438,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     self.metadata.registerStringLiteral(node: node)
     if !node.isFormat { return }
     let s = node.contents()
-    let matches = Self.REGEX.matches(
+    let matches = Self.FORMAT_STRING_REGEX.matches(
       in: node.contents(),
       options: [],
       range: NSRange(node.contents().startIndex..., in: node.contents())
