@@ -8,6 +8,9 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   static let LOG = Logger(label: "MesonAnalyze::TypeAnalyzer")
   static let ITERATION_DICT_VAR_COUNT = 2
   static let GET_SET_VARIABLE_ARG_COUNT_MAX = 2
+  // swiftlint:disable force_try
+  static let REGEX = try! NSRegularExpression(pattern: #"@([a-zA-Z_][a-zA-Z_\d]*)@"#, options: [])
+  // swiftlint:enable force_try
   var scope: Scope
   var t: TypeNamespace
   var tree: MesonTree
@@ -1430,6 +1433,19 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   public func visitStringLiteral(node: StringLiteral) {
     node.types = [self.t.strType]
     self.metadata.registerStringLiteral(node: node)
+    if !node.isFormat { return }
+    let s = node.contents()
+    let matches = Self.REGEX.matches(
+      in: node.contents(),
+      options: [],
+      range: NSRange(node.contents().startIndex..., in: node.contents())
+    )
+    for match in matches {
+      if let range = Range(match.range(at: 1), in: s) {
+        let matchedVariable = String(s[range])
+        self.registerUsed(matchedVariable)
+      }
+    }
   }
 
   public func visitArrayLiteral(node: ArrayLiteral) {
