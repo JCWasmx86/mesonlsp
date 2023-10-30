@@ -13,6 +13,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
     pattern: #"@([a-zA-Z_][a-zA-Z_\d]*)@"#,
     options: []
   )
+  static let STR_FORMAT_REGEX = try! NSRegularExpression(pattern: #"@(\d+)@"#, options: [])
   // swiftlint:enable force_try
   var scope: Scope
   var t: TypeNamespace
@@ -1065,9 +1066,11 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       idx += 1
     }
     do {
-      let pattern = #"@(\d+)@"#
-      let regex = try NSRegularExpression(pattern: pattern, options: [])
-      let matches = regex.matches(in: s, options: [], range: NSRange(s.startIndex..., in: s))
+      let matches = Self.STR_FORMAT_REGEX.matches(
+        in: s,
+        options: [],
+        range: NSRange(s.startIndex..., in: s)
+      )
 
       var found = Set<UInt>()
       for match in matches {
