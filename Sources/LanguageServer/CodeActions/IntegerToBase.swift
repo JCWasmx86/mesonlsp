@@ -4,54 +4,53 @@ import MesonAST
 
 class IntegerToBaseCodeActionProvider: CodeActionProvider {
   func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
+    guard let il = node as? IntegerLiteral else { return [] }
     var actions: [CodeAction] = []
-    if let il = node as? IntegerLiteral {
-      let strvalue = il.value.lowercased()
-      let value = il.parse()
-      if !strvalue.starts(with: "0x") {
-        actions.append(
-          self.makeAction(
-            uri,
-            il,
-            "Convert to hexadecimal literal",
-            "0x",
-            String(value, radix: 16, uppercase: false)
-          )
+    let strvalue = il.value.lowercased()
+    let value = il.parse()
+    if !strvalue.starts(with: "0x") {
+      actions.append(
+        self.makeAction(
+          uri,
+          il,
+          "Convert to hexadecimal literal",
+          "0x",
+          String(value, radix: 16, uppercase: false)
         )
-      }
-      if !strvalue.starts(with: "0b") {
-        actions.append(
-          self.makeAction(
-            uri,
-            il,
-            "Convert to binary literal",
-            "0b",
-            String(value, radix: 2, uppercase: false)
-          )
+      )
+    }
+    if !strvalue.starts(with: "0b") {
+      actions.append(
+        self.makeAction(
+          uri,
+          il,
+          "Convert to binary literal",
+          "0b",
+          String(value, radix: 2, uppercase: false)
         )
-      }
-      if !strvalue.starts(with: "0o") {
-        actions.append(
-          self.makeAction(
-            uri,
-            il,
-            "Convert to octal literal",
-            "0o",
-            String(value, radix: 8, uppercase: false)
-          )
+      )
+    }
+    if !strvalue.starts(with: "0o") {
+      actions.append(
+        self.makeAction(
+          uri,
+          il,
+          "Convert to octal literal",
+          "0o",
+          String(value, radix: 8, uppercase: false)
         )
-      }
-      if strvalue.starts(with: "0x") || strvalue.starts(with: "0b") || strvalue.starts(with: "0o") {
-        actions.append(
-          self.makeAction(
-            uri,
-            il,
-            "Convert to decimal literal",
-            "",
-            String(value, radix: 10, uppercase: false)
-          )
+      )
+    }
+    if strvalue.starts(with: "0x") || strvalue.starts(with: "0b") || strvalue.starts(with: "0o") {
+      actions.append(
+        self.makeAction(
+          uri,
+          il,
+          "Convert to decimal literal",
+          "",
+          String(value, radix: 10, uppercase: false)
         )
-      }
+      )
     }
     return actions
   }

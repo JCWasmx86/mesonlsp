@@ -4,44 +4,43 @@ import MesonAST
 
 class SortFilenamesCodeActionProvider: CodeActionProvider {
   func findCodeActionsForNode(uri: DocumentURI, node: Node, tree: MesonTree) -> [CodeAction] {
-    if let fexpr = node as? FunctionExpression, let al = fexpr.argumentList as? ArgumentList,
-      let f = fexpr.function, let count = Shared.isSortableFunction(f), self.validArgs(al, count)
-    {
-      let strLiterals = al.args.filter { $0 as? KeywordItem == nil }[count...].map {
-        ($0 as! StringLiteral).contents()
-      }
-      let sortedStrLiterals = strLiterals.sorted(by: sortFunc)
-      if strLiterals.elementsEqual(sortedStrLiterals) { return [] }
-      if al.args.filter({ $0 as? KeywordItem == nil }).count - count != strLiterals.count {
-        fatalError(
-          "Oops: Expected \(al.args.filter { $0 as? KeywordItem == nil }.count - count), got \(strLiterals.count)"
-        )
-      }
-      let nodes = al.args.filter { $0 as? KeywordItem == nil }[count...].reversed()
-      var n = 0
-      let revSortedStrs = sortedStrLiterals.reversed()
-      var edits: [TextEdit] = []
-      while n < nodes.count {
-        let node = nodes[nodes.index(nodes.startIndex, offsetBy: n)]
-        let range = Shared.nodeToRange(node)
-        edits.append(
-          TextEdit(
-            range: range,
-            newText:
-              "'\(revSortedStrs[revSortedStrs.index(revSortedStrs.startIndex, offsetBy: n)])'"
-          )
-        )
-        n += 1
-      }
-      return [
-        CodeAction(
-          title: "Sort filenames",
-          kind: CodeActionKind.refactor,
-          edit: WorkspaceEdit(changes: [uri: edits])
-        )
-      ]
+    guard let fexpr = node as? FunctionExpression else { return [] }
+    guard let function = fexpr.function else { return [] }
+    guard let al = fexpr.argumentList as? ArgumentList else { return [] }
+    guard let count = Shared.isSortableFunction(function) else { return [] }
+    if !self.validArgs(al, count) { return [] }
+    let strLiterals = al.args.filter { $0 as? KeywordItem == nil }[count...].map {
+      ($0 as! StringLiteral).contents()
     }
-    return []
+    let sortedStrLiterals = strLiterals.sorted(by: sortFunc)
+    if strLiterals.elementsEqual(sortedStrLiterals) { return [] }
+    if al.args.filter({ $0 as? KeywordItem == nil }).count - count != strLiterals.count {
+      fatalError(
+        "Oops: Expected \(al.args.filter { $0 as? KeywordItem == nil }.count - count), got \(strLiterals.count)"
+      )
+    }
+    let nodes = al.args.filter { $0 as? KeywordItem == nil }[count...].reversed()
+    var n = 0
+    let revSortedStrs = sortedStrLiterals.reversed()
+    var edits: [TextEdit] = []
+    while n < nodes.count {
+      let node = nodes[nodes.index(nodes.startIndex, offsetBy: n)]
+      let range = Shared.nodeToRange(node)
+      edits.append(
+        TextEdit(
+          range: range,
+          newText: "'\(revSortedStrs[revSortedStrs.index(revSortedStrs.startIndex, offsetBy: n)])'"
+        )
+      )
+      n += 1
+    }
+    return [
+      CodeAction(
+        title: "Sort filenames",
+        kind: CodeActionKind.refactor,
+        edit: WorkspaceEdit(changes: [uri: edits])
+      )
+    ]
   }
 
   func sortFunc(_ a: String, _ b: String) -> Bool {
