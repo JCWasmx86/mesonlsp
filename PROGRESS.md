@@ -101,6 +101,20 @@
 - [x] Update git repos of subprojects, when a branch was specified as revision
 - [x] Basic typechecking of arguments (Not every error will be caught)
 - [x] Add progress bar for setting up the subprojects (Requires upstream work)
+- [x] Add Windows to CI
+  - [x] Compiles on Windows
+  - [x] Works using CLI
+  - [x] LSP works
+  - [x] Downloading wraps works
+  - [x] Setting up wraps works
+    - [x] wrap-git
+    - [x] wrap-svn/wrap-hg
+    - [x] wrap-file
+      - [x] tar.gz
+      - [x] tar.bz2
+      - [x] tar.xz
+      - [x] zip
+    - [x] Applying diffs works
 ## Version 4.0
 - [ ] Migrate to ChimeHQ infrastructure
 - [ ] Semantic tokens
@@ -133,19 +147,5 @@
 - [ ] Get docs from embedded JSON file, not from the MesonDocs/ module (Currently not possible/very difficult due to SPM being not that capable of embedding a file in a binary)
 - [ ] Autogenerate type definitions from JSON (Requires upstream work)
 - [ ] Don't depend on curl/wget CLI tools for downloading wraps
-- [x] Add Windows to CI
-  - [x] Compiles on Windows
-  - [x] Works using CLI
-  - [x] LSP works
-  - [x] Downloading wraps works
-  - [x] Setting up wraps works
-    - [x] wrap-git
-    - [x] wrap-svn/wrap-hg
-    - [x] wrap-file
-      - [x] tar.gz
-      - [x] tar.bz2
-      - [x] tar.xz
-      - [x] zip
-    - [x] Applying diffs works
 - [ ] Maybe contact Jetbrains (See: https://matrix.to/#/!GNNuZCPFOXyoAJPmtC:matrix.org/$Q0nPPHlWA_tSn0R_DuFn49yDmlkTLru7R1QnfnkQSVc?via=matrix.org&via=gnome.org&via=fedora.im)
 - [ ] Add support for linting/completion of *.wrap files
