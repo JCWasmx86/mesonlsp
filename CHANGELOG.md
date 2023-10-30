@@ -1,3 +1,5 @@
+# X.X.XX (XXX XX 2023)
+- Mark variables as used, if they are in a format string
 # 3.0.22 (Oct 27 2023)
 - Test-Release for enhanced release workflow
 # 3.0.21 (Oct 27 2023)
