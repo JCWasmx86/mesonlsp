@@ -50,7 +50,8 @@ public final class MesonServer: LanguageServer {
   var otherSettings = OtherSettings(
     ignoreDiagnosticsFromSubprojects: nil,
     neverDownloadAutomatically: false,
-    disableInlayHints: false
+    disableInlayHints: false,
+    muonPath: nil
   )
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
@@ -919,7 +920,11 @@ public final class MesonServer: LanguageServer {
     do {
       Self.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
       if let contents = self.getContents(file: req.params.textDocument.uri.fileURL!.path) {
-        if let formatted = try formatFile(content: contents, params: req.params.options) {
+        if let formatted = try formatFile(
+          content: contents,
+          params: req.params.options,
+          muonPath: self.otherSettings.muonPath
+        ) {
           let newLines = formatted.split(whereSeparator: \.isNewline)
           let endOfLastLine = newLines.isEmpty ? 1024 : (newLines[newLines.count - 1].count)
           let range =
@@ -1250,6 +1255,7 @@ public final class MesonServer: LanguageServer {
       var ignoreDiagnosticsFromSubprojects: [String]?
       var neverDownloadAutomatically = false
       var disableInlayHints = false
+      var muonPath: String?
       if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? Bool {
         ignoreDiagnosticsFromSubprojects = ignore ? [] : nil
       } else if let ignore = others["ignoreDiagnosticsFromSubprojects"] as? [Any] {
@@ -1263,10 +1269,12 @@ public final class MesonServer: LanguageServer {
       if let disableInlay = others["disableInlayHints"] as? Bool {
         disableInlayHints = disableInlay
       }
+      if let muon = others["muonPath"] as? String { muonPath = muon }
       self.otherSettings = OtherSettings(
         ignoreDiagnosticsFromSubprojects: ignoreDiagnosticsFromSubprojects,
         neverDownloadAutomatically: neverDownloadAutomatically,
-        disableInlayHints: disableInlayHints
+        disableInlayHints: disableInlayHints,
+        muonPath: muonPath
       )
     }
     if let lintings = dict["linting"] as? [String: Any] {
@@ -2023,15 +2031,18 @@ class OtherSettings {
   public let ignoreDiagnosticsFromSubprojects: [String]?
   public let neverDownloadAutomatically: Bool
   public let disableInlayHints: Bool
+  public let muonPath: String?
 
   public init(
     ignoreDiagnosticsFromSubprojects: [String]?,
     neverDownloadAutomatically: Bool,
-    disableInlayHints: Bool
+    disableInlayHints: Bool,
+    muonPath: String?
   ) {
     self.ignoreDiagnosticsFromSubprojects = ignoreDiagnosticsFromSubprojects
     self.neverDownloadAutomatically = neverDownloadAutomatically
     self.disableInlayHints = disableInlayHints
+    self.muonPath = muonPath
   }
 }
 

@@ -1,8 +1,10 @@
 import Foundation
 import LanguageServerProtocol
+import Logging
 
-func formatFile(content: String, params: FormattingOptions) throws -> String? {
-  if let cfgFile = writeCfgFile(params: params), let muon = findMuon() {
+func formatFile(content: String, params: FormattingOptions, muonPath: String?) throws -> String? {
+  if let cfgFile = writeCfgFile(params: params), let muon = findMuon(muonPath) {
+    Logger(label: "formatting").info("muon path: \(muon)")
     let task = Process()
     let pipe = Pipe()
     let inPipe = Pipe()
@@ -21,7 +23,11 @@ func formatFile(content: String, params: FormattingOptions) throws -> String? {
   return nil
 }
 
-private func findMuon() -> String? {
+private func findMuon(_ muonPath: String?) -> String? {
+  if muonPath != nil {
+    Logger(label: "formatting").info("Using user-provided muon path: \(muonPath!)")
+    return muonPath!
+  }
   if let path = ProcessInfo.processInfo.environment["PATH"] {
     let fileManager = FileManager.default
     #if os(Windows)
