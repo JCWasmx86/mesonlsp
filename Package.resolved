@@ -123,7 +123,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "main",
-        "revision" : "94317a7a392800aebb60652e53510a5dd74cf375"
+        "revision" : "d3955fec7153073225a0b7bf9f098ce9d62015fd"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "54c85cb26308b89846d4671f23954dce088da2b0",
-        "version" : "2.60.0"
+        "revision" : "9497e442486aab515c8486ef8153a506f93a5032",
+        "version" : "2.61.0"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e5962c445dcbbb80f0cce49abee6c8a126875ba7"
+        "revision" : "ebd7026d392f18d19eb972ab153512a66ae2fddc"
       }
     },
     {
