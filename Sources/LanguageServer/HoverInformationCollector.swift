@@ -135,7 +135,7 @@ private func callHover(content: String?, mdocs: String, function: Function?) -> 
       if pa.opt { str += "\\[" }
       str += "`\(pa.name) "
       str += pa.types.map { $0.toString() }.joined(separator: "|") + "`"
-      if pa.varargs { str += "`...`" }
+      if pa.varargs { str += "‎`...`" }
       if pa.opt { str += "\\]" }
       str += "\n"
     } else if let kw = arg as? Kwarg {
