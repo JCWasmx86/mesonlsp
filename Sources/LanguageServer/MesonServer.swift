@@ -9,11 +9,6 @@ import MesonAST
 import MesonDocs
 import Timing
 import Wrap
-
-#if !os(Windows)
-  import Swifter
-#endif
-
 // There seem to be some name collisions
 public typealias MesonVoid = ()
 

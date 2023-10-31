@@ -42,7 +42,6 @@ let package = Package(
     .package(url: "https://github.com/JCWasmx86/swift-log.git", branch: "main"),
     .package(url: "https://github.com/JCWasmx86/swift-tools-support-core.git", branch: "main"),
     .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.7.2"),
-    .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0")),
     .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
@@ -81,11 +80,7 @@ let package = Package(
       name: "LanguageServer",
       dependencies: [
         "MesonAnalyze", "Timing", "MesonDocs", "CMem", "IOUtils",
-        .product(
-          name: "Swifter",
-          package: "swifter",
-          condition: .when(platforms: [.linux, .macOS])
-        ), .product(name: "LSPBindings", package: "sourcekit-lsp"),
+        .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
       ]
     ),
