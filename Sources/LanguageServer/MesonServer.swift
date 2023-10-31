@@ -1724,6 +1724,8 @@ public final actor MesonServer: MessageHandler {
       await self.handleRequest(request, handler: self.rename)
     case let request as Request<WorkspaceSymbolsRequest>:
       await self.handleRequest(request, handler: self.workspaceSymbols)
+    case let request as Request<DocumentFormattingRequest>:
+      await self.handleRequest(request, handler: self.formatting)
     // IMPORTANT: When adding a new entry to this switch, also add it to the `TaskMetadata` initializer.
     default: reply(.failure(ResponseError.methodNotFound(R.method)))
     }
@@ -1840,6 +1842,7 @@ private enum TaskMetadata: DependencyTracker {
     case is ShutdownRequest: self = .globalConfigurationChange
     case is WorkspaceSymbolsRequest: self = .freestanding
     case is RenameRequest: self = .freestanding
+    case is DocumentFormattingRequest: self = .freestanding
     case let request as any TextDocumentRequest: self = .documentRequest(request.textDocument.uri)
     default:
       logger.error(
