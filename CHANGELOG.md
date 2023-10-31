@@ -3,6 +3,9 @@
 - Improve heuristics for `subdir(x)`
 - Add `others.muonPath` option that allows you to set the path to the muon binary that should be used.
 - Fix some edge cases on hover.
+- Remove webserver due to difficulties integrating it with the updated sourcekit-lsp
+- Update sourcekit-lsp. (Basically rewrites the server portion) It is quite possible there are regressions!
+- Don't report stats to the server anymore.
 # 3.0.22 (Oct 27 2023)
 - Test-Release for enhanced release workflow
 # 3.0.21 (Oct 27 2023)
