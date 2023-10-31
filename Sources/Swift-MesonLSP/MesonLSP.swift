@@ -226,10 +226,7 @@ import Wrap
     let realStdoutHandle = FileHandle(fileDescriptor: realStdout, closeOnDealloc: false)
 
     let clientConnection = JSONRPCConnection(
-      protocol: MessageRegistry(
-        requests: builtinRequests,
-        notifications: builtinNotifications + [DidSaveTextDocumentNotification.self]
-      ),
+      protocol: MessageRegistry(requests: builtinRequests, notifications: builtinNotifications),
       inFD: FileHandle.standardInput,
       outFD: realStdoutHandle,
       syncRequests: false
@@ -240,7 +237,7 @@ import Wrap
     }
 
     clientConnection.start(receiveHandler: server) {
-      server.prepareForExit()
+      await server.prepareForExit()
       withExtendedLifetime(realStdoutHandle) {}
     }
     dispatchMain()

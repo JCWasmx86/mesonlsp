@@ -5,13 +5,13 @@ import Timing
 
 internal func collectDocumentSymbols(
   _ tree: MesonTree?,
-  _ req: Request<DocumentSymbolRequest>,
+  _ req: DocumentSymbolRequest,
   _ mapper: FileMapper
-) {
+) -> DocumentSymbolResponse? {
   let begin = clock()
   if let t = tree,
     let mt = t.findSubdirTree(
-      file: mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+      file: mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
     ), let ast = mt.ast
   {
     let sv = SymbolCodeVisitor()
@@ -29,14 +29,13 @@ internal func collectDocumentSymbols(
         SymbolInformation(
           name: name,
           kind: kind,
-          location: Location(uri: req.params.textDocument.uri, range: range)
+          location: Location(uri: req.textDocument.uri, range: range)
         )
       )
     }
-    req.reply(.symbolInformation(rep))
     Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
-    return
+    return .symbolInformation(rep)
   }
-  req.reply(.symbolInformation([]))
   Timing.INSTANCE.registerMeasurement(name: "documentSymbol", begin: begin, end: clock())
+  return nil
 }

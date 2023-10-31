@@ -42,7 +42,7 @@
       "location" : "https://github.com/JCWasmx86/sourcekit-lsp",
       "state" : {
         "branch" : "main",
-        "revision" : "7a250e399ae796df51135e63b7122bc688067380"
+        "revision" : "6e632129aa1b1b9f39f5b25d3b861fe71e0bfde9"
       }
     },
     {
@@ -159,7 +159,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "dafbae563ff2fe827ac5d3285dae718d7c7fc6b4"
+        "revision" : "6b0d8b715f23c32c99df9135d72426874bc46c16"
       }
     },
     {

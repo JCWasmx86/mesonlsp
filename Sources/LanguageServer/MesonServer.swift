@@ -3,6 +3,7 @@ import Foundation
 import IOUtils
 import LanguageServerProtocol
 import Logging
+import LSPLogging
 import MesonAnalyze
 import MesonAST
 import MesonDocs
@@ -16,11 +17,15 @@ import Wrap
 // There seem to be some name collisions
 public typealias MesonVoid = ()
 
-public final class MesonServer: LanguageServer {
+public final actor MesonServer: MessageHandler {
   static let LOG = Logger(label: "LanguageServer::MesonServer")
   static let MIN_PORT = 65000
   static let MAX_PORT = 65550
   var memfilesQueue = DispatchQueue(label: "mesonserver.memfiles")
+  private let messageHandlingQueue = AsyncQueue<TaskMetadata>()
+  private let cancellationMessageHandlingQueue = AsyncQueue<Serial>()
+  private let notificationIDForLoggingLock = NSLock()
+  private var notificationIDForLogging: Int = 0
   var onExit: () -> MesonVoid
   var path: String?
   var tree: MesonTree?
@@ -28,9 +33,6 @@ public final class MesonServer: LanguageServer {
   var memfiles: [String: String] = [:]
   var parseSubprojectTask: Task<(), Error>?
   var parseTask: Task<(), Error>?
-  #if !os(Windows)
-    var server: HttpServer
-  #endif
   var docs: MesonDocs = MesonDocs()
   var openFiles: Set<String> = []
   var openSubprojectFiles: [String: Set<String>] = [:]
@@ -53,56 +55,25 @@ public final class MesonServer: LanguageServer {
     disableInlayHints: false,
     muonPath: nil
   )
+  let client: Connection
+  var notificationCount: UInt64 = 0
+  var requestCount: UInt64 = 0
+  internal var notifications: [String: UInt] = [:]
+  internal var requests: [String: UInt] = [:]
+  public let queue: DispatchQueue = DispatchQueue(
+    label: "language-server-queue",
+    qos: .userInitiated
+  )
 
   public init(client: Connection, onExit: @escaping () -> MesonVoid) {
     self.onExit = onExit
     self.ns = TypeNamespace()
+    self.client = client
     Task.detached {
       do { try await WrapDB.INSTANCE.initDB() } catch {
         Self.LOG.error("Failed to init WrapDB: \(error)")
       }
     }
-    #if !os(Windows)
-      self.server = HttpServer()
-      for i in Self.MIN_PORT...Self.MAX_PORT {
-        do {
-          try self.server.start(
-            in_port_t(i),
-            forceIPv4: false,
-            priority: DispatchQoS.QoSClass.background
-          )
-          Self.LOG.info("Port: \(i)")
-          break
-        } catch {}
-      }
-      super.init(client: client)
-      self.server["/"] = { _ in return HttpResponse.ok(.text(self.generateHTML())) }
-      self.server["/caches"] = { _ in return HttpResponse.ok(.text(self.generateCacheHTML())) }
-      self.server["/count"] = { _ in return HttpResponse.ok(.text(self.generateCountHTML())) }
-      self.server["/status"] = { _ in return HttpResponse.ok(.text(self.generateStatusHTML())) }
-      #if os(Linux)
-        self.server["/stats"] = { _ in return HttpResponse.ok(.text(self.generateStatsHTML())) }
-      #endif
-    #else
-      super.init(client: client)
-    #endif
-
-    #if os(Linux)
-      stats["notifications"] = []
-      stats["requests"] = []
-      stats["memory_usage"] = []
-
-      let total = collectStats()[2]
-      let date = Date()
-      self.stats["notifications"]!.append((date, UInt64(self.notificationCount)))
-      self.stats["requests"]!.append((date, UInt64(self.requestCount)))
-      self.stats["memory_usage"]!.append((date, total))
-
-      self.queue.asyncAfter(deadline: .now() + interval) {
-        self.sendStats()
-        self.scheduleNextTask()
-      }
-    #endif
     let task = Process()
     let pipe = Pipe()
     let inPipe = Pipe()
@@ -117,10 +88,18 @@ public final class MesonServer: LanguageServer {
       task.waitUntilExit()
       let data = pipe.fileHandleForReading.readDataToEndOfFile()
       let output = String(data: data, encoding: .utf8)
-      output!.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).forEach {
-        self.pkgNames.insert(String($0))
+      Task {
+        for str in output!.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline) {
+          await self.insertPkgName(String(str))
+        }
       }
     } catch { Self.LOG.error("\(error)") }
+  }
+
+  private func insertPkgName(_ str: String) async { self.pkgNames.insert(str) }
+
+  private func setSubprojects(_ subprojects: SubprojectState?) async {
+    self.subprojects = subprojects
   }
 
   private func checkMtime() {
@@ -132,7 +111,7 @@ public final class MesonServer: LanguageServer {
           Self.LOG.info("subprojects/ was modified. Recreating subprojects")
           if let t = self.parseSubprojectTask { t.cancel() }
           self.parseSubprojectTask = Task.detached {
-            self.subprojects = nil
+            await self.setSubprojects(nil)
             await self.setupSubprojects()
           }
         }
@@ -146,40 +125,12 @@ public final class MesonServer: LanguageServer {
 
   private func scheduleNextMtimeCheck() {
     self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
-      self.checkMtime()
-      self.scheduleNextMtimeCheck()
+      Task {
+        await self.checkMtime()
+        await self.scheduleNextMtimeCheck()
+      }
     }
   }
-
-  #if os(Linux)
-    private func sendStats() {
-      Self.LOG.info("Collecting stats")
-      let stats = collectStats()
-      let heap = stats[0]
-      let stack = stats[1]
-      let total = stats[2]
-      let heapS = formatWithUnits(heap)
-      let stackS = formatWithUnits(stack)
-      let totalS = formatWithUnits(total)
-      Self.LOG.info("Stack: \(stackS) Heap: \(heapS) Total: \(totalS)")
-      let date = Date()
-      self.stats["notifications"]!.append((date, UInt64(self.notificationCount)))
-      self.stats["requests"]!.append((date, UInt64(self.requestCount)))
-      self.stats["memory_usage"]!.append((date, total))
-      for n in self.requests { self.stats[n.0] = (self.stats[n.0] ?? []) + [(date, UInt64(n.1))] }
-
-      for n in self.notifications {
-        self.stats[n.0] = (self.stats[n.0] ?? []) + [(date, UInt64(n.1))]
-      }
-    }
-
-    private func scheduleNextTask() {
-      self.queue.asyncAfter(deadline: .now() + interval) {
-        self.sendStats()
-        self.scheduleNextTask()
-      }
-    }
-  #endif
 
   public func prepareForExit() {
     if let t = self.parseSubprojectTask { t.cancel() }
@@ -196,68 +147,42 @@ public final class MesonServer: LanguageServer {
     Processes.CLEANUP_HANDLER()
   }
 
-  public override func _registerBuiltinHandlers() {
-    _register(Self.initialize)
-    _register(Self.clientInitialized)
-    _register(Self.cancelRequest)
-    _register(Self.shutdown)
-    _register(Self.exit)
-    _register(Self.openDocument)
-    _register(Self.closeDocument)
-    _register(Self.changeDocument)
-    _register(Self.didSaveDocument)
-    _register(Self.hover)
-    _register(Self.declaration)
-    _register(Self.definition)
-    _register(Self.formatting)
-    _register(Self.documentSymbol)
-    _register(Self.complete)
-    _register(Self.highlight)
-    _register(Self.inlayHints)
-    _register(Self.didCreateFiles)
-    _register(Self.didDeleteFiles)
-    _register(Self.codeActions)
-    _register(Self.rename)
-    _register(Self.semanticTokenFull)
-    _register(Self.didChangeConfiguration)
-    _register(Self.foldingRanges)
-  }
-
-  private func semanticTokenFull(_ req: Request<DocumentSemanticTokensRequest>) {
+  private func semanticTokenFull(_ req: DocumentSemanticTokensRequest) async throws
+    -> DocumentSemanticTokensResponse
+  {
     let begin = clock()
-    let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
-    if let t = self.findTree(req.params.textDocument.uri), let mt = t.findSubdirTree(file: file),
+    let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
+    if let t = self.findTree(req.textDocument.uri), let mt = t.findSubdirTree(file: file),
       let ast = mt.ast
     {
       let stv = SemanticTokenVisitor()
       ast.visit(visitor: stv)
-      req.reply(DocumentSemanticTokensResponse(data: stv.finish()))
-    } else {
-      req.reply(DocumentSemanticTokensResponse(data: []))
+      Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
+      return DocumentSemanticTokensResponse(data: stv.finish())
     }
     Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
+    return DocumentSemanticTokensResponse(data: [])
   }
 
-  private func foldingRanges(_ req: Request<FoldingRangeRequest>) {
+  private func foldingRanges(_ req: FoldingRangeRequest) async throws -> [FoldingRange] {
     let begin = clock()
-    let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
-    if let t = self.findTree(req.params.textDocument.uri), let mt = t.findSubdirTree(file: file),
+    let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
+    if let t = self.findTree(req.textDocument.uri), let mt = t.findSubdirTree(file: file),
       let ast = mt.ast
     {
       let stv = FoldingRangeVisitor()
       ast.visit(visitor: stv)
-      req.reply(stv.ranges)
-    } else {
-      req.reply([])
+      Timing.INSTANCE.registerMeasurement(name: "foldingRanges", begin: begin, end: clock())
+      return stv.ranges
     }
     Timing.INSTANCE.registerMeasurement(name: "foldingRanges", begin: begin, end: clock())
+    return []
   }
 
-  private func rename(_ req: Request<RenameRequest>) {
-    let params = req.params
+  private func rename(_ req: RenameRequest) async throws -> WorkspaceEdit {
+    let params = req
     guard let t = self.tree else {
-      req.reply(.failure(ResponseError(code: .requestFailed, message: "No tree available!")))
-      return
+      throw ResponseError(code: .requestFailed, message: "No tree available!")
     }
     guard
       let id = t.metadata?.findIdentifierAt(
@@ -266,30 +191,21 @@ public final class MesonServer: LanguageServer {
         params.position.utf16index
       )
     else {
-      req.reply(
-        .failure(
-          ResponseError(code: .requestFailed, message: "No identifier found at this location!")
-        )
-      )
-      return
+      throw ResponseError(code: .requestFailed, message: "No identifier found at this location!")
     }
     if let parentLoop = id.parent as? IterationStatement, parentLoop.containsAsId(id) {
       let lvr = LoopVariableRename(id.id, params.newName, t)
       parentLoop.visit(visitor: lvr)
-      req.reply(WorkspaceEdit(changes: lvr.edits))
-      return
+      return WorkspaceEdit(changes: lvr.edits)
     }
     if let kw = id.parent as? KeywordItem, kw.key.equals(right: id) {
-      req.reply(WorkspaceEdit(changes: [:]))
-      return
+      return WorkspaceEdit(changes: [:])
     }
     if let fn = id.parent as? FunctionExpression, fn.id.equals(right: id) {
-      req.reply(WorkspaceEdit(changes: [:]))
-      return
+      return WorkspaceEdit(changes: [:])
     }
     if let fn = id.parent as? MethodExpression, fn.id.equals(right: id) {
-      req.reply(WorkspaceEdit(changes: [:]))
-      return
+      return WorkspaceEdit(changes: [:])
     }
     var edits: [DocumentURI: [TextEdit]] = [:]
     for m in t.metadata!.identifiers.keys {
@@ -303,13 +219,13 @@ public final class MesonServer: LanguageServer {
         edits[d] = (edits[d] ?? []) + [textEdit]
       }
     }
-    req.reply(WorkspaceEdit(changes: edits))
+    return WorkspaceEdit(changes: edits)
   }
 
-  private func codeActions(_ req: Request<CodeActionRequest>) {
+  private func codeActions(_ req: CodeActionRequest) async throws -> CodeActionRequestResponse? {
     let begin = clock()
-    let uri = req.params.textDocument.uri
-    let range = req.params.range
+    let uri = req.textDocument.uri
+    let range = req.range
     let cav = CodeActionVisitor(range)
     let file = uri.fileURL!.absoluteURL.path
     var actions: [CodeAction] = []
@@ -337,19 +253,17 @@ public final class MesonServer: LanguageServer {
     Self.LOG.info(
       "Found \(actions.count) code actions at \(uri):\(range): \(actions.map { $0.title })"
     )
-    req.reply(
-      CodeActionRequestResponse(
-        codeActions: actions,
-        clientCapabilities: TextDocumentClientCapabilities.CodeAction(
-          codeActionLiteralSupport: TextDocumentClientCapabilities.CodeAction
-            .CodeActionLiteralSupport(
-              codeActionKind: TextDocumentClientCapabilities.CodeAction.CodeActionLiteralSupport
-                .CodeActionKind(valueSet: [])
-            )
-        )
+    Timing.INSTANCE.registerMeasurement(name: "codeaction", begin: begin, end: clock())
+    return CodeActionRequestResponse(
+      codeActions: actions,
+      clientCapabilities: TextDocumentClientCapabilities.CodeAction(
+        codeActionLiteralSupport: TextDocumentClientCapabilities.CodeAction
+          .CodeActionLiteralSupport(
+            codeActionKind: TextDocumentClientCapabilities.CodeAction.CodeActionLiteralSupport
+              .CodeActionKind(valueSet: [])
+          )
       )
     )
-    Timing.INSTANCE.registerMeasurement(name: "codeaction", begin: begin, end: clock())
   }
 
   private func findTree(_ uri: DocumentURI) -> MesonTree? {
@@ -408,30 +322,27 @@ public final class MesonServer: LanguageServer {
     return nil
   }
 
-  private func inlayHints(_ req: Request<InlayHintRequest>) {
-    if self.otherSettings.disableInlayHints {
-      req.reply([])
-      return
-    }
-    collectInlayHints(self.findTree(req.params.textDocument.uri), req, self.mapper)
+  private func inlayHints(_ req: InlayHintRequest) async throws -> [InlayHint] {
+    if self.otherSettings.disableInlayHints { return [] }
+    return collectInlayHints(self.findTree(req.textDocument.uri), req, self.mapper)
   }
 
-  private func highlight(_ req: Request<DocumentHighlightRequest>) {
-    highlightTree(self.findTree(req.params.textDocument.uri), req, self.mapper)
+  private func highlight(_ req: DocumentHighlightRequest) async throws -> [DocumentHighlight]? {
+    return highlightTree(self.findTree(req.textDocument.uri), req, self.mapper)
   }
 
   // swiftlint:disable cyclomatic_complexity
-  private func complete(_ req: Request<CompletionRequest>) {
+  private func complete(_ req: CompletionRequest) async throws -> CompletionList {
     let begin = clock()
     var arr: [CompletionItem] = []
-    let fp = req.params.textDocument.uri.fileURL!.path
+    let fp = req.textDocument.uri.fileURL!.path
     while self.parseTask != nil {
 
     }
     if let t = self.tree, let mt = t.findSubdirTree(file: fp), mt.ast != nil,
       let content = self.getContents(file: fp)
     {
-      let pos = req.params.position
+      let pos = req.position
       let line = pos.line
       let column = pos.utf16index
       let lines = content.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
@@ -576,8 +487,8 @@ public final class MesonServer: LanguageServer {
       insertions.insert(completion.insertText!)
       realRet.append(completion)
     }
-    req.reply(CompletionList(isIncomplete: false, items: realRet))
     Timing.INSTANCE.registerMeasurement(name: "complete", begin: begin, end: clock())
+    return CompletionList(isIncomplete: false, items: realRet)
   }
 
   // swiftlint:enable cyclomatic_complexity
@@ -911,18 +822,17 @@ public final class MesonServer: LanguageServer {
     return nil
   }
 
-  private func documentSymbol(_ req: Request<DocumentSymbolRequest>) {
-    collectDocumentSymbols(self.findTree(req.params.textDocument.uri), req, self.mapper)
-  }
+  private func documentSymbol(_ req: DocumentSymbolRequest) async throws -> DocumentSymbolResponse?
+  { return collectDocumentSymbols(self.findTree(req.textDocument.uri), req, self.mapper) }
 
-  private func formatting(_ req: Request<DocumentFormattingRequest>) {
+  private func formatting(_ req: DocumentFormattingRequest) async throws -> [TextEdit] {
     let begin = clock()
     do {
-      Self.LOG.info("Formatting \(req.params.textDocument.uri.fileURL!.path)")
-      if let contents = self.getContents(file: req.params.textDocument.uri.fileURL!.path) {
+      Self.LOG.info("Formatting \(req.textDocument.uri.fileURL!.path)")
+      if let contents = self.getContents(file: req.textDocument.uri.fileURL!.path) {
         if let formatted = try formatFile(
           content: contents,
-          params: req.params.options,
+          params: req.options,
           muonPath: self.otherSettings.muonPath
         ) {
           let newLines = formatted.split(whereSeparator: \.isNewline)
@@ -933,14 +843,13 @@ public final class MesonServer: LanguageServer {
               utf16index: 0
             )..<Position(line: newLines.count + 2048, utf16index: endOfLastLine)
           let edit = TextEdit(range: range, newText: formatted)
-          req.reply([edit])
           Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
-          if let sb = self.findSubprojectForUri(req.params.textDocument.uri),
+          if let sb = self.findSubprojectForUri(req.textDocument.uri),
             let csp = sb as? FolderSubproject
           {
             self.rebuildSubproject(csp)
           }
-          return
+          return [edit]
         } else {
           Self.LOG.error("Unable to format file")
         }
@@ -949,42 +858,33 @@ public final class MesonServer: LanguageServer {
       }
     } catch {
       Self.LOG.error("Error formatting file \(error)")
-      req.reply(
-        Result.failure(
-          ResponseError(code: .internalError, message: "Unable to format using muon: \(error)")
-        )
-      )
       Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
-      return
+      throw ResponseError(code: .internalError, message: "Unable to format using muon: \(error)")
     }
-    req.reply(
-      Result.failure(
-        ResponseError(
-          code: .internalError,
-          message: "Either failed to read the input file or to format using muon"
-        )
-      )
-    )
     Timing.INSTANCE.registerMeasurement(name: "formatting", begin: begin, end: clock())
+    throw ResponseError(
+      code: .internalError,
+      message: "Either failed to read the input file or to format using muon"
+    )
   }
 
   private func getContents(file: String) -> String? {
-    if let sf = memfilesQueue.sync(execute: { self.memfiles[file] }) { return sf }
+    if let sf = self.memfiles[file] { return sf }
     Self.LOG.warning("Unable to find \(file) in memfiles")
     return try? String(contentsOfFile: file)
   }
 
-  private func hover(_ req: Request<HoverRequest>) {
-    collectHoverInformation(self.findTree(req.params.textDocument.uri), req, self.mapper, docs)
+  private func hover(_ req: HoverRequest) -> HoverResponse? {
+    return collectHoverInformation(self.findTree(req.textDocument.uri), req, self.mapper, docs)
   }
 
-  private func declaration(_ req: Request<DeclarationRequest>) {
-    findDeclaration(self.findTree(req.params.textDocument.uri), req, self.mapper, Self.LOG)
-  }
+  private func declaration(_ req: DeclarationRequest) async throws
+    -> LocationsOrLocationLinksResponse?
+  { return findDeclaration(self.findTree(req.textDocument.uri), req, self.mapper, Self.LOG) }
 
-  private func definition(_ req: Request<DefinitionRequest>) {
-    findDefinition(self.findTree(req.params.textDocument.uri), req, self.mapper, Self.LOG)
-  }
+  private func definition(_ req: DefinitionRequest) async throws
+    -> LocationsOrLocationLinksResponse?
+  { return findDefinition(self.findTree(req.textDocument.uri), req, self.mapper, Self.LOG) }
 
   private func clearDiagnostics() { self.clearDiagnosticsForTree(tree: self.tree) }
 
@@ -1037,7 +937,7 @@ public final class MesonServer: LanguageServer {
         ns: self.ns,
         dontCache: self.openFiles,
         cache: &self.astCache,
-        memfiles: memfilesQueue.sync { self.memfiles }
+        memfiles: self.memfiles
       )
       let endParsingEntireTree = clock()
       Timing.INSTANCE.registerMeasurement(
@@ -1053,7 +953,7 @@ public final class MesonServer: LanguageServer {
         ns: self.ns,
         dontCache: self.openFiles,
         cache: &self.astCache,
-        memfiles: memfilesQueue.sync { self.memfiles },
+        memfiles: self.memfiles,
         subprojectState: self.subprojects,
         analysisOptions: self.analysisOptions
       )
@@ -1149,7 +1049,7 @@ public final class MesonServer: LanguageServer {
           ns,
           dontCache: files ?? [],
           cache: &astCacheTemp,
-          memfiles: memfilesQueue.sync { self.memfiles },
+          memfiles: self.memfiles,
           analysisOptions: self.analysisOptions
         )
         var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
@@ -1165,10 +1065,10 @@ public final class MesonServer: LanguageServer {
     }
   }
 
-  private func openDocument(_ note: Notification<DidOpenTextDocumentNotification>) {
-    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+  private func openDocument(_ note: DidOpenTextDocumentNotification) async {
+    if let sb = self.findSubprojectForUri(note.textDocument.uri) {
       if sb is FolderSubproject {
-        let file = note.params.textDocument.uri.fileURL?.path
+        let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Open] \(file!) in subproject \(sb.realpath)")
         if !self.openSubprojectFiles.keys.contains(sb.realpath) {
           self.openSubprojectFiles[sb.realpath] = []
@@ -1179,73 +1079,71 @@ public final class MesonServer: LanguageServer {
         if var ac = self.astCaches[sb.realpath] { ac.removeValue(forKey: file!) }
       }
     } else {
-      let file = note.params.textDocument.uri.fileURL?.path
+      let file = note.textDocument.uri.fileURL?.path
       self.openFiles.insert(file!)
       self.astCache.removeValue(forKey: file!)
     }
   }
 
-  private func didSaveDocument(_ note: Notification<DidSaveTextDocumentNotification>) {
-    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+  private func didSaveDocument(_ note: DidSaveTextDocumentNotification) async {
+    if let sb = self.findSubprojectForUri(note.textDocument.uri) {
       if sb is FolderSubproject {
-        let file = note.params.textDocument.uri.fileURL?.path
+        let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Save] \(file!) in subproject \(sb.realpath)")
-        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+        self.memfiles.removeValue(forKey: file!)
         self.rebuildSubproject(sb)
       }
     } else {
-      let file = note.params.textDocument.uri.fileURL?.path
+      let file = note.textDocument.uri.fileURL?.path
       // Either the saves were changed or dropped, so use the contents
       // of the file
       Self.LOG.info("[Save] Dropping \(file!) from memcache")
-      _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+      self.memfiles.removeValue(forKey: file!)
       self.rebuildTree()
     }
   }
 
-  private func closeDocument(_ note: Notification<DidCloseTextDocumentNotification>) {
-    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+  private func closeDocument(_ note: DidCloseTextDocumentNotification) async {
+    if let sb = self.findSubprojectForUri(note.textDocument.uri) {
       if sb is FolderSubproject {
-        let file = note.params.textDocument.uri.fileURL?.path
+        let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Close] \(file!) in subproject \(sb.realpath)")
         Self.LOG.info("\(self.openSubprojectFiles.keys)")
         if var s = self.openSubprojectFiles[sb.realpath] {
           s.remove(file!)
           self.openSubprojectFiles[sb.realpath] = s
         }
-        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+        self.memfiles.removeValue(forKey: file!)
         self.rebuildSubproject(sb)
       }
     } else {
-      let file = note.params.textDocument.uri.fileURL?.path
+      let file = note.textDocument.uri.fileURL?.path
       // Either the saves were changed or dropped, so use the contents
       // of the file
       Self.LOG.info("[Close] Dropping \(file!) from memcache")
       self.openFiles.remove(file!)
-      _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: file!) }
+      self.memfiles.removeValue(forKey: file!)
       self.rebuildTree()
     }
   }
 
-  private func changeDocument(_ note: Notification<DidChangeTextDocumentNotification>) {
-    if let sb = self.findSubprojectForUri(note.params.textDocument.uri) {
+  private func changeDocument(_ note: DidChangeTextDocumentNotification) async {
+    if let sb = self.findSubprojectForUri(note.textDocument.uri) {
       if sb is FolderSubproject {
-        let file = note.params.textDocument.uri.fileURL?.path
+        let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Change] \(file!) in subproject \(sb.realpath)")
-        memfilesQueue.sync { self.memfiles[file!] = note.params.contentChanges[0].text }
+        self.memfiles[file!] = note.contentChanges[0].text
         self.rebuildSubproject(sb)
       }
     } else {
-      let file = note.params.textDocument.uri.fileURL?.path
+      let file = note.textDocument.uri.fileURL?.path
       Self.LOG.info("[Change] Adding \(file!) to memcache")
-      memfilesQueue.sync { self.memfiles[file!] = note.params.contentChanges[0].text }
+      self.memfiles[file!] = note.contentChanges[0].text
       self.rebuildTree()
     }
   }
 
-  private func didCreateFiles(_ note: Notification<DidCreateFilesNotification>) {
-    self.rebuildTree()
-  }
+  private func didCreateFiles(_ note: DidCreateFilesNotification) async { self.rebuildTree() }
   // swiftlint:disable cyclomatic_complexity
   private func parseOptions(settings: LSPAny) {
     // swiftlint:disable force_try
@@ -1308,24 +1206,22 @@ public final class MesonServer: LanguageServer {
     self.parseTask?.cancel()
     if let t = self.parseSubprojectTask { t.cancel() }
     self.parseSubprojectTask = Task.detached {
-      self.subprojects = nil
+      await self.setSubprojects(nil)
       await self.setupSubprojects()
     }
     self.rebuildTree()
   }
   // swiftlint:enable cyclomatic_complexity
 
-  private func didChangeConfiguration(_ note: Notification<DidChangeConfigurationNotification>) {
-    let config = note.params.settings
+  private func didChangeConfiguration(_ note: DidChangeConfigurationNotification) async {
+    let config = note.settings
     if case .unknown(let settings) = config { self.parseOptions(settings: settings) }
   }
 
-  private func didDeleteFiles(_ note: Notification<DidDeleteFilesNotification>) {
-    for f in note.params.files {
+  private func didDeleteFiles(_ note: DidDeleteFilesNotification) async {
+    for f in note.files {
       let path = f.uri.fileURL!.path
-      if memfilesQueue.sync(execute: { self.memfiles[path] }) != nil {
-        _ = memfilesQueue.sync { self.memfiles.removeValue(forKey: path) }
-      }
+      if self.memfiles[path] != nil { self.memfiles.removeValue(forKey: path) }
       if self.openFiles.contains(path) { self.openFiles.remove(path) }
       if self.astCache[path] != nil { self.astCache.removeValue(forKey: path) }
     }
@@ -1395,7 +1291,7 @@ public final class MesonServer: LanguageServer {
     self.token = t
     let old = self.subprojects
     let workDoneCreate = CreateWorkDoneProgressRequest(token: t)
-    do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
+    do { _ = try await self.client.send(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
       token: t,
       value: WorkDoneProgressKind.begin(
@@ -1488,7 +1384,7 @@ public final class MesonServer: LanguageServer {
         self.ns,
         dontCache: [],
         cache: &cache,
-        memfiles: memfilesQueue.sync { self.memfiles },
+        memfiles: self.memfiles,
         analysisOptions: analysisOptions
       )
       var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
@@ -1539,8 +1435,10 @@ public final class MesonServer: LanguageServer {
     }
     await self.updateSubprojects()
     self.queue.asyncAfter(deadline: .now() + mtimeChecker) {
-      self.checkMtime()
-      self.scheduleNextMtimeCheck()
+      Task {
+        await self.checkMtime()
+        await self.scheduleNextMtimeCheck()
+      }
     }
   }
 
@@ -1548,7 +1446,7 @@ public final class MesonServer: LanguageServer {
     let t = ProgressToken.string(UUID().uuidString)
     self.token = t
     let workDoneCreate = CreateWorkDoneProgressRequest(token: t)
-    do { _ = try self.client.sendSync(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
+    do { _ = try await self.client.send(workDoneCreate) } catch let err { Self.LOG.error("\(err)") }
     let beginMessage = WorkDoneProgress(
       token: t,
       value: WorkDoneProgressKind.begin(
@@ -1603,7 +1501,7 @@ public final class MesonServer: LanguageServer {
           self.ns,
           dontCache: dontCache,
           cache: &cache,
-          memfiles: memfilesQueue.sync { self.memfiles },
+          memfiles: self.memfiles,
           analysisOptions: self.analysisOptions
         )
         var sendDiags = self.otherSettings.ignoreDiagnosticsFromSubprojects == nil
@@ -1641,8 +1539,8 @@ public final class MesonServer: LanguageServer {
   }
   // swiftlint:enable cyclomatic_complexity
 
-  private func initialize(_ req: Request<InitializeRequest>) {
-    let p = req.params
+  private func initialize(_ req: InitializeRequest) async throws -> InitializeResult {
+    let p = req
     var supportsRenaming = false
     if let clientInfo = p.clientInfo {
       Self.LOG.info("Connected with client \(clientInfo.name) \(clientInfo.version ?? "Unknown")")
@@ -1662,344 +1560,175 @@ public final class MesonServer: LanguageServer {
       self.parseSubprojectTask = Task { await self.setupSubprojects() }
       self.rebuildTree()
     }
-    req.reply(InitializeResult(capabilities: self.capabilities(supportsRenaming)))
     Self.LOG.info(
       "Swift-MesonLSP is licensed under the terms of the GNU General Public License v3.0"
     )
     Self.LOG.info(
       "Need help? - Open a discussion here: https://github.com/JCWasmx86/Swift-MesonLSP/discussions or join https://matrix.to/#/#mesonlsp:matrix.org"
     )
+    return InitializeResult(capabilities: self.capabilities(supportsRenaming))
   }
 
-  private func clientInitialized(_: Notification<InitializedNotification>) {
+  private func workspaceSymbols(_ req: WorkspaceSymbolsRequest) -> [WorkspaceSymbolItem]? {
+    return []
+  }
+
+  private func clientInitialized(_: InitializedNotification) async {
     // Nothing to do.
   }
 
-  private func cancelRequest(_ notification: Notification<CancelRequestNotification>) {
+  private nonisolated func cancelRequest(_ notification: CancelRequestNotification) {
     // No cancellation for anything supported (yet?)
   }
 
-  private func shutdown(_ request: Request<ShutdownRequest>) {
+  private func shutdown(_ request: ShutdownRequest) async throws -> VoidResponse {
     self.prepareForExit()
-    #if !os(Windows)
-      self.server.stop()
-    #endif
-    request.reply(VoidResponse())
+    return VoidResponse()
   }
 
-  private func exit(_ notification: Notification<ExitNotification>) {
+  private func exit(_ notification: ExitNotification) async {
     self.prepareForExit()
     self.onExit()
   }
 
-  #if !os(Windows)
-    #if os(Linux)
-      private func generateStatsHTML() -> String {
-        if self.stats.isEmpty || self.stats["notifications"]!.isEmpty {
-          return "Please wait a bit!"
-        }
-        let rows = self.stats["notifications"]!.map { $0.0 }
-        var x: [Int] = []
-        var n = 0
-        for _ in rows.reversed() {
-          x.append(-n)
-          n += 1
-        }
-        let nNotifications = self.stats["notifications"]!.map { $0.1 }
-        let nRequests = self.stats["requests"]!.map { $0.1 }
-        let memoryUsage = self.stats["memory_usage"]!.map { Double($0.1) / (1024 * 1024) }
-        var s = ""
-        for n in Array(self.notifications.keys) + Array(self.requests.keys) {
-          if self.stats[n] == nil { continue }
-          s += "ctx = document.getElementById(\"chart\(n.hash)\");"
-          s += """
-            	new Chart(ctx, {
-            		type: "line",
-            		data: {
-                  labels: tags,
-                  datasets: [
-                    {
-                        label: "Number of requests to `\(n)`",
-                        data: [@1@],
-                        borderColor: "#1c71d8",
-                    },
-                    {
-                        label: "Memory usage in MB",
-                        data: [@2@],
-                        borderColor: "#613583",
-                    },
-                  ],
-            		},
-            	});
+  public nonisolated func handle(_ params: some NotificationType, from clientID: ObjectIdentifier) {
+    if let params = params as? CancelRequestNotification {
+      // Request cancellation needs to be able to overtake any other message we
+      // are currently handling. Ordering is not important here. We thus don't
+      // need to execute it on `messageHandlingQueue`.
+      self.cancelRequest(params)
+    }
+
+    messageHandlingQueue.async(metadata: TaskMetadata(params)) {
+      let notificationID = await self.getNextNotificationIDForLogging()
+
+      await withLoggingScope("notification-\(notificationID)") {
+        await self.handleImpl(params, from: clientID)
+      }
+    }
+  }
+
+  private func getNextNotificationIDForLogging() -> Int {
+    notificationIDForLogging += 1
+    return notificationIDForLogging
+  }
+
+  private func handleImpl(_ notification: some NotificationType, from clientID: ObjectIdentifier)
+    async
+  {
+    Self.LOG.debug(
+      """
+      Received notification
+      \(notification.forLogging)
+      """
+    )
+
+    switch notification {
+    case let notification as InitializedNotification: await self.clientInitialized(notification)
+    case let notification as ExitNotification: await self.exit(notification)
+    case let notification as DidOpenTextDocumentNotification: await self.openDocument(notification)
+    case let notification as DidCloseTextDocumentNotification:
+      await self.closeDocument(notification)
+    case let notification as DidChangeTextDocumentNotification:
+      await self.changeDocument(notification)
+    case let notification as DidSaveTextDocumentNotification:
+      await self.didSaveDocument(notification)
+    // IMPORTANT: When adding a new entry to this switch, also add it to the `TaskMetadata` initializer.
+    default: break
+    }
+  }
+
+  private func handleRequest<R: RequestType>(
+    _ request: Request<R>,
+    handler: (R) async throws -> R.Response
+  ) async {
+    do { request.reply(try await handler(request.params)) } catch {
+      request.reply(.failure(ResponseError.unknown("\(error)")))
+    }
+  }
+
+  public nonisolated func handle<R: RequestType>(
+    _ params: R,
+    id: RequestID,
+    from clientID: ObjectIdentifier,
+    reply: @escaping (LSPResult<R.Response>) -> Void
+  ) {
+    self.messageHandlingQueue.async(metadata: TaskMetadata(params)) {
+      await withLoggingScope("request-\(id)") {
+        await self.handleImpl(params, id: id, from: clientID, reply: reply)
+      }
+    }
+  }
+
+	// swiftlint:disable cyclomatic_complexity
+  private func handleImpl<R: RequestType>(
+    _ params: R,
+    id: RequestID,
+    from clientID: ObjectIdentifier,
+    reply: @escaping (LSPResult<R.Response>) -> Void
+  ) async {
+    let startDate = Date()
+
+    let request = Request(params, id: id, clientID: clientID) { result in
+      reply(result)
+      let endDate = Date()
+      Task {
+        switch result {
+        case .success(let response):
+          Self.LOG.debug(
             """
-          var nn = Array(self.stats[n]!.reversed().map { $0.1 })
-          while nn.count < x.count { nn.append(0) }
-          var mm = Array(memoryUsage.reversed()[0..<nn.count].reversed())
-          while mm.count < x.count { mm.append(0) }
-          s = s.replacingOccurrences(
-            of: "@1@",
-            with: nn.reversed().map { String($0) }.joined(separator: ", ")
+            Succeeded (took \(endDate.timeIntervalSince(startDate) * 1000)ms)
+            \(response)
+            """
           )
-          s = s.replacingOccurrences(of: "@2@", with: mm.map { String($0) }.joined(separator: ", "))
-        }
-        var htmln = ""
-        for n in self.notifications.keys {
-          if self.stats[n] == nil { continue }
-          htmln +=
-            "<h3>\(n)</h3>\n<div style=\"position: relative; height:40vh; width:80vw\"><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
-        }
-        var htmlr = ""
-        for n in self.requests.keys {
-          if self.stats[n] == nil { continue }
-          htmlr +=
-            "<h3>\(n)</h3>\n<div style=\"position: relative; height:40vh; width:80vw\"><canvas id=\"chart\(n.hash)\" width=\"400\" height=\"300\"></canvas></div>\n"
-        }
-        let html = """
-          <!DOCTYPE html>
-          <html>
-          <head>
-          	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-          </head>
-          <body>
-            <h1>General</h1>
-          	<div><canvas id="chart"></canvas></div>
-          	<h2>Notifications</h2>
-            \(htmln)
-          	<h2>Requests</h2>
-            \(htmlr)
-          	<script>
-          	const tags = [@0@];
-          	let ctx = document.getElementById("chart");
-          	new Chart(ctx, {
-          		type: "line",
-          		data: {
-          			labels: tags,
-          			datasets: [
-          				{
-          				  label: "Number of notifications",
-          				  data: [@1@],
-          				  borderColor: "#1c71d8",
-          				},
-          				{
-          				  label: "Number of requests",
-          				  data: [@2@],
-          				  borderColor: "#c01c28",
-          				},
-          				{
-          				  label: "Memory usage in MB",
-          				  data: [@3@],
-          				  borderColor: "#613583",
-          				},
-          			],
-          		},
-          	});
-            \(s)
-          	</script>
-          </body>
-          </html>
-          """
-        return html.replacingOccurrences(
-          of: "@0@",
-          with: x.reversed().map { String($0) }.joined(separator: ", ")
-        ).replacingOccurrences(
-          of: "@1@",
-          with: nNotifications.map { String($0) }.joined(separator: ", ")
-        ).replacingOccurrences(
-          of: "@2@",
-          with: nRequests.map { String($0) }.joined(separator: ", ")
-        ).replacingOccurrences(
-          of: "@3@",
-          with: memoryUsage.map { String($0) }.joined(separator: ", ")
-        )
-      }
-    #endif
-    private func generateCountHTML() -> String {
-      let header = """
-        	<!DOCTYPE html>
-        	<html>
-        	<head>
-        	<style>
-        	table {
-        		font-family: arial, sans-serif;
-        		border-collapse: collapse;
-        		width: 100%;
-        	}
-
-        	td, th {
-        		border: 1px solid #dddddd;
-        		text-align: left;
-        		padding: 8px;
-        	}
-
-        	tr:nth-child(even) {
-        		background-color: #dddddd;
-        	}
-        	</style>
-        	</head>
-        	<body>
-        """
-      var body = ""
-      if let t = self.tree, let ast = t.ast {
-        let visitor = NodeCounter()
-        ast.visit(visitor: visitor)
-        body = """
-          <h1>Main project</h1>
-          <table>
-          	<tr>
-          		<th>Type</th>
-          		<th>Count</th>
-          	</tr>
-          """
-        for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
-        body += "</table>"
-      }
-      if let sb = self.subprojects, !sb.subprojects.isEmpty {
-        body += "<h2>Subprojects</h2>"
-        for b in sb.subprojects where b.tree != nil && b.tree!.ast != nil {
-          body += "<h3>\(b.description)</h3>"
-          body += """
-            	<table>
-            	<tr>
-            		<th>Type</th>
-            		<th>Count</th>
-            	</tr>
+        case .failure(let error):
+          Self.LOG.debug(
             """
-          let visitor = NodeCounter()
-          b.tree?.ast?.visit(visitor: visitor)
-          for k in visitor.nodeCount { body += "<tr><td>\(k.0)</td><td>\(k.1)</td></tr>" }
-          body += "</table>"
+            Failed (took \(endDate.timeIntervalSince(startDate) * 1000)ms)
+            \(R.method)
+            \(error.forLogging)
+            """
+          )
         }
       }
-      body += "</body>"
-      return header + body
     }
 
-    private func isAvailable(_ command: String) -> String {
-      let task = Process()
-      task.arguments = ["-c", "which \(command)"]
-      task.executableURL = URL(fileURLWithPath: "/bin/sh")
-      do { try task.run() } catch { return "🔴" }
-      task.waitUntilExit()
-      if task.terminationStatus != 0 { return "🔴" }
-      return "🟢"
+    logger.debug("Received request: \(request.forLogging)")
+
+    switch request {
+    case let request as Request<InitializeRequest>:
+      await self.handleRequest(request, handler: self.initialize)
+    case let request as Request<ShutdownRequest>:
+      await self.handleRequest(request, handler: self.shutdown)
+    case let request as Request<CompletionRequest>:
+      await self.handleRequest(request, handler: self.complete)
+    case let request as Request<HoverRequest>:
+      await self.handleRequest(request, handler: self.hover)
+    case let request as Request<DeclarationRequest>:
+      await self.handleRequest(request, handler: self.declaration)
+    case let request as Request<DefinitionRequest>:
+      await self.handleRequest(request, handler: self.definition)
+    case let request as Request<DocumentHighlightRequest>:
+      await self.handleRequest(request, handler: self.highlight)
+    case let request as Request<FoldingRangeRequest>:
+      await self.handleRequest(request, handler: self.foldingRanges)
+    case let request as Request<DocumentSymbolRequest>:
+      await self.handleRequest(request, handler: self.documentSymbol)
+    case let request as Request<DocumentSemanticTokensRequest>:
+      await self.handleRequest(request, handler: self.semanticTokenFull)
+    case let request as Request<CodeActionRequest>:
+      await self.handleRequest(request, handler: self.codeActions)
+    case let request as Request<InlayHintRequest>:
+      await self.handleRequest(request, handler: self.inlayHints)
+    case let request as Request<RenameRequest>:
+      await self.handleRequest(request, handler: self.rename)
+    case let request as Request<WorkspaceSymbolsRequest>:
+      await self.handleRequest(request, handler: self.workspaceSymbols)
+    // IMPORTANT: When adding a new entry to this switch, also add it to the `TaskMetadata` initializer.
+    default: reply(.failure(ResponseError.methodNotFound(R.method)))
     }
-
-    private func generateStatusHTML() -> String {
-      let header = """
-        	<!DOCTYPE html>
-        	<html>
-        	<head>
-        	<meta charset="utf-8">
-        	<title>Status for Swift-MesonLSP</title>
-        	</head>
-        	<body>
-        """
-      var body =
-        "<h2>Available commands</h2> muon is required for formatting, patch/git is used for applying patches to wraps; "
-      body +=
-        "Additionally, git is used for git wraps. Svn/Hg are used for wraps, too. wget or curl are used for downloading file wraps and patches for all wraps<ul>"
-      let commands = ["muon", "patch", "git", "svn", "hg", "wget", "curl"]
-      for c in commands { body += "<li>\(self.isAvailable(c)) \(c)</li>" }
-      body += "<ul></body></html>"
-      return header + body
-    }
-
-    private func generateCacheHTML() -> String {
-      let header = """
-        	<!DOCTYPE html>
-        	<html>
-        	<head>
-        	<meta http-equiv="refresh" content="5" />
-        	</head>
-        	<body>
-          <h1>Mainproject</h1>
-        	<h2>Open files</h2>
-        	<ul>
-        """
-      var body = ""
-      for o in self.openFiles { body += "<li>\(o)</li>\n" }
-      body += "</ul>\n"
-      body += "<h2>Cached ASTs</h2>\n<ul>\n"
-      for o in self.astCache.keys { body += "<li>\(o)</li>\n" }
-      body += "</ul>\n"
-      if self.subprojects != nil {
-        body += "<h1>Subprojects</h1>"
-        for s in self.subprojects!.subprojects {
-          body += "<h2>\(s.realpath)</h2>\n"
-          body += "<h3>Open files</h3>\n<ul>"
-          if let ac = self.openSubprojectFiles[s.realpath] {
-            for k in ac { body += "<li>\(k)</li>\n" }
-          }
-          body += "</ul><h3>Cached ASTs</h3>\n<ul>"
-          if let ac = self.astCaches[s.realpath] { for k in ac.keys { body += "<li>\(k)</li>\n" } }
-          body += "</ul>"
-        }
-      }
-      body += "</body></html>"
-      return header + body
-    }
-
-    private func generateHTML() -> String {
-      let header = """
-        	<!DOCTYPE html>
-        	<html>
-        	<head>
-        	<meta http-equiv="refresh" content="5" />
-        	<style>
-        	table {
-        		font-family: arial, sans-serif;
-        		border-collapse: collapse;
-        		width: 100%;
-        	}
-
-        	td, th {
-        		border: 1px solid #dddddd;
-        		text-align: left;
-        		padding: 8px;
-        	}
-
-        	tr:nth-child(even) {
-        		background-color: #dddddd;
-        	}
-        	</style>
-        	</head>
-        	<body>
-
-        	<h2>Timing information</h2>
-
-        	<table>
-        		<tr>
-        			<th>Identifier</th>
-        			<th>Hits</th>
-        			<th>Min</th>
-        			<th>Max</th>
-        			<th>Median</th>
-        			<th>Average</th>
-        			<th>Standard deviation</th>
-        			<th>Sum</th>
-        		</tr>
-        """
-      var str = ""
-      for t in Timing.INSTANCE.timings() {
-        let rounding = 2
-        str.append(
-          "<tr>" + "<td>\(t.name)</td>" + "<td>\(t.hits())</td>"
-            + "<td>\(t.min().round(to: rounding))</td>" + "<td>\(t.max().round(to: rounding))</td>"
-            + "<td>\(t.median().round(to: rounding))</td>"
-            + "<td>\(t.average().round(to: rounding))</td>"
-            + "<td>\(t.stddev().round(to: rounding))</td>"
-            + "<td>\(t.sum().round(to: rounding))</td></tr>"
-        )
-      }
-      let footer = """
-        	</table>
-
-        	</body>
-        	</html>
-        """
-      return header + str + footer
-    }
-  #endif
+  }
+  // swiftlint:enable cyclomatic_complexity
 }
 
 extension Double {
@@ -2054,5 +1783,73 @@ extension Encodable {
         as? [String: Any]
     else { fatalError("Why????") }
     return dictionary
+  }
+}
+private enum TaskMetadata: DependencyTracker {
+  case globalConfigurationChange
+  case documentUpdate(DocumentURI)
+  case documentRequest(DocumentURI)
+  case freestanding
+
+  /// Whether this request needs to finish before `other` can start executing.
+  func isDependency(of other: Self) -> Bool {
+    switch (self, other) {
+    case (.globalConfigurationChange, _): return true
+    case (_, .globalConfigurationChange): return true
+    case (.documentUpdate(let selfUri), .documentUpdate(let otherUri)): return selfUri == otherUri
+    case (.documentUpdate(let selfUri), .documentRequest(let otherUri)): return selfUri == otherUri
+    case (.documentRequest(let selfUri), .documentUpdate(let otherUri)): return selfUri == otherUri
+    case (.documentRequest, .documentRequest): return false
+    case (.freestanding, _): return false
+    case (_, .freestanding): return false
+    }
+  }
+
+  // swiftlint:disable cyclomatic_complexity
+  init(_ notification: any NotificationType) {
+    switch notification {
+    case is InitializedNotification: self = .globalConfigurationChange
+    case is CancelRequestNotification: self = .freestanding
+    case is ExitNotification: self = .globalConfigurationChange
+    case let notification as DidOpenTextDocumentNotification:
+      self = .documentUpdate(notification.textDocument.uri)
+    case let notification as DidCloseTextDocumentNotification:
+      self = .documentUpdate(notification.textDocument.uri)
+    case let notification as DidChangeTextDocumentNotification:
+      self = .documentUpdate(notification.textDocument.uri)
+    case is DidChangeWorkspaceFoldersNotification: self = .globalConfigurationChange
+    case is DidChangeWatchedFilesNotification: self = .freestanding
+    case let notification as WillSaveTextDocumentNotification:
+      self = .documentUpdate(notification.textDocument.uri)
+    case let notification as DidSaveTextDocumentNotification:
+      self = .documentUpdate(notification.textDocument.uri)
+    default:
+      logger.error(
+        """
+        Unknown notification \(type(of: notification)). Treating as a freestanding notification. \
+        This might lead to out-of-order request handling
+        """
+      )
+      self = .freestanding
+    }
+  }
+  // swiftlint:enable cyclomatic_complexity
+
+  init(_ request: any RequestType) {
+    switch request {
+    case is InitializeRequest: self = .globalConfigurationChange
+    case is ShutdownRequest: self = .globalConfigurationChange
+    case is WorkspaceSymbolsRequest: self = .freestanding
+    case is RenameRequest: self = .freestanding
+    case let request as any TextDocumentRequest: self = .documentRequest(request.textDocument.uri)
+    default:
+      logger.error(
+        """
+        Unknown request \(type(of: request)). Treating as a freestanding notification. \
+        This might lead to out-of-order request handling
+        """
+      )
+      self = .freestanding
+    }
   }
 }

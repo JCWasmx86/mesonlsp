@@ -7,13 +7,13 @@ import Timing
 
 internal func collectHoverInformation(
   _ tree: MesonTree?,
-  _ req: Request<HoverRequest>,
+  _ req: HoverRequest,
   _ mapper: FileMapper,
   _ docs: MesonDocs
-) {
+) -> HoverResponse {
   let begin = clock()
-  let location = req.params.position
-  let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+  let location = req.position
+  let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
   var content: String?
   var requery = true
   var function: Function?
@@ -47,20 +47,18 @@ internal func collectHoverInformation(
       if let mdocs = d { content = callHover(content: content, mdocs: mdocs, function: function) }
     }
   }
-  req.reply(
-    HoverResponse(
-      contents: content == nil
-        ? .markedStrings([])
-        : .markupContent(
-          MarkupContent(
-            kind: .markdown,
-            value: content!.trimmingCharacters(in: .whitespacesAndNewlines)
-          )
-        ),
-      range: nil
-    )
-  )
   Timing.INSTANCE.registerMeasurement(name: "hover", begin: begin, end: clock())
+  return HoverResponse(
+    contents: content == nil
+      ? .markedStrings([])
+      : .markupContent(
+        MarkupContent(
+          kind: .markdown,
+          value: content!.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+      ),
+    range: nil
+  )
 }
 
 // swiftlint:disable function_parameter_count

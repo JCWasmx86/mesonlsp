@@ -5,17 +5,13 @@ import Timing
 
 internal func highlightTree(
   _ tree: MesonTree?,
-  _ req: Request<DocumentHighlightRequest>,
+  _ req: DocumentHighlightRequest,
   _ mapper: FileMapper
-) {
+) -> [DocumentHighlight] {
   let begin = clock()
-  let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+  let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
   if let t = tree, let mt = t.findSubdirTree(file: file), let ast = mt.ast,
-    let id = t.metadata!.findIdentifierAt(
-      file,
-      req.params.position.line,
-      req.params.position.utf16index
-    )
+    let id = t.metadata!.findIdentifierAt(file, req.position.line, req.position.utf16index)
   {
     let hs = HighlightSearcher(varname: id.id)
     ast.visit(visitor: hs)
@@ -31,9 +27,8 @@ internal func highlightTree(
       ret.append(DocumentHighlight(range: range, kind: accessType))
     }
     Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
-    req.reply(ret)
-    return
+    return ret
   }
   Timing.INSTANCE.registerMeasurement(name: "highlight", begin: begin, end: clock())
-  req.reply([])
+  return []
 }

@@ -7,13 +7,13 @@ import Timing
 
 internal func findDeclaration(
   _ tree: MesonTree?,
-  _ req: Request<DeclarationRequest>,
+  _ req: DeclarationRequest,
   _ mapper: FileMapper,
   _ logger: Logger
-) {
+) -> LocationsOrLocationLinksResponse? {
   let beginDeclaration = clock()
-  let location = req.params.position
-  let file = mapper.fromSubprojectToCache(file: req.params.textDocument.uri.fileURL!.path)
+  let location = req.position
+  let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
   if let t = tree, let i = t.metadata!.findIdentifierAt(file, location.line, location.utf16index),
     let t = t.findDeclaration(node: i)
   {
@@ -22,16 +22,13 @@ internal func findDeclaration(
     let column = t.1[1]
     let range = Range(LanguageServerProtocol.Position(line: Int(line), utf16index: Int(column)))
     logger.info("Found declaration: \(newFile)[\(line):\(column)]")
-    req.reply(
-      .locations([
-        .init(
-          uri: DocumentURI(URL(fileURLWithPath: mapper.fromCacheToSubproject(file: newFile))),
-          range: range
-        )
-      ])
-    )
     Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
-    return
+    return .locations([
+      .init(
+        uri: DocumentURI(URL(fileURLWithPath: mapper.fromCacheToSubproject(file: newFile))),
+        range: range
+      )
+    ])
   }
 
   if let t = tree, let sd = t.metadata!.findSubdirCallAt(file, location.line, location.utf16index) {
@@ -41,18 +38,15 @@ internal func findDeclaration(
     ).description
     let range = Range(LanguageServerProtocol.Position(line: Int(0), utf16index: Int(0)))
     logger.info("Found declaration: \(path):\(range)")
-    req.reply(
-      .locations([
-        .init(
-          uri: DocumentURI(URL(fileURLWithPath: mapper.fromCacheToSubproject(file: path))),
-          range: range
-        )
-      ])
-    )
     Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
-    return
+    return .locations([
+      .init(
+        uri: DocumentURI(URL(fileURLWithPath: mapper.fromCacheToSubproject(file: path))),
+        range: range
+      )
+    ])
   }
   logger.warning("Found no declaration")
-  req.reply(.locations([]))
   Timing.INSTANCE.registerMeasurement(name: "declaration", begin: beginDeclaration, end: clock())
+  return .locations([])
 }
