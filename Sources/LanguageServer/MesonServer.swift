@@ -1660,7 +1660,7 @@ public final actor MesonServer: MessageHandler {
     }
   }
 
-	// swiftlint:disable cyclomatic_complexity
+  // swiftlint:disable cyclomatic_complexity
   private func handleImpl<R: RequestType>(
     _ params: R,
     id: RequestID,
@@ -1727,8 +1727,7 @@ public final actor MesonServer: MessageHandler {
     // IMPORTANT: When adding a new entry to this switch, also add it to the `TaskMetadata` initializer.
     default: reply(.failure(ResponseError.methodNotFound(R.method)))
     }
-  }
-  // swiftlint:enable cyclomatic_complexity
+  }// swiftlint:enable cyclomatic_complexity
 }
 
 extension Double {
