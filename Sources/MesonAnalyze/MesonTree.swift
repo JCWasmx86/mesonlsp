@@ -162,11 +162,15 @@ public final class MesonTree: Hashable {
 
   private func parseOptions() {
     if self.depth != 0 { return }
-    let f = Path(Path(self.file).parent().description + "\(Path.separator)meson_options.txt")
+    var f = Path(Path(self.file).parent().description + "\(Path.separator)meson.options")
       .normalize()
     if !f.exists {
-      self.options = OptionState(options: [])
-      return
+      f = Path(Path(self.file).parent().description + "\(Path.separator)meson_options.txt")
+        .normalize()
+      if !f.exists {
+        self.options = OptionState(options: [])
+        return
+      }
     }
     let text = self.readFile(f.description)
     guard let text = text else { return }
