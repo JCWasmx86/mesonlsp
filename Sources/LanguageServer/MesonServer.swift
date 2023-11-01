@@ -830,6 +830,9 @@ public final actor MesonServer: MessageHandler {
           params: req.options,
           muonPath: self.otherSettings.muonPath
         ) {
+          Self.LOG.info(
+            "Finished formatting document (New: \(formatted.count); Old: \(contents.count))"
+          )
           let newLines = formatted.split(whereSeparator: \.isNewline)
           let endOfLastLine = newLines.isEmpty ? 1024 : (newLines[newLines.count - 1].count)
           let range =
