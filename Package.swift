@@ -36,8 +36,10 @@ let package = Package(
     .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/sourcekit-lsp", branch: "main"),
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
+    .package(
+      url: "https://github.com/apple/sourcekit-lsp",
+      revision: "6e632129aa1b1b9f39f5b25d3b861fe71e0bfde9"
+    ), .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0"),
     .package(url: "https://github.com/JCWasmx86/swift-log.git", branch: "main"),
     .package(url: "https://github.com/JCWasmx86/swift-tools-support-core.git", branch: "main"),
