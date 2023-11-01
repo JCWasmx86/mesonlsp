@@ -41,7 +41,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/sourcekit-lsp",
       "state" : {
-        "branch" : "main",
         "revision" : "6e632129aa1b1b9f39f5b25d3b861fe71e0bfde9"
       }
     },
