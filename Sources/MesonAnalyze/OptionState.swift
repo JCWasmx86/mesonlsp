@@ -193,6 +193,7 @@ public class OptionState {
       )
     )
     self.append(option: ArrayOption("c_args", "C compile arguments to use"))
+    self.append(option: ArrayOption("cuda_args", "Cuda compile arguments to use"))
     self.append(option: ArrayOption("c_link_args", "C link arguments to use"))
     self.append(
       option: ComboOption(

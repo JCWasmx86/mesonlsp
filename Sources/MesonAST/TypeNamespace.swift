@@ -4747,7 +4747,7 @@ public final class TypeNamespace {
       Method(
         name: "dependencies",
         parent: t,
-        returnTypes: [ListType(types: [str, self.types["file"]!])],
+        returnTypes: [ListType(types: [self.types["dep"]!])],
         args: []
       ),
     ]
