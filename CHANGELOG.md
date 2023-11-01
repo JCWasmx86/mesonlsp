@@ -1,4 +1,4 @@
-# X.X.XX (XXX XX 2023)
+# 3.1.0 (Nov 02 2023)
 - Mark variables as used, if they are in a format string
 - Improve heuristics for `subdir(x)`
 - Add `others.muonPath` option that allows you to set the path to the muon binary that should be used.
