@@ -7,6 +7,7 @@
 - Update sourcekit-lsp. (Basically rewrites the server portion) It is quite possible there are regressions!
 - Don't report stats to the server anymore.
 - Update meson API definitions to cfec255027ca7c928defcc665a12e91b439c7c3f
+- Add support for meson.options files (And prefer them over meson_options.txt)
 # 3.0.22 (Oct 27 2023)
 - Test-Release for enhanced release workflow
 # 3.0.21 (Oct 27 2023)
