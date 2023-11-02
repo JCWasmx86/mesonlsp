@@ -13,7 +13,7 @@ jobs:
     container:
       image: ghcr.io/realm/swiftlint:latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: SwiftLint
@@ -24,7 +24,7 @@ jobs:
   swiftformat:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Lint using swift-format
         run: |
           git clone https://github.com/apple/swift-format
@@ -40,7 +40,7 @@ jobs:
   rome:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Lint using rome
         run: |
           sudo apt install -y make
@@ -58,7 +58,7 @@ jobs:
   pylint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Lint using pylint
         run: |
           pip install pylint
@@ -66,7 +66,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Lint using shellcheck
         run: |
           sudo apt install -y xz-utils tar
@@ -76,7 +76,7 @@ jobs:
   shfmt:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Lint using shfmt
         run: |
           wget https://github.com/mvdan/sh/releases/download/v3.7.0/shfmt_v3.7.0_linux_amd64

@@ -11,7 +11,7 @@ jobs:
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:yay
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build on arch
         run: |
           aur-install swift-bin
@@ -29,7 +29,7 @@ jobs:
     container:
       image: fedora:${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build on Fedora ${{ matrix.version }}
         run: |
           sudo dnf install zip swift-lang git libstdc++-static -y
@@ -45,7 +45,7 @@ jobs:
         version: [12, 13]
     runs-on: macos-${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build on MacOS ${{ matrix.version }}
         run: |
           swift build
@@ -74,7 +74,7 @@ jobs:
     container:
       image: ubuntu:${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build on Ubuntu ${{ matrix.version }}
         shell: bash
         run: |
@@ -98,7 +98,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: |
           TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
@@ -112,7 +112,7 @@ jobs:
     container:
       image: debian:${{ matrix.cfg.image }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build on Debian ${{ matrix.cfg.name }}
         shell: bash
         run: |
@@ -133,7 +133,7 @@ jobs:
   tests:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: swift build
       - name: Run tests
@@ -154,7 +154,7 @@ jobs:
   regressiontests:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run regression tests
         run: |
           swift build -c release --static-swift-stdlib
@@ -163,7 +163,7 @@ jobs:
     needs: ubuntu_in_container
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Ubuntu18.04.zip
@@ -204,7 +204,7 @@ jobs:
     needs: debian
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Debian-Stable.zip

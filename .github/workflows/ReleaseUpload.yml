@@ -9,7 +9,7 @@ jobs:
     name: Build and upload
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           swift build -c release --static-swift-stdlib
@@ -34,7 +34,7 @@ jobs:
     name: Build and upload macOS ${{ matrix.version }}
     runs-on: macos-${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           swift build -c release --arch x86_64 --arch arm64
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out proper version of sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Install API token for copr-cli
         env:
@@ -93,7 +93,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: |
           TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
@@ -107,7 +107,7 @@ jobs:
     container:
       image: debian:${{ matrix.cfg.image }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build on Debian ${{ matrix.cfg.name }}
         shell: bash
         run: |
@@ -133,7 +133,7 @@ jobs:
     container:
       image: ubuntu:${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build on Ubuntu ${{ matrix.version }}
         shell: bash
         run: |
@@ -156,7 +156,7 @@ jobs:
     needs: ubuntu_in_container
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Ubuntu18.04.zip
@@ -197,7 +197,7 @@ jobs:
     needs: ["debian"]
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Debian-Stable.zip
@@ -240,7 +240,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out proper version of sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Swift-MesonLSP-debian-stable.deb
@@ -286,7 +286,7 @@ jobs:
     needs: ["build-ubuntu", "build-macos", "windows-59"]
     steps:
       - name: Check out proper version of sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: Swift-MesonLSP-win64.zip
@@ -344,7 +344,7 @@ jobs:
         with:
           branch: swift-5.9-release
           tag: 5.9-RELEASE
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build and test
         shell: powershell
         run: |
