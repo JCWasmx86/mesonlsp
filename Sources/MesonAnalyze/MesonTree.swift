@@ -149,6 +149,16 @@ public final class MesonTree: Hashable {
         ).description
     }
     self.parseOptions()
+    if self.depth == 0 {
+    	self.propagate(self.options)
+    }
+  }
+
+  private func propagate(_ options: OptionState) {
+  	self.options = options
+  	for m in self.subfiles {
+  		m.propagate(options)
+  	}
   }
 
   private func readFile(_ name: String) -> String? {
@@ -170,8 +180,7 @@ public final class MesonTree: Hashable {
         .normalize()
       if !f.exists { return }
     }
-    let text = self.readFile(f.description)
-    guard let text = text else { return }
+    guard let text = self.readFile(f.description) else { return }
     let tree = Self.PARSER().parse(text)
     let root = tree!.rootNode
     let visitor = OptionsExtractor()
@@ -253,6 +262,7 @@ public final class MesonTree: Hashable {
           assert(tree.ast!.parent != nil)
         }
         self.subfiles.append(tree)
+        tree.propagate(self.options)
       }
       idx += 1
     }
