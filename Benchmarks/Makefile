@@ -38,6 +38,8 @@ serve: FORCE
 	cat v2.4.4.json >> generated.js
 	echo -n "," >> generated.js
 	cat v3.0.0.json >> generated.js
+	echo -n "," >> generated.js
+	cat v3.1.0.json >> generated.js
 	echo "];" >> generated.js
 	./extract_git_data.sh >> generated.js
 	echo "COMMIT_STATS = " >> generated.js
