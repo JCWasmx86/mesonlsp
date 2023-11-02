@@ -47,7 +47,7 @@ let package = Package(
     .package(url: "https://github.com/JCWasmx86/SWCompression.git", branch: "develop"),
     .package(url: "https://github.com/JCWasmx86/tree-sitter-meson", from: "1.0.7"),
     .package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "4.0.0"),
-    .package(url: "https://github.com/vapor/console-kit.git", from: "4.7.0"),
+    .package(url: "https://github.com/vapor/console-kit.git", from: "4.9.1"),
   ] + backtraceDeps,
   targets: [
     .target(
