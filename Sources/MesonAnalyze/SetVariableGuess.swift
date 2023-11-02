@@ -700,7 +700,7 @@ private func applyMethod(varname: String, name: String) -> String {
 }
 
 class InterpretNode {
-  public let node: Node
+  let node: Node
 
   init(node: Node) { self.node = node }
 }
@@ -723,5 +723,5 @@ class IntNode: InterpretNode {
 
 class ArtificalStringNode: InterpretNode {
 
-  public init(contents: String) { super.init(node: StringLiteral(contents)) }
+  init(contents: String) { super.init(node: StringLiteral(contents)) }
 }
