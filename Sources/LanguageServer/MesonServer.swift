@@ -1631,6 +1631,8 @@ public final actor MesonServer: MessageHandler {
       await self.changeDocument(notification)
     case let notification as DidSaveTextDocumentNotification:
       await self.didSaveDocument(notification)
+    case let notification as DidChangeConfigurationNotification:
+      await self.didChangeConfiguration(notification)
     // IMPORTANT: When adding a new entry to this switch, also add it to the `TaskMetadata` initializer.
     default: break
     }
@@ -1812,6 +1814,7 @@ private enum TaskMetadata: DependencyTracker {
     case is ExitNotification: self = .globalConfigurationChange
     case let notification as DidOpenTextDocumentNotification:
       self = .documentUpdate(notification.textDocument.uri)
+    case is DidChangeConfigurationNotification: self = .globalConfigurationChange
     case let notification as DidCloseTextDocumentNotification:
       self = .documentUpdate(notification.textDocument.uri)
     case let notification as DidChangeTextDocumentNotification:
