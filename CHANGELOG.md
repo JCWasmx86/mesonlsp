@@ -1,3 +1,5 @@
+# 3.1.1 (Nov 02 2023)
+- Fix regression where changed configuration wasn't applied.
 # 3.1.0 (Nov 02 2023)
 - Mark variables as used, if they are in a format string
 - Improve heuristics for `subdir(x)`
