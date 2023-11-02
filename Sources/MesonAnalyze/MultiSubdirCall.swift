@@ -33,5 +33,7 @@ public class MultiSubdirCall: FunctionExpression {
 
   public func append(_ tree: MesonAST.Node?) { if tree != nil { self.files.append(tree!) } }
 
-  public func heuristics() -> [String] { return MesonAnalyze.guessSetVariable(fe: self) }
+  public func heuristics(opts: OptionState) -> [String] {
+    return MesonAnalyze.guessSetVariable(fe: self, opts: opts)
+  }
 }

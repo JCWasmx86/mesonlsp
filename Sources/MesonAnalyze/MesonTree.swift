@@ -149,16 +149,12 @@ public final class MesonTree: Hashable {
         ).description
     }
     self.parseOptions()
-    if self.depth == 0 {
-    	self.propagate(self.options)
-    }
+    if self.depth == 0 { self.propagate(self.options) }
   }
 
   private func propagate(_ options: OptionState) {
-  	self.options = options
-  	for m in self.subfiles {
-  		m.propagate(options)
-  	}
+    self.options = options
+    for m in self.subfiles { m.propagate(options) }
   }
 
   private func readFile(_ name: String) -> String? {
@@ -234,7 +230,7 @@ public final class MesonTree: Hashable {
     var idx = 0
     var s: Set<String> = []
     for msc in self.multiCallSubfiles {
-      let heuristics = msc.heuristics()
+      let heuristics = msc.heuristics(opts: self.options)
       if heuristics.isEmpty {
         Self.LOG.warning("Failed to find heuristics at \(msc.file.file):\(msc.location.format())")
         continue

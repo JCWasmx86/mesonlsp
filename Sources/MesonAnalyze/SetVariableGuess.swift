@@ -1,6 +1,6 @@
 import MesonAST
 
-public func guessSetVariable(fe: FunctionExpression) -> [String] {
+public func guessSetVariable(fe: FunctionExpression, opts: OptionState) -> [String] {
   if let al = fe.argumentList as? ArgumentList, !al.args.isEmpty {
     let exprToCalculate = al.args[0]
     var parent: Node? = fe
@@ -13,7 +13,7 @@ public func guessSetVariable(fe: FunctionExpression) -> [String] {
   return []
 }
 
-public func guessGetVariableMethod(me: MethodExpression) -> [String] {
+public func guessGetVariableMethod(me: MethodExpression, opts: OptionState) -> [String] {
   if let al = me.argumentList as? ArgumentList, !al.args.isEmpty {
     let exprToCalculate = al.args[0]
     var parent: Node? = me

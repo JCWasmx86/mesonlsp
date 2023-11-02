@@ -646,7 +646,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
       } else if !args.isEmpty {
         var types: [Type] = fn.returnTypes
         if args.count >= Self.GET_SET_VARIABLE_ARG_COUNT_MAX { types += args[1].types }
-        let guessedNames = Set(MesonAnalyze.guessSetVariable(fe: node))
+        let guessedNames = Set(MesonAnalyze.guessSetVariable(fe: node, opts: self.tree.options))
         types += guessedNames.map({ self.scope.variables[$0] ?? [] }).flatMap({ $0 })
         node.types = self.dedup(types: types)
         Self.LOG.info(
@@ -696,7 +696,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         ns: self.t
       )
     } else {
-      let names = Set(MesonAnalyze.guessSetVariable(fe: node))
+      let names = Set(MesonAnalyze.guessSetVariable(fe: node, opts: self.tree.options))
       Self.LOG.info("Guessed args to `subproject` as \(names)")
       node.types = [MesonAST.Subproject(names: Array(names))]
       if let ssT = self.subprojectState {
@@ -775,7 +775,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
   // swiftlint:enable cyclomatic_complexity
 
   private func guessSetVariable(args: [Node], node: FunctionExpression) {
-    let vars = Set(MesonAnalyze.guessSetVariable(fe: node))
+    let vars = Set(MesonAnalyze.guessSetVariable(fe: node, opts: self.tree.options))
     Self.LOG.info(
       "Guessed values to set_variable: \(vars) at \(node.file.file):\(node.location.format())"
     )
@@ -906,7 +906,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           m.id() == "subproject.get_variable", let stO = t as? MesonAST.Subproject,
           let s = self.subprojectState
         {
-          let calculatedNames = Set(guessGetVariableMethod(me: node))
+          let calculatedNames = Set(guessGetVariableMethod(me: node, opts: self.tree.options))
           var foundVariables = false
           for subproject in s.subprojects where stO.names.contains(subproject.name) {
             if let ast = subproject.tree, let sscope = ast.scope {
