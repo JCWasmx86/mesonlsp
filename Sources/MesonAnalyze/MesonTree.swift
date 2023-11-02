@@ -18,7 +18,7 @@ public final class MesonTree: Hashable {
   public var subfiles: [MesonTree] = []
   public private(set) var scope: Scope?
   var depth: Int
-  public private(set) var options: OptionState?
+  public private(set) var options: OptionState
   public let ns: TypeNamespace
   public var metadata: MesonMetadata?
   public var multiCallSubfiles: [MultiSubdirCall] = []
@@ -37,6 +37,7 @@ public final class MesonTree: Hashable {
   ) {
     self.ns = ns
     self.subproject = subproject
+    self.options = OptionState(options: [])
     let pkp = Path(file).absolute().normalize()
     self.file = pkp.description
     self.ast = nil
@@ -167,10 +168,7 @@ public final class MesonTree: Hashable {
     if !f.exists {
       f = Path(Path(self.file).parent().description + "\(Path.separator)meson_options.txt")
         .normalize()
-      if !f.exists {
-        self.options = OptionState(options: [])
-        return
-      }
+      if !f.exists { return }
     }
     let text = self.readFile(f.description)
     guard let text = text else { return }
@@ -196,8 +194,7 @@ public final class MesonTree: Hashable {
     root.variables.updateValue([self.ns.types["build_machine"]!], forKey: "build_machine")
     root.variables.updateValue([self.ns.types["host_machine"]!], forKey: "host_machine")
     root.variables.updateValue([self.ns.types["target_machine"]!], forKey: "target_machine")
-    var options: [MesonOption] = []
-    if let o = self.options { options = Array(o.opts.values) }
+    let options = Array(self.options.opts.values)
     let t = TypeAnalyzer(
       parent: root,
       tree: self,

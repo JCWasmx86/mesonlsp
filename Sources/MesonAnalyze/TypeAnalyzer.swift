@@ -661,10 +661,8 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
           diag: MesonDiagnostic(sev: .error, node: node, message: s + "/meson.build not found")
         )
       }
-    } else if fn.name == "get_option", !al.args.isEmpty, let sl = al.args[0] as? StringLiteral,
-      let opts = self.tree.options
-    {
-      self.analyzeOptsCalls(node, sl, opts)
+    } else if fn.name == "get_option", !al.args.isEmpty, let sl = al.args[0] as? StringLiteral {
+      self.analyzeOptsCalls(node, sl, self.tree.options)
     }
   }
 

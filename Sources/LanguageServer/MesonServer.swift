@@ -587,10 +587,10 @@ public final actor MesonServer: MessageHandler {
   ) {
     if let fexpr = md.findFullFunctionCallAt(fp, line, column), let f = fexpr.function,
       f.id() == "get_option", let al = fexpr.argumentList as? ArgumentList, !al.args.isEmpty,
-      al.args[0] is StringLiteral, let opts = t.options
+      al.args[0] is StringLiteral
     {
       Self.LOG.info("Found special call to get_option")
-      for c in opts.opts.keys {
+      for c in t.options.opts.keys {
         arr.append(
           CompletionItem(label: c, kind: .variable, insertText: c, insertTextFormat: .snippet)
         )

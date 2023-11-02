@@ -78,8 +78,7 @@ private func hoverFindCallable(
     let fn = f.function
   {
     if fn.name == "get_option", let al = f.argumentList as? ArgumentList, !al.args.isEmpty,
-      let sl = al.args[0] as? StringLiteral, let opt = t.options,
-      let option = opt.opts[sl.contents()]
+      let sl = al.args[0] as? StringLiteral, let option = t.options.opts[sl.contents()]
     {
       function = fn
       content = "Option: \(option.name)\n\nType: \(option.type)\n\n\(option.description ?? "")"
