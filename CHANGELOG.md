@@ -1,3 +1,5 @@
+# X.X.X (Nov XX 2023)
+- Improve heuristics for `subdir(x)`
 # 3.1.1 (Nov 02 2023)
 - Fix regression where changed configuration wasn't applied.
 # 3.1.0 (Nov 02 2023)
