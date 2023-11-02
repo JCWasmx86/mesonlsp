@@ -274,11 +274,13 @@ endforeach
 # ana:var: youtube_enabledfoo = str
 
 supported_arch = {
-    'x86' : 'x86',
-    'x86_64' : 'x86'
+    'x86': 'x86',
+    'x86_64': 'x86',
 }
 arch = host_machine.cpu()
-xyz = 'arch' / supported_arch[arch] #join_paths('arch', supported_arch[arch])
+xyz = (
+    'arch' / supported_arch[arch] #join_paths('arch', supported_arch[arch])
+)
 set_variable(xyz, true)
 set_variable('arch1' / supported_arch[arch], true)
 # ana:var: arch1/x86 = bool
@@ -289,8 +291,8 @@ xyz = join_paths('a1', 'b')
 set_variable(xyz, 1)
 # ana:var: a1/b = int
 supported_arch1 = {
-    'x86' : 'x861',
-    'x86_64' : 'x861'
+    'x86': 'x861',
+    'x86_64': 'x861',
 }
 arch1 = host_machine.cpu()
 set_variable(join_paths('arch', supported_arch1[arch1]), true)
@@ -298,25 +300,51 @@ set_variable(join_paths('arch', supported_arch1[arch1]), true)
 
 monitors = {}
 if enable_afc
-  monitors += {'Afc': true}
+    monitors += {'Afc': true}
 endif
 if enable_goa
-  monitors += {'Goa': false}
+    monitors += {'Goa': false}
 endif
 if enable_gphoto2
-  monitors += {'GPhoto2': true}
+    monitors += {'GPhoto2': true}
 endif
 monitors += {'MTP': false}
-foreach monitor, monitor_test: monitors
-  monitor_name = monitor.to_lower()
-  set_variable(monitor_name, true)
+foreach monitor, monitor_test : monitors
+    monitor_name = monitor.to_lower()
+    set_variable(monitor_name, true)
 endforeach
 # ana:var: afc = bool
 # ana:var: goa = bool
 # ana:var: mtp = bool
-other_dict = {'abcabc': 'dict11111', 'bbcbbc': 'dict22222'}
-foreach a, b: other_dict
-  set_variable(b, true)
+other_dict = {
+    'abcabc': 'dict11111',
+    'bbcbbc': 'dict22222',
+}
+foreach a, b : other_dict
+    set_variable(b, true)
 endforeach
 # ana:var: dict11111 = bool
 # ana:var: dict22222 = bool
+bindings = get_option('bindings')
+binding_targets = {
+    'cpp': {'output': 'reaper_imgui_functions.h'},
+    'human': {
+        'output': 'reaper_imgui_doc.html',
+        'install_dir': data_dir,
+    },
+    'python': {
+        'output': 'imgui_python.py',
+        'install_dir': scripts_dir,
+    },
+}
+foreach name : bindings
+    set_variable(name + '_binding', true)
+endforeach
+# ana:var: python_binding = bool
+# ana:var: cpp_binding = bool
+# ana:var: human_binding = bool
+foreach shim_name : get_option('shims')
+    set_variable(shim_name + '___shim', true)
+endforeach
+# ana:var: lua___shim = bool
+

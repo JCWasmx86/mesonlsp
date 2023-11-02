@@ -7,7 +7,7 @@ public func guessSetVariable(fe: FunctionExpression, opts: OptionState) -> [Stri
     while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
       || parent?.parent is BuildDefinition)
     { parent = parent!.parent }
-    let calc = PartialInterpreter()
+    let calc = PartialInterpreter(opts)
     return calc.calculate(parent!, exprToCalculate)
   }
   return []
@@ -20,16 +20,22 @@ public func guessGetVariableMethod(me: MethodExpression, opts: OptionState) -> [
     while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
       || parent?.parent is BuildDefinition)
     { parent = parent!.parent }
-    let calc = PartialInterpreter()
+    let calc = PartialInterpreter(opts)
     return calc.calculate(parent!, exprToCalculate)
   }
   return []
 }
 
 class PartialInterpreter {
+
+  private let options: OptionState
+
+  init(_ opts: OptionState) { self.options = opts }
+
   func calculate(_ parent: Node, _ exprToCalculate: Node) -> [String] {
     return calculateExpression(parent, exprToCalculate)
   }
+
   private func calculateBinaryExpression(_ parentExpr: Node, _ be: BinaryExpression) -> [String] {
     let lhs = calculateExpression(parentExpr, be.lhs)
     let rhs = calculateExpression(parentExpr, be.rhs)
@@ -170,12 +176,24 @@ class PartialInterpreter {
 
   private func calculateFunctionExpression(_ fe: FunctionExpression, _ parentExpr: Node) -> [String]
   {
-    if let fn = fe.function, fn.id() != "join_paths" {
+    if let fn = fe.function, !["join_paths", "get_option"].contains(fn.id()) {
       return []
     } else if fe.function == nil {
-      if (fe.id as! IdExpression).id != "join_paths" { return [] }
+      if !["join_paths", "get_option"].contains((fe.id as! IdExpression).id) { return [] }
     }
     guard let al = fe.argumentList as? ArgumentList else { return [] }
+    if (fe.id as! IdExpression).id == "get_option" {
+      guard let first = al.args.first as? StringLiteral else { return [] }
+      guard let option = self.options.opts[first.contents()] else { return [] }
+      if let co = option as? ComboOption, let vals = co.values {
+        return vals
+      } else if let ao = option as? ArrayOption, let choices = ao.choices {
+        return choices
+      }
+      return []
+    }
+
+    // join_paths
     var items: [[InterpretNode]] = []
     for a in al.args {
       if a is KeywordItem { continue }
@@ -643,15 +661,23 @@ class PartialInterpreter {
 
   private func abstractEvalFunction(_ fe: FunctionExpression, _ parentStmt: Node) -> [InterpretNode]
   {
-    guard let fn = fe.function else { return [] }
     guard let al = fe.argumentList as? ArgumentList else { return [] }
-    if fn.id() == "join_paths" {
+    let fnid = (fe.id as! IdExpression).id
+    if fnid == "join_paths" {
       var items: [[InterpretNode]] = []
       for a in al.args {
         if a is KeywordItem { continue }
         items.append(abstractEval(parentStmt, a))
       }
       return allAbstractStringCombinations(items)
+    } else if fnid == "get_option" {
+      guard let first = al.args.first as? StringLiteral else { return [] }
+      guard let option = self.options.opts[first.contents()] else { return [] }
+      if let co = option as? ComboOption, let vals = co.values {
+        return Array(vals.map { ArtificalStringNode(contents: $0) })
+      } else if let ao = option as? ArrayOption, let choices = ao.choices {
+        return Array(choices.map { ArtificalStringNode(contents: $0) })
+      }
     }
     return []
   }
@@ -691,7 +717,7 @@ class PartialInterpreter {
   // swiftlint:enable cyclomatic_complexity
 
   private func isValidFunction(_ fe: FunctionExpression) -> Bool {
-    if let fn = fe.function { return ["join_paths"].contains(fn.id()) }
+    if let fn = fe.id as? IdExpression { return ["join_paths", "get_option"].contains(fn.id) }
     return false
   }
 
