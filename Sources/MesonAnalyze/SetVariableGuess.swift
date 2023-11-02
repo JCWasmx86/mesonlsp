@@ -7,7 +7,7 @@ public func guessSetVariable(fe: FunctionExpression) -> [String] {
     while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
       || parent?.parent is BuildDefinition)
     { parent = parent!.parent }
-    let calc = Calculator()
+    let calc = PartialInterpreter()
     return calc.calculate(parent!, exprToCalculate)
   }
   return []
@@ -20,13 +20,13 @@ public func guessGetVariableMethod(me: MethodExpression) -> [String] {
     while !(parent?.parent is IterationStatement || parent?.parent is SelectionStatement
       || parent?.parent is BuildDefinition)
     { parent = parent!.parent }
-    let calc = Calculator()
+    let calc = PartialInterpreter()
     return calc.calculate(parent!, exprToCalculate)
   }
   return []
 }
 
-class Calculator {
+class PartialInterpreter {
   func calculate(_ parent: Node, _ exprToCalculate: Node) -> [String] {
     return calculateExpression(parent, exprToCalculate)
   }
