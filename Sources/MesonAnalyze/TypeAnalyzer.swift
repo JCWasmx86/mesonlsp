@@ -650,7 +650,7 @@ public final class TypeAnalyzer: ExtendedCodeVisitor {
         types += guessedNames.map({ self.scope.variables[$0] ?? [] }).flatMap({ $0 })
         node.types = self.dedup(types: types)
         Self.LOG.info(
-          "get_variable (Imprecise): ??? = \(self.joinTypes(types: node.types)): Guessed variable names: \(guessedNames)"
+          "get_variable (Imprecise): ??? = \(self.joinTypes(types: node.types)) at \(node.file.file):\(node.location.format()): Guessed variable names: \(guessedNames)"
         )
       }
     } else if fn.name == "subdir" {
