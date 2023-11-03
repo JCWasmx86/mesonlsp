@@ -18,7 +18,7 @@ cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
 cd gtk || exit
 # Undefined variables in dead code
-[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "4" ] || exit 1
+[ "$($LSPPATH meson.build | grep 🔴 -c)" -eq "6" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
