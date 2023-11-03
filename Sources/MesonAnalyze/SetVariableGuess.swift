@@ -174,6 +174,7 @@ class PartialInterpreter {
     }
   }
 
+  // swiftlint:disable cyclomatic_complexity
   private func calculateFunctionExpression(_ fe: FunctionExpression, _ parentExpr: Node) -> [String]
   {
     if let fn = fe.function, !["join_paths", "get_option"].contains(fn.id()) {
@@ -202,7 +203,7 @@ class PartialInterpreter {
     return allAbstractStringCombinations(items).filter { $0.node is StringLiteral }.map {
       ($0.node as! StringLiteral).contents()
     }
-  }
+  }  // swiftlint:enable cyclomatic_complexity
 
   private func calculateExpression(_ parentExpr: Node, _ argExpression: Node) -> [String] {
     if let sl = argExpression as? StringLiteral {
