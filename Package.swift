@@ -33,7 +33,7 @@ let package = Package(
     .library(name: "IOUtils", targets: ["IOUtils"]), .library(name: "Timing", targets: ["Timing"]),
     .library(name: "MesonDocs", targets: ["MesonDocs"]),
     .library(name: "TestingFramework", targets: ["TestingFramework"]),
-    .library(name: "CMem", targets: ["CMem"]), .library(name: "Wrap", targets: ["Wrap"]),
+    .library(name: "Wrap", targets: ["Wrap"]),
   ],
   dependencies: [
     .package(
@@ -64,7 +64,7 @@ let package = Package(
         "IOUtils", .product(name: "Logging", package: "swift-log"),
         .product(name: "Crypto", package: "swift-crypto"),
       ]
-    ), .systemLibrary(name: "CMem"), .target(name: "Timing", dependencies: []),
+    ), .target(name: "Timing", dependencies: []),
     .target(name: "IOUtils", dependencies: [.product(name: "Logging", package: "swift-log")]),
     .target(
       name: "Wrap",
@@ -81,7 +81,7 @@ let package = Package(
     .target(
       name: "LanguageServer",
       dependencies: [
-        "MesonAnalyze", "Timing", "MesonDocs", "CMem", "IOUtils",
+        "MesonAnalyze", "Timing", "MesonDocs", "IOUtils",
         .product(name: "LSPBindings", package: "sourcekit-lsp"),
         .product(name: "Logging", package: "swift-log"),
       ]

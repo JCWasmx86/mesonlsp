@@ -1,4 +1,0 @@
-module CMem [system] {
-	header "shim.h"
-	export *
-}
