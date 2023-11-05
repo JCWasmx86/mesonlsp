@@ -25,6 +25,7 @@ public final class MesonTree: Hashable {
   public var visitedFiles: [String] = []
   public var foundVariables: [[String]] = []
   public var subproject: Subproject?
+  private var optionsAst: MesonAST.Node?
 
   public init(
     file: String,
@@ -180,7 +181,8 @@ public final class MesonTree: Hashable {
     let tree = Self.PARSER().parse(text)
     let root = tree!.rootNode
     let visitor = OptionsExtractor()
-    from_tree(file: MesonSourceFile(file: f.description), tree: root)!.visit(visitor: visitor)
+    self.optionsAst = from_tree(file: MesonSourceFile(file: f.description), tree: root)!
+    self.optionsAst!.visit(visitor: visitor)
     self.options = OptionState(options: visitor.options)
   }
 
@@ -211,7 +213,11 @@ public final class MesonTree: Hashable {
     self.ast!.setParents()
     self.heuristics(ns: ns, depth: depth, dontCache: dontCache, cache: &cache, memfiles: memfiles)
     self.ast!.visit(visitor: t)
-    if self.depth == 0 { self.scope = t.scope }
+    if self.depth == 0 {
+      self.scope = t.scope
+      let optionsDiags = OptionDiagnosticVisitor(t.metadata)
+      self.optionsAst?.visit(visitor: optionsDiags)
+    }
     self.metadata = t.metadata
     self.visitedFiles = t.visitedFiles
     self.foundVariables = t.foundVariables
