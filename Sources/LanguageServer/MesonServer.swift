@@ -147,13 +147,20 @@ public final actor MesonServer: MessageHandler {
   {
     let begin = clock()
     let file = mapper.fromSubprojectToCache(file: req.textDocument.uri.fileURL!.path)
-    if let t = self.findTree(req.textDocument.uri), let mt = t.findSubdirTree(file: file),
-      let ast = mt.ast
-    {
-      let stv = SemanticTokenVisitor()
-      ast.visit(visitor: stv)
-      Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
-      return DocumentSemanticTokensResponse(data: stv.finish())
+    if let t = self.findTree(req.textDocument.uri) {
+      if let mt = t.findSubdirTree(file: file), let ast = mt.ast {
+        let stv = SemanticTokenVisitor()
+        ast.visit(visitor: stv)
+        Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
+        return DocumentSemanticTokensResponse(data: stv.finish())
+      } else if req.textDocument.uri.pseudoPath.hasSuffix("meson.options")
+        || req.textDocument.uri.pseudoPath.hasSuffix("meson_options.txt"), let ast = t.optionsAst
+      {
+        let stv = SemanticTokenVisitor()
+        ast.visit(visitor: stv)
+        Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
+        return DocumentSemanticTokensResponse(data: stv.finish())
+      }
     }
     Timing.INSTANCE.registerMeasurement(name: "semanticTokens", begin: begin, end: clock())
     return DocumentSemanticTokensResponse(data: [])

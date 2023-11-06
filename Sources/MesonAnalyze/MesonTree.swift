@@ -25,7 +25,7 @@ public final class MesonTree: Hashable {
   public var visitedFiles: [String] = []
   public var foundVariables: [[String]] = []
   public var subproject: Subproject?
-  private var optionsAst: MesonAST.Node?
+  public var optionsAst: MesonAST.Node?
 
   public init(
     file: String,
