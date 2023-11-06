@@ -47,6 +47,30 @@ class OptionDiagnosticVisitor: CodeVisitor {
     }
   }
 
+  private func isInteger(_ dv: Node?) -> Bool {
+    guard let dv = dv else { return false }
+    if dv is IntegerLiteral {
+      return true
+    } else if let unaryExpr = dv as? UnaryExpression, let unOp = unaryExpr.op, unOp == .minus,
+      unaryExpr.expression is IntegerLiteral
+    {
+      return true
+    }
+    return false
+  }
+
+  private func extractInteger(_ dv: Node?) -> Int? {
+    guard let dv = dv else { return nil }
+    if let dvi = dv as? IntegerLiteral {
+      return dvi.parse()
+    } else if let unaryExpr = dv as? UnaryExpression, let unOp = unaryExpr.op, unOp == .minus,
+      let dvi = unaryExpr.expression as? IntegerLiteral
+    {
+      return -dvi.parse()
+    }
+    return nil
+  }
+
   // Refactor this!
   // swiftlint:disable cyclomatic_complexity
   public func visitFunctionExpression(node: FunctionExpression) {
@@ -123,32 +147,38 @@ class OptionDiagnosticVisitor: CodeVisitor {
     case "integer":
       var parsed: Int?
       if let dv = defaultValue {
-        if !(dv is IntegerLiteral) {
+        if let dvi = dv as? IntegerLiteral {
+          parsed = dvi.parse()
+        } else if let unaryExpr = dv as? UnaryExpression, let unOp = unaryExpr.op, unOp == .minus,
+          let dvi = unaryExpr.expression as? IntegerLiteral
+        {
+          parsed = -dvi.parse()
+        } else {
           self.metadata.registerDiagnostic(
             node: dv,
             diag: MesonDiagnostic(sev: .error, node: dv, message: "Expected integer literal")
           )
-        } else {
-          parsed = (dv as! IntegerLiteral).parse()
         }
       }
       let minNode = al.getKwarg(name: "min")
       let maxNode = al.getKwarg(name: "max")
-      if minNode != nil && !(minNode is IntegerLiteral) {
-        self.metadata.registerDiagnostic(
-          node: minNode!,
-          diag: MesonDiagnostic(sev: .error, node: minNode!, message: "Expected integer literal")
-        )
+      if minNode != nil {
+        if !isInteger(minNode) {
+          self.metadata.registerDiagnostic(
+            node: minNode!,
+            diag: MesonDiagnostic(sev: .error, node: minNode!, message: "Expected integer literal")
+          )
+        }
       }
-      if maxNode != nil && !(maxNode is IntegerLiteral) {
-        self.metadata.registerDiagnostic(
-          node: maxNode!,
-          diag: MesonDiagnostic(sev: .error, node: maxNode!, message: "Expected integer literal")
-        )
+      if maxNode != nil {
+        if !isInteger(maxNode) {
+          self.metadata.registerDiagnostic(
+            node: maxNode!,
+            diag: MesonDiagnostic(sev: .error, node: maxNode!, message: "Expected integer literal")
+          )
+        }
       }
-      if let minN = minNode as? IntegerLiteral, let maxN = maxNode as? IntegerLiteral {
-        let minV = minN.parse()
-        let maxV = maxN.parse()
+      if let minV = self.extractInteger(minNode), let maxV = self.extractInteger(maxNode) {
         if parsed != nil {
           if parsed! < minV {
             self.metadata.registerDiagnostic(
@@ -172,16 +202,15 @@ class OptionDiagnosticVisitor: CodeVisitor {
         }
         if maxV < minV {
           self.metadata.registerDiagnostic(
-            node: maxN,
+            node: maxNode!,
             diag: MesonDiagnostic(
               sev: .warning,
-              node: maxN,
+              node: maxNode!,
               message: "Maximum value is less than the minimum value"
             )
           )
         }
-      } else if let minN = minNode as? IntegerLiteral {
-        let minV = minN.parse()
+      } else if let minV = self.extractInteger(minNode) {
         if parsed != nil {
           if parsed! < minV {
             self.metadata.registerDiagnostic(
@@ -194,8 +223,7 @@ class OptionDiagnosticVisitor: CodeVisitor {
             )
           }
         }
-      } else if let maxN = maxNode as? IntegerLiteral {
-        let maxV = maxN.parse()
+      } else if let maxV = self.extractInteger(maxNode) {
         if parsed != nil {
           if parsed! > maxV {
             self.metadata.registerDiagnostic(
