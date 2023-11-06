@@ -426,7 +426,15 @@ class OptionDiagnosticVisitor: CodeVisitor {
           }
         }
       }
-    default: break
+    default:
+      self.metadata.registerDiagnostic(
+        node: optionType,
+        diag: MesonDiagnostic(
+          sev: .error,
+          node: optionType,
+          message: "Unknown option type: '\(optionTypeSL.contents())'"
+        )
+      )
 
     }
   }
