@@ -115,7 +115,7 @@ class OptionDiagnosticVisitor: CodeVisitor {
     }
     Self.LOG.info("Found option: \(nameNodeSl.contents())")
     self.checkName(nameNodeSl)
-    // XXX: Check option name
+
     guard let optionType = al.getKwarg(name: "type") else {
       self.metadata.registerDiagnostic(
         node: nameNode,
