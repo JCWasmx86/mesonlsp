@@ -74,6 +74,7 @@ class OptionDiagnosticVisitor: CodeVisitor {
   // Refactor this!
   // swiftlint:disable cyclomatic_complexity
   public func visitFunctionExpression(node: FunctionExpression) {
+    self.metadata.registerFunctionCall(call: node)
     node.visitChildren(visitor: self)
     guard let idExpr = node.id as? IdExpression else { return }
     if idExpr.id != "option" {
@@ -451,7 +452,10 @@ class OptionDiagnosticVisitor: CodeVisitor {
 
   public func visitBinaryExpression(node: BinaryExpression) { node.visitChildren(visitor: self) }
 
-  public func visitStringLiteral(node: StringLiteral) { node.visitChildren(visitor: self) }
+  public func visitStringLiteral(node: StringLiteral) {
+    self.metadata.registerStringLiteral(node: node)
+    node.visitChildren(visitor: self)
+  }
 
   public func visitArrayLiteral(node: ArrayLiteral) { node.visitChildren(visitor: self) }
 
