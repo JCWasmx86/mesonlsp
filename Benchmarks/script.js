@@ -905,6 +905,17 @@ function initAllCharts() {
     "Sunday",
   ];
   const container = document.getElementById("heatmap");
+  const label = document.createElement("div");
+  label.classList.add("heatmap-cell");
+  label.textContent = "Days/Hours";
+  document.getElementById("heatmap-container").appendChild(label);
+  for (let hour = 0; hour < 24; hour++) {
+    const cell = document.createElement("div");
+    cell.classList.add("heatmap-cell");
+    cell.style.backgroundColor = "#FF00FF";
+    cell.textContent = hour;
+    container.appendChild(cell);
+  }
   for (const day of daysOfWeek) {
     const label = document.createElement("div");
     label.classList.add("heatmap-cell");

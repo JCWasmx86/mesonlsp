@@ -95,7 +95,7 @@ tr:nth-child(even) {
 #heatmap {
   display: grid;
   grid-template-columns: repeat(24, 1fr);
-  grid-template-rows: repeat(7, 1fr);
+  grid-template-rows: repeat(8, 1fr);
   gap: 1px;
 }
 
