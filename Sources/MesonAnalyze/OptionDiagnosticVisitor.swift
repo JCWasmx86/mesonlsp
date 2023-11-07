@@ -74,6 +74,8 @@ class OptionDiagnosticVisitor: CodeVisitor {
       unaryExpr.expression is IntegerLiteral
     {
       return true
+    } else if let sl = dv as? StringLiteral {
+      return Int(sl.contents()) != nil
     }
     return false
   }
@@ -86,6 +88,23 @@ class OptionDiagnosticVisitor: CodeVisitor {
       let dvi = unaryExpr.expression as? IntegerLiteral
     {
       return -dvi.parse()
+    } else if let sl = dv as? StringLiteral {
+      if let intValue = Int(sl.contents()) {
+        return intValue
+      } else {
+        self.metadata.registerDiagnostic(
+          node: dv,
+          diag: MesonDiagnostic(sev: .error, node: dv, message: "Can't parse as integer")
+        )
+      }
+      self.metadata.registerDiagnostic(
+        node: dv,
+        diag: MesonDiagnostic(
+          sev: .warning,
+          node: dv,
+          message: "String literals as value for integer options are deprecated"
+        )
+      )
     }
     return nil
   }
@@ -173,6 +192,23 @@ class OptionDiagnosticVisitor: CodeVisitor {
           let dvi = unaryExpr.expression as? IntegerLiteral
         {
           parsed = -dvi.parse()
+        } else if let sl = dv as? StringLiteral {
+          if let intValue = Int(sl.contents()) {
+            parsed = intValue
+          } else {
+            self.metadata.registerDiagnostic(
+              node: dv,
+              diag: MesonDiagnostic(sev: .error, node: dv, message: "Can't parse as integer")
+            )
+          }
+          self.metadata.registerDiagnostic(
+            node: dv,
+            diag: MesonDiagnostic(
+              sev: .warning,
+              node: dv,
+              message: "String literals as value for integer options are deprecated"
+            )
+          )
         } else {
           self.metadata.registerDiagnostic(
             node: dv,
@@ -189,12 +225,32 @@ class OptionDiagnosticVisitor: CodeVisitor {
             diag: MesonDiagnostic(sev: .error, node: minNode!, message: "Expected integer literal")
           )
         }
+        if minNode is StringLiteral {
+          self.metadata.registerDiagnostic(
+            node: minNode!,
+            diag: MesonDiagnostic(
+              sev: .warning,
+              node: minNode!,
+              message: "String literals as value for integer options are deprecated"
+            )
+          )
+        }
       }
       if maxNode != nil {
         if !isInteger(maxNode) {
           self.metadata.registerDiagnostic(
             node: maxNode!,
             diag: MesonDiagnostic(sev: .error, node: maxNode!, message: "Expected integer literal")
+          )
+        }
+        if maxNode is StringLiteral {
+          self.metadata.registerDiagnostic(
+            node: maxNode!,
+            diag: MesonDiagnostic(
+              sev: .warning,
+              node: maxNode!,
+              message: "String literals as value for integer options are deprecated"
+            )
           )
         }
       }
