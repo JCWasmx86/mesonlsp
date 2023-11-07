@@ -4,6 +4,8 @@ import MesonAST
 class OptionDiagnosticVisitor: CodeVisitor {
   private static let LOG = Logger(label: "MesonAnalyze::OptionDiagnosticVisitor")
   private let metadata: MesonMetadata
+  private var options: [String] = []
+  private let optionState = OptionState(options: [])
 
   init(_ metadata: MesonMetadata) { self.metadata = metadata }
 
@@ -31,6 +33,23 @@ class OptionDiagnosticVisitor: CodeVisitor {
 
   private func checkName(_ sl: StringLiteral) {
     let contents = sl.contents()
+    if self.options.contains(contents) {
+      self.metadata.registerDiagnostic(
+        node: sl,
+        diag: MesonDiagnostic(sev: .warning, node: sl, message: "Duplicate option '\(contents)'")
+      )
+    }
+    if self.optionState.opts[contents] != nil {
+      self.metadata.registerDiagnostic(
+        node: sl,
+        diag: MesonDiagnostic(
+          sev: .error,
+          node: sl,
+          message: "Declaration of reserved option '\(contents)'"
+        )
+      )
+    }
+    self.options.append(contents)
     for c in contents {
       let alpha = c.isLetter || c.isNumber
       if !alpha && c != "_" && c != "-" {
