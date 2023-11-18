@@ -2,6 +2,7 @@
 - Improve heuristics for `subdir(x)`
 - Add first diagnostics for `meson_options.txt`/`meson.options` (#25)
 - Add missing `str.splitlines` method information (#30)
+- Add missing kwargs
 # 3.1.1 (Nov 02 2023)
 - Fix regression where changed configuration wasn't applied.
 # 3.1.0 (Nov 02 2023)
