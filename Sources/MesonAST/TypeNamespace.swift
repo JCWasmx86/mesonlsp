@@ -1990,7 +1990,7 @@ public final class TypeNamespace {
         parent: t,
         returnTypes: [ListType(types: [t])],
         args: [PositionalArgument(name: "split_string", opt: true, types: [t])]
-      ),
+      ), Method(name: "splitlines", parent: t, returnTypes: [ListType(types: [t])], args: []),
       Method(
         name: "startswith",
         parent: t,
