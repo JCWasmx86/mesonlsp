@@ -1,4 +1,4 @@
-# X.X.X (Nov XX 2023)
+# 3.1.2 (Nov 19 2023)
 - Improve heuristics for `subdir(x)`
 - Add first diagnostics for `meson_options.txt`/`meson.options` (#25)
 - Add missing `str.splitlines` method information (#30)
