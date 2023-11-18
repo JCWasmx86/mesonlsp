@@ -203,6 +203,7 @@ public final class TypeNamespace {
           Kwarg(name: "vala_header", opt: true, types: strL),
           Kwarg(name: "vala_vapi", opt: true, types: strL),
           Kwarg(name: "vala_gir", opt: true, types: strL),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
@@ -322,6 +323,7 @@ public final class TypeNamespace {
           Kwarg(name: "vala_gir", opt: true, types: strL),
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
           Kwarg(
             name: "d_import_dirs",
@@ -1048,6 +1050,7 @@ public final class TypeNamespace {
           Kwarg(name: "vala_gir", opt: true, types: strL),
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
           Kwarg(
             name: "d_import_dirs",
@@ -1255,6 +1258,7 @@ public final class TypeNamespace {
           Kwarg(name: "vala_gir", opt: true, types: strL),
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
           Kwarg(
             name: "d_import_dirs",
@@ -1364,6 +1368,7 @@ public final class TypeNamespace {
           Kwarg(name: "cpp_pch", opt: true, types: strL),
           Kwarg(name: "resources", opt: true, types: strL),
           Kwarg(name: "vala_header", opt: true, types: strL),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(name: "vala_vapi", opt: true, types: strL),
           Kwarg(name: "vala_gir", opt: true, types: strL),
           Kwarg(name: "build_by_default", opt: true, types: boolL),
@@ -1481,6 +1486,7 @@ public final class TypeNamespace {
           Kwarg(name: "build_by_default", opt: true, types: boolL),
           Kwarg(name: "build_rpath", opt: true, types: strL),
           Kwarg(name: "d_debug", opt: true, types: [strlist, intt]),
+          Kwarg(name: "rust_abi", opt: true, types: strL),
           Kwarg(
             name: "d_import_dirs",
             opt: true,
@@ -4574,6 +4580,15 @@ public final class TypeNamespace {
             name: "link_depends",
             opt: true,
             types: [str, self.types["file"]!, self.types["custom_tgt"]!, self.types["custom_idx"]!]
+          ),
+          Kwarg(
+            name: "dependencies",
+            opt: true,
+            types: [
+              ListType(types: [
+                self.types["build_tgt"]!, self.types["custom_tgt"]!, self.types["dep"]!,
+              ])
+            ]
           ),
           Kwarg(
             name: "override_options",
