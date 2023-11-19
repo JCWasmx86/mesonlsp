@@ -1075,12 +1075,11 @@ public final actor MesonServer: MessageHandler {
       if sb is FolderSubproject {
         let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Open] \(file!) in subproject \(sb.realpath)")
+        var arr: Set<String> = []
         if !self.openSubprojectFiles.keys.contains(sb.realpath) {
-          self.openSubprojectFiles[sb.realpath] = []
+          self.openSubprojectFiles[sb.realpath] = arr
         }
-        var s = self.openSubprojectFiles[sb.realpath]!
-        s.insert(file!)
-        self.openSubprojectFiles[sb.realpath] = s
+        arr.insert(file!)
         if var ac = self.astCaches[sb.realpath] { ac.removeValue(forKey: file!) }
       }
     } else {
@@ -1116,7 +1115,6 @@ public final actor MesonServer: MessageHandler {
         Self.LOG.info("\(self.openSubprojectFiles.keys)")
         if var s = self.openSubprojectFiles[sb.realpath] {
           s.remove(file!)
-          self.openSubprojectFiles[sb.realpath] = s
         }
         self.memfiles.removeValue(forKey: file!)
         self.rebuildSubproject(sb)
