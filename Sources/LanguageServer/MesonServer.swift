@@ -1113,9 +1113,7 @@ public final actor MesonServer: MessageHandler {
         let file = note.textDocument.uri.fileURL?.path
         Self.LOG.info("[Close] \(file!) in subproject \(sb.realpath)")
         Self.LOG.info("\(self.openSubprojectFiles.keys)")
-        if var s = self.openSubprojectFiles[sb.realpath] {
-          s.remove(file!)
-        }
+        if var s = self.openSubprojectFiles[sb.realpath] { s.remove(file!) }
         self.memfiles.removeValue(forKey: file!)
         self.rebuildSubproject(sb)
       }
