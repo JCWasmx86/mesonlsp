@@ -4,6 +4,7 @@ use clap::Parser;
 use tree_sitter::Parser as TSParser;
 
 mod ast;
+mod wrap;
 
 #[derive(Parser, Debug)]
 struct Cli {
