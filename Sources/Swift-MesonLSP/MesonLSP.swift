@@ -38,6 +38,10 @@ import Wrap
   @ArgumentParser.Flag var dot: Bool = false
   @ArgumentParser.Flag var subprojectParse: Bool = false
 
+  public static var configuration: CommandConfiguration {
+    return CommandConfiguration(commandName: "Swift-MesonLSP")
+  }
+
   public init() {
 
   }
