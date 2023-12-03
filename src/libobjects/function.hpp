@@ -1,10 +1,12 @@
 #pragma once
-#include "argument.hpp"
+
 #include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+class Argument;
 
 class Function
 {
