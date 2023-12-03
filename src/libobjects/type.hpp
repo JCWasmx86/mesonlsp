@@ -41,6 +41,7 @@ class Type
 public:
   const std::string name;
   virtual const std::string to_string() { return this->name; }
+  virtual ~Type() = default;
 
 protected:
   Type(std::string name)
