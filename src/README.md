@@ -36,3 +36,10 @@ Depends on: libjsonrpc, liblsptypes
 Implements the language server.
 
 Depends on: libwrap, libanalyze
+
+## Design Aspects
+- No dynamically linked dependencies
+- Minimal number of dependencies
+- Safety > Performance
+- Drop-In binary for Swift-MesonLSP
+- Split up into multiple modules/libraries
