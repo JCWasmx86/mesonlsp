@@ -4,9 +4,12 @@
 ### liblog
 Provides a logging implementation
 
+Status: Done
 ### libobjects
 Provides the data model for everything callable (Functions/Methods)
 and provides the types
+
+Status: Partially done
 ### libtypenamespace
 Provides a "TypeNamespace" instance containing everything like arguments, return types, docs
 

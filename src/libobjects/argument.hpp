@@ -11,6 +11,7 @@ public:
   const std::string name;
   const std::vector<std::shared_ptr<Type>> types;
   const bool optional;
+  virtual ~Argument() = default;
 
 protected:
   Argument(std::string name,

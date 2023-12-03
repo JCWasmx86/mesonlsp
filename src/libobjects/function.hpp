@@ -1,8 +1,11 @@
 #pragma once
 
+#include "argument.hpp"
+#include "type.hpp"
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -13,17 +16,66 @@ class Function
 public:
   const std::string name;
   const std::vector<std::shared_ptr<Argument>> args;
-  const std::map<std::string, std::shared_ptr<Argument>> kwargs;
+  std::map<std::string, std::shared_ptr<Argument>> kwargs;
+  const std::vector<std::shared_ptr<Type>> returnTypes;
+
+  Function(std::string name,
+           std::vector<std::shared_ptr<Argument>> args,
+           const std::vector<std::shared_ptr<Type>> returnTypes)
+    : name(name)
+    , args(args)
+    , returnTypes(returnTypes)
+  {
+    uint32_t minPosArgs = 0;
+    for (const auto& arg : args) {
+      auto pa = dynamic_cast<PositionalArgument*>(arg.get());
+      if (pa) {
+        if (pa->optional)
+          break;
+        minPosArgs++;
+      }
+    }
+    uint32_t maxPosArgs = 0;
+    for (const auto& arg : args) {
+      auto pa = dynamic_cast<PositionalArgument*>(arg.get());
+      if (pa) {
+        if (pa->varargs) {
+          maxPosArgs = UINT32_MAX;
+          break;
+        }
+        maxPosArgs++;
+      }
+    }
+    for (const auto& arg : args) {
+      auto kw = dynamic_cast<Kwarg*>(arg.get());
+      this->kwargs[kw->name] = std::shared_ptr<Argument>(kw);
+      if (!kw->optional)
+        this->requiredKwargs.insert(kw->name);
+    }
+    this->minPosArgs = minPosArgs;
+    this->maxPosArgs = maxPosArgs;
+  }
 
   virtual const std::string id();
 
 protected:
-  const uint32_t minPosArgs;
-  const uint32_t maxPosArgs;
-  const std::vector<std::string> requiredKwargs;
+  uint32_t minPosArgs;
+  uint32_t maxPosArgs;
+  std::set<std::string> requiredKwargs;
 };
 
 class Method : public Function
 {
+public:
+  const std::shared_ptr<Type> parentType;
+
+  Method(std::string name,
+         std::vector<std::shared_ptr<Argument>> args,
+         const std::vector<std::shared_ptr<Type>> returnTypes,
+         const std::shared_ptr<Type> parentType)
+    : Function(name, args, returnTypes)
+    , parentType(parentType)
+  {
+  }
   const std::string id() override;
 };
