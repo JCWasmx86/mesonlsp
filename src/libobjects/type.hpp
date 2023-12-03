@@ -151,6 +151,7 @@ private:
   std::string cache;
 };
 
+// Builtin stuff
 MAKE_BASIC_TYPE(Any, "any")
 MAKE_BASIC_TYPE(BoolType, "bool")
 MAKE_BASIC_TYPE(IntType, "int")
@@ -185,3 +186,55 @@ MAKE_TYPE(Module, "module")
 MAKE_TYPE(Range, "range")
 MAKE_TYPE(RunResult, "runresult")
 MAKE_TYPE(StructuredSrc, "structured_src")
+// CMake Module
+MAKE_TYPE_WITH_PARENT(CMakeModule, "cmake_module", Module)
+MAKE_TYPE(CMakeSubproject, "cmake_subproject")
+MAKE_TYPE(CMakeTarget, "cmake_tgt")
+MAKE_TYPE(CMakeSubprojectOptions, "cmake_subprojectoptions")
+// CUDA Module
+MAKE_TYPE_WITH_PARENT(CudaModule, "cuda_module", Module)
+// Dlang Module
+MAKE_TYPE_WITH_PARENT(DlangModule, "dlang_module", Module)
+// External Project Module
+MAKE_TYPE_WITH_PARENT(ExternalProjectModule, "external_project_module", Module)
+MAKE_TYPE(ExternalProject, "external_project")
+// FS module
+MAKE_TYPE_WITH_PARENT(FSModule, "fs_module", Module)
+// GNOME Module
+MAKE_TYPE_WITH_PARENT(GNOMEModule, "gnome_module", Module)
+// Hotdoc Module
+MAKE_TYPE_WITH_PARENT(HotdocModule, "hotdoc_module", Module)
+MAKE_TYPE_WITH_PARENT(HotdocTarget, "hotdoc_tgt", CustomTgt)
+// I18n Module
+MAKE_TYPE_WITH_PARENT(I18nModule, "i18n_module", Module)
+// Icestorm Module
+MAKE_TYPE_WITH_PARENT(IcestormModule, "icestorm_module", Module)
+// Java Module
+MAKE_TYPE_WITH_PARENT(JavaModule, "java_module", Module)
+// Keyval Module
+MAKE_TYPE_WITH_PARENT(KeyvalModule, "keyval_module", Module)
+// Pkgconfig Module
+MAKE_TYPE_WITH_PARENT(PkgconfigModule, "pkgconfig_module", Module)
+// Python Module
+MAKE_TYPE_WITH_PARENT(PythonModule, "python_module", Module)
+MAKE_TYPE_WITH_PARENT(PythonInstallation,
+                      "python_installation",
+                      ExternalProgram)
+// Python3 Module
+MAKE_TYPE_WITH_PARENT(Python3Module, "python3_module", Module)
+// Qt* Modules
+MAKE_TYPE_WITH_PARENT(Qt4Module, "qt4_module", Module)
+MAKE_TYPE_WITH_PARENT(Qt5Module, "qt5_module", Module)
+MAKE_TYPE_WITH_PARENT(Qt6Module, "qt6_module", Module)
+// Rust Module
+MAKE_TYPE_WITH_PARENT(RustModule, "rust_module", Module)
+// SIMD Module
+MAKE_TYPE_WITH_PARENT(SIMDModule, "simd_module", Module)
+// SourceSet Module
+MAKE_TYPE_WITH_PARENT(SourceSetModule, "sourceset_module", Module)
+MAKE_TYPE(SourceSet, "sourceset")
+MAKE_TYPE(SourceConfiguration, "source_configuration")
+// Wayland Module
+MAKE_TYPE_WITH_PARENT(WaylandModule, "wayland_module", Module)
+// Windows Module
+MAKE_TYPE_WITH_PARENT(WindowsModule, "windows_module", Module)
