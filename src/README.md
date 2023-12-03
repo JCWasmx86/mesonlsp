@@ -17,8 +17,7 @@ Depends on: libobjects
 ### libast
 Provides the AST as C++ objects.
 
-Depends on: libtypes
-
+Depends on: libobjects
 ### libwrap
 Provides capabilities to download/extract wraps
 ### libanalyze
