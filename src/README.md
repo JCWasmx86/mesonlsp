@@ -3,16 +3,14 @@
 ## Structure
 ### liblog
 Provides a logging implementation
-### libtypes
-Provides the data model for each type.
-### libobjects
-Provides the data model for everything callable (Functions/Methods).
 
-Depends on: libtypes
+### libobjects
+Provides the data model for everything callable (Functions/Methods)
+and provides the types
 ### libtypenamespace
 Provides a "TypeNamespace" instance containing everything like arguments, return types, docs
 
-Depends on: libtypes, libobjects
+Depends on: libobjects
 ### libast
 Provides the AST as C++ objects.
 
