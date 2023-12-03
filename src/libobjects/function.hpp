@@ -10,10 +10,10 @@ class Function
 {
 public:
   const std::string name;
-  const std::vector<std::shared_ptr<Argument> > args;
-  const std::map<std::string, std::shared_ptr<Argument> > kwargs;
+  const std::vector<std::shared_ptr<Argument>> args;
+  const std::map<std::string, std::shared_ptr<Argument>> kwargs;
 
-  virtual const std::string id ();
+  virtual const std::string id();
 
 protected:
   const uint32_t minPosArgs;
@@ -23,5 +23,5 @@ protected:
 
 class Method : public Function
 {
-  const std::string id () override;
+  const std::string id() override;
 };

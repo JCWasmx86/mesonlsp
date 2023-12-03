@@ -2,13 +2,13 @@
 #include <string>
 
 const std::string
-Function::id ()
+Function::id()
 {
   return this->name;
 }
 
 const std::string
-Method::id ()
+Method::id()
 {
   return this->name;
 }
