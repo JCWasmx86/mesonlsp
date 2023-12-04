@@ -11,24 +11,19 @@
 
 class Argument;
 
-class Function
-{
+class Function {
 public:
   const std::string name;
   const std::vector<std::shared_ptr<Argument>> args;
   std::map<std::string, std::shared_ptr<Argument>> kwargs;
   const std::vector<std::shared_ptr<Type>> returnTypes;
 
-  Function(std::string name,
-           std::vector<std::shared_ptr<Argument>> args,
+  Function(std::string name, std::vector<std::shared_ptr<Argument>> args,
            const std::vector<std::shared_ptr<Type>> returnTypes)
-    : name(name)
-    , args(args)
-    , returnTypes(returnTypes)
-  {
+      : name(name), args(args), returnTypes(returnTypes) {
     uint32_t minPosArgs = 0;
-    for (const auto& arg : args) {
-      auto pa = dynamic_cast<PositionalArgument*>(arg.get());
+    for (const auto &arg : args) {
+      auto pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->optional)
           break;
@@ -36,8 +31,8 @@ public:
       }
     }
     uint32_t maxPosArgs = 0;
-    for (const auto& arg : args) {
-      auto pa = dynamic_cast<PositionalArgument*>(arg.get());
+    for (const auto &arg : args) {
+      auto pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->varargs) {
           maxPosArgs = UINT32_MAX;
@@ -46,8 +41,8 @@ public:
         maxPosArgs++;
       }
     }
-    for (const auto& arg : args) {
-      auto kw = dynamic_cast<Kwarg*>(arg.get());
+    for (const auto &arg : args) {
+      auto kw = dynamic_cast<Kwarg *>(arg.get());
       this->kwargs[kw->name] = std::shared_ptr<Argument>(kw);
       if (!kw->optional)
         this->requiredKwargs.insert(kw->name);
@@ -64,18 +59,13 @@ protected:
   std::set<std::string> requiredKwargs;
 };
 
-class Method : public Function
-{
+class Method : public Function {
 public:
   const std::shared_ptr<Type> parentType;
 
-  Method(std::string name,
-         std::vector<std::shared_ptr<Argument>> args,
+  Method(std::string name, std::vector<std::shared_ptr<Argument>> args,
          const std::vector<std::shared_ptr<Type>> returnTypes,
          const std::shared_ptr<Type> parentType)
-    : Function(name, args, returnTypes)
-    , parentType(parentType)
-  {
-  }
+      : Function(name, args, returnTypes), parentType(parentType) {}
   const std::string id() override;
 };
