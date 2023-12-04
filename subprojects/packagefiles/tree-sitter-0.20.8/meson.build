@@ -1,7 +1,6 @@
 project('tree-sitter', 'c')
 # Based on
 # https://github.com/rizinorg/rizin/blob/dev/subprojects/packagefiles/tree-sitter-0.20.7/meson.build
-tree_sitter_path = 'tree-sitter'
 tree_sitter_files = ['lib/src/lib.c']
 tree_sitter_inc = [include_directories('lib/src'), include_directories('lib/include')]
 
