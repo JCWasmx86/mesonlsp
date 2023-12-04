@@ -18,6 +18,7 @@ Depends on: libobjects
 Provides the AST as C++ objects.
 
 Depends on: libobjects
+Status: Partially done
 ### libwrap
 Provides capabilities to download/extract wraps
 ### libanalyze
