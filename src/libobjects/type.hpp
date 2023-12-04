@@ -7,76 +7,53 @@
 #include <vector>
 
 #define MAKE_TYPE_WITH_PARENT(className, internalId, parentClass)              \
-  class className : public AbstractObject                                      \
-  {                                                                            \
+  class className : public AbstractObject {                                    \
   public:                                                                      \
     className()                                                                \
-      : AbstractObject(internalId, std::make_shared<parentClass>())            \
-    {                                                                          \
-    }                                                                          \
+        : AbstractObject(internalId, std::make_shared<parentClass>()) {}       \
   };
 
 #define MAKE_TYPE(className, internalId)                                       \
-  class className : public AbstractObject                                      \
-  {                                                                            \
+  class className : public AbstractObject {                                    \
   public:                                                                      \
-    className()                                                                \
-      : AbstractObject(internalId)                                             \
-    {                                                                          \
-    }                                                                          \
+    className() : AbstractObject(internalId) {}                                \
   };
 
 #define MAKE_BASIC_TYPE(className, internalId)                                 \
-  class className : public Type                                                \
-  {                                                                            \
+  class className : public Type {                                              \
   public:                                                                      \
-    className()                                                                \
-      : Type(internalId)                                                       \
-    {                                                                          \
-    }                                                                          \
+    className() : Type(internalId) {}                                          \
   };
 
-class Type
-{
+class Type {
 public:
   const std::string name;
   virtual const std::string to_string() { return this->name; }
   virtual ~Type() = default;
 
 protected:
-  Type(std::string name)
-    : name(name)
-  {
-  }
+  Type(std::string name) : name(name) {}
 };
 
-class AbstractObject : public Type
-{
+class AbstractObject : public Type {
 public:
   std::optional<std::shared_ptr<AbstractObject>> parent;
 
 protected:
   AbstractObject(
-    std::string name,
-    std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
-    : Type(name)
-    , parent(parent)
-  {
-  }
+      std::string name,
+      std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
+      : Type(name), parent(parent) {}
 };
 
-class Dict : public Type
-{
+class Dict : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
   // Public constructor
-  Dict(std::vector<std::shared_ptr<Type>> types)
-    : Type("dict")
-    , types(types)
-  {
+  Dict(std::vector<std::shared_ptr<Type>> types) : Type("dict"), types(types) {
     std::vector<std::string> names;
-    for (const auto& element : types)
+    for (const auto &element : types)
       names.push_back(element->to_string());
 
     std::sort(names.begin(), names.end());
@@ -96,17 +73,13 @@ private:
   std::string cache;
 };
 
-class List : public Type
-{
+class List : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
-  List(std::vector<std::shared_ptr<Type>> types)
-    : Type("list")
-    , types(types)
-  {
+  List(std::vector<std::shared_ptr<Type>> types) : Type("list"), types(types) {
     std::vector<std::string> names;
-    for (const auto& element : types)
+    for (const auto &element : types)
       names.push_back(element->to_string());
 
     std::sort(names.begin(), names.end());
@@ -126,15 +99,12 @@ private:
   std::string cache;
 };
 
-class Subproject : public AbstractObject
-{
+class Subproject : public AbstractObject {
 public:
   std::vector<std::string> names;
 
   Subproject(std::vector<std::string> names)
-    : AbstractObject("subproject")
-    , names(names)
-  {
+      : AbstractObject("subproject"), names(names) {
     std::sort(this->names.begin(), this->names.end());
     std::string cache;
     for (size_t i = 0; i < this->names.size(); i++) {
@@ -218,8 +188,7 @@ MAKE_TYPE_WITH_PARENT(KeyvalModule, "keyval_module", Module)
 MAKE_TYPE_WITH_PARENT(PkgconfigModule, "pkgconfig_module", Module)
 // Python Module
 MAKE_TYPE_WITH_PARENT(PythonModule, "python_module", Module)
-MAKE_TYPE_WITH_PARENT(PythonInstallation,
-                      "python_installation",
+MAKE_TYPE_WITH_PARENT(PythonInstallation, "python_installation",
                       ExternalProgram)
 // Python3 Module
 MAKE_TYPE_WITH_PARENT(Python3Module, "python3_module", Module)
