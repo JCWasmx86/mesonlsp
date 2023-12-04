@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <format>
 #include <string>
+#include <tree_sitter/api.h>
 
 class Location
 {
@@ -23,6 +24,14 @@ public:
     , endLine(0)
     , startColumn(0)
     , endColumn(0)
+  {
+  }
+
+  Location(TSNode node)
+    : startLine(ts_node_start_point(node).row)
+    , endLine(ts_node_end_point(node).row)
+    , startColumn(ts_node_start_point(node).column / 2)
+    , endColumn(ts_node_end_point(node).column / 2)
   {
   }
   const uint32_t startLine;

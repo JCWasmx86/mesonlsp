@@ -5,28 +5,34 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <tree_sitter/api.h>
 #include <type.hpp>
 #include <vector>
 
 class Node
 {
 public:
-  const MesonSourceFile file;
+  const std::shared_ptr<MesonSourceFile> file;
   std::vector<std::shared_ptr<Type>> types;
-  const Location location;
+  const Location* location;
   const std::weak_ptr<Node> parent;
+
+protected:
+  Node(std::shared_ptr<MesonSourceFile> file, TSNode node);
 };
 
 class ArgumentList : public Node
 {
 public:
   std::vector<std::shared_ptr<Node>> args;
+  ArgumentList(std::shared_ptr<MesonSourceFile> file, TSNode node);
 };
 
 class ArrayLiteral : public Node
 {
 public:
   std::vector<std::shared_ptr<Node>> args;
+  ArrayLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node);
 };
 
 enum AssignmentOperator
@@ -37,7 +43,7 @@ enum AssignmentOperator
   ModEquals,
   PlusEquals,
   MinusEquals,
-  Other,
+  AssignmentOpOther,
 };
 
 class AssignmentStatement : public Node
@@ -65,6 +71,7 @@ enum BinaryOperator
   NotIn,
   Or,
   And,
+  BinOpOther,
 };
 
 class BinaryExpression : public Node
@@ -103,6 +110,13 @@ class ErrorNode : public Node
 {
 public:
   std::string message;
+  ErrorNode(std::shared_ptr<MesonSourceFile> file,
+            TSNode node,
+            std::string message)
+    : Node(file, node)
+    , message(message)
+  {
+  }
 };
 
 class FunctionExpression : public Node
@@ -188,3 +202,6 @@ public:
   std::shared_ptr<Node> expression;
   UnaryOperator op;
 };
+
+std::shared_ptr<Node>
+make_node(std::shared_ptr<MesonSourceFile> file, TSNode node);
