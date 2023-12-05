@@ -1,6 +1,8 @@
 project('mesonlsp', 'c', 'cpp', default_options: ['cpp_std=gnu++23', 'warning_level=3'])
 
-
+if get_option('buildtype').startswith('release')
+    add_global_arguments(['-D_FORTIFY_SOURCE=3'], language: 'c')
+endif
 tree_sitter_dep = dependency(
     'tree-sitter',
     required: false,
