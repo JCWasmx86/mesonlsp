@@ -21,6 +21,66 @@ ArrayLiteral::ArrayLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node)
   }
 }
 
+BuildDefinition::BuildDefinition(std::shared_ptr<MesonSourceFile> file,
+                                 TSNode node)
+    : Node(file, node) {
+  for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
+    this->stmts.push_back(make_node(file, ts_node_named_child(node, i)));
+  }
+}
+
+DictionaryLiteral::DictionaryLiteral(std::shared_ptr<MesonSourceFile> file,
+                                     TSNode node)
+    : Node(file, node) {
+  for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
+    this->values.push_back(make_node(file, ts_node_named_child(node, i)));
+  }
+}
+
+ConditionalExpression::ConditionalExpression(
+    std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  this->condition = make_node(file, ts_node_named_child(node, 0));
+  this->ifTrue = make_node(file, ts_node_named_child(node, 1));
+  this->ifFalse = make_node(file, ts_node_named_child(node, 2));
+}
+
+SubscriptExpression::SubscriptExpression(std::shared_ptr<MesonSourceFile> file,
+                                         TSNode node)
+    : Node(file, node) {
+  this->outer = make_node(file, ts_node_named_child(node, 0));
+  this->inner = make_node(file, ts_node_named_child(node, 1));
+}
+
+MethodExpression::MethodExpression(std::shared_ptr<MesonSourceFile> file,
+                                   TSNode node)
+    : Node(file, node) {
+  this->obj = make_node(file, ts_node_named_child(node, 0));
+  this->id = make_node(file, ts_node_named_child(node, 1));
+  // TODO: May be nullptr
+  this->args = make_node(file, ts_node_named_child(node, 2));
+}
+
+FunctionExpression::FunctionExpression(std::shared_ptr<MesonSourceFile> file,
+                                       TSNode node)
+    : Node(file, node) {
+  this->id = make_node(file, ts_node_named_child(node, 0));
+  // TODO: May be nullptr
+  this->args = make_node(file, ts_node_named_child(node, 1));
+}
+
+KeyValueItem::KeyValueItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  this->key = make_node(file, ts_node_named_child(node, 0));
+  this->value = make_node(file, ts_node_named_child(node, 1));
+}
+
+KeywordItem::KeywordItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  this->key = make_node(file, ts_node_named_child(node, 0));
+  this->value = make_node(file, ts_node_named_child(node, 1));
+}
+
 std::shared_ptr<Node> make_node(std::shared_ptr<MesonSourceFile> file,
                                 TSNode node) {
   auto node_type = ts_node_type(node);
