@@ -44,3 +44,13 @@ Depends on: libwrap, libanalyze
 - Safety > Performance
 - Drop-In binary for Swift-MesonLSP
 - Split up into multiple modules/libraries
+- Modern C++ => Fedora 39 as baseline
+
+## Goals/Non-Goals
+### Goals
+- Equal/Better performance
+- Smaller binary
+- gcc/clang compatibility
+- Linux/macOS/Windows support
+### Non-Goals
+- MSVC compatibility
