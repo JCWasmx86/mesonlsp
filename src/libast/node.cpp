@@ -1,8 +1,10 @@
 #include "node.hpp"
 #include "location.hpp"
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <memory>
+#include <vector>
 
 Node::Node(std::shared_ptr<MesonSourceFile> file, TSNode node)
     : file(file), location(new Location(node)) {}
@@ -25,7 +27,9 @@ BuildDefinition::BuildDefinition(std::shared_ptr<MesonSourceFile> file,
                                  TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
-    this->stmts.push_back(make_node(file, ts_node_named_child(node, i)));
+    auto stmt = make_node(file, ts_node_named_child(node, i));
+    if (stmt)
+      this->stmts.push_back(stmt);
   }
 }
 
@@ -57,16 +61,16 @@ MethodExpression::MethodExpression(std::shared_ptr<MesonSourceFile> file,
     : Node(file, node) {
   this->obj = make_node(file, ts_node_named_child(node, 0));
   this->id = make_node(file, ts_node_named_child(node, 1));
-  // TODO: May be nullptr
-  this->args = make_node(file, ts_node_named_child(node, 2));
+  if (ts_node_named_child_count(node) != 2)
+    this->args = make_node(file, ts_node_named_child(node, 2));
 }
 
 FunctionExpression::FunctionExpression(std::shared_ptr<MesonSourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   this->id = make_node(file, ts_node_named_child(node, 0));
-  // TODO: May be nullptr
-  this->args = make_node(file, ts_node_named_child(node, 1));
+  if (ts_node_named_child_count(node) != 1)
+    this->args = make_node(file, ts_node_named_child(node, 1));
 }
 
 KeyValueItem::KeyValueItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
@@ -79,6 +83,117 @@ KeywordItem::KeywordItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
     : Node(file, node) {
   this->key = make_node(file, ts_node_named_child(node, 0));
   this->value = make_node(file, ts_node_named_child(node, 1));
+}
+
+IterationStatement::IterationStatement(std::shared_ptr<MesonSourceFile> file,
+                                       TSNode node)
+    : Node(file, node) {
+  auto idList = ts_node_named_child(node, 0);
+  for (uint32_t i = 0; i < ts_node_named_child_count(idList); i++) {
+    this->ids.push_back(make_node(file, ts_node_named_child(idList, i)));
+    this->expression = make_node(file, ts_node_named_child(node, 1));
+    for (uint32_t i = 2; i < ts_node_named_child_count(node); i++) {
+      auto stmt = make_node(file, ts_node_named_child(node, i));
+      this->stmts.push_back(stmt);
+    }
+  }
+}
+
+AssignmentStatement::AssignmentStatement(std::shared_ptr<MesonSourceFile> file,
+                                         TSNode node)
+    : Node(file, node) {
+  this->lhs = make_node(file, ts_node_named_child(node, 0));
+  // TODO: Op
+  this->op = AssignmentOpOther;
+  this->rhs = make_node(file, ts_node_named_child(node, 2));
+}
+
+BinaryExpression::BinaryExpression(std::shared_ptr<MesonSourceFile> file,
+                                   TSNode node)
+    : Node(file, node) {
+  this->lhs = make_node(file, ts_node_named_child(node, 0));
+  auto ncc = ts_node_named_child_count(node);
+  // TODO: Op
+  this->op = BinOpOther;
+  this->rhs = make_node(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
+}
+
+UnaryExpression::UnaryExpression(std::shared_ptr<MesonSourceFile> file,
+                                 TSNode node)
+    : Node(file, node) {
+  this->op = UnaryOther;
+  this->expression = make_node(file, ts_node_named_child(node, 0));
+}
+
+StringLiteral::StringLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+IdExpression::IdExpression(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+BooleanLiteral::BooleanLiteral(std::shared_ptr<MesonSourceFile> file,
+                               TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+IntegerLiteral::IntegerLiteral(std::shared_ptr<MesonSourceFile> file,
+                               TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+ContinueNode::ContinueNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+BreakNode::BreakNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
+    : Node(file, node) {
+  // TODO
+}
+
+SelectionStatement::SelectionStatement(std::shared_ptr<MesonSourceFile> file,
+                                       TSNode node)
+    : Node(file, node) {
+  auto child_count = ts_node_child_count(node);
+  uint32_t idx = 0;
+  std::shared_ptr<Node> sI = nullptr;
+  std::vector<std::shared_ptr<Node>> tmp;
+  std::vector<std::shared_ptr<Node>> cs;
+  std::vector<std::vector<std::shared_ptr<Node>>> bb;
+  while (idx < child_count) {
+    auto c = ts_node_child(node, idx);
+    auto sv = file->extract_node_value(c);
+    auto node_type = ts_node_type(c);
+    if ((sv == "if" || strcmp(node_type, "if") == 0) && !sI) {
+      while (file->extract_node_value(ts_node_child(node, idx + 1)) ==
+             "comment")
+        idx++;
+      sI = make_node(file, ts_node_child(node, idx + 1));
+      idx += 1;
+    } else if (sv == "elif") {
+      bb.push_back(tmp);
+      while (file->extract_node_value(ts_node_child(node, idx + 1)) ==
+             "comment")
+        idx++;
+      tmp = {};
+      cs.push_back(make_node(file, ts_node_child(node, idx + 1)));
+      idx++;
+    } else if (sv == "else") {
+      bb.push_back(tmp);
+      tmp = {};
+    } else if (sv != "comment" && ts_node_named_child_count(c) == 1) {
+      auto c_child_type = ts_node_type(ts_node_named_child(c, 0));
+      if (strcmp(c_child_type, "comment") != 0)
+        tmp.push_back(make_node(file, c));
+    }
+    idx++;
+  }
 }
 
 std::shared_ptr<Node> make_node(std::shared_ptr<MesonSourceFile> file,
@@ -100,7 +215,9 @@ std::shared_ptr<Node> make_node(std::shared_ptr<MesonSourceFile> file,
     return std::make_shared<DictionaryLiteral>(file, node);
   if (strcmp(node_type, "function_expression") == 0)
     return std::make_shared<FunctionExpression>(file, node);
-  if (strcmp(node_type, "id_expression") == 0)
+  if (strcmp(node_type, "id_expression") == 0 ||
+      strcmp(node_type, "function_id") == 0 ||
+      strcmp(node_type, "keyword_arg_key") == 0)
     return std::make_shared<IdExpression>(file, node);
   if (strcmp(node_type, "integer_literal") == 0)
     return std::make_shared<IntegerLiteral>(file, node);
@@ -122,9 +239,34 @@ std::shared_ptr<Node> make_node(std::shared_ptr<MesonSourceFile> file,
     return std::make_shared<UnaryExpression>(file, node);
   if (strcmp(node_type, "conditional_expression") == 0)
     return std::make_shared<ConditionalExpression>(file, node);
-  // TODO: jump_statement == break/continue
-  // TODO: ERROR, expression, condition, function_id,
-  // TODO: keyword_arg_key, primary_expression
+  if (strcmp(node_type, "source_file") == 0)
+    return std::make_shared<BuildDefinition>(file,
+                                             ts_node_named_child(node, 0));
+  if (strcmp(node_type, "statement") == 0 &&
+      ts_node_named_child_count(node) == 1)
+    return make_node(file, ts_node_named_child(node, 0));
+  if (strcmp(node_type, "expression") == 0 &&
+      ts_node_named_child_count(node) == 1)
+    return make_node(file, ts_node_named_child(node, 0));
+  if (strcmp(node_type, "condition") == 0 &&
+      ts_node_named_child_count(node) == 1)
+    return make_node(file, ts_node_named_child(node, 0));
+  if (strcmp(node_type, "primary_expression") == 0 &&
+      ts_node_named_child_count(node) == 1)
+    return make_node(file, ts_node_named_child(node, 0));
+  if (strcmp(node_type, "statement") == 0 &&
+      ts_node_named_child_count(node) == 1)
+    return make_node(file, ts_node_named_child(node, 0));
+  if (strcmp(node_type, "statement") == 0 &&
+      ts_node_named_child_count(node) == 0)
+    return nullptr;
+  if (strcmp(node_type, "jump_statement") == 0) {
+    auto content = file->extract_node_value(node);
+    if (content == "break")
+      return std::make_shared<BreakNode>(file, node);
+    if (content == "continue")
+      return std::make_shared<ContinueNode>(file, node);
+  }
   return std::make_shared<ErrorNode>(
       file, node, std::format("Unknown node_type '{}'", node_type));
 }
