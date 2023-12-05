@@ -4,13 +4,13 @@
 
 class MesonSourceFile {
 public:
-  std::filesystem::path file;
+  const std::filesystem::path file;
+
+  MesonSourceFile(std::filesystem::path file) : file(file) {}
+  virtual std::string contents();
+  virtual ~MesonSourceFile() = default;
 
 private:
   std::string cached_contents;
   bool cached = false;
-
-  MesonSourceFile(std::filesystem::path file) : file(file) {}
-
-  virtual std::string contents();
 };
