@@ -103,8 +103,21 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<MesonSourceFile> file,
                                          TSNode node)
     : Node(file, node) {
   this->lhs = make_node(file, ts_node_named_child(node, 0));
-  // TODO: Op
-  this->op = AssignmentOpOther;
+  auto op_str = file->extract_node_value(ts_node_named_child(node, 0));
+  if (op_str == "=")
+    this->op = AssignmentOperator::Equals;
+  else if (op_str == "*=")
+    this->op = AssignmentOperator::MulEquals;
+  else if (op_str == "/=")
+    this->op = AssignmentOperator::DivEquals;
+  else if (op_str == "%=")
+    this->op = AssignmentOperator::ModEquals;
+  else if (op_str == "+=")
+    this->op = AssignmentOperator::PlusEquals;
+  else if (op_str == "-=")
+    this->op = AssignmentOperator::MinusEquals;
+  else
+    this->op = AssignmentOpOther;
   this->rhs = make_node(file, ts_node_named_child(node, 2));
 }
 
@@ -113,49 +126,87 @@ BinaryExpression::BinaryExpression(std::shared_ptr<MesonSourceFile> file,
     : Node(file, node) {
   this->lhs = make_node(file, ts_node_named_child(node, 0));
   auto ncc = ts_node_named_child_count(node);
-  // TODO: Op
-  this->op = BinOpOther;
+  auto op_str = file->extract_node_value(
+      (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1));
+  if (op_str == "+")
+    this->op = BinaryOperator::Plus;
+  else if (op_str == "-")
+    this->op = BinaryOperator::Minus;
+  else if (op_str == "*")
+    this->op = BinaryOperator::Mul;
+  else if (op_str == "/")
+    this->op = BinaryOperator::Div;
+  else if (op_str == "%")
+    this->op = BinaryOperator::Modulo;
+  else if (op_str == "==")
+    this->op = BinaryOperator::EqualsEquals;
+  else if (op_str == "!=")
+    this->op = BinaryOperator::NotEquals;
+  else if (op_str == ">")
+    this->op = BinaryOperator::Gt;
+  else if (op_str == "<")
+    this->op = BinaryOperator::Lt;
+  else if (op_str == ">=")
+    this->op = BinaryOperator::Ge;
+  else if (op_str == "<=")
+    this->op = BinaryOperator::Le;
+  else if (op_str == "in")
+    this->op = BinaryOperator::In;
+  else if (op_str == "not in")
+    this->op = BinaryOperator::NotIn;
+  else if (op_str == "and")
+    this->op = BinaryOperator::And;
+  else if (op_str == "or")
+    this->op = BinaryOperator::Or;
+  else
+    this->op = BinaryOperator::BinOpOther;
   this->rhs = make_node(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
 }
 
 UnaryExpression::UnaryExpression(std::shared_ptr<MesonSourceFile> file,
                                  TSNode node)
     : Node(file, node) {
-  this->op = UnaryOther;
+  auto op_str = file->extract_node_value(ts_node_child(node, 0));
+  if (op_str == "not")
+    this->op = UnaryOperator::Not;
+  else if (op_str == "!")
+    this->op = UnaryOperator::ExclamationMark;
+  else if (op_str == "-")
+    this->op = UnaryOperator::UnaryMinus;
+  else
+    this->op = UnaryOther;
   this->expression = make_node(file, ts_node_named_child(node, 0));
 }
 
 StringLiteral::StringLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node)
     : Node(file, node) {
-  // TODO
+  this->isFormat =
+      strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
+  this->id = file->extract_node_value(node);
 }
 
 IdExpression::IdExpression(std::shared_ptr<MesonSourceFile> file, TSNode node)
     : Node(file, node) {
-  // TODO
+  this->id = file->extract_node_value(node);
 }
 
 BooleanLiteral::BooleanLiteral(std::shared_ptr<MesonSourceFile> file,
                                TSNode node)
     : Node(file, node) {
-  // TODO
+  this->value = file->extract_node_value(node) == "true";
 }
 
 IntegerLiteral::IntegerLiteral(std::shared_ptr<MesonSourceFile> file,
                                TSNode node)
     : Node(file, node) {
-  // TODO
+  this->value = file->extract_node_value(node);
 }
 
 ContinueNode::ContinueNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
-    : Node(file, node) {
-  // TODO
-}
+    : Node(file, node) {}
 
 BreakNode::BreakNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
-    : Node(file, node) {
-  // TODO
-}
+    : Node(file, node) {}
 
 SelectionStatement::SelectionStatement(std::shared_ptr<MesonSourceFile> file,
                                        TSNode node)
