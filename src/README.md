@@ -54,3 +54,11 @@ Depends on: libwrap, libanalyze
 - Linux/macOS/Windows support
 ### Non-Goals
 - MSVC compatibility
+
+
+## Braindump
+### Multi-root workspace support (https://github.com/mesonbuild/vscode-meson/issues/201)
+- We will have multiple projects => One for each workspace
+- Each project will have nested projects for its subprojects
+- Each project will have a wrapfile state that will be used for doing LSP stuff with wrap files and knowing when to update the wraps.
+- If no project is passed, the root project will be one project (With subprojects)
