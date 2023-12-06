@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <jsonrpc.hpp>
 #include <memory>
 #include <node.hpp>
 #include <sourcefile.hpp>

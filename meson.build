@@ -21,5 +21,7 @@ tree_sitter_meson_proj = subproject(
 )
 tree_sitter_meson_dep = tree_sitter_meson_proj.get_variable('tree_sitter_meson_dep')
 
+nlohmann_json_dep = dependency('nlohmann_json') 
+
 subdir('src')
 subdir('tests')
