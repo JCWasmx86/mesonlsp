@@ -1,8 +1,10 @@
 #include "jsonrpc.hpp"
 #include <cassert>
+#include <cstddef>
 #include <cstdio>
 #include <format>
 #include <future>
+#include <iterator>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -53,7 +55,7 @@ void jsonrpc::JsonRpcServer::sendToClient(nlohmann::json data) {
   std::lock_guard<std::mutex> guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
-  auto full_message = std::format("Content-Length:{}\r\n\r\n{}", payload, len);
+  auto full_message = std::format("Content-Length:{}\r\n\r\n{}", len, payload);
   this->output.write(full_message.data(), full_message.size());
 }
 
@@ -63,6 +65,18 @@ void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,
   data["jsonrpc"] = "2.0";
   data["id"] = callId;
   data["result"] = result;
+  this->sendToClient(data);
+}
+
+void jsonrpc::JsonRpcServer::returnError(JsonrpcError error,
+                                         std::string message) {
+  nlohmann::json err;
+  err["code"] = error;
+  err["message"] = message;
+  nlohmann::json data;
+  data["jsonrpc"] = "2.0";
+  data["error"] = err;
+  data["id"] = nullptr;
   this->sendToClient(data);
 }
 
@@ -107,14 +121,17 @@ void jsonrpc::JsonRpcServer::loop(
         header += (char)ch;
         state = 5;
       }
+      if (breakFromLoop)
+        break;
     }
     if (this->shouldExit)
       return;
     std::string messageData;
-    messageData.reserve(contentLength + 1);
     if (this->shouldExit)
       return;
-    this->input.read(messageData.data(), contentLength);
+    // TODO: Efficiency!
+    for (int i = 0; i < contentLength; i++)
+      messageData += (char)this->input.get();
     try {
       auto data = nlohmann::json::parse(messageData);
       this->evaluateData(handler, data);
@@ -125,3 +142,10 @@ void jsonrpc::JsonRpcServer::loop(
 }
 
 void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
+
+jsonrpc::JsonRpcHandler::JsonRpcHandler() {}
+
+void jsonrpc::JsonRpcServer::wait() {
+  for (size_t i = 0; i < this->futures.size(); i++)
+    this->futures[i].get();
+}

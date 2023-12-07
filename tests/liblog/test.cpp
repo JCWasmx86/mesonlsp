@@ -1,4 +1,4 @@
-#include <log.cpp>
+#include <log.hpp>
 
 int main(int argc, char **argv) {
   Logger log("my-module");
