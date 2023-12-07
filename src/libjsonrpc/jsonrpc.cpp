@@ -1,10 +1,80 @@
 #include "jsonrpc.hpp"
 #include <cassert>
 #include <cstdio>
+#include <format>
+#include <future>
+#include <mutex>
 #include <nlohmann/json.hpp>
+#include <string>
 
 void jsonrpc::JsonRpcServer::evaluateData(
-    std::shared_ptr<jsonrpc::JsonRpcHandler> handler, nlohmann::json data) {}
+    std::shared_ptr<jsonrpc::JsonRpcHandler> handler, nlohmann::json data) {
+  if (!data.contains("jsonrpc")) {
+    this->returnError(JsonrpcError::ParseError, "Missing jsonrpc key");
+    return;
+  }
+  if (!data["jsonrpc"].is_string()) {
+    this->returnError(JsonrpcError::ParseError, "jsonrpc key is not a string");
+    return;
+  }
+  std::string version = data["jsonrpc"];
+  if (version != "2.0") {
+    this->returnError(JsonrpcError::ParseError, "jsonrpc is not \"2.0\"");
+    return;
+  }
+  if (!data.contains("method")) {
+    this->returnError(JsonrpcError::ParseError, "Missing method key");
+    return;
+  }
+  if (!data["method"].is_string()) {
+    this->returnError(JsonrpcError::ParseError, "method key is not a string");
+    return;
+  }
+  std::string method = data["method"];
+  nlohmann::json params = data.contains("params") ? data["params"] : nullptr;
+  if (data.contains("id")) {
+    auto callId = data["id"];
+    if (this->shouldExit)
+      return;
+    auto future = std::async(std::launch::async, &JsonRpcHandler::handleRequest,
+                             handler, method, callId, params);
+    this->futures.push_back(std::move(future));
+  } else {
+    if (this->shouldExit)
+      return;
+    auto future =
+        std::async(std::launch::async, &JsonRpcHandler::handleNotification,
+                   handler, method, params);
+    this->futures.push_back(std::move(future));
+  }
+}
+
+void jsonrpc::JsonRpcServer::sendToClient(nlohmann::json data) {
+  std::lock_guard<std::mutex> guard(this->output_mutex);
+  std::string payload = data.dump();
+  auto len = payload.size();
+  auto full_message = std::format("Content-Length:{}\r\n\r\n{}", payload, len);
+  this->output.write(full_message.data(), full_message.size());
+}
+
+void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,
+                                   nlohmann::json result) {
+  nlohmann::json data;
+  data["jsonrpc"] = "2.0";
+  data["id"] = callId;
+  data["result"] = result;
+  this->sendToClient(data);
+}
+
+void jsonrpc::JsonRpcServer::notification(std::string method,
+                                          nlohmann::json params) {
+  nlohmann::json data;
+  data["jsonrpc"] = "2.0";
+  data["method"] = method;
+  data["params"] = params;
+  this->sendToClient(data);
+}
+
 void jsonrpc::JsonRpcServer::loop(
     std::shared_ptr<jsonrpc::JsonRpcHandler> handler) {
   std::string prefix = "Content-Length:";
@@ -18,7 +88,6 @@ void jsonrpc::JsonRpcServer::loop(
       auto ch = this->input.get();
       if (ch == EOF)
         return;
-      ;
       switch (ch) {
       case '\r':
         state = state == 2 ? 3 : 1;
@@ -39,10 +108,20 @@ void jsonrpc::JsonRpcServer::loop(
         state = 5;
       }
     }
+    if (this->shouldExit)
+      return;
     std::string messageData;
     messageData.reserve(contentLength + 1);
+    if (this->shouldExit)
+      return;
     this->input.read(messageData.data(), contentLength);
-    auto data = nlohmann::json::parse(messageData);
-    this->evaluateData(handler, data);
+    try {
+      auto data = nlohmann::json::parse(messageData);
+      this->evaluateData(handler, data);
+    } catch (nlohmann::json::parse_error &ex) {
+      this->returnError(JsonrpcError::ParseError, "Invalid JSON");
+    }
   }
 }
+
+void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
