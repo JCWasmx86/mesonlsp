@@ -1,0 +1,5 @@
+[wrap-git]
+url = https://github.com/JCWasmx86/tree-sitter-ini
+revision = HEAD
+patch_directory = tree-sitter-ini
+directory = tree-sitter-ini

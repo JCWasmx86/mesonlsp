@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   TSTree *tree = ts_parser_parse_string(parser, NULL, file_content.data(),
                                         file_content.length());
   TSNode root_node = ts_tree_root_node(tree);
-  auto source_file = std::make_shared<MesonSourceFile>(path);
+  auto source_file = std::make_shared<SourceFile>(path);
   auto root = make_node(source_file, root_node);
 
   ts_tree_delete(tree);

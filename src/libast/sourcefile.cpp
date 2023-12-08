@@ -1,7 +1,7 @@
 #include "sourcefile.hpp"
 #include <fstream>
 
-std::string MesonSourceFile::contents() {
+std::string SourceFile::contents() {
   if (this->cached) {
     return this->cached_contents;
   }

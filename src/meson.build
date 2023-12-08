@@ -2,6 +2,7 @@ subdir('liblog')
 subdir('libobjects')
 subdir('libast')
 subdir('libjsonrpc')
+subdir('libwrap')
 
 executable(
     'Swift-MesonLSP',
