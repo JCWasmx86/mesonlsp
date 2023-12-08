@@ -27,6 +27,8 @@ Provides capabilities to analyse meson code.
 Depends on: libtypenamespace, libwrap, libast
 ### libjsonrpc
 Implements the JSON-RPC protocol.
+
+Status: Largely done
 ### liblsptypes
 Provides the types needed for a language server.
 ### libls
