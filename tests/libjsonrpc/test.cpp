@@ -13,7 +13,9 @@ private:
 
 public:
   TestJsonRpcHandler() : logger(Logger("TestJsonRpcHandler")) {}
-  void handleNotification(std::string method, nlohmann::json params) override {}
+  void handleNotification(std::string method, nlohmann::json params) override {
+    this->logger.info(std::format("Got notification: {}", method));
+  }
 
   void handleRequest(std::string method, nlohmann::json callId,
                      nlohmann::json params) override {
@@ -42,10 +44,21 @@ static std::string make_json_rpc_call(int id, std::string method,
   return std::format("Content-Length:{}\r\n\r\n{}", len, payload);
 }
 
+static std::string make_json_rpc_notification(std::string method,
+                                              nlohmann::json params) {
+  nlohmann::json data;
+  data["jsonrpc"] = "2.0";
+  data["method"] = method;
+  data["params"] = params;
+  std::string payload = data.dump();
+  auto len = payload.size();
+  return std::format("Content-Length:{}\r\n\r\n{}", len, payload);
+}
+
 static std::string make_input_msg() {
   std::string ret;
   ret += make_json_rpc_call(1, "add", R"({"a": 3, "b": 2})"_json);
-
+  ret += make_json_rpc_notification("notif", R"({"msg": "Foo"})"_json);
   return ret;
 }
 
