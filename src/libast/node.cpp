@@ -6,25 +6,24 @@
 #include <memory>
 #include <vector>
 
-Node::Node(std::shared_ptr<MesonSourceFile> file, TSNode node)
+Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(file), location(new Location(node)) {}
 
-ArgumentList::ArgumentList(std::shared_ptr<MesonSourceFile> file, TSNode node)
+ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->args.push_back(make_node(file, ts_node_named_child(node, i)));
   }
 }
 
-ArrayLiteral::ArrayLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node)
+ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->args.push_back(make_node(file, ts_node_named_child(node, i)));
   }
 }
 
-BuildDefinition::BuildDefinition(std::shared_ptr<MesonSourceFile> file,
-                                 TSNode node)
+BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto stmt = make_node(file, ts_node_named_child(node, i));
@@ -33,7 +32,7 @@ BuildDefinition::BuildDefinition(std::shared_ptr<MesonSourceFile> file,
   }
 }
 
-DictionaryLiteral::DictionaryLiteral(std::shared_ptr<MesonSourceFile> file,
+DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
                                      TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
@@ -41,22 +40,22 @@ DictionaryLiteral::DictionaryLiteral(std::shared_ptr<MesonSourceFile> file,
   }
 }
 
-ConditionalExpression::ConditionalExpression(
-    std::shared_ptr<MesonSourceFile> file, TSNode node)
+ConditionalExpression::ConditionalExpression(std::shared_ptr<SourceFile> file,
+                                             TSNode node)
     : Node(file, node) {
   this->condition = make_node(file, ts_node_named_child(node, 0));
   this->ifTrue = make_node(file, ts_node_named_child(node, 1));
   this->ifFalse = make_node(file, ts_node_named_child(node, 2));
 }
 
-SubscriptExpression::SubscriptExpression(std::shared_ptr<MesonSourceFile> file,
+SubscriptExpression::SubscriptExpression(std::shared_ptr<SourceFile> file,
                                          TSNode node)
     : Node(file, node) {
   this->outer = make_node(file, ts_node_named_child(node, 0));
   this->inner = make_node(file, ts_node_named_child(node, 1));
 }
 
-MethodExpression::MethodExpression(std::shared_ptr<MesonSourceFile> file,
+MethodExpression::MethodExpression(std::shared_ptr<SourceFile> file,
                                    TSNode node)
     : Node(file, node) {
   this->obj = make_node(file, ts_node_named_child(node, 0));
@@ -65,7 +64,7 @@ MethodExpression::MethodExpression(std::shared_ptr<MesonSourceFile> file,
     this->args = make_node(file, ts_node_named_child(node, 2));
 }
 
-FunctionExpression::FunctionExpression(std::shared_ptr<MesonSourceFile> file,
+FunctionExpression::FunctionExpression(std::shared_ptr<SourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   this->id = make_node(file, ts_node_named_child(node, 0));
@@ -73,19 +72,19 @@ FunctionExpression::FunctionExpression(std::shared_ptr<MesonSourceFile> file,
     this->args = make_node(file, ts_node_named_child(node, 1));
 }
 
-KeyValueItem::KeyValueItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
+KeyValueItem::KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->key = make_node(file, ts_node_named_child(node, 0));
   this->value = make_node(file, ts_node_named_child(node, 1));
 }
 
-KeywordItem::KeywordItem(std::shared_ptr<MesonSourceFile> file, TSNode node)
+KeywordItem::KeywordItem(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->key = make_node(file, ts_node_named_child(node, 0));
   this->value = make_node(file, ts_node_named_child(node, 1));
 }
 
-IterationStatement::IterationStatement(std::shared_ptr<MesonSourceFile> file,
+IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
@@ -99,7 +98,7 @@ IterationStatement::IterationStatement(std::shared_ptr<MesonSourceFile> file,
   }
 }
 
-AssignmentStatement::AssignmentStatement(std::shared_ptr<MesonSourceFile> file,
+AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
                                          TSNode node)
     : Node(file, node) {
   this->lhs = make_node(file, ts_node_named_child(node, 0));
@@ -121,7 +120,7 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<MesonSourceFile> file,
   this->rhs = make_node(file, ts_node_named_child(node, 2));
 }
 
-BinaryExpression::BinaryExpression(std::shared_ptr<MesonSourceFile> file,
+BinaryExpression::BinaryExpression(std::shared_ptr<SourceFile> file,
                                    TSNode node)
     : Node(file, node) {
   this->lhs = make_node(file, ts_node_named_child(node, 0));
@@ -163,8 +162,7 @@ BinaryExpression::BinaryExpression(std::shared_ptr<MesonSourceFile> file,
   this->rhs = make_node(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
 }
 
-UnaryExpression::UnaryExpression(std::shared_ptr<MesonSourceFile> file,
-                                 TSNode node)
+UnaryExpression::UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   auto op_str = file->extract_node_value(ts_node_child(node, 0));
   if (op_str == "not")
@@ -178,37 +176,35 @@ UnaryExpression::UnaryExpression(std::shared_ptr<MesonSourceFile> file,
   this->expression = make_node(file, ts_node_named_child(node, 0));
 }
 
-StringLiteral::StringLiteral(std::shared_ptr<MesonSourceFile> file, TSNode node)
+StringLiteral::StringLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->isFormat =
       strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
   this->id = file->extract_node_value(node);
 }
 
-IdExpression::IdExpression(std::shared_ptr<MesonSourceFile> file, TSNode node)
+IdExpression::IdExpression(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->id = file->extract_node_value(node);
 }
 
-BooleanLiteral::BooleanLiteral(std::shared_ptr<MesonSourceFile> file,
-                               TSNode node)
+BooleanLiteral::BooleanLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->value = file->extract_node_value(node) == "true";
 }
 
-IntegerLiteral::IntegerLiteral(std::shared_ptr<MesonSourceFile> file,
-                               TSNode node)
+IntegerLiteral::IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->value = file->extract_node_value(node);
 }
 
-ContinueNode::ContinueNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
+ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {}
 
-BreakNode::BreakNode(std::shared_ptr<MesonSourceFile> file, TSNode node)
+BreakNode::BreakNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {}
 
-SelectionStatement::SelectionStatement(std::shared_ptr<MesonSourceFile> file,
+SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   auto child_count = ts_node_child_count(node);
@@ -247,8 +243,7 @@ SelectionStatement::SelectionStatement(std::shared_ptr<MesonSourceFile> file,
   }
 }
 
-std::shared_ptr<Node> make_node(std::shared_ptr<MesonSourceFile> file,
-                                TSNode node) {
+std::shared_ptr<Node> make_node(std::shared_ptr<SourceFile> file, TSNode node) {
   auto node_type = ts_node_type(node);
   if (strcmp(node_type, "argument_list") == 0)
     return std::make_shared<ArgumentList>(file, node);
