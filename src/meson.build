@@ -3,6 +3,7 @@ subdir('libobjects')
 subdir('libast')
 subdir('libjsonrpc')
 subdir('libwrap')
+subdir('liblsptypes')
 
 executable(
     'Swift-MesonLSP',
