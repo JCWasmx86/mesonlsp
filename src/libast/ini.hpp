@@ -12,7 +12,7 @@ public:
   const std::shared_ptr<SourceFile> file;
   const Location *location;
 
-  ~Node() {
+  virtual ~Node() {
     delete this->location;
     this->location = nullptr;
   }

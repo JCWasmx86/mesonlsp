@@ -11,7 +11,7 @@ public:
   SourceFile(std::filesystem::path file) : file(file) {}
   virtual std::string contents();
   virtual ~SourceFile() = default;
-  std::string extract_node_value(TSNode node) {
+  virtual std::string extract_node_value(TSNode node) {
     auto start_byte = ts_node_start_byte(node);
     auto end_byte = ts_node_end_byte(node);
     return this->contents().substr(start_byte, end_byte - start_byte);
@@ -20,4 +20,14 @@ public:
 private:
   std::string cached_contents;
   bool cached = false;
+};
+
+class MemorySourceFile : public SourceFile {
+private:
+  std::string str;
+
+public:
+  MemorySourceFile(std::string contents, std::filesystem::path file)
+      : SourceFile(file), str(contents) {}
+  std::string contents() override { return this->str; }
 };
