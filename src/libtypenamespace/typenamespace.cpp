@@ -75,5 +75,6 @@ TypeNamespace::TypeNamespace()
       {"sourceset_module", std::make_shared<SourceSetModule>()},
       {"sourceset", std::make_shared<SourceSet>()},
       {"source_confguration", std::make_shared<SourceConfiguration>()}};
-    this->initFunctions();
+  this->initFunctions();
+  this->initMethods();
 }
