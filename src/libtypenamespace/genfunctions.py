@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 import sys
 
+def type_to_cpp(t: str):
+    if t == "subproject()":
+        return "this->types[\"subproject\"]"
+    if t.startswith("dict(") or t.startswith("list("):
+        cpp_type = "Dict" if t.startswith("dict(") else "List"
+        sub_types = []
+        curr_sub_type = ""
+        sub_type_str = t[5:][:-1]
+        for char in sub_type_str:
+            if char == "|":
+                sub_types.append(type_to_cpp(curr_sub_type))
+                curr_sub_type = ""
+            else:
+                curr_sub_type += char
+        sub_types.append(type_to_cpp(curr_sub_type))
+        total_str = "{" + ",".join(sub_types) + "}"
+        return f"std::make_shared<{cpp_type}>(std::vector<std::shared_ptr<Type>>{total_str})"
+    return f"this->types[\"{t}\"]"
+
 def main():
     with open(sys.argv[2], "w", encoding="utf-8") as output:
         with open(sys.argv[1], "r", encoding="utf-8") as filep:
@@ -25,7 +44,10 @@ def main():
                     for idx_, arg in enumerate(args):
                         print("      std::make_shared<PositionalArgument>(", file=output)
                         print(f"        \"{arg[0]}\",", file=output)
-                        print("        std::vector<std::shared_ptr<Type>>{},", file=output)
+                        print("        std::vector<std::shared_ptr<Type>>{", file=output),
+                        for t_idx, t in enumerate(arg[3]):
+                            print("          " + type_to_cpp(t) + ("," if t_idx != len(arg[3]) - 1 else ""), file=output)
+                        print("        },", file=output)
                         print(f"        {arg[2]},", file=output)
                         print(f"        {arg[1]}", file=output)
                         if idx_ == total_len - 1:
@@ -35,7 +57,10 @@ def main():
                     for idx_, arg in enumerate(kwargs):
                         print("      std::make_shared<Kwarg>(", file=output)
                         print(f"        \"{arg[0][1:]}\",", file=output)
-                        print("        std::vector<std::shared_ptr<Type>>{},", file=output)
+                        print("        std::vector<std::shared_ptr<Type>>{", file=output),
+                        for t_idx, t in enumerate(arg[2]):
+                            print("          " + type_to_cpp(t) + ("," if t_idx != len(arg[2]) - 1 else ""), file=output)
+                        print("        },", file=output)
                         print(f"        {arg[1]}", file=output)
                         if len(args) + idx_ == total_len - 1:
                             print("      )", file=output)
@@ -43,6 +68,8 @@ def main():
                             print("      ),", file=output)
                     print("    },", file=output)
                     print("    std::vector<std::shared_ptr<Type>>{", file=output)
+                    for t_idx, t in enumerate(returns):
+                        print("        " + type_to_cpp(t) + ("," if t_idx != len(returns) - 1 else ""), file=output)
                     print("    }", file=output)
                     print("  );", file=output)
                 curr_fn_name = lines[idx].replace(":", "").strip()
