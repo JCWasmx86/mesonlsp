@@ -17,6 +17,8 @@ public:
   std::shared_ptr<BoolType> boolType;
 
   TypeNamespace();
+
 private:
   void initFunctions();
+  void initMethods();
 };

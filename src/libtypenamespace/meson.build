@@ -4,10 +4,16 @@ genfunctions_cpp = configure_file(
     input: ['functions.def'],
     output: 'genfunctions.cpp',
 )
+genmethods_cpp = configure_file(
+    command: [files('genmethods.py'), '@INPUT0@', '@OUTPUT0@'],
+    input: ['methods.def'],
+    output: 'genmethods.cpp',
+)
 typenamespace_lib = static_library(
     'typenamespace',
     'typenamespace.cpp',
     genfunctions_cpp,
+    genmethods_cpp,
     include_directories: typenamespace_inc,
     dependencies: [objects_dep],
 )
