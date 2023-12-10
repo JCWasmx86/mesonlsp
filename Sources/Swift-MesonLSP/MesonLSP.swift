@@ -37,6 +37,7 @@ import Wrap
   @ArgumentParser.Flag var subproject: Bool = false
   @ArgumentParser.Flag var dot: Bool = false
   @ArgumentParser.Flag var subprojectParse: Bool = false
+  @ArgumentParser.Flag var dumpFunctions: Bool = false
 
   public static var configuration: CommandConfiguration {
     return CommandConfiguration(commandName: "Swift-MesonLSP")
@@ -152,6 +153,37 @@ import Wrap
     }
   }
 
+  func dumpFns() {
+    let t = TypeNamespace()
+    for fn in t.functions {
+      print("\(fn.name):")
+      print("  - args:")
+      for arg in fn.args where arg is PositionalArgument {
+        let pa = (arg as! PositionalArgument)
+        print("    - \(pa.name):")
+        print("      - Optional: \(pa.opt)")
+        print("      - Varargs: \(pa.varargs)")
+        print("      - Types:")
+        for t in pa.types {
+          print("        - \(t.toString())")
+        }
+      }
+      for kwargName in fn.kwargs.keys.sorted() {
+        let kw = fn.kwargs[kwargName]!;
+        print("    - @\(kw.name):")
+        print("      - Optional: \(kw.opt)")
+        print("      - Types:")
+        for t in kw.types {
+          print("        - \(t.toString())")
+        }
+      }
+      print("  - returns:")
+      for t in fn.returnTypes {
+        print("    - \(t.toString())")
+      }
+    }
+  }
+
   func doDot() {
     let ns = TypeNamespace()
     let p = Path(self.path).absolute().description
@@ -200,7 +232,10 @@ import Wrap
         return logger
       }
     #endif
-    if self.subprojectParse {
+    if self.dumpFunctions {
+      self.dumpFns()
+      return
+    } else if self.subprojectParse {
       self.doSubprojectParse()
       return
     } else if self.dot {

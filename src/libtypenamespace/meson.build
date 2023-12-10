@@ -1,7 +1,13 @@
 typenamespace_inc = include_directories('.')
+genfunctions_cpp = configure_file(
+    command: [files('genfunctions.py'), '@INPUT0@', '@OUTPUT0@'],
+    input: ['functions.def'],
+    output: 'genfunctions.cpp',
+)
 typenamespace_lib = static_library(
     'typenamespace',
     'typenamespace.cpp',
+    genfunctions_cpp,
     include_directories: typenamespace_inc,
     dependencies: [objects_dep],
 )

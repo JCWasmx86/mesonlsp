@@ -9,7 +9,7 @@
 
 class TypeNamespace {
 public:
-  std::vector<std::shared_ptr<Function>> functions;
+  std::map<std::string, std::shared_ptr<Function>> functions;
   std::map<std::string, std::shared_ptr<Type>> types;
   std::map<std::string, std::vector<std::shared_ptr<Method>>> vtables;
   std::shared_ptr<Str> strType;
@@ -17,4 +17,6 @@ public:
   std::shared_ptr<BoolType> boolType;
 
   TypeNamespace();
+private:
+  void initFunctions();
 };

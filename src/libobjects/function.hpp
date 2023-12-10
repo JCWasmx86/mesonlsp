@@ -52,6 +52,7 @@ public:
   }
 
   virtual const std::string id();
+  virtual ~Function() {}
 
 protected:
   uint32_t minPosArgs;
