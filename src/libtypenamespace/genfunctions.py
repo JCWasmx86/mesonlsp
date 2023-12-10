@@ -1,21 +1,32 @@
 #!/usr/bin/env python3
 import sys
 
+def extract_types(input_str):
+    input_str = input_str[5:][:-1]
+    paren_cnter = 0
+    s = ""
+    ret = []
+    for ch in input_str:
+        if ch == "(":
+            paren_cnter += 1
+        if ch == ")":
+            paren_cnter -= 1
+        if paren_cnter == 0 and ch == "|":
+            ret.append(s)
+            s = ""
+        else:
+            s += ch
+    assert paren_cnter == 0
+    if s != "":
+        ret.append(s)
+    return ret
+
 def type_to_cpp(t: str):
     if t == "subproject()":
         return "this->types[\"subproject\"]"
     if t.startswith("dict(") or t.startswith("list("):
         cpp_type = "Dict" if t.startswith("dict(") else "List"
-        sub_types = []
-        curr_sub_type = ""
-        sub_type_str = t[5:][:-1]
-        for char in sub_type_str:
-            if char == "|":
-                sub_types.append(type_to_cpp(curr_sub_type))
-                curr_sub_type = ""
-            else:
-                curr_sub_type += char
-        sub_types.append(type_to_cpp(curr_sub_type))
+        sub_types = map(type_to_cpp, extract_types(t))
         total_str = "{" + ",".join(sub_types) + "}"
         return f"std::make_shared<{cpp_type}>(std::vector<std::shared_ptr<Type>>{total_str})"
     return f"this->types[\"{t}\"]"

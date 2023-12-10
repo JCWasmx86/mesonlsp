@@ -20,7 +20,7 @@ public:
 
   Function(std::string name, std::vector<std::shared_ptr<Argument>> args,
            const std::vector<std::shared_ptr<Type>> returnTypes)
-      : name(name), args(args), returnTypes(returnTypes) {
+      : name(name), args(args), kwargs(), returnTypes(returnTypes) {
     uint32_t minPosArgs = 0;
     for (const auto &arg : args) {
       auto pa = dynamic_cast<PositionalArgument *>(arg.get());
@@ -43,7 +43,9 @@ public:
     }
     for (const auto &arg : args) {
       auto kw = dynamic_cast<Kwarg *>(arg.get());
-      this->kwargs[kw->name] = std::shared_ptr<Argument>(kw);
+      if (!kw)
+        continue;
+      this->kwargs[kw->name] = arg;
       if (!kw->optional)
         this->requiredKwargs.insert(kw->name);
     }
