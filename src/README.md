@@ -14,6 +14,7 @@ Status: Partially done
 Provides a "TypeNamespace" instance containing everything like arguments, return types, docs
 
 Depends on: libobjects
+Status: Done
 ### libast
 Provides the AST as C++ objects.
 
