@@ -206,3 +206,28 @@ public:
 };
 
 std::shared_ptr<Node> make_node(std::shared_ptr<SourceFile> file, TSNode node);
+
+class CodeVisitor {
+public:
+  CodeVisitor() {}
+  virtual ~CodeVisitor() {}
+  virtual void visitArgumentList(ArgumentList *node) = 0;
+  virtual void visitArrayLiteral(ArrayLiteral *node) = 0;
+  virtual void visitAssignmentStatement(AssignmentStatement *node) = 0;
+  virtual void visitBinaryExpression(BinaryExpression *node) = 0;
+  virtual void visitBooleanLiteral(BooleanLiteral *node) = 0;
+  virtual void visitBuildDefinition(BuildDefinition *node) = 0;
+  virtual void visitConditionalExpression(ConditionalExpression *node) = 0;
+  virtual void visitDictionaryLiteral(DictionaryLiteral *node) = 0;
+  virtual void visitFunctionExpression(FunctionExpression *node) = 0;
+  virtual void visitIdExpression(IdExpression *node) = 0;
+  virtual void visitIntegerLiteral(IntegerLiteral *node) = 0;
+  virtual void visitIterationStatement(IterationStatement *node) = 0;
+  virtual void visitKeyValueItem(KeyValueItem *node) = 0;
+  virtual void visitKeywordItem(KeywordItem *node) = 0;
+  virtual void visitMethodExpression(MethodExpression *node) = 0;
+  virtual void visitSelectionStatement(SelectionStatement *node) = 0;
+  virtual void visitStringLiteral(StringLiteral *node) = 0;
+  virtual void visitSubscriptExpression(SubscriptExpression *node) = 0;
+  virtual void visitUnaryExpression(UnaryExpression *node) = 0;
+};
