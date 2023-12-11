@@ -3,6 +3,7 @@
 
 #include "sourcefile.hpp"
 #include <memory>
+#include <optional>
 #include <tree_sitter/api.h>
 #include <vector>
 
@@ -46,6 +47,8 @@ public:
   std::shared_ptr<ast::ini::Node> name;
   std::vector<std::shared_ptr<ast::ini::Node>> key_value_pairs;
   Section(std::shared_ptr<SourceFile> file, TSNode node);
+
+  std::optional<std::string> find_string_value(std::string key);
 };
 
 class IniFile : public ast::ini::Node {
