@@ -1,6 +1,25 @@
 #include "ini.hpp"
 #include <cstring>
+#include <optional>
+#include <string>
 
+std::optional<std::string>
+ast::ini::Section::find_string_value(std::string key) {
+  for (size_t i = 0; i < this->key_value_pairs.size(); i++) {
+    auto kvp =
+        dynamic_cast<ast::ini::KeyValuePair *>(this->key_value_pairs[i].get());
+    if (!kvp)
+      continue;
+    auto keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
+    if (!keyN || keyN->value != key)
+      continue;
+    auto value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
+    if (!value)
+      continue;
+    return std::optional<std::string>(value->value);
+  }
+  return std::nullopt;
+}
 ast::ini::Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(file), location(new Location(node)) {}
 
