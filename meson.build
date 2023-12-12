@@ -37,6 +37,7 @@ tree_sitter_ini_dep = tree_sitter_ini_proj.get_variable('tree_sitter_ini_dep')
 nlohmann_json_dep = dependency('nlohmann_json')
 curl_dep = dependency('libcurl')
 archive_dep = dependency('libarchive')
+uuid_dep = dependency('uuid')
 
 subdir('src')
 subdir('tests')

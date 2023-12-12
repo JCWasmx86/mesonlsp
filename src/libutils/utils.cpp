@@ -5,11 +5,13 @@
 #include <cstring>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <format>
 #include <iostream>
 #include <ostream>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 
 #define HTTP_OK 200
 
@@ -65,6 +67,7 @@ bool extract_file(std::filesystem::path archive_path,
   const char *filename = archive_path.c_str();
 
   if (auto r = archive_read_open_filename(a, filename, 10240)) {
+    std::cerr << archive_error_string(a) << r << std::endl;
     return false;
   }
 
@@ -87,7 +90,8 @@ bool extract_file(std::filesystem::path archive_path,
       std::cerr << archive_error_string(ext) << std::endl;
       return false;
     } else if (archive_entry_size(entry) > 0) {
-      if (copy_data(a, ext) == 0) {
+      auto copy_result = copy_data(a, ext);
+      if (copy_result != ARCHIVE_OK && copy_result != ARCHIVE_EOF) {
         std::cerr << archive_error_string(ext) << std::endl;
         return false;
       }
@@ -148,4 +152,15 @@ std::string errno2string() {
   char buf[256] = {0};
   strerror_r(errno, buf, sizeof(buf) - 1);
   return std::string(buf);
+}
+
+std::string random_file() {
+  auto tmpdir = getenv("TMPDIR");
+  if (tmpdir == nullptr)
+    tmpdir = (char *)"/tmp";
+  uuid_t filename;
+  uuid_generate(filename);
+  char out[37] = {0};
+  uuid_unparse(filename, out);
+  return std::format("{}/{}", tmpdir, out);
 }
