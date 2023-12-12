@@ -89,6 +89,14 @@ int main(int argc, char **argv) {
     TSParser *parser = ts_parser_new();
     ts_parser_set_language(parser, tree_sitter_meson());
     auto fpath = std::filesystem::path(path);
+    if (!std::filesystem::exists(fpath)) {
+      std::cerr << fpath.c_str() << " does not exist!" << std::endl;
+      return EXIT_SUCCESS;
+    }
+    if (!std::filesystem::is_regular_file(fpath)) {
+      std::cerr << fpath.c_str() << " is not a file!" << std::endl;
+      return EXIT_SUCCESS;
+    }
     std::ifstream file(path);
     auto file_size = std::filesystem::file_size(fpath);
     std::string file_content;
