@@ -2,26 +2,32 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <cstdio>
+#include <cstring>
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <iostream>
 #include <ostream>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#define HTTP_OK 200
 
 bool download_file(std::string url, std::filesystem::path output) {
   auto curl = curl_easy_init();
-  if (!curl)
+  if (curl == nullptr)
     return false;
-  FILE *fp = fopen(output.c_str(), "wb");
+  FILE *filep = fopen(output.c_str(), "wb");
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
   auto res = curl_easy_perform(curl);
   long http_code = 0;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-  auto successful = res != CURLE_ABORTED_BY_CALLBACK && http_code == 200;
+  auto successful = res != CURLE_ABORTED_BY_CALLBACK && http_code == HTTP_OK;
   curl_easy_cleanup(curl);
-  fclose(fp);
+  (void)fclose(filep);
   if (!successful)
     (void)remove(output.c_str());
   return successful;
@@ -98,4 +104,48 @@ bool extract_file(std::filesystem::path archive_path,
   archive_write_close(ext);
   archive_write_free(ext);
   return true;
+}
+
+bool launchProcess(const std::string &executable,
+                   const std::vector<std::string> &args) {
+  std::vector<const char *> cArgs;
+  cArgs.push_back(executable.c_str());
+
+  for (const auto &arg : args) {
+    cArgs.push_back(arg.c_str());
+  }
+  cArgs.push_back(nullptr);
+
+  pid_t pid = fork();
+  if (pid == -1) {
+    perror("fork");
+    return false;
+  }
+  if (pid == 0) { // Child process
+    if (execvp(executable.c_str(), const_cast<char *const *>(cArgs.data())) ==
+        -1) {
+      perror("execvp");
+      return false;
+    }
+    return false;
+  }
+  // Parent process
+  int status;
+  waitpid(pid, &status, 0);
+  if (WIFEXITED(status)) {
+    if (WEXITSTATUS(status) == 0) {
+      return true;
+    }
+    std::cerr << "Child process exited with status: " << WEXITSTATUS(status)
+              << std::endl;
+    return false;
+  }
+  std::cerr << "Child process terminated abnormally" << std::endl;
+  return false;
+}
+
+std::string errno2string() {
+  char buf[256] = {0};
+  strerror_r(errno, buf, sizeof(buf) - 1);
+  return std::string(buf);
 }
