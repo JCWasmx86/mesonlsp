@@ -9,3 +9,4 @@ bool extract_file(std::filesystem::path archive_path,
                   std::filesystem::path output_directory);
 bool launchProcess(std::string file, std::vector<std::string> args);
 std::string errno2string();
+std::string random_file();

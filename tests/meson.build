@@ -1,4 +1,5 @@
 subdir('liblog')
+subdir('libutils')
 subdir('libjsonrpc')
 subdir('libast')
 subdir('libtypenamespace')
