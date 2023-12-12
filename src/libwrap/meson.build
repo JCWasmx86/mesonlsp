@@ -1,11 +1,13 @@
 wrap_inc = include_directories('.')
 wrap_lib = static_library(
     'wrap',
-    'wrap.cpp',
-    'gitwrap.cpp',
-    'vcswrap.cpp',
     'filewrap.cpp',
+    'gitwrap.cpp',
+    'hgwrap.cpp',
+    'svnwrap.cpp',
     'utils.cpp',
+    'vcswrap.cpp',
+    'wrap.cpp',
     include_directories: wrap_inc,
     dependencies: [tree_sitter_dep, tree_sitter_ini_dep, ast_dep, archive_dep, curl_dep],
 )
