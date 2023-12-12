@@ -18,6 +18,10 @@ public:
   std::vector<std::string> diff_files;
   std::optional<std::string> method;
 
+  virtual void setupDirectory(std::filesystem::path path,
+                              std::filesystem::path packageFilesPath) {}
+  virtual ~Wrap() {}
+
 protected:
   Wrap(ast::ini::Section *node);
 };
@@ -48,16 +52,24 @@ public:
   bool cloneRecursive = false;
 
   GitWrap(ast::ini::Section *node);
+
+  void setupDirectory(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath) override;
 };
 
 class HgWrap : public VcsWrap {
 public:
   HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
+  void setupDirectory(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath) override;
 };
 
 class SvnWrap : public VcsWrap {
 public:
   SvnWrap(ast::ini::Section *node) : VcsWrap(node) {}
+
+  void setupDirectory(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath) override;
 };
 
 class WrapFile {
