@@ -6,9 +6,12 @@ subdir('libwrap')
 subdir('liblsptypes')
 subdir('libtypenamespace')
 
+version = meson.project_version()
+
 executable(
     'Swift-MesonLSP',
     'main.cpp',
+    cpp_args: ['-DVERSION="' + version + '"'],
     dependencies: [
         log_dep,
         objects_dep,
