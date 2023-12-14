@@ -1,12 +1,14 @@
 #include "wrap.hpp"
 #include "ini.hpp"
 #include "sourcefile.hpp"
+#include "utils.hpp"
 #include <cstddef>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <tree_sitter/api.h>
+#include <utility>
 
 extern "C" TSLanguage *tree_sitter_ini();
 
@@ -33,12 +35,57 @@ Wrap::Wrap(ast::ini::Section *section) {
     std::string segment;
     std::stringstream strm(val.value());
     while (std::getline(strm, segment, ',')) {
-      this->diff_files.push_back(segment);
+      this->diffFiles.push_back(segment);
     }
   }
   if (auto val = section->find_string_value("method")) {
     this->method = val;
   }
+}
+
+void Wrap::applyPatch(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath) {
+  if (this->patchDirectory.has_value()) {
+    auto packagePath = packageFilesPath / this->patchDirectory.value();
+    mergeDirectories(packagePath, std::move(path));
+    return;
+  }
+  auto patchFilename = this->patchFilename;
+  if (!patchFilename.has_value() || patchFilename->empty()) {
+    return;
+  }
+  auto patchUrl = this->patchUrl;
+  if (!patchUrl.has_value() || patchUrl->empty()) {
+    return;
+  }
+  auto patchHash = this->patchHash;
+  if (!patchHash.has_value() || patchHash->empty()) {
+    return;
+  }
+  auto archiveFileName = std::filesystem::path{randomFile()};
+  downloadFile(patchUrl.value(), archiveFileName);
+  extractFile(archiveFileName, path.parent_path());
+}
+
+void Wrap::applyDiffFiles(std::filesystem::path path,
+                          std::filesystem::path packageFilesPath) {
+  for (const auto &diff : this->diffFiles) {
+    auto absoluteDiffPath = packageFilesPath / diff;
+    auto result = launchProcess(
+        "git",
+        std::vector<std::string>{"-C", path, "--work-tree", ".", "apply", "-p1",
+                                 absoluteDiffPath.generic_string()});
+    if (!result) {
+      result = launchProcess("patch", std::vector<std::string>{
+                                          "-d", path, "-f", "-p1", "-i", path});
+    }
+  }
+}
+
+void Wrap::postSetup(std::filesystem::path path,
+                     std::filesystem::path packageFilesPath) {
+  this->applyPatch(path, packageFilesPath);
+  this->applyDiffFiles(path, packageFilesPath);
 }
 
 std::shared_ptr<WrapFile> parse_wrap(std::filesystem::path path) {

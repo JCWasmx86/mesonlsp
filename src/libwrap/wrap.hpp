@@ -15,7 +15,7 @@ public:
   std::optional<std::string> patchHash;
   std::optional<std::string> patchDirectory;
 
-  std::vector<std::string> diff_files;
+  std::vector<std::string> diffFiles;
   std::optional<std::string> method;
 
   virtual void setupDirectory(std::filesystem::path path,
@@ -24,6 +24,14 @@ public:
 
 protected:
   Wrap(ast::ini::Section *section);
+  void postSetup(std::filesystem::path path,
+                 std::filesystem::path packageFilesPath);
+
+private:
+  void applyPatch(std::filesystem::path path,
+                  std::filesystem::path packageFilesPath);
+  void applyDiffFiles(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath);
 };
 
 class FileWrap : public Wrap {

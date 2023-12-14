@@ -28,5 +28,6 @@ void HgWrap::setupDirectory(std::filesystem::path path,
       result = launchProcess(
           "hg", std::vector<std::string>{"--cwd", fullPath, "checkout", rev});
     }
+    this->postSetup(fullPath, packageFilesPath);
   }
 }
