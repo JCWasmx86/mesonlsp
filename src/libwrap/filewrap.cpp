@@ -1,8 +1,11 @@
 #include "ini.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 #include <filesystem>
 #include <format>
+
+Logger LOG("wrap::FileWrap"); // NOLINT
 
 FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
   if (auto val = section->find_string_value("source_url")) {
@@ -26,14 +29,17 @@ void FileWrap::setupDirectory(std::filesystem::path path,
                               std::filesystem::path packageFilesPath) {
   auto url = this->sourceUrl;
   if (url.empty()) {
+    LOG.warn("URL is empty");
     return;
   }
   auto hash = this->sourceHash;
   if (hash->empty()) {
+    LOG.warn("Hash is empty");
     return;
   }
   auto sfn = this->sourceFilename;
   if (sfn->empty()) {
+    LOG.warn("Sourcefilename is empty");
     return;
   }
   auto directory = this->directory;
@@ -50,8 +56,9 @@ void FileWrap::setupDirectory(std::filesystem::path path,
   // TODO: Caching
   auto archiveFileName = std::filesystem::path{randomFile()};
   downloadFile(url, archiveFileName);
-  auto wd = this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
-  std::filesystem::create_directories(wd);
-  extractFile(archiveFileName, wd);
+  auto workdir =
+      this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
+  std::filesystem::create_directories(workdir);
+  extractFile(archiveFileName, workdir);
   this->postSetup(fullPath, packageFilesPath);
 }
