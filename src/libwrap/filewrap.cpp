@@ -48,9 +48,10 @@ void FileWrap::setupDirectory(std::filesystem::path path,
   }
   auto fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
   // TODO: Caching
-  auto archiveFileName = std::filesystem::path{random_file()};
-  download_file(url, archiveFileName);
+  auto archiveFileName = std::filesystem::path{randomFile()};
+  downloadFile(url, archiveFileName);
   auto wd = this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
   std::filesystem::create_directories(wd);
-  extract_file(archiveFileName, wd);
+  extractFile(archiveFileName, wd);
+  this->postSetup(fullPath, packageFilesPath);
 }

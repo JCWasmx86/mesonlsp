@@ -122,6 +122,7 @@ void GitWrap::setupDirectory(std::filesystem::path path,
         "git", std::vector<std::string>{"-C", fullPath, "remote", "set-url",
                                         "--push", "origin", pushUrl.value()});
   }
+  this->postSetup(fullPath, packageFilesPath);
   if (!isValidCommitId(rev)) {
     return;
   }

@@ -15,7 +15,7 @@
 
 #define HTTP_OK 200
 
-bool download_file(std::string url, std::filesystem::path output) {
+bool downloadFile(std::string url, std::filesystem::path output) {
   auto curl = curl_easy_init();
   if (curl == nullptr) {
     return false;
@@ -57,8 +57,8 @@ static int copy_data(struct archive *ar, struct archive *aw) {
   }
 }
 
-bool extract_file(std::filesystem::path archive_path,
-                  std::filesystem::path output_directory) {
+bool extractFile(std::filesystem::path archive_path,
+                 std::filesystem::path output_directory) {
   auto a = archive_read_new();
   archive_read_support_format_all(a);
   archive_read_support_filter_all(a);
@@ -158,7 +158,7 @@ std::string errno2string() {
   return std::string(buf);
 }
 
-std::string random_file() {
+std::string randomFile() {
   auto tmpdir = getenv("TMPDIR");
   if (tmpdir == nullptr) {
     tmpdir = (char *)"/tmp";
@@ -168,4 +168,25 @@ std::string random_file() {
   char out[37] = {0};
   uuid_unparse(filename, out);
   return std::format("{}/{}", tmpdir, out);
+}
+
+void mergeDirectories(std::filesystem::path sourcePath,
+                      std::filesystem::path destinationPath) {
+  try {
+    for (const auto &entry :
+         std::filesystem::recursive_directory_iterator(sourcePath)) {
+      auto relativePath = std::filesystem::relative(entry.path(), sourcePath);
+      auto destination = destinationPath / relativePath;
+
+      if (std::filesystem::is_directory(entry.status())) {
+        std::filesystem::create_directories(destination);
+      } else if (std::filesystem::is_regular_file(entry.status())) {
+        std::filesystem::copy_file(
+            entry.path(), destination,
+            std::filesystem::copy_options::overwrite_existing);
+      }
+    }
+  } catch (const std::exception &ex) {
+    std::cerr << "Error: " << ex.what() << std::endl;
+  }
 }

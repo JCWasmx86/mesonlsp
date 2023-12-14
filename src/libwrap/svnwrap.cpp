@@ -17,4 +17,5 @@ void SvnWrap::setupDirectory(std::filesystem::path path,
   std::string fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
   auto result = launchProcess(
       "svn", std::vector<std::string>{"checkout", "-r", rev, url, fullPath});
+  this->postSetup(fullPath, packageFilesPath);
 }
