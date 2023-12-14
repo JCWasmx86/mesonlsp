@@ -4,7 +4,7 @@
 #include "wrap.hpp"
 #include <format>
 
-Logger LOG("wrap::HgWrap"); // NOLINT
+static Logger LOG("wrap::HgWrap"); // NOLINT
 
 void HgWrap::setupDirectory(std::filesystem::path path,
                             std::filesystem::path packageFilesPath) {

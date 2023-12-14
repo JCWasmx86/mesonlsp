@@ -12,13 +12,15 @@
 #include <tree_sitter/api.h>
 #include <utility>
 
-Logger LOG("wrap::Wrap"); // NOLINT
+static Logger LOG("wrap::Wrap"); // NOLINT
 
 extern "C" TSLanguage *tree_sitter_ini();
 
 Wrap::Wrap(ast::ini::Section *section) {
   if (auto val = section->find_string_value("directory")) {
     this->directory = val.value();
+  } else {
+    this->directory = section->file->file.stem();
   }
   if (auto val = section->find_string_value("patch_url")) {
     this->patchUrl = val.value();
