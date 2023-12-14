@@ -23,7 +23,7 @@ public:
   virtual ~Wrap() {}
 
 protected:
-  Wrap(ast::ini::Section *node);
+  Wrap(ast::ini::Section *section);
 };
 
 class FileWrap : public Wrap {
@@ -34,7 +34,7 @@ public:
   std::optional<std::string> sourceHash;
   bool leadDirectoryMissing = false;
 
-  FileWrap(ast::ini::Section *node);
+  FileWrap(ast::ini::Section *section);
 };
 
 class VcsWrap : public Wrap {
@@ -42,7 +42,7 @@ public:
   std::string url;
   std::string revision;
 
-  VcsWrap(ast::ini::Section *node);
+  VcsWrap(ast::ini::Section *section);
 };
 
 class GitWrap : public VcsWrap {

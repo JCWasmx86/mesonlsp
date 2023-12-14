@@ -4,6 +4,7 @@
 #include <cctype>
 #include <charconv>
 #include <format>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -27,7 +28,7 @@ static bool isValidCommitId(std::string rev) {
   if (rev.size() != 40 && rev.size() != 64)
     return false;
   for (auto c : rev)
-    if (!std::isxdigit(c))
+    if (std::isxdigit(c) == 0)
       return false;
   return true;
 }
@@ -115,5 +116,13 @@ void GitWrap::setupDirectory(std::filesystem::path path,
         "git", std::vector<std::string>{"-C", fullPath, "remote", "set-url",
                                         "--push", "origin", pushUrl.value()});
   }
-  // TODO: Port setupPullable
+  if (!isValidCommitId(rev)) {
+    return;
+  }
+  auto result = launchProcess(
+      "git", std::vector<std::string>{"-C", fullPath, "pull", "origin"});
+  if (result) {
+    auto pullableFile = std::filesystem::path{fullPath} / ".git_pullable";
+    std::ofstream{pullableFile}.put('\n');
+  }
 }
