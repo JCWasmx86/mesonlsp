@@ -25,8 +25,9 @@ public:
     for (const auto &arg : args) {
       auto pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
-        if (pa->optional)
+        if (pa->optional) {
           break;
+        }
         minPosArgs++;
       }
     }
@@ -43,11 +44,13 @@ public:
     }
     for (const auto &arg : args) {
       auto kw = dynamic_cast<Kwarg *>(arg.get());
-      if (!kw)
+      if (!kw) {
         continue;
+      }
       this->kwargs[kw->name] = arg;
-      if (!kw->optional)
+      if (!kw->optional) {
         this->requiredKwargs.insert(kw->name);
+      }
     }
     this->minPosArgs = minPosArgs;
     this->maxPosArgs = maxPosArgs;

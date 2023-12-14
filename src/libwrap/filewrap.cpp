@@ -25,19 +25,22 @@ FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
 void FileWrap::setupDirectory(std::filesystem::path path,
                               std::filesystem::path packageFilesPath) {
   auto url = this->sourceUrl;
-  if (url.empty())
+  if (url.empty()) {
     return;
+  }
   auto hash = this->sourceHash;
-  if (hash->empty())
+  if (hash->empty()) {
     return;
+  }
   auto sfn = this->sourceFilename;
-  if (sfn->empty())
+  if (sfn->empty()) {
     return;
+  }
   auto directory = this->directory;
   std::string targetDirectory;
-  if (directory.has_value() && directory.value().empty())
+  if (directory.has_value() && directory.value().empty()) {
     targetDirectory = directory.value();
-  else {
+  } else {
     size_t lastDotPos = sfn->find_last_of('.');
     auto result =
         (lastDotPos != std::string::npos) ? sfn->substr(0, lastDotPos) : sfn;

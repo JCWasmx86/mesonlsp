@@ -17,8 +17,9 @@ ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 void ArgumentList::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto n : this->args)
+  for (auto n : this->args) {
     n->visit(visitor);
+  }
 };
 
 ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
@@ -29,22 +30,25 @@ ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 void ArrayLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto n : this->args)
+  for (auto n : this->args) {
     n->visit(visitor);
+  }
 };
 
 BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto stmt = make_node(file, ts_node_named_child(node, i));
-    if (stmt)
+    if (stmt) {
       this->stmts.push_back(stmt);
+    }
   }
 }
 
 void BuildDefinition::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto n : this->stmts)
+  for (auto n : this->stmts) {
     n->visit(visitor);
+  }
 };
 
 DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
@@ -56,8 +60,9 @@ DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
 }
 
 void DictionaryLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto n : this->values)
+  for (auto n : this->values) {
     n->visit(visitor);
+  }
 };
 
 ConditionalExpression::ConditionalExpression(std::shared_ptr<SourceFile> file,
@@ -92,29 +97,33 @@ MethodExpression::MethodExpression(std::shared_ptr<SourceFile> file,
     : Node(file, node) {
   this->obj = make_node(file, ts_node_named_child(node, 0));
   this->id = make_node(file, ts_node_named_child(node, 1));
-  if (ts_node_named_child_count(node) != 2)
+  if (ts_node_named_child_count(node) != 2) {
     this->args = make_node(file, ts_node_named_child(node, 2));
+  }
 }
 
 void MethodExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
   this->obj->visit(visitor);
   this->id->visit(visitor);
-  if (this->args)
+  if (this->args) {
     this->args->visit(visitor);
+  }
 };
 
 FunctionExpression::FunctionExpression(std::shared_ptr<SourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   this->id = make_node(file, ts_node_named_child(node, 0));
-  if (ts_node_named_child_count(node) != 1)
+  if (ts_node_named_child_count(node) != 1) {
     this->args = make_node(file, ts_node_named_child(node, 1));
+  }
 }
 
 void FunctionExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
   this->id->visit(visitor);
-  if (this->args)
+  if (this->args) {
     this->args->visit(visitor);
+  }
 };
 
 KeyValueItem::KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node)
@@ -154,11 +163,13 @@ IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
 }
 
 void IterationStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto id : this->ids)
+  for (auto id : this->ids) {
     id->visit(visitor);
+  }
   this->expression->visit(visitor);
-  for (auto stmt : this->stmts)
+  for (auto stmt : this->stmts) {
     stmt->visit(visitor);
+  }
 }
 
 AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
@@ -166,20 +177,21 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
     : Node(file, node) {
   this->lhs = make_node(file, ts_node_named_child(node, 0));
   auto op_str = file->extract_node_value(ts_node_named_child(node, 0));
-  if (op_str == "=")
+  if (op_str == "=") {
     this->op = AssignmentOperator::Equals;
-  else if (op_str == "*=")
+  } else if (op_str == "*=") {
     this->op = AssignmentOperator::MulEquals;
-  else if (op_str == "/=")
+  } else if (op_str == "/=") {
     this->op = AssignmentOperator::DivEquals;
-  else if (op_str == "%=")
+  } else if (op_str == "%=") {
     this->op = AssignmentOperator::ModEquals;
-  else if (op_str == "+=")
+  } else if (op_str == "+=") {
     this->op = AssignmentOperator::PlusEquals;
-  else if (op_str == "-=")
+  } else if (op_str == "-=") {
     this->op = AssignmentOperator::MinusEquals;
-  else
+  } else {
     this->op = AssignmentOpOther;
+  }
   this->rhs = make_node(file, ts_node_named_child(node, 2));
 }
 
@@ -195,38 +207,39 @@ BinaryExpression::BinaryExpression(std::shared_ptr<SourceFile> file,
   auto ncc = ts_node_named_child_count(node);
   auto op_str = file->extract_node_value(
       (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1));
-  if (op_str == "+")
+  if (op_str == "+") {
     this->op = BinaryOperator::Plus;
-  else if (op_str == "-")
+  } else if (op_str == "-") {
     this->op = BinaryOperator::Minus;
-  else if (op_str == "*")
+  } else if (op_str == "*") {
     this->op = BinaryOperator::Mul;
-  else if (op_str == "/")
+  } else if (op_str == "/") {
     this->op = BinaryOperator::Div;
-  else if (op_str == "%")
+  } else if (op_str == "%") {
     this->op = BinaryOperator::Modulo;
-  else if (op_str == "==")
+  } else if (op_str == "==") {
     this->op = BinaryOperator::EqualsEquals;
-  else if (op_str == "!=")
+  } else if (op_str == "!=") {
     this->op = BinaryOperator::NotEquals;
-  else if (op_str == ">")
+  } else if (op_str == ">") {
     this->op = BinaryOperator::Gt;
-  else if (op_str == "<")
+  } else if (op_str == "<") {
     this->op = BinaryOperator::Lt;
-  else if (op_str == ">=")
+  } else if (op_str == ">=") {
     this->op = BinaryOperator::Ge;
-  else if (op_str == "<=")
+  } else if (op_str == "<=") {
     this->op = BinaryOperator::Le;
-  else if (op_str == "in")
+  } else if (op_str == "in") {
     this->op = BinaryOperator::In;
-  else if (op_str == "not in")
+  } else if (op_str == "not in") {
     this->op = BinaryOperator::NotIn;
-  else if (op_str == "and")
+  } else if (op_str == "and") {
     this->op = BinaryOperator::And;
-  else if (op_str == "or")
+  } else if (op_str == "or") {
     this->op = BinaryOperator::Or;
-  else
+  } else {
     this->op = BinaryOperator::BinOpOther;
+  }
   this->rhs = make_node(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
 }
 
@@ -238,14 +251,15 @@ void BinaryExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
 UnaryExpression::UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   auto op_str = file->extract_node_value(ts_node_child(node, 0));
-  if (op_str == "not")
+  if (op_str == "not") {
     this->op = UnaryOperator::Not;
-  else if (op_str == "!")
+  } else if (op_str == "!") {
     this->op = UnaryOperator::ExclamationMark;
-  else if (op_str == "-")
+  } else if (op_str == "-") {
     this->op = UnaryOperator::UnaryMinus;
-  else
+  } else {
     this->op = UnaryOther;
+  }
   this->expression = make_node(file, ts_node_named_child(node, 0));
 }
 
@@ -308,15 +322,17 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
     auto node_type = ts_node_type(c);
     if ((sv == "if" || strcmp(node_type, "if") == 0) && !sI) {
       while (file->extract_node_value(ts_node_child(node, idx + 1)) ==
-             "comment")
+             "comment") {
         idx++;
+      }
       sI = make_node(file, ts_node_child(node, idx + 1));
       idx += 1;
     } else if (sv == "elif") {
       bb.push_back(tmp);
       while (file->extract_node_value(ts_node_child(node, idx + 1)) ==
-             "comment")
+             "comment") {
         idx++;
+      }
       tmp = {};
       cs.push_back(make_node(file, ts_node_child(node, idx + 1)));
       idx++;
@@ -325,19 +341,23 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
       tmp = {};
     } else if (sv != "comment" && ts_node_named_child_count(c) == 1) {
       auto c_child_type = ts_node_type(ts_node_named_child(c, 0));
-      if (strcmp(c_child_type, "comment") != 0)
+      if (strcmp(c_child_type, "comment") != 0) {
         tmp.push_back(make_node(file, c));
+      }
     }
     idx++;
   }
 }
 
 void SelectionStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
-  for (auto condition : this->conditions)
+  for (auto condition : this->conditions) {
     condition->visit(visitor);
-  for (auto b : this->blocks)
-    for (auto bb : b)
+  }
+  for (auto b : this->blocks) {
+    for (auto bb : b) {
       bb->visit(visitor);
+    }
+  }
 }
 
 void ErrorNode::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
@@ -410,73 +430,101 @@ void UnaryExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
 
 std::shared_ptr<Node> make_node(std::shared_ptr<SourceFile> file, TSNode node) {
   auto node_type = ts_node_type(node);
-  if (strcmp(node_type, "argument_list") == 0)
+  if (strcmp(node_type, "argument_list") == 0) {
     return std::make_shared<ArgumentList>(file, node);
-  if (strcmp(node_type, "array_literal") == 0)
+  }
+  if (strcmp(node_type, "array_literal") == 0) {
     return std::make_shared<ArrayLiteral>(file, node);
-  if (strcmp(node_type, "assignment_statement") == 0)
+  }
+  if (strcmp(node_type, "assignment_statement") == 0) {
     return std::make_shared<AssignmentStatement>(file, node);
-  if (strcmp(node_type, "binary_expression") == 0)
+  }
+  if (strcmp(node_type, "binary_expression") == 0) {
     return std::make_shared<BinaryExpression>(file, node);
-  if (strcmp(node_type, "boolean_literal") == 0)
+  }
+  if (strcmp(node_type, "boolean_literal") == 0) {
     return std::make_shared<BooleanLiteral>(file, node);
-  if (strcmp(node_type, "build_definition") == 0)
+  }
+  if (strcmp(node_type, "build_definition") == 0) {
     return std::make_shared<BuildDefinition>(file, node);
-  if (strcmp(node_type, "dictionary_literal") == 0)
+  }
+  if (strcmp(node_type, "dictionary_literal") == 0) {
     return std::make_shared<DictionaryLiteral>(file, node);
-  if (strcmp(node_type, "function_expression") == 0)
+  }
+  if (strcmp(node_type, "function_expression") == 0) {
     return std::make_shared<FunctionExpression>(file, node);
+  }
   if (strcmp(node_type, "id_expression") == 0 ||
       strcmp(node_type, "function_id") == 0 ||
-      strcmp(node_type, "keyword_arg_key") == 0)
+      strcmp(node_type, "keyword_arg_key") == 0) {
     return std::make_shared<IdExpression>(file, node);
-  if (strcmp(node_type, "integer_literal") == 0)
+  }
+  if (strcmp(node_type, "integer_literal") == 0) {
     return std::make_shared<IntegerLiteral>(file, node);
-  if (strcmp(node_type, "iteration_statement") == 0)
+  }
+  if (strcmp(node_type, "iteration_statement") == 0) {
     return std::make_shared<IterationStatement>(file, node);
-  if (strcmp(node_type, "key_value_item") == 0)
+  }
+  if (strcmp(node_type, "key_value_item") == 0) {
     return std::make_shared<KeyValueItem>(file, node);
-  if (strcmp(node_type, "keyword_item") == 0)
+  }
+  if (strcmp(node_type, "keyword_item") == 0) {
     return std::make_shared<KeywordItem>(file, node);
-  if (strcmp(node_type, "method_expression") == 0)
+  }
+  if (strcmp(node_type, "method_expression") == 0) {
     return std::make_shared<MethodExpression>(file, node);
-  if (strcmp(node_type, "selection_statement") == 0)
+  }
+  if (strcmp(node_type, "selection_statement") == 0) {
     return std::make_shared<SelectionStatement>(file, node);
-  if (strcmp(node_type, "string_literal") == 0)
+  }
+  if (strcmp(node_type, "string_literal") == 0) {
     return std::make_shared<StringLiteral>(file, node);
-  if (strcmp(node_type, "subscript_expression") == 0)
+  }
+  if (strcmp(node_type, "subscript_expression") == 0) {
     return std::make_shared<SubscriptExpression>(file, node);
-  if (strcmp(node_type, "unary_expression") == 0)
+  }
+  if (strcmp(node_type, "unary_expression") == 0) {
     return std::make_shared<UnaryExpression>(file, node);
-  if (strcmp(node_type, "conditional_expression") == 0)
+  }
+  if (strcmp(node_type, "conditional_expression") == 0) {
     return std::make_shared<ConditionalExpression>(file, node);
-  if (strcmp(node_type, "source_file") == 0)
+  }
+  if (strcmp(node_type, "source_file") == 0) {
     return std::make_shared<BuildDefinition>(file,
                                              ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "statement") == 0 &&
-      ts_node_named_child_count(node) == 1)
+      ts_node_named_child_count(node) == 1) {
     return make_node(file, ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "expression") == 0 &&
-      ts_node_named_child_count(node) == 1)
+      ts_node_named_child_count(node) == 1) {
     return make_node(file, ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "condition") == 0 &&
-      ts_node_named_child_count(node) == 1)
+      ts_node_named_child_count(node) == 1) {
     return make_node(file, ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "primary_expression") == 0 &&
-      ts_node_named_child_count(node) == 1)
+      ts_node_named_child_count(node) == 1) {
     return make_node(file, ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "statement") == 0 &&
-      ts_node_named_child_count(node) == 1)
+      ts_node_named_child_count(node) == 1) {
     return make_node(file, ts_node_named_child(node, 0));
+  }
   if (strcmp(node_type, "statement") == 0 &&
-      ts_node_named_child_count(node) == 0)
+      ts_node_named_child_count(node) == 0) {
     return nullptr;
+  }
   if (strcmp(node_type, "jump_statement") == 0) {
     auto content = file->extract_node_value(node);
-    if (content == "break")
+    if (content == "break") {
       return std::make_shared<BreakNode>(file, node);
-    if (content == "continue")
+    }
+    if (content == "continue") {
       return std::make_shared<ContinueNode>(file, node);
+    }
   }
   return std::make_shared<ErrorNode>(
       file, node, std::format("Unknown node_type '{}'", node_type));

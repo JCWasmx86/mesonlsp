@@ -17,8 +17,9 @@
 
 bool download_file(std::string url, std::filesystem::path output) {
   auto curl = curl_easy_init();
-  if (curl == nullptr)
+  if (curl == nullptr) {
     return false;
+  }
   FILE *filep = fopen(output.c_str(), "wb");
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
@@ -30,8 +31,9 @@ bool download_file(std::string url, std::filesystem::path output) {
   auto successful = res != CURLE_ABORTED_BY_CALLBACK && http_code == HTTP_OK;
   curl_easy_cleanup(curl);
   (void)fclose(filep);
-  if (!successful)
+  if (!successful) {
     (void)remove(output.c_str());
+  }
   return successful;
 }
 static int copy_data(struct archive *ar, struct archive *aw) {
@@ -41,10 +43,12 @@ static int copy_data(struct archive *ar, struct archive *aw) {
 
   for (;;) {
     auto r = archive_read_data_block(ar, &buff, &size, &offset);
-    if (r == ARCHIVE_EOF)
+    if (r == ARCHIVE_EOF) {
       return ARCHIVE_OK;
-    if (r < ARCHIVE_OK)
+    }
+    if (r < ARCHIVE_OK) {
       return r;
+    }
     r = (int)archive_write_data_block(aw, buff, size, offset);
     if (r < ARCHIVE_OK) {
       std::cerr << archive_error_string(aw) << std::endl;
@@ -156,8 +160,9 @@ std::string errno2string() {
 
 std::string random_file() {
   auto tmpdir = getenv("TMPDIR");
-  if (tmpdir == nullptr)
+  if (tmpdir == nullptr) {
     tmpdir = (char *)"/tmp";
+  }
   uuid_t filename;
   uuid_generate(filename);
   char out[37] = {0};

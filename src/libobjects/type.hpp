@@ -53,8 +53,9 @@ public:
   // Public constructor
   Dict(std::vector<std::shared_ptr<Type>> types) : Type("dict"), types(types) {
     std::vector<std::string> names;
-    for (const auto &element : types)
+    for (const auto &element : types) {
       names.push_back(element->to_string());
+    }
 
     std::sort(names.begin(), names.end());
     std::string cache;
@@ -79,8 +80,9 @@ public:
 
   List(std::vector<std::shared_ptr<Type>> types) : Type("list"), types(types) {
     std::vector<std::string> names;
-    for (const auto &element : types)
+    for (const auto &element : types) {
       names.push_back(element->to_string());
+    }
 
     std::sort(names.begin(), names.end());
     std::string cache;
