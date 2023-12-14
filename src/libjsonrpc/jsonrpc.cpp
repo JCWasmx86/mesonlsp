@@ -36,14 +36,16 @@ void jsonrpc::JsonRpcServer::evaluateData(
   nlohmann::json params = data.contains("params") ? data["params"] : nullptr;
   if (data.contains("id")) {
     auto callId = data["id"];
-    if (this->shouldExit)
+    if (this->shouldExit) {
       return;
+    }
     auto future = std::async(std::launch::async, &JsonRpcHandler::handleRequest,
                              handler, method, callId, params);
     this->futures.push_back(std::move(future));
   } else {
-    if (this->shouldExit)
+    if (this->shouldExit) {
       return;
+    }
     auto future =
         std::async(std::launch::async, &JsonRpcHandler::handleNotification,
                    handler, method, params);
@@ -100,8 +102,9 @@ void jsonrpc::JsonRpcServer::loop(
 
     while (!breakFromLoop) {
       auto ch = this->input.get();
-      if (ch == EOF)
+      if (ch == EOF) {
         return;
+      }
       switch (ch) {
       case '\r':
         state = state == 2 ? 3 : 1;
@@ -121,17 +124,21 @@ void jsonrpc::JsonRpcServer::loop(
         header += (char)ch;
         state = 5;
       }
-      if (breakFromLoop)
+      if (breakFromLoop) {
         break;
+      }
     }
-    if (this->shouldExit)
+    if (this->shouldExit) {
       return;
+    }
     std::string messageData;
-    if (this->shouldExit)
+    if (this->shouldExit) {
       return;
+    }
     // TODO: Efficiency!
-    for (int i = 0; i < contentLength; i++)
+    for (int i = 0; i < contentLength; i++) {
       messageData += (char)this->input.get();
+    }
     try {
       auto data = nlohmann::json::parse(messageData);
       this->evaluateData(handler, data);
@@ -146,6 +153,7 @@ void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
 jsonrpc::JsonRpcHandler::JsonRpcHandler() {}
 
 void jsonrpc::JsonRpcServer::wait() {
-  for (size_t i = 0; i < this->futures.size(); i++)
+  for (size_t i = 0; i < this->futures.size(); i++) {
     this->futures[i].get();
+  }
 }

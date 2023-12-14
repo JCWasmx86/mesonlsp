@@ -57,27 +57,36 @@ std::shared_ptr<WrapFile> parse_wrap(std::filesystem::path path) {
   ts_tree_delete(tree);
   ts_parser_delete(parser);
   auto ini_file = dynamic_cast<ast::ini::IniFile *>(root.get());
-  if (!ini_file || !ini_file->sections.size())
+  if (!ini_file || !ini_file->sections.size()) {
     return std::make_shared<WrapFile>(nullptr, nullptr);
-  if (ini_file->sections.size() > 2) // wrap-* section + maybe provides section
+  }
+  if (ini_file->sections.size() >
+      2) { // wrap-* section + maybe provides section
     return std::make_shared<WrapFile>(nullptr, root);
+  }
   // Search for the right section
   auto section = dynamic_cast<ast::ini::Section *>(ini_file->sections[0].get());
-  if (!section)
+  if (!section) {
     return std::make_shared<WrapFile>(nullptr, root);
+  }
   auto section_name =
       dynamic_cast<ast::ini::StringValue *>(section->name.get());
-  if (!section_name)
+  if (!section_name) {
     return std::make_shared<WrapFile>(nullptr, root);
+  }
   auto wrap_type = section_name->value;
-  if (wrap_type == "wrap-git")
+  if (wrap_type == "wrap-git") {
     return std::make_shared<WrapFile>(std::make_shared<GitWrap>(section), root);
-  if (wrap_type == "wrap-svn")
+  }
+  if (wrap_type == "wrap-svn") {
     return std::make_shared<WrapFile>(std::make_shared<SvnWrap>(section), root);
-  if (wrap_type == "wrap-hg")
+  }
+  if (wrap_type == "wrap-hg") {
     return std::make_shared<WrapFile>(std::make_shared<HgWrap>(section), root);
-  if (wrap_type == "wrap-file")
+  }
+  if (wrap_type == "wrap-file") {
     return std::make_shared<WrapFile>(std::make_shared<FileWrap>(section),
                                       root);
+  }
   return std::make_shared<WrapFile>(nullptr, root);
 }

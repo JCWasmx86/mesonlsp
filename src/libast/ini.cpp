@@ -8,14 +8,17 @@ ast::ini::Section::find_string_value(std::string key) {
   for (size_t i = 0; i < this->key_value_pairs.size(); i++) {
     auto kvp =
         dynamic_cast<ast::ini::KeyValuePair *>(this->key_value_pairs[i].get());
-    if (!kvp)
+    if (!kvp) {
       continue;
+    }
     auto keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
-    if (!keyN || keyN->value != key)
+    if (!keyN || keyN->value != key) {
       continue;
+    }
     auto value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
-    if (!value)
+    if (!value) {
       continue;
+    }
     return std::optional<std::string>(value->value);
   }
   return std::nullopt;
@@ -56,15 +59,19 @@ ast::ini::Section::Section(std::shared_ptr<SourceFile> file, TSNode node)
 std::shared_ptr<ast::ini::Node>
 ast::ini::make_node(std::shared_ptr<SourceFile> file, TSNode node) {
   auto node_type = ts_node_type(node);
-  if (strcmp(node_type, "document") == 0)
+  if (strcmp(node_type, "document") == 0) {
     return std::make_shared<ast::ini::IniFile>(file, node);
-  if (strcmp(node_type, "section") == 0)
+  }
+  if (strcmp(node_type, "section") == 0) {
     return std::make_shared<ast::ini::Section>(file, node);
-  if (strcmp(node_type, "section_name") == 0)
+  }
+  if (strcmp(node_type, "section_name") == 0) {
     return std::make_shared<ast::ini::StringValue>(
         file, ts_node_named_child(node, 0));
-  if (strcmp(node_type, "setting") == 0)
+  }
+  if (strcmp(node_type, "setting") == 0) {
     return std::make_shared<ast::ini::KeyValuePair>(file, node);
+  }
   return std::make_shared<ast::ini::ErrorNode>(
       file, node, std::format("Unknown node_type '{}'", node_type));
 }

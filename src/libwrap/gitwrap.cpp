@@ -16,8 +16,9 @@ GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
     int number;
     auto res = std::from_chars(
         depthString->data(), depthString->data() + depthString->size(), number);
-    if (res.ec == std::errc{})
+    if (res.ec == std::errc{}) {
       this->depth = number;
+    }
   }
   if (auto val = section->find_string_value("clone-recursive")) {
     this->cloneRecursive = val == "true";
@@ -25,11 +26,14 @@ GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
 }
 
 static bool isValidCommitId(std::string rev) {
-  if (rev.size() != 40 && rev.size() != 64)
+  if (rev.size() != 40 && rev.size() != 64) {
     return false;
-  for (auto c : rev)
-    if (std::isxdigit(c) == 0)
+  }
+  for (auto c : rev) {
+    if (std::isxdigit(c) == 0) {
       return false;
+    }
+  }
   return true;
 }
 
@@ -42,10 +46,12 @@ static bool isHead(std::string rev) {
 void GitWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {
   auto url = this->url;
-  if (url.empty())
+  if (url.empty()) {
     return;
-  if (this->revision.empty())
+  }
+  if (this->revision.empty()) {
     return;
+  }
   auto rev = this->revision;
   auto targetDirectory = this->directory.value();
   std::string fullPath = std::format("{}/{}", path.c_str(), targetDirectory);

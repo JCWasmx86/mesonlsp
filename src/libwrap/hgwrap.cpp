@@ -9,8 +9,9 @@ void HgWrap::setupDirectory(std::filesystem::path path,
   if (url.empty()) {
     return;
   }
-  if (this->revision.empty())
+  if (this->revision.empty()) {
     return;
+  }
   std::string rev = this->revision;
   if (this->directory->empty()) {
     return;

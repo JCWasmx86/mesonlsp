@@ -1,2 +1,3 @@
 BasedOnStyle: LLVM
 InsertNewlineAtEOF: true
+InsertBraces: true
