@@ -12,3 +12,16 @@ std::string errno2string();
 std::string randomFile();
 void mergeDirectories(std::filesystem::path sourcePath,
                       std::filesystem::path destinationPath);
+
+inline std::string vectorToString(const std::vector<std::string> &vec) {
+  std::stringstream output;
+  output << '[';
+  for (size_t i = 0; i < vec.size(); ++i) {
+    if (i > 0) {
+      output << ',';
+    }
+    output << vec[i];
+  }
+  output << ']';
+  return output.str();
+}

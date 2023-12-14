@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "log.hpp"
 #include <archive.h>
 #include <archive_entry.h>
 #include <cstdio>
@@ -15,9 +16,13 @@
 
 #define HTTP_OK 200
 
+Logger LOG("utils"); // NOLINT
+
 bool downloadFile(std::string url, std::filesystem::path output) {
+  LOG.info(std::format("Downloading URL {} to {}", url, output.c_str()));
   auto curl = curl_easy_init();
   if (curl == nullptr) {
+    LOG.error("Unable to create CURL* using curl_easy_init");
     return false;
   }
   FILE *filep = fopen(output.c_str(), "wb");
@@ -28,6 +33,8 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   auto res = curl_easy_perform(curl);
   long http_code = 0;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+  LOG.info(std::format("curl_easy_perform: {} {}", curl_easy_strerror(res),
+                       http_code));
   auto successful = res != CURLE_ABORTED_BY_CALLBACK && http_code == HTTP_OK;
   curl_easy_cleanup(curl);
   (void)fclose(filep);
@@ -36,6 +43,7 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   }
   return successful;
 }
+
 static int copy_data(struct archive *ar, struct archive *aw) {
   const void *buff;
   size_t size;
@@ -59,9 +67,11 @@ static int copy_data(struct archive *ar, struct archive *aw) {
 
 bool extractFile(std::filesystem::path archive_path,
                  std::filesystem::path output_directory) {
-  auto a = archive_read_new();
-  archive_read_support_format_all(a);
-  archive_read_support_filter_all(a);
+  LOG.info(std::format("Extracting {} to {}", archive_path.c_str(),
+                       output_directory.c_str()));
+  auto archive = archive_read_new();
+  archive_read_support_format_all(archive);
+  archive_read_support_filter_all(archive);
   auto ext = archive_write_disk_new();
   archive_write_disk_set_options(
       ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
@@ -70,45 +80,50 @@ bool extractFile(std::filesystem::path archive_path,
 
   const char *filename = archive_path.c_str();
 
-  if (auto r = archive_read_open_filename(a, filename, 10240)) {
-    std::cerr << archive_error_string(a) << r << std::endl;
+  if (auto r = archive_read_open_filename(archive, filename, 10240)) {
+    LOG.error(std::format("Unable to open archive: {}",
+                          archive_error_string(archive)));
     return false;
   }
 
   for (;;) {
     auto entry = static_cast<struct archive_entry *>(nullptr);
-    auto r = archive_read_next_header(a, &entry);
-    if (r == ARCHIVE_EOF) {
+    auto res = archive_read_next_header(archive, &entry);
+    if (res == ARCHIVE_EOF) {
       break;
     }
-    if (r < ARCHIVE_OK) {
-      std::cerr << archive_error_string(a) << std::endl;
+    if (res < ARCHIVE_OK) {
+      LOG.error(std::format("Error during reading archive: {}",
+                            archive_error_string(archive)));
       return false;
     }
-
     auto entry_path =
         output_directory / std::filesystem::path(archive_entry_pathname(entry));
     archive_entry_set_pathname(entry, entry_path.string().c_str());
 
-    if (auto r = archive_write_header(ext, entry); r < ARCHIVE_OK) {
-      std::cerr << archive_error_string(ext) << std::endl;
+    if (auto res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
+      LOG.error(
+          std::format("Failed writing header: {}", archive_error_string(ext)));
       return false;
-    } else if (archive_entry_size(entry) > 0) {
-      auto copy_result = copy_data(a, ext);
+    }
+    if (archive_entry_size(entry) > 0) {
+      auto copy_result = copy_data(archive, ext);
       if (copy_result != ARCHIVE_OK && copy_result != ARCHIVE_EOF) {
-        std::cerr << archive_error_string(ext) << std::endl;
+        LOG.error(std::format("Failed writing result: {}",
+                              archive_error_string(ext)));
         return false;
       }
     }
 
-    if (auto r = archive_write_finish_entry(ext); r < ARCHIVE_OK) {
-      std::cerr << archive_error_string(ext) << std::endl;
+    if (auto res = archive_write_finish_entry(ext); res < ARCHIVE_OK) {
+      LOG.error(
+          std::format("Failed finishing entry: {}", archive_error_string(ext)));
       return false;
     }
   }
 
-  archive_read_close(a);
-  archive_read_free(a);
+  archive_read_close(archive);
+  archive_read_free(archive);
   archive_write_close(ext);
   archive_write_free(ext);
   return true;
@@ -117,6 +132,8 @@ bool extractFile(std::filesystem::path archive_path,
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args) {
   std::vector<const char *> cArgs;
+  LOG.info(
+      std::format("Launching {} with args", executable, vectorToString(args)));
   cArgs.push_back(executable.c_str());
 
   for (const auto &arg : args) {
@@ -126,13 +143,13 @@ bool launchProcess(const std::string &executable,
 
   pid_t pid = fork();
   if (pid == -1) {
-    perror("fork");
+    LOG.error(std::format("Failed to fork(): {}", errno2string()));
     return false;
   }
   if (pid == 0) { // Child process
     if (execvp(executable.c_str(), const_cast<char *const *>(cArgs.data())) ==
         -1) {
-      perror("execvp");
+      LOG.error(std::format("Failed to execvp(): {}", errno2string()));
       return false;
     }
     return false;
@@ -144,11 +161,11 @@ bool launchProcess(const std::string &executable,
     if (WEXITSTATUS(status) == 0) {
       return true;
     }
-    std::cerr << "Child process exited with status: " << WEXITSTATUS(status)
-              << std::endl;
+    LOG.warn(std::format("Child process exited with status: {}",
+                         WEXITSTATUS(status)));
     return false;
   }
-  std::cerr << "Child process terminated abnormally" << std::endl;
+  LOG.info("Child process terminated abnormally");
   return false;
 }
 
@@ -165,7 +182,7 @@ std::string randomFile() {
   }
   uuid_t filename;
   uuid_generate(filename);
-  char out[37] = {0};
+  char out[UUID_STR_LEN + 1] = {0};
   uuid_unparse(filename, out);
   return std::format("{}/{}", tmpdir, out);
 }

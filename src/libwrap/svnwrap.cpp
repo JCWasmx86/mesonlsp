@@ -1,16 +1,21 @@
 #include "ini.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 #include <format>
+
+Logger LOG("wrap::SvnWrap"); // NOLINT
 
 void SvnWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
+    LOG.warn("URL is empty");
     return;
   }
   auto rev = this->revision.empty() ? "HEAD" : this->revision;
   if (this->directory->empty()) {
+    LOG.warn("Directory is empty");
     return;
   }
   auto targetDirectory = this->directory.value();

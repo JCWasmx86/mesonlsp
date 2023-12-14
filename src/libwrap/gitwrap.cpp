@@ -1,4 +1,5 @@
 #include "ini.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 #include <cctype>
@@ -7,6 +8,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
+Logger LOG("wrap::GitWrap"); // NOLINT
 
 GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
   if (auto pushUrl = section->find_string_value("push-url")) {
@@ -29,8 +32,8 @@ static bool isValidCommitId(std::string rev) {
   if (rev.size() != 40 && rev.size() != 64) {
     return false;
   }
-  for (auto c : rev) {
-    if (std::isxdigit(c) == 0) {
+  for (auto chr : rev) {
+    if (std::isxdigit(chr) == 0) {
       return false;
     }
   }
@@ -47,9 +50,11 @@ void GitWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
+    LOG.warn("URL is empty");
     return;
   }
   if (this->revision.empty()) {
+    LOG.warn("Revision is empty");
     return;
   }
   auto rev = this->revision;

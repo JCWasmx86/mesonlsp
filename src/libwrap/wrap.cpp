@@ -1,14 +1,18 @@
 #include "wrap.hpp"
 #include "ini.hpp"
+#include "log.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 #include <cstddef>
+#include <format>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>
+
+Logger LOG("wrap::Wrap"); // NOLINT
 
 extern "C" TSLanguage *tree_sitter_ini();
 
@@ -47,6 +51,8 @@ void Wrap::applyPatch(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) {
   if (this->patchDirectory.has_value()) {
     auto packagePath = packageFilesPath / this->patchDirectory.value();
+    LOG.info(
+        std::format("Merging {} into {}", packagePath.c_str(), path.c_str()));
     mergeDirectories(packagePath, std::move(path));
     return;
   }
@@ -70,12 +76,14 @@ void Wrap::applyPatch(std::filesystem::path path,
 void Wrap::applyDiffFiles(std::filesystem::path path,
                           std::filesystem::path packageFilesPath) {
   for (const auto &diff : this->diffFiles) {
+    LOG.info(std::format("Applying diff: {}", diff));
     auto absoluteDiffPath = packageFilesPath / diff;
     auto result = launchProcess(
         "git",
         std::vector<std::string>{"-C", path, "--work-tree", ".", "apply", "-p1",
                                  absoluteDiffPath.generic_string()});
     if (!result) {
+      LOG.info(std::format("Retrying with `patch`"));
       result = launchProcess("patch", std::vector<std::string>{
                                           "-d", path, "-f", "-p1", "-i", path});
     }
