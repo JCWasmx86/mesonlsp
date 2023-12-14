@@ -35,6 +35,8 @@ public:
   bool leadDirectoryMissing = false;
 
   FileWrap(ast::ini::Section *section);
+  void setupDirectory(std::filesystem::path path,
+                      std::filesystem::path packageFilesPath) override;
 };
 
 class VcsWrap : public Wrap {
