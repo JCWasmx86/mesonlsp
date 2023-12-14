@@ -4,7 +4,7 @@
 #include "wrap.hpp"
 #include <format>
 
-Logger LOG("wrap::SvnWrap"); // NOLINT
+static Logger LOG("wrap::SvnWrap"); // NOLINT
 
 void SvnWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {

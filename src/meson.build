@@ -20,5 +20,6 @@ executable(
         tree_sitter_meson_dep,
         ast_dep,
         jsonrpc_dep,
+        wrap_dep,
     ],
 )

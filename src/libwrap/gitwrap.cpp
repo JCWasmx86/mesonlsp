@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-Logger LOG("wrap::GitWrap"); // NOLINT
+static Logger LOG("wrap::GitWrap"); // NOLINT
 
 GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
   if (auto pushUrl = section->find_string_value("push-url")) {
@@ -55,6 +55,10 @@ void GitWrap::setupDirectory(std::filesystem::path path,
   }
   if (this->revision.empty()) {
     LOG.warn("Revision is empty");
+    return;
+  }
+  if (!this->directory.has_value()) {
+    LOG.warn("Directory is empty");
     return;
   }
   auto rev = this->revision;

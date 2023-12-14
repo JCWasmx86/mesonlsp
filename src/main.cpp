@@ -1,4 +1,5 @@
 #include "libast/sourcefile.hpp"
+#include "libwrap/wrap.hpp"
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -22,20 +23,66 @@ void printHelp() {
   std::cerr << "  <paths>\tPath to parse" << std::endl << std::endl;
   std::cerr << "OPTIONS:" << std::endl;
   std::cerr
-      << "--path <path>\tPath to parse 100x times (default: ./meson.build)"
+      << "--path <path>\t\t\tPath to parse 100x times (default: ./meson.build)"
       << std::endl;
-  std::cerr << "--lsp        \tStart language server over stdio" << std::endl;
-  std::cerr << "--version    \tPrint version" << std::endl;
-  std::cerr << "--help       \tPrint this help" << std::endl;
+  std::cerr << "--lsp        \t\t\tStart language server using stdio"
+            << std::endl;
+  std::cerr << "--wrap <wrapFile>\t\tExtract and parse this wrap file"
+            << std::endl;
+  std::cerr << "--wrap-output <dir>\t\tSet the directory into that the given "
+               "wraps should be extracted."
+            << std::endl;
+  std::cerr << "--wrap-package-files <dir>\tSet the location of the package "
+               "files containing auxiliary files"
+            << std::endl;
+  std::cerr << "--version    \t\t\tPrint version" << std::endl;
+  std::cerr << "--help       \t\t\tPrint this help" << std::endl;
 }
 
 void printVersion() { std::cout << VERSION << std::endl; }
 
 void startLanguageServer() {}
 
+int parseWraps(std::vector<std::string> wraps, std::string output,
+               std::string packageFiles) {
+  if (output.empty()) {
+    std::cerr << "No output directory given. Use --wrap-output" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (packageFiles.empty()) {
+    std::cerr << "No package files directory given. Use --wrap-package-files"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  auto outputFs = std::filesystem::path(output);
+  std::filesystem::create_directories(outputFs);
+  auto packageFilesFs = std::filesystem::path(packageFiles);
+  if (!std::filesystem::exists(packageFilesFs)) {
+    std::cerr << output << " does not exist" << std::endl;
+    return EXIT_FAILURE;
+  }
+  auto error = false;
+  for (const auto &wrap : wraps) {
+    auto wrapFs = std::filesystem::path(wrap);
+    if (!std::filesystem::exists(wrapFs)) {
+      std::cerr << wrapFs << " does not exist" << std::endl;
+      error = true;
+      continue;
+    }
+    auto ptr = parse_wrap(wrapFs);
+    if (!ptr || !ptr->serialized_wrap) {
+      continue;
+    }
+    ptr->serialized_wrap->setupDirectory(outputFs, packageFilesFs);
+  }
+  return error ? EXIT_FAILURE : EXIT_SUCCESS;
+}
 int main(int argc, char **argv) {
   std::string path = "./meson.build";
   std::vector<std::string> paths;
+  std::vector<std::string> wraps;
+  std::string wrapOutput;
+  std::string wrapPackageFiles;
   bool lsp = false;
   bool help = false;
   bool version = false;
@@ -66,12 +113,44 @@ int main(int argc, char **argv) {
       i++;
       continue;
     }
+    if (strcmp("--wrap", argv[i]) == 0) {
+      if (i + 1 == argc) {
+        std::cerr << "Error: Missing value for --wrap <wrap-file>" << std::endl;
+        error = true;
+        break;
+      }
+      wraps.emplace_back(std::string(argv[i + 1]));
+      i++;
+      continue;
+    }
+    if (strcmp("--wrap-output", argv[i]) == 0) {
+      if (i + 1 == argc) {
+        std::cerr << "Error: Missing value for --wrap-output <directory>"
+                  << std::endl;
+        error = true;
+        break;
+      }
+      wrapOutput = std::string(argv[i + 1]);
+      i++;
+      continue;
+    }
+    if (strcmp("--wrap-package-files", argv[i]) == 0) {
+      if (i + 1 == argc) {
+        std::cerr << "Error: Missing value for --wrap-package-files <directory>"
+                  << std::endl;
+        error = true;
+        break;
+      }
+      wrapPackageFiles = std::string(argv[i + 1]);
+      i++;
+      continue;
+    }
     if (strncmp(argv[i], "--", 2) == 0) {
       std::cerr << "Unknown option: " << argv[i] << std::endl;
       error = true;
       continue;
     }
-    paths.push_back(std::string(argv[i]));
+    paths.emplace_back(argv[i]);
   }
   if (error || help) {
     printHelp();
@@ -85,7 +164,10 @@ int main(int argc, char **argv) {
     startLanguageServer();
     return EXIT_SUCCESS;
   }
-  if (paths.size() == 0) {
+  if (!wraps.empty()) {
+    return parseWraps(wraps, wrapOutput, wrapPackageFiles);
+  }
+  if (paths.empty()) {
     TSParser *parser = ts_parser_new();
     ts_parser_set_language(parser, tree_sitter_meson());
     auto fpath = std::filesystem::path(path);

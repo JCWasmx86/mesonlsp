@@ -1,22 +1,22 @@
 #include "ini.hpp"
+#include "utils.hpp"
 #include <cstring>
 #include <optional>
 #include <string>
 
 std::optional<std::string>
 ast::ini::Section::find_string_value(std::string key) {
-  for (size_t i = 0; i < this->key_value_pairs.size(); i++) {
-    auto kvp =
-        dynamic_cast<ast::ini::KeyValuePair *>(this->key_value_pairs[i].get());
-    if (!kvp) {
+  for (auto &key_value_pair : this->key_value_pairs) {
+    auto kvp = dynamic_cast<ast::ini::KeyValuePair *>(key_value_pair.get());
+    if (kvp == nullptr) {
       continue;
     }
     auto keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
-    if (!keyN || keyN->value != key) {
+    if ((keyN == nullptr) || keyN->value != key) {
       continue;
     }
     auto value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
-    if (!value) {
+    if (value == nullptr) {
       continue;
     }
     return std::optional<std::string>(value->value);
@@ -38,6 +38,7 @@ ast::ini::StringValue::StringValue(std::shared_ptr<SourceFile> file,
                                    TSNode node)
     : ast::ini::Node(file, node) {
   this->value = file->extract_node_value(node);
+  trim(this->value);
 }
 
 ast::ini::KeyValuePair::KeyValuePair(std::shared_ptr<SourceFile> file,
@@ -68,6 +69,10 @@ ast::ini::make_node(std::shared_ptr<SourceFile> file, TSNode node) {
   if (strcmp(node_type, "section_name") == 0) {
     return std::make_shared<ast::ini::StringValue>(
         file, ts_node_named_child(node, 0));
+  }
+  if (strcmp(node_type, "setting_name") == 0 ||
+      strcmp(node_type, "setting_value") == 0) {
+    return std::make_shared<ast::ini::StringValue>(file, node);
   }
   if (strcmp(node_type, "setting") == 0) {
     return std::make_shared<ast::ini::KeyValuePair>(file, node);

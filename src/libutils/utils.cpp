@@ -16,7 +16,7 @@
 
 #define HTTP_OK 200
 
-Logger LOG("utils"); // NOLINT
+static Logger LOG("utils"); // NOLINT
 
 bool downloadFile(std::string url, std::filesystem::path output) {
   LOG.info(std::format("Downloading URL {} to {}", url, output.c_str()));
@@ -132,8 +132,8 @@ bool extractFile(std::filesystem::path archive_path,
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args) {
   std::vector<const char *> cArgs;
-  LOG.info(
-      std::format("Launching {} with args", executable, vectorToString(args)));
+  LOG.info(std::format("Launching {} with args {}", executable,
+                       vectorToString(args)));
   cArgs.push_back(executable.c_str());
 
   for (const auto &arg : args) {
