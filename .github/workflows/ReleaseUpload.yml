@@ -157,15 +157,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Ubuntu18.04.zip
           path: out
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Ubuntu20.04.zip
           path: out1
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Ubuntu22.04.zip
           path: out2
@@ -198,15 +198,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Debian-Stable.zip
           path: out
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Debian-Testing.zip
           path: out1
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Debian-Unstable.zip
           path: out2
@@ -241,27 +241,27 @@ jobs:
     steps:
       - name: Check out proper version of sources
         uses: actions/checkout@v1
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-debian-stable.deb
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-debian-testing.deb
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-debian-unstable.deb
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-18.04.deb
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-20.04.deb
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-22.04.deb
           path: .
@@ -287,15 +287,15 @@ jobs:
     steps:
       - name: Check out proper version of sources
         uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-win64.zip
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP-macos12.zip
           path: .
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Swift-MesonLSP.zip
           path: .
