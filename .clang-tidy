@@ -8,7 +8,8 @@ Checks: |
     performance-*, 
     readability-*, 
     -performance-avoid-endl,
-    -misc-no-recursion
+    -misc-no-recursion,
+    -modernize-use-trailing-return-type
 WarningsAsErrors: ""
 HeaderFilterRegex: ""
 FormatStyle: none
