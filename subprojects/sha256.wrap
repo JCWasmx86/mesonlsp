@@ -1,0 +1,5 @@
+[wrap-git]
+url = https://github.com/amosnier/sha-2
+revision = 49265c656f9b370da660531db8cc6bf0a2e110a6
+patch_directory = sha256
+directory = sha256
