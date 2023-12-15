@@ -4,6 +4,7 @@
 #include "sourcefile.hpp"
 #include "utils.hpp"
 #include <cstddef>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <memory>
@@ -11,40 +12,41 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>
+#include <vector>
 
 static Logger LOG("wrap::Wrap"); // NOLINT
 
-extern "C" TSLanguage *tree_sitter_ini();
+extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
 
 Wrap::Wrap(ast::ini::Section *section) {
-  if (auto val = section->find_string_value("directory")) {
+  if (auto val = section->findStringValue("directory")) {
     this->directory = val.value();
   } else {
     this->directory = section->file->file.stem();
   }
-  if (auto val = section->find_string_value("patch_url")) {
+  if (auto val = section->findStringValue("patch_url")) {
     this->patchUrl = val.value();
   }
-  if (auto val = section->find_string_value("patch_fallback_url")) {
+  if (auto val = section->findStringValue("patch_fallback_url")) {
     this->patchFallbackUrl = val.value();
   }
-  if (auto val = section->find_string_value("patch_filename")) {
+  if (auto val = section->findStringValue("patch_filename")) {
     this->patchFilename = val.value();
   }
-  if (auto val = section->find_string_value("patch_hash")) {
+  if (auto val = section->findStringValue("patch_hash")) {
     this->patchHash = val;
   }
-  if (auto val = section->find_string_value("patch_directory")) {
+  if (auto val = section->findStringValue("patch_directory")) {
     this->patchDirectory = val;
   }
-  if (auto val = section->find_string_value("diff_files")) {
+  if (auto val = section->findStringValue("diff_files")) {
     std::string segment;
     std::stringstream strm(val.value());
     while (std::getline(strm, segment, ',')) {
       this->diffFiles.push_back(segment);
     }
   }
-  if (auto val = section->find_string_value("method")) {
+  if (auto val = section->findStringValue("method")) {
     this->method = val;
   }
 }
@@ -98,50 +100,48 @@ void Wrap::postSetup(std::filesystem::path path,
   this->applyDiffFiles(path, packageFilesPath);
 }
 
-std::shared_ptr<WrapFile> parse_wrap(std::filesystem::path path) {
+std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
   std::ifstream file(path);
-  auto file_size = std::filesystem::file_size(path);
-  std::string file_content;
-  file_content.resize(file_size, '\0');
-  file.read(file_content.data(), file_size);
+  auto fileSize = std::filesystem::file_size(path);
+  std::string fileContent;
+  fileContent.resize(fileSize, '\0');
+  file.read(fileContent.data(), fileSize);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_ini());
-  TSTree *tree = ts_parser_parse_string(parser, NULL, file_content.data(),
-                                        file_content.length());
-  TSNode root_node = ts_tree_root_node(tree);
-  auto source_file = std::make_shared<SourceFile>(path);
-  auto root = ast::ini::make_node(source_file, root_node);
+  TSTree *tree = ts_parser_parse_string(parser, NULL, fileContent.data(),
+                                        fileContent.length());
+  TSNode rootNode = ts_tree_root_node(tree);
+  auto sourceFile = std::make_shared<SourceFile>(path);
+  auto root = ast::ini::makeNode(sourceFile, rootNode);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
-  auto ini_file = dynamic_cast<ast::ini::IniFile *>(root.get());
-  if (!ini_file || !ini_file->sections.size()) {
+  auto iniFile = dynamic_cast<ast::ini::IniFile *>(root.get());
+  if ((iniFile == nullptr) || iniFile->sections.empty()) {
     return std::make_shared<WrapFile>(nullptr, nullptr);
   }
-  if (ini_file->sections.size() >
-      2) { // wrap-* section + maybe provides section
+  if (iniFile->sections.size() > 2) { // wrap-* section + maybe provides section
     return std::make_shared<WrapFile>(nullptr, root);
   }
   // Search for the right section
-  auto section = dynamic_cast<ast::ini::Section *>(ini_file->sections[0].get());
-  if (!section) {
+  auto section = dynamic_cast<ast::ini::Section *>(iniFile->sections[0].get());
+  if (section == nullptr) {
     return std::make_shared<WrapFile>(nullptr, root);
   }
-  auto section_name =
-      dynamic_cast<ast::ini::StringValue *>(section->name.get());
-  if (!section_name) {
+  auto sectionName = dynamic_cast<ast::ini::StringValue *>(section->name.get());
+  if (sectionName == nullptr) {
     return std::make_shared<WrapFile>(nullptr, root);
   }
-  auto wrap_type = section_name->value;
-  if (wrap_type == "wrap-git") {
+  auto wrapType = sectionName->value;
+  if (wrapType == "wrap-git") {
     return std::make_shared<WrapFile>(std::make_shared<GitWrap>(section), root);
   }
-  if (wrap_type == "wrap-svn") {
+  if (wrapType == "wrap-svn") {
     return std::make_shared<WrapFile>(std::make_shared<SvnWrap>(section), root);
   }
-  if (wrap_type == "wrap-hg") {
+  if (wrapType == "wrap-hg") {
     return std::make_shared<WrapFile>(std::make_shared<HgWrap>(section), root);
   }
-  if (wrap_type == "wrap-file") {
+  if (wrapType == "wrap-file") {
     return std::make_shared<WrapFile>(std::make_shared<FileWrap>(section),
                                       root);
   }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fstream>
 #include <future>
 #include <iostream>
 #include <istream>
@@ -9,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <ostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace jsonrpc {

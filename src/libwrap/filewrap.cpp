@@ -2,25 +2,27 @@
 #include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
+#include <cstddef>
 #include <filesystem>
 #include <format>
+#include <string>
 
 static Logger LOG("wrap::FileWrap"); // NOLINT
 
 FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
-  if (auto val = section->find_string_value("source_url")) {
+  if (auto val = section->findStringValue("source_url")) {
     this->sourceUrl = val.value();
   }
-  if (auto val = section->find_string_value("source_fallback_url")) {
+  if (auto val = section->findStringValue("source_fallback_url")) {
     this->sourceFallbackUrl = val.value();
   }
-  if (auto val = section->find_string_value("source_filename")) {
+  if (auto val = section->findStringValue("source_filename")) {
     this->sourceFilename = val.value();
   }
-  if (auto val = section->find_string_value("source_hash")) {
+  if (auto val = section->findStringValue("source_hash")) {
     this->sourceHash = val.value();
   }
-  if (auto val = section->find_string_value("lead_directory_missing")) {
+  if (auto val = section->findStringValue("lead_directory_missing")) {
     this->leadDirectoryMissing = val == "true";
   }
 }

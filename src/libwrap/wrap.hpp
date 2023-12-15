@@ -19,7 +19,10 @@ public:
   std::optional<std::string> method;
 
   virtual void setupDirectory(std::filesystem::path path,
-                              std::filesystem::path packageFilesPath) {}
+                              std::filesystem::path packageFilesPath) {
+    (void)path;
+    (void)packageFilesPath;
+  }
   virtual ~Wrap() {}
 
 protected:
@@ -84,12 +87,12 @@ public:
 
 class WrapFile {
 public:
-  std::shared_ptr<Wrap> serialized_wrap;
+  std::shared_ptr<Wrap> serializedWrap;
   std::shared_ptr<ast::ini::Node> ast;
 
-  WrapFile(std::shared_ptr<Wrap> serialized_wrap,
+  WrapFile(std::shared_ptr<Wrap> serializedWrap,
            std::shared_ptr<ast::ini::Node> ast)
-      : serialized_wrap(serialized_wrap), ast(ast) {}
+      : serializedWrap(serializedWrap), ast(ast) {}
 };
 
-std::shared_ptr<WrapFile> parse_wrap(std::filesystem::path path);
+std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path);

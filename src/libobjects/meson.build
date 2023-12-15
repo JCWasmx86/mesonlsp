@@ -1,7 +1,6 @@
 objects_inc = include_directories('.')
 objects_lib = static_library(
     'objects',
-    'argument.cpp',
     'function.cpp',
     include_directories: objects_inc,
 )

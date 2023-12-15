@@ -1,8 +1,11 @@
-#include "ini.hpp"
 #include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
+#include <cctype>
+#include <filesystem>
 #include <format>
+#include <string>
+#include <vector>
 
 static Logger LOG("wrap::HgWrap"); // NOLINT
 
@@ -27,10 +30,10 @@ void HgWrap::setupDirectory(std::filesystem::path path,
   auto result =
       launchProcess("hg", std::vector<std::string>{"clone", url, fullPath});
   if (result) {
-    auto is_tip = rev.size() == 3 &&
-                  (std::tolower(rev[0]) == 't' && std::tolower(rev[1]) == 'i' &&
-                   std::tolower(rev[2]) == 'p');
-    if (is_tip) {
+    auto isTip = rev.size() == 3 &&
+                 (std::tolower(rev[0]) == 't' && std::tolower(rev[1]) == 'i' &&
+                  std::tolower(rev[2]) == 'p');
+    if (isTip) {
       result = launchProcess(
           "hg", std::vector<std::string>{"--cwd", fullPath, "checkout", rev});
     }
