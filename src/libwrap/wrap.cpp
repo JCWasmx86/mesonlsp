@@ -72,9 +72,13 @@ void Wrap::applyPatch(std::filesystem::path path,
   if (!patchHash.has_value() || patchHash->empty()) {
     return;
   }
-  auto archiveFileName = std::filesystem::path{randomFile()};
-  downloadFile(patchUrl.value(), archiveFileName);
-  extractFile(archiveFileName, path.parent_path());
+  auto archiveFileName = downloadWithFallback(
+      patchUrl.value(), patchHash.value(), this->patchFallbackUrl);
+  if (!archiveFileName.has_value()) {
+    LOG.warn("Unable to continue with setting up this wrap...");
+    return;
+  }
+  extractFile(archiveFileName.value(), path.parent_path());
 }
 
 void Wrap::applyDiffFiles(std::filesystem::path path,

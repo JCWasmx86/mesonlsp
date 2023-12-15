@@ -2,6 +2,7 @@
 #include "log.hpp"
 #include <archive.h>
 #include <archive_entry.h>
+#include <cctype>
 #include <cerrno>
 #include <cstddef>
 #include <cstdio>
@@ -13,7 +14,9 @@
 #include <filesystem>
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ostream>
+#include <pwd.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -213,4 +216,80 @@ void mergeDirectories(std::filesystem::path sourcePath,
   } catch (const std::exception &ex) {
     std::cerr << "Error: " << ex.what() << std::endl;
   }
+}
+
+static std::filesystem::path cacheDir() {
+  auto suffix = "c++-mesonlsp";
+  auto xdgCacheHome = getenv("XDG_CACHE_HOME"); // NOLINT
+  if (xdgCacheHome != nullptr && strcmp(xdgCacheHome, "") != 0) {
+    auto full = std::filesystem::path{xdgCacheHome} / suffix;
+    std::filesystem::create_directories(full);
+    return full;
+  }
+  auto home = getenv("HOME"); // NOLINT
+  if (home == nullptr || strcmp(home, "") == 0) {
+    home = getpwuid(getuid())->pw_dir; // NOLINT
+  }
+  auto full = std::filesystem::path{home} / ".cache" / suffix;
+  std::filesystem::create_directories(full);
+  return full;
+}
+
+std::optional<std::filesystem::path> cachedDownload(std::string url) {
+  auto downloadsPath = cacheDir() / "downloadCache";
+  if (!std::filesystem::exists(downloadsPath)) {
+    std::filesystem::create_directories(downloadsPath);
+  }
+  auto key = hash(url) + ".cached";
+  auto cachedFile = downloadsPath / key;
+  if (std::filesystem::exists(cachedFile)) {
+    return cachedFile;
+  }
+  if (downloadFile(url, cachedFile)) {
+    return cachedFile;
+  }
+  return std::nullopt;
+}
+
+bool validateHash(std::filesystem::path path, std::string expected) {
+  auto real = hash(path);
+  if (real.size() != expected.size()) {
+    LOG.warn(std::format("Expected hash '{}' does not match real hash '{}'",
+                         expected, real));
+    return false;
+  }
+  for (size_t i = 0; i < real.size(); i++) {
+    if (std::tolower(real[i]) != std::tolower(expected[i])) {
+      LOG.warn(std::format("Expected hash '{}' does not match real hash '{}'",
+                           expected, real));
+      return false;
+    }
+  }
+  LOG.info(std::format("{} matches the expected hash", path.c_str()));
+  return true;
+}
+
+std::optional<std::filesystem::path>
+downloadWithFallback(std::string url, std::string hash,
+                     std::optional<std::string> fallbackUrl) {
+  auto mainUrlDownload = cachedDownload(url);
+  if (mainUrlDownload.has_value()) {
+    if (validateHash(mainUrlDownload.value(), hash)) {
+      return mainUrlDownload;
+    }
+  }
+  if (!fallbackUrl.has_value()) {
+    LOG.warn(std::format("No fallback URL for {} listed", url));
+    return std::nullopt;
+  }
+  LOG.info(std::format("Attempting fallback URL {} for {}", fallbackUrl.value(),
+                       url));
+  auto fallbackUrlDownload = cachedDownload(fallbackUrl.value());
+  if (fallbackUrlDownload.has_value()) {
+    if (validateHash(fallbackUrlDownload.value(), hash)) {
+      return fallbackUrlDownload;
+    }
+  }
+  LOG.warn("Unable to find any matching URL!");
+  return std::nullopt;
 }

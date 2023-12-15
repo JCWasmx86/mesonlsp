@@ -2,7 +2,6 @@
 #include "log.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
-#include <cstddef>
 #include <filesystem>
 #include <format>
 #include <string>
@@ -60,12 +59,15 @@ void FileWrap::setupDirectory(std::filesystem::path path,
     targetDirectory = result.value();
   }
   auto fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
-  // TODO: Caching
-  auto archiveFileName = std::filesystem::path{randomFile()};
-  downloadFile(url, archiveFileName);
+  auto archiveFileName = downloadWithFallback(url, this->sourceHash.value(),
+                                              this->sourceFallbackUrl);
+  if (!archiveFileName.has_value()) {
+    LOG.warn("Unable to continue with setting up this wrap...");
+    return;
+  }
   auto workdir =
       this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
   std::filesystem::create_directories(workdir);
-  extractFile(archiveFileName, workdir);
+  extractFile(archiveFileName.value(), workdir);
   this->postSetup(fullPath, packageFilesPath);
 }
