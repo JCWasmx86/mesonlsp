@@ -65,3 +65,8 @@ Depends on: libwrap, libanalyze
 - Each project will have nested projects for its subprojects
 - Each project will have a wrapfile state that will be used for doing LSP stuff with wrap files and knowing when to update the wraps.
 - If no project is passed, the root project will be one project (With subprojects)
+### Ownership
+- Each project will claim the ownership over its meson files.
+- This will either work directly (`subdir` calls) or indirectly (Using subprojects)
+- If there's a LSP request/notification that is not owned by any project, just stub information gatherers are executed. This may be the case for e.g. files of
+  newly created subdirectories that weren't included by the parent directory yet.
