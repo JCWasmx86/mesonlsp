@@ -17,7 +17,7 @@ jobs:
           aur-install swift-bin
           pacman -S zip git --noconfirm
           ./scripts/ci_create_zip.sh ArchLinux
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ArchLinux.zip
           path: /ArchLinux.zip
@@ -35,7 +35,7 @@ jobs:
           sudo dnf install zip swift-lang git libstdc++-static -y
           sudo dnf clean all
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Fedora${{ matrix.version }}.zip
           path: /Fedora${{ matrix.version }}.zip
@@ -62,7 +62,7 @@ jobs:
           swift build -c release --arch x86_64 --arch arm64
           mkdir -p ${{ github.workspace }}/Artifacts
           sudo cp .build/apple/Products/Release/Swift-MesonLSP ${{ github.workspace }}/Artifacts/Swift-MesonLSP
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: MacOS${{ matrix.version }}.zip
           path: ${{ github.workspace }}/Artifacts
@@ -89,7 +89,7 @@ jobs:
           popd
           swift --version
           ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Ubuntu${{ matrix.version }}.zip
           path: /Ubuntu${{ matrix.version }}.zip
@@ -126,7 +126,7 @@ jobs:
           cp .build/release/Swift-MesonLSP .
           zip -9 Debian-${{ matrix.cfg.name }}.zip Swift-MesonLSP
           sudo cp Debian-${{ matrix.cfg.name }}.zip /
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Debian-${{ matrix.cfg.name }}.zip
           path: /Debian-${{ matrix.cfg.name }}.zip
@@ -188,15 +188,15 @@ jobs:
           unzip Ubuntu22.04.zip
           cd ..
           sudo ./.debian/build_debs_ubuntu.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-18.04.deb
           path: /Swift-MesonLSP-ubuntu-18.04.deb
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-20.04.deb
           path: /Swift-MesonLSP-ubuntu-20.04.deb
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-ubuntu-22.04.deb
           path: /Swift-MesonLSP-ubuntu-22.04.deb
@@ -229,15 +229,15 @@ jobs:
           unzip Debian-Unstable.zip
           cd ..
           sudo ./.debian/build_debs_debian.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-debian-stable.deb
           path: /Swift-MesonLSP-debian-stable.deb
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-debian-testing.deb
           path: /Swift-MesonLSP-debian-testing.deb
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Swift-MesonLSP-debian-unstable.deb
           path: /Swift-MesonLSP-debian-unstable.deb
