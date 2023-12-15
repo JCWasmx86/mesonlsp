@@ -81,7 +81,7 @@ void Wrap::applyDiffFiles(std::filesystem::path path,
                           std::filesystem::path packageFilesPath) {
   for (const auto &diff : this->diffFiles) {
     LOG.info(std::format("Applying diff: {}", diff));
-    auto absoluteDiffPath = packageFilesPath / diff;
+    auto absoluteDiffPath = std::filesystem::absolute(packageFilesPath / diff);
     auto result = launchProcess(
         "git",
         std::vector<std::string>{"-C", path, "--work-tree", ".", "apply", "-p1",

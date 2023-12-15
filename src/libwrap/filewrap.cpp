@@ -49,9 +49,14 @@ void FileWrap::setupDirectory(std::filesystem::path path,
   if (directory.has_value() && directory.value().empty()) {
     targetDirectory = directory.value();
   } else {
-    size_t lastDotPos = sfn->find_last_of('.');
+    auto lastDotPos = sfn->find_last_of('.');
     auto result =
         (lastDotPos != std::string::npos) ? sfn->substr(0, lastDotPos) : sfn;
+    if (result->ends_with(".tar")) {
+      lastDotPos = result->find_last_of('.');
+      result = (lastDotPos != std::string::npos) ? result->substr(0, lastDotPos)
+                                                 : result;
+    }
     targetDirectory = result.value();
   }
   auto fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
