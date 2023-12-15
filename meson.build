@@ -32,7 +32,8 @@ tree_sitter_ini_proj = subproject(
     default_options: ['default_library=static'],
 )
 tree_sitter_ini_dep = tree_sitter_ini_proj.get_variable('tree_sitter_ini_dep')
-
+sha256_proj = subproject('sha256', default_options: ['default_library=static'])
+sha256_dep = sha256_proj.get_variable('sha256_dep')
 
 nlohmann_json_dep = dependency('nlohmann_json')
 curl_dep = dependency('libcurl')
