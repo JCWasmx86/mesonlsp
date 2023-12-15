@@ -255,7 +255,7 @@ public:
   void visit(std::shared_ptr<CodeVisitor> visitor);
 };
 
-std::shared_ptr<Node> make_node(std::shared_ptr<SourceFile> file, TSNode node);
+std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);
 
 class CodeVisitor {
 public:

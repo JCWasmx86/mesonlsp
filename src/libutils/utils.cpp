@@ -2,17 +2,24 @@
 #include "log.hpp"
 #include <archive.h>
 #include <archive_entry.h>
+#include <cerrno>
+#include <cstddef>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <exception>
+#include <filesystem>
 #include <format>
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+#include <vector>
 
 #define HTTP_OK 200
 
@@ -31,20 +38,20 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
   auto res = curl_easy_perform(curl);
-  long http_code = 0;
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+  long httpCode = 0;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
   LOG.info(std::format("curl_easy_perform: {} {}", curl_easy_strerror(res),
-                       http_code));
-  auto successful = res != CURLE_ABORTED_BY_CALLBACK && http_code == HTTP_OK;
+                       httpCode));
+  auto successful = res != CURLE_ABORTED_BY_CALLBACK && httpCode == HTTP_OK;
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
-    (void)remove(output.c_str());
+    (void)std::remove(output.c_str());
   }
   return successful;
 }
 
-static int copy_data(struct archive *ar, struct archive *aw) {
+static int copyData(struct archive *ar, struct archive *aw) {
   const void *buff;
   size_t size;
   la_int64_t offset;
@@ -65,10 +72,10 @@ static int copy_data(struct archive *ar, struct archive *aw) {
   }
 }
 
-bool extractFile(std::filesystem::path archive_path,
-                 std::filesystem::path output_directory) {
-  LOG.info(std::format("Extracting {} to {}", archive_path.c_str(),
-                       output_directory.c_str()));
+bool extractFile(std::filesystem::path archivePath,
+                 std::filesystem::path outputDirectory) {
+  LOG.info(std::format("Extracting {} to {}", archivePath.c_str(),
+                       outputDirectory.c_str()));
   auto archive = archive_read_new();
   archive_read_support_format_all(archive);
   archive_read_support_filter_all(archive);
@@ -78,7 +85,7 @@ bool extractFile(std::filesystem::path archive_path,
                ARCHIVE_EXTRACT_FFLAGS);
   archive_write_disk_set_standard_lookup(ext);
 
-  const char *filename = archive_path.c_str();
+  const char *filename = archivePath.c_str();
 
   if (auto r = archive_read_open_filename(archive, filename, 10240)) {
     LOG.error(std::format("Unable to open archive: {}",
@@ -97,9 +104,9 @@ bool extractFile(std::filesystem::path archive_path,
                             archive_error_string(archive)));
       return false;
     }
-    auto entry_path =
-        output_directory / std::filesystem::path(archive_entry_pathname(entry));
-    archive_entry_set_pathname(entry, entry_path.string().c_str());
+    auto entryPath =
+        outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
+    archive_entry_set_pathname(entry, entryPath.string().c_str());
 
     if (auto res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
       LOG.error(
@@ -107,8 +114,8 @@ bool extractFile(std::filesystem::path archive_path,
       return false;
     }
     if (archive_entry_size(entry) > 0) {
-      auto copy_result = copy_data(archive, ext);
-      if (copy_result != ARCHIVE_OK && copy_result != ARCHIVE_EOF) {
+      auto copyResult = copyData(archive, ext);
+      if (copyResult != ARCHIVE_OK && copyResult != ARCHIVE_EOF) {
         LOG.error(std::format("Failed writing result: {}",
                               archive_error_string(ext)));
         return false;
@@ -157,12 +164,12 @@ bool launchProcess(const std::string &executable,
   // Parent process
   int status;
   waitpid(pid, &status, 0);
-  if (WIFEXITED(status)) {
-    if (WEXITSTATUS(status) == 0) {
+  if (WIFEXITED(status)) {          // NOLINT
+    if (WEXITSTATUS(status) == 0) { // NOLINT
       return true;
     }
     LOG.warn(std::format("Child process exited with status: {}",
-                         WEXITSTATUS(status)));
+                         WEXITSTATUS(status))); // NOLINT
     return false;
   }
   LOG.info("Child process terminated abnormally");
@@ -171,7 +178,7 @@ bool launchProcess(const std::string &executable,
 
 std::string errno2string() {
   char buf[256] = {0};
-  strerror_r(errno, buf, sizeof(buf) - 1);
+  strerror_r(errno, buf, sizeof(buf) - 1); // NOLINT
   return std::string(buf);
 }
 

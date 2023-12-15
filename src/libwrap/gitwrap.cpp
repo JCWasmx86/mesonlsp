@@ -4,18 +4,20 @@
 #include "wrap.hpp"
 #include <cctype>
 #include <charconv>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 static Logger LOG("wrap::GitWrap"); // NOLINT
 
 GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
-  if (auto pushUrl = section->find_string_value("push-url")) {
+  if (auto pushUrl = section->findStringValue("push-url")) {
     this->pushUrl = pushUrl;
   }
-  if (auto depthString = section->find_string_value("depth")) {
+  if (auto depthString = section->findStringValue("depth")) {
     int number;
     auto res = std::from_chars(
         depthString->data(), depthString->data() + depthString->size(), number);
@@ -23,7 +25,7 @@ GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
       this->depth = number;
     }
   }
-  if (auto val = section->find_string_value("clone-recursive")) {
+  if (auto val = section->findStringValue("clone-recursive")) {
     this->cloneRecursive = val == "true";
   }
 }

@@ -2,10 +2,10 @@
 #include "wrap.hpp"
 
 VcsWrap::VcsWrap(ast::ini::Section *section) : Wrap(section) {
-  if (auto url = section->find_string_value("url")) {
+  if (auto url = section->findStringValue("url")) {
     this->url = url.value();
   }
-  if (auto revision = section->find_string_value("revision")) {
+  if (auto revision = section->findStringValue("revision")) {
     this->revision = revision.value();
   }
 }

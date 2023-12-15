@@ -1,11 +1,9 @@
 #include "log.hpp"
 #include "utils.hpp"
 #include <cassert>
-#include <cstdio>
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iostream>
 
 void testMergingDirectories(Logger logger) {
   auto workDir = std::filesystem::path{randomFile()};
@@ -24,25 +22,25 @@ void testMergingDirectories(Logger logger) {
   assert('a' == std::ifstream(outputDir / "i1/a.txt").get());
 }
 int main(int argc, char **argv) {
-  auto zip_file_name = std::filesystem::path{randomFile()};
+  auto zipFileName = std::filesystem::path{randomFile()};
   auto logger = Logger("utilstest");
-  logger.info(std::format("Output file is {}", zip_file_name.c_str()));
+  logger.info(std::format("Output file is {}", zipFileName.c_str()));
   auto result = downloadFile(
       "https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/heads/main.zip",
-      zip_file_name);
+      zipFileName);
   assert(result);
-  auto directory_name = std::filesystem::path{randomFile()};
-  logger.info(std::format("Output directory is {}", directory_name.c_str()));
-  std::filesystem::create_directory(directory_name);
-  result = extractFile(zip_file_name, directory_name);
+  auto directoryName = std::filesystem::path{randomFile()};
+  logger.info(std::format("Output directory is {}", directoryName.c_str()));
+  std::filesystem::create_directory(directoryName);
+  result = extractFile(zipFileName, directoryName);
   assert(result);
-  auto must_exist =
-      directory_name / "Swift-MesonLSP-main/Benchmarks/extract_git_data.sh";
-  assert(std::filesystem::exists(must_exist));
-  auto must_fail_file_name = std::filesystem::path{randomFile()};
+  auto mustExist =
+      directoryName / "Swift-MesonLSP-main/Benchmarks/extract_git_data.sh";
+  assert(std::filesystem::exists(mustExist));
+  auto mustFailFilename = std::filesystem::path{randomFile()};
   result =
-      downloadFile("lnfvwoefvnwefvwvipwnefv2efvpov2nvov", must_fail_file_name);
+      downloadFile("lnfvwoefvnwefvwvipwnefv2efvpov2nvov", mustFailFilename);
   assert(!result);
-  assert(!std::filesystem::exists(must_fail_file_name));
+  assert(!std::filesystem::exists(mustFailFilename));
   testMergingDirectories(logger);
 }

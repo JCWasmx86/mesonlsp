@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -28,7 +29,7 @@
 class Type {
 public:
   const std::string name;
-  virtual const std::string to_string() { return this->name; }
+  virtual std::string toString() { return this->name; }
   virtual ~Type() = default;
 
 protected:
@@ -54,7 +55,7 @@ public:
   Dict(std::vector<std::shared_ptr<Type>> types) : Type("dict"), types(types) {
     std::vector<std::string> names;
     for (const auto &element : types) {
-      names.push_back(element->to_string());
+      names.push_back(element->toString());
     }
 
     std::sort(names.begin(), names.end());
@@ -68,7 +69,7 @@ public:
     this->cache = "dict(" + cache + ")";
   }
 
-  const std::string to_string() override { return this->cache; }
+  std::string toString() override { return this->cache; }
 
 private:
   std::string cache;
@@ -81,7 +82,7 @@ public:
   List(std::vector<std::shared_ptr<Type>> types) : Type("list"), types(types) {
     std::vector<std::string> names;
     for (const auto &element : types) {
-      names.push_back(element->to_string());
+      names.push_back(element->toString());
     }
 
     std::sort(names.begin(), names.end());
@@ -95,7 +96,7 @@ public:
     this->cache = "list(" + cache + ")";
   }
 
-  const std::string to_string() override { return this->cache; }
+  std::string toString() override { return this->cache; }
 
 private:
   std::string cache;
@@ -118,7 +119,7 @@ public:
     this->cache = "subproject(" + cache + ")";
   }
 
-  const std::string to_string() override { return this->cache; }
+  std::string toString() override { return this->cache; }
 
 private:
   std::string cache;

@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <jsonrpc.hpp>
 #include <memory>
 #include <node.hpp>
 #include <sourcefile.hpp>
@@ -14,7 +13,7 @@
 #include <tree_sitter/api.h>
 #include <vector>
 
-extern "C" TSLanguage *tree_sitter_meson();
+extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
@@ -69,11 +68,11 @@ int parseWraps(std::vector<std::string> wraps, std::string output,
       error = true;
       continue;
     }
-    auto ptr = parse_wrap(wrapFs);
-    if (!ptr || !ptr->serialized_wrap) {
+    auto ptr = parseWrap(wrapFs);
+    if (!ptr || !ptr->serializedWrap) {
       continue;
     }
-    ptr->serialized_wrap->setupDirectory(outputFs, packageFilesFs);
+    ptr->serializedWrap->setupDirectory(outputFs, packageFilesFs);
   }
   return error ? EXIT_FAILURE : EXIT_SUCCESS;
 }
@@ -180,15 +179,15 @@ int main(int argc, char **argv) {
       return EXIT_SUCCESS;
     }
     std::ifstream file(path);
-    auto file_size = std::filesystem::file_size(fpath);
-    std::string file_content;
-    file_content.resize(file_size, '\0');
-    file.read(file_content.data(), file_size);
-    TSTree *tree = ts_parser_parse_string(parser, NULL, file_content.data(),
-                                          file_content.length());
-    TSNode root_node = ts_tree_root_node(tree);
-    auto source_file = std::make_shared<SourceFile>(fpath);
-    auto root = make_node(source_file, root_node);
+    auto fileSize = std::filesystem::file_size(fpath);
+    std::string fileContent;
+    fileContent.resize(fileSize, '\0');
+    file.read(fileContent.data(), fileSize);
+    TSTree *tree = ts_parser_parse_string(parser, NULL, fileContent.data(),
+                                          fileContent.length());
+    TSNode rootNode = ts_tree_root_node(tree);
+    auto sourceFile = std::make_shared<SourceFile>(fpath);
+    auto root = makeNode(sourceFile, rootNode);
 
     ts_tree_delete(tree);
     ts_parser_delete(parser);

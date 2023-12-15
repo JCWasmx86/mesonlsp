@@ -1,5 +1,6 @@
 #include <cstring>
 #include <format>
+#include <iostream>
 #include <jsonrpc.hpp>
 #include <log.hpp>
 #include <memory>
@@ -32,8 +33,8 @@ public:
   ~TestJsonRpcHandler() = default;
 };
 
-static std::string make_json_rpc_call(int id, std::string method,
-                                      nlohmann::json params) {
+static std::string makeJsonrpcCall(int id, std::string method,
+                                   nlohmann::json params) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["method"] = method;
@@ -44,8 +45,8 @@ static std::string make_json_rpc_call(int id, std::string method,
   return std::format("Content-Length:{}\r\n\r\n{}", len, payload);
 }
 
-static std::string make_json_rpc_notification(std::string method,
-                                              nlohmann::json params) {
+static std::string makeJsonRpcNotification(std::string method,
+                                           nlohmann::json params) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["method"] = method;
@@ -55,20 +56,20 @@ static std::string make_json_rpc_notification(std::string method,
   return std::format("Content-Length:{}\r\n\r\n{}", len, payload);
 }
 
-static std::string make_input_msg() {
+static std::string makeInputMessage() {
   std::string ret;
-  ret += make_json_rpc_call(1, "add", R"({"a": 3, "b": 2})"_json);
-  ret += make_json_rpc_notification("notif", R"({"msg": "Foo"})"_json);
+  ret += makeJsonrpcCall(1, "add", R"({"a": 3, "b": 2})"_json);
+  ret += makeJsonRpcNotification("notif", R"({"msg": "Foo"})"_json);
   return ret;
 }
 
 int main(int argc, char **argv) {
   auto handler = std::make_shared<TestJsonRpcHandler>();
-  std::istringstream new_sin(make_input_msg());
-  std::ostringstream new_sout;
-  auto server = std::make_shared<jsonrpc::JsonRpcServer>(new_sin, new_sout);
+  std::istringstream newSin(makeInputMessage());
+  std::ostringstream newSout;
+  auto server = std::make_shared<jsonrpc::JsonRpcServer>(newSin, newSout);
   handler->server = server;
   server->loop(handler);
   server->wait();
-  std::cout << new_sout.str() << std::endl;
+  std::cout << newSout.str() << std::endl;
 }

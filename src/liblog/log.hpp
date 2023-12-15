@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <format>
 #include <source_location>
 #include <string>
 
@@ -10,13 +10,26 @@ private:
 
 public:
   Logger(std::string module);
-  void
-  info(std::string msg,
-       const std::source_location location = std::source_location::current());
-  void
-  error(std::string msg,
-        const std::source_location location = std::source_location::current());
-  void
-  warn(std::string msg,
-       const std::source_location location = std::source_location::current());
+
+  template <typename... Args>
+  void info(const std::string &str, const Args &...args,
+            std::source_location location = std::source_location::current()) {
+    info(std::format(str, args...), location);
+  }
+  template <typename... Args>
+  void error(const std::string &str, const Args &...args,
+             std::source_location location = std::source_location::current()) {
+    error(std::format(str, args...), location);
+  }
+  template <typename... Args>
+  void warn(const std::string &str, const Args &...args,
+            std::source_location location = std::source_location::current()) {
+    warn(std::format(str, args...), location);
+  }
+  void info(std::string msg,
+            std::source_location location = std::source_location::current());
+  void error(std::string msg,
+             std::source_location location = std::source_location::current());
+  void warn(std::string msg,
+            std::source_location location = std::source_location::current());
 };

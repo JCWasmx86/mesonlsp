@@ -2,13 +2,15 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <filesystem>
+#include <sstream>
 #include <string>
 #include <vector>
 
 bool downloadFile(std::string url, std::filesystem::path output);
-bool extractFile(std::filesystem::path archive_path,
-                 std::filesystem::path output_directory);
+bool extractFile(std::filesystem::path archivePath,
+                 std::filesystem::path outputDirectory);
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args);
 std::string errno2string();

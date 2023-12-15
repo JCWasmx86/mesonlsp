@@ -1,13 +1,13 @@
 #include "jsonrpc.hpp"
-#include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <format>
 #include <future>
-#include <iterator>
+#include <memory>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <utility>
 
 void jsonrpc::JsonRpcServer::evaluateData(
     std::shared_ptr<jsonrpc::JsonRpcHandler> handler, nlohmann::json data) {
@@ -57,8 +57,8 @@ void jsonrpc::JsonRpcServer::sendToClient(nlohmann::json data) {
   std::lock_guard<std::mutex> guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
-  auto full_message = std::format("Content-Length:{}\r\n\r\n{}", len, payload);
-  this->output.write(full_message.data(), full_message.size());
+  auto fullMessage = std::format("Content-Length:{}\r\n\r\n{}", len, payload);
+  this->output.write(fullMessage.data(), fullMessage.size());
 }
 
 void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,

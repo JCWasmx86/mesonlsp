@@ -1,5 +1,8 @@
 #include "typenamespace.hpp"
 #include "type.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 TypeNamespace::TypeNamespace()
     : strType(std::make_shared<Str>()), intType(std::make_shared<IntType>()),

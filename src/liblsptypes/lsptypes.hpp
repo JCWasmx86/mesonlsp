@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
-#include <vector>
+#include <vector> // NOLINT
 
 class BaseObject {
 public:

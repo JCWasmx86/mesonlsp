@@ -1,5 +1,7 @@
 #include "sourcefile.hpp"
+#include <filesystem>
 #include <fstream>
+#include <string>
 
 std::string SourceFile::contents() {
   if (this->cached) {
@@ -7,11 +9,11 @@ std::string SourceFile::contents() {
   }
   auto path = std::filesystem::path(this->file);
   std::ifstream file(path);
-  auto file_size = std::filesystem::file_size(path);
-  std::string file_content;
-  file_content.resize(file_size, '\0');
-  file.read(file_content.data(), file_size);
+  auto fileSize = std::filesystem::file_size(path);
+  std::string fileContent;
+  fileContent.resize(fileSize, '\0');
+  file.read(fileContent.data(), fileSize);
   this->cached = true;
-  this->cached_contents = file_content;
-  return file_content;
+  this->cached_contents = fileContent;
+  return fileContent;
 }

@@ -2,7 +2,6 @@ ast_inc = include_directories('.')
 ast_lib = static_library(
     'ast',
     'ini.cpp',
-    'location.cpp',
     'node.cpp',
     'sourcefile.cpp',
     include_directories: ast_inc,
