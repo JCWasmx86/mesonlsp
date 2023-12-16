@@ -5,6 +5,7 @@
 #include <cstring>
 #include <format>
 #include <memory>
+#include <optional>
 #include <tree_sitter/api.h>
 #include <vector>
 
@@ -18,7 +19,7 @@ ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
   }
 }
 
-void ArgumentList::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void ArgumentList::visitChildren(CodeVisitor *visitor) {
   for (auto n : this->args) {
     n->visit(visitor);
   }
@@ -31,7 +32,7 @@ ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
   }
 }
 
-void ArrayLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void ArrayLiteral::visitChildren(CodeVisitor *visitor) {
   for (auto n : this->args) {
     n->visit(visitor);
   }
@@ -47,7 +48,7 @@ BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
   }
 }
 
-void BuildDefinition::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void BuildDefinition::visitChildren(CodeVisitor *visitor) {
   for (auto n : this->stmts) {
     n->visit(visitor);
   }
@@ -61,7 +62,7 @@ DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
   }
 }
 
-void DictionaryLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void DictionaryLiteral::visitChildren(CodeVisitor *visitor) {
   for (auto n : this->values) {
     n->visit(visitor);
   }
@@ -75,8 +76,7 @@ ConditionalExpression::ConditionalExpression(std::shared_ptr<SourceFile> file,
   this->ifFalse = makeNode(file, ts_node_named_child(node, 2));
 }
 
-void ConditionalExpression::visitChildren(
-    std::shared_ptr<CodeVisitor> visitor) {
+void ConditionalExpression::visitChildren(CodeVisitor *visitor) {
   this->condition->visit(visitor);
   this->ifTrue->visit(visitor);
   this->ifFalse->visit(visitor);
@@ -89,7 +89,7 @@ SubscriptExpression::SubscriptExpression(std::shared_ptr<SourceFile> file,
   this->inner = makeNode(file, ts_node_named_child(node, 1));
 }
 
-void SubscriptExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void SubscriptExpression::visitChildren(CodeVisitor *visitor) {
   this->outer->visit(visitor);
   this->inner->visit(visitor);
 };
@@ -104,7 +104,7 @@ MethodExpression::MethodExpression(std::shared_ptr<SourceFile> file,
   }
 }
 
-void MethodExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void MethodExpression::visitChildren(CodeVisitor *visitor) {
   this->obj->visit(visitor);
   this->id->visit(visitor);
   if (this->args) {
@@ -121,7 +121,7 @@ FunctionExpression::FunctionExpression(std::shared_ptr<SourceFile> file,
   }
 }
 
-void FunctionExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void FunctionExpression::visitChildren(CodeVisitor *visitor) {
   this->id->visit(visitor);
   if (this->args) {
     this->args->visit(visitor);
@@ -134,7 +134,7 @@ KeyValueItem::KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node)
   this->value = makeNode(file, ts_node_named_child(node, 1));
 }
 
-void KeyValueItem::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void KeyValueItem::visitChildren(CodeVisitor *visitor) {
   this->key->visit(visitor);
   this->value->visit(visitor);
 };
@@ -143,9 +143,15 @@ KeywordItem::KeywordItem(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->key = makeNode(file, ts_node_named_child(node, 0));
   this->value = makeNode(file, ts_node_named_child(node, 1));
+  auto casted = dynamic_cast<IdExpression *>(this->key.get());
+  if (casted == nullptr) {
+    this->name = std::nullopt;
+    return;
+  }
+  this->name = casted->id;
 }
 
-void KeywordItem::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void KeywordItem::visitChildren(CodeVisitor *visitor) {
   this->key->visit(visitor);
   this->value->visit(visitor);
 };
@@ -164,7 +170,7 @@ IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
   }
 }
 
-void IterationStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void IterationStatement::visitChildren(CodeVisitor *visitor) {
   for (auto id : this->ids) {
     id->visit(visitor);
   }
@@ -197,7 +203,7 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
   this->rhs = makeNode(file, ts_node_named_child(node, 2));
 }
 
-void AssignmentStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void AssignmentStatement::visitChildren(CodeVisitor *visitor) {
   this->lhs->visit(visitor);
   this->rhs->visit(visitor);
 }
@@ -245,7 +251,7 @@ BinaryExpression::BinaryExpression(std::shared_ptr<SourceFile> file,
   this->rhs = makeNode(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
 }
 
-void BinaryExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void BinaryExpression::visitChildren(CodeVisitor *visitor) {
   this->lhs->visit(visitor);
   this->rhs->visit(visitor);
 }
@@ -265,49 +271,83 @@ UnaryExpression::UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node)
   this->expression = makeNode(file, ts_node_named_child(node, 0));
 }
 
-void UnaryExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void UnaryExpression::visitChildren(CodeVisitor *visitor) {
   this->expression->visit(visitor);
+}
+
+std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
+  std::string extractedValue;
+  size_t startPos = std::string::npos;
+  size_t endPos = std::string::npos;
+
+  // Check if it's a multi-line format string (f''' ... ''')
+  if (mesonString.size() >= 7 && mesonString.substr(0, 4) == "f'''") {
+    startPos = 4;
+    endPos = mesonString.size() - 3;
+  }
+  // Check if it's a single-line format string (f' ... ')
+  else if (mesonString.size() >= 4 && mesonString.substr(0, 2) == "f'") {
+    startPos = 2;
+    endPos = mesonString.size() - 1;
+  }
+  // Check if it's a multi-line string (''' ... ''')
+  else if (mesonString.size() >= 6 && mesonString.substr(0, 3) == "'''") {
+    startPos = 3;
+    endPos = mesonString.size() - 3;
+  }
+  // Check if it's a single-line string (' ... ')
+  else if (mesonString.size() >= 2 && mesonString.front() == '\'' &&
+           mesonString.back() == '\'') {
+    startPos = 1;
+    endPos = mesonString.size() - 1;
+  }
+  if (startPos != std::string::npos && endPos != std::string::npos) {
+    return mesonString.substr(startPos, endPos - startPos);
+  }
+
+  return mesonString;
 }
 
 StringLiteral::StringLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->isFormat =
       strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
-  this->id = file->extractNodeValue(node);
+  auto id = file->extractNodeValue(node);
+  this->id = extractValueFromMesonStringLiteral(id);
 }
 
-void StringLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void StringLiteral::visitChildren(CodeVisitor *visitor) {}
 
 IdExpression::IdExpression(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->id = file->extractNodeValue(node);
 }
 
-void IdExpression::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void IdExpression::visitChildren(CodeVisitor *visitor) {}
 
 BooleanLiteral::BooleanLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node) == "true";
 }
 
-void BooleanLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void BooleanLiteral::visitChildren(CodeVisitor *visitor) {}
 
 IntegerLiteral::IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node);
 }
 
-void IntegerLiteral::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void IntegerLiteral::visitChildren(CodeVisitor *visitor) {}
 
 ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {}
 
-void ContinueNode::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void ContinueNode::visitChildren(CodeVisitor *visitor) {}
 
 BreakNode::BreakNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {}
 
-void BreakNode::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
+void BreakNode::visitChildren(CodeVisitor *visitor) {}
 
 SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
                                        TSNode node)
@@ -351,7 +391,7 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
   }
 }
 
-void SelectionStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
+void SelectionStatement::visitChildren(CodeVisitor *visitor) {
   for (auto condition : this->conditions) {
     condition->visit(visitor);
   }
@@ -362,71 +402,67 @@ void SelectionStatement::visitChildren(std::shared_ptr<CodeVisitor> visitor) {
   }
 }
 
-void ErrorNode::visitChildren(std::shared_ptr<CodeVisitor> visitor) {}
-void ErrorNode::visit(std::shared_ptr<CodeVisitor> visitor) {
-  visitor->visitErrorNode(this);
-}
-void ContinueNode::visit(std::shared_ptr<CodeVisitor> visitor) {
+void ErrorNode::visitChildren(CodeVisitor *visitor) {}
+void ErrorNode::visit(CodeVisitor *visitor) { visitor->visitErrorNode(this); }
+void ContinueNode::visit(CodeVisitor *visitor) {
   visitor->visitContinueNode(this);
 }
-void BreakNode::visit(std::shared_ptr<CodeVisitor> visitor) {
-  visitor->visitBreakNode(this);
-}
-void ArgumentList::visit(std::shared_ptr<CodeVisitor> visitor) {
+void BreakNode::visit(CodeVisitor *visitor) { visitor->visitBreakNode(this); }
+void ArgumentList::visit(CodeVisitor *visitor) {
   visitor->visitArgumentList(this);
 }
-void ArrayLiteral::visit(std::shared_ptr<CodeVisitor> visitor) {
+void ArrayLiteral::visit(CodeVisitor *visitor) {
   visitor->visitArrayLiteral(this);
 }
-void AssignmentStatement::visit(std::shared_ptr<CodeVisitor> visitor) {
+void AssignmentStatement::visit(CodeVisitor *visitor) {
   visitor->visitAssignmentStatement(this);
 }
-void BinaryExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void BinaryExpression::visit(CodeVisitor *visitor) {
   visitor->visitBinaryExpression(this);
 }
-void BooleanLiteral::visit(std::shared_ptr<CodeVisitor> visitor) {
+void BooleanLiteral::visit(CodeVisitor *visitor) {
   visitor->visitBooleanLiteral(this);
 }
-void BuildDefinition::visit(std::shared_ptr<CodeVisitor> visitor) {
+void BuildDefinition::visit(CodeVisitor *visitor) {
   visitor->visitBuildDefinition(this);
 }
-void ConditionalExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void ConditionalExpression::visit(CodeVisitor *visitor) {
   visitor->visitConditionalExpression(this);
 }
-void DictionaryLiteral::visit(std::shared_ptr<CodeVisitor> visitor) {
+void DictionaryLiteral::visit(CodeVisitor *visitor) {
   visitor->visitDictionaryLiteral(this);
 }
-void FunctionExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void FunctionExpression::visit(CodeVisitor *visitor) {
   visitor->visitFunctionExpression(this);
 }
-void IdExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void IdExpression::visit(CodeVisitor *visitor) {
   visitor->visitIdExpression(this);
 }
-void IntegerLiteral::visit(std::shared_ptr<CodeVisitor> visitor) {
+void IntegerLiteral::visit(CodeVisitor *visitor) {
   visitor->visitIntegerLiteral(this);
 }
-void IterationStatement::visit(std::shared_ptr<CodeVisitor> visitor) {
+void IterationStatement::visit(CodeVisitor *visitor) {
   visitor->visitIterationStatement(this);
 }
-void KeyValueItem::visit(std::shared_ptr<CodeVisitor> visitor) {
+void KeyValueItem::visit(CodeVisitor *visitor) {
   visitor->visitKeyValueItem(this);
 }
-void KeywordItem::visit(std::shared_ptr<CodeVisitor> visitor) {
+void KeywordItem::visit(CodeVisitor *visitor) {
   visitor->visitKeywordItem(this);
 }
-void MethodExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void MethodExpression::visit(CodeVisitor *visitor) {
   visitor->visitMethodExpression(this);
 }
-void SelectionStatement::visit(std::shared_ptr<CodeVisitor> visitor) {
+void SelectionStatement::visit(CodeVisitor *visitor) {
   visitor->visitSelectionStatement(this);
 }
-void StringLiteral::visit(std::shared_ptr<CodeVisitor> visitor) {
+void StringLiteral::visit(CodeVisitor *visitor) {
   visitor->visitStringLiteral(this);
 }
-void SubscriptExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void SubscriptExpression::visit(CodeVisitor *visitor) {
   visitor->visitSubscriptExpression(this);
 }
-void UnaryExpression::visit(std::shared_ptr<CodeVisitor> visitor) {
+void UnaryExpression::visit(CodeVisitor *visitor) {
   visitor->visitUnaryExpression(this);
 }
 
