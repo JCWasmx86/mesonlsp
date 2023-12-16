@@ -132,6 +132,12 @@ bool extractFile(std::filesystem::path archivePath,
         outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
     archive_entry_set_pathname(entry, entryPath.string().c_str());
 
+    const auto *originalHardlink = archive_entry_hardlink(entry);
+    if (originalHardlink != nullptr) {
+      auto newHardlink = outputDirectory / originalHardlink;
+      archive_entry_set_hardlink(entry, newHardlink.c_str());
+    }
+
     if (auto res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
       LOG.error(
           std::format("Failed writing header: {}", archive_error_string(ext)));
