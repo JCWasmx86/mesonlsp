@@ -9,16 +9,17 @@ genmethods_cpp = configure_file(
     input: ['methods.def'],
     output: 'genmethods.cpp',
 )
+typenamespace_deps = [objects_dep]
 typenamespace_lib = static_library(
     'typenamespace',
     'typenamespace.cpp',
     genfunctions_cpp,
     genmethods_cpp,
     include_directories: typenamespace_inc,
-    dependencies: [objects_dep],
+    dependencies: typenamespace_deps,
 )
 typenamespace_dep = declare_dependency(
-    dependencies: [objects_dep],
+    dependencies: typenamespace_deps,
     include_directories: typenamespace_inc,
     link_with: [typenamespace_lib],
 )

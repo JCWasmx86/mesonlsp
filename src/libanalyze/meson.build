@@ -1,4 +1,5 @@
 analyze_inc = include_directories('.', 'subprojects', 'options')
+analyze_deps = [ast_dep, tree_sitter_dep, objects_dep]
 analyze_lib = static_library(
     'analyze',
     'options/optionstate.cpp',
@@ -6,10 +7,10 @@ analyze_lib = static_library(
     'mesonmetadata.cpp',
     'mesontree.cpp',
     include_directories: analyze_inc,
-    dependencies: [ast_dep, tree_sitter_dep, objects_dep],
+    dependencies: analyze_deps,
 )
 analyze_dep = declare_dependency(
-    dependencies: [ast_dep, tree_sitter_dep, objects_dep],
+    dependencies: analyze_deps,
     include_directories: analyze_inc,
     link_with: [analyze_lib],
 )
