@@ -220,7 +220,7 @@ void mergeDirectories(std::filesystem::path sourcePath,
   }
 }
 
-static std::filesystem::path cacheDir() {
+std::filesystem::path cacheDir() {
   auto suffix = "c++-mesonlsp";
   auto xdgCacheHome = getenv("XDG_CACHE_HOME"); // NOLINT
   if (xdgCacheHome != nullptr && strcmp(xdgCacheHome, "") != 0) {
