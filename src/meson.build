@@ -15,13 +15,13 @@ executable(
     'main.cpp',
     cpp_args: ['-DVERSION="' + version + '"'],
     dependencies: [
+        analyze_dep,
+        ast_dep,
+        jsonrpc_dep,
         log_dep,
         objects_dep,
         tree_sitter_dep,
         tree_sitter_meson_dep,
-        ast_dep,
-        jsonrpc_dep,
         wrap_dep,
-        analyze_dep,
     ],
 )

@@ -1,12 +1,13 @@
 utils_inc = include_directories('.')
+utils_deps = [log_dep, archive_dep, curl_dep, uuid_dep, sha256_dep]
 utils_lib = static_library(
     'utils',
     'utils.cpp',
     include_directories: utils_inc,
-    dependencies: [log_dep, archive_dep, curl_dep, uuid_dep, sha256_dep],
+    dependencies: utils_deps,
 )
 utils_dep = declare_dependency(
-    dependencies: [log_dep, archive_dep, curl_dep, uuid_dep, sha256_dep],
+    dependencies: utils_deps,
     include_directories: utils_inc,
     link_with: [utils_lib],
 )
