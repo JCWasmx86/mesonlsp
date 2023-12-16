@@ -58,6 +58,7 @@ public:
 class ComboOption : public MesonOption {
 public:
   std::vector<std::string> values;
+
   ComboOption(std::string name, std::vector<std::string> values,
               std::optional<std::string> description = std::nullopt,
               bool deprecated = false)
@@ -69,6 +70,7 @@ public:
 class ArrayOption : public MesonOption {
 public:
   std::vector<std::string> choices;
+
   ArrayOption(std::string name, std::vector<std::string> values,
               std::optional<std::string> description = std::nullopt,
               bool deprecated = false)

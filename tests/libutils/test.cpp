@@ -22,6 +22,7 @@ void testMergingDirectories(Logger logger) {
   assert(std::filesystem::exists(outputDir / "i2"));
   assert('a' == std::ifstream(outputDir / "i1/a.txt").get());
 }
+
 int main(int argc, char **argv) {
   auto zipFileName = std::filesystem::path{randomFile()};
   auto logger = Logger("utilstest");

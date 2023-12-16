@@ -12,6 +12,7 @@ public:
   std::vector<std::shared_ptr<MesonSubproject>> subprojects;
 
   SubprojectState(std::filesystem::path root) : root(std::move(root)) {}
+
   void findSubprojects();
   void initSubprojects();
   void updateSubprojects();

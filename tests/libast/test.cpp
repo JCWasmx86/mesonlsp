@@ -8,6 +8,7 @@
 #include <tree_sitter/api.h>
 
 extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
+
 int main(int argc, char **argv) {
   const auto iniStr =
       "; Foo\n[foo]\nk=v\nk1=v\n[foo2]\na=1\nb=1\nc=2\ncccccc=\n";

@@ -32,6 +32,7 @@ public:
 class ErrorNode : public Node {
 public:
   std::string message;
+
   ErrorNode(std::shared_ptr<SourceFile> file, TSNode node, std::string message)
       : Node(file, node), message(message) {}
 };

@@ -30,6 +30,7 @@ std::optional<std::string> ast::ini::Section::findStringValue(std::string key) {
   }
   return std::nullopt;
 }
+
 ast::ini::Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(file), location(new Location(node)) {}
 

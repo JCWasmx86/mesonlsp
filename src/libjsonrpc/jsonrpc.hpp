@@ -36,8 +36,10 @@ private:
 
 public:
   JsonRpcServer() : input(std::cin), output(std::cout), shouldExit(false) {}
+
   JsonRpcServer(std::istringstream &input, std::ostringstream &output)
       : input(input), output(output), shouldExit(false) {}
+
   void loop(std::shared_ptr<JsonRpcHandler> handler);
   void reply(nlohmann::json callId, nlohmann::json result);
   void notification(std::string method, nlohmann::json params);
@@ -50,7 +52,9 @@ class JsonRpcHandler {
 public:
   std::shared_ptr<JsonRpcServer> server = nullptr;
   JsonRpcHandler();
+
   virtual ~JsonRpcHandler() {}
+
   virtual void handleNotification(std::string method,
                                   nlohmann::json params) = 0;
   virtual void handleRequest(std::string method, nlohmann::json callId,

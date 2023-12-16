@@ -31,6 +31,7 @@ public:
 protected:
   Node(std::shared_ptr<SourceFile> file, TSNode node);
 };
+
 class KeywordItem : public Node {
 public:
   std::shared_ptr<Node> key;
@@ -180,8 +181,10 @@ public:
 class ErrorNode : public Node {
 public:
   std::string message;
+
   ErrorNode(std::shared_ptr<SourceFile> file, TSNode node, std::string message)
       : Node(file, node), message(message) {}
+
   void visitChildren(CodeVisitor *visitor);
   void visit(CodeVisitor *visitor);
 };
@@ -277,6 +280,7 @@ public:
 };
 
 enum UnaryOperator { Not, ExclamationMark, UnaryMinus, UnaryOther };
+
 class UnaryExpression : public Node {
 public:
   std::shared_ptr<Node> expression;
@@ -291,7 +295,9 @@ std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);
 class CodeVisitor {
 public:
   CodeVisitor() {}
+
   virtual ~CodeVisitor() {}
+
   virtual void visitArgumentList(ArgumentList *node) = 0;
   virtual void visitArrayLiteral(ArrayLiteral *node) = 0;
   virtual void visitAssignmentStatement(AssignmentStatement *node) = 0;

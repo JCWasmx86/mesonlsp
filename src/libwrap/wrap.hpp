@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+
 class Wrap {
 public:
   std::optional<std::string> directory;
@@ -24,6 +25,7 @@ public:
     (void)path;
     (void)packageFilesPath;
   }
+
   virtual ~Wrap() {}
 
 protected:
@@ -74,6 +76,7 @@ public:
 class HgWrap : public VcsWrap {
 public:
   HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
+
   void setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };

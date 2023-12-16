@@ -19,6 +19,7 @@ public:
         endLine(ts_node_end_point(node).row),
         startColumn(ts_node_start_point(node).column / 2),
         endColumn(ts_node_end_point(node).column / 2) {}
+
   const uint32_t startLine;
   const uint32_t endLine;
   const uint32_t startColumn;
