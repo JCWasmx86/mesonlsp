@@ -1,7 +1,9 @@
 #include "optionextractor.hpp"
+
 #include "log.hpp"
 #include "mesonoption.hpp"
 #include "node.hpp"
+
 #include <format>
 #include <memory>
 #include <ranges>

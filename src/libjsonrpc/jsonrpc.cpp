@@ -1,4 +1,5 @@
 #include "jsonrpc.hpp"
+
 #include <cstddef>
 #include <cstdio>
 #include <format>

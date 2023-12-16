@@ -1,5 +1,7 @@
 #include "optionstate.hpp"
+
 #include "mesonoption.hpp"
+
 #include <memory>
 #include <vector>
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "location.hpp"
-
 #include "sourcefile.hpp"
+
 #include <memory>
 #include <optional>
 #include <string>
