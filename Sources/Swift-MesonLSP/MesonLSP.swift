@@ -39,6 +39,7 @@ import Wrap
   @ArgumentParser.Flag var subprojectParse: Bool = false
   @ArgumentParser.Flag var dumpFunctions: Bool = false
   @ArgumentParser.Flag var dumpMethods: Bool = false
+  @ArgumentParser.Flag var dumpOptions: Bool = false
 
   public static var configuration: CommandConfiguration {
     return CommandConfiguration(commandName: "Swift-MesonLSP")
@@ -165,23 +166,17 @@ import Wrap
         print("      - Optional: \(pa.opt)")
         print("      - Varargs: \(pa.varargs)")
         print("      - Types:")
-        for t in pa.types {
-          print("        - \(t.toString())")
-        }
+        for t in pa.types { print("        - \(t.toString())") }
       }
       for kwargName in fn.kwargs.keys.sorted() {
-        let kw = fn.kwargs[kwargName]!;
+        let kw = fn.kwargs[kwargName]!
         print("    - @\(kw.name):")
         print("      - Optional: \(kw.opt)")
         print("      - Types:")
-        for t in kw.types {
-          print("        - \(t.toString())")
-        }
+        for t in kw.types { print("        - \(t.toString())") }
       }
       print("  - returns:")
-      for t in fn.returnTypes {
-        print("    - \(t.toString())")
-      }
+      for t in fn.returnTypes { print("    - \(t.toString())") }
     }
   }
 
@@ -198,23 +193,17 @@ import Wrap
           print("      - Optional: \(pa.opt)")
           print("      - Varargs: \(pa.varargs)")
           print("      - Types:")
-          for t in pa.types {
-            print("        - \(t.toString())")
-          }
+          for t in pa.types { print("        - \(t.toString())") }
         }
         for kwargName in fn.kwargs.keys.sorted() {
-          let kw = fn.kwargs[kwargName]!;
+          let kw = fn.kwargs[kwargName]!
           print("    - @\(kw.name):")
           print("      - Optional: \(kw.opt)")
           print("      - Types:")
-          for t in kw.types {
-            print("        - \(t.toString())")
-          }
+          for t in kw.types { print("        - \(t.toString())") }
         }
         print("  - returns:")
-        for t in fn.returnTypes {
-          print("    - \(t.toString())")
-        }
+        for t in fn.returnTypes { print("    - \(t.toString())") }
       }
     }
   }
@@ -267,6 +256,45 @@ import Wrap
         return logger
       }
     #endif
+    if self.dumpOptions {
+      let os = OptionState(options: [])
+      for opt in os.opts.values {
+        if let so = opt as? StringOption {
+          print(
+            "this->options.push_back(std::make_shared<StringOption>(\"\(so.name)\", \"\(so.description!)\", \(so.deprecated)));"
+          )
+        } else if let so = opt as? FeatureOption {
+          print(
+            "this->options.push_back(std::make_shared<FeatureOption>(\"\(so.name)\", \"\(so.description!)\", \(so.deprecated)));"
+          )
+        } else if let so = opt as? BoolOption {
+          print(
+            "this->options.push_back(std::make_shared<BoolOption>(\"\(so.name)\", \"\(so.description!)\", \(so.deprecated)));"
+          )
+        } else if let so = opt as? IntOption {
+          print(
+            "this->options.push_back(std::make_shared<IntOption>(\"\(so.name)\", \"\(so.description!)\", \(so.deprecated)));"
+          )
+        } else if let so = opt as? ArrayOption {
+          let values = so.choices ?? []
+          let asStr =
+            "std::vector<std::string>{"
+            + values.map { return "\"" + $0 + "\"" }.joined(separator: ",") + "}"
+          print(
+            "this->options.push_back(std::make_shared<ArrayOption>(\"\(so.name)\", \(asStr), \"\(so.description!)\", \(so.deprecated)));"
+          )
+        } else if let so = opt as? ComboOption {
+          let values = so.values ?? []
+          let asStr =
+            "std::vector<std::string>{"
+            + values.map { return "\"" + $0 + "\"" }.joined(separator: ",") + "}"
+          print(
+            "this->options.push_back(std::make_shared<ComboOption>(\"\(so.name)\", \(asStr), \"\(so.description!)\", \(so.deprecated)));"
+          )
+        }
+      }
+      return
+    }
     if self.dumpMethods {
       self.dump()
       return
