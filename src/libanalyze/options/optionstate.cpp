@@ -1,6 +1,7 @@
 #include "optionstate.hpp"
 #include "mesonoption.hpp"
 #include <memory>
+#include <vector>
 
 OptionState::OptionState() {
   this->options.push_back(std::make_shared<ComboOption>(
