@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "mesonmetadata.hpp"
 #include "subprojects/subprojectstate.hpp"
+#include "typenamespace.hpp"
 #include <filesystem>
 #include <set>
 
@@ -12,6 +13,7 @@ public:
   std::set<std::filesystem::path> ownedFiles;
   SubprojectState *state;
   MesonMetadata metadata;
+  TypeNamespace ns;
 
   MesonTree(const std::filesystem::path &root)
       : root(root), state(new SubprojectState(root)) {}
