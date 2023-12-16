@@ -1,9 +1,12 @@
 #pragma once
 
 #include "node.hpp"
+#include "typenamespace.hpp"
 
 class TypeAnalyzer : public CodeVisitor {
 public:
+  TypeNamespace &ns;
+  TypeAnalyzer(TypeNamespace &ns) : ns(ns) {}
   void visitArgumentList(ArgumentList *node);
   void visitArrayLiteral(ArrayLiteral *node);
   void visitAssignmentStatement(AssignmentStatement *node);

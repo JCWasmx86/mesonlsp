@@ -2,6 +2,7 @@
 #include "log.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
+#include "typeanalyzer.hpp"
 #include <filesystem>
 #include <fstream>
 #include <tree_sitter/api.h>
@@ -68,6 +69,8 @@ void MesonTree::fastParse(AnalysisOptions analysisOptions) {
   TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(rootFile);
   auto root = makeNode(sourceFile, rootNode);
+  TypeAnalyzer visitor(this->ns);
+  root->visit(&visitor);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
 }

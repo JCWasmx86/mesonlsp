@@ -4,6 +4,7 @@ analyze_lib = static_library(
     'analyze',
     'options/optionstate.cpp',
     'options/optionextractor.cpp',
+    'typeanalyzer/typeanalyzer.cpp',
     'mesonmetadata.cpp',
     'mesontree.cpp',
     include_directories: analyze_inc,
