@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <format>
 #include <memory>
+#include <string>
 
 Logger LOG("analyze::subprojectstate"); // NOLINT
 
@@ -83,6 +84,14 @@ void SubprojectState::findSubprojects() {
   }
 }
 
-void SubprojectState::initSubprojects() {}
+void SubprojectState::initSubprojects() {
+  for (const auto &subproject : this->subprojects) {
+    subproject->init();
+  }
+}
 
-void SubprojectState::updateSubprojects() {}
+void SubprojectState::updateSubprojects() {
+  for (const auto &subproject : this->subprojects) {
+    subproject->update();
+  }
+}

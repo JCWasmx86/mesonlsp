@@ -46,7 +46,7 @@ bool FileWrap::setupDirectory(std::filesystem::path path,
   }
   auto directory = this->directory;
   std::string targetDirectory;
-  if (directory.has_value() && directory.value().empty()) {
+  if (directory.has_value() && !directory.value().empty()) {
     targetDirectory = directory.value();
   } else {
     auto lastDotPos = sfn->find_last_of('.');
