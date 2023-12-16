@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Wrap {
@@ -19,24 +20,26 @@ public:
 
   std::vector<std::string> diffFiles;
   std::optional<std::string> method;
+  bool successfullySetup = false;
 
-  virtual void setupDirectory(std::filesystem::path path,
+  virtual bool setupDirectory(std::filesystem::path path,
                               std::filesystem::path packageFilesPath) {
     (void)path;
     (void)packageFilesPath;
+    return true;
   }
 
   virtual ~Wrap() {}
 
 protected:
   Wrap(ast::ini::Section *section);
-  void postSetup(std::filesystem::path path,
+  bool postSetup(std::filesystem::path path,
                  std::filesystem::path packageFilesPath);
 
 private:
-  void applyPatch(std::filesystem::path path,
+  bool applyPatch(std::filesystem::path path,
                   std::filesystem::path packageFilesPath);
-  void applyDiffFiles(std::filesystem::path path,
+  bool applyDiffFiles(std::filesystem::path path,
                       std::filesystem::path packageFilesPath);
 };
 
@@ -49,7 +52,7 @@ public:
   bool leadDirectoryMissing = false;
 
   FileWrap(ast::ini::Section *section);
-  void setupDirectory(std::filesystem::path path,
+  bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };
 
@@ -69,7 +72,7 @@ public:
 
   GitWrap(ast::ini::Section *node);
 
-  void setupDirectory(std::filesystem::path path,
+  bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };
 
@@ -77,7 +80,7 @@ class HgWrap : public VcsWrap {
 public:
   HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
 
-  void setupDirectory(std::filesystem::path path,
+  bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };
 
@@ -85,7 +88,7 @@ class SvnWrap : public VcsWrap {
 public:
   SvnWrap(ast::ini::Section *node) : VcsWrap(node) {}
 
-  void setupDirectory(std::filesystem::path path,
+  bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };
 
@@ -96,7 +99,7 @@ public:
 
   WrapFile(std::shared_ptr<Wrap> serializedWrap,
            std::shared_ptr<ast::ini::Node> ast)
-      : serializedWrap(serializedWrap), ast(ast) {}
+      : serializedWrap(std::move(serializedWrap)), ast(std::move(ast)) {}
 };
 
 std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path);

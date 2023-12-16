@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "wrap.hpp"
 
+#include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <filesystem>
@@ -35,12 +36,7 @@ static bool isValidCommitId(std::string rev) {
   if (rev.size() != 40 && rev.size() != 64) {
     return false;
   }
-  for (auto chr : rev) {
-    if (std::isxdigit(chr) == 0) {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::all_of(rev, [](char chr) { return std::isxdigit(chr); });
 }
 
 static bool isHead(std::string rev) {
@@ -49,20 +45,20 @@ static bool isHead(std::string rev) {
           std::tolower(rev[2]) == 'a' && std::tolower(rev[3]) == 'd');
 }
 
-void GitWrap::setupDirectory(std::filesystem::path path,
+bool GitWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
-    return;
+    return false;
   }
   if (this->revision.empty()) {
     LOG.warn("Revision is empty");
-    return;
+    return false;
   }
   if (!this->directory.has_value()) {
     LOG.warn("Directory is empty");
-    return;
+    return false;
   }
   auto rev = this->revision;
   auto targetDirectory = this->directory.value();
@@ -77,23 +73,38 @@ void GitWrap::setupDirectory(std::filesystem::path path,
         "git", std::vector<std::string>{
                    "-c", "init.defaultBranch=mesonlsp-dummy-branch", "init",
                    fullPath});
+    if (!result) {
+      return false;
+    }
     result = launchProcess(
         "git", std::vector<std::string>{"-C", fullPath, "remote", "add",
                                         "origin", this->url});
+    if (!result) {
+      return false;
+    }
     auto fetchOptions = std::vector<std::string>{"-C", fullPath, "fetch"};
     fetchOptions.insert(fetchOptions.end(), depthOptions.begin(),
                         depthOptions.end());
-    fetchOptions.push_back("origin");
+    fetchOptions.emplace_back("origin");
     fetchOptions.push_back(rev);
     result = launchProcess("git", fetchOptions);
+    if (!result) {
+      return false;
+    }
     result = launchProcess("git",
                            std::vector<std::string>{"-C", fullPath, "-c",
                                                     "advice.detachedHead=false",
                                                     "checkout", rev, "--"});
+    if (!result) {
+      return false;
+    }
   } else {
     if (!isShallow) {
       auto result = launchProcess(
           "git", std::vector<std::string>{"clone", this->url, fullPath});
+      if (!result) {
+        return false;
+      }
       if (!isHead(rev)) {
         result = launchProcess(
             "git", std::vector<std::string>{"-C", fullPath, "-c",
@@ -103,22 +114,31 @@ void GitWrap::setupDirectory(std::filesystem::path path,
           result = launchProcess(
               "git", std::vector<std::string>{"-C", fullPath, "fetch",
                                               this->url, rev});
+          if (!result) {
+            return false;
+          }
           result = launchProcess(
               "git", std::vector<std::string>{"-C", fullPath, "-c",
                                               "advice.detachedHead=false",
                                               "checkout", rev, "--"});
+          if (!result) {
+            return false;
+          }
         }
       }
     } else {
       std::vector<std::string> args{"-c", "advice.detachedHead=false", "clone"};
       args.insert(args.end(), depthOptions.begin(), depthOptions.end());
       if (!isHead(rev)) {
-        args.push_back("--branch");
+        args.emplace_back("--branch");
         args.push_back(rev);
       }
       args.push_back(this->url);
       args.push_back(fullPath);
       auto result = launchProcess("git", args);
+      if (!result) {
+        return false;
+      }
     }
   }
   if (this->cloneRecursive) {
@@ -128,20 +148,30 @@ void GitWrap::setupDirectory(std::filesystem::path path,
     cloneOptions.insert(cloneOptions.end(), depthOptions.begin(),
                         depthOptions.end());
     auto result = launchProcess("git", cloneOptions);
+    if (!result) {
+      return false;
+    }
   }
   if (auto pushUrl = this->pushUrl) {
     auto result = launchProcess(
         "git", std::vector<std::string>{"-C", fullPath, "remote", "set-url",
                                         "--push", "origin", pushUrl.value()});
+    if (!result) {
+      return false;
+    }
   }
-  this->postSetup(fullPath, packageFilesPath);
+  if (!this->postSetup(fullPath, packageFilesPath)) {
+    return false;
+  }
   if (!isValidCommitId(rev)) {
-    return;
+    return true;
   }
   auto result = launchProcess(
       "git", std::vector<std::string>{"-C", fullPath, "pull", "origin"});
   if (result) {
     auto pullableFile = std::filesystem::path{fullPath} / ".git_pullable";
     std::ofstream{pullableFile}.put('\n');
+    return true;
   }
+  return false;
 }
