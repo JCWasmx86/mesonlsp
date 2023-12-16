@@ -102,6 +102,8 @@ public:
     if (!result) {
       return;
     }
+    auto setupFile = this->realpath.parent_path() / ".fullysetup";
+    std::ofstream{setupFile}.put('\n');
     this->initialized = true;
   }
 
