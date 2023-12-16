@@ -31,17 +31,23 @@
 static Logger LOG("utils"); // NOLINT
 
 bool downloadFile(std::string url, std::filesystem::path output) {
-  LOG.info(std::format("Downloading URL {} to {}", url, output.c_str()));
-  auto curl = curl_easy_init();
+  auto temporaryPath = std::filesystem::temp_directory_path() /
+                       hash(std::format("{}-{}", url, output.c_str()));
+  LOG.info(std::format("Downloading URL {} to {} (Temp: {})", url,
+                       output.c_str(), temporaryPath.c_str()));
+  auto *curl = curl_easy_init();
   if (curl == nullptr) {
     LOG.error("Unable to create CURL* using curl_easy_init");
     return false;
   }
-  FILE *filep = fopen(output.c_str(), "wb");
+  FILE *filep = fopen(temporaryPath.c_str(), "wb");
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+  // Less than 1000B/s in the last 10s => Timeout
+  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10L);
+  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1000L);
   auto res = curl_easy_perform(curl);
   long httpCode = 0;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
@@ -51,7 +57,17 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
-    (void)std::remove(output.c_str());
+    (void)std::remove(temporaryPath.c_str());
+  } else {
+    try {
+      std::filesystem::copy_file(
+          temporaryPath, output,
+          std::filesystem::copy_options::overwrite_existing);
+      std::filesystem::remove(temporaryPath);
+    } catch (const std::filesystem::filesystem_error &e) {
+      LOG.error(std::format("Failed to move the file: {}", e.what()));
+      return false;
+    }
   }
   return successful;
 }

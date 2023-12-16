@@ -3,6 +3,7 @@
 #include "sha-256.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <cstddef>
 #include <filesystem>
@@ -61,6 +62,7 @@ static inline std::string hash(const std::filesystem::path &path) {
   std::ifstream file(path, std::ios::binary | std::ios::ate);
   auto fileSize = file.tellg();
   file.seekg(0, std::ios::beg);
+  assert(fileSize > 0);
   std::vector<uint8_t> buffer(fileSize);
   file.read(reinterpret_cast<char *>(buffer.data()), fileSize);
   file.close();
