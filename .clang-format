@@ -3,3 +3,4 @@ InsertNewlineAtEOF: true
 InsertBraces: true
 IncludeBlocks: Regroup
 SeparateDefinitionBlocks: Always
+SortIncludes: CaseSensitive
