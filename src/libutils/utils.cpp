@@ -27,6 +27,7 @@
 #include <vector>
 
 #define HTTP_OK 200
+#define FTP_OK 226
 
 static Logger LOG("utils"); // NOLINT
 
@@ -45,15 +46,17 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-  // Less than 1000B/s in the last 10s => Timeout
+  // Less than 100kB/s in the last 10s => Timeout
   curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10L);
-  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1000L);
+  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 100000L);
   auto res = curl_easy_perform(curl);
   long httpCode = 0;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
   LOG.info(std::format("curl_easy_perform: {} {}", curl_easy_strerror(res),
                        httpCode));
-  auto successful = res != CURLE_ABORTED_BY_CALLBACK && httpCode == HTTP_OK;
+  auto goodFTP = url.starts_with("ftp://") && httpCode == FTP_OK;
+  auto goodHTTP = httpCode == HTTP_OK;
+  auto successful = res != CURLE_ABORTED_BY_CALLBACK && (goodFTP || goodHTTP);
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
@@ -123,7 +126,7 @@ bool extractFile(std::filesystem::path archivePath,
     if (res < ARCHIVE_OK) {
       LOG.error(std::format("Error during reading archive: {}",
                             archive_error_string(archive)));
-      return false;
+      goto cleanup;
     }
     auto entryPath =
         outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
@@ -132,21 +135,21 @@ bool extractFile(std::filesystem::path archivePath,
     if (auto res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
       LOG.error(
           std::format("Failed writing header: {}", archive_error_string(ext)));
-      return false;
+      goto cleanup;
     }
     if (archive_entry_size(entry) > 0) {
       auto copyResult = copyData(archive, ext);
       if (copyResult != ARCHIVE_OK && copyResult != ARCHIVE_EOF) {
         LOG.error(std::format("Failed writing result: {}",
                               archive_error_string(ext)));
-        return false;
+        goto cleanup;
       }
     }
 
     if (auto res = archive_write_finish_entry(ext); res < ARCHIVE_OK) {
       LOG.error(
           std::format("Failed finishing entry: {}", archive_error_string(ext)));
-      return false;
+      goto cleanup;
     }
   }
 
@@ -155,6 +158,13 @@ bool extractFile(std::filesystem::path archivePath,
   archive_write_close(ext);
   archive_write_free(ext);
   return true;
+
+cleanup:
+  archive_read_close(archive);
+  archive_read_free(archive);
+  archive_write_close(ext);
+  archive_write_free(ext);
+  return false;
 }
 
 bool launchProcess(const std::string &executable,
