@@ -56,7 +56,7 @@ public:
     this->maxPosArgs = maxPosArgs;
   }
 
-  virtual const std::string id();
+  virtual std::string id();
   virtual ~Function() {}
 
 protected:
@@ -73,5 +73,5 @@ public:
          const std::vector<std::shared_ptr<Type>> returnTypes,
          const std::shared_ptr<Type> parentType)
       : Function(name, args, returnTypes), parentType(parentType) {}
-  const std::string id() override;
+  std::string id() override;
 };
