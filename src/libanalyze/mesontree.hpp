@@ -24,10 +24,10 @@ public:
     this->state = nullptr;
   }
 
-  void fastParse(AnalysisOptions analysisOptions);
+  void partialParse(AnalysisOptions analysisOptions);
 
   void fullParse(AnalysisOptions analysisOptions) {
     this->state->fullSetup();
-    this->fastParse(analysisOptions);
+    this->partialParse(analysisOptions);
   }
 };
