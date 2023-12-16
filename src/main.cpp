@@ -1,15 +1,11 @@
 #include "analysisoptions.hpp"
-#include "libast/sourcefile.hpp"
 #include "libwrap/wrap.hpp"
 #include "mesontree.hpp"
 
-#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <memory>
 #include <node.hpp>
 #include <sourcefile.hpp>
 #include <string>
