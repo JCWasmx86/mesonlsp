@@ -20,7 +20,7 @@ ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 void ArgumentList::visitChildren(CodeVisitor *visitor) {
-  for (auto n : this->args) {
+  for (const auto &n : this->args) {
     n->visit(visitor);
   }
 };
@@ -33,7 +33,7 @@ ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 void ArrayLiteral::visitChildren(CodeVisitor *visitor) {
-  for (auto n : this->args) {
+  for (const auto &n : this->args) {
     n->visit(visitor);
   }
 };
@@ -49,7 +49,7 @@ BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 void BuildDefinition::visitChildren(CodeVisitor *visitor) {
-  for (auto n : this->stmts) {
+  for (const auto &n : this->stmts) {
     n->visit(visitor);
   }
 };
@@ -63,7 +63,7 @@ DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
 }
 
 void DictionaryLiteral::visitChildren(CodeVisitor *visitor) {
-  for (auto n : this->values) {
+  for (const auto &n : this->values) {
     n->visit(visitor);
   }
 };
@@ -166,6 +166,9 @@ IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
   this->expression = makeNode(file, ts_node_named_child(node, 1));
   for (uint32_t i = 2; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));
+    if (stmt == nullptr) {
+      continue;
+    }
     this->stmts.push_back(stmt);
   }
 }
@@ -392,11 +395,11 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
 }
 
 void SelectionStatement::visitChildren(CodeVisitor *visitor) {
-  for (auto condition : this->conditions) {
+  for (const auto &condition : this->conditions) {
     condition->visit(visitor);
   }
-  for (auto b : this->blocks) {
-    for (auto bb : b) {
+  for (const auto &b : this->blocks) {
+    for (const auto &bb : b) {
       bb->visit(visitor);
     }
   }
