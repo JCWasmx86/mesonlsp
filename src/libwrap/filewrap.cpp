@@ -27,22 +27,22 @@ FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
   }
 }
 
-void FileWrap::setupDirectory(std::filesystem::path path,
+bool FileWrap::setupDirectory(std::filesystem::path path,
                               std::filesystem::path packageFilesPath) {
   auto url = this->sourceUrl;
   if (url.empty()) {
     LOG.warn("URL is empty");
-    return;
+    return false;
   }
   auto hash = this->sourceHash;
   if (hash->empty()) {
     LOG.warn("Hash is empty");
-    return;
+    return false;
   }
   auto sfn = this->sourceFilename;
   if (sfn->empty()) {
     LOG.warn("Sourcefilename is empty");
-    return;
+    return false;
   }
   auto directory = this->directory;
   std::string targetDirectory;
@@ -64,11 +64,13 @@ void FileWrap::setupDirectory(std::filesystem::path path,
                                               this->sourceFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
-    return;
+    return false;
   }
   auto workdir =
       this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
   std::filesystem::create_directories(workdir);
-  extractFile(archiveFileName.value(), workdir);
-  this->postSetup(fullPath, packageFilesPath);
+  if (!extractFile(archiveFileName.value(), workdir)) {
+    return false;
+  }
+  return this->postSetup(fullPath, packageFilesPath);
 }

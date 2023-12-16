@@ -53,37 +53,42 @@ Wrap::Wrap(ast::ini::Section *section) {
   }
 }
 
-void Wrap::applyPatch(std::filesystem::path path,
+bool Wrap::applyPatch(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) {
   if (this->patchDirectory.has_value()) {
     auto packagePath = packageFilesPath / this->patchDirectory.value();
+    if (!std::filesystem::exists(packagePath)) {
+      LOG.warn(
+          std::format("Patchdirectory {} does not exist", packagePath.c_str()));
+      return false;
+    }
     LOG.info(
         std::format("Merging {} into {}", packagePath.c_str(), path.c_str()));
     mergeDirectories(packagePath, std::move(path));
-    return;
+    return true;
   }
   auto patchFilename = this->patchFilename;
   if (!patchFilename.has_value() || patchFilename->empty()) {
-    return;
+    return false;
   }
   auto patchUrl = this->patchUrl;
   if (!patchUrl.has_value() || patchUrl->empty()) {
-    return;
+    return false;
   }
   auto patchHash = this->patchHash;
   if (!patchHash.has_value() || patchHash->empty()) {
-    return;
+    return false;
   }
   auto archiveFileName = downloadWithFallback(
       patchUrl.value(), patchHash.value(), this->patchFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
-    return;
+    return false;
   }
-  extractFile(archiveFileName.value(), path.parent_path());
+  return extractFile(archiveFileName.value(), path.parent_path());
 }
 
-void Wrap::applyDiffFiles(std::filesystem::path path,
+bool Wrap::applyDiffFiles(std::filesystem::path path,
                           std::filesystem::path packageFilesPath) {
   for (const auto &diff : this->diffFiles) {
     LOG.info(std::format("Applying diff: {}", diff));
@@ -96,14 +101,25 @@ void Wrap::applyDiffFiles(std::filesystem::path path,
       LOG.info(std::format("Retrying with `patch`"));
       result = launchProcess("patch", std::vector<std::string>{
                                           "-d", path, "-f", "-p1", "-i", path});
+      if (!result) {
+        LOG.warn("Won't continue setting up this wrap...");
+        return false;
+      }
     }
   }
+  return true;
 }
 
-void Wrap::postSetup(std::filesystem::path path,
+bool Wrap::postSetup(std::filesystem::path path,
                      std::filesystem::path packageFilesPath) {
-  this->applyPatch(path, packageFilesPath);
-  this->applyDiffFiles(path, packageFilesPath);
+  if (!this->applyPatch(path, packageFilesPath)) {
+    return false;
+  }
+  if (!this->applyDiffFiles(path, packageFilesPath)) {
+    return false;
+  }
+  this->successfullySetup = true;
+  return true;
 }
 
 std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
@@ -121,7 +137,7 @@ std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
   auto root = ast::ini::makeNode(sourceFile, rootNode);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
-  auto iniFile = dynamic_cast<ast::ini::IniFile *>(root.get());
+  auto *iniFile = dynamic_cast<ast::ini::IniFile *>(root.get());
   if ((iniFile == nullptr) || iniFile->sections.empty()) {
     return std::make_shared<WrapFile>(nullptr, nullptr);
   }
@@ -129,11 +145,12 @@ std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
     return std::make_shared<WrapFile>(nullptr, root);
   }
   // Search for the right section
-  auto section = dynamic_cast<ast::ini::Section *>(iniFile->sections[0].get());
+  auto *section = dynamic_cast<ast::ini::Section *>(iniFile->sections[0].get());
   if (section == nullptr) {
     return std::make_shared<WrapFile>(nullptr, root);
   }
-  auto sectionName = dynamic_cast<ast::ini::StringValue *>(section->name.get());
+  auto *sectionName =
+      dynamic_cast<ast::ini::StringValue *>(section->name.get());
   if (sectionName == nullptr) {
     return std::make_shared<WrapFile>(nullptr, root);
   }

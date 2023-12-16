@@ -10,21 +10,21 @@
 
 static Logger LOG("wrap::HgWrap"); // NOLINT
 
-void HgWrap::setupDirectory(std::filesystem::path path,
+bool HgWrap::setupDirectory(std::filesystem::path path,
                             std::filesystem::path packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
-    return;
+    return false;
   }
   if (this->revision.empty()) {
     LOG.warn("Revision is empty");
-    return;
+    return false;
   }
   std::string rev = this->revision;
   if (this->directory->empty()) {
     LOG.warn("Directory is empty");
-    return;
+    return false;
   }
   auto targetDirectory = this->directory.value();
   std::string fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
@@ -37,7 +37,11 @@ void HgWrap::setupDirectory(std::filesystem::path path,
     if (isTip) {
       result = launchProcess(
           "hg", std::vector<std::string>{"--cwd", fullPath, "checkout", rev});
+      if (!result) {
+        return false;
+      }
     }
-    this->postSetup(fullPath, packageFilesPath);
+    return this->postSetup(fullPath, packageFilesPath);
   }
+  return false;
 }
