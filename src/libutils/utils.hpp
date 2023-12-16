@@ -26,6 +26,7 @@ std::string errno2string();
 std::string randomFile();
 void mergeDirectories(std::filesystem::path sourcePath,
                       std::filesystem::path destinationPath);
+std::filesystem::path cacheDir();
 
 static inline std::string vectorToString(const std::vector<std::string> &vec) {
   std::stringstream output;

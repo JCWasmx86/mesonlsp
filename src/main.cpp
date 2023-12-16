@@ -33,6 +33,9 @@ void printHelp() {
   std::cerr << "--wrap-package-files <dir>\tSet the location of the package "
                "files containing auxiliary files"
             << std::endl;
+  std::cerr
+      << "--full \t\t\tFully setup and check a project (Includes subprojects)"
+      << std::endl;
   std::cerr << "--version    \t\t\tPrint version" << std::endl;
   std::cerr << "--help       \t\t\tPrint this help" << std::endl;
 }
@@ -86,9 +89,14 @@ int main(int argc, char **argv) {
   bool help = false;
   bool version = false;
   bool error = false;
+  bool full = false;
   for (int i = 1; i < argc; i++) {
     if (strcmp("--lsp", argv[i]) == 0) {
       lsp = true;
+      continue;
+    }
+    if (strcmp("--full", argv[i]) == 0) {
+      full = true;
       continue;
     }
     if (strcmp("--stdio", argv[i]) == 0) {
@@ -170,7 +178,11 @@ int main(int argc, char **argv) {
     auto parent = std::filesystem::absolute(path).parent_path();
     MesonTree tree(parent);
     AnalysisOptions opts(false, false, false, false, false, false, false);
-    tree.partialParse(opts);
+    if (full) {
+      tree.fullParse(opts);
+    } else {
+      tree.partialParse(opts);
+    }
     return 0;
   }
 }
