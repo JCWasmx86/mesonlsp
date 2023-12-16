@@ -4,3 +4,4 @@ InsertBraces: true
 IncludeBlocks: Regroup
 SeparateDefinitionBlocks: Always
 SortIncludes: CaseSensitive
+Standard: Latest
