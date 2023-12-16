@@ -173,8 +173,8 @@ int main(int argc, char **argv) {
   if (paths.empty()) {
     auto parent = std::filesystem::absolute(path).parent_path();
     MesonTree tree(parent);
-    tree.fastParse(
-        AnalysisOptions(false, false, false, false, false, false, false));
+    AnalysisOptions opts(false, false, false, false, false, false, false);
+    tree.partialParse(opts);
     return 0;
   }
 }

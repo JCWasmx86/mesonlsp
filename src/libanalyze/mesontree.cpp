@@ -53,7 +53,7 @@ OptionState parseOptions(std::filesystem::path &root) {
   return {};
 }
 
-void MesonTree::fastParse(AnalysisOptions analysisOptions) {
+void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   // First fetch all the options
   auto options = parseOptions(this->root);
   // Then fetch diagnostics for the options
