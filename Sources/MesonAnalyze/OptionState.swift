@@ -1,7 +1,7 @@
 public class OptionState {
   public var opts: [String: MesonOption] = [:]
 
-  init(options: [MesonOption]) {
+  public init(options: [MesonOption]) {
     self.append(
       option: StringOption("prefix", "Installation prefix (`C:\\` or `/usr/local` by default)")
     )
