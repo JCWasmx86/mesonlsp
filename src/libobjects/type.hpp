@@ -29,7 +29,9 @@
 class Type {
 public:
   const std::string name;
+
   virtual std::string toString() { return this->name; }
+
   virtual ~Type() = default;
 
 protected:

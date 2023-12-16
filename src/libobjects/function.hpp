@@ -58,6 +58,7 @@ public:
   }
 
   virtual std::string id();
+
   virtual ~Function() {}
 
 protected:
@@ -74,5 +75,6 @@ public:
          const std::vector<std::shared_ptr<Type>> returnTypes,
          const std::shared_ptr<Type> parentType)
       : Function(name, args, returnTypes), parentType(parentType) {}
+
   std::string id() override;
 };

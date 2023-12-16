@@ -14,6 +14,7 @@ private:
 
 public:
   TestJsonRpcHandler() : logger(Logger("TestJsonRpcHandler")) {}
+
   void handleNotification(std::string method, nlohmann::json params) override {
     this->logger.info(std::format("Got notification: {}", method));
   }

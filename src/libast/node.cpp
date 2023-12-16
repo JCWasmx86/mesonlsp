@@ -408,65 +408,87 @@ void SelectionStatement::visitChildren(CodeVisitor *visitor) {
 }
 
 void ErrorNode::visitChildren(CodeVisitor *visitor) {}
+
 void ErrorNode::visit(CodeVisitor *visitor) { visitor->visitErrorNode(this); }
+
 void ContinueNode::visit(CodeVisitor *visitor) {
   visitor->visitContinueNode(this);
 }
+
 void BreakNode::visit(CodeVisitor *visitor) { visitor->visitBreakNode(this); }
+
 void ArgumentList::visit(CodeVisitor *visitor) {
   visitor->visitArgumentList(this);
 }
+
 void ArrayLiteral::visit(CodeVisitor *visitor) {
   visitor->visitArrayLiteral(this);
 }
+
 void AssignmentStatement::visit(CodeVisitor *visitor) {
   visitor->visitAssignmentStatement(this);
 }
+
 void BinaryExpression::visit(CodeVisitor *visitor) {
   visitor->visitBinaryExpression(this);
 }
+
 void BooleanLiteral::visit(CodeVisitor *visitor) {
   visitor->visitBooleanLiteral(this);
 }
+
 void BuildDefinition::visit(CodeVisitor *visitor) {
   visitor->visitBuildDefinition(this);
 }
+
 void ConditionalExpression::visit(CodeVisitor *visitor) {
   visitor->visitConditionalExpression(this);
 }
+
 void DictionaryLiteral::visit(CodeVisitor *visitor) {
   visitor->visitDictionaryLiteral(this);
 }
+
 void FunctionExpression::visit(CodeVisitor *visitor) {
   visitor->visitFunctionExpression(this);
 }
+
 void IdExpression::visit(CodeVisitor *visitor) {
   visitor->visitIdExpression(this);
 }
+
 void IntegerLiteral::visit(CodeVisitor *visitor) {
   visitor->visitIntegerLiteral(this);
 }
+
 void IterationStatement::visit(CodeVisitor *visitor) {
   visitor->visitIterationStatement(this);
 }
+
 void KeyValueItem::visit(CodeVisitor *visitor) {
   visitor->visitKeyValueItem(this);
 }
+
 void KeywordItem::visit(CodeVisitor *visitor) {
   visitor->visitKeywordItem(this);
 }
+
 void MethodExpression::visit(CodeVisitor *visitor) {
   visitor->visitMethodExpression(this);
 }
+
 void SelectionStatement::visit(CodeVisitor *visitor) {
   visitor->visitSelectionStatement(this);
 }
+
 void StringLiteral::visit(CodeVisitor *visitor) {
   visitor->visitStringLiteral(this);
 }
+
 void SubscriptExpression::visit(CodeVisitor *visitor) {
   visitor->visitSubscriptExpression(this);
 }
+
 void UnaryExpression::visit(CodeVisitor *visitor) {
   visitor->visitUnaryExpression(this);
 }

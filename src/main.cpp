@@ -79,6 +79,7 @@ int parseWraps(std::vector<std::string> wraps, std::string output,
   }
   return error ? EXIT_FAILURE : EXIT_SUCCESS;
 }
+
 int main(int argc, char **argv) {
   std::string path = "./meson.build";
   std::vector<std::string> paths;

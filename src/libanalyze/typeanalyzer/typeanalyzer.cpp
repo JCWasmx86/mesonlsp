@@ -101,9 +101,11 @@ dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   LOG.info(std::format("Reduced from {} to {}", types.size(), ret.size()));
   return ret;
 }
+
 void TypeAnalyzer::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> types;
@@ -115,25 +117,31 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
   node->types = std::vector<std::shared_ptr<Type>>{
       std::make_shared<List>(dedup(this->ns, types))};
 }
+
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitBooleanLiteral(BooleanLiteral *node) {
   node->visitChildren(this);
   node->types.emplace_back(this->ns.boolType);
 }
+
 void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> types(node->ifTrue->types);
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
 }
+
 void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> types;
@@ -145,36 +153,46 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
   node->types = std::vector<std::shared_ptr<Type>>{
       std::make_shared<List>(dedup(this->ns, types))};
 }
+
 void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitIntegerLiteral(IntegerLiteral *node) {
   node->visitChildren(this);
   node->types.emplace_back(this->ns.intType);
 }
+
 void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitKeyValueItem(KeyValueItem *node) {
   node->visitChildren(this);
   node->types = node->value->types;
 }
+
 void TypeAnalyzer::visitKeywordItem(KeywordItem *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
   node->types.push_back(this->ns.strType);
 }
+
 void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> newTypes;
@@ -202,6 +220,7 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
   }
   node->types = dedup(this->ns, newTypes);
 }
+
 void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
   node->visitChildren(this);
   switch (node->op) {
@@ -217,12 +236,15 @@ void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
     break;
   }
 }
+
 void TypeAnalyzer::visitErrorNode(ErrorNode *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitBreakNode(BreakNode *node) {
   node->visitChildren(this);
 }
+
 void TypeAnalyzer::visitContinueNode(ContinueNode *node) {
   node->visitChildren(this);
 }

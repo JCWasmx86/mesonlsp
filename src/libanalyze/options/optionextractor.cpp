@@ -14,27 +14,35 @@ static Logger LOG("analyze::optionextractor"); // NOLINT
 void OptionExtractor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitArrayLiteral(ArrayLiteral *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitAssignmentStatement(AssignmentStatement *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitBinaryExpression(BinaryExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitBooleanLiteral(BooleanLiteral *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitBuildDefinition(BuildDefinition *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitConditionalExpression(ConditionalExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitDictionaryLiteral(DictionaryLiteral *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
   if (node->functionName() != "option") {
@@ -125,42 +133,55 @@ cont3:
     LOG.warn(std::format("Unknown option type: {}", optionType));
   }
 }
+
 void OptionExtractor::visitIdExpression(IdExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitIntegerLiteral(IntegerLiteral *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitIterationStatement(IterationStatement *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitKeyValueItem(KeyValueItem *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitKeywordItem(KeywordItem *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitSelectionStatement(SelectionStatement *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitSubscriptExpression(SubscriptExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitUnaryExpression(UnaryExpression *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitErrorNode(ErrorNode *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitBreakNode(BreakNode *node) {
   node->visitChildren(this);
 }
+
 void OptionExtractor::visitContinueNode(ContinueNode *node) {
   node->visitChildren(this);
 }

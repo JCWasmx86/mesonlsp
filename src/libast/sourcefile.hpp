@@ -9,8 +9,10 @@ public:
   const std::filesystem::path file;
 
   SourceFile(std::filesystem::path file) : file(file) {}
+
   virtual std::string contents();
   virtual ~SourceFile() = default;
+
   virtual std::string extractNodeValue(TSNode node) {
     auto startByte = ts_node_start_byte(node);
     auto endByte = ts_node_end_byte(node);
@@ -29,5 +31,6 @@ private:
 public:
   MemorySourceFile(std::string contents, std::filesystem::path file)
       : SourceFile(file), str(contents) {}
+
   std::string contents() override { return this->str; }
 };
