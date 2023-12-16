@@ -1,5 +1,7 @@
 #include "utils.hpp"
+
 #include "log.hpp"
+
 #include <archive.h>
 #include <archive_entry.h>
 #include <cctype>

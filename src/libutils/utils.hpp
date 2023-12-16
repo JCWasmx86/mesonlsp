@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sha-256.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstddef>

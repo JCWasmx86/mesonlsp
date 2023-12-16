@@ -1,8 +1,10 @@
 #include "mesontree.hpp"
+
 #include "log.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
 #include "typeanalyzer.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <tree_sitter/api.h>

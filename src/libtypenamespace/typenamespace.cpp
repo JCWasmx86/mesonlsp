@@ -1,5 +1,7 @@
 #include "typenamespace.hpp"
+
 #include "type.hpp"
+
 #include <memory>
 #include <string>
 #include <vector>

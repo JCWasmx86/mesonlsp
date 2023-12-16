@@ -1,7 +1,9 @@
 #include "typeanalyzer.hpp"
+
 #include "log.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
+
 #include <format>
 #include <memory>
 #include <set>

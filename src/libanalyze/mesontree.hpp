@@ -4,6 +4,7 @@
 #include "mesonmetadata.hpp"
 #include "subprojects/subprojectstate.hpp"
 #include "typenamespace.hpp"
+
 #include <filesystem>
 #include <set>
 
