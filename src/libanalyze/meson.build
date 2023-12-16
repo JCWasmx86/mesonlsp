@@ -1,4 +1,4 @@
-analyze_inc = include_directories('.', 'subprojects', 'options')
+analyze_inc = include_directories('.', 'options', 'subprojects', 'typeanalyzer')
 analyze_deps = [ast_dep, tree_sitter_dep, objects_dep, typenamespace_dep]
 analyze_lib = static_library(
     'analyze',
