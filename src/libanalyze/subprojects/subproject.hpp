@@ -1,6 +1,12 @@
 #pragma once
 
+#include "utils.hpp"
+#include "wrap.hpp"
+
+#include <cstring>
 #include <filesystem>
+#include <fstream>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -51,18 +57,52 @@ public:
   }
 };
 
+// TODO: Move me
+static std::string
+guessTargetDirectoryFromWrap(const std::filesystem::path &path) {
+  if (std::filesystem::exists(path)) {
+    std::ifstream file(path.c_str());
+    std::string line;
+    while (std::getline(file, line)) {
+      size_t pos = line.find("directory");
+      if (pos != std::string::npos) {
+        auto directoryValue = line.substr(pos + strlen("directory"));
+        trim(directoryValue);
+        if (directoryValue.empty() || directoryValue[0] != '=') {
+          continue;
+        }
+        auto withoutEquals = directoryValue.substr(1);
+        trim(withoutEquals);
+        return withoutEquals;
+      }
+    }
+  }
+  return path.filename().stem().string();
+}
+
 class WrapSubproject : public MesonSubproject {
 public:
   std::filesystem::path wrapFile;
   std::filesystem::path packageFiles;
+  std::shared_ptr<WrapFile> wrap;
 
   WrapSubproject(std::string name, std::filesystem::path wrapFile,
                  std::filesystem::path packageFiles, std::filesystem::path path)
-      : MesonSubproject(std::move(name), std::move(path)),
+      : MesonSubproject(std::move(name),
+                        path / guessTargetDirectoryFromWrap(wrapFile)),
         wrapFile(std::move(wrapFile)), packageFiles(std::move(packageFiles)) {}
 
   void init() override {
-    // Nothing
+    auto ptr = parseWrap(this->wrapFile);
+    if (!ptr || !ptr->serializedWrap) {
+      return;
+    }
+    auto result = ptr->serializedWrap->setupDirectory(
+        this->realpath.parent_path(), this->packageFiles);
+    if (!result) {
+      return;
+    }
+    this->initialized = true;
   }
 
   void update() override {

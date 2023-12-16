@@ -23,7 +23,10 @@ extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
 Wrap::Wrap(ast::ini::Section *section) {
   if (auto val = section->findStringValue("directory")) {
     this->directory = val.value();
+    LOG.info(std::format("Got to know: {}", val.value()));
   } else {
+    LOG.info(std::format("Guessed: {}->{}", section->file->file.c_str(),
+                         section->file->file.stem().c_str()));
     this->directory = section->file->file.stem();
   }
   if (auto val = section->findStringValue("patch_url")) {
@@ -64,12 +67,12 @@ bool Wrap::applyPatch(std::filesystem::path path,
     }
     LOG.info(
         std::format("Merging {} into {}", packagePath.c_str(), path.c_str()));
-    mergeDirectories(packagePath, std::move(path));
+    mergeDirectories(packagePath, path);
     return true;
   }
   auto patchFilename = this->patchFilename;
   if (!patchFilename.has_value() || patchFilename->empty()) {
-    return false;
+    return true;
   }
   auto patchUrl = this->patchUrl;
   if (!patchUrl.has_value() || patchUrl->empty()) {
@@ -113,9 +116,11 @@ bool Wrap::applyDiffFiles(std::filesystem::path path,
 bool Wrap::postSetup(std::filesystem::path path,
                      std::filesystem::path packageFilesPath) {
   if (!this->applyPatch(path, packageFilesPath)) {
+    LOG.warn("Failed during applying patches");
     return false;
   }
   if (!this->applyDiffFiles(path, packageFilesPath)) {
+    LOG.warn("Failed during applying diffs");
     return false;
   }
   this->successfullySetup = true;
