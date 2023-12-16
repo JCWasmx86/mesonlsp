@@ -9,7 +9,8 @@ Checks: |
     readability-*, 
     -performance-avoid-endl,
     -misc-no-recursion,
-    -modernize-use-trailing-return-type
+    -modernize-use-trailing-return-type,
+    -misc-non-private-member-variables-in-classes
 WarningsAsErrors: ""
 HeaderFilterRegex: ""
 FormatStyle: none

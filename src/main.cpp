@@ -1,5 +1,7 @@
+#include "analysisoptions.hpp"
 #include "libast/sourcefile.hpp"
 #include "libwrap/wrap.hpp"
+#include "mesontree.hpp"
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -167,30 +169,10 @@ int main(int argc, char **argv) {
     return parseWraps(wraps, wrapOutput, wrapPackageFiles);
   }
   if (paths.empty()) {
-    TSParser *parser = ts_parser_new();
-    ts_parser_set_language(parser, tree_sitter_meson());
-    auto fpath = std::filesystem::path(path);
-    if (!std::filesystem::exists(fpath)) {
-      std::cerr << fpath.c_str() << " does not exist!" << std::endl;
-      return EXIT_SUCCESS;
-    }
-    if (!std::filesystem::is_regular_file(fpath)) {
-      std::cerr << fpath.c_str() << " is not a file!" << std::endl;
-      return EXIT_SUCCESS;
-    }
-    std::ifstream file(path);
-    auto fileSize = std::filesystem::file_size(fpath);
-    std::string fileContent;
-    fileContent.resize(fileSize, '\0');
-    file.read(fileContent.data(), fileSize);
-    TSTree *tree = ts_parser_parse_string(parser, NULL, fileContent.data(),
-                                          fileContent.length());
-    TSNode rootNode = ts_tree_root_node(tree);
-    auto sourceFile = std::make_shared<SourceFile>(fpath);
-    auto root = makeNode(sourceFile, rootNode);
-
-    ts_tree_delete(tree);
-    ts_parser_delete(parser);
+    auto parent = std::filesystem::absolute(path).parent_path();
+    MesonTree tree(parent);
+    tree.fastParse(
+        AnalysisOptions(false, false, false, false, false, false, false));
     return 0;
   }
 }

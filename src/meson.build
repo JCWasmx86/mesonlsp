@@ -2,10 +2,11 @@ subdir('liblog')
 subdir('libutils')
 subdir('libobjects')
 subdir('libast')
-subdir('libjsonrpc')
-subdir('libwrap')
-subdir('liblsptypes')
 subdir('libtypenamespace')
+subdir('libwrap')
+subdir('libanalyze')
+subdir('libjsonrpc')
+subdir('liblsptypes')
 
 version = meson.project_version()
 
@@ -21,5 +22,6 @@ executable(
         ast_dep,
         jsonrpc_dep,
         wrap_dep,
+        analyze_dep,
     ],
 )
