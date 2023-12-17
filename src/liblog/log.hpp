@@ -10,10 +10,10 @@ private:
 public:
   Logger(std::string module);
 
-  void info(std::string msg,
+  void info(const std::string &msg,
             std::source_location location = std::source_location::current());
-  void error(std::string msg,
+  void error(const std::string &msg,
              std::source_location location = std::source_location::current());
-  void warn(std::string msg,
+  void warn(const std::string &msg,
             std::source_location location = std::source_location::current());
 };

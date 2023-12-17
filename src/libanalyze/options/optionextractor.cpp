@@ -6,7 +6,9 @@
 
 #include <format>
 #include <memory>
+#include <optional>
 #include <ranges>
+#include <string>
 #include <vector>
 
 static Logger LOG("analyze::optionextractor"); // NOLINT

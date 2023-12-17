@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <tree_sitter/api.h>
+#include <utility>
 #include <vector>
 
 namespace ast::ini {
@@ -34,7 +35,7 @@ public:
   std::string message;
 
   ErrorNode(std::shared_ptr<SourceFile> file, TSNode node, std::string message)
-      : Node(file, node), message(message) {}
+      : Node(std::move(file), node), message(std::move(message)) {}
 };
 
 class KeyValuePair : public ast::ini::Node {
@@ -50,7 +51,7 @@ public:
   std::vector<std::shared_ptr<ast::ini::Node>> key_value_pairs;
   Section(std::shared_ptr<SourceFile> file, TSNode node);
 
-  std::optional<std::string> findStringValue(std::string key);
+  std::optional<std::string> findStringValue(const std::string &key);
 };
 
 class IniFile : public ast::ini::Node {

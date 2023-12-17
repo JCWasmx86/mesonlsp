@@ -1,10 +1,12 @@
 #include "typeanalyzer.hpp"
 
 #include "log.hpp"
+#include "node.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
 
 #include <format>
+#include <map>
 #include <memory>
 #include <set>
 #include <string>
@@ -197,13 +199,13 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> newTypes;
   for (const auto &type : node->outer->types) {
-    auto asDict = dynamic_cast<Dict *>(type.get());
+    auto *asDict = dynamic_cast<Dict *>(type.get());
     if (asDict != nullptr) {
       auto dTypes = asDict->types;
       newTypes.insert(newTypes.begin(), dTypes.begin(), dTypes.end());
       continue;
     }
-    auto asList = dynamic_cast<List *>(type.get());
+    auto *asList = dynamic_cast<List *>(type.get());
     if (asList != nullptr) {
       auto lTypes = asList->types;
       newTypes.insert(newTypes.begin(), lTypes.begin(), lTypes.end());
