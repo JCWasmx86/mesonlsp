@@ -28,10 +28,12 @@
 
 #define HTTP_OK 200
 #define FTP_OK 226
+#define LIBARCHIVE_BLOCKSIZE ((size_t)1024 * 32)
+#define ERRNO_BUF_SIZE 256
 
 static Logger LOG("utils"); // NOLINT
 
-bool downloadFile(std::string url, std::filesystem::path output) {
+bool downloadFile(std::string url, const std::filesystem::path &output) {
   auto temporaryPath = std::filesystem::temp_directory_path() /
                        hash(std::format("{}-{}", url, output.c_str()));
   LOG.info(std::format("Downloading URL {} to {} (Temp: {})", url,
@@ -75,35 +77,35 @@ bool downloadFile(std::string url, std::filesystem::path output) {
   return successful;
 }
 
-static int copyData(struct archive *ar, struct archive *aw) {
+static int copyData(struct archive *archive, struct archive *writer) {
   const void *buff;
   size_t size;
   la_int64_t offset;
 
   for (;;) {
-    auto r = archive_read_data_block(ar, &buff, &size, &offset);
-    if (r == ARCHIVE_EOF) {
+    auto res = archive_read_data_block(archive, &buff, &size, &offset);
+    if (res == ARCHIVE_EOF) {
       return ARCHIVE_OK;
     }
-    if (r < ARCHIVE_OK) {
-      return r;
+    if (res < ARCHIVE_OK) {
+      return res;
     }
-    r = (int)archive_write_data_block(aw, buff, size, offset);
-    if (r < ARCHIVE_OK) {
-      std::cerr << archive_error_string(aw) << std::endl;
-      return r;
+    res = (int)archive_write_data_block(writer, buff, size, offset);
+    if (res < ARCHIVE_OK) {
+      std::cerr << archive_error_string(writer) << std::endl;
+      return res;
     }
   }
 }
 
-bool extractFile(std::filesystem::path archivePath,
-                 std::filesystem::path outputDirectory) {
+bool extractFile(const std::filesystem::path &archivePath,
+                 const std::filesystem::path &outputDirectory) {
   LOG.info(std::format("Extracting {} to {}", archivePath.c_str(),
                        outputDirectory.c_str()));
-  auto archive = archive_read_new();
+  auto *archive = archive_read_new();
   archive_read_support_format_all(archive);
   archive_read_support_filter_all(archive);
-  auto ext = archive_write_disk_new();
+  auto *ext = archive_write_disk_new();
   archive_write_disk_set_options(
       ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
                ARCHIVE_EXTRACT_FFLAGS);
@@ -111,7 +113,8 @@ bool extractFile(std::filesystem::path archivePath,
 
   const char *filename = archivePath.c_str();
 
-  if (auto r = archive_read_open_filename(archive, filename, 10240)) {
+  if (auto res =
+          archive_read_open_filename(archive, filename, LIBARCHIVE_BLOCKSIZE)) {
     LOG.error(std::format("Unable to open archive: {}",
                           archive_error_string(archive)));
     return false;
@@ -214,13 +217,13 @@ bool launchProcess(const std::string &executable,
 }
 
 std::string errno2string() {
-  char buf[256] = {0};
+  char buf[ERRNO_BUF_SIZE] = {0};
   strerror_r(errno, buf, sizeof(buf) - 1); // NOLINT
   return std::string(buf);
 }
 
 std::string randomFile() {
-  auto tmpdir = getenv("TMPDIR");
+  auto *tmpdir = getenv("TMPDIR"); // NOLINT
   if (tmpdir == nullptr) {
     tmpdir = (char *)"/tmp";
   }
@@ -231,8 +234,8 @@ std::string randomFile() {
   return std::format("{}/{}", tmpdir, out);
 }
 
-void mergeDirectories(std::filesystem::path sourcePath,
-                      std::filesystem::path destinationPath) {
+void mergeDirectories(const std::filesystem::path &sourcePath,
+                      const std::filesystem::path &destinationPath) {
   try {
     for (const auto &entry :
          std::filesystem::recursive_directory_iterator(sourcePath)) {
@@ -253,7 +256,7 @@ void mergeDirectories(std::filesystem::path sourcePath,
 }
 
 std::filesystem::path cacheDir() {
-  auto suffix = "c++-mesonlsp";
+  const auto *suffix = "c++-mesonlsp";
   auto xdgCacheHome = getenv("XDG_CACHE_HOME"); // NOLINT
   if (xdgCacheHome != nullptr && strcmp(xdgCacheHome, "") != 0) {
     auto full = std::filesystem::path{xdgCacheHome} / suffix;
@@ -269,7 +272,7 @@ std::filesystem::path cacheDir() {
   return full;
 }
 
-std::optional<std::filesystem::path> cachedDownload(std::string url) {
+std::optional<std::filesystem::path> cachedDownload(const std::string &url) {
   auto downloadsPath = cacheDir() / "downloadCache";
   if (!std::filesystem::exists(downloadsPath)) {
     std::filesystem::create_directories(downloadsPath);
@@ -285,7 +288,7 @@ std::optional<std::filesystem::path> cachedDownload(std::string url) {
   return std::nullopt;
 }
 
-bool validateHash(std::filesystem::path path, std::string expected) {
+bool validateHash(const std::filesystem::path &path, std::string expected) {
   auto real = hash(path);
   if (real.size() != expected.size()) {
     LOG.warn(std::format("Expected hash '{}' does not match real hash '{}'",
@@ -304,7 +307,7 @@ bool validateHash(std::filesystem::path path, std::string expected) {
 }
 
 std::optional<std::filesystem::path>
-downloadWithFallback(std::string url, std::string hash,
+downloadWithFallback(std::string url, const std::string &hash,
                      std::optional<std::string> fallbackUrl) {
   auto mainUrlDownload = cachedDownload(url);
   if (mainUrlDownload.has_value()) {

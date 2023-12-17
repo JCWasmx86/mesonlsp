@@ -14,19 +14,19 @@
 #include <string>
 #include <vector>
 
-bool downloadFile(std::string url, std::filesystem::path output);
-bool extractFile(std::filesystem::path archivePath,
-                 std::filesystem::path outputDirectory);
+bool downloadFile(std::string url, const std::filesystem::path &output);
+bool extractFile(const std::filesystem::path &archivePath,
+                 const std::filesystem::path &outputDirectory);
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args);
-std::optional<std::filesystem::path> cachedDownload(std::string url);
+std::optional<std::filesystem::path> cachedDownload(const std::string &url);
 std::optional<std::filesystem::path>
-downloadWithFallback(std::string url, std::string hash,
+downloadWithFallback(std::string url, const std::string &hash,
                      std::optional<std::string> fallbackUrl);
 std::string errno2string();
 std::string randomFile();
-void mergeDirectories(std::filesystem::path sourcePath,
-                      std::filesystem::path destinationPath);
+void mergeDirectories(const std::filesystem::path &sourcePath,
+                      const std::filesystem::path &destinationPath);
 std::filesystem::path cacheDir();
 
 static inline std::string vectorToString(const std::vector<std::string> &vec) {

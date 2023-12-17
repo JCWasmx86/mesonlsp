@@ -44,8 +44,8 @@ void printVersion() { std::cout << VERSION << std::endl; }
 
 void startLanguageServer() {}
 
-int parseWraps(std::vector<std::string> wraps, std::string output,
-               std::string packageFiles) {
+int parseWraps(const std::vector<std::string> &wraps, const std::string &output,
+               const std::string &packageFiles) {
   if (output.empty()) {
     std::cerr << "No output directory given. Use --wrap-output" << std::endl;
     return EXIT_FAILURE;
