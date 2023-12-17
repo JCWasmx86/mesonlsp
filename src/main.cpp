@@ -80,6 +80,7 @@ int parseWraps(std::vector<std::string> wraps, std::string output,
 }
 
 int main(int argc, char **argv) {
+  std::locale::global(std::locale(""));
   std::string path = "./meson.build";
   std::vector<std::string> paths;
   std::vector<std::string> wraps;

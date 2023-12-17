@@ -118,7 +118,7 @@ bool extractFile(std::filesystem::path archivePath,
   }
 
   for (;;) {
-    auto entry = static_cast<struct archive_entry *>(nullptr);
+    auto *entry = static_cast<struct archive_entry *>(nullptr);
     auto res = archive_read_next_header(archive, &entry);
     if (res == ARCHIVE_EOF) {
       break;
@@ -130,7 +130,7 @@ bool extractFile(std::filesystem::path archivePath,
     }
     auto entryPath =
         outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
-    archive_entry_set_pathname(entry, entryPath.string().c_str());
+    archive_entry_set_pathname_utf8(entry, entryPath.string().c_str());
 
     const auto *originalHardlink = archive_entry_hardlink(entry);
     if (originalHardlink != nullptr) {
