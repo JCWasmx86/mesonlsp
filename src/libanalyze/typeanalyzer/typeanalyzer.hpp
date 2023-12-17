@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -71,4 +72,12 @@ private:
                               IdExpression *lhsIdExpr);
   void evaluatePureAssignment(AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
+  std::vector<std::shared_ptr<Type>>
+  evalAssignment(AssignmentOperator op, std::vector<std::shared_ptr<Type>> lhs,
+                 std::vector<std::shared_ptr<Type>> rhs);
+  void evalAssignmentTypes(std::shared_ptr<Type> l, std::shared_ptr<Type> r,
+                           AssignmentOperator op,
+                           std::vector<std::shared_ptr<Type>> *newTypes);
+  std::optional<std::shared_ptr<Type>> evalPlusEquals(std::shared_ptr<Type> l,
+                                                      std::shared_ptr<Type> r);
 };

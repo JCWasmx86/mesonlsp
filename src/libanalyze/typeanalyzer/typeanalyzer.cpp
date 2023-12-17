@@ -11,6 +11,7 @@
 #include <format>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -80,11 +81,95 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
   lhsIdExpr->types = arr;
 }
 
+std::optional<std::shared_ptr<Type>>
+TypeAnalyzer::evalPlusEquals(std::shared_ptr<Type> l, std::shared_ptr<Type> r) {
+  if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+    return this->ns.intType;
+  }
+  if (dynamic_cast<Str *>(l.get()) && dynamic_cast<Str *>(r.get())) {
+    return this->ns.strType;
+  }
+  auto *ll = dynamic_cast<List *>(l.get());
+  if (ll) {
+    auto *lr = dynamic_cast<List *>(r.get());
+    auto newTypes = ll->types;
+    if (lr) {
+      auto rTypes = lr->types;
+      newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
+    } else {
+      newTypes.emplace_back(r);
+    }
+    return std::make_shared<List>(dedup(this->ns, newTypes));
+  }
+  auto *dl = dynamic_cast<Dict *>(l.get());
+  if (dl) {
+    auto *dr = dynamic_cast<Dict *>(r.get());
+    auto newTypes = dl->types;
+    if (dr) {
+      auto rTypes = dr->types;
+      newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
+    } else {
+      newTypes.emplace_back(r);
+    }
+    return std::make_shared<Dict>(dedup(this->ns, newTypes));
+  }
+  return std::nullopt;
+}
+
+void TypeAnalyzer::evalAssignmentTypes(
+    std::shared_ptr<Type> l, std::shared_ptr<Type> r, AssignmentOperator op,
+    std::vector<std::shared_ptr<Type>> *newTypes) {
+  switch (op) {
+  case DivEquals:
+    if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+      newTypes->emplace_back(this->ns.intType);
+    }
+    if (dynamic_cast<Str *>(l.get()) && dynamic_cast<Str *>(r.get())) {
+      newTypes->emplace_back(this->ns.strType);
+    }
+    break;
+  case MinusEquals:
+  case ModEquals:
+  case MulEquals:
+    if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+      newTypes->emplace_back(this->ns.intType);
+    }
+    break;
+  case PlusEquals: {
+    auto type = this->evalPlusEquals(l, r);
+    if (type.has_value()) {
+      newTypes->emplace_back(type->get());
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+std::vector<std::shared_ptr<Type>>
+TypeAnalyzer::evalAssignment(AssignmentOperator op,
+                             std::vector<std::shared_ptr<Type>> lhs,
+                             std::vector<std::shared_ptr<Type>> rhs) {
+  std::vector<std::shared_ptr<Type>> ret;
+  for (auto l : lhs) {
+    for (auto r : rhs) {
+      this->evalAssignmentTypes(l, r, op, &ret);
+    }
+  }
+  return ret;
+}
+
 void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   if (node->op == AssignmentOperator::Equals) {
     this->evaluatePureAssignment(node, lhsIdExpr);
+    return;
   }
+  auto newTypes =
+      dedup(this->ns,
+            this->evalAssignment(node->op, node->lhs->types, node->rhs->types));
+  lhsIdExpr->types = newTypes;
 }
 
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
