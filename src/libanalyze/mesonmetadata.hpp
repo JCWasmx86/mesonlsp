@@ -25,29 +25,45 @@ public:
   uint32_t endColumn;
   std::string message;
 
-  Diagnostic(Severity sev, Node *node, std::string message) {
+  Diagnostic(Severity sev, Node *begin, Node *end, std::string message) {
     this->severity = sev;
-    const auto *loc = node->location;
+    const auto *loc = begin->location;
     this->startLine = loc->startLine;
-    this->endLine = loc->endLine;
     this->startColumn = loc->startColumn;
+    loc = end->location;
+    this->endLine = loc->endLine;
     this->endColumn = loc->endColumn;
     this->message = std::move(message);
   }
+
+  Diagnostic(Severity sev, Node *node, std::string message)
+      : Diagnostic(sev, node, node, std::move(message)) {}
 };
 
 class MesonMetadata {
 public:
   // Sadly raw pointers due to only getting raw pointers to the
   // code visitor.
-  std::map<std::string, std::vector<FunctionExpression *>> subdirCalls;
-  std::map<std::string, std::vector<MethodExpression *>> methodCalls;
-  std::map<std::string, std::vector<SubscriptExpression *>> arrayAccess;
-  std::map<std::string, std::vector<FunctionExpression *>> functionCalls;
-  std::map<std::string, std::vector<IdExpression *>> identifiers;
-  std::map<std::string, std::vector<StringLiteral *>> stringLiterals;
-  std::map<std::string,
+  std::map<std::filesystem::path, std::vector<FunctionExpression *>>
+      subdirCalls;
+  std::map<std::filesystem::path, std::vector<MethodExpression *>> methodCalls;
+  std::map<std::filesystem::path, std::vector<SubscriptExpression *>>
+      arrayAccess;
+  std::map<std::filesystem::path, std::vector<FunctionExpression *>>
+      functionCalls;
+  std::map<std::filesystem::path, std::vector<IdExpression *>> identifiers;
+  std::map<std::filesystem::path, std::vector<StringLiteral *>> stringLiterals;
+  std::map<std::filesystem::path,
            std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>>>
       kwargs;
-  std::map<std::string, std::vector<Diagnostic>> diagnostics;
+  std::map<std::filesystem::path, std::vector<Diagnostic>> diagnostics;
+
+  void registerDiagnostic(Node *node, const Diagnostic &diag) {
+    auto key = node->file->file;
+    if (this->diagnostics.contains(key)) {
+      this->diagnostics[key].push_back(diag);
+    } else {
+      this->diagnostics[key] = {diag};
+    }
+  }
 };

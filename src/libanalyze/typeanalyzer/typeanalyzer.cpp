@@ -1,10 +1,13 @@
 #include "typeanalyzer.hpp"
 
+#include "function.hpp"
 #include "log.hpp"
+#include "mesonmetadata.hpp"
 #include "node.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
 
+#include <algorithm>
 #include <format>
 #include <map>
 #include <memory>
@@ -12,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#define TYPE_STRING_LENGTH 12
 static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static std::vector<std::shared_ptr<Type>>
@@ -33,8 +37,79 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
       std::make_shared<List>(dedup(this->ns, types))};
 }
 
+void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) {
+  std::string name;
+  auto *fe = dynamic_cast<FunctionExpression *>(node->rhs.get());
+  if (fe && fe->function) {
+    name = fe->function->id();
+  } else {
+    auto *me = dynamic_cast<MethodExpression *>(node->rhs.get());
+    if (me && me->method) {
+      name = me->method->id();
+    }
+  }
+  if (!name.starts_with("install_")) {
+    this->metadata->registerDiagnostic(
+        node->lhs.get(),
+        Diagnostic(Severity::Error, node->lhs.get(), "Can't assign from void"));
+  }
+}
+
+void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
+                                          IdExpression *lhsIdExpr) {
+  auto arr = node->rhs->types;
+  if (arr.empty()) {
+    auto *arrLit = dynamic_cast<ArrayLiteral *>(node->rhs.get());
+    if (arrLit && arrLit->args.empty()) {
+      arr = {std::make_shared<List>(std::vector<std::shared_ptr<Type>>{})};
+    }
+    auto *dictLit = dynamic_cast<DictionaryLiteral *>(node->rhs.get());
+    if (dictLit && dictLit->values.empty()) {
+      arr = {std::make_shared<Dict>(std::vector<std::shared_ptr<Type>>{})};
+    }
+  }
+  auto assignmentName = lhsIdExpr->id;
+  if (assignmentName == "meson" || assignmentName == "build_machine" ||
+      assignmentName == "target_machine" || assignmentName == "host_machine") {
+    this->metadata->registerDiagnostic(
+        lhsIdExpr,
+        Diagnostic(Severity::Error, lhsIdExpr,
+                   "Attempted to re-assign to existing, read-only variable"));
+    return;
+  }
+  lhsIdExpr->types = arr;
+}
+
+void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
+                                          IdExpression *lhsIdExpr) {
+  if (node->op == AssignmentOperator::Equals) {
+    this->evaluatePureAssignment(node, lhsIdExpr);
+  }
+}
+
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   node->visitChildren(this);
+  auto *idExpr = dynamic_cast<IdExpression *>(node->lhs.get());
+  if (!idExpr) {
+    this->metadata->registerDiagnostic(
+        node->lhs.get(), Diagnostic(Severity::Error, node->lhs.get(),
+                                    "Can only assign to variables"));
+    return;
+  }
+  if (node->op == AssignmentOpOther) {
+    this->metadata->registerDiagnostic(
+        node->lhs.get(), Diagnostic(Severity::Error, node->lhs.get(),
+                                    "Unknown assignment operator"));
+    return;
+  }
+  auto rhsTypes = node->rhs->types;
+  if (rhsTypes.empty() &&
+      (dynamic_cast<FunctionExpression *>(node->rhs.get()) ||
+       dynamic_cast<MethodExpression *>(node->rhs.get()))) {
+    this->extractVoidAssignment(node);
+    return;
+  }
+  this->evaluateFullAssignment(node, idExpr);
 }
 
 void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
@@ -51,11 +126,17 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
     return;
   }
   if (node->stmts.empty()) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         "Missing project() call at top of file"));
     return;
   }
   auto first = node->stmts[0];
   auto *asCall = dynamic_cast<FunctionExpression *>(first.get());
-  if (!asCall) {
+  if (asCall == nullptr || asCall->functionName() != "project") {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         "Missing project() call at top of file"));
     return;
   }
   auto alNode = asCall->args;
@@ -93,6 +174,9 @@ void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
   if (!lastAlive || !firstDead || !lastDead) {
     return;
   }
+  this->metadata->registerDiagnostic(
+      firstDead.get(), Diagnostic(Severity::Warning, firstDead.get(),
+                                  lastDead.get(), "Dead code"));
 }
 
 void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
@@ -119,8 +203,27 @@ void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
 void TypeAnalyzer::checkUnusedVariables() {
   auto needingUse = this->variablesNeedingUse.back();
   this->variablesNeedingUse.pop_back();
-  (void)needingUse;
-  // TODO!
+  if (!this->variablesNeedingUse.empty()) {
+    auto toAppend = this->variablesNeedingUse.back();
+    toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
+    return;
+  }
+  for (auto *n : needingUse) {
+    auto *ass = dynamic_cast<AssignmentStatement *>(n->parent);
+    if (!ass) {
+      continue;
+    }
+    auto *rhs = dynamic_cast<FunctionExpression *>(ass->rhs.get());
+    if (!rhs) {
+      continue;
+    }
+    auto fnid = rhs->functionName();
+    if (fnid == "declare_dependency") {
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        n, Diagnostic(Severity::Warning, n, "Unused assignment"));
+  }
 }
 
 void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
@@ -139,7 +242,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   std::vector<std::shared_ptr<Type>> types(node->ifTrue->types);
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
-  for (auto t : node->condition->types) {
+  for (const auto &t : node->condition->types) {
     if (dynamic_cast<Any *>(t.get())) {
       return;
     }
@@ -150,6 +253,10 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
       return;
     }
   }
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::Error, node,
+                       "Condition is not bool: " +
+                           joinTypes(node->condition->types)));
 }
 
 void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) {
@@ -166,8 +273,11 @@ void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) {
     auto keyName = keyNode->id;
     if (!seenKeys.contains(keyName)) {
       seenKeys.insert(keyName);
+      continue;
     }
-    // TODO
+    this->metadata->registerDiagnostic(
+        keyNode, Diagnostic(Severity::Warning, keyNode,
+                            std::format("Duplicate key \"{}\"", keyName)));
   }
 }
 
@@ -227,11 +337,16 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
   auto funcName = node->functionName();
   if (funcName == INVALID_FUNCTION_NAME) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("Unknown function `{}`", funcName)));
     return;
   }
   auto functionOpt = this->ns.lookupFunction(funcName);
   if (!functionOpt.has_value()) {
-    // TODO
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("Unknown function `{}`", funcName)));
     return;
   }
   auto fn = functionOpt.value();
@@ -241,7 +356,12 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   auto args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
     if (fn->minPosArgs == 0) {
-      // TODO
+      this->metadata->registerDiagnostic(
+          node,
+          Diagnostic(
+              Severity::Error, node,
+              std::format("Expected {} positional arguments, but got none!",
+                          fn->minPosArgs)));
     }
   } else {
     this->checkCall(node);
@@ -332,20 +452,42 @@ void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
     break;
   case UnaryOther:
   default:
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node, "Bad unary operator"));
     break;
   }
 }
 
 void TypeAnalyzer::visitErrorNode(ErrorNode *node) {
   node->visitChildren(this);
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::Error, node, node->message));
 }
 
 void TypeAnalyzer::visitBreakNode(BreakNode *node) {
-  node->visitChildren(this);
+  this->checkIfInLoop(node, "break");
 }
 
 void TypeAnalyzer::visitContinueNode(ContinueNode *node) {
-  node->visitChildren(this);
+  this->checkIfInLoop(node, "continue");
+}
+
+void TypeAnalyzer::checkIfInLoop(Node *node, std::string str) const {
+  auto *parent = node->parent;
+  while (parent) {
+    if (dynamic_cast<IterationStatement *>(parent)) {
+      return;
+    }
+    if (dynamic_cast<BuildDefinition *>(parent)) {
+      break;
+    }
+    parent = parent->parent;
+  }
+  this->metadata->registerDiagnostic(
+      node,
+      Diagnostic(
+          Severity::Error, node,
+          std::format("{} statements are only allowed inside loops", str)));
 }
 
 static std::vector<std::shared_ptr<Type>>
@@ -435,5 +577,23 @@ dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
     ret.emplace_back(obj.second);
   }
   LOG.info(std::format("Reduced from {} to {}", types.size(), ret.size()));
+  return ret;
+}
+
+std::string joinTypes(std::vector<std::shared_ptr<Type>> types) {
+  std::vector<std::string> vector;
+  vector.reserve(types.size());
+  for (const auto &type : types) {
+    vector.push_back(type->toString());
+  }
+  std::sort(vector.begin(), vector.end());
+  std::string ret;
+  ret.reserve(vector.size() * TYPE_STRING_LENGTH);
+  for (size_t i = 0; i < vector.size(); i++) {
+    ret.append(vector[i]);
+    if (i != vector.size() - 1) {
+      ret.append("|");
+    }
+  }
   return ret;
 }
