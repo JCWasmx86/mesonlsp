@@ -8,6 +8,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Argument;
@@ -21,10 +22,10 @@ public:
 
   Function(std::string name, std::vector<std::shared_ptr<Argument>> args,
            const std::vector<std::shared_ptr<Type>> returnTypes)
-      : name(name), args(args), kwargs(), returnTypes(returnTypes) {
+      : name(std::move(name)), args(args), returnTypes(returnTypes) {
     uint32_t minPosArgs = 0;
     for (const auto &arg : args) {
-      auto pa = dynamic_cast<PositionalArgument *>(arg.get());
+      auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->optional) {
           break;
@@ -34,7 +35,7 @@ public:
     }
     uint32_t maxPosArgs = 0;
     for (const auto &arg : args) {
-      auto pa = dynamic_cast<PositionalArgument *>(arg.get());
+      auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->varargs) {
           maxPosArgs = UINT32_MAX;
@@ -44,7 +45,7 @@ public:
       }
     }
     for (const auto &arg : args) {
-      auto kw = dynamic_cast<Kwarg *>(arg.get());
+      auto *kw = dynamic_cast<Kwarg *>(arg.get());
       if (!kw) {
         continue;
       }
@@ -74,7 +75,8 @@ public:
   Method(std::string name, std::vector<std::shared_ptr<Argument>> args,
          const std::vector<std::shared_ptr<Type>> returnTypes,
          const std::shared_ptr<Type> parentType)
-      : Function(name, args, returnTypes), parentType(parentType) {}
+      : Function(std::move(name), std::move(args), returnTypes),
+        parentType(parentType) {}
 
   std::string id() override;
 };

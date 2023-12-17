@@ -38,8 +38,8 @@ public:
   std::shared_ptr<Node> value;
   std::optional<std::string> name;
   KeywordItem(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class ArgumentList : public Node {
@@ -47,8 +47,8 @@ public:
   std::vector<std::shared_ptr<Node>> args;
   ArgumentList(std::shared_ptr<SourceFile> file, TSNode node);
 
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 
   std::optional<std::shared_ptr<Node>> getPositionalArg(uint32_t idx) {
     if (idx > this->args.size()) {
@@ -76,8 +76,8 @@ class ArrayLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 enum AssignmentOperator {
@@ -96,8 +96,8 @@ public:
   std::shared_ptr<Node> rhs;
   AssignmentOperator op;
   AssignmentStatement(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 enum BinaryOperator {
@@ -126,31 +126,31 @@ public:
   BinaryOperator op;
 
   BinaryExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class BooleanLiteral : public Node {
 public:
   bool value;
   BooleanLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class BreakNode : public Node {
 public:
   BreakNode(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class BuildDefinition : public Node {
 public:
   std::vector<std::shared_ptr<Node>> stmts;
   BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class ConditionalExpression : public Node {
@@ -159,23 +159,23 @@ public:
   std::shared_ptr<Node> ifTrue;
   std::shared_ptr<Node> ifFalse;
   ConditionalExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class ContinueNode : public Node {
 public:
   ContinueNode(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class DictionaryLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> values;
   DictionaryLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class ErrorNode : public Node {
@@ -185,16 +185,16 @@ public:
   ErrorNode(std::shared_ptr<SourceFile> file, TSNode node, std::string message)
       : Node(file, node), message(message) {}
 
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class IdExpression : public Node {
 public:
   std::string id;
   IdExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class FunctionExpression : public Node {
@@ -202,8 +202,8 @@ public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
   FunctionExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 
   std::string functionName() {
     auto idExpr = dynamic_cast<IdExpression *>(this->id.get());
@@ -219,8 +219,8 @@ public:
   uint64_t value_as_int;
   std::string value;
   IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class IterationStatement : public Node {
@@ -229,8 +229,8 @@ public:
   std::shared_ptr<Node> expression;
   std::vector<std::shared_ptr<Node>> stmts;
   IterationStatement(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class KeyValueItem : public Node {
@@ -238,8 +238,8 @@ public:
   std::shared_ptr<Node> key;
   std::shared_ptr<Node> value;
   KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class MethodExpression : public Node {
@@ -248,8 +248,8 @@ public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
   MethodExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class SelectionStatement : public Node {
@@ -257,8 +257,8 @@ public:
   std::vector<std::shared_ptr<Node>> conditions;
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
   SelectionStatement(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class StringLiteral : public Node {
@@ -266,8 +266,8 @@ public:
   std::string id;
   bool isFormat;
   StringLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 class SubscriptExpression : public Node {
@@ -275,8 +275,8 @@ public:
   std::shared_ptr<Node> outer;
   std::shared_ptr<Node> inner;
   SubscriptExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 enum UnaryOperator { Not, ExclamationMark, UnaryMinus, UnaryOther };
@@ -286,8 +286,8 @@ public:
   std::shared_ptr<Node> expression;
   UnaryOperator op;
   UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor);
-  void visit(CodeVisitor *visitor);
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
 };
 
 std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);

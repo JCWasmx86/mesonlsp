@@ -9,26 +9,26 @@ public:
 
   TypeAnalyzer(TypeNamespace &ns) : ns(ns) {}
 
-  void visitArgumentList(ArgumentList *node);
-  void visitArrayLiteral(ArrayLiteral *node);
-  void visitAssignmentStatement(AssignmentStatement *node);
-  void visitBinaryExpression(BinaryExpression *node);
-  void visitBooleanLiteral(BooleanLiteral *node);
-  void visitBuildDefinition(BuildDefinition *node);
-  void visitConditionalExpression(ConditionalExpression *node);
-  void visitDictionaryLiteral(DictionaryLiteral *node);
-  void visitFunctionExpression(FunctionExpression *node);
-  void visitIdExpression(IdExpression *node);
-  void visitIntegerLiteral(IntegerLiteral *node);
-  void visitIterationStatement(IterationStatement *node);
-  void visitKeyValueItem(KeyValueItem *node);
-  void visitKeywordItem(KeywordItem *node);
-  void visitMethodExpression(MethodExpression *node);
-  void visitSelectionStatement(SelectionStatement *node);
-  void visitStringLiteral(StringLiteral *node);
-  void visitSubscriptExpression(SubscriptExpression *node);
-  void visitUnaryExpression(UnaryExpression *node);
-  void visitErrorNode(ErrorNode *node);
-  void visitBreakNode(BreakNode *node);
-  void visitContinueNode(ContinueNode *node);
+  void visitArgumentList(ArgumentList *node) override;
+  void visitArrayLiteral(ArrayLiteral *node) override;
+  void visitAssignmentStatement(AssignmentStatement *node) override;
+  void visitBinaryExpression(BinaryExpression *node) override;
+  void visitBooleanLiteral(BooleanLiteral *node) override;
+  void visitBuildDefinition(BuildDefinition *node) override;
+  void visitConditionalExpression(ConditionalExpression *node) override;
+  void visitDictionaryLiteral(DictionaryLiteral *node) override;
+  void visitFunctionExpression(FunctionExpression *node) override;
+  void visitIdExpression(IdExpression *node) override;
+  void visitIntegerLiteral(IntegerLiteral *node) override;
+  void visitIterationStatement(IterationStatement *node) override;
+  void visitKeyValueItem(KeyValueItem *node) override;
+  void visitKeywordItem(KeywordItem *node) override;
+  void visitMethodExpression(MethodExpression *node) override;
+  void visitSelectionStatement(SelectionStatement *node) override;
+  void visitStringLiteral(StringLiteral *node) override;
+  void visitSubscriptExpression(SubscriptExpression *node) override;
+  void visitUnaryExpression(UnaryExpression *node) override;
+  void visitErrorNode(ErrorNode *node) override;
+  void visitBreakNode(BreakNode *node) override;
+  void visitContinueNode(ContinueNode *node) override;
 };

@@ -3,12 +3,13 @@
 #include <filesystem>
 #include <string>
 #include <tree_sitter/api.h>
+#include <utility>
 
 class SourceFile {
 public:
   const std::filesystem::path file;
 
-  SourceFile(std::filesystem::path file) : file(file) {}
+  SourceFile(std::filesystem::path file) : file(std::move(file)) {}
 
   virtual std::string contents();
   virtual ~SourceFile() = default;
@@ -30,7 +31,7 @@ private:
 
 public:
   MemorySourceFile(std::string contents, std::filesystem::path file)
-      : SourceFile(file), str(contents) {}
+      : SourceFile(std::move(file)), str(std::move(contents)) {}
 
   std::string contents() override { return this->str; }
 };

@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Argument {
@@ -16,14 +17,14 @@ public:
 protected:
   Argument(std::string name, std::vector<std::shared_ptr<Type>> types,
            bool optional)
-      : name(name), types(types), optional(optional) {}
+      : name(std::move(name)), types(std::move(types)), optional(optional) {}
 };
 
 class Kwarg : public Argument {
 public:
   Kwarg(std::string name, std::vector<std::shared_ptr<Type>> types,
         bool optional)
-      : Argument(name, types, optional) {}
+      : Argument(std::move(name), std::move(types), optional) {}
 };
 
 class PositionalArgument : public Argument {
@@ -32,5 +33,6 @@ public:
 
   PositionalArgument(std::string name, std::vector<std::shared_ptr<Type>> types,
                      bool optional, bool varargs)
-      : Argument(name, types, optional), varargs(varargs) {}
+      : Argument(std::move(name), std::move(types), optional),
+        varargs(varargs) {}
 };

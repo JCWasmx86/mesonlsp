@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <ios>
 #include <string>
 
 std::string SourceFile::contents() {
@@ -13,7 +14,7 @@ std::string SourceFile::contents() {
   auto fileSize = std::filesystem::file_size(path);
   std::string fileContent;
   fileContent.resize(fileSize, '\0');
-  file.read(fileContent.data(), fileSize);
+  file.read(fileContent.data(), (std::streamsize)fileSize);
   this->cached = true;
   this->cached_contents = fileContent;
   return fileContent;

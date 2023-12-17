@@ -1,12 +1,19 @@
 #include "mesontree.hpp"
 
+#include "analysisoptions.hpp"
 #include "log.hpp"
+#include "node.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
+#include "sourcefile.hpp"
 #include "typeanalyzer.hpp"
 
 #include <filesystem>
+#include <format>
 #include <fstream>
+#include <ios>
+#include <memory>
+#include <string>
 #include <tree_sitter/api.h>
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
@@ -18,7 +25,7 @@ std::string readFile(std::filesystem::path &path) {
   auto fileSize = std::filesystem::file_size(path);
   std::string fileContent;
   fileContent.resize(fileSize, '\0');
-  file.read(fileContent.data(), fileSize);
+  file.read(fileContent.data(), (std::streamsize)fileSize);
   return fileContent;
 }
 
@@ -29,7 +36,7 @@ OptionState parseFile(std::filesystem::path path) {
   auto fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
-  TSNode rootNode = ts_tree_root_node(tree);
+  const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
   root->visit(&visitor);
@@ -68,7 +75,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   auto fileContent = readFile(rootFile);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
-  TSNode rootNode = ts_tree_root_node(tree);
+  const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(rootFile);
   auto root = makeNode(sourceFile, rootNode);
   TypeAnalyzer visitor(this->ns);

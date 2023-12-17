@@ -64,7 +64,7 @@ guessTargetDirectoryFromWrap(const std::filesystem::path &path) {
     std::ifstream file(path.c_str());
     std::string line;
     while (std::getline(file, line)) {
-      size_t pos = line.find("directory");
+      const auto pos = line.find("directory");
       if (pos != std::string::npos) {
         auto directoryValue = line.substr(pos + strlen("directory"));
         trim(directoryValue);
@@ -87,7 +87,8 @@ public:
   std::shared_ptr<WrapFile> wrap;
 
   WrapSubproject(std::string name, std::filesystem::path wrapFile,
-                 std::filesystem::path packageFiles, std::filesystem::path path)
+                 std::filesystem::path packageFiles,
+                 const std::filesystem::path &path)
       : MesonSubproject(std::move(name),
                         path / guessTargetDirectoryFromWrap(wrapFile)),
         wrapFile(std::move(wrapFile)), packageFiles(std::move(packageFiles)) {}

@@ -11,18 +11,20 @@
 #include <optional>
 #include <string>
 #include <tree_sitter/api.h>
+#include <utility>
 
-std::optional<std::string> ast::ini::Section::findStringValue(std::string key) {
+std::optional<std::string>
+ast::ini::Section::findStringValue(const std::string &key) {
   for (auto &keyValuePair : this->key_value_pairs) {
-    auto kvp = dynamic_cast<ast::ini::KeyValuePair *>(keyValuePair.get());
+    auto *kvp = dynamic_cast<ast::ini::KeyValuePair *>(keyValuePair.get());
     if (kvp == nullptr) {
       continue;
     }
-    auto keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
+    auto *keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
     if ((keyN == nullptr) || keyN->value != key) {
       continue;
     }
-    auto value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
+    auto *value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
     if (value == nullptr) {
       continue;
     }
@@ -32,7 +34,7 @@ std::optional<std::string> ast::ini::Section::findStringValue(std::string key) {
 }
 
 ast::ini::Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
-    : file(file), location(new Location(node)) {}
+    : file(std::move(file)), location(new Location(node)) {}
 
 ast::ini::IniFile::IniFile(std::shared_ptr<SourceFile> file, TSNode node)
     : ast::ini::Node(file, node) {
