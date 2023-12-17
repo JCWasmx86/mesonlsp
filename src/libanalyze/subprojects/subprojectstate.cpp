@@ -18,7 +18,7 @@ void SubprojectState::findSubprojects() {
       !std::filesystem::is_directory(subprojectsDir)) {
     return;
   }
-  auto extractionDir = cacheDir() / "wraps_workspace";
+  auto extractionDir = cacheDir() / "wrapsWorkspace";
   std::filesystem::create_directories(extractionDir);
   auto packageFiles = subprojectsDir / "packagefiles";
   for (const auto &entry :
