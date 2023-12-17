@@ -1,13 +1,21 @@
 #pragma once
 
+#include "function.hpp"
+#include "mesontree.hpp"
 #include "node.hpp"
 #include "typenamespace.hpp"
+
+#include <filesystem>
+#include <memory>
+#include <string>
+#include <vector>
 
 class TypeAnalyzer : public CodeVisitor {
 public:
   TypeNamespace &ns;
+  MesonTree *tree;
 
-  TypeAnalyzer(TypeNamespace &ns) : ns(ns) {}
+  TypeAnalyzer(TypeNamespace &ns, MesonTree *tree) : ns(ns), tree(tree) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;
@@ -31,4 +39,25 @@ public:
   void visitErrorNode(ErrorNode *node) override;
   void visitBreakNode(BreakNode *node) override;
   void visitContinueNode(ContinueNode *node) override;
+
+private:
+  std::vector<std::filesystem::path> sourceFileStack;
+  std::vector<std::vector<IdExpression *>> variablesNeedingUse;
+  std::vector<std::vector<std::string>> foundVariables;
+  void checkProjectCall(BuildDefinition *node);
+  void checkDeadNodes(BuildDefinition *node);
+  void applyDead(std::shared_ptr<Node> &lastAlive,
+                 std::shared_ptr<Node> &firstDead,
+                 std::shared_ptr<Node> &lastDead);
+  void checkUnusedVariables();
+  bool isDead(const std::shared_ptr<Node> &node);
+  void checkDuplicateNodeKeys(DictionaryLiteral *node);
+  void setFunctionCallTypes(FunctionExpression *node,
+                            std::shared_ptr<Function> fn);
+  void specialFunctionCallHandling(FunctionExpression *node,
+                                   std::shared_ptr<Function> fn);
+  void checkCall(FunctionExpression *node);
+  void checkSetVariable(FunctionExpression *node, ArgumentList *al);
+  void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
+                        FunctionExpression *node);
 };

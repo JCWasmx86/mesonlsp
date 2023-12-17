@@ -1,5 +1,6 @@
 #pragma once
 
+#include "function.hpp"
 #include "location.hpp"
 #include "sourcefile.hpp"
 
@@ -197,18 +198,21 @@ public:
   void visit(CodeVisitor *visitor) override;
 };
 
+#define INVALID_FUNCTION_NAME "<<<Error>>>"
+
 class FunctionExpression : public Node {
 public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
+  std::shared_ptr<Function> function;
   FunctionExpression(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
 
   std::string functionName() {
-    auto idExpr = dynamic_cast<IdExpression *>(this->id.get());
+    auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
     if (idExpr == nullptr) {
-      return "<<<Error>>>";
+      return INVALID_FUNCTION_NAME;
     }
     return idExpr->id;
   }

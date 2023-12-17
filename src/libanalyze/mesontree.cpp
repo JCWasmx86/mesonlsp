@@ -78,7 +78,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(rootFile);
   auto root = makeNode(sourceFile, rootNode);
-  TypeAnalyzer visitor(this->ns);
+  TypeAnalyzer visitor(this->ns, this);
   root->visit(&visitor);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
