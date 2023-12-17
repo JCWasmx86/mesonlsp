@@ -9,7 +9,8 @@ class SourceFile {
 public:
   const std::filesystem::path file;
 
-  SourceFile(std::filesystem::path file) : file(std::move(file)) {}
+  SourceFile(const std::filesystem::path &file)
+      : file(std::filesystem::absolute(file)) {}
 
   virtual std::string contents();
   virtual ~SourceFile() = default;
@@ -30,8 +31,8 @@ private:
   std::string str;
 
 public:
-  MemorySourceFile(std::string contents, std::filesystem::path file)
-      : SourceFile(std::move(file)), str(std::move(contents)) {}
+  MemorySourceFile(std::string contents, const std::filesystem::path &file)
+      : SourceFile(file), str(std::move(contents)) {}
 
   std::string contents() override { return this->str; }
 };

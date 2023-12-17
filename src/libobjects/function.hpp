@@ -19,6 +19,9 @@ public:
   const std::vector<std::shared_ptr<Argument>> args;
   std::map<std::string, std::shared_ptr<Argument>> kwargs;
   const std::vector<std::shared_ptr<Type>> returnTypes;
+  uint32_t minPosArgs;
+  uint32_t maxPosArgs;
+  std::set<std::string> requiredKwargs;
 
   Function(std::string name, std::vector<std::shared_ptr<Argument>> args,
            const std::vector<std::shared_ptr<Type>> returnTypes)
@@ -61,11 +64,6 @@ public:
   virtual std::string id();
 
   virtual ~Function() {}
-
-protected:
-  uint32_t minPosArgs;
-  uint32_t maxPosArgs;
-  std::set<std::string> requiredKwargs;
 };
 
 class Method : public Function {

@@ -5,6 +5,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,13 @@ public:
   std::shared_ptr<BoolType> boolType;
 
   TypeNamespace();
+
+  std::optional<std::shared_ptr<Function>> lookupFunction(std::string &name) {
+    if (this->functions.contains(name)) {
+      return this->functions[name];
+    }
+    return std::nullopt;
+  }
 
 private:
   void initFunctions();
