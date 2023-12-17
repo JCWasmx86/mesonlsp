@@ -171,7 +171,7 @@ bool GitWrap::setupDirectory(std::filesystem::path path,
   if (result) {
     auto pullableFile = std::filesystem::path{fullPath} / ".git_pullable";
     std::ofstream{pullableFile}.put('\n');
-    return true;
   }
-  return false;
+  // If it fails, it was a tag, not a branch
+  return true;
 }
