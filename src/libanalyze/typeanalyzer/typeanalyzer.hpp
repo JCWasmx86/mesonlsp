@@ -1,6 +1,7 @@
 #pragma once
 
 #include "function.hpp"
+#include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
 #include "typenamespace.hpp"
@@ -10,12 +11,16 @@
 #include <string>
 #include <vector>
 
+std::string joinTypes(std::vector<std::shared_ptr<Type>> types);
+
 class TypeAnalyzer : public CodeVisitor {
 public:
   TypeNamespace &ns;
   MesonTree *tree;
+  MesonMetadata *metadata;
 
-  TypeAnalyzer(TypeNamespace &ns, MesonTree *tree) : ns(ns), tree(tree) {}
+  TypeAnalyzer(TypeNamespace &ns, MesonMetadata *metadata, MesonTree *tree)
+      : ns(ns), tree(tree), metadata(metadata) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;
@@ -60,4 +65,10 @@ private:
   void checkSetVariable(FunctionExpression *node, ArgumentList *al);
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                         FunctionExpression *node);
+  void checkIfInLoop(Node *node, std::string str) const;
+  void extractVoidAssignment(AssignmentStatement *node);
+  void evaluateFullAssignment(AssignmentStatement *node,
+                              IdExpression *lhsIdExpr);
+  void evaluatePureAssignment(AssignmentStatement *node,
+                              IdExpression *lhsIdExpr);
 };

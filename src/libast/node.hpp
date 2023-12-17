@@ -20,7 +20,7 @@ public:
   const std::shared_ptr<SourceFile> file;
   std::vector<std::shared_ptr<Type>> types;
   const Location *location;
-  const Node *parent;
+  Node *parent;
 
   virtual ~Node() {
     delete this->location;
@@ -270,6 +270,7 @@ public:
   std::shared_ptr<Node> obj;
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
+  std::shared_ptr<Method> method;
   MethodExpression(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
