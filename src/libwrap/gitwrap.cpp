@@ -163,7 +163,7 @@ bool GitWrap::setupDirectory(std::filesystem::path path,
   if (!this->postSetup(fullPath, packageFilesPath)) {
     return false;
   }
-  if (!isValidCommitId(rev)) {
+  if (isValidCommitId(rev)) {
     return true;
   }
   auto result = launchProcess(
