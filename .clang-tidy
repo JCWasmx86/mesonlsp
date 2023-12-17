@@ -10,7 +10,8 @@ Checks: |
     -performance-avoid-endl,
     -misc-no-recursion,
     -modernize-use-trailing-return-type,
-    -misc-non-private-member-variables-in-classes
+    -misc-non-private-member-variables-in-classes,
+    -bugprone-easily-swappable-parameters
 WarningsAsErrors: ""
 HeaderFilterRegex: ""
 FormatStyle: none
