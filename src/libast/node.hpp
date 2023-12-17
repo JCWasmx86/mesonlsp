@@ -10,6 +10,7 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <type.hpp>
+#include <utility>
 #include <vector>
 
 class CodeVisitor;
@@ -196,7 +197,7 @@ public:
   std::string message;
 
   ErrorNode(std::shared_ptr<SourceFile> file, TSNode node, std::string message)
-      : Node(file, node), message(message) {}
+      : Node(std::move(file), node), message(std::move(message)) {}
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
