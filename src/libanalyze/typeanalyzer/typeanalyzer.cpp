@@ -11,12 +11,14 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <format>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #define TYPE_STRING_LENGTH 12
@@ -26,6 +28,9 @@ static std::vector<std::shared_ptr<Type>>
 dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
+static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
+static bool sameType(std::shared_ptr<Type> &a, std::shared_ptr<Type> &b,
+                     const std::string &name);
 
 void TypeAnalyzer::applyToStack(std::string name,
                                 std::vector<std::shared_ptr<Type>> types) {
@@ -125,7 +130,7 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
 }
 
 void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
-  this->variablesNeedingUse.end()->emplace_back(node);
+  this->variablesNeedingUse.back().emplace_back(node);
 }
 
 std::optional<std::shared_ptr<Type>>
@@ -246,6 +251,149 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   this->evaluateFullAssignment(node, idExpr);
 }
 
+bool TypeAnalyzer::isSpecial(std::vector<std::shared_ptr<Type>> &types) {
+  if (types.size() != 3) {
+    return false;
+  }
+  auto counter = 0;
+  for (const auto &type : types) {
+    if (dynamic_cast<Any *>(type.get())) {
+      counter++;
+      continue;
+    }
+    auto *asList = dynamic_cast<List *>(type.get());
+    if (asList && asList->types.size() == 1 &&
+        dynamic_cast<Any *>(asList->types[0].get())) {
+      counter++;
+      continue;
+    }
+    auto *asDict = dynamic_cast<Dict *>(type.get());
+    if (asDict && asDict->types.size() == 1 &&
+        dynamic_cast<Any *>(asDict->types[0].get())) {
+      counter++;
+      continue;
+    }
+    return false;
+  }
+  return counter == 3;
+}
+
+std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
+    BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
+    std::vector<std::shared_ptr<Type>> rhs, unsigned int *numErrors) {
+  std::vector<std::shared_ptr<Type>> newTypes;
+  for (auto lType : lhs) {
+    for (auto rType : rhs) {
+      if (rType->name == "any" && lType->name == "any") {
+        ++*numErrors;
+        continue;
+      }
+      switch (op) {
+      case And:
+      case Or:
+        if (sameType(lType, rType, "bool")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case Div:
+        if (sameType(lType, rType, "int")) {
+          newTypes.emplace_back(this->ns.intType);
+        } else if (sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.strType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case EqualsEquals:
+      case NotEquals:
+        if (sameType(lType, rType, "int")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else if (sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else if (sameType(lType, rType, "bool")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else if (sameType(lType, rType, "dict")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else if (sameType(lType, rType, "list")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else if (dynamic_cast<AbstractObject *>(lType.get()) &&
+                   lType->name == rType->name) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case Ge:
+      case Gt:
+      case Le:
+      case Lt:
+        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case In:
+      case NotIn:
+        newTypes.emplace_back(this->ns.boolType);
+        break;
+      case Minus:
+      case Modulo:
+      case Mul:
+        if (sameType(lType, rType, "int")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case Plus: {
+        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.types[lType->name]);
+          break;
+        }
+        auto *list1 = dynamic_cast<List *>(lType.get());
+        auto *list2 = dynamic_cast<List *>(rType.get());
+        if (list1) {
+          auto types = list1->types;
+          if (list2) {
+            types.insert(types.end(), list2->types.begin(), list2->types.end());
+          } else {
+            types.push_back(rType);
+          }
+          newTypes.emplace_back(std::make_shared<List>(types));
+          break;
+        }
+        auto *dict1 = dynamic_cast<Dict *>(lType.get());
+        auto *dict2 = dynamic_cast<Dict *>(rType.get());
+        if (dict1) {
+          auto types = dict1->types;
+          if (dict2) {
+            types.insert(types.end(), dict2->types.begin(), dict2->types.end());
+          } else {
+            types.push_back(rType);
+          }
+          newTypes.emplace_back(std::make_shared<Dict>(types));
+          break;
+        }
+        ++*numErrors;
+        break;
+      }
+      case BinOpOther:
+      default:
+        LOG.error("Whoops???");
+        ++*numErrors;
+        break;
+      }
+    }
+  }
+  if (*numErrors == lhs.size() * rhs.size()) {
+    return lhs;
+  }
+  return newTypes;
+}
+
 void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   node->visitChildren(this);
   if (node->op == BinaryOperator::BinOpOther) {
@@ -256,6 +404,42 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
         node, Diagnostic(Severity::Error, node, "Unknown operator"));
     return;
   }
+  auto nErrors = 0U;
+  auto newTypes = this->evalBinaryExpression(node->op, node->lhs->types,
+                                             node->rhs->types, &nErrors);
+  auto nTimes = node->lhs->types.size() * node->rhs->types.size();
+  if (nTimes != 0 && nErrors == nTimes && (!node->lhs->types.empty()) &&
+      (!node->rhs->types.empty()) && !this->isSpecial(node->lhs->types) &&
+      !this->isSpecial(node->rhs->types)) {
+    auto lTypes = joinTypes(node->lhs->types);
+    auto rTypes = joinTypes(node->lhs->types);
+    auto msg = std::format("Unable to apply operator {} to types {} and {}",
+                           enum2String(node->op), lTypes, rTypes);
+    this->metadata->registerDiagnostic(node,
+                                       Diagnostic(Severity::Error, node, msg));
+  }
+  node->types = dedup(this->ns, newTypes);
+  auto parent = node->parent;
+  if (dynamic_cast<AssignmentStatement *>(parent) ||
+      dynamic_cast<SelectionStatement *>(parent)) {
+    auto *me = dynamic_cast<MethodExpression *>(node->lhs.get());
+    auto *sl = dynamic_cast<StringLiteral *>(node->rhs.get());
+    if (me && sl) {
+      this->checkIfSpecialComparison(me, sl);
+      return;
+    }
+    me = dynamic_cast<MethodExpression *>(node->rhs.get());
+    sl = dynamic_cast<StringLiteral *>(node->lhs.get());
+    if (me && sl) {
+      this->checkIfSpecialComparison(me, sl);
+      return;
+    }
+  }
+}
+
+void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
+                                            StringLiteral *sl) {
+  // TODO
 }
 
 void TypeAnalyzer::visitBooleanLiteral(BooleanLiteral *node) {
@@ -312,7 +496,7 @@ bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
 
 void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
                              std::shared_ptr<Node> &firstDead,
-                             std::shared_ptr<Node> &lastDead) {
+                             std::shared_ptr<Node> &lastDead) const {
   if (!lastAlive || !firstDead || !lastDead) {
     return;
   }
@@ -489,6 +673,44 @@ void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
   }
 }
 
+void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
+  auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+  if (!al || al->args.empty()) {
+    return;
+  }
+  auto guessed = ::guessSetVariable(node, this->options);
+  std::set<std::string> asSet{guessed.begin(), guessed.end()};
+  auto msg =
+      std::format("Found subdircall with dirs: {}", joinStrings(asSet, '|'));
+  if (asSet.empty()) {
+    LOG.warn(msg);
+  } else {
+    LOG.info(msg);
+  }
+  for (auto dir : asSet) {
+    auto dirpath = node->file->file.parent_path() / dir;
+    if (!std::filesystem::exists(dirpath) && asSet.size() == 1) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::Error, node,
+                           std::format("Directory does not exist: {}", dir)));
+      continue;
+    }
+    auto mesonpath = dirpath / "meson.build";
+    if (!std::filesystem::exists(mesonpath) && asSet.size() == 1) {
+      this->metadata->registerDiagnostic(
+          node,
+          Diagnostic(Severity::Error, node,
+                     std::format("File does not exist: {}/meson.build", dir)));
+      continue;
+    }
+    auto ast = this->tree->parseFile(mesonpath);
+    LOG.info(std::format("Entering {}", dir));
+    ast->parent = node;
+    ast->visit(this);
+    LOG.info(std::format("Leaving {}", dir));
+  }
+}
+
 void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
   auto funcName = node->functionName();
@@ -531,6 +753,11 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     }
   }
 checkVersion:
+  // TODO: RegisterDeprecated
+
+  if (fn->name == "subdir") {
+    this->enterSubdir(node);
+  }
 }
 
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
@@ -705,7 +932,6 @@ bool TypeAnalyzer::checkCondition(Node *condition) {
 }
 
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
-  node->visitChildren(this);
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
   std::map<std::string, std::vector<std::shared_ptr<Type>>> oldVars;
@@ -959,11 +1185,10 @@ dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   for (const auto &obj : objs) {
     ret.emplace_back(obj.second);
   }
-  LOG.info(std::format("Reduced from {} to {}", types.size(), ret.size()));
   return ret;
 }
 
-std::string joinTypes(std::vector<std::shared_ptr<Type>> types) {
+std::string joinTypes(std::vector<std::shared_ptr<Type>> &types) {
   std::vector<std::string> vector;
   vector.reserve(types.size());
   for (const auto &type : types) {
@@ -997,4 +1222,13 @@ static bool isShoutingSnakeCase(const std::string &str) {
     }
   }
   return true;
+}
+
+static bool isType(const std::shared_ptr<Type> &type, const std::string &name) {
+  return type->name == name || type->name == "any";
+}
+
+static bool sameType(std::shared_ptr<Type> &a, std::shared_ptr<Type> &b,
+                     const std::string &name) {
+  return isType(a, name) && isType(b, name);
 }

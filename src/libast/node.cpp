@@ -291,7 +291,7 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
                                          TSNode node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
-  auto opStr = file->extractNodeValue(ts_node_named_child(node, 0));
+  auto opStr = file->extractNodeValue(ts_node_named_child(node, 1));
   if (opStr == "=") {
     this->op = AssignmentOperator::Equals;
   } else if (opStr == "*=") {
@@ -536,6 +536,7 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
     }
     idx++;
   }
+  bb.push_back(tmp);
   this->conditions = cs;
   this->conditions.insert(this->conditions.begin(), sI);
   this->blocks = bb;

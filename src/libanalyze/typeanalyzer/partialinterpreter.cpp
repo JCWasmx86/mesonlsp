@@ -1,6 +1,7 @@
 // HERE BE DRAGONS
 #include "partialinterpreter.hpp"
 
+#include "log.hpp"
 #include "mesonoption.hpp"
 #include "node.hpp"
 #include "utils.hpp"
@@ -13,6 +14,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+
+static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
 
 std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> arrays);
@@ -105,11 +108,12 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
   auto idx = il ? il->valueAsInt : (uint64_t)-1;
   auto *sl = dynamic_cast<StringLiteral *>(first.get());
   for (auto r : nodes) {
-    auto arrLit = dynamic_cast<ArrayLiteral *>(r->node);
+    auto *arrLit = dynamic_cast<ArrayLiteral *>(r->node);
     if (arrLit) {
       if (il) {
         if (idx < arrLit->args.size()) {
-          auto slAtIdx = dynamic_cast<StringLiteral *>(arrLit->args[idx].get());
+          auto *slAtIdx =
+              dynamic_cast<StringLiteral *>(arrLit->args[idx].get());
           ret.emplace_back(slAtIdx->id);
         }
         continue;
@@ -203,7 +207,9 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
     if (il) {
       if (idx < arrLit->args.size()) {
         auto *slAtIdx = dynamic_cast<StringLiteral *>(arrLit->args[idx].get());
-        ret.emplace_back(slAtIdx->id);
+        if (slAtIdx) {
+          ret.emplace_back(slAtIdx->id);
+        }
       }
       return;
     }
@@ -349,7 +355,7 @@ std::vector<std::string>
 PartialInterpreter::calculateExpression(Node *parentExpr, Node *argExpression) {
   auto sl = dynamic_cast<StringLiteral *>(argExpression);
   if (sl) {
-    return {sl->id};
+    return std::vector<std::string>{sl->id};
   }
   auto be = dynamic_cast<BinaryExpression *>(argExpression);
   if (be) {
@@ -428,7 +434,7 @@ PartialInterpreter::analyseBuildDefinition(BuildDefinition *bd,
     auto others = this->abstractEval(b.get(), assignment->rhs.get());
     if (assignment->op == AssignmentOperator::Equals) {
       others.insert(others.end(), tmp.begin(), tmp.end());
-      return tmp;
+      return others;
     }
     tmp.insert(tmp.end(), others.begin(), others.end());
   }
@@ -442,7 +448,7 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
   auto foundOurselves = false;
   std::vector<std::shared_ptr<InterpretNode>> tmp;
   for (auto &b : its->stmts | std::ranges::views::reverse) {
-    if (b.get()->equals(parentExpr)) {
+    if (b->equals(parentExpr)) {
       foundOurselves = true;
       continue;
     }
@@ -464,13 +470,13 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
     auto others = this->abstractEval(b.get(), assignment->rhs.get());
     if (assignment->op == AssignmentOperator::Equals) {
       others.insert(others.end(), tmp.begin(), tmp.end());
-      return tmp;
+      return others;
     }
     tmp.insert(tmp.end(), others.begin(), others.end());
   }
   auto idx = 0;
   for (auto b : its->ids) {
-    auto idexpr = dynamic_cast<IdExpression *>(b.get());
+    auto *idexpr = dynamic_cast<IdExpression *>(b.get());
     if (!idexpr || idexpr->id != toResolve->id) {
       idx++;
       continue;
@@ -478,7 +484,19 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
     auto vals = this->abstractEval(parentExpr->parent, its->expression.get());
     vals.insert(vals.end(), tmp.begin(), tmp.end());
     if (its->ids.size() == 1) {
-      return vals;
+      std::vector<std::shared_ptr<InterpretNode>> normalized;
+      for (auto node : vals) {
+        auto al = dynamic_cast<ArrayLiteral *>(node->node);
+        if (!al) {
+          normalized.emplace_back(node);
+          continue;
+        }
+        for (auto args : al->args) {
+          auto tmp2 = this->abstractEval(al, args.get());
+          normalized.insert(normalized.end(), tmp2.begin(), tmp2.end());
+        }
+      }
+      return normalized;
     }
     std::vector<std::shared_ptr<InterpretNode>> ret;
     for (auto a : vals) {
@@ -949,6 +967,7 @@ PartialInterpreter::abstractEvalGetMethodCall(MethodExpression *me,
       }
     }
   }
+  LOG.info(std::format("abstractge: {}", ret.size()));
   return ret;
 }
 
