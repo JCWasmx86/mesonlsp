@@ -12,7 +12,13 @@ if get_option('buildtype') == 'release'
 else
     add_global_arguments(['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'], language: 'cpp')
 endif
-extra_flags = ['-fstack-protector-strong', '-fstack-clash-protection', '-fcf-protection', '-g3']
+extra_flags = [
+    '-fstack-protector-strong',
+    '-fstack-clash-protection',
+    '-fcf-protection',
+    '-g3',
+    '-frecord-gcc-switches',
+]
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
 
