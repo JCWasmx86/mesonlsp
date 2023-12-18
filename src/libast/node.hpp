@@ -31,6 +31,17 @@ public:
   virtual void visit(CodeVisitor *visitor) = 0;
   virtual void setParents() = 0;
 
+  bool equals(Node *other) {
+    if (this->file->file != other->file->file) {
+      return false;
+    }
+    const auto *otherLoc = other->location;
+    return this->location->columns == otherLoc->columns &&
+           this->location->lines == otherLoc->lines;
+  }
+
+  Node() { this->location = new Location(); }
+
 protected:
   Node(std::shared_ptr<SourceFile> file, TSNode node);
 };
@@ -214,6 +225,7 @@ public:
 };
 
 #define INVALID_FUNCTION_NAME "<<<Error>>>"
+#define INVALID_KEY_NAME "<<<$$$$ERROR$$$$>>>"
 
 class FunctionExpression : public Node {
 public:
@@ -236,7 +248,7 @@ public:
 
 class IntegerLiteral : public Node {
 public:
-  uint64_t value_as_int;
+  uint64_t valueAsInt;
   std::string value;
   IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
@@ -255,6 +267,22 @@ public:
   void setParents() override;
 };
 
+class StringLiteral : public Node {
+public:
+  std::string id;
+  bool isFormat;
+  StringLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+
+  StringLiteral(std::string str) : Node() {
+    this->id = str;
+    this->isFormat = false;
+  }
+
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
+  void setParents() override;
+};
+
 class KeyValueItem : public Node {
 public:
   std::shared_ptr<Node> key;
@@ -263,6 +291,14 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+
+  std::string getKeyName() {
+    auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
+    if (sl) {
+      return sl->id;
+    }
+    return INVALID_KEY_NAME;
+  }
 };
 
 class MethodExpression : public Node {
@@ -282,16 +318,6 @@ public:
   std::vector<std::shared_ptr<Node>> conditions;
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
   SelectionStatement(std::shared_ptr<SourceFile> file, TSNode node);
-  void visitChildren(CodeVisitor *visitor) override;
-  void visit(CodeVisitor *visitor) override;
-  void setParents() override;
-};
-
-class StringLiteral : public Node {
-public:
-  std::string id;
-  bool isFormat;
-  StringLiteral(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;

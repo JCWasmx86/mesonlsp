@@ -17,4 +17,13 @@ public:
       this->options.push_back(option);
     }
   }
+
+  std::shared_ptr<MesonOption> findOption(std::string &name) {
+    for (const auto &option : this->options) {
+      if (option->name == name) {
+        return option;
+      }
+    }
+    return nullptr;
+  }
 };

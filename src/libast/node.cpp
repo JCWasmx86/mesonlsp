@@ -8,6 +8,7 @@
 #include <format>
 #include <memory>
 #include <optional>
+#include <string>
 #include <tree_sitter/api.h>
 #include <vector>
 
@@ -460,6 +461,15 @@ void BooleanLiteral::visitChildren(CodeVisitor *visitor) {}
 IntegerLiteral::IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node);
+  if (this->value.starts_with("0x") || this->value.starts_with("0X")) {
+    this->valueAsInt = std::stoull(this->value, nullptr, 16);
+  } else if (this->value.starts_with("0b") || this->value.starts_with("0B")) {
+    this->valueAsInt = std::stoull(this->value.substr(2), nullptr, 2);
+  } else if (this->value.starts_with("0O") || this->value.starts_with("0o")) {
+    this->valueAsInt = std::stoull(this->value, nullptr, 8);
+  } else {
+    this->valueAsInt = std::stoull(this->value);
+  }
 }
 
 void IntegerLiteral::setParents() {}
