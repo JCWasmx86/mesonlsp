@@ -5,6 +5,7 @@
 #include "node.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
+#include "scope.hpp"
 #include "sourcefile.hpp"
 #include "typeanalyzer.hpp"
 
@@ -78,7 +79,12 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(rootFile);
   auto root = makeNode(sourceFile, rootNode);
-  TypeAnalyzer visitor(this->ns, &this->metadata, this);
+  Scope scope;
+  scope.variables["meson"] = {this->ns.types["meson"]};
+  scope.variables["build_machine"] = {this->ns.types["build_machine"]};
+  scope.variables["host_machine"] = {this->ns.types["host_machine"]};
+  scope.variables["target_machine"] = {this->ns.types["target_machine"]};
+  TypeAnalyzer visitor(this->ns, &this->metadata, this, scope, analysisOptions);
   root->setParents();
   root->visit(&visitor);
   ts_tree_delete(tree);
