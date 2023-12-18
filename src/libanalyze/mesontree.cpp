@@ -84,7 +84,8 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   scope.variables["build_machine"] = {this->ns.types["build_machine"]};
   scope.variables["host_machine"] = {this->ns.types["host_machine"]};
   scope.variables["target_machine"] = {this->ns.types["target_machine"]};
-  TypeAnalyzer visitor(this->ns, &this->metadata, this, scope, analysisOptions);
+  TypeAnalyzer visitor(this->ns, &this->metadata, this, scope, analysisOptions,
+                       options);
   root->setParents();
   root->visit(&visitor);
   ts_tree_delete(tree);

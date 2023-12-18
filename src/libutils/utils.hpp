@@ -115,3 +115,17 @@ inline std::vector<std::string> split(const std::string &str,
   }
   return result;
 }
+
+template <typename Container>
+inline std::string joinStrings(const Container &cont, const char chr) {
+  std::stringstream ss;
+  auto iter = std::begin(cont);
+  if (iter != std::end(cont)) {
+    ss << *iter;
+    ++iter;
+  }
+  for (; iter != std::end(cont); ++iter) {
+    ss << chr << *iter;
+  }
+  return ss.str();
+}
