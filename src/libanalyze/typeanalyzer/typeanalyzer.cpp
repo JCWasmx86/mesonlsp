@@ -8,6 +8,7 @@
 #include "typenamespace.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <format>
 #include <map>
 #include <memory>
@@ -21,6 +22,32 @@ static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static std::vector<std::shared_ptr<Type>>
 dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
+static bool isSnakeCase(const std::string &str);
+static bool isShoutingSnakeCase(const std::string &str);
+
+void TypeAnalyzer::applyToStack(std::string name,
+                                std::vector<std::shared_ptr<Type>> types) {
+  if (this->stack.empty()) {
+    return;
+  }
+  if (this->scope.variables.contains(name)) {
+    auto orVCount = this->overriddenVariables.size() - 1;
+    auto atIdx = this->overriddenVariables[orVCount];
+    auto vars = this->scope.variables[name];
+    if (atIdx.contains(name)) {
+      atIdx[name].insert(atIdx[name].begin(), vars.begin(), vars.end());
+    } else {
+      atIdx[name] = vars;
+    }
+  }
+  auto ssc = this->stack.size() - 1;
+  if (this->stack[ssc].contains(name)) {
+    auto old = this->stack[ssc][name];
+    old.insert(old.end(), types.begin(), types.end());
+  } else {
+    this->stack[ssc][name] = types;
+  }
+}
 
 void TypeAnalyzer::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
@@ -38,7 +65,7 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
       std::make_shared<List>(dedup(this->ns, types))};
 }
 
-void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) {
+void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
   std::string name;
   auto *fe = dynamic_cast<FunctionExpression *>(node->rhs.get());
   if (fe && fe->function) {
@@ -54,6 +81,16 @@ void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) {
         node->lhs.get(),
         Diagnostic(Severity::Error, node->lhs.get(), "Can't assign from void"));
   }
+}
+
+void TypeAnalyzer::checkIdentifier(IdExpression *node) {
+  if (this->analysisOptions.disableNameLinting) {
+    return;
+  }
+  if (isSnakeCase(node->id) && isShoutingSnakeCase(node->id)) {
+  }
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::Warning, node, "Expected snake case"));
 }
 
 void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
@@ -79,6 +116,14 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
     return;
   }
   lhsIdExpr->types = arr;
+  this->checkIdentifier(lhsIdExpr);
+  this->applyToStack(lhsIdExpr->id, arr);
+  this->scope.variables[lhsIdExpr->id] = arr;
+  this->registerNeedForUse(lhsIdExpr);
+}
+
+void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
+  this->variablesNeedingUse.end()->emplace_back(node);
 }
 
 std::optional<std::shared_ptr<Type>>
@@ -170,6 +215,8 @@ void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
       dedup(this->ns,
             this->evalAssignment(node->op, node->lhs->types, node->rhs->types));
   lhsIdExpr->types = newTypes;
+  this->applyToStack(lhsIdExpr->id, newTypes);
+  this->scope.variables[lhsIdExpr->id] = newTypes;
 }
 
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
@@ -199,6 +246,14 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
 
 void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   node->visitChildren(this);
+  if (node->op == BinaryOperator::BinOpOther) {
+    auto types = node->lhs->types;
+    types.insert(types.end(), node->rhs->types.begin(), node->rhs->types.end());
+    node->types = types;
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node, "Unknown operator"));
+    return;
+  }
 }
 
 void TypeAnalyzer::visitBooleanLiteral(BooleanLiteral *node) {
@@ -471,8 +526,122 @@ void TypeAnalyzer::visitIntegerLiteral(IntegerLiteral *node) {
   node->types.emplace_back(this->ns.intType);
 }
 
+void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
+    IterationStatement *node) {
+  auto iterTypes = node->expression->types;
+  std::vector<std::shared_ptr<Type>> res;
+  auto errs = 0UL;
+  auto foundDict = false;
+  for (const auto &iterT : iterTypes) {
+    if (dynamic_cast<Range *>(iterT.get())) {
+      res.emplace_back(this->ns.intType);
+      continue;
+    }
+    auto *asList = dynamic_cast<List *>(iterT.get());
+    if (asList) {
+      res.insert(res.end(), asList->types.begin(), asList->types.end());
+      continue;
+    }
+    if (dynamic_cast<Dict *>(iterT.get())) {
+      foundDict = true;
+    }
+    errs++;
+  }
+  if (errs != iterTypes.size()) {
+    node->ids[0]->types = dedup(this->ns, res);
+  } else {
+    node->ids[0] = {};
+    this->metadata->registerDiagnostic(
+        node->expression.get(),
+        Diagnostic(Severity::Error, node->expression.get(),
+                   foundDict ? "Iterating over a dict requires two identifiers"
+                             : "Expression yields no iterable result"));
+  }
+  auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
+  if (!id0Expr) {
+    return;
+  }
+  this->applyToStack(id0Expr->id, node->ids[0]->types);
+  this->scope.variables[id0Expr->id] = node->ids[0]->types;
+  this->checkIdentifier(id0Expr);
+}
+
+void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
+    IterationStatement *node) {
+  auto iterTypes = node->expression->types;
+  node->ids[0]->types = {this->ns.strType};
+  auto found = false;
+  auto foundBad = false;
+  for (const auto &iterT : iterTypes) {
+    auto *dict = dynamic_cast<Dict *>(iterT.get());
+    foundBad |= dynamic_cast<List *>(iterT.get()) != nullptr ||
+                dynamic_cast<Range *>(iterT.get()) != nullptr;
+    if (!dict) {
+      continue;
+    }
+    node->ids[1]->types = dict->types;
+    found = true;
+    break;
+  }
+  if (!found) {
+    this->metadata->registerDiagnostic(
+        node->expression.get(),
+        Diagnostic(Severity::Error, node->expression.get(),
+                   foundBad
+                       ? "Iterating over a list/range requires one identifier"
+                       : "Expression yields no iterable result"));
+  }
+  auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
+  if (id0Expr) {
+    this->applyToStack(id0Expr->id, node->ids[0]->types);
+    this->scope.variables[id0Expr->id] = node->ids[0]->types;
+    this->checkIdentifier(id0Expr);
+  }
+  auto *id1Expr = dynamic_cast<IdExpression *>(node->ids[1].get());
+  if (id1Expr) {
+    this->applyToStack(id1Expr->id, node->ids[1]->types);
+    this->scope.variables[id1Expr->id] = node->ids[1]->types;
+    this->checkIdentifier(id1Expr);
+  }
+}
+
 void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
-  node->visitChildren(this);
+  node->expression->visit(this);
+  for (const auto &id : node->ids) {
+    id->visit(this);
+  }
+  auto count = node->ids.size();
+  if (count == 1) {
+    analyseIterationStatementSingleIdentifier(node);
+  } else if (count == 2) {
+    analyseIterationStatementTwoIdentifiers(node);
+  } else {
+    auto *fNode = node->ids[0].get();
+    auto *eNode = node->ids[1].get();
+    this->metadata->registerDiagnostic(
+        fNode,
+        Diagnostic(Severity::Error, fNode, eNode,
+                   "Iteration statement expects only one or two identifiers"));
+  }
+  std::shared_ptr<Node> lastAlive = nullptr;
+  std::shared_ptr<Node> firstDead = nullptr;
+  std::shared_ptr<Node> lastDead = nullptr;
+  for (auto b : node->stmts) {
+    b->visit(this);
+    if (!lastAlive) {
+      if (this->isDead(b)) {
+        lastAlive = b;
+      }
+    } else {
+      if (firstDead) {
+        firstDead = b;
+        lastDead = b;
+      } else {
+        lastDead = b;
+      }
+    }
+  }
+  this->applyDead(lastAlive, firstDead, lastDead);
 }
 
 void TypeAnalyzer::visitKeyValueItem(KeyValueItem *node) {
@@ -488,8 +657,120 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
 }
 
+bool TypeAnalyzer::checkCondition(Node *condition) {
+  auto appended = false;
+  auto *fn = dynamic_cast<FunctionExpression *>(condition);
+  if ((fn != nullptr) && fn->functionName() == "get") {
+    auto *al = dynamic_cast<ArgumentList *>(fn->args.get());
+    if (al && !al->args.empty()) {
+      auto *testedIdentifier = dynamic_cast<StringLiteral *>(al->args[0].get());
+      if (testedIdentifier) {
+        this->ignoreUnknownIdentifier.emplace_back(testedIdentifier->id);
+        appended = true;
+      }
+    }
+  }
+  auto foundBoolOrAny = false;
+  for (const auto &type : condition->types) {
+    if (dynamic_cast<Any *>(type.get()) ||
+        dynamic_cast<BoolType *>(type.get()) ||
+        dynamic_cast<Disabler *>(type.get())) {
+      foundBoolOrAny = true;
+      break;
+    }
+  }
+  if (!foundBoolOrAny && !condition->types.empty()) {
+    auto joined = joinTypes(condition->types);
+    this->metadata->registerDiagnostic(
+        condition, Diagnostic(Severity::Error, condition,
+                              "Condition is not bool: " + joined));
+  }
+  return appended;
+}
+
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   node->visitChildren(this);
+  this->stack.emplace_back();
+  this->overriddenVariables.emplace_back();
+  std::map<std::string, std::vector<std::shared_ptr<Type>>> oldVars;
+  for (auto oldVar : this->scope.variables) {
+    oldVars[oldVar.first] = std::vector<std::shared_ptr<Type>>{
+        oldVar.second.begin(), oldVar.second.end()};
+  }
+  auto idx = 0UL;
+  std::vector<IdExpression *> allLeft;
+  for (const auto &block : node->blocks) {
+    auto appended = false;
+    if (idx < node->conditions.size()) {
+      auto cond = node->conditions[idx];
+      cond->visit(this);
+      appended = this->checkCondition(cond.get());
+    }
+    std::shared_ptr<Node> lastAlive = nullptr;
+    std::shared_ptr<Node> firstDead = nullptr;
+    std::shared_ptr<Node> lastDead = nullptr;
+    for (const auto &stmt : block) {
+      stmt->visit(this);
+      if (!lastAlive) {
+        if (this->isDead(stmt)) {
+          lastAlive = stmt;
+        }
+      } else {
+        if (firstDead) {
+          firstDead = stmt;
+          lastDead = stmt;
+        } else {
+          lastDead = stmt;
+        }
+      }
+    }
+    this->applyDead(lastAlive, firstDead, lastDead);
+    if (appended) {
+      this->ignoreUnknownIdentifier.pop_back();
+    }
+    auto lastNeedingUse = this->variablesNeedingUse.back();
+    allLeft.insert(allLeft.end(), lastNeedingUse.begin(), lastNeedingUse.end());
+    this->variablesNeedingUse.pop_back();
+    idx++;
+  }
+  std::set<std::string> dedupedUnusedAssignments;
+  auto toInsert = this->variablesNeedingUse.back();
+  for (auto *idExpr : allLeft) {
+    if (dedupedUnusedAssignments.contains(idExpr->id)) {
+      continue;
+    }
+    dedupedUnusedAssignments.insert(idExpr->id);
+    toInsert.emplace_back(idExpr);
+  }
+  auto types = this->stack.back();
+  this->stack.pop_back();
+  // If: 1 c, 1 b
+  // If,else if: 2c, 2b
+  // if, else if, else, 2c, 3b
+  for (auto pair : types) {
+    // This leaks some overwritten types. This can't be solved
+    // without costly static analysis
+    // x = 'Foo'
+    // if bar
+    //   x = 2
+    // else
+    //   x = true
+    // endif
+    // x is now str|int|bool instead of int|bool
+    auto key = pair.first;
+    auto arr = this->scope.variables.contains(pair.first)
+                   ? this->scope.variables[pair.first]
+                   : std::vector<std::shared_ptr<Type>>{};
+    arr.insert(arr.end(), pair.second.begin(), pair.second.end());
+    if (node->conditions.size() == node->blocks.size()) {
+      if (oldVars.contains(pair.first)) {
+        arr.insert(arr.end(), oldVars[pair.first].begin(),
+                   oldVars[pair.first].end());
+      }
+    }
+    this->scope.variables[pair.first] = dedup(this->ns, arr);
+  }
+  this->overriddenVariables.pop_back();
 }
 
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
@@ -681,4 +962,22 @@ std::string joinTypes(std::vector<std::shared_ptr<Type>> types) {
     }
   }
   return ret;
+}
+
+static bool isSnakeCase(const std::string &str) {
+  for (auto chr : str) {
+    if (std::isupper(chr) != 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static bool isShoutingSnakeCase(const std::string &str) {
+  for (auto chr : str) {
+    if (std::islower(chr) != 0) {
+      return false;
+    }
+  }
+  return true;
 }

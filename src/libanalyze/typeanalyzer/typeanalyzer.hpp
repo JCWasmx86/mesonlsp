@@ -1,9 +1,11 @@
 #pragma once
 
+#include "analysisoptions.hpp"
 #include "function.hpp"
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
+#include "scope.hpp"
 #include "typenamespace.hpp"
 
 #include <filesystem>
@@ -19,9 +21,13 @@ public:
   TypeNamespace &ns;
   MesonTree *tree;
   MesonMetadata *metadata;
+  Scope scope;
+  AnalysisOptions analysisOptions;
 
-  TypeAnalyzer(TypeNamespace &ns, MesonMetadata *metadata, MesonTree *tree)
-      : ns(ns), tree(tree), metadata(metadata) {}
+  TypeAnalyzer(TypeNamespace &ns, MesonMetadata *metadata, MesonTree *tree,
+               Scope scope, AnalysisOptions analysisOptions)
+      : ns(ns), tree(tree), metadata(metadata), scope(scope),
+        analysisOptions(analysisOptions) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;
@@ -50,6 +56,10 @@ private:
   std::vector<std::filesystem::path> sourceFileStack;
   std::vector<std::vector<IdExpression *>> variablesNeedingUse;
   std::vector<std::vector<std::string>> foundVariables;
+  std::vector<std::string> ignoreUnknownIdentifier;
+  std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>> stack;
+  std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
+      overriddenVariables;
   void checkProjectCall(BuildDefinition *node);
   void checkDeadNodes(BuildDefinition *node);
   void applyDead(std::shared_ptr<Node> &lastAlive,
@@ -67,7 +77,7 @@ private:
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                         FunctionExpression *node);
   void checkIfInLoop(Node *node, std::string str) const;
-  void extractVoidAssignment(AssignmentStatement *node);
+  void extractVoidAssignment(AssignmentStatement *node) const;
   void evaluateFullAssignment(AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
   void evaluatePureAssignment(AssignmentStatement *node,
@@ -80,4 +90,10 @@ private:
                            std::vector<std::shared_ptr<Type>> *newTypes);
   std::optional<std::shared_ptr<Type>> evalPlusEquals(std::shared_ptr<Type> l,
                                                       std::shared_ptr<Type> r);
+  void applyToStack(std::string name, std::vector<std::shared_ptr<Type>> types);
+  void checkIdentifier(IdExpression *node);
+  void registerNeedForUse(IdExpression *node);
+  void analyseIterationStatementSingleIdentifier(IterationStatement *node);
+  void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
+  bool checkCondition(Node *condition);
 };
