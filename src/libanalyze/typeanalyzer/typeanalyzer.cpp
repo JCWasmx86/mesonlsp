@@ -680,8 +680,9 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   }
   auto guessed = ::guessSetVariable(node, this->options);
   std::set<std::string> asSet{guessed.begin(), guessed.end()};
-  auto msg =
-      std::format("Found subdircall with dirs: {}", joinStrings(asSet, '|'));
+  auto msg = std::format("Found subdircall with dirs: {} at {}:{}",
+                         joinStrings(asSet, '|'), node->file->file.c_str(),
+                         node->location->format());
   if (asSet.empty()) {
     LOG.warn(msg);
   } else {
@@ -689,18 +690,22 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   }
   for (auto dir : asSet) {
     auto dirpath = node->file->file.parent_path() / dir;
-    if (!std::filesystem::exists(dirpath) && asSet.size() == 1) {
-      this->metadata->registerDiagnostic(
-          node, Diagnostic(Severity::Error, node,
-                           std::format("Directory does not exist: {}", dir)));
+    if (!std::filesystem::exists(dirpath)) {
+      if (asSet.size() == 1) {
+        this->metadata->registerDiagnostic(
+            node, Diagnostic(Severity::Error, node,
+                             std::format("Directory does not exist: {}", dir)));
+      }
       continue;
     }
     auto mesonpath = dirpath / "meson.build";
-    if (!std::filesystem::exists(mesonpath) && asSet.size() == 1) {
-      this->metadata->registerDiagnostic(
-          node,
-          Diagnostic(Severity::Error, node,
-                     std::format("File does not exist: {}/meson.build", dir)));
+    if (!std::filesystem::exists(mesonpath)) {
+      if (asSet.size() == 1) {
+        this->metadata->registerDiagnostic(
+            node, Diagnostic(
+                      Severity::Error, node,
+                      std::format("File does not exist: {}/meson.build", dir)));
+      }
       continue;
     }
     auto ast = this->tree->parseFile(mesonpath);

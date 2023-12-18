@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <format>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -76,9 +77,11 @@ PartialInterpreter::calculateBinaryExpression(Node *parentExpr,
   auto lhs = this->calculateExpression(parentExpr, be->lhs.get());
   auto rhs = this->calculateExpression(parentExpr, be->rhs.get());
   std::vector<std::string> ret;
-  const auto *opStr = be->op == BinaryOperator::Plus ? "" : "/";
+  const auto *opStr = be->op == BinaryOperator::Div ? "/" : "";
   for (auto l : lhs) {
+    LOG.info("Found LHS: " + joinStrings(lhs, '|'));
     for (auto r : rhs) {
+      LOG.info("Found RHS: " + joinStrings(rhs, '|'));
       ret.emplace_back(l + opStr + r);
     }
   }
@@ -147,6 +150,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
     if (!dict || !sl) {
       continue;
     }
+    LOG.warn(std::format("Getting {}", sl->id));
     for (auto k : dict->values) {
       auto kvi = dynamic_cast<KeyValueItem *>(k.get());
       if (!kvi) {
@@ -269,7 +273,7 @@ PartialInterpreter::calculateSubscriptExpression(SubscriptExpression *sse,
       this->calculateEvalSubscriptExpression(i, o, ret);
     }
     auto dictN = dynamic_cast<DictionaryLiteral *>(o->node);
-    if (!dictN || !dictN->values.empty()) {
+    if (!dictN || !inner.empty()) {
       continue;
     }
     for (auto n : dictN->values) {
@@ -289,7 +293,7 @@ PartialInterpreter::calculateSubscriptExpression(SubscriptExpression *sse,
 std::vector<std::string>
 PartialInterpreter::calculateFunctionExpression(FunctionExpression *fe,
                                                 Node *parentExpr) {
-  std::vector<std::string> funcs{"join_paths", "get_option"};
+  std::set<std::string> funcs{"join_paths", "get_option"};
   std::vector<std::string> ret;
   auto fn = fe->function;
   auto *feId = dynamic_cast<IdExpression *>(fe->id.get());
@@ -297,13 +301,15 @@ PartialInterpreter::calculateFunctionExpression(FunctionExpression *fe,
     return ret;
   }
   if (!fn) {
-    if (std::find(funcs.begin(), funcs.end(), feId->id) != funcs.end()) {
+    if (!funcs.contains(feId->id)) {
+      return ret;
+    }
+  } else {
+    if (!funcs.contains(fn->name)) {
       return ret;
     }
   }
-  if (std::find(funcs.begin(), funcs.end(), fn->name) != funcs.end()) {
-    return ret;
-  }
+  LOG.info("HEREEE");
   auto al = fe->args;
   if (!al) {
     return ret;
@@ -334,14 +340,26 @@ PartialInterpreter::calculateFunctionExpression(FunctionExpression *fe,
     }
     return ret;
   }
+  LOG.warn("HEEEE");
   std::vector<std::vector<std::shared_ptr<InterpretNode>>> items;
   for (const auto &a : args->args) {
     if (dynamic_cast<KeywordItem *>(a.get())) {
       continue;
     }
-    items.emplace_back(this->abstractEval(parentExpr, a.get()));
+    auto evaled = this->abstractEval(parentExpr, a.get());
+    LOG.info(
+        std::format("Evaled {} to {}", a->location->format(), evaled.size()));
+    items.emplace_back(evaled);
   }
+  for (auto foo : items) {
+    for (auto bar : foo) {
+      LOG.info(">>> " + bar->node->location->format());
+    }
+    LOG.info("|||");
+  }
+  LOG.warn(std::format("{}", items.size()));
   auto combinations = allAbstractStringCombinations(items);
+  LOG.warn(std::format("{} {}", items.size(), combinations.size()));
   for (const auto &combo : combinations) {
     auto sl = dynamic_cast<StringLiteral *>(combo->node);
     if (sl) {
@@ -400,6 +418,7 @@ PartialInterpreter::calculateExpression(Node *parentExpr, Node *argExpression) {
   }
   auto fe = dynamic_cast<FunctionExpression *>(argExpression);
   if (fe) {
+    LOG.info("Calculating func expression: " + fe->functionName());
     return calculateFunctionExpression(fe, parentExpr);
   }
   return {};
@@ -492,7 +511,7 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
           continue;
         }
         for (auto args : al->args) {
-          auto tmp2 = this->abstractEval(al, args.get());
+          auto tmp2 = this->abstractEval(its, args.get());
           normalized.insert(normalized.end(), tmp2.begin(), tmp2.end());
         }
       }
@@ -783,6 +802,8 @@ PartialInterpreter::abstractEvalSubscriptExpression(SubscriptExpression *sse,
   std::vector<std::shared_ptr<InterpretNode>> ret;
   for (auto o : outer) {
     for (auto i : inner) {
+      LOG.info(std::format("Evaling {}[{}]", o->node->location->format(),
+                           i->node->location->format()));
       this->abstractEvalComputeSubscript(i.get(), o.get(), ret);
     }
     auto dictN = dynamic_cast<DictionaryLiteral *>(o->node);
@@ -961,13 +982,12 @@ PartialInterpreter::abstractEvalGetMethodCall(MethodExpression *me,
           continue;
         }
         auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
-        if (kviValue && kviValue->id == sl->id) {
+        if (kviValue) {
           ret.emplace_back(std::make_shared<StringNode>(kviValue));
         }
       }
     }
   }
-  LOG.info(std::format("abstractge: {}", ret.size()));
   return ret;
 }
 
@@ -1028,26 +1048,35 @@ PartialInterpreter::abstractEvalGenericSubscriptExpression(
 std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> arrays) {
   if (arrays.empty()) {
+    LOG.error("0");
     return {};
   }
   if (arrays.size() == 1) {
+    LOG.error("1");
     return arrays[0];
   }
+  LOG.error("2");
   auto restCombinations = allAbstractStringCombinations(
       std::vector<std::vector<std::shared_ptr<InterpretNode>>>{
           arrays.begin() + 1, arrays.end()});
   auto firstArray = arrays[0];
+  std::vector<decltype(arrays)::value_type>(arrays.begin() + 1, arrays.end())
+      .swap(arrays);
   std::vector<std::shared_ptr<InterpretNode>> combinations;
   for (auto string : firstArray) {
+    LOG.info("FOO");
     auto o1 = dynamic_cast<StringLiteral *>(string->node);
     if (!o1) {
       continue;
     }
-    for (auto combination : combinations) {
+    LOG.info("FOO1");
+    for (auto combination : restCombinations) {
+      LOG.info("BAR");
       auto sl = dynamic_cast<StringLiteral *>(combination->node);
       if (!sl) {
         continue;
       }
+      LOG.info("BAR1");
       combinations.emplace_back(
           std::make_shared<ArtificialStringNode>(o1->id + "/" + sl->id));
     }
@@ -1068,6 +1097,7 @@ PartialInterpreter::abstractEvalFunction(FunctionExpression *fe,
   }
   auto fnid = feid->id;
   if (fnid == "join_paths") {
+    LOG.warn("Found join_paths");
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> items;
     for (auto a : al->args) {
       if (dynamic_cast<KeywordItem *>(a.get())) {
