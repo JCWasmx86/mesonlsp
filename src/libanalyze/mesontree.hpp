@@ -30,4 +30,6 @@ public:
     this->state->fullSetup();
     this->partialParse(analysisOptions);
   }
+
+  std::shared_ptr<Node> parseFile(std::filesystem::path path);
 };

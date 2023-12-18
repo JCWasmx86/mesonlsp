@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-std::string joinTypes(std::vector<std::shared_ptr<Type>> types);
+std::string joinTypes(std::vector<std::shared_ptr<Type>> &types);
 
 class TypeAnalyzer : public CodeVisitor {
 public:
@@ -68,7 +68,7 @@ private:
   void checkDeadNodes(BuildDefinition *node);
   void applyDead(std::shared_ptr<Node> &lastAlive,
                  std::shared_ptr<Node> &firstDead,
-                 std::shared_ptr<Node> &lastDead);
+                 std::shared_ptr<Node> &lastDead) const;
   void checkUnusedVariables();
   bool isDead(const std::shared_ptr<Node> &node);
   void checkDuplicateNodeKeys(DictionaryLiteral *node);
@@ -100,4 +100,10 @@ private:
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
   bool checkCondition(Node *condition);
+  bool isSpecial(std::vector<std::shared_ptr<Type>> &types);
+  void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl);
+  std::vector<std::shared_ptr<Type>> evalBinaryExpression(
+      BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
+      std::vector<std::shared_ptr<Type>> rhs, unsigned int *nErrors);
+  void enterSubdir(FunctionExpression *node);
 };

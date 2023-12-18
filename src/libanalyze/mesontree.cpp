@@ -61,6 +61,21 @@ OptionState parseOptions(std::filesystem::path &root) {
   return {};
 }
 
+std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
+  TSParser *parser = ts_parser_new();
+  ts_parser_set_language(parser, tree_sitter_meson());
+  auto fileContent = readFile(path);
+  TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
+                                        fileContent.length());
+  const TSNode rootNode = ts_tree_root_node(tree);
+  auto sourceFile = std::make_shared<SourceFile>(path);
+  auto root = makeNode(sourceFile, rootNode);
+  root->setParents();
+  ts_tree_delete(tree);
+  ts_parser_delete(parser);
+  return root;
+}
+
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   // First fetch all the options
   auto options = parseOptions(this->root);
@@ -71,14 +86,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
     LOG.warn(std::format("No meson.build file in {}", this->root.c_str()));
     return;
   }
-  TSParser *parser = ts_parser_new();
-  ts_parser_set_language(parser, tree_sitter_meson());
-  auto fileContent = readFile(rootFile);
-  TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
-                                        fileContent.length());
-  const TSNode rootNode = ts_tree_root_node(tree);
-  auto sourceFile = std::make_shared<SourceFile>(rootFile);
-  auto root = makeNode(sourceFile, rootNode);
+  auto root = this->parseFile(rootFile);
   Scope scope;
   scope.variables["meson"] = {this->ns.types["meson"]};
   scope.variables["build_machine"] = {this->ns.types["build_machine"]};
@@ -88,6 +96,4 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
                        options);
   root->setParents();
   root->visit(&visitor);
-  ts_tree_delete(tree);
-  ts_parser_delete(parser);
 }

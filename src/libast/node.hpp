@@ -4,6 +4,7 @@
 #include "location.hpp"
 #include "sourcefile.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -107,6 +108,26 @@ enum AssignmentOperator {
   AssignmentOpOther,
 };
 
+inline std::string enum2String(AssignmentOperator op) {
+  switch (op) {
+  case Equals:
+    return "=";
+  case MulEquals:
+    return "*=";
+  case DivEquals:
+    return "/=";
+  case ModEquals:
+    return "%=";
+  case PlusEquals:
+    return "+=";
+  case MinusEquals:
+    return "-=";
+  case AssignmentOpOther:
+    return "<<Unknown>>";
+  }
+  assert(false);
+}
+
 class AssignmentStatement : public Node {
 public:
   std::shared_ptr<Node> lhs;
@@ -136,6 +157,44 @@ enum BinaryOperator {
   And,
   BinOpOther,
 };
+
+inline std::string enum2String(BinaryOperator op) {
+  switch (op) {
+  case Plus:
+    return "+";
+  case Minus:
+    return "-";
+  case Mul:
+    return "*";
+  case Div:
+    return "/";
+  case Modulo:
+    return "%";
+  case EqualsEquals:
+    return "==";
+  case NotEquals:
+    return "!=";
+  case Gt:
+    return ">";
+  case Lt:
+    return "<";
+  case Ge:
+    return ">=";
+  case Le:
+    return "<=";
+  case In:
+    return "in";
+  case NotIn:
+    return "not in";
+  case Or:
+    return "or";
+  case And:
+    return "and";
+  case BinOpOther:
+    return "<<Unknown>>";
+  }
+  assert(false);
+}
 
 class BinaryExpression : public Node {
 public:
