@@ -88,3 +88,30 @@ static inline void trim(std::string &str) {
   rtrim(str);
   ltrim(str);
 }
+
+// https://stackoverflow.com/a/56891830
+inline std::string replace(std::string &str, const std::string &substr1,
+                           const std::string &substr2) {
+  for (size_t index = str.find(substr1, 0);
+       index != std::string::npos && (substr1.length() != 0U);
+       index = str.find(substr1, index + substr2.length())) {
+    str.replace(index, substr1.length(), substr2);
+  }
+  return str;
+}
+
+inline std::vector<std::string> split(const std::string &str,
+                                      const std::string &delim) {
+  std::vector<std::string> result;
+  size_t start = 0;
+
+  for (size_t found = str.find(delim); found != std::string::npos;
+       found = str.find(delim, start)) {
+    result.emplace_back(str.begin() + (long)start, str.begin() + (long)found);
+    start = found + delim.size();
+  }
+  if (start != str.size()) {
+    result.emplace_back(str.begin() + (long)start, str.end());
+  }
+  return result;
+}

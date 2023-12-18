@@ -12,6 +12,8 @@ public:
   bool deprecated = false;
   std::string type;
 
+  virtual ~MesonOption() = default;
+
 protected:
   MesonOption(std::string name, std::optional<std::string> description,
               bool deprecated, std::string type)
