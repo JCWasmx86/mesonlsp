@@ -6,8 +6,10 @@
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
@@ -245,9 +247,13 @@ IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
                                        TSNode node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
+  std::vector<std::shared_ptr<Node>> ids;
   for (uint32_t i = 0; i < ts_node_named_child_count(idList); i++) {
-    this->ids.push_back(makeNode(file, ts_node_named_child(idList, i)));
+    auto child = ts_node_named_child(idList, i);
+    auto newNode = makeNode(file, child);
+    ids.push_back(newNode);
   }
+  this->ids = ids;
   this->expression = makeNode(file, ts_node_named_child(node, 1));
   for (uint32_t i = 2; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));
@@ -530,6 +536,9 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
     }
     idx++;
   }
+  this->conditions = cs;
+  this->conditions.insert(this->conditions.begin(), sI);
+  this->blocks = bb;
 }
 
 void SelectionStatement::visitChildren(CodeVisitor *visitor) {

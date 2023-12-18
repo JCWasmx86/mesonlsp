@@ -4,8 +4,10 @@
 #include "log.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "partialinterpreter.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
+#include "utils.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -83,7 +85,7 @@ void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
   }
 }
 
-void TypeAnalyzer::checkIdentifier(IdExpression *node) {
+void TypeAnalyzer::checkIdentifier(IdExpression *node) const {
   if (this->analysisOptions.disableNameLinting) {
     return;
   }
@@ -455,7 +457,18 @@ void TypeAnalyzer::specialFunctionCallHandling(FunctionExpression *node,
 void TypeAnalyzer::checkCall(FunctionExpression *node) {}
 
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
-                                    FunctionExpression *node) {}
+                                    FunctionExpression *node) {
+  auto guessed = ::guessSetVariable(node, this->options);
+  std::set<std::string> asSet(guessed.begin(), guessed.end());
+  LOG.info(std::format("Guessed values for set_variable: {} at {}:{}",
+                       joinStrings(asSet, '|'), node->file->file.c_str(),
+                       node->location->format()));
+  for (const auto &varname : asSet) {
+    auto types = args[1]->types;
+    this->scope.variables[varname] = types;
+    this->applyToStack(varname, types);
+  }
+}
 
 void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
                                     ArgumentList *al) {
@@ -470,6 +483,9 @@ void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
   } else if (args.size() > 1) {
     auto varname = variableName->id;
     auto types = args[1]->types;
+    this->scope.variables[varname] = types;
+    this->applyToStack(varname, types);
+    LOG.info(std::format("set_variable {} = {}", varname, joinTypes(types)));
   }
 }
 
@@ -550,7 +566,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   if (errs != iterTypes.size()) {
     node->ids[0]->types = dedup(this->ns, res);
   } else {
-    node->ids[0] = {};
+    node->ids[0]->types = {};
     this->metadata->registerDiagnostic(
         node->expression.get(),
         Diagnostic(Severity::Error, node->expression.get(),
@@ -709,6 +725,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     std::shared_ptr<Node> lastAlive = nullptr;
     std::shared_ptr<Node> firstDead = nullptr;
     std::shared_ptr<Node> lastDead = nullptr;
+    this->variablesNeedingUse.emplace_back();
     for (const auto &stmt : block) {
       stmt->visit(this);
       if (!lastAlive) {

@@ -5,6 +5,7 @@
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
+#include "optionstate.hpp"
 #include "scope.hpp"
 #include "typenamespace.hpp"
 
@@ -12,6 +13,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 std::string joinTypes(std::vector<std::shared_ptr<Type>> types);
@@ -23,11 +25,13 @@ public:
   MesonMetadata *metadata;
   Scope scope;
   AnalysisOptions analysisOptions;
+  OptionState options;
 
   TypeAnalyzer(TypeNamespace &ns, MesonMetadata *metadata, MesonTree *tree,
-               Scope scope, AnalysisOptions analysisOptions)
+               Scope scope, AnalysisOptions analysisOptions,
+               OptionState options)
       : ns(ns), tree(tree), metadata(metadata), scope(scope),
-        analysisOptions(analysisOptions) {}
+        analysisOptions(analysisOptions), options(std::move(options)) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;
@@ -91,7 +95,7 @@ private:
   std::optional<std::shared_ptr<Type>> evalPlusEquals(std::shared_ptr<Type> l,
                                                       std::shared_ptr<Type> r);
   void applyToStack(std::string name, std::vector<std::shared_ptr<Type>> types);
-  void checkIdentifier(IdExpression *node);
+  void checkIdentifier(IdExpression *node) const;
   void registerNeedForUse(IdExpression *node);
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
