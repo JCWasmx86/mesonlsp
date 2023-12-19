@@ -12,6 +12,7 @@
 
 class MesonTree {
 public:
+  std::string identifier;
   std::filesystem::path root;
   std::set<std::filesystem::path> ownedFiles;
   SubprojectState *state;
@@ -20,7 +21,7 @@ public:
   int depth = 0;
 
   MesonTree(const std::filesystem::path &root)
-      : root(root), state(new SubprojectState(root)) {}
+      : identifier("root"), root(root), state(new SubprojectState(root)) {}
 
   ~MesonTree() {
     delete this->state;
@@ -31,7 +32,7 @@ public:
 
   void fullParse(AnalysisOptions analysisOptions) {
     if (this->depth < MAX_TREE_DEPTH) {
-      this->state->fullSetup(analysisOptions, depth + 1);
+      this->state->fullSetup(analysisOptions, depth + 1, this->identifier);
     }
     this->partialParse(analysisOptions);
   }

@@ -25,7 +25,8 @@ public:
 
   virtual void init() = 0;
   virtual void update() = 0;
-  void parse(AnalysisOptions &options, int depth);
+  void parse(AnalysisOptions &options, int depth,
+             const std::string &parentIdentifier);
 
   virtual ~MesonSubproject() = default;
 };
