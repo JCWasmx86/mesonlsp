@@ -43,6 +43,10 @@ public:
 
   Node() { this->location = new Location(); }
 
+  Node(Node const &) = delete;
+  void operator=(Node const &) = delete;
+  Node(Node &&) = delete;
+
 protected:
   Node(std::shared_ptr<SourceFile> file, TSNode node);
 };

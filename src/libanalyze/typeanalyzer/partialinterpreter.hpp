@@ -24,6 +24,10 @@ public:
   };
 
   InterpretNode(Node *node) : node(node) {}
+
+  InterpretNode(InterpretNode const &) = delete;
+  void operator=(InterpretNode const &) = delete;
+  InterpretNode(InterpretNode &&) = delete;
 };
 
 class ArrayNode : public InterpretNode {
