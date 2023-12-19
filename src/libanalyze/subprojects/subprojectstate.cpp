@@ -1,5 +1,6 @@
 #include "subprojectstate.hpp"
 
+#include "analysisoptions.hpp"
 #include "log.hpp"
 #include "subproject.hpp"
 #include "utils.hpp"
@@ -42,8 +43,8 @@ void SubprojectState::findSubprojects() {
     auto subprojectName = child.stem().string();
     if (std::filesystem::exists(checkFile)) {
       LOG.info("Wrap is already setup!");
-      this->subprojects.emplace_back(
-          std::make_shared<CachedSubproject>(subprojectName, wrapBaseDir));
+      this->subprojects.emplace_back(std::make_shared<CachedSubproject>(
+          subprojectName, wrapBaseDir / guessTargetDirectoryFromWrap(child)));
     } else {
       if (std::filesystem::exists(wrapBaseDir)) {
         LOG.warn(
@@ -93,5 +94,11 @@ void SubprojectState::initSubprojects() {
 void SubprojectState::updateSubprojects() {
   for (const auto &subproject : this->subprojects) {
     subproject->update();
+  }
+}
+
+void SubprojectState::parseSubprojects(AnalysisOptions &options) {
+  for (const auto &subproject : this->subprojects) {
+    subproject->parse(options);
   }
 }

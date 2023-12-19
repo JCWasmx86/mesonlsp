@@ -1,5 +1,6 @@
 #pragma once
 
+#include "analysisoptions.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 
@@ -10,17 +11,21 @@
 #include <string>
 #include <utility>
 
+class MesonTree;
+
 class MesonSubproject {
 public:
   bool initialized = false;
   std::string name;
   std::filesystem::path realpath;
+  std::shared_ptr<MesonTree> tree;
 
   MesonSubproject(std::string name, std::filesystem::path path)
       : name(std::move(name)), realpath(std::move(path)) {}
 
   virtual void init() = 0;
   virtual void update() = 0;
+  void parse(AnalysisOptions &options);
 
   virtual ~MesonSubproject() = default;
 };
