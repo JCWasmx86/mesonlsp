@@ -59,6 +59,9 @@ void ArrayLiteral::setParents() {
 
 BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
+  if (!node.id) {
+    return;
+  }
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));
     if (stmt) {

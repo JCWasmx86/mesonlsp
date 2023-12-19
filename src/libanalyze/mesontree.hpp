@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <set>
 
-#define MAX_TREE_DEPTH 10
+#define MAX_TREE_DEPTH 3
 
 class MesonTree {
 public:
@@ -30,7 +30,7 @@ public:
   void partialParse(AnalysisOptions analysisOptions);
 
   void fullParse(AnalysisOptions analysisOptions) {
-    if (this->depth > MAX_TREE_DEPTH) {
+    if (this->depth < MAX_TREE_DEPTH) {
       this->state->fullSetup(analysisOptions, depth + 1);
     }
     this->partialParse(analysisOptions);
