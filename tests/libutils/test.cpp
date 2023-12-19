@@ -5,6 +5,19 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <uuid/uuid.h>
+
+std::string randomFile() {
+  auto *tmpdir = getenv("TMPDIR"); // NOLINT
+  if (tmpdir == nullptr) {
+    tmpdir = (char *)"/tmp";
+  }
+  uuid_t filename;
+  uuid_generate(filename);
+  char out[UUID_STR_LEN + 1] = {0};
+  uuid_unparse(filename, out);
+  return std::format("{}/{}", tmpdir, out);
+}
 
 void testMergingDirectories(Logger logger) {
   auto workDir = std::filesystem::path{randomFile()};

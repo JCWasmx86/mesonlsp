@@ -222,18 +222,6 @@ std::string errno2string() {
   return std::string(buf);
 }
 
-std::string randomFile() {
-  auto *tmpdir = getenv("TMPDIR"); // NOLINT
-  if (tmpdir == nullptr) {
-    tmpdir = (char *)"/tmp";
-  }
-  uuid_t filename;
-  uuid_generate(filename);
-  char out[UUID_STR_LEN + 1] = {0};
-  uuid_unparse(filename, out);
-  return std::format("{}/{}", tmpdir, out);
-}
-
 void mergeDirectories(const std::filesystem::path &sourcePath,
                       const std::filesystem::path &destinationPath) {
   try {

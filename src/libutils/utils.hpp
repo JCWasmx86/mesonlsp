@@ -24,7 +24,6 @@ std::optional<std::filesystem::path>
 downloadWithFallback(std::string url, const std::string &hash,
                      std::optional<std::string> fallbackUrl);
 std::string errno2string();
-std::string randomFile();
 void mergeDirectories(const std::filesystem::path &sourcePath,
                       const std::filesystem::path &destinationPath);
 std::filesystem::path cacheDir();
