@@ -27,7 +27,7 @@ public:
   void partialParse(AnalysisOptions analysisOptions);
 
   void fullParse(AnalysisOptions analysisOptions) {
-    this->state->fullSetup();
+    this->state->fullSetup(analysisOptions);
     this->partialParse(analysisOptions);
   }
 

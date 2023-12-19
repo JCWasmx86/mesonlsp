@@ -1,4 +1,5 @@
 #pragma once
+#include "analysisoptions.hpp"
 #include "subproject.hpp"
 
 #include <filesystem>
@@ -16,10 +17,12 @@ public:
   void findSubprojects();
   void initSubprojects();
   void updateSubprojects();
+  void parseSubprojects(AnalysisOptions &options);
 
-  void fullSetup() {
+  void fullSetup(AnalysisOptions &options) {
     this->findSubprojects();
     this->initSubprojects();
     this->updateSubprojects();
+    this->parseSubprojects(options);
   }
 };
