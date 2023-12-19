@@ -70,6 +70,7 @@ std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
+  this->ownedFiles.insert(std::filesystem::absolute(path));
   root->setParents();
   ts_tree_delete(tree);
   ts_parser_delete(parser);
