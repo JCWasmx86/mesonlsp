@@ -1,1 +1,1 @@
-executable('utilstest', 'test.cpp', dependencies: [utils_dep, log_dep])
+executable('utilstest', 'test.cpp', dependencies: [utils_dep, log_dep, uuid_dep])
