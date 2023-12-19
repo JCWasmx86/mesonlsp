@@ -17,12 +17,12 @@ public:
   void findSubprojects();
   void initSubprojects();
   void updateSubprojects();
-  void parseSubprojects(AnalysisOptions &options);
+  void parseSubprojects(AnalysisOptions &options, int depth);
 
-  void fullSetup(AnalysisOptions &options) {
+  void fullSetup(AnalysisOptions &options, int depth) {
     this->findSubprojects();
     this->initSubprojects();
     this->updateSubprojects();
-    this->parseSubprojects(options);
+    this->parseSubprojects(options, depth);
   }
 };

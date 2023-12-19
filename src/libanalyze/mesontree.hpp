@@ -8,6 +8,8 @@
 #include <filesystem>
 #include <set>
 
+#define MAX_TREE_DEPTH 10
+
 class MesonTree {
 public:
   std::filesystem::path root;
@@ -15,6 +17,7 @@ public:
   SubprojectState *state;
   MesonMetadata metadata;
   TypeNamespace ns;
+  int depth = 0;
 
   MesonTree(const std::filesystem::path &root)
       : root(root), state(new SubprojectState(root)) {}
@@ -27,7 +30,9 @@ public:
   void partialParse(AnalysisOptions analysisOptions);
 
   void fullParse(AnalysisOptions analysisOptions) {
-    this->state->fullSetup(analysisOptions);
+    if (this->depth > MAX_TREE_DEPTH) {
+      this->state->fullSetup(analysisOptions, depth + 1);
+    }
     this->partialParse(analysisOptions);
   }
 
