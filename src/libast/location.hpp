@@ -23,9 +23,9 @@ public:
 
   Location(TSNode node)
       : startLine(ts_node_start_point(node).row),
-        endLine(ts_node_end_point(node).row),
+        endLine(node.id ? (ts_node_end_point(node).row) : 0),
         startColumn(ts_node_start_point(node).column / 2),
-        endColumn(ts_node_end_point(node).column / 2),
+        endColumn(node.id ? (ts_node_end_point(node).column / 2) : 0),
         columns((this->startColumn) |
                 (((uint64_t)this->endColumn) << HALF_OF_U64)),
         lines((this->startLine) | (((uint64_t)this->endLine) << HALF_OF_U64)) {}
