@@ -13,7 +13,6 @@
 #include <sstream>
 #include <string>
 #include <tree_sitter/api.h>
-#include <utility>
 #include <vector>
 
 static Logger LOG("wrap::Wrap"); // NOLINT
@@ -23,7 +22,7 @@ extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
 Wrap::Wrap(ast::ini::Section *section) {
   if (auto val = section->findStringValue("directory")) {
     this->directory = val.value();
-    LOG.info(std::format("Got to know: {}", val.value()));
+    LOG.info(std::format("Directory according to the wrap file: {}", val.value()));
   } else {
     LOG.info(std::format("Guessed: {}->{}", section->file->file.c_str(),
                          section->file->file.stem().c_str()));
