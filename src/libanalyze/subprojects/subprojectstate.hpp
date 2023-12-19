@@ -17,12 +17,14 @@ public:
   void findSubprojects();
   void initSubprojects();
   void updateSubprojects();
-  void parseSubprojects(AnalysisOptions &options, int depth);
+  void parseSubprojects(AnalysisOptions &options, int depth,
+                        const std::string &parentIdentifier);
 
-  void fullSetup(AnalysisOptions &options, int depth) {
+  void fullSetup(AnalysisOptions &options, int depth,
+                 const std::string &parentIdentifier) {
     this->findSubprojects();
     this->initSubprojects();
     this->updateSubprojects();
-    this->parseSubprojects(options, depth);
+    this->parseSubprojects(options, depth, parentIdentifier);
   }
 };
