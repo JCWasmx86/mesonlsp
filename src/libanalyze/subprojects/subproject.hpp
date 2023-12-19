@@ -25,7 +25,7 @@ public:
 
   virtual void init() = 0;
   virtual void update() = 0;
-  void parse(AnalysisOptions &options);
+  void parse(AnalysisOptions &options, int depth);
 
   virtual ~MesonSubproject() = default;
 };
