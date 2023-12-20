@@ -22,7 +22,7 @@ public:
   }
 
 private:
-  std::string cached_contents;
+  std::string cachedContents;
   bool cached = false;
 };
 

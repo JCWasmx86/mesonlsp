@@ -513,16 +513,16 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
     auto sv = file->extractNodeValue(c);
     auto nodeType = ts_node_type(c);
     if ((sv == "if" || strcmp(nodeType, "if") == 0) && !sI) {
-      while (file->extractNodeValue(ts_node_child(node, idx + 1)) ==
-             "comment") {
+      while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
+             0) {
         idx++;
       }
       sI = makeNode(file, ts_node_child(node, idx + 1));
       idx += 1;
     } else if (sv == "elif") {
       bb.push_back(tmp);
-      while (file->extractNodeValue(ts_node_child(node, idx + 1)) ==
-             "comment") {
+      while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
+             0) {
         idx++;
       }
       tmp = {};
@@ -531,7 +531,8 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
     } else if (sv == "else") {
       bb.push_back(tmp);
       tmp = {};
-    } else if (sv != "comment" && ts_node_named_child_count(c) == 1) {
+    } else if (strcmp(nodeType, "comment") != 0 &&
+               ts_node_named_child_count(c) == 1) {
       auto cChildType = ts_node_type(ts_node_named_child(c, 0));
       if (strcmp(cChildType, "comment") != 0) {
         tmp.push_back(makeNode(file, c));
