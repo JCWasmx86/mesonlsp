@@ -90,10 +90,10 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   }
   auto root = this->parseFile(rootFile);
   Scope scope;
-  scope.variables["meson"] = {this->ns.types["meson"]};
-  scope.variables["build_machine"] = {this->ns.types["build_machine"]};
-  scope.variables["host_machine"] = {this->ns.types["host_machine"]};
-  scope.variables["target_machine"] = {this->ns.types["target_machine"]};
+  scope.variables["meson"] = {this->ns.types.at("meson")};
+  scope.variables["build_machine"] = {this->ns.types.at("build_machine")};
+  scope.variables["host_machine"] = {this->ns.types.at("host_machine")};
+  scope.variables["target_machine"] = {this->ns.types.at("target_machine")};
   TypeAnalyzer visitor(this->ns, &this->metadata, this, scope, analysisOptions,
                        options);
   root->setParents();

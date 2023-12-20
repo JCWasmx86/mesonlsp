@@ -1,6 +1,7 @@
 #include "analysisoptions.hpp"
 #include "libwrap/wrap.hpp"
 #include "mesontree.hpp"
+#include "typenamespace.hpp"
 
 #include <cstdlib>
 #include <cstring>
@@ -177,7 +178,8 @@ int main(int argc, char **argv) {
   }
   if (paths.empty()) {
     auto parent = std::filesystem::absolute(path).parent_path();
-    MesonTree tree(parent);
+    TypeNamespace ns;
+    MesonTree tree(parent, ns);
     AnalysisOptions opts(false, false, false, false, false, false, false);
     if (full) {
       tree.fullParse(opts);

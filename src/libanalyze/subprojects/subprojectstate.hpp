@@ -1,6 +1,7 @@
 #pragma once
 #include "analysisoptions.hpp"
 #include "subproject.hpp"
+#include "typenamespace.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -18,13 +19,14 @@ public:
   void initSubprojects();
   void updateSubprojects();
   void parseSubprojects(AnalysisOptions &options, int depth,
-                        const std::string &parentIdentifier);
+                        const std::string &parentIdentifier,
+                        const TypeNamespace &ns);
 
   void fullSetup(AnalysisOptions &options, int depth,
-                 const std::string &parentIdentifier) {
+                 const std::string &parentIdentifier, const TypeNamespace &ns) {
     this->findSubprojects();
     this->initSubprojects();
     this->updateSubprojects();
-    this->parseSubprojects(options, depth, parentIdentifier);
+    this->parseSubprojects(options, depth, parentIdentifier, ns);
   }
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "analysisoptions.hpp"
+#include "typenamespace.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 
@@ -26,7 +27,7 @@ public:
   virtual void init() = 0;
   virtual void update() = 0;
   void parse(AnalysisOptions &options, int depth,
-             const std::string &parentIdentifier);
+             const std::string &parentIdentifier, const TypeNamespace &ns);
 
   virtual ~MesonSubproject() = default;
 };

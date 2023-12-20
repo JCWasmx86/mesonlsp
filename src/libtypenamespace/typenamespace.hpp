@@ -20,9 +20,10 @@ public:
 
   TypeNamespace();
 
-  std::optional<std::shared_ptr<Function>> lookupFunction(std::string &name) {
+  std::optional<const std::shared_ptr<Function>>
+  lookupFunction(std::string &name) const {
     if (this->functions.contains(name)) {
-      return this->functions[name];
+      return this->functions.at(name);
     }
     return std::nullopt;
   }

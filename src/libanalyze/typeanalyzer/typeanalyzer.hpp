@@ -20,15 +20,15 @@ std::string joinTypes(std::vector<std::shared_ptr<Type>> &types);
 
 class TypeAnalyzer : public CodeVisitor {
 public:
-  TypeNamespace &ns;
+  const TypeNamespace &ns;
   MesonTree *tree;
   MesonMetadata *metadata;
   Scope scope;
   AnalysisOptions analysisOptions;
   OptionState options;
 
-  TypeAnalyzer(TypeNamespace &ns, MesonMetadata *metadata, MesonTree *tree,
-               Scope scope, AnalysisOptions analysisOptions,
+  TypeAnalyzer(const TypeNamespace &ns, MesonMetadata *metadata,
+               MesonTree *tree, Scope scope, AnalysisOptions analysisOptions,
                OptionState options)
       : ns(ns), tree(tree), metadata(metadata), scope(scope),
         analysisOptions(analysisOptions), options(std::move(options)) {}
