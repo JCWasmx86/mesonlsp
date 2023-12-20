@@ -10,7 +10,6 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
-#include <format>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -93,7 +92,8 @@ std::vector<std::string> PartialInterpreter::calculateStringFormatMethodCall(
   std::vector<std::string> ret;
   for (auto o : objStrs) {
     for (auto f : fmtStrs) {
-      auto raw = replace(o, "@0@", f);
+      auto copy = std::string(o);
+      auto raw = replace(copy, "@0@", f);
       ret.push_back(raw);
     }
   }
@@ -373,6 +373,7 @@ PartialInterpreter::calculateExpression(Node *parentExpr, Node *argExpression) {
     if (isValidMethod(me)) {
       auto objStrs = this->calculateExpression(parentExpr, me->obj.get());
       std::vector<std::string> ret;
+      ret.reserve(objStrs.size());
       for (const auto &objStr : objStrs) {
         ret.emplace_back(applyMethod(objStr, meId->id));
       }
@@ -556,7 +557,7 @@ PartialInterpreter::analyseSelectionStatement(SelectionStatement *sst,
       auto others = this->abstractEval(b.get(), assignment->rhs.get());
       if (assignment->op == AssignmentOperator::Equals) {
         others.insert(others.end(), tmp.begin(), tmp.end());
-        return tmp;
+        return others;
       }
       tmp.insert(tmp.end(), others.begin(), others.end());
     }
@@ -675,6 +676,7 @@ void PartialInterpreter::abstractEvalComputeBinaryExpr(
         addToArrayConcatenated(argAL, sll->id, sep, true, ret);
       }
     }
+    return;
   }
   auto arrL = dynamic_cast<ArrayLiteral *>(lnode);
   if (slr && arrL) {
@@ -689,6 +691,13 @@ void PartialInterpreter::abstractEvalComputeBinaryExpr(
         addToArrayConcatenated(argAL, slr->id, sep, false, ret);
       }
     }
+    return;
+  }
+  auto ldict = dynamic_cast<DictionaryLiteral *>(lnode);
+  auto rdict = dynamic_cast<DictionaryLiteral *>(rnode);
+  if (ldict && rdict) {
+    ret.push_back(std::make_shared<DictNode>(ldict));
+    ret.push_back(std::make_shared<DictNode>(rdict));
   }
 }
 
@@ -864,9 +873,25 @@ PartialInterpreter::abstractEvalMethod(MethodExpression *me, Node *parentStmt) {
     if (sl) {
       strValues.emplace_back(sl->id);
     }
-    for (auto s : strValues) {
-      ret.emplace_back(
-          std::make_shared<ArtificialStringNode>(applyMethod(s, meid->id)));
+    if (meid->id != "keys") {
+      for (const auto &s : strValues) {
+        ret.emplace_back(
+            std::make_shared<ArtificialStringNode>(applyMethod(s, meid->id)));
+      }
+    }
+    auto dictionaryLiteral = dynamic_cast<DictionaryLiteral *>(r->node);
+    if (!dictionaryLiteral || meid->id != "keys") {
+      continue;
+    }
+    for (auto kvin : dictionaryLiteral->values) {
+      auto *kvi = dynamic_cast<KeyValueItem *>(kvin.get());
+      if (!kvi) {
+        continue;
+      }
+      auto name = kvi->getKeyName();
+      if (name != INVALID_KEY_NAME) {
+        ret.emplace_back(std::make_shared<StringNode>(kvi->key.get()));
+      }
     }
   }
   return ret;
@@ -917,7 +942,7 @@ PartialInterpreter::abstractEvalSimpleSubscriptExpression(
           continue;
         }
         auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
-        if (kviValue && kviValue->id == sl->id) {
+        if (kviValue) {
           ret.emplace_back(std::make_shared<StringNode>(kviValue));
         }
       }
@@ -1137,6 +1162,16 @@ PartialInterpreter::abstractEval(Node *parentStmt, Node *toEval) {
   auto me = dynamic_cast<MethodExpression *>(toEval);
   if (me && me->args) {
     auto meid = dynamic_cast<IdExpression *>(me->id.get());
+    if (meid->id == "format" && me->args) {
+      auto strs = calculateStringFormatMethodCall(
+          me, dynamic_cast<ArgumentList *>(me->args.get()), parentStmt);
+      std::vector<std::shared_ptr<InterpretNode>> ret;
+      ret.reserve(strs.size());
+      for (auto str : strs) {
+        ret.emplace_back(std::make_shared<ArtificialStringNode>(str));
+      }
+      return ret;
+    }
     if (!meid || meid->id != "get") {
       goto next;
     }
@@ -1183,7 +1218,8 @@ bool isValidMethod(MethodExpression *me) {
   if (!meid) {
     return false;
   }
-  std::set<std::string> names{"underscorify", "to_lower", "to_upper", "strip"};
+  std::set<std::string> names{"underscorify", "to_lower", "to_upper", "strip",
+                              "keys"};
   return names.contains(meid->id);
 }
 
