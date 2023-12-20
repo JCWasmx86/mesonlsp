@@ -41,7 +41,11 @@ void printHelp() {
   std::cerr << "--help       \t\t\tPrint this help" << std::endl;
 }
 
-void printVersion() { std::cout << VERSION << std::endl; }
+void printVersion() {
+  std::cout << VERSION << std::endl;
+  std::cout << "Using C compiler:   " << CC_VERSION << std::endl;
+  std::cout << "Using C++ compiler: " << CXX_VERSION << std::endl;
+}
 
 void startLanguageServer() {}
 
