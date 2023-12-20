@@ -3,6 +3,7 @@
 #include "function.hpp"
 #include "log.hpp"
 #include "mesonmetadata.hpp"
+#include "mesonoption.hpp"
 #include "node.hpp"
 #include "partialinterpreter.hpp"
 #include "type.hpp"
@@ -16,6 +17,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <string>
 #include <utility>
@@ -175,23 +177,23 @@ void TypeAnalyzer::evalAssignmentTypes(
   switch (op) {
   case DivEquals:
     if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
-      newTypes->emplace_back(this->ns.intType);
+      newTypes->push_back(this->ns.intType);
     }
     if (dynamic_cast<Str *>(l.get()) && dynamic_cast<Str *>(r.get())) {
-      newTypes->emplace_back(this->ns.strType);
+      newTypes->push_back(this->ns.strType);
     }
     break;
   case MinusEquals:
   case ModEquals:
   case MulEquals:
     if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
-      newTypes->emplace_back(this->ns.intType);
+      newTypes->push_back(this->ns.intType);
     }
     break;
   case PlusEquals: {
     auto type = this->evalPlusEquals(l, r);
     if (type.has_value()) {
-      newTypes->emplace_back(type->get());
+      newTypes->push_back(type.value());
     }
     break;
   }
@@ -625,11 +627,52 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                                         std::shared_ptr<Function> fn) {
   auto name = fn->name;
   if (name == "subproject") {
-    // TODO
+    auto values = ::guessSetVariable(node, this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    values.clear();
+    values = {asSet.begin(), asSet.end()};
+    node->types = {std::make_shared<Subproject>(values)};
+    LOG.info("Values for `subproject` call: " + joinStrings(values, '|'));
+    // TODO: Validate
     return;
   }
   if (name == "get_option") {
-    // TODO
+    auto values = ::guessSetVariable(node, this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    std::vector<std::shared_ptr<Type>> types;
+    for (auto val : values) {
+      auto opt = this->options.findOption(val);
+      if (!opt) {
+        continue;
+      }
+      if (dynamic_cast<StringOption *>(opt.get()) ||
+          dynamic_cast<ComboOption *>(opt.get())) {
+        types.emplace_back(this->ns.strType);
+        continue;
+      }
+      if (dynamic_cast<IntOption *>(opt.get())) {
+        types.emplace_back(this->ns.intType);
+        continue;
+      }
+      if (dynamic_cast<BoolOption *>(opt.get())) {
+        types.emplace_back(this->ns.boolType);
+        continue;
+      }
+      if (dynamic_cast<FeatureOption *>(opt.get())) {
+        types.emplace_back(this->ns.types.at("feature"));
+        continue;
+      }
+      if (dynamic_cast<ArrayOption *>(opt.get())) {
+        types.emplace_back(std::make_shared<List>(
+            std::vector<std::shared_ptr<Type>>{this->ns.strType}));
+        continue;
+      }
+    }
+    if (types.empty()) {
+      node->types = fn->returnTypes;
+    } else {
+      node->types = dedup(this->ns, types);
+    }
     return;
   }
   if (name == "get_variable") {
@@ -775,8 +818,138 @@ checkVersion:
   }
 }
 
+std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalStack(std::string &name) {
+  std::vector<std::shared_ptr<Type>> ret;
+  for (const auto &ov : this->overriddenVariables) {
+    if (!ov.contains(name)) {
+      continue;
+    }
+    ret.insert(ret.end(), ov.at(name).begin(), ov.at(name).end());
+  }
+  return ret;
+}
+
+bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
+  auto *parent = node->parent;
+  if (!parent) {
+    return false;
+  }
+  auto *fe = dynamic_cast<FunctionExpression *>(node);
+  if (fe && fe->id->equals(node)) {
+    return true;
+  }
+  auto *me = dynamic_cast<MethodExpression *>(node);
+  if (me && me->id->equals(node)) {
+    return true;
+  }
+  auto *kwi = dynamic_cast<KeywordItem *>(node);
+  if (kwi && kwi->key->equals(node)) {
+    return true;
+  }
+  return std::find(this->ignoreUnknownIdentifier.begin(),
+                   this->ignoreUnknownIdentifier.end(),
+                   node->id) != this->ignoreUnknownIdentifier.end();
+}
+
+bool TypeAnalyzer::isKnownId(IdExpression *id) {
+  auto *parent = id->parent;
+  if (!parent) {
+    return true;
+  }
+  auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+  if (ass) {
+    auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
+    if (lhsIdExpr && lhsIdExpr->id == id->id &&
+        ass->op == AssignmentOperator::Equals) {
+      return true;
+    }
+  }
+  auto *its = dynamic_cast<IterationStatement *>(parent);
+  if (its) {
+    for (auto itsId : its->ids) {
+      auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
+      if (idexpr && idexpr->id == id->id) {
+        return true;
+      }
+    }
+  }
+  auto *kwi = dynamic_cast<KeywordItem *>(parent);
+  if (kwi) {
+    auto *key = dynamic_cast<IdExpression *>(kwi->key.get());
+    if (key && key->id == id->id) {
+      return true;
+    }
+  }
+  auto fe = dynamic_cast<FunctionExpression *>(parent);
+  if (fe) {
+    auto idexpr = dynamic_cast<IdExpression *>(fe->id.get());
+    if (idexpr && idexpr->id == id->id) {
+      return true;
+    }
+  }
+  auto me = dynamic_cast<MethodExpression *>(parent);
+  if (me) {
+    auto idexpr = dynamic_cast<IdExpression *>(me->id.get());
+    if (idexpr && idexpr->id == id->id) {
+      return true;
+    }
+  }
+  return this->scope.variables.contains(id->id);
+}
+
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
+  auto s = this->evalStack(node->id);
+  if (this->scope.variables.contains(node->id)) {
+    s.insert(s.end(), this->scope.variables[node->id].begin(),
+             this->scope.variables[node->id].end());
+  }
+  node->types = dedup(this->ns, s);
   node->visitChildren(this);
+  auto *p = node->parent;
+  if (p) {
+    auto *ass = dynamic_cast<AssignmentStatement *>(p);
+    if (ass) {
+      if (ass->op != AssignmentOperator::Equals || ass->rhs->equals(node)) {
+        this->registerUsed(node->id);
+      }
+      goto cont;
+    }
+    auto *kw = dynamic_cast<KeywordItem *>(p);
+    if (kw && kw->value->equals(node)) {
+      this->registerUsed(node->id);
+      goto cont;
+    }
+    if (dynamic_cast<FunctionExpression *>(p)) {
+      goto cont; // Do nothing
+    }
+    this->registerUsed(node->id);
+  } else {
+    this->registerUsed(node->id);
+  }
+cont:
+  if (this->ignoreIdExpression(node)) {
+    return;
+  }
+  if (!this->isKnownId(node)) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("Unknown identifier `{}`", node->id)));
+  }
+}
+
+void TypeAnalyzer::registerUsed(const std::string &id) {
+  std::vector<std::vector<IdExpression *>> newCopy;
+  for (const auto &arr :
+       this->variablesNeedingUse | std::ranges::views::reverse) {
+    std::vector<IdExpression *> newArray;
+    for (const auto &a : arr) {
+      if (a->id == id) {
+        newArray.push_back(a);
+      }
+    }
+    newCopy.push_back(newArray);
+  }
+  this->variablesNeedingUse = newCopy;
 }
 
 void TypeAnalyzer::visitIntegerLiteral(IntegerLiteral *node) {
