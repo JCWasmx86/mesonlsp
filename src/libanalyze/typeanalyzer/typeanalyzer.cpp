@@ -207,8 +207,8 @@ TypeAnalyzer::evalAssignment(AssignmentOperator op,
                              std::vector<std::shared_ptr<Type>> lhs,
                              std::vector<std::shared_ptr<Type>> rhs) {
   std::vector<std::shared_ptr<Type>> ret;
-  for (auto l : lhs) {
-    for (auto r : rhs) {
+  for (const auto &l : lhs) {
+    for (const auto &r : rhs) {
       this->evalAssignmentTypes(l, r, op, &ret);
     }
   }
@@ -422,7 +422,7 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
                                        Diagnostic(Severity::Error, node, msg));
   }
   node->types = dedup(this->ns, newTypes);
-  auto parent = node->parent;
+  auto *parent = node->parent;
   if (dynamic_cast<AssignmentStatement *>(parent) ||
       dynamic_cast<SelectionStatement *>(parent)) {
     auto *me = dynamic_cast<MethodExpression *>(node->lhs.get());
@@ -512,7 +512,7 @@ void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
   std::shared_ptr<Node> lastAlive = nullptr;
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
-  for (auto b : node->stmts) {
+  for (const auto &b : node->stmts) {
     if (!lastAlive) {
       if (this->isDead(b)) {
         lastAlive = b;
@@ -866,7 +866,7 @@ bool TypeAnalyzer::isKnownId(IdExpression *id) {
   }
   auto *its = dynamic_cast<IterationStatement *>(parent);
   if (its) {
-    for (auto itsId : its->ids) {
+    for (const auto &itsId : its->ids) {
       auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
       if (idexpr && idexpr->id == id->id) {
         return true;
@@ -880,16 +880,16 @@ bool TypeAnalyzer::isKnownId(IdExpression *id) {
       return true;
     }
   }
-  auto fe = dynamic_cast<FunctionExpression *>(parent);
+  auto *fe = dynamic_cast<FunctionExpression *>(parent);
   if (fe) {
-    auto idexpr = dynamic_cast<IdExpression *>(fe->id.get());
+    auto *idexpr = dynamic_cast<IdExpression *>(fe->id.get());
     if (idexpr && idexpr->id == id->id) {
       return true;
     }
   }
-  auto me = dynamic_cast<MethodExpression *>(parent);
+  auto *me = dynamic_cast<MethodExpression *>(parent);
   if (me) {
-    auto idexpr = dynamic_cast<IdExpression *>(me->id.get());
+    auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
     if (idexpr && idexpr->id == id->id) {
       return true;
     }
@@ -1057,7 +1057,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   std::shared_ptr<Node> lastAlive = nullptr;
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
-  for (auto b : node->stmts) {
+  for (const auto &b : node->stmts) {
     b->visit(this);
     if (!lastAlive) {
       if (this->isDead(b)) {
