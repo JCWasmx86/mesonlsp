@@ -94,7 +94,8 @@ void TypeAnalyzer::checkIdentifier(IdExpression *node) const {
   if (this->analysisOptions.disableNameLinting) {
     return;
   }
-  if (isSnakeCase(node->id) && isShoutingSnakeCase(node->id)) {
+  if (isSnakeCase(node->id) || isShoutingSnakeCase(node->id)) {
+    return;
   }
   this->metadata->registerDiagnostic(
       node, Diagnostic(Severity::Warning, node, "Expected snake case"));
@@ -1213,7 +1214,7 @@ std::string joinTypes(std::vector<std::shared_ptr<Type>> &types) {
 
 static bool isSnakeCase(const std::string &str) {
   for (auto chr : str) {
-    if (std::isupper(chr) != 0) {
+    if (std::isupper(chr) != 0 && chr != '_') {
       return false;
     }
   }
@@ -1222,7 +1223,7 @@ static bool isSnakeCase(const std::string &str) {
 
 static bool isShoutingSnakeCase(const std::string &str) {
   for (auto chr : str) {
-    if (std::islower(chr) != 0) {
+    if (std::islower(chr) != 0 && chr != '_') {
       return false;
     }
   }
