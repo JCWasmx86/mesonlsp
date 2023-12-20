@@ -20,7 +20,7 @@ static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
 std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> arrays);
 bool isValidMethod(MethodExpression *me);
-std::string applyMethod(std::string varname, std::string name);
+std::string applyMethod(const std::string &varname, const std::string &name);
 bool isValidFunction(FunctionExpression *fe);
 
 std::vector<std::string> guessSetVariable(FunctionExpression *fe,
@@ -46,7 +46,7 @@ std::vector<std::string> guessSetVariable(FunctionExpression *fe,
 
 std::vector<std::string> guessGetVariableMethod(MethodExpression *me,
                                                 OptionState &opts) {
-  auto al = dynamic_cast<ArgumentList *>(me->args.get());
+  auto *al = dynamic_cast<ArgumentList *>(me->args.get());
   if (!al || al->args.empty()) {
     return {};
   }
@@ -77,8 +77,8 @@ PartialInterpreter::calculateBinaryExpression(Node *parentExpr,
   auto rhs = this->calculateExpression(parentExpr, be->rhs.get());
   std::vector<std::string> ret;
   const auto *opStr = be->op == BinaryOperator::Div ? "/" : "";
-  for (auto l : lhs) {
-    for (auto r : rhs) {
+  for (const auto &l : lhs) {
+    for (const auto &r : rhs) {
       ret.emplace_back(l + opStr + r);
     }
   }
@@ -90,8 +90,8 @@ std::vector<std::string> PartialInterpreter::calculateStringFormatMethodCall(
   auto objStrs = this->calculateExpression(parentExpr, me->obj.get());
   auto fmtStrs = this->calculateExpression(parentExpr, al->args[0].get());
   std::vector<std::string> ret;
-  for (auto o : objStrs) {
-    for (auto f : fmtStrs) {
+  for (const auto &o : objStrs) {
+    for (const auto &f : fmtStrs) {
       auto copy = std::string(o);
       auto raw = replace(copy, "@0@", f);
       ret.push_back(raw);
@@ -108,7 +108,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
   auto *il = dynamic_cast<IntegerLiteral *>(first.get());
   auto idx = il ? il->valueAsInt : (uint64_t)-1;
   auto *sl = dynamic_cast<StringLiteral *>(first.get());
-  for (auto r : nodes) {
+  for (const auto &r : nodes) {
     auto *arrLit = dynamic_cast<ArrayLiteral *>(r->node);
     if (arrLit) {
       if (il) {
@@ -122,13 +122,13 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
       if (!sl) {
         continue;
       }
-      for (auto a : arrLit->args) {
-        auto dict = dynamic_cast<DictionaryLiteral *>(a.get());
+      for (const auto &a : arrLit->args) {
+        auto *dict = dynamic_cast<DictionaryLiteral *>(a.get());
         if (!dict) {
           continue;
         }
-        for (auto k : dict->values) {
-          auto kvi = dynamic_cast<KeyValueItem *>(k.get());
+        for (const auto &k : dict->values) {
+          auto *kvi = dynamic_cast<KeyValueItem *>(k.get());
           if (!kvi) {
             continue;
           }
@@ -136,7 +136,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
           if (name != sl->id) {
             continue;
           }
-          auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
+          auto *kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
           if (kviValue) {
             ret.emplace_back(kviValue->id);
           }
@@ -144,12 +144,12 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
       }
       continue;
     }
-    auto dict = dynamic_cast<DictionaryLiteral *>(r->node);
+    auto *dict = dynamic_cast<DictionaryLiteral *>(r->node);
     if (!dict || !sl) {
       continue;
     }
-    for (auto k : dict->values) {
-      auto kvi = dynamic_cast<KeyValueItem *>(k.get());
+    for (const auto &k : dict->values) {
+      auto *kvi = dynamic_cast<KeyValueItem *>(k.get());
       if (!kvi) {
         continue;
       }
@@ -157,7 +157,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
       if (name != sl->id) {
         continue;
       }
-      auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
+      auto *kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
       if (kviValue) {
         ret.emplace_back(kviValue->id);
       }
@@ -171,23 +171,23 @@ PartialInterpreter::calculateIdExpression(IdExpression *idExpr,
                                           Node *parentExpr) {
   auto l = this->resolveArrayOrDict(parentExpr, idExpr);
   std::vector<std::string> ret;
-  for (auto v : l) {
-    auto node = v->node;
-    auto sn = dynamic_cast<StringLiteral *>(node);
+  for (const auto &v : l) {
+    auto *node = v->node;
+    auto *sn = dynamic_cast<StringLiteral *>(node);
     if (sn) {
       ret.emplace_back(sn->id);
       continue;
     }
-    auto an = dynamic_cast<ArrayNode *>(v.get());
+    auto *an = dynamic_cast<ArrayNode *>(v.get());
     if (!an) {
       continue;
     }
-    auto al = dynamic_cast<ArrayLiteral *>(node);
+    auto *al = dynamic_cast<ArrayLiteral *>(node);
     if (!al) {
       continue;
     }
-    for (auto arg : al->args) {
-      auto sl = dynamic_cast<StringLiteral *>(arg.get());
+    for (const auto &arg : al->args) {
+      auto *sl = dynamic_cast<StringLiteral *>(arg.get());
       if (sl) {
         ret.emplace_back(sl->id);
       }
@@ -199,11 +199,11 @@ PartialInterpreter::calculateIdExpression(IdExpression *idExpr,
 void PartialInterpreter::calculateEvalSubscriptExpression(
     std::shared_ptr<InterpretNode> i, std::shared_ptr<InterpretNode> o,
     std::vector<std::string> &ret) {
-  auto first = i->node;
+  auto *first = i->node;
   auto *il = dynamic_cast<IntegerLiteral *>(first);
   auto idx = il ? il->valueAsInt : (uint64_t)-1;
   auto *sl = dynamic_cast<StringLiteral *>(first);
-  auto arrLit = dynamic_cast<ArrayLiteral *>(o->node);
+  auto *arrLit = dynamic_cast<ArrayLiteral *>(o->node);
   if (arrLit) {
     if (il) {
       if (idx < arrLit->args.size()) {
@@ -217,13 +217,13 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
     if (!sl) {
       return;
     }
-    for (auto a : arrLit->args) {
-      auto dict = dynamic_cast<DictionaryLiteral *>(a.get());
+    for (const auto &a : arrLit->args) {
+      auto *dict = dynamic_cast<DictionaryLiteral *>(a.get());
       if (!dict) {
         continue;
       }
-      for (auto k : dict->values) {
-        auto kvi = dynamic_cast<KeyValueItem *>(k.get());
+      for (const auto &k : dict->values) {
+        auto *kvi = dynamic_cast<KeyValueItem *>(k.get());
         if (!kvi) {
           continue;
         }
@@ -231,7 +231,7 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
         if (name != sl->id) {
           continue;
         }
-        auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
+        auto *kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
         if (kviValue) {
           ret.emplace_back(kviValue->id);
         }
@@ -239,12 +239,12 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
     }
     return;
   }
-  auto dict = dynamic_cast<DictionaryLiteral *>(o->node);
+  auto *dict = dynamic_cast<DictionaryLiteral *>(o->node);
   if (!dict || !sl) {
     return;
   }
-  for (auto k : dict->values) {
-    auto kvi = dynamic_cast<KeyValueItem *>(k.get());
+  for (const auto &k : dict->values) {
+    auto *kvi = dynamic_cast<KeyValueItem *>(k.get());
     if (!kvi) {
       continue;
     }
@@ -252,7 +252,7 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
     if (name != sl->id) {
       continue;
     }
-    auto kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
+    auto *kviValue = dynamic_cast<StringLiteral *>(kvi->value.get());
     if (kviValue) {
       ret.emplace_back(kviValue->id);
     }
@@ -265,20 +265,20 @@ PartialInterpreter::calculateSubscriptExpression(SubscriptExpression *sse,
   auto outer = this->abstractEval(parentExpr, sse->outer.get());
   auto inner = this->abstractEval(parentExpr, sse->inner.get());
   std::vector<std::string> ret;
-  for (auto o : outer) {
-    for (auto i : inner) {
+  for (const auto &o : outer) {
+    for (const auto &i : inner) {
       this->calculateEvalSubscriptExpression(i, o, ret);
     }
-    auto dictN = dynamic_cast<DictionaryLiteral *>(o->node);
+    auto *dictN = dynamic_cast<DictionaryLiteral *>(o->node);
     if (!dictN || !inner.empty()) {
       continue;
     }
-    for (auto n : dictN->values) {
-      auto kvi = dynamic_cast<KeyValueItem *>(n.get());
+    for (const auto &n : dictN->values) {
+      auto *kvi = dynamic_cast<KeyValueItem *>(n.get());
       if (!kvi) {
         continue;
       }
-      auto sl = dynamic_cast<StringLiteral *>(kvi->value.get());
+      auto *sl = dynamic_cast<StringLiteral *>(kvi->value.get());
       if (sl) {
         ret.emplace_back(sl->id);
       }
@@ -479,7 +479,7 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
     tmp.insert(tmp.end(), others.begin(), others.end());
   }
   auto idx = 0;
-  for (auto b : its->ids) {
+  for (const auto &b : its->ids) {
     auto *idexpr = dynamic_cast<IdExpression *>(b.get());
     if (!idexpr || idexpr->id != toResolve->id) {
       idx++;
@@ -495,7 +495,7 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
           normalized.emplace_back(node);
           continue;
         }
-        for (auto args : al->args) {
+        for (const auto &args : al->args) {
           auto tmp2 = this->abstractEval(its, args.get());
           normalized.insert(normalized.end(), tmp2.begin(), tmp2.end());
         }
@@ -503,12 +503,12 @@ PartialInterpreter::analyseIterationStatement(IterationStatement *its,
       return normalized;
     }
     std::vector<std::shared_ptr<InterpretNode>> ret;
-    for (auto a : vals) {
+    for (const auto &a : vals) {
       auto dictNode = dynamic_cast<DictionaryLiteral *>(a->node);
       if (!dictNode) {
         continue;
       }
-      for (auto kvi : dictNode->values) {
+      for (const auto &kvi : dictNode->values) {
         auto kviN = dynamic_cast<KeyValueItem *>(kvi.get());
         if (idx == 0) {
           auto evaled = this->abstractEval(kviN->key->parent, kviN->key.get());
@@ -534,7 +534,7 @@ PartialInterpreter::analyseSelectionStatement(SelectionStatement *sst,
   auto foundOurselves = false;
   std::vector<std::shared_ptr<InterpretNode>> tmp;
   for (auto &block : sst->blocks | std::ranges::views::reverse) {
-    for (auto b : block | std::ranges::views::reverse) {
+    for (const auto &b : block | std::ranges::views::reverse) {
       if (b->equals(parentExpr)) {
         foundOurselves = true;
         continue;
@@ -616,7 +616,7 @@ PartialInterpreter::fullEval(Node *stmt, IdExpression *toResolve) {
       auto evaled = this->evalStatement(b.get(), toResolve);
       ret.insert(ret.end(), evaled.begin(), evaled.end());
     }
-    for (auto b : its->ids) {
+    for (const auto &b : its->ids) {
       auto idExpr = dynamic_cast<IdExpression *>(b.get());
       if (!idExpr || idExpr->id != toResolve->id) {
         continue;
@@ -628,7 +628,7 @@ PartialInterpreter::fullEval(Node *stmt, IdExpression *toResolve) {
   auto sst = dynamic_cast<SelectionStatement *>(stmt);
   if (sst) {
     for (auto &block : sst->blocks | std::ranges::views::reverse) {
-      for (auto b : block | std::ranges::views::reverse) {
+      for (const auto &b : block | std::ranges::views::reverse) {
         auto evaled = this->evalStatement(b.get(), toResolve);
         ret.insert(ret.end(), evaled.begin(), evaled.end());
       }
@@ -640,7 +640,7 @@ PartialInterpreter::fullEval(Node *stmt, IdExpression *toResolve) {
 void PartialInterpreter::addToArrayConcatenated(
     ArrayLiteral *arr, std::string contents, std::string sep, bool literalFirst,
     std::vector<std::shared_ptr<InterpretNode>> &ret) {
-  for (auto arrArg : arr->args) {
+  for (const auto &arrArg : arr->args) {
     auto asStr = dynamic_cast<StringLiteral *>(arrArg.get());
     if (!asStr) {
       continue;
@@ -665,7 +665,7 @@ void PartialInterpreter::abstractEvalComputeBinaryExpr(
   }
   auto arrR = dynamic_cast<ArrayLiteral *>(rnode);
   if (sll && arrR) {
-    for (auto arrArg : arrR->args) {
+    for (const auto &arrArg : arrR->args) {
       auto argSL = dynamic_cast<StringLiteral *>(arrArg.get());
       if (argSL) {
         ret.emplace_back(
@@ -680,7 +680,7 @@ void PartialInterpreter::abstractEvalComputeBinaryExpr(
   }
   auto arrL = dynamic_cast<ArrayLiteral *>(lnode);
   if (slr && arrL) {
-    for (auto arrArg : arrL->args) {
+    for (const auto &arrArg : arrL->args) {
       auto argSL = dynamic_cast<StringLiteral *>(arrArg.get());
       if (argSL) {
         ret.emplace_back(
@@ -708,8 +708,8 @@ PartialInterpreter::abstractEvalBinaryExpression(BinaryExpression *be,
   auto lhs = this->abstractEval(parentStmt, be->lhs.get());
   std::vector<std::shared_ptr<InterpretNode>> ret;
   auto sep = be->op == BinaryOperator::Div ? "/" : "";
-  for (auto l : lhs) {
-    for (auto r : rhs) {
+  for (const auto &l : lhs) {
+    for (const auto &r : rhs) {
       abstractEvalComputeBinaryExpr(l.get(), r.get(), sep, ret);
     }
   }
@@ -719,12 +719,12 @@ PartialInterpreter::abstractEvalBinaryExpression(BinaryExpression *be,
 void PartialInterpreter::abstractEvalComputeSubscriptExtractDictArray(
     ArrayLiteral *arr, StringLiteral *sl,
     std::vector<std::shared_ptr<InterpretNode>> &ret) {
-  for (auto a : arr->args) {
+  for (const auto &a : arr->args) {
     auto dict = dynamic_cast<DictionaryLiteral *>(a.get());
     if (!dict) {
       continue;
     }
-    for (auto k : dict->values) {
+    for (const auto &k : dict->values) {
       auto kvi = dynamic_cast<KeyValueItem *>(k.get());
       if (!kvi) {
         continue;
@@ -766,7 +766,7 @@ void PartialInterpreter::abstractEvalComputeSubscript(
   auto dict = dynamic_cast<DictionaryLiteral *>(o->node);
   auto sl = dynamic_cast<StringLiteral *>(i->node);
   if (dict && sl) {
-    for (auto k : dict->values) {
+    for (const auto &k : dict->values) {
       auto kvi = dynamic_cast<KeyValueItem *>(k.get());
       if (!kvi) {
         continue;
@@ -793,15 +793,15 @@ PartialInterpreter::abstractEvalSubscriptExpression(SubscriptExpression *sse,
   auto outer = this->abstractEval(parentStmt, sse->outer.get());
   auto inner = this->abstractEval(parentStmt, sse->inner.get());
   std::vector<std::shared_ptr<InterpretNode>> ret;
-  for (auto o : outer) {
-    for (auto i : inner) {
+  for (const auto &o : outer) {
+    for (const auto &i : inner) {
       this->abstractEvalComputeSubscript(i.get(), o.get(), ret);
     }
     auto dictN = dynamic_cast<DictionaryLiteral *>(o->node);
     if (!dictN || !inner.empty()) {
       continue;
     }
-    for (auto k : dictN->values) {
+    for (const auto &k : dictN->values) {
       auto kvi = dynamic_cast<KeyValueItem *>(k.get());
       if (!kvi) {
         continue;
@@ -823,7 +823,7 @@ PartialInterpreter::abstractEvalSplitWithSubscriptExpression(
   std::vector<std::shared_ptr<InterpretNode>> ret;
   auto splitAt = sl->id;
   auto idxI = idx->valueAsInt;
-  for (auto o : objs) {
+  for (const auto &o : objs) {
     auto sl1 = dynamic_cast<StringLiteral *>(o->node);
     if (sl1) {
       auto parts = split(sl1->id, splitAt);
@@ -836,7 +836,7 @@ PartialInterpreter::abstractEvalSplitWithSubscriptExpression(
     if (!arr) {
       continue;
     }
-    for (auto arrArg : arr->args) {
+    for (const auto &arrArg : arr->args) {
       auto sl1 = dynamic_cast<StringLiteral *>(arrArg.get());
       if (!sl1) {
         continue;
@@ -858,11 +858,11 @@ PartialInterpreter::abstractEvalMethod(MethodExpression *me, Node *parentStmt) {
   if (!meid) {
     return ret;
   }
-  for (auto r : meobj) {
+  for (const auto &r : meobj) {
     std::vector<std::string> strValues;
     auto arr = dynamic_cast<ArrayLiteral *>(r->node);
     if (arr) {
-      for (auto a : arr->args) {
+      for (const auto &a : arr->args) {
         auto sl = dynamic_cast<StringLiteral *>(a.get());
         if (sl) {
           strValues.push_back(sl->id);
@@ -883,7 +883,7 @@ PartialInterpreter::abstractEvalMethod(MethodExpression *me, Node *parentStmt) {
     if (!dictionaryLiteral || meid->id != "keys") {
       continue;
     }
-    for (auto kvin : dictionaryLiteral->values) {
+    for (const auto &kvin : dictionaryLiteral->values) {
       auto *kvi = dynamic_cast<KeyValueItem *>(kvin.get());
       if (!kvi) {
         continue;
@@ -916,7 +916,7 @@ PartialInterpreter::abstractEvalSimpleSubscriptExpression(
       if (!atIdxAL) {
         continue;
       }
-      for (auto a2 : atIdxAL->args) {
+      for (const auto &a2 : atIdxAL->args) {
         auto asSL = dynamic_cast<StringLiteral *>(a2.get());
         if (asSL) {
           ret.push_back(std::make_shared<StringNode>(asSL));
@@ -932,7 +932,7 @@ PartialInterpreter::abstractEvalSimpleSubscriptExpression(
     auto sl = dynamic_cast<StringLiteral *>(se->inner.get());
     auto dict = dynamic_cast<DictionaryLiteral *>(r->node);
     if (sl && dict) {
-      for (auto k : dict->values) {
+      for (const auto &k : dict->values) {
         auto kvi = dynamic_cast<KeyValueItem *>(k.get());
         if (!kvi) {
           continue;
@@ -962,7 +962,7 @@ PartialInterpreter::abstractEvalGetMethodCall(MethodExpression *me,
                                               Node *parentStmt) {
   std::vector<std::shared_ptr<InterpretNode>> ret;
   auto objs = this->resolveArrayOrDict(parentStmt, meobj);
-  for (auto r : objs) {
+  for (const auto &r : objs) {
     auto arr = dynamic_cast<ArrayLiteral *>(r->node);
     auto idx = dynamic_cast<IntegerLiteral *>(al->args[0].get());
     if (arr && idx && idx->valueAsInt < arr->args.size()) {
@@ -972,14 +972,15 @@ PartialInterpreter::abstractEvalGetMethodCall(MethodExpression *me,
         ret.emplace_back(std::make_shared<StringNode>(atIdx));
       }
       continue;
-    } else if (dynamic_cast<StringNode *>(r.get())) {
+    }
+    if (dynamic_cast<StringNode *>(r.get())) {
       ret.emplace_back(std::make_shared<StringNode>(r->node));
       continue;
     }
     auto sl = dynamic_cast<StringLiteral *>(al->args[0].get());
     auto dict = dynamic_cast<DictionaryLiteral *>(r->node);
     if (sl && dict) {
-      for (auto k : dict->values) {
+      for (const auto &k : dict->values) {
         auto kvi = dynamic_cast<KeyValueItem *>(k.get());
         if (!kvi) {
           continue;
@@ -1007,7 +1008,7 @@ PartialInterpreter::abstractEvalArrayLiteral(ArrayLiteral *al, Node *toEval,
   auto firstArg = al->args[0].get();
   std::vector<std::shared_ptr<InterpretNode>> ret;
 
-  for (auto a : al->args) {
+  for (const auto &a : al->args) {
     if (dynamic_cast<ArrayLiteral *>(firstArg)) {
       ret.emplace_back(std::make_shared<ArrayNode>(a.get()));
     } else if (dynamic_cast<DictionaryLiteral *>(firstArg)) {
@@ -1067,12 +1068,12 @@ std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
   std::vector<decltype(arrays)::value_type>(arrays.begin() + 1, arrays.end())
       .swap(arrays);
   std::vector<std::shared_ptr<InterpretNode>> combinations;
-  for (auto string : firstArray) {
+  for (const auto &string : firstArray) {
     auto o1 = dynamic_cast<StringLiteral *>(string->node);
     if (!o1) {
       continue;
     }
-    for (auto combination : restCombinations) {
+    for (const auto &combination : restCombinations) {
       auto sl = dynamic_cast<StringLiteral *>(combination->node);
       if (!sl) {
         continue;
@@ -1098,7 +1099,7 @@ PartialInterpreter::abstractEvalFunction(FunctionExpression *fe,
   auto fnid = feid->id;
   if (fnid == "join_paths") {
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> items;
-    for (auto a : al->args) {
+    for (const auto &a : al->args) {
       if (dynamic_cast<KeywordItem *>(a.get())) {
         continue;
       }
@@ -1223,7 +1224,7 @@ bool isValidMethod(MethodExpression *me) {
   return names.contains(meid->id);
 }
 
-std::string applyMethod(std::string varname, std::string name) {
+std::string applyMethod(const std::string &varname, const std::string &name) {
   if (name == "underscorify") {
     std::string ret;
     ret.reserve(varname.size());
