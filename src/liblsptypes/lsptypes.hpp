@@ -35,10 +35,7 @@ public:
   }
 };
 
-class ClientCapabilities : public BaseObject {
-public:
-  ClientCapabilities(nlohmann::json &jsonObj) {}
-};
+class ClientCapabilities : public BaseObject {};
 
 enum TextDocumentSyncKind { None = 0, Full = 1, Incremental = 2 };
 
@@ -165,8 +162,7 @@ public:
   std::optional<nlohmann::json> initializationOptions;
   ClientCapabilities capabilities;
 
-  InitializeParams(nlohmann::json &jsonObj)
-      : capabilities(jsonObj["capabilities"]) {
+  InitializeParams(nlohmann::json &jsonObj) {
     if (jsonObj.contains("clientInfo")) {
       this->clientInfo = ClientInfo(jsonObj["clientInfo"]);
     }
