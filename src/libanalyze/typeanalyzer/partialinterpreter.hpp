@@ -80,9 +80,10 @@ private:
                                                        Node *parentExpr);
   std::vector<std::string> calculateExpression(Node *parentExpr,
                                                Node *argExpression);
-  void calculateEvalSubscriptExpression(std::shared_ptr<InterpretNode> i,
-                                        std::shared_ptr<InterpretNode> o,
-                                        std::vector<std::string> &ret);
+  static void
+  calculateEvalSubscriptExpression(const std::shared_ptr<InterpretNode> &i,
+                                   const std::shared_ptr<InterpretNode> &o,
+                                   std::vector<std::string> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
   analyseBuildDefinition(BuildDefinition *bd, Node *parentExpr,
                          IdExpression *toResolve);
@@ -100,15 +101,16 @@ private:
                                                        IdExpression *toResolve);
   std::vector<std::shared_ptr<InterpretNode>>
   evalStatement(Node *b, IdExpression *toResolve);
-  void addToArrayConcatenated(ArrayLiteral *arr, std::string contents,
-                              std::string sep, bool literalFirst,
-                              std::vector<std::shared_ptr<InterpretNode>> &ret);
+  static void
+  addToArrayConcatenated(ArrayLiteral *arr, const std::string &contents,
+                         const std::string &sep, bool literalFirst,
+                         std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeBinaryExpr(
-      InterpretNode *l, InterpretNode *r, std::string sep,
+      InterpretNode *l, InterpretNode *r, const std::string &sep,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalBinaryExpression(BinaryExpression *be, Node *parentStmt);
-  void abstractEvalComputeSubscriptExtractDictArray(
+  static void abstractEvalComputeSubscriptExtractDictArray(
       ArrayLiteral *arr, StringLiteral *sl,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeSubscript(
