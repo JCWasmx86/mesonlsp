@@ -42,15 +42,119 @@ public:
 
 enum TextDocumentSyncKind { None = 0, Full = 1, Incremental = 2 };
 
-class ServerCapabilities : public BaseObject {
+class SemanticTokensLegend : public BaseObject {
 public:
-  TextDocumentSyncKind textDocumentSync;
+  std::vector<std::string> tokenTypes;
+  std::vector<std::string> tokenModifiers;
 
-  ServerCapabilities(TextDocumentSyncKind textDocumentSync)
-      : textDocumentSync(textDocumentSync) {}
+  SemanticTokensLegend(std::vector<std::string> tokenTypes,
+                       std::vector<std::string> tokenModifiers)
+      : tokenTypes(std::move(tokenTypes)),
+        tokenModifiers(std::move(tokenModifiers)) {}
 
   nlohmann::json toJson() {
-    return {"textDocumentSync", this->textDocumentSync};
+    return {{{"tokenTypes", tokenTypes}, {"tokenModifiers", tokenModifiers}}};
+  }
+};
+
+class CompletionOptions : public BaseObject {
+public:
+  std::vector<std::string> triggerCharacters;
+  bool resolveProvider;
+
+  CompletionOptions(bool resolveProvider,
+                    std::vector<std::string> triggerCharacters)
+      : triggerCharacters(std::move(triggerCharacters)),
+        resolveProvider(resolveProvider) {}
+
+  nlohmann::json toJson() {
+    return {{"triggerCharacters", triggerCharacters},
+            {"resolveProvider", resolveProvider}};
+  }
+};
+
+class SemanticTokensOptions : public BaseObject {
+public:
+  bool full;
+  SemanticTokensLegend legend;
+
+  SemanticTokensOptions(bool full, SemanticTokensLegend legend)
+      : full(full), legend(std::move(legend)) {}
+
+  nlohmann::json toJson() {
+    return {{"full", full}, {"legend", legend.toJson()}};
+  }
+};
+
+class TextDocumentSyncOptions : public BaseObject {
+public:
+  bool openClose;
+  TextDocumentSyncKind change;
+
+  TextDocumentSyncOptions(bool openClose, TextDocumentSyncKind change)
+      : openClose(openClose), change(change) {}
+
+  nlohmann::json toJson() {
+    return {{"openClose", openClose}, {"change", change}};
+  }
+};
+
+class ServerCapabilities : public BaseObject {
+public:
+  TextDocumentSyncOptions textDocumentSync;
+  bool hoverProvider;
+  bool declarationProvider;
+  bool definitionProvider;
+  bool documentHighlightProvider;
+  bool documentSymbolProvider;
+  bool codeActionProvider;
+  bool documentFormattingProvider;
+  bool renameProvider;
+  bool foldingRangeProvider;
+  bool inlayHintProvider;
+  bool diagnosticProvider;
+  CompletionOptions completionProvider;
+  SemanticTokensOptions semanticTokensProvider;
+
+  // This is stupid
+  ServerCapabilities(TextDocumentSyncOptions textDocumentSync,
+                     bool hoverProvider, bool declarationProvider,
+                     bool definitionProvider, bool documentHighlightProvider,
+                     bool documentSymbolProvider, bool codeActionProvider,
+                     bool documentFormattingProvider, bool renameProvider,
+                     bool foldingRangeProvider, bool inlayHintProvider,
+                     bool diagnosticProvider,
+                     CompletionOptions completionProvider,
+                     SemanticTokensOptions semanticTokensProvider)
+      : textDocumentSync(std::move(textDocumentSync)),
+        hoverProvider(hoverProvider), declarationProvider(declarationProvider),
+        definitionProvider(definitionProvider),
+        documentHighlightProvider(documentHighlightProvider),
+        documentSymbolProvider(documentSymbolProvider),
+        codeActionProvider(codeActionProvider),
+        documentFormattingProvider(documentFormattingProvider),
+        renameProvider(renameProvider),
+        foldingRangeProvider(foldingRangeProvider),
+        inlayHintProvider(inlayHintProvider),
+        diagnosticProvider(diagnosticProvider),
+        completionProvider(std::move(completionProvider)),
+        semanticTokensProvider(std::move(semanticTokensProvider)) {}
+
+  nlohmann::json toJson() {
+    return {{"textDocumentSync", this->textDocumentSync.toJson()},
+            {"hoverProvider", hoverProvider},
+            {"definitionProvider", definitionProvider},
+            {"declarationProvider", declarationProvider},
+            {"documentHighlightProvider", documentHighlightProvider},
+            {"documentSymbolProvider", documentSymbolProvider},
+            {"codeActionProvider", codeActionProvider},
+            {"documentFormattingProvider", documentFormattingProvider},
+            {"renameProvider", renameProvider},
+            {"foldingRangeProvider", foldingRangeProvider},
+            {"inlayHintProvider", inlayHintProvider},
+            {"diagnosticProvider", diagnosticProvider},
+            {"completionProvider", completionProvider.toJson()},
+            {"semanticTokensProvider", semanticTokensProvider.toJson()}};
   }
 };
 

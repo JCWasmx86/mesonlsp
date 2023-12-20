@@ -3,7 +3,15 @@
 #include "lsptypes.hpp"
 
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
-  return {ServerCapabilities(TextDocumentSyncKind::Full),
+  return {ServerCapabilities(
+              TextDocumentSyncOptions(true, TextDocumentSyncKind::Full), true,
+              true, true, true, true, true, true, true, true, true, true,
+              CompletionOptions(false, {".", "_"}),
+              SemanticTokensOptions(
+                  true, SemanticTokensLegend({"substitute", "substitute_bounds",
+                                              "variable", "function", "method",
+                                              "keyword", "string", "number"},
+                                             {"readonly", "defaultLibrary"}))),
           ServerInfo("c++-mesonlsp", VERSION)};
 }
 
