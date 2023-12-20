@@ -106,4 +106,8 @@ private:
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
       std::vector<std::shared_ptr<Type>> rhs, unsigned int *nErrors);
   void enterSubdir(FunctionExpression *node);
+  void registerUsed(const std::string &id);
+  std::vector<std::shared_ptr<Type>> evalStack(std::string &name);
+  bool ignoreIdExpression(IdExpression *node);
+  bool isKnownId(IdExpression *id);
 };
