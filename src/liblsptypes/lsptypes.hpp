@@ -64,7 +64,7 @@ public:
     }
     assert(jsonObj.contains("workspaceFolders"));
     for (auto wsFolder : jsonObj["workspaceFolders"]) {
-      this->workspaceFolders.push_back(wsFolder);
+      this->workspaceFolders.emplace_back(wsFolder);
     }
   }
 };
