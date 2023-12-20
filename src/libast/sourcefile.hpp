@@ -12,7 +12,7 @@ public:
   SourceFile(const std::filesystem::path &file)
       : file(std::filesystem::absolute(file)) {}
 
-  virtual std::string contents();
+  virtual const std::string &contents();
   virtual ~SourceFile() = default;
 
   virtual std::string extractNodeValue(TSNode node) {
@@ -34,5 +34,5 @@ public:
   MemorySourceFile(std::string contents, const std::filesystem::path &file)
       : SourceFile(file), str(std::move(contents)) {}
 
-  std::string contents() override { return this->str; }
+  const std::string &contents() override { return this->str; }
 };

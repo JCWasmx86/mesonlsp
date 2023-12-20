@@ -5,7 +5,7 @@
 #include <ios>
 #include <string>
 
-std::string SourceFile::contents() {
+const std::string &SourceFile::contents() {
   if (this->cached) {
     return this->cached_contents;
   }
@@ -17,5 +17,5 @@ std::string SourceFile::contents() {
   file.read(fileContent.data(), (std::streamsize)fileSize);
   this->cached = true;
   this->cached_contents = fileContent;
-  return fileContent;
+  return this->cached_contents;
 }
