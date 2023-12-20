@@ -58,8 +58,9 @@ void jsonrpc::JsonRpcServer::sendToClient(nlohmann::json data) {
   std::lock_guard<std::mutex> guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
-  auto fullMessage = std::format("Content-Length:{}\r\n\r\n{}", len, payload);
+  auto fullMessage = std::format("Content-Length: {}\r\n\r\n{}", len, payload);
   this->output.write(fullMessage.data(), fullMessage.size());
+  this->output.flush();
 }
 
 void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,

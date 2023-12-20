@@ -1,8 +1,9 @@
 langserver_inc = include_directories('.')
-langserver_deps = [jsonrpc_dep, lsptypes_dep, log_dep, ls_dep]
+langserver_deps = [jsonrpc_dep, lsptypes_dep, log_dep, ls_dep, ada_dep, analyze_dep]
 langserver_lib = static_library(
     'langserver',
     'langserver.cpp',
+    'workspace.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',
     ],
