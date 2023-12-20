@@ -7,6 +7,7 @@ subdir('libwrap')
 subdir('libanalyze')
 subdir('libjsonrpc')
 subdir('liblsptypes')
+subdir('libls')
 
 version = meson.project_version()
 
