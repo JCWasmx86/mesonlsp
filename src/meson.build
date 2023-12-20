@@ -14,6 +14,8 @@ cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
 cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
+assert(cc.get_linker_id() == cxx.get_linker_id())
+
 executable(
     'Swift-MesonLSP',
     'main.cpp',
@@ -21,6 +23,7 @@ executable(
         '-DVERSION="' + version + '"',
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
+        '-DLINKER_ID="' + cc.get_linker_id() + '"',
     ],
     dependencies: [
         analyze_dep,
