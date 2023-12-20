@@ -1,4 +1,5 @@
 #include "analysisoptions.hpp"
+#include "langserver.hpp"
 #include "libwrap/wrap.hpp"
 #include "mesontree.hpp"
 #include "typenamespace.hpp"
@@ -48,7 +49,13 @@ void printVersion() {
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
 }
 
-void startLanguageServer() {}
+void startLanguageServer() {
+  auto handler = std::make_shared<LanguageServer>();
+  auto server = std::make_shared<jsonrpc::JsonRpcServer>();
+  handler->server = server;
+  server->loop(handler);
+  server->wait();
+}
 
 int parseWraps(const std::vector<std::string> &wraps, const std::string &output,
                const std::string &packageFiles) {
