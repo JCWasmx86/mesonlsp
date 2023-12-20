@@ -10,10 +10,18 @@ subdir('liblsptypes')
 
 version = meson.project_version()
 
+cc = meson.get_compiler('c')
+cxx = meson.get_compiler('cpp')
+cxx_version = cxx.get_id() + ' ' + cxx.version()
+cc_version = cc.get_id() + ' ' + cc.version()
 executable(
     'Swift-MesonLSP',
     'main.cpp',
-    cpp_args: ['-DVERSION="' + version + '"'],
+    cpp_args: [
+        '-DVERSION="' + version + '"',
+        '-DCC_VERSION="' + cc_version + '"',
+        '-DCXX_VERSION="' + cxx_version + '"',
+    ],
     dependencies: [
         analyze_dep,
         ast_dep,
