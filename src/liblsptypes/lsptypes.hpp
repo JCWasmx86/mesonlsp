@@ -1,5 +1,6 @@
 #pragma once
 #include <cassert>
+#include <cstdint>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -181,7 +182,7 @@ public:
   ServerInfo(std::string name, std::string version)
       : name(std::move(name)), version(std::move(version)) {}
 
-  nlohmann::json toJson() { return {{"json", name}, {"version", version}}; }
+  nlohmann::json toJson() { return {{"name", name}, {"version", version}}; }
 };
 
 class InitializeResult : public BaseObject {
@@ -201,6 +202,72 @@ public:
       ret["serverInfo"] = serverInfo->toJson();
     }
     return ret;
+  }
+};
+
+enum DiagnosticSeverity {
+  LSPError = 1,
+  LSPWarning = 2,
+};
+
+class LSPPosition : public BaseObject {
+public:
+  uint64_t line;
+  uint64_t character;
+
+  LSPPosition(uint64_t line, uint64_t character)
+      : line(line), character(character) {}
+
+  nlohmann::json toJson() { return {{"line", line}, {"character", character}}; }
+};
+
+class LSPRange : public BaseObject {
+public:
+  LSPPosition start;
+  LSPPosition end;
+
+  LSPRange(LSPPosition start, LSPPosition end)
+      : start(std::move(start)), end(std::move(end)) {}
+
+  nlohmann::json toJson() {
+    return {{"start", start.toJson()}, {"end", end.toJson()}};
+  }
+};
+
+class LSPDiagnostic : public BaseObject {
+public:
+  LSPRange range;
+  DiagnosticSeverity severity;
+  std::string message;
+
+  LSPDiagnostic(LSPRange range, DiagnosticSeverity severity,
+                std::string message)
+      : range(std::move(range)), severity(severity),
+        message(std::move(message)) {}
+
+  nlohmann::json toJson() {
+    return {{"range", range.toJson()},
+            {"severity", severity},
+            {"message", message}};
+  }
+};
+
+class PublishDiagnosticsParams : public BaseObject {
+public:
+  std::string uri;
+  std::vector<LSPDiagnostic> diagnostics;
+
+  PublishDiagnosticsParams(std::string uri,
+                           std::vector<LSPDiagnostic> diagnostics)
+      : uri(std::move(uri)), diagnostics(std::move(diagnostics)) {}
+
+  nlohmann::json toJson() {
+    std::vector<nlohmann::json> objs;
+    objs.reserve(this->diagnostics.size());
+    for (auto diag : this->diagnostics) {
+      objs.push_back(diag.toJson());
+    }
+    return {{"uri", uri}, {"diagnostics", objs}};
   }
 };
 

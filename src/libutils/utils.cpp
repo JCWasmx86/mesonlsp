@@ -92,7 +92,7 @@ static int copyData(struct archive *archive, struct archive *writer) {
     }
     res = (int)archive_write_data_block(writer, buff, size, offset);
     if (res < ARCHIVE_OK) {
-      std::cerr << archive_error_string(writer) << std::endl;
+      LOG.info(archive_error_string(writer));
       return res;
     }
   }
