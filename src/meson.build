@@ -8,6 +8,7 @@ subdir('libanalyze')
 subdir('libjsonrpc')
 subdir('liblsptypes')
 subdir('libls')
+subdir('liblangserver')
 
 version = meson.project_version()
 
@@ -35,5 +36,7 @@ executable(
         tree_sitter_dep,
         tree_sitter_meson_dep,
         wrap_dep,
+        langserver_dep,
     ],
+    install: true,
 )

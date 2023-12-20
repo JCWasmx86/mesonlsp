@@ -6,6 +6,10 @@
 class Logger {
 private:
   std::string module;
+  std::string red;
+  std::string yellow;
+  std::string blue;
+  std::string reset;
 
 public:
   Logger(std::string module);

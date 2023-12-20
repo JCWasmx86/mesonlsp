@@ -3,24 +3,38 @@
 #include <iostream>
 #include <source_location>
 #include <string>
+#include <unistd.h>
+#include <utility>
 
-Logger::Logger(std::string module) { this->module = module; }
+Logger::Logger(std::string module) : module(std::move(module)) {
+  if (isatty(STDERR_FILENO) != 0) {
+    this->blue = "\033[96m";
+    this->red = "\033[91m";
+    this->yellow = "\033[93m";
+    this->reset = "\033[0m";
+  } else {
+    this->blue = "";
+    this->red = "";
+    this->yellow = "";
+    this->reset = "";
+  }
+}
 
 void Logger::error(const std::string &msg,
                    const std::source_location location) {
-  std::clog << "\033[91m[ ERROR ] " << this->module << "-"
+  std::clog << this->red << "[ ERROR ] " << this->module << "-"
             << location.file_name() << ":" << location.line() << ": " << msg
-            << "\033[0m" << std::endl;
+            << this->reset << std::endl;
 }
 
 void Logger::info(const std::string &msg, const std::source_location location) {
-  std::clog << "\033[96m[ INFO ] " << this->module << "-"
+  std::clog << this->blue << "[ INFO ] " << this->module << "-"
             << location.file_name() << ":" << location.line() << ": " << msg
-            << "\033[0m" << std::endl;
+            << this->reset << std::endl;
 }
 
 void Logger::warn(const std::string &msg, const std::source_location location) {
-  std::clog << "\033[93m[ WARN ] " << this->module << "-"
+  std::clog << this->yellow << "[ WARN ] " << this->module << "-"
             << location.file_name() << ":" << location.line() << ": " << msg
-            << "\033[0m" << std::endl;
+            << this->reset << std::endl;
 }

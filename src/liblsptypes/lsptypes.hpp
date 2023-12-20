@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector> // NOLINT
 
 class BaseObject {
@@ -45,6 +46,9 @@ class ServerCapabilities : public BaseObject {
 public:
   TextDocumentSyncKind textDocumentSync;
 
+  ServerCapabilities(TextDocumentSyncKind textDocumentSync)
+      : textDocumentSync(textDocumentSync) {}
+
   nlohmann::json toJson() {
     return {"textDocumentSync", this->textDocumentSync};
   }
@@ -74,6 +78,9 @@ public:
   std::string name;
   std::string version;
 
+  ServerInfo(std::string name, std::string version)
+      : name(std::move(name)), version(std::move(version)) {}
+
   nlohmann::json toJson() { return {{"json", name}, {"version", version}}; }
 };
 
@@ -81,6 +88,11 @@ class InitializeResult : public BaseObject {
 public:
   ServerCapabilities capabilities;
   std::optional<ServerInfo> serverInfo;
+
+  InitializeResult(ServerCapabilities capabilities,
+                   std::optional<ServerInfo> serverInfo = std::nullopt)
+      : capabilities(std::move(capabilities)),
+        serverInfo(std::move(serverInfo)) {}
 
   nlohmann::json toJson() {
     nlohmann::json ret;
@@ -94,7 +106,7 @@ public:
 
 class InitializedParams : public BaseObject {
 public:
-  InitializedParams() {}
+  InitializedParams() = default;
 };
 
 class TextDocumentItem : public BaseObject {
