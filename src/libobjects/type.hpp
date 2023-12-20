@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #define MAKE_TYPE_WITH_PARENT(className, internalId, parentClass)              \
@@ -34,8 +35,12 @@ public:
 
   virtual ~Type() = default;
 
+  Type(Type const &) = delete;
+  void operator=(Type const &) = delete;
+  Type(Type &&) = delete;
+
 protected:
-  Type(std::string name) : name(name) {}
+  Type(std::string name) : name(std::move(name)) {}
 };
 
 class AbstractObject : public Type {
@@ -46,7 +51,7 @@ protected:
   AbstractObject(
       std::string name,
       std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
-      : Type(name), parent(parent) {}
+      : Type(name), parent(std::move(parent)) {}
 };
 
 class Dict : public Type {

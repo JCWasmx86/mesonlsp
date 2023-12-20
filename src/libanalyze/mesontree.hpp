@@ -17,11 +17,12 @@ public:
   std::set<std::filesystem::path> ownedFiles;
   SubprojectState *state;
   MesonMetadata metadata;
-  TypeNamespace ns;
+  const TypeNamespace &ns;
   int depth = 0;
 
-  MesonTree(const std::filesystem::path &root)
-      : identifier("root"), root(root), state(new SubprojectState(root)) {}
+  MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
+      : identifier("root"), root(root), state(new SubprojectState(root)),
+        ns(ns) {}
 
   ~MesonTree() {
     delete this->state;
@@ -32,7 +33,8 @@ public:
 
   void fullParse(AnalysisOptions analysisOptions) {
     if (this->depth < MAX_TREE_DEPTH) {
-      this->state->fullSetup(analysisOptions, depth + 1, this->identifier);
+      this->state->fullSetup(analysisOptions, depth + 1, this->identifier,
+                             this->ns);
     }
     this->partialParse(analysisOptions);
   }

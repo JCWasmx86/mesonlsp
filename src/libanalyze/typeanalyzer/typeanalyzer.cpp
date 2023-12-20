@@ -25,7 +25,7 @@
 static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static std::vector<std::shared_ptr<Type>>
-dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
+dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
 static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
@@ -350,7 +350,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         break;
       case Plus: {
         if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
-          newTypes.emplace_back(this->ns.types[lType->name]);
+          newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
         auto *list1 = dynamic_cast<List *>(lType.get());
@@ -1047,7 +1047,7 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
       continue;
     }
     if (dynamic_cast<CustomTgt *>(type.get()) != nullptr) {
-      newTypes.emplace_back(this->ns.types["custom_idx"]);
+      newTypes.emplace_back(this->ns.types.at("custom_idx"));
       continue;
     }
   }
@@ -1105,7 +1105,7 @@ void TypeAnalyzer::checkIfInLoop(Node *node, std::string str) const {
 }
 
 static std::vector<std::shared_ptr<Type>>
-dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
+dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   if (types.size() <= 1) {
     return types;
   }
@@ -1176,7 +1176,7 @@ dedup(TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
         subprojectNames.begin(), subprojectNames.end())));
   }
   if (hasAny) {
-    ret.emplace_back(ns.types["any"]);
+    ret.emplace_back(ns.types.at("any"));
   }
   if (hasBool) {
     ret.emplace_back(ns.boolType);

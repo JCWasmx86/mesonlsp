@@ -98,8 +98,9 @@ void SubprojectState::updateSubprojects() {
 }
 
 void SubprojectState::parseSubprojects(AnalysisOptions &options, int depth,
-                                       const std::string &parentIdentifier) {
+                                       const std::string &parentIdentifier,
+                                       const TypeNamespace &ns) {
   for (const auto &subproject : this->subprojects) {
-    subproject->parse(options, depth, parentIdentifier);
+    subproject->parse(options, depth, parentIdentifier, ns);
   }
 }
