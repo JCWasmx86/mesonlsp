@@ -569,14 +569,14 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   std::vector<std::shared_ptr<Type>> types(node->ifTrue->types);
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
-  for (const auto &t : node->condition->types) {
-    if (dynamic_cast<Any *>(t.get())) {
+  for (const auto &type : node->condition->types) {
+    if (dynamic_cast<Any *>(type.get())) {
       return;
     }
-    if (dynamic_cast<BoolType *>(t.get())) {
+    if (dynamic_cast<BoolType *>(type.get())) {
       return;
     }
-    if (dynamic_cast<Disabler *>(t.get())) {
+    if (dynamic_cast<Disabler *>(type.get())) {
       return;
     }
   }
@@ -624,7 +624,15 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                                         std::shared_ptr<Function> fn) {
   auto name = fn->name;
-  if (name != "subproject") {
+  if (name == "subproject") {
+    // TODO
+    return;
+  }
+  if (name == "get_option") {
+    // TODO
+    return;
+  }
+  if (name == "get_variable") {
     // TODO
     return;
   }
@@ -734,6 +742,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     return;
   }
   auto fn = functionOpt.value();
+  node->types = fn->returnTypes;
   this->setFunctionCallTypes(node, fn);
   this->specialFunctionCallHandling(node, fn);
   node->function = fn;
