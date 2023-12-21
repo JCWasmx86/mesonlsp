@@ -115,4 +115,5 @@ private:
   bool findMethod(MethodExpression *node, std::string methodName, int *nAny,
                   int *bits,
                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
+  void checkNoEffect(Node *node) const;
 };
