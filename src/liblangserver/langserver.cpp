@@ -40,7 +40,21 @@ void LanguageServer::onExit() {}
 void LanguageServer::onDidOpenTextDocument(DidOpenTextDocumentParams &params) {}
 
 void LanguageServer::onDidChangeTextDocument(
-    DidChangeTextDocumentParams &params) {}
+    DidChangeTextDocumentParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    LOG.info(std::format("Patching file {} for workspace {}",
+                         path.generic_string(), workspace->name));
+    if (workspace->owns(path)) {
+      workspace->patchFile(
+          path, params.contentChanges[0].text,
+          [this](
+              const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+                  &changes) { this->publishDiagnostics(changes); });
+      return;
+    }
+  }
+}
 
 void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}
 

@@ -66,4 +66,15 @@ public:
       this->diagnostics[key] = {diag};
     }
   }
+
+  void clear() {
+    this->subdirCalls = {};
+    this->methodCalls = {};
+    this->arrayAccess = {};
+    this->functionCalls = {};
+    this->identifiers = {};
+    this->stringLiterals = {};
+    this->kwargs = {};
+    this->diagnostics = {};
+  }
 };
