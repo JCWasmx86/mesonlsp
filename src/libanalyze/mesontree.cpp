@@ -78,7 +78,8 @@ std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
 }
 
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {
-  LOG.info(std::format("Parsing {}", this->identifier));
+  LOG.info(std::format("Parsing {} ({})", this->identifier,
+                       this->root.generic_string()));
   // First fetch all the options
   auto options = parseOptions(this->root);
   // Then fetch diagnostics for the options
