@@ -488,6 +488,153 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
   LOG.info(std::format("Meson version = {}", mesonVersionSL->id));
 }
 
+void TypeAnalyzer::checkNoEffect(Node *node) const {
+  auto noEffect = false;
+  if (dynamic_cast<IntegerLiteral *>(node) ||
+      dynamic_cast<StringLiteral *>(node) ||
+      dynamic_cast<BooleanLiteral *>(node) ||
+      dynamic_cast<ArrayLiteral *>(node) ||
+      dynamic_cast<DictionaryLiteral *>(node)) {
+    noEffect = true;
+    goto end;
+  }
+  if (auto *fe = dynamic_cast<FunctionExpression *>(node)) {
+    std::set<std::string> pureFunctions{
+        "disabler",
+        "environment",
+        "files",
+        "generator",
+        "get_variable",
+        "import",
+        "include_directories",
+        "is_disabler",
+        "is_variable",
+        "join_paths",
+        "structured_sources",
+    }; // TODO: Move to somewhere else
+    auto fnid = fe->function;
+    if (fnid && pureFunctions.contains(fnid->name)) {
+      noEffect = true;
+      goto end;
+    }
+    return;
+  }
+  if (auto *me = dynamic_cast<MethodExpression *>(node)) {
+    std::set<std::string> pureMethods{
+        "build_machine.cpu",
+        "build_machine.cpu_family",
+        "build_machine.endian",
+        "build_machine.system",
+        "meson.backend",
+        "meson.build_options",
+        "meson.build_root",
+        "meson.can_run_host_binaries",
+        "meson.current_build_dir",
+        "meson.current_source_dir",
+        "meson.get_cross_property",
+        "meson.get_external_property",
+        "meson.global_build_root",
+        "meson.global_source_root",
+        "meson.has_exe_wrapper",
+        "meson.has_external_property",
+        "meson.is_cross_build",
+        "meson.is_subproject",
+        "meson.is_unity",
+        "meson.project_build_root",
+        "meson.project_license",
+        "meson.project_license_files",
+        "meson.project_name",
+        "meson.project_source_root",
+        "meson.project_version",
+        "meson.source_root",
+        "meson.version",
+        "both_libs.get_shared_lib",
+        "both_libs.get_static_lib",
+        "build_tgt.extract_all_objects",
+        "build_tgt.extract_objects",
+        "build_tgt.found",
+        "build_tgt.full_path",
+        "build_tgt.full_path",
+        "build_tgt.name",
+        "build_tgt.path",
+        "build_tgt.private_dir_include",
+        "cfg_data.get",
+        "cfg_data.get_unquoted",
+        "cfg_data.has",
+        "cfg_data.keys",
+        "custom_idx.full_path",
+        "custom_tgt.full_path",
+        "custom_tgt.to_list",
+        "dep.as_link_whole",
+        "dep.as_system",
+        "dep.found",
+        "dep.get_configtool_variable",
+        "dep.get_pkgconfig_variable",
+        "dep.get_variable",
+        "dep.include_type",
+        "dep.name",
+        "dep.partial_dependency",
+        "dep.type_name",
+        "dep.version",
+        "disabler.found",
+        "external_program.found",
+        "external_program.full_path",
+        "external_program.path",
+        "external_program.version",
+        "feature.allowed",
+        "feature.auto",
+        "feature.disabled",
+        "feature.enabled",
+        "module.found",
+        "runresult.compiled",
+        "runresult.returncode",
+        "runresult.stderr",
+        "runresult.stdout",
+        "subproject.found",
+        "subproject.get_variable",
+        "str.contains",
+        "str.endswith",
+        "str.format",
+        "str.join",
+        "str.replace",
+        "str.split",
+        "str.startswith",
+        "str.strip",
+        "str.substring",
+        "str.to_lower",
+        "str.to_upper",
+        "str.underscorify",
+        "str.version_compare",
+        "bool.to_int",
+        "bool.to_string",
+        "dict.get",
+        "dict.has_key",
+        "dict.keys",
+        "int.even",
+        "int.is_odd",
+        "int.to_string",
+        "list.contains",
+        "list.get",
+        "list.length",
+    }; // TODO: Move to somewhere else
+    auto method = me->method;
+    if (method && pureMethods.contains(method->id())) {
+      noEffect = true;
+      goto end;
+    }
+    return;
+  }
+  return;
+end:
+  if (!noEffect) {
+    return;
+  }
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::Warning, node,
+                       "Statement does not have an effect or the result to the "
+                       "call is unused"));
+}
+
 bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
   auto *asFuncExpr = dynamic_cast<FunctionExpression *>(node.get());
   if (!asFuncExpr) {
@@ -513,6 +660,7 @@ void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
   for (const auto &b : node->stmts) {
+    this->checkNoEffect(b.get());
     if (!lastAlive) {
       if (this->isDead(b)) {
         lastAlive = b;
@@ -1160,6 +1308,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   std::shared_ptr<Node> lastDead = nullptr;
   for (const auto &b : node->stmts) {
     b->visit(this);
+    this->checkNoEffect(b.get());
     if (!lastAlive) {
       if (this->isDead(b)) {
         lastAlive = b;
@@ -1331,6 +1480,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     this->variablesNeedingUse.emplace_back();
     for (const auto &stmt : block) {
       stmt->visit(this);
+      this->checkNoEffect(stmt.get());
       if (!lastAlive) {
         if (this->isDead(stmt)) {
           lastAlive = stmt;
