@@ -788,10 +788,21 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     auto values = ::guessSetVariable(node, this->options);
     std::set<std::string> asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
-    for (auto val : values) {
+    for (auto val : asSet) {
       auto opt = this->options.findOption(val);
       if (!opt) {
+        if (asSet.size() > 1) {
+          continue;
+        }
+        this->metadata->registerDiagnostic(
+            node, Diagnostic(Severity::Error, node,
+                             std::format("Unknown option `{}`", val)));
         continue;
+      }
+      if (asSet.size() == 1 && opt->deprecated) {
+        this->metadata->registerDiagnostic(
+            node, Diagnostic(Severity::Warning, node,
+                             std::format("Deprecated option")));
       }
       if (dynamic_cast<StringOption *>(opt.get()) ||
           dynamic_cast<ComboOption *>(opt.get())) {

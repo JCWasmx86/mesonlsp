@@ -1,1 +1,1 @@
-option('static_build', type: 'boolean')
+option('static_build', type: 'boolean', value: false)
