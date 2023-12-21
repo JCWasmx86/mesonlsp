@@ -64,6 +64,20 @@ OptionState parseOptions(std::filesystem::path &root) {
 std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
+  if (this->overrides.contains(path)) {
+    auto fileContent = this->overrides[path];
+    TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
+                                          fileContent.length());
+    auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
+    const TSNode rootNode = ts_tree_root_node(tree);
+    auto root = makeNode(sourceFile, rootNode);
+    this->ownedFiles.insert(std::filesystem::absolute(path));
+    this->asts[root->file->file] = root;
+    root->setParents();
+    ts_tree_delete(tree);
+    ts_parser_delete(parser);
+    return root;
+  }
   auto fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());

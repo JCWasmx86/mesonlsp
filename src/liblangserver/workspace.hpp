@@ -3,6 +3,7 @@
 #include "langserverutils.hpp"
 #include "lsptypes.hpp"
 #include "mesontree.hpp"
+#include "task.hpp"
 #include "typenamespace.hpp"
 
 #include <filesystem>
@@ -11,6 +12,8 @@ class Workspace {
 public:
   std::filesystem::path root;
   std::string name;
+  std::map<std::string /*Identifier*/, Task*> tasks;
+  std::mutex mtx;
 
   Workspace(const WorkspaceFolder &wspf) {
     this->root = extractPathFromUrl(wspf.uri);
@@ -19,6 +22,14 @@ public:
 
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
   parse(const TypeNamespace &ns);
+
+  bool owns(const std::filesystem::path &path);
+
+  void
+  patchFile(std::filesystem::path path, std::string contents,
+            std::function<void(
+                std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
+                func);
 
 private:
   std::shared_ptr<MesonTree> tree;

@@ -17,6 +17,7 @@ public:
   std::filesystem::path root;
   std::set<std::filesystem::path> ownedFiles;
   std::map<std::filesystem::path, std::shared_ptr<Node>> asts;
+  std::map<std::filesystem::path, std::string> overrides;
   SubprojectState *state;
   MesonMetadata metadata;
   const TypeNamespace &ns;
@@ -39,6 +40,12 @@ public:
                              this->ns);
     }
     this->partialParse(analysisOptions);
+  }
+
+  void clear() {
+    this->ownedFiles.clear();
+    this->asts = {};
+    this->metadata.clear();
   }
 
   std::shared_ptr<Node> parseFile(std::filesystem::path path);

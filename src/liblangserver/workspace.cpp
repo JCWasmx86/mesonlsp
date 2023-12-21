@@ -4,6 +4,7 @@
 #include "mesontree.hpp"
 #include "typenamespace.hpp"
 
+#include <future>
 #include <memory>
 
 std::vector<std::shared_ptr<MesonTree>>
@@ -17,6 +18,63 @@ findTrees(std::shared_ptr<MesonTree> root) {
     }
   }
   return ret;
+}
+
+bool Workspace::owns(const std::filesystem::path &path) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (subTree->ownedFiles.contains(path)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void Workspace::patchFile(
+    std::filesystem::path path, std::string contents,
+    std::function<
+        void(std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
+        func) {
+  std::lock_guard<std::mutex> lock(mtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      return;
+    }
+    std::set<std::filesystem::path> oldDiags;
+    for (const auto &pair : subTree->metadata.diagnostics) {
+      oldDiags.insert(pair.first);
+    }
+    subTree->clear();
+    auto identifier = subTree->identifier;
+    if (this->tasks.contains(identifier)) {
+      auto *tsk = this->tasks[identifier];
+      while (tsk->state != TaskState::Ended) {
+      }
+      delete tsk;
+    }
+    subTree->overrides[path] = contents;
+    auto *newTask = new Task([&subTree, func, oldDiags]() {
+      subTree->partialParse(
+          AnalysisOptions(false, false, false, false, false, false, false));
+      std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+      auto metadata = subTree->metadata;
+      for (const auto &pair : metadata.diagnostics) {
+        if (!ret.contains(pair.first)) {
+          ret[pair.first] = {};
+        }
+        for (const auto &diag : pair.second) {
+          ret[pair.first].push_back(makeLSPDiagnostic(diag));
+        }
+      }
+      for (const auto &oldDiag : oldDiags) {
+        if (!ret.contains(oldDiag)) {
+          ret[oldDiag] = {};
+        }
+      }
+      func(ret);
+    });
+    (void)std::async(std::launch::async, &Task::run, newTask);
+    this->tasks[identifier] = newTask;
+  }
 }
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
