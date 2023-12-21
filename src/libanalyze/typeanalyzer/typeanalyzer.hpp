@@ -116,4 +116,6 @@ private:
                   int *bits,
                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
   void checkNoEffect(Node *node) const;
+  void checkFormat(StringLiteral *sl,
+                   const std::vector<std::shared_ptr<Node>> &args);
 };

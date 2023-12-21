@@ -1191,9 +1191,9 @@ void TypeAnalyzer::registerUsed(const std::string &id) {
   for (const auto &arr :
        this->variablesNeedingUse | std::ranges::views::reverse) {
     std::vector<IdExpression *> newArray;
-    for (const auto &a : arr) {
-      if (a->id == id) {
-        newArray.push_back(a);
+    for (const auto &expr : arr) {
+      if (expr->id == id) {
+        newArray.push_back(expr);
       }
     }
     newCopy.push_back(newArray);
@@ -1424,6 +1424,44 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     return;
   }
   // TODO
+  auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
+  auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+  if ((sl != nullptr) && node->method->id() == "str.format") {
+    this->checkFormat(sl, al->args);
+  }
+}
+
+void TypeAnalyzer::checkFormat(StringLiteral *sl,
+                               const std::vector<std::shared_ptr<Node>> &args) {
+  auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
+  for (size_t i = 0; i < args.size(); i++) {
+    if (!foundIntegers.contains(i)) {
+      this->metadata->registerDiagnostic(
+          args[i].get(), Diagnostic(Severity::Warning, args[i].get(),
+                                    "Unused parameter in format() call"));
+    }
+  }
+  if (foundIntegers.empty()) {
+    if (args.empty()) {
+      this->metadata->registerDiagnostic(
+          sl->parent, Diagnostic(Severity::Warning, sl->parent,
+                                 "Pointless str.format() call"));
+      return;
+    }
+  }
+  std::vector<std::string> oobIntegers;
+  for (auto integer : foundIntegers) {
+    if (integer > args.size()) {
+      oobIntegers.push_back(std::format("@{}@", integer));
+    }
+  }
+  if (oobIntegers.empty()) {
+    return;
+  }
+  this->metadata->registerDiagnostic(
+      sl,
+      Diagnostic(Severity::Error, sl,
+                 "Parameters out of bounds: " + joinStrings(oobIntegers, ',')));
 }
 
 bool TypeAnalyzer::checkCondition(Node *condition) {
@@ -1546,6 +1584,18 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
   node->types.push_back(this->ns.strType);
+  auto str = node->id;
+  auto matches = extractTextBetweenAtSymbols(str);
+  if (!node->isFormat && !matches.empty()) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Warning, node,
+                         "Found format identifiers in string, but literal is "
+                         "not a format string."));
+    return;
+  }
+  for (const auto &match : matches) {
+    this->registerUsed(match);
+  }
 }
 
 void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {

@@ -6,16 +6,19 @@
 #include <cstdint>
 #include <cstring>
 #include <format>
-#include <iostream>
 #include <memory>
 #include <optional>
-#include <ostream>
+#include <regex>
 #include <string>
 #include <tree_sitter/api.h>
+#include <utility>
 #include <vector>
 
+static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
+static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
+
 Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
-    : file(file), location(new Location(node)) {}
+    : file(std::move(file)), location(new Location(node)) {}
 
 ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(file, node) {
@@ -758,4 +761,33 @@ std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node) {
   }
   return std::make_shared<ErrorNode>(
       file, node, std::format("Unknown node_type '{}'", nodeType));
+}
+
+std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
+  std::vector<std::string> matches;
+
+  std::sregex_iterator iter(text.begin(), text.end(), FORMAT_STRING_REGEX);
+  std::sregex_iterator end;
+
+  while (iter != end) {
+    matches.push_back(iter->str(1));
+    ++iter;
+  }
+
+  return matches;
+}
+
+std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text) {
+  std::set<uint64_t> integers;
+
+  std::sregex_iterator iter(text.begin(), text.end(), STR_FORMAT_REGEX);
+  std::sregex_iterator end;
+
+  while (iter != end) {
+    std::string match = iter->str(1);
+    integers.insert(std::stoull(match));
+    ++iter;
+  }
+
+  return integers;
 }
