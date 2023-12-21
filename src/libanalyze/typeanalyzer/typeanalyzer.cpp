@@ -133,7 +133,7 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
 }
 
 void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
-  this->variablesNeedingUse.back().emplace_back(node);
+  this->variablesNeedingUse.back().push_back(node);
 }
 
 std::optional<std::shared_ptr<Type>>

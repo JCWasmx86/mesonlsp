@@ -2,6 +2,7 @@
 
 #include "analysisoptions.hpp"
 #include "mesonmetadata.hpp"
+#include "node.hpp"
 #include "subprojects/subprojectstate.hpp"
 #include "typenamespace.hpp"
 
@@ -15,6 +16,7 @@ public:
   std::string identifier;
   std::filesystem::path root;
   std::set<std::filesystem::path> ownedFiles;
+  std::map<std::filesystem::path, std::shared_ptr<Node>> asts;
   SubprojectState *state;
   MesonMetadata metadata;
   const TypeNamespace &ns;
