@@ -56,5 +56,22 @@ curl_dep = dependency('libcurl')
 archive_dep = dependency('libarchive')
 uuid_dep = dependency('uuid')
 
+cc = meson.get_compiler('c')
+cxx = meson.get_compiler('cpp')
+
+if get_option('static_build')
+    extra_deps = [
+        dependency('libbrotlicommon'),
+        dependency('libbrotlidec'),
+        dependency('libbrotlienc'),
+    ]
+    extra_libs = [cxx.find_library('c'), cxx.find_library('unistring')]
+    extra_link_args = ['-static']
+else
+    extra_deps = []
+    extra_libs = []
+    extra_link_args = []
+endif
+
 subdir('src')
 subdir('tests')
