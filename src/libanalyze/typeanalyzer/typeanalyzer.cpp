@@ -1429,7 +1429,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
 bool TypeAnalyzer::checkCondition(Node *condition) {
   auto appended = false;
   auto *fn = dynamic_cast<FunctionExpression *>(condition);
-  if ((fn != nullptr) && fn->functionName() == "get") {
+  if ((fn != nullptr) && fn->functionName() == "is_variable") {
     auto *al = dynamic_cast<ArgumentList *>(fn->args.get());
     if (al && !al->args.empty()) {
       auto *testedIdentifier = dynamic_cast<StringLiteral *>(al->args[0].get());
