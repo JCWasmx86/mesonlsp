@@ -21,9 +21,34 @@ public:
   TypeNamespace();
 
   std::optional<const std::shared_ptr<Function>>
-  lookupFunction(std::string &name) const {
+  lookupFunction(const std::string &name) const {
     if (this->functions.contains(name)) {
       return this->functions.at(name);
+    }
+    return std::nullopt;
+  }
+
+  std::optional<const std::shared_ptr<Method>>
+  lookupMethod(const std::string &name,
+               const std::shared_ptr<Type> &type) const {
+    if (this->vtables.contains(type->name)) {
+      for (auto method : this->vtables.at(type->name)) {
+        if (method->name == name) {
+          return method;
+        }
+      }
+    }
+    return std::nullopt;
+  }
+
+  std::optional<const std::shared_ptr<Method>>
+  lookupMethod(const std::string &name) const {
+    for (const auto &vtable : this->vtables) {
+      for (auto method : vtable.second) {
+        if (method->name == name) {
+          return method;
+        }
+      }
     }
     return std::nullopt;
   }
