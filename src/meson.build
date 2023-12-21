@@ -12,8 +12,6 @@ subdir('liblangserver')
 
 version = meson.project_version()
 
-cc = meson.get_compiler('c')
-cxx = meson.get_compiler('cpp')
 cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
@@ -21,6 +19,7 @@ assert(cc.get_linker_id() == cxx.get_linker_id())
 executable(
     'Swift-MesonLSP',
     'main.cpp',
+    link_args: extra_link_args,
     cpp_args: [
         '-DVERSION="' + version + '"',
         '-DCC_VERSION="' + cc_version + '"',
@@ -37,6 +36,6 @@ executable(
         tree_sitter_meson_dep,
         wrap_dep,
         langserver_dep,
-    ],
+    ] + extra_deps + extra_libs,
     install: true,
 )
