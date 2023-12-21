@@ -336,8 +336,8 @@ public:
   bool isFormat;
   StringLiteral(std::shared_ptr<SourceFile> file, TSNode node);
 
-  StringLiteral(std::string str) : Node() {
-    this->id = str;
+  StringLiteral(std::string str) {
+    this->id = std::move(str);
     this->isFormat = false;
   }
 
@@ -439,3 +439,6 @@ public:
   virtual void visitBreakNode(BreakNode *node) = 0;
   virtual void visitContinueNode(ContinueNode *node) = 0;
 };
+
+std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text);
+std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text);
