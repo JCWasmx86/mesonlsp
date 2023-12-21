@@ -73,3 +73,7 @@ Depends on: libwrap, libanalyze
 - This will either work directly (`subdir` calls) or indirectly (Using subprojects)
 - If there's a LSP request/notification that is not owned by any project, just stub information gatherers are executed. This may be the case for e.g. files of
   newly created subdirectories that weren't included by the parent directory yet.
+
+## Before merging
+- Fix all compiler warnings
+- Fix all clang-tidy warnings as far as possible.
