@@ -675,6 +675,107 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     }
     return;
   }
+  if (name == "import") {
+    auto values = ::guessSetVariable(node, this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    std::vector<std::shared_ptr<Type>> types;
+    for (const auto &modname : values) {
+      if (modname == "cmake") {
+        types.emplace_back(this->ns.types.at("cmake_module"));
+        continue;
+      }
+      if (modname == "fs") {
+        types.emplace_back(this->ns.types.at("fs_module"));
+        continue;
+      }
+      if (modname == "gnome") {
+        types.emplace_back(this->ns.types.at("gnome_module"));
+        continue;
+      }
+      if (modname == "i18n") {
+        types.emplace_back(this->ns.types.at("i18n_module"));
+        continue;
+      }
+      if (modname == "rust" || modname == "unstable-rust") {
+        types.emplace_back(this->ns.types.at("rust_module"));
+        continue;
+      }
+      if (modname == "python") {
+        types.emplace_back(this->ns.types.at("python_module"));
+        continue;
+      }
+      if (modname == "python3") {
+        types.emplace_back(this->ns.types.at("python3_module"));
+        continue;
+      }
+      if (modname == "pkgconfig") {
+        types.emplace_back(this->ns.types.at("pkgconfig_module"));
+        continue;
+      }
+      if (modname == "keyval") {
+        types.emplace_back(this->ns.types.at("keyval_module"));
+        continue;
+      }
+      if (modname == "dlang") {
+        types.emplace_back(this->ns.types.at("dlang_module"));
+        continue;
+      }
+      if (modname == "unstable-external_project" ||
+          modname == "external_project") {
+        types.emplace_back(this->ns.types.at("external_project_module"));
+        continue;
+      }
+      if (modname == "hotdoc") {
+        types.emplace_back(this->ns.types.at("hotdoc_module"));
+        continue;
+      }
+      if (modname == "java") {
+        types.emplace_back(this->ns.types.at("java_module"));
+        continue;
+      }
+      if (modname == "windows") {
+        types.emplace_back(this->ns.types.at("windows_module"));
+        continue;
+      }
+      if (modname == "unstable-cuda" || modname == "cuda") {
+        types.emplace_back(this->ns.types.at("cuda_module"));
+        continue;
+      }
+      if (modname == "icestorm" || modname == "unstable-icestorm") {
+        types.emplace_back(this->ns.types.at("icestorm_module"));
+        continue;
+      }
+      if (modname == "qt4") {
+        types.emplace_back(this->ns.types.at("qt4_module"));
+        continue;
+      }
+      if (modname == "qt5") {
+        types.emplace_back(this->ns.types.at("qt5_module"));
+        continue;
+      }
+      if (modname == "qt6") {
+        types.emplace_back(this->ns.types.at("qt6_module"));
+        continue;
+      }
+      if (modname == "unstable-wayland" || modname == "wayland") {
+        types.emplace_back(this->ns.types.at("wayland_module"));
+        continue;
+      }
+      if (modname == "simd" || modname == "unstable-simd") {
+        types.emplace_back(this->ns.types.at("simd_module"));
+        continue;
+      }
+      if (modname == "sourceset") {
+        types.emplace_back(this->ns.types.at("sourceset_module"));
+        continue;
+      }
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::Warning, node,
+                           std::format("Unknown module `{}`", modname)));
+    }
+    node->types = dedup(this->ns, types);
+    return;
+  }
   if (name == "get_variable") {
     // TODO
     return;
