@@ -1084,8 +1084,96 @@ void TypeAnalyzer::visitKeywordItem(KeywordItem *node) {
   node->visitChildren(this);
 }
 
+bool TypeAnalyzer::findMethod(
+    MethodExpression *node, std::string methodName, int *nAny, int *bits,
+    std::vector<std::shared_ptr<Type>> &ownResultTypes) {
+  auto found = false;
+  auto types = node->obj->types;
+  for (const auto &type : types) {
+    if (dynamic_cast<Any *>(type.get())) {
+      *nAny = *nAny + 1;
+      *bits = (*bits) | (1 << 0);
+      continue;
+    }
+    auto *listtype = dynamic_cast<List *>(type.get());
+    if (listtype && listtype->types.size() == 1 &&
+        dynamic_cast<Any *>(listtype->types[0].get())) {
+      *nAny = *nAny + 1;
+      *bits = (*bits) | (1 << 1);
+      continue;
+    }
+    auto *dicttype = dynamic_cast<Dict *>(type.get());
+    if (dicttype && dicttype->types.size() == 1 &&
+        dynamic_cast<Any *>(dicttype->types[0].get())) {
+      *nAny = *nAny + 1;
+      *bits = (*bits) | (1 << 2);
+      continue;
+    }
+    if (methodName == "get") {
+      continue;
+    }
+    auto methodOpt = this->ns.lookupMethod(methodName, type);
+    if (!methodOpt) {
+      continue;
+    }
+    auto method = methodOpt.value();
+    ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
+                          method->returnTypes.end());
+    node->method = method;
+    found = true;
+    // TODO: Check for subproject.get_variable
+  }
+  // TODO: Check for methods called `get`
+  return found;
+}
+
+bool TypeAnalyzer::guessMethod(
+    MethodExpression *node, const std::string &methodName,
+    std::vector<std::shared_ptr<Type>> &ownResultTypes) {
+  auto guessedMethod = this->ns.lookupMethod(methodName);
+  if (!guessedMethod) {
+    return false;
+  }
+  auto method = guessedMethod.value();
+  ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
+                        method->returnTypes.end());
+  node->method = method;
+  node->types = dedup(this->ns, ownResultTypes);
+  return true;
+}
+
 void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
+  auto types = node->obj->types;
+  std::vector<std::shared_ptr<Type>> ownResultTypes;
+  auto *methodNameId = dynamic_cast<IdExpression *>(node->id.get());
+  if (!methodNameId) {
+    return;
+  }
+  auto methodName = methodNameId->id;
+  auto nAny = 0;
+  auto bits = 0;
+  auto found = this->findMethod(node, methodName, &nAny, &bits, ownResultTypes);
+  node->types = dedup(this->ns, ownResultTypes);
+  if (found && (((size_t)nAny == types.size()) ||
+                (bits == 0b111 && types.size() == 3))) {
+    found = this->guessMethod(node, methodName, ownResultTypes);
+  }
+  auto onlyDisabler = types.size() == 1 &&
+                      (dynamic_cast<Disabler *>(types[0].get()) != nullptr);
+  if (!found && !onlyDisabler) {
+    auto typeStr = joinTypes(types);
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("No method `{}` found for types `{}`",
+                                     methodName, typeStr)));
+    return;
+  }
+  if (!found && onlyDisabler) {
+    LOG.warn("Ignoring invalid method for disabler");
+    return;
+  }
+  // TODO
 }
 
 bool TypeAnalyzer::checkCondition(Node *condition) {

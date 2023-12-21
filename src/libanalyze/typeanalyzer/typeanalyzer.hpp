@@ -110,4 +110,9 @@ private:
   std::vector<std::shared_ptr<Type>> evalStack(std::string &name);
   bool ignoreIdExpression(IdExpression *node);
   bool isKnownId(IdExpression *id);
+  bool guessMethod(MethodExpression *node, const std::string &methodName,
+                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
+  bool findMethod(MethodExpression *node, std::string methodName, int *nAny,
+                  int *bits,
+                  std::vector<std::shared_ptr<Type>> &ownResultTypes);
 };
