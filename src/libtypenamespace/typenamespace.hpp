@@ -38,6 +38,10 @@ public:
         }
       }
     }
+    auto *abstractObject = dynamic_cast<AbstractObject *>(type.get());
+    if (abstractObject && abstractObject->parent) {
+      return this->lookupMethod(name, abstractObject->parent.value());
+    }
     return std::nullopt;
   }
 
