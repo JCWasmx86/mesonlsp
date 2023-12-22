@@ -11,7 +11,8 @@ Checks: |
   -misc-no-recursion,
   -modernize-use-trailing-return-type,
   -misc-non-private-member-variables-in-classes,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -misc-use-anonymous-namespace
 WarningsAsErrors: ""
 HeaderFilterRegex: ""
 FormatStyle: none
