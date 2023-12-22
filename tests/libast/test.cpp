@@ -2,6 +2,7 @@
 #include "node.hpp"
 #include "sourcefile.hpp"
 
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <gtest/gtest.h>
@@ -538,6 +539,18 @@ TEST(TestAst, testUnaryOperator) {
           dynamic_cast<AssignmentStatement *>(bd->stmts[2].get())->rhs.get())
           ->op,
       UnaryOperator::UnaryMinus);
+}
+
+TEST(TestAstOther, extractTextBetweenAtSymbols) {
+  auto inputs = extractTextBetweenAtSymbols("foo @0@ @e@ @ee@ @eee@ @eee0@");
+  std::vector<std::string> expected{"e", "ee", "eee", "eee0"};
+  ASSERT_EQ(inputs, expected);
+}
+
+TEST(TestAstOther, extractIntegersBetweenAtSymbols) {
+  auto inputs = extractIntegersBetweenAtSymbols("@0@ foo @011a@ @11@ @12@@13@");
+  std::set<uint64_t> expected{0, 11, 12, 13};
+  ASSERT_EQ(inputs, expected);
 }
 
 int main(int argc, char **argv) {
