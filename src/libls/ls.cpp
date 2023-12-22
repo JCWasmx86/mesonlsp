@@ -53,6 +53,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
     InitializeParams serializedParams(params);
     auto results = this->initialize(serializedParams);
     ret = results.toJson();
+  } else if (method == "textDocument/inlayHint") {
+    InlayHintParams serializedParams(params);
+    auto results = this->inlayHints(serializedParams);
+    auto jsonObjects = nlohmann::json::array();
+    for (auto &result : results) {
+      jsonObjects.push_back(result.toJson());
+    }
+    ret = jsonObjects;
   } else {
     LOG.warn(std::format("Unknown request: '{}'", method));
     this->server->returnError(jsonrpc::JsonrpcError::MethodNotFound,

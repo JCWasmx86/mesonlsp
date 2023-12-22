@@ -3,6 +3,7 @@
 #include "lsptypes.hpp"
 
 #include <nlohmann/json.hpp>
+#include <vector>
 
 class AbstractLanguageServer : public jsonrpc::JsonRpcHandler {
 public:
@@ -11,6 +12,7 @@ public:
                      nlohmann::json params) override;
 
   virtual InitializeResult initialize(InitializeParams &params) = 0;
+  virtual std::vector<InlayHint> inlayHints(InlayHintParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

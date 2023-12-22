@@ -43,9 +43,9 @@ void LanguageServer::onDidChangeTextDocument(
     DidChangeTextDocumentParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
-    LOG.info(std::format("Patching file {} for workspace {}",
-                         path.generic_string(), workspace->name));
     if (workspace->owns(path)) {
+      LOG.info(std::format("Patching file {} for workspace {}",
+                           path.generic_string(), workspace->name));
       workspace->patchFile(
           path, params.contentChanges[0].text,
           [this](
@@ -54,6 +54,16 @@ void LanguageServer::onDidChangeTextDocument(
       return;
     }
   }
+}
+
+std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->inlayHints(path);
+    }
+  }
+  return {};
 }
 
 void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}

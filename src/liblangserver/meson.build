@@ -5,6 +5,7 @@ langserver_lib = static_library(
     'langserver.cpp',
     'workspace.cpp',
     'task.cpp',
+    'inlayhintvisitor.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',
     ],
