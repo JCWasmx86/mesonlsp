@@ -1598,10 +1598,19 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   auto str = node->id;
   auto matches = extractTextBetweenAtSymbols(str);
   if (!node->isFormat && !matches.empty()) {
-    this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
-                         "Found format identifiers in string, but literal is "
-                         "not a format string."));
+    auto reallyFound = true;
+    for (const auto &match : matches) {
+      if (match.starts_with("OUTPUT") || match.starts_with("INPUT")) {
+        reallyFound = false;
+        break;
+      }
+    }
+    if (reallyFound) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::Warning, node,
+                           "Found format identifiers in string, but literal is "
+                           "not a format string."));
+    }
     return;
   }
   for (const auto &match : matches) {
