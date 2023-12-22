@@ -1,1 +1,1 @@
-executable('logtest', 'test.cpp', dependencies: [log_dep])
+test('logtest', executable('logtest', 'test.cpp', dependencies: [log_dep]))
