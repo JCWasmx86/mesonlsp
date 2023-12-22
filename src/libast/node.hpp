@@ -72,10 +72,21 @@ public:
   void setParents() override;
 
   std::optional<std::shared_ptr<Node>> getPositionalArg(uint32_t idx) {
-    if (idx > this->args.size()) {
+    if (idx >= this->args.size()) {
       return std::nullopt;
     }
-    return this->args[0];
+    uint32_t posIdx = 0;
+    for (const auto &arg : this->args) {
+      auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
+      if (keywordItem != nullptr) {
+        continue;
+      }
+      if (idx == posIdx) {
+        return this->args[idx];
+      }
+      posIdx++;
+    }
+    return std::nullopt;
   }
 
   std::optional<std::shared_ptr<Node>> getKwarg(const std::string &name) {
@@ -97,7 +108,7 @@ class ArrayLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node);
-  bool fake = false;
+  bool fake = false; // TODO: Remove this
 
   ArrayLiteral(std::vector<std::shared_ptr<Node>> args, bool fake) {
     this->args = args;
