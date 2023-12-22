@@ -1046,7 +1046,7 @@ bool TypeAnalyzer::compatible(std::shared_ptr<Type> given,
   auto *gList = dynamic_cast<List *>(given.get());
   auto *eList = dynamic_cast<List *>(expected.get());
   if (gList && eList) {
-    return this->atleastPartiallyCompatible(gList->types, eList->types);
+    return this->atleastPartiallyCompatible(eList->types, gList->types);
   }
   if ((eList != nullptr) &&
       this->atleastPartiallyCompatible({given}, eList->types)) {
