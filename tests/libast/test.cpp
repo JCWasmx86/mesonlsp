@@ -11,7 +11,7 @@ extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
 
 TEST(AstTestIni, testIniParsing) {
   const auto *const iniStr =
-      "; Foo\n[foo]\nk=v\nk1=v\n[foo2]\na=1\nb=1\nc=2\ncccccc=\n";
+      "; Foo\n[foo]\nk=v\nk1=v\n[foo2]\n;comment\na=1\nb=1\nc=2\ncccccc=\n";
   auto file = std::make_shared<MemorySourceFile>(
       iniStr, std::filesystem::path("test.ini"));
   TSParser *parser = ts_parser_new();
