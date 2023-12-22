@@ -977,7 +977,200 @@ void TypeAnalyzer::specialFunctionCallHandling(FunctionExpression *node,
   }
 }
 
-void TypeAnalyzer::checkCall(FunctionExpression *node) {}
+void TypeAnalyzer::checkKwargsAfterPositionalArguments(
+    std::vector<std::shared_ptr<Node>> args) {
+  auto kwargsOnly = false;
+  for (const auto &arg : args) {
+    if (dynamic_cast<KeywordItem *>(arg.get())) {
+      kwargsOnly = true;
+      continue;
+    }
+    if (!kwargsOnly) {
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        arg.get(),
+        Diagnostic(Severity::Error, arg.get(),
+                   "Unexpected positional argument after a keyword argument"));
+  }
+}
+
+void TypeAnalyzer::checkKwargs(std::shared_ptr<Function> func,
+                               std::vector<std::shared_ptr<Node>> args,
+                               Node *node) {
+  std::map<std::string, KeywordItem *> usedKwargs;
+  for (const auto &arg : args) {
+    auto *kwi = dynamic_cast<KeywordItem *>(arg.get());
+    if (!kwi) {
+      continue;
+    }
+    auto *kId = dynamic_cast<IdExpression *>(kwi->key.get());
+    if (!kId) {
+      continue;
+    }
+    usedKwargs[kId->id] = kwi;
+    if (func->kwargs.contains(kId->id) || kId->id != "kwargs") {
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        arg.get(),
+        Diagnostic(Severity::Error, arg.get(),
+                   std::format("Unknown key word argument '{}'", kId->id)));
+  }
+  if (usedKwargs.contains("kwargs")) {
+    return;
+  }
+  for (auto requiredKwarg : func->requiredKwargs) {
+    if (usedKwargs.contains(requiredKwarg)) {
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("Missing required key word argument '{}'",
+                                     requiredKwarg)));
+  }
+}
+
+bool TypeAnalyzer::compatible(std::shared_ptr<Type> given,
+                              std::shared_ptr<Type> expected) {
+  if (given->toString() == expected->toString()) {
+    return true;
+  }
+  auto *gAO = dynamic_cast<AbstractObject *>(given.get());
+  if (gAO) {
+    auto parent = gAO->parent;
+    if (parent.has_value() && this->compatible(parent.value(), expected)) {
+      return true;
+    }
+  }
+  auto *gList = dynamic_cast<List *>(given.get());
+  auto *eList = dynamic_cast<List *>(expected.get());
+  if (gList && eList) {
+    return this->atleastPartiallyCompatible(gList->types, eList->types);
+  }
+  if ((eList != nullptr) &&
+      this->atleastPartiallyCompatible({given}, eList->types)) {
+    return true;
+  }
+  if ((gList != nullptr) &&
+      this->atleastPartiallyCompatible(gList->types, {expected})) {
+    return true;
+  }
+  auto *gDict = dynamic_cast<Dict *>(given.get());
+  auto *eDict = dynamic_cast<Dict *>(expected.get());
+  if (gDict && eDict) {
+    return this->atleastPartiallyCompatible(gDict->types, eDict->types);
+  }
+  return false;
+}
+
+bool TypeAnalyzer::atleastPartiallyCompatible(
+    const std::vector<std::shared_ptr<Type>> &expectedTypes,
+    const std::vector<std::shared_ptr<Type>> &givenTypes) {
+  if (givenTypes.empty()) {
+    return true;
+  }
+  for (const auto &given : givenTypes) {
+    if (dynamic_cast<Any *>(given.get()) ||
+        dynamic_cast<Disabler *>(given.get())) {
+      return true;
+    }
+    for (const auto &expected : expectedTypes) {
+      if (this->compatible(given, expected) ||
+          (dynamic_cast<Any *>(given.get()) != nullptr)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+void TypeAnalyzer::checkTypes(
+    std::shared_ptr<Node> arg,
+    const std::vector<std::shared_ptr<Type>> &expectedTypes,
+    const std::vector<std::shared_ptr<Type>> &givenTypes) {
+  if (this->atleastPartiallyCompatible(expectedTypes, givenTypes)) {
+    return;
+  }
+  this->metadata->registerDiagnostic(
+      arg.get(),
+      Diagnostic(Severity::Error, arg.get(),
+                 std::format("Expected {}, got {}", joinTypes(expectedTypes),
+                             joinTypes(givenTypes))));
+}
+
+void TypeAnalyzer::checkArgTypes(std::shared_ptr<Function> func,
+                                 std::vector<std::shared_ptr<Node>> args,
+                                 Node *node) {
+  auto posArgsIdx = 0;
+  for (const auto &arg : args) {
+    if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
+      auto givenTypes = kwi->value->types;
+      auto kwargName = kwi->name.value();
+      if (!func->kwargs.contains(kwargName)) {
+        continue;
+      }
+      auto expectedTypes = func->kwargs[kwargName]->types;
+      this->checkTypes(arg, expectedTypes, givenTypes);
+    } else {
+      auto *posArg = func->posArg(posArgsIdx);
+      if (posArg) {
+        this->checkTypes(arg, posArg->types, arg->types);
+      }
+      posArgsIdx++;
+    }
+  }
+}
+
+void TypeAnalyzer::checkCall(Node *node) {
+  std::vector<std::shared_ptr<Node>> args;
+  std::shared_ptr<Function> fn;
+  auto *fe = dynamic_cast<FunctionExpression *>(node);
+  if (fe) {
+    fn = fe->function;
+    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get())) {
+      args = al->args;
+    }
+  }
+  auto *me = dynamic_cast<MethodExpression *>(node);
+  if (me) {
+    fn = me->method;
+    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get())) {
+      args = al->args;
+    }
+  }
+  if (!me && !fe) {
+    return;
+  }
+  if (!fn) {
+    return;
+  }
+  this->checkKwargsAfterPositionalArguments(args);
+  auto nPos = 0ULL;
+  for (const auto &arg : args) {
+    if (!dynamic_cast<KeywordItem *>(arg.get())) {
+      nPos++;
+    }
+  }
+  if (nPos < fn->minPosArgs) {
+    this->metadata->registerDiagnostic(
+        node,
+        Diagnostic(Severity::Error, node,
+                   std::format(
+                       "Expected at least {} positional arguments, but got {}!",
+                       fn->minPosArgs, nPos)));
+  }
+  if (nPos > fn->maxPosArgs) {
+    this->metadata->registerDiagnostic(
+        node,
+        Diagnostic(
+            Severity::Error, node,
+            std::format("Expected maximum {} positional arguments, but got {}!",
+                        fn->maxPosArgs, nPos)));
+  }
+  this->checkKwargs(fn, args, node);
+  this->checkArgTypes(fn, args, node);
+}
 
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                                     FunctionExpression *node) {
@@ -1461,7 +1654,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     LOG.warn("Ignoring invalid method for disabler");
     return;
   }
-  // TODO
+  this->checkCall(node);
   auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
   auto *al = dynamic_cast<ArgumentList *>(node->args.get());
   if ((sl != nullptr) && node->method->id() == "str.format") {
@@ -1812,7 +2005,7 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   return ret;
 }
 
-std::string joinTypes(std::vector<std::shared_ptr<Type>> &types) {
+std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types) {
   std::vector<std::string> vector;
   vector.reserve(types.size());
   for (const auto &type : types) {

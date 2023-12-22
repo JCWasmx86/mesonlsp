@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-std::string joinTypes(std::vector<std::shared_ptr<Type>> &types);
+std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types);
 
 class TypeAnalyzer : public CodeVisitor {
 public:
@@ -76,7 +76,7 @@ private:
                             std::shared_ptr<Function> fn);
   void specialFunctionCallHandling(FunctionExpression *node,
                                    std::shared_ptr<Function> fn);
-  void checkCall(FunctionExpression *node);
+  void checkCall(Node *node);
   void checkSetVariable(FunctionExpression *node, ArgumentList *al);
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                         FunctionExpression *node);
@@ -118,4 +118,17 @@ private:
   void checkNoEffect(Node *node) const;
   void checkFormat(StringLiteral *sl,
                    const std::vector<std::shared_ptr<Node>> &args);
+  void
+  checkKwargsAfterPositionalArguments(std::vector<std::shared_ptr<Node>> args);
+  void checkKwargs(std::shared_ptr<Function> func,
+                   std::vector<std::shared_ptr<Node>> args, Node *node);
+  void checkArgTypes(std::shared_ptr<Function> func,
+                     std::vector<std::shared_ptr<Node>> args, Node *node);
+  void checkTypes(std::shared_ptr<Node> arg,
+                  const std::vector<std::shared_ptr<Type>> &expectedTypes,
+                  const std::vector<std::shared_ptr<Type>> &givenTypes);
+  bool atleastPartiallyCompatible(
+      const std::vector<std::shared_ptr<Type>> &expectedTypes,
+      const std::vector<std::shared_ptr<Type>> &givenTypes);
+  bool compatible(std::shared_ptr<Type> given, std::shared_ptr<Type> expected);
 };

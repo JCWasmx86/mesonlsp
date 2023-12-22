@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <utility>
@@ -62,6 +63,21 @@ public:
   }
 
   virtual std::string id();
+
+  PositionalArgument *posArg(size_t posArgsIdx) {
+    PositionalArgument *last = nullptr;
+    size_t idx = 0;
+    for (const auto &rawArg : this->args) {
+      if (auto *arg = dynamic_cast<PositionalArgument *>(rawArg.get())) {
+        if (posArgsIdx == idx) {
+          return arg;
+        }
+        last = arg;
+        idx++;
+      }
+    }
+    return last;
+  }
 
   virtual ~Function() {}
 };
