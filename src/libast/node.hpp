@@ -97,6 +97,13 @@ class ArrayLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  bool fake = false;
+
+  ArrayLiteral(std::vector<std::shared_ptr<Node>> args, bool fake) {
+    this->args = args;
+    this->fake = fake;
+  }
+
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;

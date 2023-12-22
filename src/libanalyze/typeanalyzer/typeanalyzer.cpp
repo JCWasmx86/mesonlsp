@@ -936,7 +936,34 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     return;
   }
   if (name == "get_variable") {
-    // TODO
+    std::vector<std::shared_ptr<Type>> types;
+    auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+    if (!al) {
+      return;
+    }
+    if (al->args.size() == 2 &&
+        !dynamic_cast<KeywordItem *>(al->args[1].get())) {
+      auto defaultArg = al->args[1];
+      types.insert(types.end(), defaultArg->types.begin(),
+                   defaultArg->types.end());
+    }
+    auto values = ::guessSetVariable(node, this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    for (const auto &varname : asSet) {
+      if (!this->scope.variables.contains(varname)) {
+        continue;
+      }
+      auto vTypes = this->scope.variables[varname];
+      types.insert(types.end(), vTypes.begin(), vTypes.end());
+    }
+    if (asSet.empty()) {
+      types.insert(types.end(), fn->returnTypes.begin(), fn->returnTypes.end());
+    }
+    node->types = dedup(this->ns, types);
+    LOG.info(std::format("get_variable: {} = {} ({}:{})",
+                         joinStrings(asSet, '|'), joinTypes(node->types),
+                         node->file->file.generic_string(),
+                         node->location->format()));
     return;
   }
 }
@@ -1732,16 +1759,16 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
     }
     auto *asDict = dynamic_cast<Dict *>(asRaw);
     if (asDict != nullptr) {
-      for (const auto &t : asDict->types) {
-        dicttypes.emplace_back(t);
+      for (const auto &type : asDict->types) {
+        dicttypes.emplace_back(type);
       }
       gotDict = true;
       continue;
     }
     auto *asList = dynamic_cast<List *>(asRaw);
     if (asList != nullptr) {
-      for (const auto &t : asList->types) {
-        listtypes.emplace_back(t);
+      for (const auto &type : asList->types) {
+        listtypes.emplace_back(type);
       }
       gotList = true;
       continue;
