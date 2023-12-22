@@ -430,7 +430,7 @@ std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);
 
 class CodeVisitor {
 public:
-  CodeVisitor() {}
+  CodeVisitor() = default;
 
   virtual ~CodeVisitor() {}
 
