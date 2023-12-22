@@ -3,6 +3,7 @@
 #include "node.hpp"
 #include "optionstate.hpp"
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -54,6 +55,19 @@ public:
   }
 };
 
+class ArtificialArrayNode : public InterpretNode {
+public:
+  ArtificialArrayNode(const std::vector<std::shared_ptr<InterpretNode>> &args)
+      : InterpretNode(new ArrayLiteral({}, true)) {
+    for (auto arg : args) {
+      auto *asString = dynamic_cast<StringLiteral *>(arg->node);
+      auto copy = std::make_shared<StringLiteral>(asString->id);
+      dynamic_cast<ArrayLiteral *>(this->node)->args.push_back(copy);
+    }
+    this->deleteNode = true;
+  }
+};
+
 class PartialInterpreter {
 
   OptionState &options;
@@ -64,6 +78,7 @@ public:
   std::vector<std::string> calculate(Node *parent, Node *exprToCalculate);
 
 private:
+  std::vector<std::shared_ptr<InterpretNode>> keepAlives;
   std::vector<std::string> calculateStringFormatMethodCall(MethodExpression *me,
                                                            ArgumentList *al,
                                                            Node *parentExpr);
@@ -139,4 +154,7 @@ private:
                                          Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalFunction(FunctionExpression *fe, Node *parentStmt);
+  std::vector<std::shared_ptr<InterpretNode>>
+  abstractEvalSplitByWhitespace(IntegerLiteral *idx, MethodExpression *outerMe,
+                                Node *parentStmt);
 };

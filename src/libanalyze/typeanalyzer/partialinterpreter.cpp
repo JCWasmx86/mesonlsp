@@ -24,6 +24,7 @@ std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
 bool isValidMethod(MethodExpression *me);
 std::string applyMethod(const std::string &varname, const std::string &name);
 bool isValidFunction(FunctionExpression *fe);
+std::vector<std::string> splitString(const std::string &str);
 
 std::vector<std::string> guessSetVariable(FunctionExpression *fe,
                                           OptionState &opts) {
@@ -853,6 +854,40 @@ PartialInterpreter::abstractEvalSplitWithSubscriptExpression(
 }
 
 std::vector<std::shared_ptr<InterpretNode>>
+PartialInterpreter::abstractEvalSplitByWhitespace(IntegerLiteral *idx,
+                                                  MethodExpression *outerMe,
+                                                  Node *parentStmt) {
+  auto objs = this->abstractEval(parentStmt, outerMe->obj.get());
+  std::vector<std::shared_ptr<InterpretNode>> ret;
+  auto idxI = idx->valueAsInt;
+  for (const auto &o : objs) {
+    auto *sl1 = dynamic_cast<StringLiteral *>(o->node);
+    if (sl1) {
+      auto parts = splitString(sl1->id);
+      if (idxI < parts.size()) {
+        ret.emplace_back(std::make_shared<ArtificialStringNode>(parts[idxI]));
+      }
+      continue;
+    }
+    auto *arr = dynamic_cast<ArrayLiteral *>(o->node);
+    if (!arr) {
+      continue;
+    }
+    for (const auto &arrArg : arr->args) {
+      auto *sl1 = dynamic_cast<StringLiteral *>(arrArg.get());
+      if (!sl1) {
+        continue;
+      }
+      auto parts = splitString(sl1->id);
+      if (idxI < parts.size()) {
+        ret.emplace_back(std::make_shared<ArtificialStringNode>(parts[idxI]));
+      }
+    }
+  }
+  return ret;
+}
+
+std::vector<std::shared_ptr<InterpretNode>>
 PartialInterpreter::abstractEvalMethod(MethodExpression *me, Node *parentStmt) {
   auto meobj = this->abstractEval(parentStmt, me->obj.get());
   auto *meid = dynamic_cast<IdExpression *>(me->id.get());
@@ -1043,8 +1078,11 @@ PartialInterpreter::abstractEvalGenericSubscriptExpression(
       return this->abstractEvalSubscriptExpression(se, parentStmt);
     }
     auto *al = dynamic_cast<ArgumentList *>(outerME->args.get());
-    if (!al || al->args.empty()) {
+    if (!al) {
       return this->abstractEvalSubscriptExpression(se, parentStmt);
+    }
+    if (al->args.empty()) {
+      return this->abstractEvalSplitByWhitespace(idx, outerME, parentStmt);
     }
     auto *sl = dynamic_cast<StringLiteral *>(al->args[0].get());
     if (sl) {
@@ -1186,6 +1224,28 @@ PartialInterpreter::abstractEval(Node *parentStmt, Node *toEval) {
     return this->abstractEvalGetMethodCall(me, meObj, al, parentStmt);
   }
 next:
+  if (me && !me->args) {
+    auto *meid = dynamic_cast<IdExpression *>(me->id.get());
+    if (meid->id != "split") {
+      goto next2;
+    }
+    std::vector<std::shared_ptr<InterpretNode>> nodes;
+    auto evaled = this->abstractEval(parentStmt, me->obj.get());
+    for (const auto &eval : evaled) {
+      auto *slNode = dynamic_cast<StringLiteral *>(eval->node);
+      if (!slNode) {
+        continue;
+      }
+      auto parts = splitString(slNode->id);
+      for (auto part : parts) {
+        nodes.push_back(std::make_shared<ArtificialStringNode>(part));
+      }
+    }
+    auto ret = std::make_shared<ArtificialArrayNode>(nodes);
+    this->keepAlives.push_back(ret);
+    return {ret};
+  }
+next2:
   if (me && isValidMethod(me)) {
     return this->abstractEvalMethod(me, parentStmt);
   }
@@ -1257,4 +1317,16 @@ std::string applyMethod(const std::string &varname, const std::string &name) {
     return data;
   }
   assert(false);
+}
+
+std::vector<std::string> splitString(const std::string &str) {
+  std::vector<std::string> result;
+  std::istringstream iss(str);
+  std::string word;
+
+  while (iss >> word) {
+    result.push_back(word);
+  }
+
+  return result;
 }
