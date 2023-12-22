@@ -13,6 +13,7 @@ public:
       diagnosticsFromInitialisation;
 
   InitializeResult initialize(InitializeParams &params) override;
+  std::vector<InlayHint> inlayHints(InlayHintParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

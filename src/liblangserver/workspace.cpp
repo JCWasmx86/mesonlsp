@@ -1,6 +1,7 @@
 #include "workspace.hpp"
 
 #include "analysisoptions.hpp"
+#include "inlayhintvisitor.hpp"
 #include "mesontree.hpp"
 #include "typenamespace.hpp"
 
@@ -29,6 +30,20 @@ bool Workspace::owns(const std::filesystem::path &path) {
   return false;
 }
 
+std::vector<InlayHint>
+Workspace::inlayHints(const std::filesystem::path &path) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto ast = subTree->asts[path];
+    auto visitor = InlayHintVisitor();
+    ast->visit(&visitor);
+    return visitor.hints;
+  }
+  return {};
+}
+
 void Workspace::patchFile(
     std::filesystem::path path, std::string contents,
     std::function<
@@ -37,7 +52,7 @@ void Workspace::patchFile(
   std::lock_guard<std::mutex> lock(mtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
-      return;
+      continue;
     }
     std::set<std::filesystem::path> oldDiags;
     for (const auto &pair : subTree->metadata.diagnostics) {

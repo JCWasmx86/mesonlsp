@@ -218,6 +218,11 @@ public:
   LSPPosition(uint64_t line, uint64_t character)
       : line(line), character(character) {}
 
+  LSPPosition(nlohmann::json &jsonObj) {
+    this->line = jsonObj["line"];
+    this->character = jsonObj["character"];
+  }
+
   nlohmann::json toJson() { return {{"line", line}, {"character", character}}; }
 };
 
@@ -228,6 +233,9 @@ public:
 
   LSPRange(LSPPosition start, LSPPosition end)
       : start(std::move(start)), end(std::move(end)) {}
+
+  LSPRange(nlohmann::json &jsonObj)
+      : start(jsonObj["start"]), end(jsonObj["end"]) {}
 
   nlohmann::json toJson() {
     return {{"start", start.toJson()}, {"end", end.toJson()}};
@@ -337,4 +345,26 @@ public:
 
   DidCloseTextDocumentParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
+};
+
+class InlayHintParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPRange range;
+
+  InlayHintParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), range(jsonObj["range"]) {}
+};
+
+class InlayHint : public BaseObject {
+public:
+  LSPPosition position;
+  std::string label;
+
+  InlayHint(LSPPosition position, std::string label)
+      : position(std::move(position)), label(std::move(label)) {}
+
+  nlohmann::json toJson() {
+    return {{"position", position.toJson()}, {"label", this->label}};
+  }
 };

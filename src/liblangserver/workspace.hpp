@@ -30,6 +30,7 @@ public:
             std::function<void(
                 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
                 func);
+  std::vector<InlayHint> inlayHints(const std::filesystem::path &path);
 
 private:
   std::shared_ptr<MesonTree> tree;
