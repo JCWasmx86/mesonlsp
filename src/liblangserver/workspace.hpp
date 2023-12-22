@@ -12,7 +12,7 @@ class Workspace {
 public:
   std::filesystem::path root;
   std::string name;
-  std::map<std::string /*Identifier*/, Task*> tasks;
+  std::map<std::string /*Identifier*/, Task *> tasks;
   std::mutex mtx;
 
   Workspace(const WorkspaceFolder &wspf) {
