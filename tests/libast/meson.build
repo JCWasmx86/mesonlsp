@@ -1,1 +1,1 @@
-executable('asttest', 'test.cpp', dependencies: [ast_dep, tree_sitter_dep, tree_sitter_ini_dep])
+test('asttest', executable('asttest', 'test.cpp', dependencies: [ast_dep, tree_sitter_dep, tree_sitter_ini_dep, gtest_dep]), protocol: 'gtest')

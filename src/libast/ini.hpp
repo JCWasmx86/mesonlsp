@@ -48,7 +48,7 @@ public:
 class Section : public ast::ini::Node {
 public:
   std::shared_ptr<ast::ini::Node> name;
-  std::vector<std::shared_ptr<ast::ini::Node>> key_value_pairs;
+  std::vector<std::shared_ptr<ast::ini::Node>> keyValuePairs;
   Section(std::shared_ptr<SourceFile> file, TSNode node);
 
   std::optional<std::string> findStringValue(const std::string &key);

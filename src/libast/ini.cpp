@@ -15,7 +15,7 @@
 
 std::optional<std::string>
 ast::ini::Section::findStringValue(const std::string &key) {
-  for (auto &keyValuePair : this->key_value_pairs) {
+  for (auto &keyValuePair : this->keyValuePairs) {
     auto *kvp = dynamic_cast<ast::ini::KeyValuePair *>(keyValuePair.get());
     if (kvp == nullptr) {
       continue;
@@ -62,7 +62,7 @@ ast::ini::Section::Section(std::shared_ptr<SourceFile> file, TSNode node)
     : ast::ini::Node(file, node) {
   this->name = ast::ini::makeNode(file, ts_node_named_child(node, 0));
   for (uint32_t i = 1; i < ts_node_named_child_count(node); i++) {
-    this->key_value_pairs.push_back(
+    this->keyValuePairs.push_back(
         ast::ini::makeNode(file, ts_node_named_child(node, i)));
   }
 }
