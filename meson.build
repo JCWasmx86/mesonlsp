@@ -73,5 +73,7 @@ else
     extra_link_args = []
 endif
 
+gtest_dep = dependency('gtest', main : true, required : false)
+
 subdir('src')
 subdir('tests')
