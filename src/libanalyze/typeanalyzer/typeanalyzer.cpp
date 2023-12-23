@@ -691,12 +691,11 @@ void TypeAnalyzer::checkUnusedVariables() {
       continue;
     }
     auto *rhs = dynamic_cast<FunctionExpression *>(ass->rhs.get());
-    if (!rhs) {
-      continue;
-    }
-    auto fnid = rhs->functionName();
-    if (fnid == "declare_dependency") {
-      continue;
+    if (rhs) {
+      auto fnid = rhs->functionName();
+      if (fnid == "declare_dependency") {
+        continue;
+      }
     }
     this->metadata->registerDiagnostic(
         n, Diagnostic(Severity::Warning, n, "Unused assignment"));
@@ -1271,7 +1270,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->function = fn;
   auto args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
-    if (fn->minPosArgs == 0) {
+    if (fn->minPosArgs > 0) {
       this->metadata->registerDiagnostic(
           node,
           Diagnostic(
