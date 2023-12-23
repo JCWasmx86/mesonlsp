@@ -51,12 +51,14 @@ def main():
         kwargs = []
         returns = []
         full_data = defaultdict(list)
-        while idx != len(lines):
-            if not lines[idx].startswith(" "):
+        while idx <= len(lines):
+            if idx == len(lines) or not lines[idx].startswith(" "):
                 if curr_fn_name is not None:
                     obj_type = curr_fn_name.split("::")[0]
                     method_name = curr_fn_name.split("::")[1].replace(":", "")
                     full_data[obj_type].append((method_name, args, kwargs, returns))
+                    if idx == len(lines):
+                        break
                 curr_fn_name = lines[idx].strip()
                 args = []
                 kwargs = []
