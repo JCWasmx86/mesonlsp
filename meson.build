@@ -77,3 +77,5 @@ gtest_dep = dependency('gtest', main : true, required : false)
 
 subdir('src')
 subdir('tests')
+
+x = 1
