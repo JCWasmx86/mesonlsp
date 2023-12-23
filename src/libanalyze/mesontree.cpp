@@ -114,4 +114,8 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
                        options);
   root->setParents();
   root->visit(&visitor);
+  this->scope = visitor.scope;
+  for (const auto &pair : scope.variables) {
+    LOG.info(std::format("{} = {}", pair.first, joinTypes(pair.second)));
+  }
 }

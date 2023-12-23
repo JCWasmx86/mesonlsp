@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "scope.hpp"
 #include "subprojects/subprojectstate.hpp"
 #include "typenamespace.hpp"
 
@@ -19,6 +20,7 @@ public:
   std::map<std::filesystem::path, std::shared_ptr<Node>> asts;
   std::map<std::filesystem::path, std::string> overrides;
   SubprojectState *state;
+  Scope scope;
   MesonMetadata metadata;
   const TypeNamespace &ns;
   int depth = 0;
@@ -36,6 +38,7 @@ public:
 
   void fullParse(AnalysisOptions analysisOptions) {
     if (this->depth < MAX_TREE_DEPTH) {
+      this->state->used = true;
       this->state->fullSetup(analysisOptions, depth + 1, this->identifier,
                              this->ns);
     }

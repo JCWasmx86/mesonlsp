@@ -781,7 +781,16 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     values = {asSet.begin(), asSet.end()};
     node->types = {std::make_shared<Subproject>(values)};
     LOG.info("Values for `subproject` call: " + joinStrings(values, '|'));
-    // TODO: Validate
+    if (!this->tree->state->used || values.size() > 1) {
+      return;
+    }
+    auto *subprojState = this->tree->state;
+    if (subprojState->hasSubproject(values[0])) {
+      return;
+    }
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Error, node,
+                         std::format("Unknown subproject `{}`", values[0])));
     return;
   }
   if (name == "get_option") {
@@ -1653,6 +1662,46 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   if (!found && onlyDisabler) {
     LOG.warn("Ignoring invalid method for disabler");
     return;
+  }
+  if (node->method->id() == "subproject.get_variable" &&
+      this->tree->state->used) {
+    std::vector<std::shared_ptr<Type>> types;
+    types.insert(types.end(), node->method->returnTypes.begin(),
+                 node->method->returnTypes.end());
+    auto values = ::guessGetVariableMethod(node, this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    for (const auto &objType : node->obj->types) {
+      auto *subprojType = dynamic_cast<Subproject *>(objType.get());
+      if (!subprojType) {
+        continue;
+      }
+      for (const auto &subprojName : subprojType->names) {
+        auto subproj = this->tree->state->findSubproject(subprojName);
+        if (!subproj) {
+          LOG.warn(std::format("Unable to find subproject {}", subprojName));
+          continue;
+        }
+        auto scope = subproj->tree->scope;
+        for (const auto &varname : asSet) {
+          if (!scope.variables.contains(varname)) {
+            LOG.warn(std::format("Unable to find variable {} in subproject {}",
+                                 varname, subprojName));
+            if (asSet.size() == 1 && subprojType->names.size() == 1) {
+              this->metadata->registerDiagnostic(
+                  node,
+                  Diagnostic(
+                      Severity::Error, node,
+                      std::format("Unable to find variable {} in subproject {}",
+                                  varname, subprojName)));
+            }
+            continue;
+          }
+          auto varTypes = scope.variables[varname];
+          types.insert(types.end(), varTypes.begin(), varTypes.end());
+        }
+      }
+    }
+    node->types = dedup(this->ns, types);
   }
   this->checkCall(node);
   auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
