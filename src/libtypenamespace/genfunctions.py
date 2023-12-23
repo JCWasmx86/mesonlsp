@@ -48,8 +48,8 @@ def main():
         args = []
         kwargs = []
         returns = []
-        while idx != len(lines):
-            if not lines[idx].startswith(" "):
+        while idx <= len(lines):
+            if idx == len(lines) or not lines[idx].startswith(" "):
                 if curr_fn_name is not None:
                     print(
                         f'  this->functions["{curr_fn_name}"] = std::make_shared<Function>(',
@@ -110,6 +110,8 @@ def main():
                         )
                     print("    }", file=output)
                     print("  );", file=output)
+                    if idx == len(lines):
+                        break
                 curr_fn_name = lines[idx].replace(":", "").strip()
                 args = []
                 kwargs = []
