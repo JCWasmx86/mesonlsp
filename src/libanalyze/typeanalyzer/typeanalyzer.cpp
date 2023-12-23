@@ -776,6 +776,9 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   auto name = fn->name;
   if (name == "subproject") {
     auto values = ::guessSetVariable(node, this->options);
+    if (values.empty()) {
+      return;
+    }
     std::set<std::string> asSet{values.begin(), values.end()};
     values.clear();
     values = {asSet.begin(), asSet.end()};
