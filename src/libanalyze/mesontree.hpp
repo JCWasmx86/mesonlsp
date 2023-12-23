@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <set>
+#include <vector>
 
 #define MAX_TREE_DEPTH 3
 
@@ -52,4 +53,14 @@ public:
   }
 
   std::shared_ptr<Node> parseFile(std::filesystem::path path);
+
+  std::vector<const MesonTree *> flatten() const {
+    std::vector<const MesonTree *> ret;
+    for (const auto &subproj : this->state->subprojects) {
+      auto flattened = subproj->tree->flatten();
+      ret.insert(ret.end(), flattened.begin(), flattened.end());
+    }
+    ret.emplace_back(this);
+    return ret;
+  }
 };

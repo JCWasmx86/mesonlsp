@@ -1,9 +1,11 @@
 #include "analysisoptions.hpp"
 #include "langserver.hpp"
 #include "libwrap/wrap.hpp"
+#include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "typenamespace.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
@@ -90,6 +92,33 @@ int parseWraps(const std::vector<std::string> &wraps, const std::string &output,
     ptr->serializedWrap->setupDirectory(outputFs, packageFilesFs);
   }
   return error ? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
+void printDiagnostics(const MesonTree &tree) {
+  auto projects = tree.flatten();
+  for (const auto &proj : projects) {
+    const auto &metadata = proj->metadata;
+    if (metadata.diagnostics.empty()) {
+      continue;
+    }
+    std::cerr << "Diagnostics for project " << proj->identifier << " ("
+              << std::filesystem::absolute(proj->root).generic_string() << ")"
+              << std::endl;
+    auto keyview = std::views::keys(metadata.diagnostics);
+    std::vector<std::filesystem::path> keys{keyview.begin(), keyview.end()};
+    std::sort(keys.begin(), keys.end());
+    for (const auto &file : keys) {
+      auto relative =
+          std::filesystem::relative(file, proj->root).generic_string();
+      auto diags = proj->metadata.diagnostics.at(file);
+      for (const auto &diag : diags) {
+        const auto *icon = diag.severity == Severity::Error ? "🔴" : "⚠️";
+        std::cerr << relative << "[" << diag.startLine + 1 << ":"
+                  << diag.startColumn << "] " << icon << "  " << diag.message
+                  << std::endl;
+      }
+    }
+  }
 }
 
 int main(int argc, char **argv) {
@@ -198,6 +227,7 @@ int main(int argc, char **argv) {
     } else {
       tree.partialParse(opts);
     }
+    printDiagnostics(tree);
     return 0;
   }
 }
