@@ -41,7 +41,7 @@ void TypeAnalyzer::applyToStack(std::string name,
   }
   if (this->scope.variables.contains(name)) {
     auto orVCount = this->overriddenVariables.size() - 1;
-    auto atIdx = this->overriddenVariables[orVCount];
+    auto &atIdx = this->overriddenVariables[orVCount];
     auto vars = this->scope.variables[name];
     if (atIdx.contains(name)) {
       atIdx[name].insert(atIdx[name].begin(), vars.begin(), vars.end());
@@ -51,7 +51,7 @@ void TypeAnalyzer::applyToStack(std::string name,
   }
   auto ssc = this->stack.size() - 1;
   if (this->stack[ssc].contains(name)) {
-    auto old = this->stack[ssc][name];
+    auto &old = this->stack[ssc][name];
     old.insert(old.end(), types.begin(), types.end());
   } else {
     this->stack[ssc][name] = types;
@@ -415,7 +415,7 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
       (!node->rhs->types.empty()) && !this->isSpecial(node->lhs->types) &&
       !this->isSpecial(node->rhs->types)) {
     auto lTypes = joinTypes(node->lhs->types);
-    auto rTypes = joinTypes(node->lhs->types);
+    auto rTypes = joinTypes(node->rhs->types);
     auto msg = std::format("Unable to apply operator {} to types {} and {}",
                            enum2String(node->op), lTypes, rTypes);
     this->metadata->registerDiagnostic(node,
@@ -719,6 +719,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   std::vector<std::shared_ptr<Type>> types(node->ifTrue->types);
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
+  node->types = types;
   for (const auto &type : node->condition->types) {
     if (dynamic_cast<Any *>(type.get())) {
       return;
@@ -1394,12 +1395,12 @@ bool TypeAnalyzer::isKnownId(IdExpression *id) {
 }
 
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
-  auto s = this->evalStack(node->id);
+  auto types = this->evalStack(node->id);
   if (this->scope.variables.contains(node->id)) {
-    s.insert(s.end(), this->scope.variables[node->id].begin(),
-             this->scope.variables[node->id].end());
+    auto scopeVariables = this->scope.variables[node->id];
+    types.insert(types.end(), scopeVariables.begin(), scopeVariables.end());
   }
-  node->types = dedup(this->ns, s);
+  node->types = dedup(this->ns, types);
   node->visitChildren(this);
   auto *p = node->parent;
   if (p) {
@@ -1604,7 +1605,7 @@ bool TypeAnalyzer::findMethod(
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 2);
     }
-    if (methodName == "get") {
+    if (methodName == "get" && types.size() > 1) {
       continue;
     }
     auto methodOpt = this->ns.lookupMethod(methodName, type);
@@ -1852,17 +1853,14 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     // endif
     // x is now str|int|bool instead of int|bool
     auto key = pair.first;
-    auto arr = this->scope.variables.contains(pair.first)
-                   ? this->scope.variables[pair.first]
+    auto arr = this->scope.variables.contains(key)
+                   ? this->scope.variables[key]
                    : std::vector<std::shared_ptr<Type>>{};
     arr.insert(arr.end(), pair.second.begin(), pair.second.end());
-    if (node->conditions.size() == node->blocks.size()) {
-      if (oldVars.contains(pair.first)) {
-        arr.insert(arr.end(), oldVars[pair.first].begin(),
-                   oldVars[pair.first].end());
-      }
+    if (oldVars.contains(key)) {
+      arr.insert(arr.end(), oldVars[key].begin(), oldVars[key].end());
     }
-    this->scope.variables[pair.first] = dedup(this->ns, arr);
+    this->scope.variables[key] = dedup(this->ns, arr);
   }
   this->overriddenVariables.pop_back();
 }
@@ -1875,7 +1873,8 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   if (!node->isFormat && !matches.empty()) {
     auto reallyFound = true;
     for (const auto &match : matches) {
-      if (match.starts_with("OUTPUT") || match.starts_with("INPUT")) {
+      if (match.starts_with("OUTPUT") || match.starts_with("INPUT") ||
+          match == "BASENAME") {
         reallyFound = false;
         break;
       }
