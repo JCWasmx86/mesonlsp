@@ -683,6 +683,7 @@ void TypeAnalyzer::checkUnusedVariables() {
   if (!this->variablesNeedingUse.empty()) {
     auto toAppend = this->variablesNeedingUse.back();
     toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
+    this->variablesNeedingUse.back() = toAppend;
     return;
   }
   for (auto *n : needingUse) {
@@ -1422,7 +1423,7 @@ void TypeAnalyzer::registerUsed(const std::string &id) {
        this->variablesNeedingUse | std::ranges::views::reverse) {
     std::vector<IdExpression *> newArray;
     for (const auto &expr : arr) {
-      if (expr->id == id) {
+      if (expr->id != id) {
         newArray.push_back(expr);
       }
     }
@@ -1774,12 +1775,13 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   std::set<std::string> dedupedUnusedAssignments;
   auto toInsert = this->variablesNeedingUse.back();
   for (auto *idExpr : allLeft) {
-    if (dedupedUnusedAssignments.contains(idExpr->id)) {
+    if (!dedupedUnusedAssignments.contains(idExpr->id)) {
       continue;
     }
     dedupedUnusedAssignments.insert(idExpr->id);
     toInsert.emplace_back(idExpr);
   }
+  this->variablesNeedingUse.back() = toInsert;
   auto types = this->stack.back();
   this->stack.pop_back();
   // If: 1 c, 1 b
