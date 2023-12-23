@@ -767,7 +767,7 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
     }
   }
   node->types = std::vector<std::shared_ptr<Type>>{
-      std::make_shared<List>(dedup(this->ns, types))};
+      std::make_shared<Dict>(dedup(this->ns, types))};
   this->checkDuplicateNodeKeys(node);
 }
 
@@ -1088,6 +1088,10 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
       return true;
     }
     for (const auto &expected : expectedTypes) {
+      if (dynamic_cast<Any *>(expected.get()) ||
+          dynamic_cast<Disabler *>(expected.get())) {
+        return true;
+      }
       if (this->compatible(given, expected) ||
           (dynamic_cast<Any *>(given.get()) != nullptr)) {
         return true;
@@ -1593,14 +1597,12 @@ bool TypeAnalyzer::findMethod(
         dynamic_cast<Any *>(listtype->types[0].get())) {
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 1);
-      continue;
     }
     auto *dicttype = dynamic_cast<Dict *>(type.get());
     if (dicttype && dicttype->types.size() == 1 &&
         dynamic_cast<Any *>(dicttype->types[0].get())) {
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 2);
-      continue;
     }
     if (methodName == "get") {
       continue;
