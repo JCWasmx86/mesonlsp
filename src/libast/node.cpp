@@ -767,12 +767,24 @@ std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node) {
 std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
   std::vector<std::string> matches;
 
-  std::sregex_iterator iter(text.begin(), text.end(), FORMAT_STRING_REGEX);
-  std::sregex_iterator end;
+  std::smatch match;
+  std::string tempText = text;
 
-  while (iter != end) {
-    matches.push_back(iter->str(1));
-    ++iter;
+  while (std::regex_search(tempText, match, FORMAT_STRING_REGEX)) {
+    std::string matchedStr = match.str(1);
+    size_t startPos = match.position();
+    size_t endPos = startPos + matchedStr.length() +
+                    2; // Including the surrounding @ symbols
+
+    if ((startPos != 0 && (std::isdigit(tempText[startPos - 1]) != 0)) ||
+        (endPos != tempText.length() &&
+         (std::isdigit(tempText[endPos]) != 0))) {
+      tempText = match.suffix().str();
+      continue;
+    }
+
+    matches.push_back(matchedStr);
+    tempText = match.suffix().str();
   }
 
   return matches;
