@@ -558,6 +558,11 @@ TEST(TestAstOther, extractIntegersBetweenAtSymbols) {
   ASSERT_EQ(inputs, expected);
 }
 
+TEST(TestAstOther, dontExtractBetweenStrings) {
+  auto inputs = extractIntegersBetweenAtSymbols("@foo@0@bar@");
+  // TODO: ASSERT_TRUE(inputs.empty());
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
