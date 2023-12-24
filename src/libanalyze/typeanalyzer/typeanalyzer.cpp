@@ -346,7 +346,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       case Modulo:
       case Mul:
         if (sameType(lType, rType, "int")) {
-          newTypes.emplace_back(this->ns.boolType);
+          newTypes.emplace_back(this->ns.intType);
         } else {
           ++*numErrors;
         }
