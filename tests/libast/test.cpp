@@ -547,6 +547,11 @@ TEST(TestAstOther, extractTextBetweenAtSymbols) {
   ASSERT_EQ(inputs, expected);
 }
 
+TEST(TestAstOther, dontExtractBetweenNumbers) {
+  auto inputs = extractTextBetweenAtSymbols("@0@_@1@");
+  ASSERT_TRUE(inputs.empty());
+}
+
 TEST(TestAstOther, extractIntegersBetweenAtSymbols) {
   auto inputs = extractIntegersBetweenAtSymbols("@0@ foo @011a@ @11@ @12@@13@");
   std::set<uint64_t> expected{0, 11, 12, 13};
