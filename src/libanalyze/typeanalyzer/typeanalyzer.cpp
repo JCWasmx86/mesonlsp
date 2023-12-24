@@ -1062,11 +1062,11 @@ bool TypeAnalyzer::compatible(std::shared_ptr<Type> given,
     return this->atleastPartiallyCompatible(eList->types, gList->types);
   }
   if ((eList != nullptr) &&
-      this->atleastPartiallyCompatible({given}, eList->types)) {
+      this->atleastPartiallyCompatible(eList->types, {given})) {
     return true;
   }
   if ((gList != nullptr) &&
-      this->atleastPartiallyCompatible(gList->types, {expected})) {
+      this->atleastPartiallyCompatible({expected}, gList->types)) {
     return true;
   }
   auto *gDict = dynamic_cast<Dict *>(given.get());
