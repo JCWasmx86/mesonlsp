@@ -1022,7 +1022,7 @@ void TypeAnalyzer::checkKwargs(std::shared_ptr<Function> func,
       continue;
     }
     usedKwargs[kId->id] = kwi;
-    if (func->kwargs.contains(kId->id) || kId->id != "kwargs") {
+    if (func->kwargs.contains(kId->id) || kId->id == "kwargs") {
       continue;
     }
     this->metadata->registerDiagnostic(
