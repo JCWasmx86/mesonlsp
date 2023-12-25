@@ -10,6 +10,9 @@
 
 std::vector<std::string> guessSetVariable(FunctionExpression *fe,
                                           OptionState &opts);
+std::vector<std::string> guessSetVariable(FunctionExpression *fe,
+                                          const std::string &kwargName,
+                                          OptionState &opts);
 std::vector<std::string> guessGetVariableMethod(MethodExpression *me,
                                                 OptionState &opts);
 
