@@ -1,10 +1,12 @@
 #pragma once
 
 #include "ls.hpp"
+#include "lsptypes.hpp"
 #include "typenamespace.hpp"
 #include "workspace.hpp"
 
 #include <memory>
+#include <vector>
 
 class LanguageServer : public AbstractLanguageServer {
 public:
@@ -14,6 +16,7 @@ public:
 
   InitializeResult initialize(InitializeParams &params) override;
   std::vector<InlayHint> inlayHints(InlayHintParams &params) override;
+  std::vector<FoldingRange> foldingRanges(FoldingRangeParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

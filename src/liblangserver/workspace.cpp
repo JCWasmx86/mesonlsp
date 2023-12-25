@@ -1,6 +1,7 @@
 #include "workspace.hpp"
 
 #include "analysisoptions.hpp"
+#include "foldingrangevisitor.hpp"
 #include "inlayhintvisitor.hpp"
 #include "mesontree.hpp"
 #include "typenamespace.hpp"
@@ -40,6 +41,20 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     auto visitor = InlayHintVisitor();
     ast->visit(&visitor);
     return visitor.hints;
+  }
+  return {};
+}
+
+std::vector<FoldingRange>
+Workspace::foldingRanges(const std::filesystem::path &path) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto ast = subTree->asts[path];
+    auto visitor = FoldingRangeVisitor();
+    ast->visit(&visitor);
+    return visitor.ranges;
   }
   return {};
 }
