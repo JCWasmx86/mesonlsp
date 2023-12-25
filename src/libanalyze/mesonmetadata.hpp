@@ -16,6 +16,16 @@ enum Severity {
   Error,
 };
 
+#define REGISTER(methodName, variable, type)                                   \
+  void methodName(type *node) {                                                \
+    auto key = node->file->file;                                               \
+    if (this->variable.contains(key)) {                                        \
+      this->variable[key].push_back(node);                                     \
+    } else {                                                                   \
+      this->variable[key] = {node};                                            \
+    }                                                                          \
+  }
+
 class Diagnostic {
 public:
   Severity severity;
@@ -67,6 +77,22 @@ public:
     }
   }
 
+  REGISTER(registerSubdirCall, subdirCalls, FunctionExpression)
+  REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
+  REGISTER(registerStringLiteral, stringLiterals, StringLiteral)
+  REGISTER(registerMethodCall, methodCalls, MethodExpression)
+  REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
+  REGISTER(registerIdentifier, identifiers, IdExpression)
+
+  void registerKwarg(KeywordItem *item, std::shared_ptr<Function> func) {
+    auto key = item->file->file;
+    if (this->kwargs.contains(key)) {
+      this->kwargs[key].emplace_back(item, func);
+    } else {
+      this->kwargs[key] = {std::make_tuple(item, func)};
+    }
+  }
+
   void clear() {
     this->subdirCalls = {};
     this->methodCalls = {};
@@ -78,3 +104,5 @@ public:
     this->diagnostics = {};
   }
 };
+
+#undef REGISTER

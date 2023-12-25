@@ -217,6 +217,7 @@ TypeAnalyzer::evalAssignment(AssignmentOperator op,
 
 void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
+  this->metadata->registerIdentifier(lhsIdExpr);
   if (node->op == AssignmentOperator::Equals) {
     this->evaluatePureAssignment(node, lhsIdExpr);
     return;
@@ -1261,6 +1262,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   } else {
     LOG.info(msg);
   }
+  this->metadata->registerSubdirCall(node);
   for (auto dir : asSet) {
     auto dirpath = node->file->file.parent_path() / dir;
     if (!std::filesystem::exists(dirpath)) {
@@ -1291,6 +1293,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
 
 void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
+  this->metadata->registerFunctionCall(node);
   auto funcName = node->functionName();
   if (funcName == INVALID_FUNCTION_NAME) {
     this->metadata->registerDiagnostic(
@@ -1326,7 +1329,13 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     if (!asArgumentList) {
       goto checkVersion;
     }
-    // TODO: registerKwargs
+    for (const auto &arg : asArgumentList->args) {
+      auto *asKwi = dynamic_cast<KeywordItem *>(arg.get());
+      if (!asKwi) {
+        continue;
+      }
+      this->metadata->registerKwarg(asKwi, node->function);
+    }
     if (fn->name == "set_variable") {
       this->checkSetVariable(node, asArgumentList);
     }
@@ -1668,6 +1677,7 @@ bool TypeAnalyzer::guessMethod(
 
 void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
+  this->metadata->registerMethodCall(node);
   auto types = node->obj->types;
   std::vector<std::shared_ptr<Type>> ownResultTypes;
   auto *methodNameId = dynamic_cast<IdExpression *>(node->id.get());
@@ -1696,6 +1706,18 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   if (!found && onlyDisabler) {
     LOG.warn("Ignoring invalid method for disabler");
     return;
+  }
+  if (node->args) {
+    if (const auto &asArgumentList =
+            dynamic_cast<ArgumentList *>(node->args.get())) {
+      for (const auto &arg : asArgumentList->args) {
+        auto *asKwi = dynamic_cast<KeywordItem *>(arg.get());
+        if (!asKwi) {
+          continue;
+        }
+        this->metadata->registerKwarg(asKwi, node->method);
+      }
+    }
   }
   if (node->method->id() == "subproject.get_variable" &&
       this->tree->state->used) {
@@ -1896,6 +1918,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
   node->types.push_back(this->ns.strType);
+  this->metadata->registerStringLiteral(node);
   auto str = node->id;
   auto matches = extractTextBetweenAtSymbols(str);
   if (!node->isFormat && !matches.empty()) {
@@ -1947,6 +1970,7 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
       continue;
     }
   }
+  this->metadata->registerArrayAccess(node);
   node->types = dedup(this->ns, newTypes);
 }
 
