@@ -90,22 +90,25 @@ void Workspace::patchFile(
       continue;
     }
     std::set<std::filesystem::path> oldDiags;
-    for (const auto &pair : subTree->metadata.diagnostics) {
-      oldDiags.insert(pair.first);
-    }
-    subTree->clear();
     auto identifier = subTree->identifier;
-    if (this->tasks.contains(identifier)) {
-      auto *tsk = this->tasks[identifier];
-      this->logger.info(
-          std::format("Waiting for {} to terminate", tsk->getUUID()));
-      while (tsk->state != TaskState::Ended) {
+    {
+      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      for (const auto &pair : subTree->metadata.diagnostics) {
+        oldDiags.insert(pair.first);
       }
-      this->logger.info(
-          std::format("{} finally terminated...", tsk->getUUID()));
-      delete tsk;
+      subTree->clear();
+      if (this->tasks.contains(identifier)) {
+        auto *tsk = this->tasks[identifier];
+        this->logger.info(
+            std::format("Waiting for {} to terminate", tsk->getUUID()));
+        while (tsk->state != TaskState::Ended) {
+        }
+        this->logger.info(
+            std::format("{} finally terminated...", tsk->getUUID()));
+        delete tsk;
+      }
+      subTree->overrides[path] = contents;
     }
-    subTree->overrides[path] = contents;
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
       std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
       std::exception_ptr exception = nullptr;
