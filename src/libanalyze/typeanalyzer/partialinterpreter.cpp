@@ -47,6 +47,31 @@ std::vector<std::string> guessSetVariable(FunctionExpression *fe,
   return calc.calculate(parent, toCalculate.get());
 }
 
+std::vector<std::string> guessSetVariable(FunctionExpression *fe,
+                                          const std::string &kwargName,
+                                          OptionState &opts) {
+  auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
+  if (!al || al->args.empty()) {
+    return {};
+  }
+  auto toCalculate = al->getKwarg(kwargName);
+  if (!toCalculate) {
+    return {};
+  }
+  Node *parent = fe;
+  while (true) {
+    auto *probableParent = parent->parent;
+    if (dynamic_cast<IterationStatement *>(probableParent) ||
+        dynamic_cast<SelectionStatement *>(probableParent) ||
+        dynamic_cast<BuildDefinition *>(probableParent)) {
+      break;
+    }
+    parent = parent->parent;
+  }
+  PartialInterpreter calc(opts);
+  return calc.calculate(parent, toCalculate->get());
+}
+
 std::vector<std::string> guessGetVariableMethod(MethodExpression *me,
                                                 OptionState &opts) {
   auto *al = dynamic_cast<ArgumentList *>(me->args.get());
@@ -408,6 +433,13 @@ PartialInterpreter::calculateExpression(Node *parentExpr, Node *argExpression) {
   auto *fe = dynamic_cast<FunctionExpression *>(argExpression);
   if (fe) {
     return calculateFunctionExpression(fe, parentExpr);
+  }
+  auto *ce = dynamic_cast<ConditionalExpression *>(argExpression);
+  if (ce) {
+    auto first = this->calculateExpression(parentExpr, ce->ifTrue.get());
+    auto second = this->calculateExpression(parentExpr, ce->ifFalse.get());
+    first.insert(first.end(), second.begin(), second.end());
+    return first;
   }
   return {};
 }

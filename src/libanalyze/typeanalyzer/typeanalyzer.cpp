@@ -847,6 +847,30 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     }
     return;
   }
+  if (name == "build_target") {
+    auto values = ::guessSetVariable(node, "target_type", this->options);
+    std::set<std::string> asSet{values.begin(), values.end()};
+    std::vector<std::shared_ptr<Type>> types;
+    for (const auto &tgtType : asSet) {
+      if (tgtType == "executable") {
+        types.emplace_back(this->ns.types.at("exe"));
+      } else if (tgtType == "shared_library") {
+        types.emplace_back(this->ns.types.at("lib"));
+      } else if (tgtType == "shared_module") {
+        types.emplace_back(this->ns.types.at("build_tgt"));
+      } else if (tgtType == "static_library") {
+        types.emplace_back(this->ns.types.at("lib"));
+      } else if (tgtType == "both_libraries") {
+        types.emplace_back(this->ns.types.at("both_libs"));
+      } else if (tgtType == "library") {
+        types.emplace_back(this->ns.types.at("lib"));
+      } else if (tgtType == "jar") {
+        types.emplace_back(this->ns.types.at("jar"));
+      }
+    }
+    node->types = dedup(this->ns, types);
+    return;
+  }
   if (name == "import") {
     auto values = ::guessSetVariable(node, this->options);
     std::set<std::string> asSet{values.begin(), values.end()};
@@ -1072,7 +1096,7 @@ bool TypeAnalyzer::compatible(std::shared_ptr<Type> given,
   auto *gDict = dynamic_cast<Dict *>(given.get());
   auto *eDict = dynamic_cast<Dict *>(expected.get());
   if (gDict && eDict) {
-    return this->atleastPartiallyCompatible(gDict->types, eDict->types);
+    return this->atleastPartiallyCompatible(eDict->types, gDict->types);
   }
   return false;
 }
@@ -1741,7 +1765,7 @@ void TypeAnalyzer::checkFormat(StringLiteral *sl,
   }
   std::vector<std::string> oobIntegers;
   for (auto integer : foundIntegers) {
-    if (integer > args.size()) {
+    if (integer >= args.size()) {
       oobIntegers.push_back(std::format("@{}@", integer));
     }
   }
@@ -1878,7 +1902,9 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
     auto reallyFound = true;
     for (const auto &match : matches) {
       if (match.starts_with("OUTPUT") || match.starts_with("INPUT") ||
-          match == "BASENAME") {
+          match == "BASENAME" || match.starts_with("OUTDIR") ||
+          match == "BUILD_ROOT" || match == "BUILD_DIR" ||
+          match == "PLAINNAME" || match == "EXTRA_ARGS") {
         reallyFound = false;
         break;
       }
