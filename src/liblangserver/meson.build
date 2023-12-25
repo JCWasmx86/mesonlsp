@@ -6,6 +6,7 @@ langserver_lib = static_library(
     'workspace.cpp',
     'task.cpp',
     'inlayhintvisitor.cpp',
+    'foldingrangevisitor.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',
     ],

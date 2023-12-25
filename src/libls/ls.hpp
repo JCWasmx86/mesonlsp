@@ -13,6 +13,8 @@ public:
 
   virtual InitializeResult initialize(InitializeParams &params) = 0;
   virtual std::vector<InlayHint> inlayHints(InlayHintParams &params) = 0;
+  virtual std::vector<FoldingRange>
+  foldingRanges(FoldingRangeParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

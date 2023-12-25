@@ -61,6 +61,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
       jsonObjects.push_back(result.toJson());
     }
     ret = jsonObjects;
+  } else if (method == "textDocument/foldingRange") {
+    FoldingRangeParams serializedParams(params);
+    auto results = this->foldingRanges(serializedParams);
+    auto jsonObjects = nlohmann::json::array();
+    for (auto &result : results) {
+      jsonObjects.push_back(result.toJson());
+    }
+    ret = jsonObjects;
   } else {
     LOG.warn(std::format("Unknown request: '{}'", method));
     this->server->returnError(jsonrpc::JsonrpcError::MethodNotFound,

@@ -368,3 +368,24 @@ public:
     return {{"position", position.toJson()}, {"label", this->label}};
   }
 };
+
+class FoldingRangeParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+
+  FoldingRangeParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]) {}
+};
+
+class FoldingRange : public BaseObject {
+public:
+  uint64_t startLine;
+  uint64_t endLine;
+
+  FoldingRange(uint64_t startLine, uint64_t endLine)
+      : startLine(startLine), endLine(endLine) {}
+
+  nlohmann::json toJson() {
+    return {{"startLine", startLine}, {"endLine", endLine}};
+  }
+};
