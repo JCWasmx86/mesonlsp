@@ -65,6 +65,12 @@ if get_option('static_build')
         dependency('libbrotlidec'),
         dependency('libbrotlienc'),
     ]
+    jemalloc_dep = dependency('jemalloc', static: true, required: false)
+    if jemalloc_dep.found()
+        extra_deps += jemalloc_dep
+    else
+        warning('jemalloc wasn\'t found')
+    endif
     extra_libs = [cxx.find_library('c'), cxx.find_library('unistring')]
     extra_link_args = ['-static']
 else
