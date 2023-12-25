@@ -991,7 +991,7 @@ void TypeAnalyzer::specialFunctionCallHandling(FunctionExpression *node,
 }
 
 void TypeAnalyzer::checkKwargsAfterPositionalArguments(
-    std::vector<std::shared_ptr<Node>> args) {
+    std::vector<std::shared_ptr<Node>> args) const {
   auto kwargsOnly = false;
   for (const auto &arg : args) {
     if (dynamic_cast<KeywordItem *>(arg.get())) {
@@ -1605,9 +1605,6 @@ bool TypeAnalyzer::findMethod(
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 2);
     }
-    if (methodName == "get" && types.size() > 1) {
-      continue;
-    }
     auto methodOpt = this->ns.lookupMethod(methodName, type);
     if (!methodOpt) {
       continue;
@@ -1615,11 +1612,18 @@ bool TypeAnalyzer::findMethod(
     auto method = methodOpt.value();
     ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
                           method->returnTypes.end());
+    auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+    if (al && al->args.size() == 2 && methodName == "get") {
+      auto defaultArg = al->getPositionalArg(1);
+      if (defaultArg.has_value()) {
+        auto defaultTypes = defaultArg.value()->types;
+        ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
+                              defaultTypes.end());
+      }
+    }
     node->method = method;
     found = true;
-    // TODO: Check for subproject.get_variable
   }
-  // TODO: Check for methods called `get`
   return found;
 }
 
@@ -1627,9 +1631,11 @@ bool TypeAnalyzer::guessMethod(
     MethodExpression *node, const std::string &methodName,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
   auto guessedMethod = this->ns.lookupMethod(methodName);
+  LOG.info("Guessing method.... " + methodName);
   if (!guessedMethod) {
     return false;
   }
+  LOG.info("Guessed method.... " + guessedMethod.value()->id());
   auto method = guessedMethod.value();
   ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
                         method->returnTypes.end());
@@ -1651,8 +1657,8 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   auto bits = 0;
   auto found = this->findMethod(node, methodName, &nAny, &bits, ownResultTypes);
   node->types = dedup(this->ns, ownResultTypes);
-  if (found && (((size_t)nAny == types.size()) ||
-                (bits == 0b111 && types.size() == 3))) {
+  if (!found && (((size_t)nAny == types.size()) ||
+                 (bits == 0b111 && types.size() == 3))) {
     found = this->guessMethod(node, methodName, ownResultTypes);
   }
   auto onlyDisabler = types.size() == 1 &&
