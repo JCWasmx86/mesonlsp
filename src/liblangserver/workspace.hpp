@@ -1,6 +1,7 @@
 #pragma once
 
 #include "langserverutils.hpp"
+#include "log.hpp"
 #include "lsptypes.hpp"
 #include "mesontree.hpp"
 #include "task.hpp"
@@ -15,8 +16,10 @@ public:
   std::string name;
   std::map<std::string /*Identifier*/, Task *> tasks;
   std::mutex mtx;
+  std::mutex dataCollectionMtx;
+  Logger logger;
 
-  Workspace(const WorkspaceFolder &wspf) {
+  Workspace(const WorkspaceFolder &wspf) : logger(wspf.name) {
     this->root = extractPathFromUrl(wspf.uri);
     this->name = wspf.name;
   }

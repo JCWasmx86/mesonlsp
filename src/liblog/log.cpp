@@ -1,5 +1,6 @@
 #include "log.hpp"
 
+#include <exception>
 #include <iostream>
 #include <source_location>
 #include <string>
@@ -24,7 +25,17 @@ void Logger::error(const std::string &msg,
                    const std::source_location location) {
   std::clog << this->red << "[ ERROR ] " << this->module << "-"
             << location.file_name() << ":" << location.line() << ": " << msg
-            << this->reset << std::endl;
+            << std::endl;
+  auto eptr = std::current_exception();
+  if (eptr) {
+    try {
+      std::rethrow_exception(eptr);
+    } catch (const std::exception &exc) {
+      std::clog << "\n\tException: " << exc.what() << this->reset << std::endl;
+    }
+  } else {
+    std::clog << this->reset << std::endl;
+  }
 }
 
 void Logger::info(const std::string &msg, const std::source_location location) {
