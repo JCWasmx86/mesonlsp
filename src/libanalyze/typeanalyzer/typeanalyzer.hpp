@@ -118,8 +118,8 @@ private:
   void checkNoEffect(Node *node) const;
   void checkFormat(StringLiteral *sl,
                    const std::vector<std::shared_ptr<Node>> &args);
-  void
-  checkKwargsAfterPositionalArguments(std::vector<std::shared_ptr<Node>> args);
+  void checkKwargsAfterPositionalArguments(
+      std::vector<std::shared_ptr<Node>> args) const;
   void checkKwargs(std::shared_ptr<Function> func,
                    std::vector<std::shared_ptr<Node>> args, Node *node);
   void checkArgTypes(std::shared_ptr<Function> func,

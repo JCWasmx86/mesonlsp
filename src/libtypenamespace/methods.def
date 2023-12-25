@@ -1381,6 +1381,8 @@ dict::get:
         - any
   - returns:
     - any
+    - list(any)
+    - dict(any)
 dict::has_key:
   - args:
     - key:
@@ -2960,6 +2962,8 @@ list::get:
         - any
   - returns:
     - any
+    - list(any)
+    - dict(any)
 list::length:
   - args:
   - returns:
