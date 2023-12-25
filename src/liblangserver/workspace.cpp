@@ -7,6 +7,7 @@
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
+#include <exception>
 #include <future>
 #include <memory>
 
@@ -24,6 +25,7 @@ findTrees(std::shared_ptr<MesonTree> root) {
 }
 
 bool Workspace::owns(const std::filesystem::path &path) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (subTree->ownedFiles.contains(path)) {
       return true;
@@ -34,6 +36,7 @@ bool Workspace::owns(const std::filesystem::path &path) {
 
 std::vector<InlayHint>
 Workspace::inlayHints(const std::filesystem::path &path) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -48,6 +51,7 @@ Workspace::inlayHints(const std::filesystem::path &path) {
 
 std::vector<uint64_t>
 Workspace::semanticTokens(const std::filesystem::path &path) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -62,6 +66,7 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
 
 std::vector<FoldingRange>
 Workspace::foldingRanges(const std::filesystem::path &path) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -92,15 +97,36 @@ void Workspace::patchFile(
     auto identifier = subTree->identifier;
     if (this->tasks.contains(identifier)) {
       auto *tsk = this->tasks[identifier];
+      this->logger.info(
+          std::format("Waiting for {} to terminate", tsk->getUUID()));
       while (tsk->state != TaskState::Ended) {
       }
+      this->logger.info(
+          std::format("{} finally terminated...", tsk->getUUID()));
       delete tsk;
     }
     subTree->overrides[path] = contents;
-    auto *newTask = new Task([&subTree, func, oldDiags]() {
-      subTree->partialParse(
-          AnalysisOptions(false, false, false, false, false, false, false));
+    auto *newTask = new Task([&subTree, func, oldDiags, this]() {
+      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      std::exception_ptr exception = nullptr;
+      try {
+        subTree->partialParse(
+            AnalysisOptions(false, false, false, false, false, false, false));
+
+      } catch (...) {
+        exception = std::current_exception();
+      }
+
       std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+
+      if (exception) {
+        for (const auto &oldDiag : oldDiags) {
+          ret[oldDiag] = {};
+        }
+        func(ret);
+        std::rethrow_exception(exception);
+        return;
+      }
       auto metadata = subTree->metadata;
       for (const auto &pair : metadata.diagnostics) {
         if (!ret.contains(pair.first)) {

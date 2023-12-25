@@ -19,7 +19,7 @@ void Task::run() {
     }
   } catch (...) {
     auto currentException = std::current_exception();
-    LOG.error(std::format("Caught exception in task {}:", this->uuid));
+    LOG.error(std::format("Caught exception in task {}", this->uuid));
   }
   this->state = TaskState::Ended;
 }

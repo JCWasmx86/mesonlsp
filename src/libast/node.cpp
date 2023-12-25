@@ -480,7 +480,7 @@ IntegerLiteral::IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node)
     this->valueAsInt = std::stoull(this->value.substr(2), nullptr, 2);
   } else if (this->value.starts_with("0O") || this->value.starts_with("0o")) {
     this->valueAsInt = std::stoull(this->value.substr(2), nullptr, 8);
-  } else {
+  } else if (!this->value.empty()) {
     this->valueAsInt = std::stoull(this->value);
   }
 }
