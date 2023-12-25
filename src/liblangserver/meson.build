@@ -7,6 +7,7 @@ langserver_lib = static_library(
     'task.cpp',
     'inlayhintvisitor.cpp',
     'foldingrangevisitor.cpp',
+    'semantictokensvisitor.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',
     ],

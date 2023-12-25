@@ -4,6 +4,7 @@
 #include "foldingrangevisitor.hpp"
 #include "inlayhintvisitor.hpp"
 #include "mesontree.hpp"
+#include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
 #include <future>
@@ -41,6 +42,20 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     auto visitor = InlayHintVisitor();
     ast->visit(&visitor);
     return visitor.hints;
+  }
+  return {};
+}
+
+std::vector<uint64_t>
+Workspace::semanticTokens(const std::filesystem::path &path) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto ast = subTree->asts[path];
+    auto visitor = SemanticTokensVisitor();
+    ast->visit(&visitor);
+    return visitor.finish();
   }
   return {};
 }

@@ -66,6 +66,17 @@ std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
   return {};
 }
 
+std::vector<uint64_t>
+LanguageServer::semanticTokens(SemanticTokensParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->semanticTokens(path);
+    }
+  }
+  return {};
+}
+
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);

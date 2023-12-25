@@ -2,6 +2,7 @@
 #include "jsonrpc.hpp"
 #include "lsptypes.hpp"
 
+#include <cstdint>
 #include <nlohmann/json.hpp>
 #include <vector>
 
@@ -15,6 +16,8 @@ public:
   virtual std::vector<InlayHint> inlayHints(InlayHintParams &params) = 0;
   virtual std::vector<FoldingRange>
   foldingRanges(FoldingRangeParams &params) = 0;
+  virtual std::vector<uint64_t>
+  semanticTokens(SemanticTokensParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;
