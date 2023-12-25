@@ -69,6 +69,9 @@ void AbstractLanguageServer::handleRequest(std::string method,
       jsonObjects.push_back(result.toJson());
     }
     ret = jsonObjects;
+  } else if (method == "textDocument/semanticTokens/full") {
+    SemanticTokensParams serializedParams(params);
+    ret = {{"data", this->semanticTokens(serializedParams)}};
   } else {
     LOG.warn(std::format("Unknown request: '{}'", method));
     this->server->returnError(jsonrpc::JsonrpcError::MethodNotFound,

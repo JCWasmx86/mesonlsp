@@ -51,7 +51,7 @@ public:
         tokenModifiers(std::move(tokenModifiers)) {}
 
   nlohmann::json toJson() {
-    return {{{"tokenTypes", tokenTypes}, {"tokenModifiers", tokenModifiers}}};
+    return {{"tokenTypes", tokenTypes}, {"tokenModifiers", tokenModifiers}};
   }
 };
 
@@ -388,4 +388,12 @@ public:
   nlohmann::json toJson() {
     return {{"startLine", startLine}, {"endLine", endLine}};
   }
+};
+
+class SemanticTokensParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+
+  SemanticTokensParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]) {}
 };
