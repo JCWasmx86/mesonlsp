@@ -1631,11 +1631,9 @@ bool TypeAnalyzer::guessMethod(
     MethodExpression *node, const std::string &methodName,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
   auto guessedMethod = this->ns.lookupMethod(methodName);
-  LOG.info("Guessing method.... " + methodName);
   if (!guessedMethod) {
     return false;
   }
-  LOG.info("Guessed method.... " + guessedMethod.value()->id());
   auto method = guessedMethod.value();
   ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
                         method->returnTypes.end());
