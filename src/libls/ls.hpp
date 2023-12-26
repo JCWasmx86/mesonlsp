@@ -18,6 +18,7 @@ public:
   foldingRanges(FoldingRangeParams &params) = 0;
   virtual std::vector<uint64_t>
   semanticTokens(SemanticTokensParams &params) = 0;
+  virtual TextEdit formatting(DocumentFormattingParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

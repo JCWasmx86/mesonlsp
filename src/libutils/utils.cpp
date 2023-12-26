@@ -318,3 +318,12 @@ downloadWithFallback(std::string url, const std::string &hash,
   LOG.warn("Unable to find any matching URL!");
   return std::nullopt;
 }
+
+std::string readFile(std::filesystem::path &path) {
+  std::ifstream file(path.c_str());
+  auto fileSize = std::filesystem::file_size(path);
+  std::string fileContent;
+  fileContent.resize(fileSize, '\0');
+  file.read(fileContent.data(), (std::streamsize)fileSize);
+  return fileContent;
+}

@@ -14,11 +14,11 @@
 namespace jsonrpc {
 
 enum JsonrpcError {
-  ParseError,
-  InvalidRequest,
-  MethodNotFound,
-  InvalidParams,
-  InternalError,
+  ParseError = -32700,
+  InvalidRequest = -32600,
+  MethodNotFound = -32601,
+  InvalidParams = -32602,
+  InternalError = -32603,
 };
 
 class JsonRpcHandler;
@@ -43,7 +43,8 @@ public:
   void loop(std::shared_ptr<JsonRpcHandler> handler);
   void reply(nlohmann::json callId, nlohmann::json result);
   void notification(std::string method, nlohmann::json params);
-  void returnError(JsonrpcError error, std::string message);
+  void returnError(nlohmann::json callId, JsonrpcError error,
+                   std::string message);
   void exit();
   void wait();
 };

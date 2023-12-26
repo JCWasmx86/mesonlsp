@@ -11,8 +11,6 @@
 
 #include <filesystem>
 #include <format>
-#include <fstream>
-#include <ios>
 #include <memory>
 #include <string>
 #include <tree_sitter/api.h>
@@ -20,15 +18,6 @@
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 static Logger LOG("analyze::mesontree"); // NOLINT
-
-std::string readFile(std::filesystem::path &path) {
-  std::ifstream file(path.c_str());
-  auto fileSize = std::filesystem::file_size(path);
-  std::string fileContent;
-  fileContent.resize(fileSize, '\0');
-  file.read(fileContent.data(), (std::streamsize)fileSize);
-  return fileContent;
-}
 
 OptionState parseFile(std::filesystem::path path) {
   auto visitor = OptionExtractor();

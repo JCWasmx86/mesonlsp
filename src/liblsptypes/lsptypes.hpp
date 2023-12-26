@@ -397,3 +397,36 @@ public:
   SemanticTokensParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
 };
+
+class FormattingOptions : public BaseObject {
+public:
+  uint8_t tabSize;
+  bool insertSpaces;
+
+  FormattingOptions(nlohmann::json &jsonObj) {
+    this->tabSize = jsonObj["tabSize"];
+    this->insertSpaces = jsonObj["insertSpaces"];
+  }
+};
+
+class DocumentFormattingParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  FormattingOptions options;
+
+  DocumentFormattingParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), options(jsonObj["options"]) {}
+};
+
+class TextEdit : public BaseObject {
+public:
+  LSPRange range;
+  std::string newText;
+
+  TextEdit(LSPRange range, std::string newText)
+      : range(std::move(range)), newText(std::move(newText)) {}
+
+  nlohmann::json toJson() {
+    return {{"range", range.toJson()}, {"newText", newText}};
+  }
+};

@@ -8,8 +8,10 @@
 #include "typenamespace.hpp"
 
 #include <exception>
+#include <filesystem>
 #include <future>
 #include <memory>
+#include <optional>
 
 std::vector<std::shared_ptr<MesonTree>>
 findTrees(std::shared_ptr<MesonTree> root) {
@@ -149,6 +151,24 @@ void Workspace::patchFile(
     (void)std::async(std::launch::async, &Task::run, newTask);
     this->tasks[identifier] = newTask;
   }
+}
+
+std::optional<std::filesystem::path>
+Workspace::muonConfigFile(const std::filesystem::path &path) {
+  for (const auto &tree : findTrees(this->tree)) {
+    auto treePath = tree->root;
+    if (std::filesystem::relative(path, treePath)
+            .generic_string()
+            .contains("..")) {
+      continue;
+    }
+    auto iniFile = treePath / "muon_fmt.ini";
+    if (std::filesystem::exists(iniFile)) {
+      return iniFile;
+    }
+    break;
+  }
+  return std::nullopt;
 }
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>

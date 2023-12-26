@@ -51,6 +51,9 @@ sha256_dep = sha256_proj.get_variable('sha256_dep')
 ada_proj = subproject('ada', default_options: ['default_library=static'])
 ada_dep = ada_proj.get_variable('ada_dep')
 
+muon_proj = subproject('muon')
+muon_dep = muon_proj.get_variable('muon_dep')
+
 nlohmann_json_dep = dependency('nlohmann_json')
 curl_dep = dependency('libcurl')
 archive_dep = dependency('libarchive')
