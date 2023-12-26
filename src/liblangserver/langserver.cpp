@@ -181,7 +181,19 @@ LanguageServer::foldingRanges(FoldingRangeParams &params) {
 void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}
 
 void LanguageServer::onDidCloseTextDocument(
-    DidCloseTextDocumentParams &params) {}
+    DidCloseTextDocumentParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  if (this->cachedContents.contains(path)) {
+    auto iter = this->cachedContents.find(path);
+    this->cachedContents.erase(iter);
+  }
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      workspace->dropCache(path);
+      return;
+    }
+  }
+}
 
 void LanguageServer::publishDiagnostics(
     std::map<std::filesystem::path, std::vector<LSPDiagnostic>> newDiags) {
