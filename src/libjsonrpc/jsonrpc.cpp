@@ -85,7 +85,6 @@ void jsonrpc::JsonRpcServer::returnError(nlohmann::json callId,
   data["jsonrpc"] = "2.0";
   data["error"] = err;
   data["id"] = callId;
-  std::cerr << data << std::endl;
   this->sendToClient(data);
 }
 
