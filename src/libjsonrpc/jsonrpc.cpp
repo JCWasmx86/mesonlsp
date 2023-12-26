@@ -1,6 +1,5 @@
 #include "jsonrpc.hpp"
 
-#include <cstddef>
 #include <cstdio>
 #include <format>
 #include <future>
@@ -57,12 +56,12 @@ void jsonrpc::JsonRpcServer::evaluateData(
   }
 }
 
-void jsonrpc::JsonRpcServer::sendToClient(nlohmann::json data) {
+void jsonrpc::JsonRpcServer::sendToClient(const nlohmann::json &data) {
   std::lock_guard<std::mutex> guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
   auto fullMessage = std::format("Content-Length: {}\r\n\r\n{}", len, payload);
-  this->output.write(fullMessage.data(), fullMessage.size());
+  this->output.write(fullMessage.data(), (long)fullMessage.size());
   this->output.flush();
 }
 
@@ -70,8 +69,8 @@ void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,
                                    nlohmann::json result) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
-  data["id"] = callId;
-  data["result"] = result;
+  data["id"] = std::move(callId);
+  data["result"] = std::move(result);
   this->sendToClient(data);
 }
 
@@ -84,7 +83,7 @@ void jsonrpc::JsonRpcServer::returnError(nlohmann::json callId,
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["error"] = err;
-  data["id"] = callId;
+  data["id"] = std::move(callId);
   this->sendToClient(data);
 }
 
@@ -93,42 +92,50 @@ void jsonrpc::JsonRpcServer::notification(std::string method,
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["method"] = method;
-  data["params"] = params;
+  data["params"] = std::move(params);
   this->sendToClient(data);
 }
 
+enum JsonrpcState {
+  Initial = 0,
+  FirstR = 1,
+  FirstN = 2,
+  SecondR = 3,
+  Reading = 4
+};
+
 void jsonrpc::JsonRpcServer::loop(
-    std::shared_ptr<jsonrpc::JsonRpcHandler> handler) {
+    const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler) {
   std::string prefix = "Content-Length:";
   while (true) {
-    auto state = 0;
+    auto state = Initial;
     auto contentLength = 0;
     auto breakFromLoop = false;
     std::string header;
 
     while (!breakFromLoop) {
-      auto ch = this->input.get();
-      if (ch == EOF) {
+      auto chr = this->input.get();
+      if (chr == EOF) {
         return;
       }
-      switch (ch) {
+      switch (chr) {
       case '\r':
-        state = state == 2 ? 3 : 1;
+        state = state == FirstN ? SecondR : FirstR;
         break;
       case '\n':
-        if (state == 3) {
+        if (state == SecondR) {
           breakFromLoop = true;
           break;
         }
-        state = 2;
+        state = FirstN;
         if (header.starts_with(prefix)) {
           auto numberAsStr = header.substr(prefix.length());
           contentLength = std::stoi(numberAsStr);
         }
         break;
       default:
-        header += (char)ch;
-        state = 5;
+        header += (char)chr;
+        state = Reading;
       }
       if (breakFromLoop) {
         break;
@@ -159,7 +166,7 @@ void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
 jsonrpc::JsonRpcHandler::JsonRpcHandler() {}
 
 void jsonrpc::JsonRpcServer::wait() {
-  for (size_t i = 0; i < this->futures.size(); i++) {
-    this->futures[i].get();
+  for (auto &future : this->futures) {
+    future.get();
   }
 }

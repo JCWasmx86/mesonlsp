@@ -31,7 +31,7 @@ private:
   std::vector<std::future<void>> futures;
   void evaluateData(std::shared_ptr<jsonrpc::JsonRpcHandler> handler,
                     nlohmann::json data);
-  void sendToClient(nlohmann::json data);
+  void sendToClient(const nlohmann::json &data);
   bool shouldExit;
 
 public:
@@ -40,7 +40,7 @@ public:
   JsonRpcServer(std::istringstream &input, std::ostringstream &output)
       : input(input), output(output), shouldExit(false) {}
 
-  void loop(std::shared_ptr<JsonRpcHandler> handler);
+  void loop(const std::shared_ptr<JsonRpcHandler> &handler);
   void reply(nlohmann::json callId, nlohmann::json result);
   void notification(std::string method, nlohmann::json params);
   void returnError(nlohmann::json callId, JsonrpcError error,
