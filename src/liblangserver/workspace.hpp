@@ -44,6 +44,7 @@ public:
   documentSymbols(const std::filesystem::path &path);
   std::optional<std::filesystem::path>
   muonConfigFile(const std::filesystem::path &path);
+  void dropCache(const std::filesystem::path &path);
 
 private:
   std::shared_ptr<MesonTree> tree;

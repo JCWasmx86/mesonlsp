@@ -97,6 +97,17 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
   return {};
 }
 
+void Workspace::dropCache(const std::filesystem::path &path) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path) ||
+        !subTree->overrides.contains(path)) {
+      continue;
+    }
+    auto iter = subTree->overrides.find(path);
+    subTree->overrides.erase(iter);
+  }
+}
+
 void Workspace::patchFile(
     std::filesystem::path path, std::string contents,
     std::function<
