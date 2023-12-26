@@ -9,17 +9,17 @@ Status: Done
 Provides the data model for everything callable (Functions/Methods)
 and provides the types
 
-Status: Mostly done
+Status: Mostly done (Preparations for docs are missing)
 ### libtypenamespace
 Provides a "TypeNamespace" instance containing everything like arguments, return types, docs
 
 Depends on: libobjects
-Status: Done
+Status: Mostly done (Docs are missing)
 ### libast
 Provides the AST as C++ objects.
 
 Depends on: libobjects
-Status: Mostly done
+Status: Done
 ### libwrap
 Provides capabilities to download/extract wraps
 
@@ -28,22 +28,25 @@ Status: Mostly done
 Provides capabilities to analyse meson code.
 
 Depends on: libtypenamespace, libwrap, libast
-Status: In Progress
+Status: Mostly done
 ### libjsonrpc
 Implements the JSON-RPC protocol.
 
-Status: Mostly done
+Status: Done
 ### liblsptypes
 Provides the types needed for a language server.
+
+Status: In Progress
 ### libls
 Combines libjsonrpc and liblsptypes to an abstract class
 
 Depends on: libjsonrpc, liblsptypes
+Status: In Progress
 ### liblangserver
 Implements the language server.
 
 Depends on: libwrap, libanalyze
-
+Status: In Progress
 ## Design Aspects
 - No dynamically linked dependencies
 - Minimal number of dependencies
@@ -77,3 +80,5 @@ Depends on: libwrap, libanalyze
 ## Before merging
 - Fix all compiler warnings
 - Fix all clang-tidy warnings as far as possible.
+- Write new docs
+- Write doc section for distributions
