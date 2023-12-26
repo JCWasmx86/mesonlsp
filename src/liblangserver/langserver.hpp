@@ -11,6 +11,7 @@
 class LanguageServer : public AbstractLanguageServer {
 public:
   std::vector<std::shared_ptr<Workspace>> workspaces;
+  std::map<std::filesystem::path, std::string> cachedContents;
   std::vector<std::map<std::filesystem::path, std::vector<LSPDiagnostic>>>
       diagnosticsFromInitialisation;
 
@@ -18,6 +19,7 @@ public:
   std::vector<InlayHint> inlayHints(InlayHintParams &params) override;
   std::vector<FoldingRange> foldingRanges(FoldingRangeParams &params) override;
   std::vector<uint64_t> semanticTokens(SemanticTokensParams &params) override;
+  TextEdit formatting(DocumentFormattingParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

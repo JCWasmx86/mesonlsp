@@ -3,12 +3,15 @@
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
-#include "mesontree.hpp"
 #include "task.hpp"
 #include "typenamespace.hpp"
 
 #include <cstdint>
 #include <filesystem>
+#include <map>
+#include <optional>
+
+class MesonTree;
 
 class Workspace {
 public:
@@ -19,7 +22,7 @@ public:
   std::mutex dataCollectionMtx;
   Logger logger;
 
-  Workspace(const WorkspaceFolder &wspf) : logger(wspf.name) {
+  Workspace(const WorkspaceFolder &wspf) : logger("ws-" + wspf.name) {
     this->root = extractPathFromUrl(wspf.uri);
     this->name = wspf.name;
   }
@@ -37,6 +40,8 @@ public:
   std::vector<InlayHint> inlayHints(const std::filesystem::path &path);
   std::vector<FoldingRange> foldingRanges(const std::filesystem::path &path);
   std::vector<uint64_t> semanticTokens(const std::filesystem::path &path);
+  std::optional<std::filesystem::path>
+  muonConfigFile(const std::filesystem::path &path);
 
 private:
   std::shared_ptr<MesonTree> tree;

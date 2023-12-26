@@ -3,11 +3,43 @@
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
+#include "utils.hpp"
 #include "workspace.hpp"
+
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <filesystem>
+#include <format>
+extern "C" {
+#include <lang/fmt.h>
+#include <log.h>
+#include <platform/filesystem.h>
+#include <platform/init.h>
+}
 
 static Logger LOG("LanguageServer"); // NOLINT
 
+std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
+  auto name =
+      std::format("muon-fmt-{}-{}", options.insertSpaces, options.tabSize);
+  auto fullPath = cacheDir() / name;
+  if (std::filesystem::exists(fullPath)) {
+    return fullPath;
+  }
+  auto indent = options.insertSpaces ? std::string(options.tabSize, ' ') : "\t";
+  auto contents = std::format("indent_by = '{}'\n", indent);
+  std::ofstream fileStream(fullPath);
+  assert(fileStream.is_open());
+  fileStream << contents << std::endl;
+  fileStream.close();
+  return fullPath;
+}
+
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
+  platform_init();
+  log_init();
+
   for (auto wspf : params.workspaceFolders) {
     auto workspace = std::make_shared<Workspace>(wspf);
     auto diags = workspace->parse(this->ns);
@@ -42,6 +74,7 @@ void LanguageServer::onDidOpenTextDocument(DidOpenTextDocumentParams &params) {}
 void LanguageServer::onDidChangeTextDocument(
     DidChangeTextDocumentParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);
+  this->cachedContents[path] = params.contentChanges[0].text;
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       LOG.info(std::format("Patching file {} for workspace {}",
@@ -64,6 +97,52 @@ std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
     }
   }
   return {};
+}
+
+TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  auto toFormat = this->cachedContents.contains(path)
+                      ? this->cachedContents[path]
+                      : readFile(path);
+  std::filesystem::path configFile;
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      if (auto file = workspace->muonConfigFile(path)) {
+        configFile = file.value();
+      }
+    }
+  }
+  if (configFile.empty()) {
+    configFile = writeMuonConfigFile(params.options);
+  }
+  struct source src = {.label = path.c_str(),
+                       .src = strdup(toFormat.data()),
+                       .len = toFormat.size(),
+                       .reopen_type = source_reopen_type_none};
+  char *formattedStr;
+  size_t formattedSize;
+  auto *output = open_memstream(&formattedStr, &formattedSize);
+  auto fmtRet = fmt(&src, output, configFile.c_str(), false, true);
+  if (!fmtRet) {
+    (void)fclose(output);
+    free((void *)src.src);
+    free(formattedStr);
+    LOG.error("Failed to format");
+    throw "Failed to format";
+  }
+  (void)fflush(output);
+  (void)fclose(output);
+  std::string asString(static_cast<const char *>(formattedStr), formattedSize);
+
+  // Editors don't care, if we tell them, that the file is
+  // a lot longer than it really is, so we just guess some
+  // number of lines.
+  auto guesstimatedLines = (toFormat.size() / 40) * 10;
+  auto edit = TextEdit(
+      LSPRange(LSPPosition(0, 0), LSPPosition(guesstimatedLines, 2000)),
+      std::string(asString));
+  free(formattedStr);
+  return edit;
 }
 
 std::vector<uint64_t>

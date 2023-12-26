@@ -13,24 +13,27 @@
 void jsonrpc::JsonRpcServer::evaluateData(
     std::shared_ptr<jsonrpc::JsonRpcHandler> handler, nlohmann::json data) {
   if (!data.contains("jsonrpc")) {
-    this->returnError(JsonrpcError::ParseError, "Missing jsonrpc key");
+    this->returnError(nullptr, JsonrpcError::ParseError, "Missing jsonrpc key");
     return;
   }
   if (!data["jsonrpc"].is_string()) {
-    this->returnError(JsonrpcError::ParseError, "jsonrpc key is not a string");
+    this->returnError(nullptr, JsonrpcError::ParseError,
+                      "jsonrpc key is not a string");
     return;
   }
   std::string version = data["jsonrpc"];
   if (version != "2.0") {
-    this->returnError(JsonrpcError::ParseError, "jsonrpc is not \"2.0\"");
+    this->returnError(nullptr, JsonrpcError::ParseError,
+                      "jsonrpc is not \"2.0\"");
     return;
   }
   if (!data.contains("method")) {
-    this->returnError(JsonrpcError::ParseError, "Missing method key");
+    this->returnError(nullptr, JsonrpcError::ParseError, "Missing method key");
     return;
   }
   if (!data["method"].is_string()) {
-    this->returnError(JsonrpcError::ParseError, "method key is not a string");
+    this->returnError(nullptr, JsonrpcError::ParseError,
+                      "method key is not a string");
     return;
   }
   std::string method = data["method"];
@@ -72,7 +75,8 @@ void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,
   this->sendToClient(data);
 }
 
-void jsonrpc::JsonRpcServer::returnError(JsonrpcError error,
+void jsonrpc::JsonRpcServer::returnError(nlohmann::json callId,
+                                         JsonrpcError error,
                                          std::string message) {
   nlohmann::json err;
   err["code"] = error;
@@ -80,7 +84,8 @@ void jsonrpc::JsonRpcServer::returnError(JsonrpcError error,
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["error"] = err;
-  data["id"] = nullptr;
+  data["id"] = callId;
+  std::cerr << data << std::endl;
   this->sendToClient(data);
 }
 
@@ -145,7 +150,7 @@ void jsonrpc::JsonRpcServer::loop(
       auto data = nlohmann::json::parse(messageData);
       this->evaluateData(handler, data);
     } catch (nlohmann::json::parse_error &ex) {
-      this->returnError(JsonrpcError::ParseError, "Invalid JSON");
+      this->returnError(nullptr, JsonrpcError::ParseError, "Invalid JSON");
     }
   }
 }
