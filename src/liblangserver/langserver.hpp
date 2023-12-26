@@ -20,6 +20,8 @@ public:
   std::vector<FoldingRange> foldingRanges(FoldingRangeParams &params) override;
   std::vector<uint64_t> semanticTokens(SemanticTokensParams &params) override;
   TextEdit formatting(DocumentFormattingParams &params) override;
+  std::vector<SymbolInformation>
+  documentSymbols(DocumentSymbolParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

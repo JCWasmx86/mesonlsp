@@ -40,6 +40,8 @@ public:
   std::vector<InlayHint> inlayHints(const std::filesystem::path &path);
   std::vector<FoldingRange> foldingRanges(const std::filesystem::path &path);
   std::vector<uint64_t> semanticTokens(const std::filesystem::path &path);
+  std::vector<SymbolInformation>
+  documentSymbols(const std::filesystem::path &path);
   std::optional<std::filesystem::path>
   muonConfigFile(const std::filesystem::path &path);
 

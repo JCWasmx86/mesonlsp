@@ -1,6 +1,7 @@
 #include "workspace.hpp"
 
 #include "analysisoptions.hpp"
+#include "documentsymbolvisitor.hpp"
 #include "foldingrangevisitor.hpp"
 #include "inlayhintvisitor.hpp"
 #include "mesontree.hpp"
@@ -77,6 +78,21 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
     auto visitor = FoldingRangeVisitor();
     ast->visit(&visitor);
     return visitor.ranges;
+  }
+  return {};
+}
+
+std::vector<SymbolInformation>
+Workspace::documentSymbols(const std::filesystem::path &path) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto ast = subTree->asts[path];
+    auto visitor = DocumentSymbolVisitor();
+    ast->visit(&visitor);
+    return visitor.symbols;
   }
   return {};
 }

@@ -430,3 +430,45 @@ public:
     return {{"range", range.toJson()}, {"newText", newText}};
   }
 };
+
+class DocumentSymbolParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+
+  DocumentSymbolParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]) {}
+};
+
+enum SymbolKind {
+  VariableKind = 13,
+  StringKind = 15,
+  NumberKind = 16,
+  BooleanKind = 17,
+  ListKind = 18,
+  ObjectKind = 19,
+};
+
+class LSPLocation {
+public:
+  std::string uri;
+  LSPRange range;
+
+  LSPLocation(std::string uri, LSPRange range)
+      : uri(std::move(uri)), range(std::move(range)) {}
+
+  nlohmann::json toJson() { return {{"uri", uri}, {"range", range.toJson()}}; }
+};
+
+class SymbolInformation : public BaseObject {
+public:
+  std::string name;
+  SymbolKind kind;
+  LSPLocation location;
+
+  SymbolInformation(std::string name, SymbolKind kind, LSPLocation location)
+      : name(std::move(name)), kind(kind), location(std::move(location)) {}
+
+  nlohmann::json toJson() {
+    return {{"name", name}, {"kind", kind}, {"location", location.toJson()}};
+  }
+};

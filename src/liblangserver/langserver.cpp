@@ -99,6 +99,17 @@ std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
   return {};
 }
 
+std::vector<SymbolInformation>
+LanguageServer::documentSymbols(DocumentSymbolParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->documentSymbols(path);
+    }
+  }
+  return {};
+}
+
 TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);
   auto toFormat = this->cachedContents.contains(path)
