@@ -88,7 +88,7 @@ void AbstractLanguageServer::handleRequest(std::string method,
       ret = jsonObjects;
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
-      this->server->returnError(nullptr, jsonrpc::JsonrpcError::MethodNotFound,
+      this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,
                                 std::format("Unknown request: {}", method));
       return;
     }
