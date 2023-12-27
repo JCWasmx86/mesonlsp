@@ -24,6 +24,8 @@ public:
   std::vector<SymbolInformation>
   documentSymbols(DocumentSymbolParams &params) override;
   std::optional<Hover> hover(HoverParams &params) override;
+  std::vector<DocumentHighlight>
+  highlight(DocumentHighlightParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;
