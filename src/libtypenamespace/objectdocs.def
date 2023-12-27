@@ -1,0 +1,191 @@
+@build_machine:
+Provides information about the build machine -- the machine that is doing the actual compilation.
+
+Currently, these values are populated using `platform.system()` and `platform.machine()`.
+@host_machine:
+Provides information about the host machine -- the machine on which the compiled binary will run.
+
+It has the same methods as build_machine.
+
+When not cross-compiling, all the methods return the same values as `build_machine` (because the build machine is the host machine)
+
+Note that while cross-compiling, it simply returns the values defined in the cross-info file.
+@meson:
+The meson object allows you to introspect various properties of the system. This object is always mapped in the meson variable.
+@target_machine:
+Provides information about the target machine -- the machine on which the compiled binary's output will run. Hence, this object should only be used while cross-compiling a compiler.
+
+It has the same methods as `build_machine`.
+
+When all compilation is 'native', all the methods return the same values as `build_machine` (because the build machine is the host machine and the target machine).
+
+Note that while cross-compiling, it simply returns the values defined in the cross-info file. If `target_machine` values are not defined in the cross-info file, `host_machine` values are returned instead.
+@any:
+A placeholder representing all types. This includes builtin, as well as returned objects.
+@bool:
+A boolean object which is either `true` or `false`.
+@dict:
+Stores a mapping of strings to other objects.
+@int:
+All integer numbers.
+
+Hexadecimal, binary and octal numbers are supported:
+```
+int_255 = 0xFF
+int_493 = 0o755
+int_1365 = 0b10101010101
+```
+@list:
+An array of elements.
+@str:
+All strings are immutable, all operations return their results as a new string.
+@alias_tgt:
+Opaque object returned by `alias_target()`.
+@both_libs:
+Container for both a static and shared library returned by `both_libraries()`.
+@build_tgt:
+A build target is either an executable, shared library, static library, both shared and static library or shared module.
+@cfg_data:
+This object encapsulates configuration values to be used for generating configuration files.
+@compiler:
+This object is returned by `meson.get_compiler()`. It represents a compiler for a given language and allows you to query its properties.
+@custom_idx:
+References a specific output file of a `custom_tgt` object.
+@custom_target:
+This object is returned by `custom_target()`.
+@dep:
+Abstract representation of a dependency.
+@disabler:
+A disabler object is an object that behaves in much the same way as NaN numbers do in floating point math.
+That is when used in any statement (function call, logical op, etc) they will cause the statement evaluation to immediately short circuit to return a disabler object.
+A disabler object has one method:
+@env:
+This object is returned by `environment()` and stores detailed information about how environment variables should be set.
+It should be passed as the `env` keyword argument to tests and other functions.
+@exe:
+An executable
+@external_program:
+Opaque object representing an external program.
+@extracted_obj:
+Opaque object representing extracted object files from build targets
+@feature:
+Meson object representing a feature options
+@file:
+Object that stores the path to an existing file
+@generated_list:
+Opaque object representing the result of a `generator.process()` call.
+@generator:
+This object is returned by `generator()` and contains a generator that is used to transform files from one type to another by an executable (e.g. idl files into source code and headers).
+@inc:
+Opaque wrapper for storing include directories.
+@jar:
+A Java JAR build target
+@lib:
+Represents either a shared or static library.
+@module:
+Base type for all modules.
+
+Modules provide their own specific implementation methods.
+@range:
+Opaque object that can be used in a loop and accessed via `[num]`.
+@run_tgt:
+Opaque object returned by `run_target()`.
+@runresult:
+This object encapsulates the result of trying to compile and run a sample piece of code with `compiler.run()` or `run_command()`.
+@structured_src:
+Opaque object returned by `structured_sources()`.
+@subproject:
+This object is returned by `subproject()` and is an opaque object representing it.
+@tgt:
+Opaque base object for all Meson targets.
+@cmake_module:
+This module provides helper tools for generating cmake package files.
+It also supports the usage of CMake based subprojects, similar to the normal Meson subprojects.
+@fs_module:
+This module provides functions to inspect the file system.
+
+Non-absolute paths are looked up relative to the directory where the current `meson.build` file is.
+
+If specified, a leading `~` is expanded to the user home directory. Environment variables are not available as is the rule throughout Meson. That is, `$HOME`, `%USERPROFILE%`, `$MKLROOT`, etc. have no meaning to the Meson filesystem module.
+If needed, pass such variables into Meson via command line options in `meson.options`, native-file or cross-file.
+
+Where possible, symlinks and parent directory notation are resolved to an absolute path.
+@i18n_module:
+This module provides internationalisation and localisation functionality.
+@gnome_module:
+This module provides helper tools for build operations needed when building Gnome/GLib programs.
+
+**Note:** the compilation commands here might not work properly when you change the source files.
+This is a bug in the respective compilers which do not expose the required dependency information. This has been reported upstream in [this bug](https://bugzilla.gnome.org/show_bug.cgi?id=745754). Until this is fixed you need to be careful when changing your source files.
+@rust_module:
+The rust module provides helper to integrate rust code into Meson.
+The goal is to make using rust in Meson more pleasant, while still remaining mesonic, this means that it attempts to make Rust work more like Meson, rather than Meson work more like rust.
+@python_module:
+This module provides support for finding and building extensions against python installations, be they python 2 or 3.
+@python_installation:
+The `python_installation` object is an `external_program`, with several added methods.
+@python3_module:
+This module provides support for dealing with Python 3. It has the following methods.
+
+This module is deprecated and replaced by the python module.
+@pkgconfig_module:
+This module is a simple generator for [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) files.
+@keyval_module:
+This module parses files consisting of a series of `key=value` lines. One use of this module is to load kconfig configurations in Meson projects.
+
+**Note:** this does not provide kconfig frontend tooling to generate a configuration. You still need something such as kconfig frontends (see link below) to parse your Kconfig files, and then (after you've chosen the configuration options), output a ".config" file.
+@dlang_module:
+This module provides tools related to the D programming language.
+@external_project_module:
+*This is an experimental module, API could change.*
+
+This module allows building code that uses build systems other than Meson. This module is intended to be used to build Autotools subprojects as fallback if the dependency couldn't be found on the system (e.g. too old distro version).
+
+The project will be compiled out-of-tree inside Meson's build directory. The project will also be installed inside Meson's build directory using make's `DESTDIR` feature. During project installation step, that `DESTDIR` will be copied verbatim into the desired location.
+
+External subprojects can use libraries built by Meson (main project, or other subprojects) using pkg-config, thanks to `*-uninstalled.pc` files generated by `pkg.generate()`.
+
+External build system requirements:
+
+- Must support out-of-tree build. The configure script will be invoked with the current workdir inside Meson's build directory and not subproject's top source directory.
+- Configure script must generate a `Makefile` in the current workdir.
+- Configure script must take common directories like prefix, libdir, etc, as command line arguments.
+- Configure script must support common environment variable like CFLAGS, CC, etc.
+- Compilation step must detect when a reconfigure is needed, and do it transparently.
+
+Known limitations:
+
+- Executables from external projects cannot be used uninstalled, because they would need its libraries to be installed in the final location. This is why there is no `find_program()` method.
+- The configure script must generate a `Makefile`, other build systems are not yet supported.
+- When cross compiling, if `PKG_CONFIG_SYSROOT_DIR` is set in environment or `sys_root` in the cross file properties, the external subproject will not be able to find dependencies built by Meson using pkg-config. The reason is pkg-config and pkgconf both prepend the sysroot path to `-I` and `-L` arguments from `-uninstalled.pc` files. This is arguably a bug that could be fixed in future version of pkg-config/pkgconf.
+@hotdoc_module:
+This module provides helper functions for generating documentation using hotdoc.
+@windows_module:
+This module provides functionality used to build applications for Windows.
+@cuda_module:
+This module provides helper functionality related to the CUDA Toolkit and building code using it.
+
+**Note:** This module is unstable. It is only provided as a technology preview. Its API may change in arbitrary ways between releases or it might be removed from Meson altogether.
+@icestorm_module:
+This module provides an experimental method to create FPGA bitstreams using the IceStorm suite of tools.
+
+**Note:** This module is unstable. It is only provided as a technology preview. Its API may change in arbitrary ways between releases or it might be removed from Meson altogether.
+@qt4_module:
+This module provides support for Qt4's `moc`, `uic` and `rcc` tools. It is used identically to the Qt 5 module.
+@qt5_module:
+The Qt5 module provides tools to automatically deal with the various tools and steps required for Qt.
+@qt6_module:
+The Qt6 module provides tools to automatically deal with the various tools and steps required for Qt.
+@wayland_module:
+This module provides helper functions to find wayland protocol xmls and to generate .c and .h files using wayland-scanner
+
+**Note:** this module is unstable. It is only provided as a technology preview. Its API may change in arbitrary ways between releases or it might be removed from Meson altogether.
+@simd_module:
+This module provides helper functionality to build code with SIMD instructions.
+@sourceset_module:
+This module provides support for building many targets against a single set of files;
+the choice of which files to include in each target depends on the contents of a dictionary or a `configuration_data` object.
+@sourceset:
+The `source_set` object provides methods to add files to a source set and to query it. The source set becomes immutable after any method but `add` is called.
+@source_confguration:
+The `source_configuration` object provides methods to query the result of an `apply` operation on a source set.

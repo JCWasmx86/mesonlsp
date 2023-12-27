@@ -9,12 +9,18 @@ genmethods_cpp = configure_file(
     input: ['methods.def'],
     output: 'genmethods.cpp',
 )
+genobjectdocs_cpp = configure_file(
+    command: [files('genobjectdocs.py'), '@INPUT0@', '@OUTPUT0@'],
+    input: ['objectdocs.def'],
+    output: 'genobjectdocs.cpp',
+)
 typenamespace_deps = [objects_dep]
 typenamespace_lib = static_library(
     'typenamespace',
     'typenamespace.cpp',
     genfunctions_cpp,
     genmethods_cpp,
+    genobjectdocs_cpp,
     include_directories: typenamespace_inc,
     dependencies: typenamespace_deps,
 )

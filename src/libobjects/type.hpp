@@ -30,6 +30,7 @@
 class Type {
 public:
   const std::string name;
+  std::string docs;
 
   virtual std::string toString() { return this->name; }
 
