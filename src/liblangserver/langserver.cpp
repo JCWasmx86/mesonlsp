@@ -179,6 +179,16 @@ LanguageServer::highlight(DocumentHighlightParams &params) {
   return {};
 }
 
+std::optional<WorkspaceEdit> LanguageServer::rename(RenameParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->rename(path, params);
+    }
+  }
+  return std::nullopt;
+}
+
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);

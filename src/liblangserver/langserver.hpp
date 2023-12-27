@@ -26,6 +26,7 @@ public:
   std::optional<Hover> hover(HoverParams &params) override;
   std::vector<DocumentHighlight>
   highlight(DocumentHighlightParams &params) override;
+  std::optional<WorkspaceEdit> rename(RenameParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

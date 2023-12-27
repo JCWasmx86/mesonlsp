@@ -33,6 +33,8 @@ public:
                              const LSPPosition &position);
   std::vector<DocumentHighlight> highlight(const std::filesystem::path &path,
                                            const LSPPosition &position);
+  std::optional<WorkspaceEdit> rename(const std::filesystem::path &path,
+                                      const RenameParams &params);
 
   bool owns(const std::filesystem::path &path);
 
