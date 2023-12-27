@@ -29,6 +29,8 @@ public:
 
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
   parse(const TypeNamespace &ns);
+  std::optional<Hover> hover(const std::filesystem::path &path,
+                             const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
 

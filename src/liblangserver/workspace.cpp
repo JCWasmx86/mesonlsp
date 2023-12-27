@@ -3,7 +3,9 @@
 #include "analysisoptions.hpp"
 #include "documentsymbolvisitor.hpp"
 #include "foldingrangevisitor.hpp"
+#include "hover.hpp"
 #include "inlayhintvisitor.hpp"
+#include "lsptypes.hpp"
 #include "mesontree.hpp"
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
@@ -50,6 +52,34 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     return visitor.hints;
   }
   return {};
+}
+
+std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
+                                      const LSPPosition &position) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto metadata = subTree->metadata;
+    auto feOpt = metadata.findFunctionExpressionAt(path, position.line,
+                                                   position.character);
+    if (feOpt.has_value()) {
+      return makeHoverForFunctionExpression(feOpt.value());
+    }
+    auto meOpt = metadata.findMethodExpressionAt(path, position.line,
+                                                 position.character);
+    if (meOpt.has_value()) {
+      return makeHoverForMethodExpression(meOpt.value());
+    }
+    auto idExprOpt =
+        metadata.findIdExpressionAt(path, position.line, position.character);
+    if (idExprOpt.has_value()) {
+      return makeHoverForId(idExprOpt.value());
+    }
+    return {};
+  }
+  return std::nullopt;
 }
 
 std::vector<uint64_t>

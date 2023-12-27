@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <vector>
 
 class AbstractLanguageServer : public jsonrpc::JsonRpcHandler {
@@ -21,6 +22,7 @@ public:
   virtual TextEdit formatting(DocumentFormattingParams &params) = 0;
   virtual std::vector<SymbolInformation>
   documentSymbols(DocumentSymbolParams &params) = 0;
+  virtual std::optional<Hover> hover(HoverParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

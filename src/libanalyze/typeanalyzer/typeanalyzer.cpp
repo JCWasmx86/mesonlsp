@@ -1364,15 +1364,15 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   if (!parent) {
     return false;
   }
-  auto *fe = dynamic_cast<FunctionExpression *>(node);
+  auto *fe = dynamic_cast<FunctionExpression *>(parent);
   if (fe && fe->id->equals(node)) {
     return true;
   }
-  auto *me = dynamic_cast<MethodExpression *>(node);
+  auto *me = dynamic_cast<MethodExpression *>(parent);
   if (me && me->id->equals(node)) {
     return true;
   }
-  auto *kwi = dynamic_cast<KeywordItem *>(node);
+  auto *kwi = dynamic_cast<KeywordItem *>(parent);
   if (kwi && kwi->key->equals(node)) {
     return true;
   }
@@ -1465,6 +1465,7 @@ cont:
         node, Diagnostic(Severity::Error, node,
                          std::format("Unknown identifier `{}`", node->id)));
   }
+  this->metadata->registerIdentifier(node);
 }
 
 void TypeAnalyzer::registerUsed(const std::string &id) {
