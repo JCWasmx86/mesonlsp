@@ -23,6 +23,27 @@ def extract_types(input_str):
     return ret
 
 
+def parse_ascii_file(file_path):
+    data_dict = {}
+    current_section = None
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            line = line.strip()
+
+            if line.startswith("@"):
+                # Removing '@' at the beginning and ':' at the end
+                section_name = line[1:-1]
+                data_dict[section_name] = ""
+                current_section = section_name
+            elif current_section is not None:
+                data_dict[current_section] += line + "\n"
+    for section, content in data_dict.items():
+        data_dict[section] = content.rstrip("\n")
+
+    return data_dict
+
+
 def type_to_cpp(t: str):
     if t == "subproject()":
         return 'this->types["subproject"]'
@@ -35,6 +56,7 @@ def type_to_cpp(t: str):
 
 
 def main():
+    data_dict = parse_ascii_file(sys.argv[3])
     with open(sys.argv[2], "w", encoding="utf-8") as output:
         with open(sys.argv[1], "r", encoding="utf-8") as filep:
             lines = filep.readlines()
@@ -55,7 +77,14 @@ def main():
                         f'  this->functions["{curr_fn_name}"] = std::make_shared<Function>(',
                         file=output,
                     )
+                    escaped = (
+                        data_dict[curr_fn_name]
+                        .encode("unicode-escape")
+                        .decode("utf-8")
+                        .replace('"', '\\"')
+                    )
                     print(f'    "{curr_fn_name}",', file=output)
+                    print(f'    "{escaped}",', file=output)
                     print("    std::vector<std::shared_ptr<Argument>>{", file=output)
                     total_len = len(args) + len(kwargs)
                     for idx_, arg in enumerate(args):

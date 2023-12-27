@@ -1,7 +1,7 @@
 typenamespace_inc = include_directories('.')
 genfunctions_cpp = configure_file(
-    command: [files('genfunctions.py'), '@INPUT0@', '@OUTPUT0@'],
-    input: ['functions.def'],
+    command: [files('genfunctions.py'), '@INPUT0@', '@OUTPUT0@', '@INPUT1@'],
+    input: ['functions.def', 'functiondocs.def'],
     output: 'genfunctions.cpp',
 )
 genmethods_cpp = configure_file(
