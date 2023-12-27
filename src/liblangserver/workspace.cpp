@@ -7,6 +7,7 @@
 #include "inlayhintvisitor.hpp"
 #include "langserverutils.hpp"
 #include "lsptypes.hpp"
+#include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
 #include "semantictokensvisitor.hpp"
@@ -17,6 +18,7 @@
 #include <future>
 #include <memory>
 #include <optional>
+#include <ranges>
 
 std::vector<std::shared_ptr<MesonTree>>
 findTrees(std::shared_ptr<MesonTree> root) {
@@ -135,6 +137,48 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
     return visitor.finish();
   }
   return {};
+}
+
+std::optional<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
+                                             const LSPPosition &position) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  // TODO: Jump to subdir/option
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto metadata = subTree->metadata;
+    auto foundMyself = false;
+    std::string toFind;
+    for (const auto *idExpr :
+         metadata.encounteredIds | std::ranges::views::reverse) {
+      if (MesonMetadata::contains(idExpr, position.line, position.character)) {
+        foundMyself = true;
+        toFind = idExpr->id;
+      }
+      if (!foundMyself || idExpr->id != toFind) {
+        continue;
+      }
+      const auto *ass = dynamic_cast<AssignmentStatement *>(idExpr->parent);
+      if (ass && ass->op == AssignmentOperator::Equals) {
+        auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
+        if (lhsIdExpr && lhsIdExpr->id == toFind) {
+          const auto *loc = idExpr->location;
+          auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
+                                LSPPosition(loc->endLine, loc->endColumn));
+          return LSPLocation(pathToUrl(idExpr->file->file), range);
+        }
+      }
+      if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
+        const auto *loc = idExpr->location;
+        auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
+                              LSPPosition(loc->endLine, loc->endColumn));
+        return LSPLocation(pathToUrl(idExpr->file->file), range);
+      }
+    }
+    break;
+  }
+  return std::nullopt;
 }
 
 std::optional<WorkspaceEdit>

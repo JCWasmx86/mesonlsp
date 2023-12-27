@@ -556,3 +556,21 @@ public:
     return {{"changes", ret}};
   }
 };
+
+class DeclarationParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+
+  DeclarationParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};
+
+class DefinitionParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+
+  DefinitionParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};

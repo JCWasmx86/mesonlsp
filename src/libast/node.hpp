@@ -32,7 +32,7 @@ public:
   virtual void visit(CodeVisitor *visitor) = 0;
   virtual void setParents() = 0;
 
-  bool equals(Node *other) {
+  bool equals(const Node *other) const {
     if (this->file->file != other->file->file) {
       return false;
     }

@@ -95,6 +95,7 @@ public:
            std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>>>
       kwargs;
   std::map<std::filesystem::path, std::vector<Diagnostic>> diagnostics;
+  std::vector<IdExpression *> encounteredIds;
 
   void registerDiagnostic(Node *node, const Diagnostic &diag) {
     auto key = node->file->file;
@@ -110,7 +111,16 @@ public:
   REGISTER(registerStringLiteral, stringLiterals, StringLiteral)
   REGISTER(registerMethodCall, methodCalls, MethodExpression)
   REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
-  REGISTER(registerIdentifier, identifiers, IdExpression)
+
+  void registerIdentifier(IdExpression *node) {
+    auto key = node->file->file;
+    if (this->identifiers.contains(key)) {
+      this->identifiers[key].push_back(node);
+    } else {
+      this->identifiers[key] = {node};
+    }
+    this->encounteredIds.push_back(node);
+  }
 
   void registerKwarg(KeywordItem *item, std::shared_ptr<Function> func) {
     auto key = item->file->file;
@@ -134,10 +144,11 @@ public:
     this->stringLiterals = {};
     this->kwargs = {};
     this->diagnostics = {};
+    this->encounteredIds = {};
   }
 
-private:
-  static inline bool contains(Node *node, uint64_t line, uint64_t column) {
+  static inline bool contains(const Node *node, uint64_t line,
+                              uint64_t column) {
     const auto *loc = node->location;
     if (loc->startLine > line || node->location->endLine < line) {
       return false;

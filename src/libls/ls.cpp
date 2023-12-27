@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <format>
+#include <iostream>
 
 static Logger LOG("AbstractLanguageServer"); // NOLINT
 
@@ -105,6 +106,22 @@ void AbstractLanguageServer::handleRequest(std::string method,
     } else if (method == "textDocument/rename") {
       RenameParams serializedParams(params);
       auto result = this->rename(serializedParams);
+      if (result.has_value()) {
+        ret = result->toJson();
+      } else {
+        ret = nullptr;
+      }
+    } else if (method == "textDocument/declaration") {
+      DeclarationParams serializedParams(params);
+      auto result = this->declaration(serializedParams);
+      if (result.has_value()) {
+        ret = result->toJson();
+      } else {
+        ret = nullptr;
+      }
+    } else if (method == "textDocument/definition") {
+      DefinitionParams serializedParams(params);
+      auto result = this->definition(serializedParams);
       if (result.has_value()) {
         ret = result->toJson();
       } else {

@@ -35,6 +35,8 @@ public:
                                            const LSPPosition &position);
   std::optional<WorkspaceEdit> rename(const std::filesystem::path &path,
                                       const RenameParams &params);
+  std::optional<LSPLocation> jumpTo(const std::filesystem::path &path,
+                                    const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
 
