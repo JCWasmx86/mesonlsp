@@ -7,6 +7,7 @@
 #include "inlayhintvisitor.hpp"
 #include "lsptypes.hpp"
 #include "mesontree.hpp"
+#include "node.hpp"
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
@@ -80,6 +81,44 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     return {};
   }
   return std::nullopt;
+}
+
+std::vector<DocumentHighlight>
+Workspace::highlight(const std::filesystem::path &path,
+                     const LSPPosition &position) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto metadata = subTree->metadata;
+    if (!metadata.identifiers.contains(path)) {
+      continue;
+    }
+    auto idExpr =
+        metadata.findIdExpressionAt(path, position.line, position.character);
+    if (!idExpr) {
+      return {};
+    }
+    auto identifiers = metadata.identifiers[path];
+    std::vector<DocumentHighlight> ret;
+    for (const auto &toCheck : identifiers) {
+      if (idExpr.value()->id != toCheck->id) {
+        continue;
+      }
+      auto kind = DocumentHighlightKind::ReadKind;
+      auto *ass = dynamic_cast<AssignmentStatement *>(toCheck->parent);
+      if (ass && toCheck->equals(ass->lhs.get())) {
+        kind = DocumentHighlightKind::WriteKind;
+      }
+      const auto *loc = toCheck->location;
+      auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
+                            LSPPosition(loc->endLine, loc->endColumn));
+      ret.push_back(DocumentHighlight(range, kind));
+    }
+    return ret;
+  }
+  return {};
 }
 
 std::vector<uint64_t>

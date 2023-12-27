@@ -94,6 +94,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
       } else {
         ret = nullptr;
       }
+    } else if (method == "textDocument/documentHighlight") {
+      DocumentHighlightParams serializedParams(params);
+      auto results = this->highlight(serializedParams);
+      auto jsonObjects = nlohmann::json::array();
+      for (auto &result : results) {
+        jsonObjects.push_back(result.toJson());
+      }
+      ret = jsonObjects;
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
       this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,

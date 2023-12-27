@@ -168,6 +168,17 @@ LanguageServer::semanticTokens(SemanticTokensParams &params) {
   return {};
 }
 
+std::vector<DocumentHighlight>
+LanguageServer::highlight(DocumentHighlightParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->highlight(path, params.position);
+    }
+  }
+  return {};
+}
+
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);

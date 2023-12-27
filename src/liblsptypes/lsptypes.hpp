@@ -499,3 +499,30 @@ public:
 
   nlohmann::json toJson() { return {{"contents", contents.toJson()}}; }
 };
+
+class DocumentHighlightParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+
+  DocumentHighlightParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};
+
+enum DocumentHighlightKind {
+  ReadKind = 1,
+  WriteKind = 2,
+};
+
+class DocumentHighlight : public BaseObject {
+public:
+  LSPRange range;
+  DocumentHighlightKind kind;
+
+  DocumentHighlight(LSPRange range, DocumentHighlightKind kind)
+      : range(std::move(range)), kind(kind) {}
+
+  nlohmann::json toJson() {
+    return {{"range", range.toJson()}, {"kind", kind}};
+  }
+};

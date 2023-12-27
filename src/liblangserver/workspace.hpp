@@ -31,6 +31,8 @@ public:
   parse(const TypeNamespace &ns);
   std::optional<Hover> hover(const std::filesystem::path &path,
                              const LSPPosition &position);
+  std::vector<DocumentHighlight> highlight(const std::filesystem::path &path,
+                                           const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
 
