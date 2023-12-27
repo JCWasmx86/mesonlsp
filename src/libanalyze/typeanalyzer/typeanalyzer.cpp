@@ -1523,6 +1523,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   if (!id0Expr) {
     return;
   }
+  this->metadata->encounteredIds.push_back(id0Expr);
   this->applyToStack(id0Expr->id, node->ids[0]->types);
   this->scope.variables[id0Expr->id] = node->ids[0]->types;
   this->checkIdentifier(id0Expr);
@@ -1555,12 +1556,14 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   }
   auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
   if (id0Expr) {
+    this->metadata->encounteredIds.push_back(id0Expr);
     this->applyToStack(id0Expr->id, node->ids[0]->types);
     this->scope.variables[id0Expr->id] = node->ids[0]->types;
     this->checkIdentifier(id0Expr);
   }
   auto *id1Expr = dynamic_cast<IdExpression *>(node->ids[1].get());
   if (id1Expr) {
+    this->metadata->encounteredIds.push_back(id1Expr);
     this->applyToStack(id1Expr->id, node->ids[1]->types);
     this->scope.variables[id1Expr->id] = node->ids[1]->types;
     this->checkIdentifier(id1Expr);

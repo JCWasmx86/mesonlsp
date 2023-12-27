@@ -189,6 +189,28 @@ std::optional<WorkspaceEdit> LanguageServer::rename(RenameParams &params) {
   return std::nullopt;
 }
 
+std::optional<LSPLocation>
+LanguageServer::declaration(DeclarationParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->jumpTo(path, params.position);
+    }
+  }
+  return std::nullopt;
+}
+
+std::optional<LSPLocation>
+LanguageServer::definition(DefinitionParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->jumpTo(path, params.position);
+    }
+  }
+  return std::nullopt;
+}
+
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);
