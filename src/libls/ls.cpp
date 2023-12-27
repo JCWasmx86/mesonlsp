@@ -102,6 +102,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
         jsonObjects.push_back(result.toJson());
       }
       ret = jsonObjects;
+    } else if (method == "textDocument/rename") {
+      RenameParams serializedParams(params);
+      auto result = this->rename(serializedParams);
+      if (result.has_value()) {
+        ret = result->toJson();
+      } else {
+        ret = nullptr;
+      }
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
       this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,

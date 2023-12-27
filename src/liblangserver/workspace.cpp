@@ -5,6 +5,7 @@
 #include "foldingrangevisitor.hpp"
 #include "hover.hpp"
 #include "inlayhintvisitor.hpp"
+#include "langserverutils.hpp"
 #include "lsptypes.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
@@ -114,7 +115,7 @@ Workspace::highlight(const std::filesystem::path &path,
       const auto *loc = toCheck->location;
       auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
                             LSPPosition(loc->endLine, loc->endColumn));
-      ret.push_back(DocumentHighlight(range, kind));
+      ret.emplace_back(range, kind);
     }
     return ret;
   }
@@ -134,6 +135,47 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
     return visitor.finish();
   }
   return {};
+}
+
+std::optional<WorkspaceEdit>
+Workspace::rename(const std::filesystem::path &path,
+                  const RenameParams &params) {
+  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto metadata = subTree->metadata;
+    auto toRenameOpt = metadata.findIdExpressionAt(path, params.position.line,
+                                                   params.position.character);
+    if (!toRenameOpt.has_value()) {
+      return std::nullopt;
+    }
+    auto *toRename = toRenameOpt.value();
+    WorkspaceEdit ret;
+    auto foundOurself = false;
+    for (const auto &pair : metadata.identifiers) {
+      auto url = pathToUrl(pair.first);
+      ret.changes[url] = {};
+      for (auto *identifier : pair.second) {
+        if (identifier->id != toRename->id) {
+          continue;
+        }
+        if (identifier->equals(toRename)) {
+          if (foundOurself) {
+            continue;
+          }
+          foundOurself = true;
+        }
+        const auto *loc = identifier->location;
+        auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
+                              LSPPosition(loc->endLine, loc->endColumn));
+        ret.changes[url].emplace_back(range, params.newName);
+      }
+    }
+    return ret;
+  }
+  return std::nullopt;
 }
 
 std::vector<FoldingRange>

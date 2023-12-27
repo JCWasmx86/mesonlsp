@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include <cstdint>
+#include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -524,5 +525,34 @@ public:
 
   nlohmann::json toJson() {
     return {{"range", range.toJson()}, {"kind", kind}};
+  }
+};
+
+class RenameParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+  std::string newName;
+
+  RenameParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]),
+        newName(jsonObj["newName"]) {}
+};
+
+class WorkspaceEdit : public BaseObject {
+public:
+  std::map<std::string, std::vector<TextEdit>> changes;
+
+  nlohmann::json toJson() {
+    nlohmann::json ret;
+    for (auto &pair : changes) {
+      std::vector<nlohmann::json> vec;
+      vec.reserve(pair.second.size());
+      for (auto &edit : pair.second) {
+        vec.push_back(edit.toJson());
+      }
+      ret[pair.first] = vec;
+    }
+    return {{"changes", ret}};
   }
 };

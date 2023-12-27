@@ -25,6 +25,7 @@ public:
   virtual std::optional<Hover> hover(HoverParams &params) = 0;
   virtual std::vector<DocumentHighlight>
   highlight(DocumentHighlightParams &params) = 0;
+  virtual std::optional<WorkspaceEdit> rename(RenameParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;
