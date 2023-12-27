@@ -214,6 +214,7 @@ Workspace::rename(const std::filesystem::path &path,
         const auto *loc = identifier->location;
         auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
                               LSPPosition(loc->endLine, loc->endColumn));
+        // TODO: Rename parent-project `get_variable`
         ret.changes[url].emplace_back(range, params.newName);
       }
     }
