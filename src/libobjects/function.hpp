@@ -88,10 +88,11 @@ class Method : public Function {
 public:
   const std::shared_ptr<Type> parentType;
 
-  Method(std::string name, std::vector<std::shared_ptr<Argument>> args,
+  Method(std::string name, std::string doc,
+         std::vector<std::shared_ptr<Argument>> args,
          const std::vector<std::shared_ptr<Type>> returnTypes,
          const std::shared_ptr<Type> parentType)
-      : Function(std::move(name), "", std::move(args), returnTypes),
+      : Function(std::move(name), std::move(doc), std::move(args), returnTypes),
         parentType(parentType) {}
 
   std::string id() override;
