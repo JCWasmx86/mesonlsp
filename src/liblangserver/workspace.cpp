@@ -69,7 +69,7 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     auto feOpt = metadata.findFunctionExpressionAt(path, position.line,
                                                    position.character);
     if (feOpt.has_value()) {
-      return makeHoverForFunctionExpression(feOpt.value());
+      return makeHoverForFunctionExpression(feOpt.value(), subTree->options);
     }
     auto meOpt = metadata.findMethodExpressionAt(path, position.line,
                                                  position.character);

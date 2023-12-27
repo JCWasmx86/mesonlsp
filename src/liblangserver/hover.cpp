@@ -2,18 +2,54 @@
 
 #include "argument.hpp"
 #include "lsptypes.hpp"
+#include "mesonoption.hpp"
+#include "node.hpp"
 #include "typeanalyzer.hpp"
+#include "utils.hpp"
 
 #include <format>
 
 static std::string formatArgument(const Argument *arg);
 
-Hover makeHoverForFunctionExpression(FunctionExpression *fe) {
-  // TODO: Support for options
+Hover makeHoverForFunctionExpression(FunctionExpression *fe,
+                                     const OptionState &options) {
   if (!fe->function) {
     return {MarkupContent("Unable to find information about this function!")};
   }
   auto fn = fe->function;
+  if (fn->name == "get_option") {
+    auto *args = dynamic_cast<ArgumentList *>(fe->args.get());
+    if (!args || args->args.empty()) {
+      goto cont;
+    }
+    auto *firstArg = args->args[0].get();
+    auto *optionSL = dynamic_cast<StringLiteral *>(firstArg);
+    if (!optionSL) {
+      goto cont;
+    }
+    auto option = optionSL->id;
+    auto corrOption = options.findOption(option);
+    if (!corrOption) {
+      goto cont;
+    }
+    auto ret = std::format("## Option {}\nType: `{}`\n\n", corrOption->name,
+                           corrOption->type);
+    if (corrOption->deprecated) {
+      ret += "\n**Deprecated**\n";
+    }
+    if (corrOption->description.has_value()) {
+      ret += corrOption->description.value() + "\n";
+    }
+    if (auto *arrayOption = dynamic_cast<ArrayOption *>(corrOption.get())) {
+      ret +=
+          std::format("\nChoices: {}", joinStrings(arrayOption->choices, '|'));
+    } else if (auto *comboOption =
+                   dynamic_cast<ComboOption *>(corrOption.get())) {
+      ret += std::format("\nValues: {}", joinStrings(comboOption->values, '|'));
+    }
+    return {MarkupContent(ret)};
+  }
+cont:
   auto header = std::format("## {}\n\n", fn->name);
   auto returns = std::format("-> `{}`\n", fn->returnTypes.empty()
                                               ? "void"
