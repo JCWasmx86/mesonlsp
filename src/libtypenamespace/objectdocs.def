@@ -51,7 +51,7 @@ This object encapsulates configuration values to be used for generating configur
 This object is returned by `meson.get_compiler()`. It represents a compiler for a given language and allows you to query its properties.
 @custom_idx:
 References a specific output file of a `custom_tgt` object.
-@custom_target:
+@custom_tgt:
 This object is returned by `custom_target()`.
 @dep:
 Abstract representation of a dependency.
