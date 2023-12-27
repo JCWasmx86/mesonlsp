@@ -60,4 +60,5 @@ public:
 private:
   void initFunctions();
   void initMethods();
+  void initObjectDocs();
 };

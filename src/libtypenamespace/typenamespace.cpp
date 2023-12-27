@@ -82,4 +82,5 @@ TypeNamespace::TypeNamespace()
       {"source_confguration", std::make_shared<SourceConfiguration>()}};
   this->initFunctions();
   this->initMethods();
+  this->initObjectDocs();
 }
