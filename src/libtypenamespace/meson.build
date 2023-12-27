@@ -5,8 +5,8 @@ genfunctions_cpp = configure_file(
     output: 'genfunctions.cpp',
 )
 genmethods_cpp = configure_file(
-    command: [files('genmethods.py'), '@INPUT0@', '@OUTPUT0@'],
-    input: ['methods.def'],
+    command: [files('genmethods.py'), '@INPUT0@', '@OUTPUT0@', '@INPUT1@'],
+    input: ['methods.def', 'methoddocs.def'],
     output: 'genmethods.cpp',
 )
 genobjectdocs_cpp = configure_file(
