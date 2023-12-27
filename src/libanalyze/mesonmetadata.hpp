@@ -26,6 +26,34 @@ enum Severity {
     }                                                                          \
   }
 
+#define FIND(type, variable)                                                   \
+  std::optional<type *> find##type##At(const std::filesystem::path &path,      \
+                                       uint64_t line, uint64_t column) {       \
+    if (!this->variable.contains(path)) {                                      \
+      return std::nullopt;                                                     \
+    }                                                                          \
+    for (auto &var : this->variable[path]) {                                   \
+      if (MesonMetadata::contains(var->id.get(), line, column)) {              \
+        return var;                                                            \
+      }                                                                        \
+    }                                                                          \
+    return std::nullopt;                                                       \
+  }
+
+#define FIND_FULL(type, variable)                                              \
+  std::optional<type *> find##type##At(const std::filesystem::path &path,      \
+                                       uint64_t line, uint64_t column) {       \
+    if (!this->variable.contains(path)) {                                      \
+      return std::nullopt;                                                     \
+    }                                                                          \
+    for (auto &var : this->variable[path]) {                                   \
+      if (MesonMetadata::contains(var, line, column)) {                        \
+        return var;                                                            \
+      }                                                                        \
+    }                                                                          \
+    return std::nullopt;                                                       \
+  }
+
 class Diagnostic {
 public:
   Severity severity;
@@ -93,6 +121,10 @@ public:
     }
   }
 
+  FIND(MethodExpression, methodCalls)
+  FIND(FunctionExpression, functionCalls)
+  FIND_FULL(IdExpression, identifiers)
+
   void clear() {
     this->subdirCalls = {};
     this->methodCalls = {};
@@ -102,6 +134,27 @@ public:
     this->stringLiterals = {};
     this->kwargs = {};
     this->diagnostics = {};
+  }
+
+private:
+  static inline bool contains(Node *node, uint64_t line, uint64_t column) {
+    const auto *loc = node->location;
+    if (loc->startLine > line || node->location->endLine < line) {
+      return false;
+    }
+    if (loc->startLine == node->location->endLine) {
+      return loc->startColumn <= column && loc->endColumn >= column;
+    }
+    if (loc->startLine < line && loc->endLine > line) {
+      return true;
+    }
+    if (loc->startLine == line && loc->startColumn <= column) {
+      return true;
+    }
+    if (loc->endLine == line && loc->endColumn >= column) {
+      return true;
+    }
+    return false;
   }
 };
 

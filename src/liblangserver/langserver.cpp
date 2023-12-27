@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <format>
+#include <optional>
 extern "C" {
 #include <lang/fmt.h>
 #include <log.h>
@@ -176,6 +177,16 @@ LanguageServer::foldingRanges(FoldingRangeParams &params) {
     }
   }
   return {};
+}
+
+std::optional<Hover> LanguageServer::hover(HoverParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->hover(path, params.position);
+    }
+  }
+  return std::nullopt;
 }
 
 void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}

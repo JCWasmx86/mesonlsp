@@ -472,3 +472,30 @@ public:
     return {{"name", name}, {"kind", kind}, {"location", location.toJson()}};
   }
 };
+
+class HoverParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+
+  HoverParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};
+
+class MarkupContent : public BaseObject {
+public:
+  std::string value;
+
+  MarkupContent(std::string value) : value(std::move(value)) {}
+
+  nlohmann::json toJson() { return {{"value", value}, {"kind", "markdown"}}; }
+};
+
+class Hover : public BaseObject {
+public:
+  MarkupContent contents;
+
+  Hover(MarkupContent contents) : contents(std::move(contents)) {}
+
+  nlohmann::json toJson() { return {{"contents", contents.toJson()}}; }
+};

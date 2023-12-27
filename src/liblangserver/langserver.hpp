@@ -6,6 +6,7 @@
 #include "workspace.hpp"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 class LanguageServer : public AbstractLanguageServer {
@@ -22,6 +23,7 @@ public:
   TextEdit formatting(DocumentFormattingParams &params) override;
   std::vector<SymbolInformation>
   documentSymbols(DocumentSymbolParams &params) override;
+  std::optional<Hover> hover(HoverParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

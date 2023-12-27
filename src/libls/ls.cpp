@@ -86,6 +86,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
         jsonObjects.push_back(result.toJson());
       }
       ret = jsonObjects;
+    } else if (method == "textDocument/hover") {
+      HoverParams serializedParams(params);
+      auto result = this->hover(serializedParams);
+      if (result.has_value()) {
+        ret = result->toJson();
+      } else {
+        ret = nullptr;
+      }
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
       this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,
