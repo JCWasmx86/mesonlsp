@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "optionstate.hpp"
 #include "scope.hpp"
 #include "subprojects/subprojectstate.hpp"
 #include "typenamespace.hpp"
@@ -23,6 +24,7 @@ public:
   SubprojectState *state;
   Scope scope;
   MesonMetadata metadata;
+  OptionState options;
   const TypeNamespace &ns;
   int depth = 0;
 
