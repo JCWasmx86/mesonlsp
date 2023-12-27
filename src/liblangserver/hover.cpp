@@ -9,6 +9,7 @@
 static std::string formatArgument(const Argument *arg);
 
 Hover makeHoverForFunctionExpression(FunctionExpression *fe) {
+  // TODO: Support for options
   if (!fe->function) {
     return {MarkupContent("Unable to find information about this function!")};
   }
