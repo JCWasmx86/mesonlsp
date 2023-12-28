@@ -43,7 +43,7 @@ findTrees(std::shared_ptr<MesonTree> root) {
 }
 
 bool Workspace::owns(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (subTree->ownedFiles.contains(path)) {
       return true;
@@ -54,7 +54,7 @@ bool Workspace::owns(const std::filesystem::path &path) {
 
 std::vector<InlayHint>
 Workspace::inlayHints(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -72,7 +72,7 @@ Workspace::inlayHints(const std::filesystem::path &path) {
 
 std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
                                       const LSPPosition &position) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -101,7 +101,7 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
 std::vector<DocumentHighlight>
 Workspace::highlight(const std::filesystem::path &path,
                      const LSPPosition &position) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -138,7 +138,7 @@ Workspace::highlight(const std::filesystem::path &path,
 
 std::vector<uint64_t>
 Workspace::semanticTokens(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -156,7 +156,7 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
 
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   // TODO: Jump to subdir/option
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
@@ -229,7 +229,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
 std::optional<WorkspaceEdit>
 Workspace::rename(const std::filesystem::path &path,
                   const RenameParams &params) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -270,7 +270,7 @@ Workspace::rename(const std::filesystem::path &path,
 
 std::vector<FoldingRange>
 Workspace::foldingRanges(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -288,7 +288,7 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
 
 std::vector<SymbolInformation>
 Workspace::documentSymbols(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> lock(dataCollectionMtx);
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -320,7 +320,7 @@ void Workspace::patchFile(
     std::function<
         void(std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
         func) {
-  std::lock_guard<std::mutex> lock(mtx);
+  std::lock_guard<std::mutex> const lock(mtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -328,7 +328,7 @@ void Workspace::patchFile(
     std::set<std::filesystem::path> oldDiags;
     auto identifier = subTree->identifier;
     {
-      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(this->dataCollectionMtx);
       for (const auto &pair : subTree->metadata.diagnostics) {
         oldDiags.insert(pair.first);
       }
@@ -346,7 +346,7 @@ void Workspace::patchFile(
       subTree->overrides[path] = contents;
     }
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(this->dataCollectionMtx);
       std::exception_ptr exception = nullptr;
       try {
         subTree->partialParse(

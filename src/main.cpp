@@ -219,9 +219,9 @@ int main(int argc, char **argv) {
   }
   if (paths.empty()) {
     auto parent = std::filesystem::absolute(path).parent_path();
-    TypeNamespace ns;
+    TypeNamespace const ns;
     MesonTree tree(parent, ns);
-    AnalysisOptions opts(false, false, false, false, false, false, false);
+    AnalysisOptions const opts(false, false, false, false, false, false, false);
     if (full) {
       tree.fullParse(opts);
     } else {

@@ -190,7 +190,7 @@ bool launchProcess(const std::string &executable,
   }
   cArgs.push_back(nullptr);
 
-  pid_t pid = fork();
+  pid_t const pid = fork();
   if (pid == -1) {
     LOG.error(std::format("Failed to fork(): {}", errno2string()));
     return false;

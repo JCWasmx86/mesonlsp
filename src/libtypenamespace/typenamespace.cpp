@@ -9,9 +9,9 @@
 TypeNamespace::TypeNamespace()
     : strType(std::make_shared<Str>()), intType(std::make_shared<IntType>()),
       boolType(std::make_shared<BoolType>()) {
-  std::vector<std::shared_ptr<Type>> dictTypes;
-  std::vector<std::shared_ptr<Type>> listTypes;
-  std::vector<std::string> names;
+  std::vector<std::shared_ptr<Type>> const dictTypes;
+  std::vector<std::shared_ptr<Type>> const listTypes;
+  std::vector<std::string> const names;
   this->types = {
       {"any", std::make_shared<Any>()},
       {"bool", this->boolType},

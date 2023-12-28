@@ -27,7 +27,7 @@ bool HgWrap::setupDirectory(std::filesystem::path path,
     return false;
   }
   auto targetDirectory = this->directory.value();
-  std::string fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
+  std::string const fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
   auto result =
       launchProcess("hg", std::vector<std::string>{"clone", url, fullPath});
   if (result) {

@@ -411,7 +411,7 @@ void UnaryExpression::visitChildren(CodeVisitor *visitor) {
 }
 
 std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
-  std::string extractedValue;
+  std::string const extractedValue;
   size_t startPos = std::string::npos;
   size_t endPos = std::string::npos;
 
@@ -773,9 +773,9 @@ std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
   std::string tempText = text;
 
   while (std::regex_search(tempText, match, FORMAT_STRING_REGEX)) {
-    std::string matchedStr = match.str(1);
-    size_t startPos = match.position();
-    size_t endPos = startPos + matchedStr.length() +
+    std::string const matchedStr = match.str(1);
+    size_t const startPos = match.position();
+    size_t const endPos = startPos + matchedStr.length() +
                     2; // Including the surrounding @ symbols
 
     if ((startPos != 0 && (std::isdigit(tempText[startPos - 1]) != 0)) ||
@@ -796,10 +796,10 @@ std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text) {
   std::set<uint64_t> integers;
 
   std::sregex_iterator iter(text.begin(), text.end(), STR_FORMAT_REGEX);
-  std::sregex_iterator end;
+  std::sregex_iterator const end;
 
   while (iter != end) {
-    std::string match = iter->str(1);
+    std::string const match = iter->str(1);
     integers.insert(std::stoull(match));
     ++iter;
   }

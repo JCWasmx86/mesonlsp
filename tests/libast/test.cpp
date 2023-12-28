@@ -22,7 +22,7 @@ std::shared_ptr<Node> parseToNode(std::string contents) {
   ts_parser_set_language(parser, tree_sitter_meson());
   TSTree *tree = ts_parser_parse_string(parser, nullptr, contents.c_str(),
                                         contents.size());
-  TSNode rootNode = ts_tree_root_node(tree);
+  TSNode const rootNode = ts_tree_root_node(tree);
   auto node = makeNode(file, rootNode);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
@@ -38,7 +38,7 @@ TEST(AstTestIni, testIniParsing) {
   ts_parser_set_language(parser, tree_sitter_ini());
   TSTree *tree =
       ts_parser_parse_string(parser, nullptr, iniStr, strlen(iniStr));
-  TSNode rootNode = ts_tree_root_node(tree);
+  TSNode const rootNode = ts_tree_root_node(tree);
   auto node = ast::ini::makeNode(file, rootNode);
   auto *iniFile = dynamic_cast<ast::ini::IniFile *>(node.get());
   ASSERT_NE(iniFile, nullptr);
@@ -545,7 +545,7 @@ TEST(TestAst, testUnaryOperator) {
 
 TEST(TestAstOther, extractTextBetweenAtSymbols) {
   auto inputs = extractTextBetweenAtSymbols("foo @0@ @e@ @ee@ @eee@ @eee0@");
-  std::vector<std::string> expected{"e", "ee", "eee", "eee0"};
+  std::vector<std::string> const expected{"e", "ee", "eee", "eee0"};
   ASSERT_EQ(inputs, expected);
 }
 
@@ -556,7 +556,7 @@ TEST(TestAstOther, dontExtractBetweenNumbers) {
 
 TEST(TestAstOther, extractIntegersBetweenAtSymbols) {
   auto inputs = extractIntegersBetweenAtSymbols("@0@ foo @011a@ @11@ @12@@13@");
-  std::set<uint64_t> expected{0, 11, 12, 13};
+  std::set<uint64_t> const expected{0, 11, 12, 13};
   ASSERT_EQ(inputs, expected);
 }
 

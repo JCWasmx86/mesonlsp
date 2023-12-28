@@ -50,7 +50,7 @@ static inline std::string hash(const void *data, const size_t len) {
   std::stringstream sss;
 
   sss << std::hex << std::setfill('0');
-  for (unsigned char byte : hash) {
+  for (unsigned char const byte : hash) {
     sss << std::hex << std::setw(2) << static_cast<int>(byte);
   }
   return sss.str();
