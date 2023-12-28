@@ -21,16 +21,20 @@ extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 static Logger LOG("analyze::mesontree"); // NOLINT
 
-OptionState parseFile(std::filesystem::path path, MesonMetadata *metadata) {
+OptionState MesonTree::parseFile(std::filesystem::path path,
+                                 MesonMetadata *metadata) {
   auto visitor = OptionExtractor();
   auto diagnosticVisitor = OptionDiagnosticVisitor(metadata);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
-  auto fileContent = readFile(path);
+  auto fileContent =
+      this->overrides.contains(path) ? this->overrides[path] : readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
   const TSNode rootNode = ts_tree_root_node(tree);
-  auto sourceFile = std::make_shared<SourceFile>(path);
+  auto sourceFile = this->overrides.contains(path)
+                        ? std::make_shared<MemorySourceFile>(fileContent, path)
+                        : std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
   root->visit(&visitor);
   root->visit(&diagnosticVisitor);
@@ -40,16 +44,19 @@ OptionState parseFile(std::filesystem::path path, MesonMetadata *metadata) {
   return optionState;
 }
 
-OptionState parseOptions(std::filesystem::path &root, MesonMetadata *metadata) {
+OptionState MesonTree::parseOptions(std::filesystem::path &root,
+                                    MesonMetadata *metadata) {
   auto modernOptionsFile = root / "meson.options";
   if (std::filesystem::exists(modernOptionsFile) &&
       std::filesystem::is_regular_file(modernOptionsFile)) {
-    return parseFile(modernOptionsFile, metadata);
+    this->ownedFiles.insert(modernOptionsFile);
+    return this->parseFile(modernOptionsFile, metadata);
   }
   auto legacyOptionsFile = root / "meson_options.txt";
   if (std::filesystem::exists(legacyOptionsFile) &&
       std::filesystem::is_regular_file(legacyOptionsFile)) {
-    return parseFile(legacyOptionsFile, metadata);
+    this->ownedFiles.insert(legacyOptionsFile);
+    return this->parseFile(legacyOptionsFile, metadata);
   }
   return {};
 }

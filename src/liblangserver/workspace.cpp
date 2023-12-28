@@ -54,6 +54,9 @@ Workspace::inlayHints(const std::filesystem::path &path) {
       continue;
     }
     auto ast = subTree->asts[path];
+    if (ast.empty()) {
+      continue;
+    }
     auto visitor = InlayHintVisitor();
     ast.back()->visit(&visitor);
     return visitor.hints;
@@ -135,6 +138,9 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
       continue;
     }
     auto ast = subTree->asts[path];
+    if (ast.empty()) {
+      continue;
+    }
     auto visitor = SemanticTokensVisitor();
     ast.back()->visit(&visitor);
     return visitor.finish();
@@ -154,6 +160,9 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
     auto foundMyself = false;
     std::string toFind;
     for (size_t i = metadata->encounteredIds.size() - 1; i > 0; i--) {
+      if (i == (size_t)-1) {
+        break;
+      }
       const auto &idExpr = metadata->encounteredIds[i];
       if (MesonMetadata::contains(idExpr, position.line, position.character)) {
         foundMyself = true;
@@ -261,6 +270,9 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
       continue;
     }
     auto ast = subTree->asts[path];
+    if (ast.empty()) {
+      continue;
+    }
     auto visitor = FoldingRangeVisitor();
     ast.back()->visit(&visitor);
     return visitor.ranges;
@@ -276,6 +288,9 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
       continue;
     }
     auto ast = subTree->asts[path];
+    if (ast.empty()) {
+      continue;
+    }
     auto visitor = DocumentSymbolVisitor();
     ast.back()->visit(&visitor);
     return visitor.symbols;
