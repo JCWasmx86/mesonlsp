@@ -517,7 +517,7 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
   while (idx < childCount) {
     auto c = ts_node_child(node, idx);
     auto sv = file->extractNodeValue(c);
-    auto nodeType = ts_node_type(c);
+    const auto *nodeType = ts_node_type(c);
     if ((sv == "if" || strcmp(nodeType, "if") == 0) && !sI) {
       while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
              0) {
@@ -539,7 +539,7 @@ SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
       tmp = {};
     } else if (strcmp(nodeType, "comment") != 0 &&
                ts_node_named_child_count(c) == 1) {
-      auto cChildType = ts_node_type(ts_node_named_child(c, 0));
+      const auto *cChildType = ts_node_type(ts_node_named_child(c, 0));
       if (strcmp(cChildType, "comment") != 0) {
         tmp.push_back(makeNode(file, c));
       }
@@ -665,7 +665,7 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
 }
 
 std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node) {
-  auto nodeType = ts_node_type(node);
+  const auto *nodeType = ts_node_type(node);
   if (strcmp(nodeType, "argument_list") == 0) {
     return std::make_shared<ArgumentList>(file, node);
   }

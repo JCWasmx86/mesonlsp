@@ -87,9 +87,9 @@ TEST(TestAst, testKeywordItem) {
   auto *bd = dynamic_cast<BuildDefinition *>(node.get());
   ASSERT_NE(bd, nullptr);
   ASSERT_EQ(bd->stmts.size(), 1);
-  auto fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
+  auto *fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
   ASSERT_NE(fe, nullptr);
-  auto al = dynamic_cast<ArgumentList *>(fe->args.get());
+  auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
   ASSERT_NE(al, nullptr);
   ASSERT_EQ(al->args.size(), 2);
   ASSERT_NE(dynamic_cast<StringLiteral *>(al->args[0].get()), nullptr);
