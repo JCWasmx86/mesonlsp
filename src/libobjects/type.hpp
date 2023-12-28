@@ -13,19 +13,19 @@
   public:                                                                      \
     className()                                                                \
         : AbstractObject(internalId, std::make_shared<parentClass>()) {}       \
-  };
+  }; // NOLINT(misc-macro-parentheses);
 
 #define MAKE_TYPE(className, internalId)                                       \
   class className : public AbstractObject {                                    \
   public:                                                                      \
     className() : AbstractObject(internalId) {}                                \
-  };
+  }; // NOLINT(misc-macro-parentheses);
 
 #define MAKE_BASIC_TYPE(className, internalId)                                 \
   class className : public Type {                                              \
   public:                                                                      \
     className() : Type(internalId) {}                                          \
-  };
+  }; // NOLINT(misc-macro-parentheses);
 
 class Type {
 public:
