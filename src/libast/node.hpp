@@ -318,7 +318,7 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  std::string functionName() {
+  std::string functionName() const {
     auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
     if (idExpr == nullptr) {
       return INVALID_FUNCTION_NAME;

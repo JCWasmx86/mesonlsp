@@ -2,7 +2,9 @@
 
 #include "analysisoptions.hpp"
 #include "log.hpp"
+#include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "optiondiagnosticvisitor.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
 #include "scope.hpp"
@@ -19,8 +21,9 @@ extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 static Logger LOG("analyze::mesontree"); // NOLINT
 
-OptionState parseFile(std::filesystem::path path) {
+OptionState parseFile(std::filesystem::path path, MesonMetadata *metadata) {
   auto visitor = OptionExtractor();
+  auto diagnosticVisitor = OptionDiagnosticVisitor(metadata);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   auto fileContent = readFile(path);
@@ -30,22 +33,23 @@ OptionState parseFile(std::filesystem::path path) {
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
   root->visit(&visitor);
+  root->visit(&diagnosticVisitor);
   auto optionState = OptionState(visitor.options);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
   return optionState;
 }
 
-OptionState parseOptions(std::filesystem::path &root) {
+OptionState parseOptions(std::filesystem::path &root, MesonMetadata *metadata) {
   auto modernOptionsFile = root / "meson.options";
   if (std::filesystem::exists(modernOptionsFile) &&
       std::filesystem::is_regular_file(modernOptionsFile)) {
-    return parseFile(modernOptionsFile);
+    return parseFile(modernOptionsFile, metadata);
   }
   auto legacyOptionsFile = root / "meson_options.txt";
   if (std::filesystem::exists(legacyOptionsFile) &&
       std::filesystem::is_regular_file(legacyOptionsFile)) {
-    return parseFile(legacyOptionsFile);
+    return parseFile(legacyOptionsFile, metadata);
   }
   return {};
 }
@@ -91,7 +95,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   LOG.info(std::format("Parsing {} ({})", this->identifier,
                        this->root.generic_string()));
   // First fetch all the options
-  auto options = parseOptions(this->root);
+  auto options = parseOptions(this->root, &this->metadata);
   // Then fetch diagnostics for the options
   // Then parse the root meson.build file
   auto rootFile = this->root / "meson.build";
