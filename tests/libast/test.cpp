@@ -15,7 +15,7 @@
 extern "C" TSLanguage *tree_sitter_ini();   // NOLINT
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
-std::shared_ptr<Node> parseToNode(std::string contents) {
+std::shared_ptr<Node> parseToNode(const std::string &contents) {
   auto file = std::make_shared<MemorySourceFile>(
       contents, std::filesystem::path("test.ini"));
   TSParser *parser = ts_parser_new();

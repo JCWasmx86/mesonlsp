@@ -45,11 +45,10 @@ public:
 
   bool owns(const std::filesystem::path &path);
 
-  void
-  patchFile(std::filesystem::path path, std::string contents,
-            std::function<void(
-                std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
-                func);
+  void patchFile(
+      const std::filesystem::path &path, const std::string &contents,
+      const std::function<void(
+          std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func);
   std::vector<InlayHint> inlayHints(const std::filesystem::path &path);
   std::vector<FoldingRange> foldingRanges(const std::filesystem::path &path);
   std::vector<uint64_t> semanticTokens(const std::filesystem::path &path);

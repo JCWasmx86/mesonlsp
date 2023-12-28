@@ -56,8 +56,8 @@ Wrap::Wrap(ast::ini::Section *section) {
   }
 }
 
-bool Wrap::applyPatch(std::filesystem::path path,
-                      std::filesystem::path packageFilesPath) {
+bool Wrap::applyPatch(const std::filesystem::path &path,
+                      const std::filesystem::path &packageFilesPath) {
   if (this->patchDirectory.has_value()) {
     auto packagePath = packageFilesPath / this->patchDirectory.value();
     if (!std::filesystem::exists(packagePath)) {
@@ -91,8 +91,8 @@ bool Wrap::applyPatch(std::filesystem::path path,
   return extractFile(archiveFileName.value(), path.parent_path());
 }
 
-bool Wrap::applyDiffFiles(std::filesystem::path path,
-                          std::filesystem::path packageFilesPath) {
+bool Wrap::applyDiffFiles(const std::filesystem::path &path,
+                          const std::filesystem::path &packageFilesPath) {
   for (const auto &diff : this->diffFiles) {
     LOG.info(std::format("Applying diff: {}", diff));
     auto absoluteDiffPath = std::filesystem::absolute(packageFilesPath / diff);
@@ -113,8 +113,8 @@ bool Wrap::applyDiffFiles(std::filesystem::path path,
   return true;
 }
 
-bool Wrap::postSetup(std::filesystem::path path,
-                     std::filesystem::path packageFilesPath) {
+bool Wrap::postSetup(const std::filesystem::path &path,
+                     const std::filesystem::path &packageFilesPath) {
   if (!this->applyPatch(path, packageFilesPath)) {
     LOG.warn("Failed during applying patches");
     return false;
@@ -127,7 +127,7 @@ bool Wrap::postSetup(std::filesystem::path path,
   return true;
 }
 
-std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
+std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path) {
   std::ifstream file(path);
   auto fileSize = std::filesystem::file_size(path);
   std::string fileContent;
@@ -135,7 +135,7 @@ std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
   file.read(fileContent.data(), fileSize);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_ini());
-  TSTree *tree = ts_parser_parse_string(parser, NULL, fileContent.data(),
+  TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
   TSNode const rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);

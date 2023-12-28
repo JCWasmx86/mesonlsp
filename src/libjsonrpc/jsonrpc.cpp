@@ -10,7 +10,8 @@
 #include <utility>
 
 void jsonrpc::JsonRpcServer::evaluateData(
-    std::shared_ptr<jsonrpc::JsonRpcHandler> handler, nlohmann::json data) {
+    const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler,
+    nlohmann::json data) {
   if (!data.contains("jsonrpc")) {
     this->returnError(nullptr, JsonrpcError::ParseError, "Missing jsonrpc key");
     return;
@@ -36,7 +37,8 @@ void jsonrpc::JsonRpcServer::evaluateData(
     return;
   }
   std::string const method = data["method"];
-  nlohmann::json const params = data.contains("params") ? data["params"] : nullptr;
+  nlohmann::json const params =
+      data.contains("params") ? data["params"] : nullptr;
   if (data.contains("id")) {
     auto callId = data["id"];
     if (this->shouldExit) {
@@ -76,7 +78,7 @@ void jsonrpc::JsonRpcServer::reply(nlohmann::json callId,
 
 void jsonrpc::JsonRpcServer::returnError(nlohmann::json callId,
                                          JsonrpcError error,
-                                         std::string message) {
+                                         const std::string &message) {
   nlohmann::json err;
   err["code"] = error;
   err["message"] = message;
@@ -87,7 +89,7 @@ void jsonrpc::JsonRpcServer::returnError(nlohmann::json callId,
   this->sendToClient(data);
 }
 
-void jsonrpc::JsonRpcServer::notification(std::string method,
+void jsonrpc::JsonRpcServer::notification(const std::string &method,
                                           nlohmann::json params) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
@@ -163,7 +165,7 @@ void jsonrpc::JsonRpcServer::loop(
 
 void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
 
-jsonrpc::JsonRpcHandler::JsonRpcHandler() {}
+jsonrpc::JsonRpcHandler::JsonRpcHandler() = default;
 
 void jsonrpc::JsonRpcServer::wait() {
   for (auto &future : this->futures) {

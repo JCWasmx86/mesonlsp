@@ -29,18 +29,18 @@ public:
     return true;
   }
 
-  virtual ~Wrap() {}
+  virtual ~Wrap() = default;
 
 protected:
   Wrap(ast::ini::Section *section);
-  bool postSetup(std::filesystem::path path,
-                 std::filesystem::path packageFilesPath);
+  bool postSetup(const std::filesystem::path &path,
+                 const std::filesystem::path &packageFilesPath);
 
 private:
-  bool applyPatch(std::filesystem::path path,
-                  std::filesystem::path packageFilesPath);
-  bool applyDiffFiles(std::filesystem::path path,
-                      std::filesystem::path packageFilesPath);
+  bool applyPatch(const std::filesystem::path &path,
+                  const std::filesystem::path &packageFilesPath);
+  bool applyDiffFiles(const std::filesystem::path &path,
+                      const std::filesystem::path &packageFilesPath);
 };
 
 class FileWrap : public Wrap {
@@ -102,4 +102,4 @@ public:
       : serializedWrap(std::move(serializedWrap)), ast(std::move(ast)) {}
 };
 
-std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path);
+std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path);

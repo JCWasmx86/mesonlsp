@@ -36,7 +36,7 @@ ast::ini::Section::findStringValue(const std::string &key) {
 ast::ini::Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(std::move(file)), location(new Location(node)) {}
 
-ast::ini::IniFile::IniFile(std::shared_ptr<SourceFile> file, TSNode node)
+ast::ini::IniFile::IniFile(const std::shared_ptr<SourceFile> &file, TSNode node)
     : ast::ini::Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->sections.push_back(
@@ -44,21 +44,21 @@ ast::ini::IniFile::IniFile(std::shared_ptr<SourceFile> file, TSNode node)
   }
 }
 
-ast::ini::StringValue::StringValue(std::shared_ptr<SourceFile> file,
+ast::ini::StringValue::StringValue(const std::shared_ptr<SourceFile> &file,
                                    TSNode node)
     : ast::ini::Node(file, node) {
   this->value = file->extractNodeValue(node);
   trim(this->value);
 }
 
-ast::ini::KeyValuePair::KeyValuePair(std::shared_ptr<SourceFile> file,
+ast::ini::KeyValuePair::KeyValuePair(const std::shared_ptr<SourceFile> &file,
                                      TSNode node)
     : ast::ini::Node(file, node) {
   this->key = ast::ini::makeNode(file, ts_node_named_child(node, 0));
   this->value = ast::ini::makeNode(file, ts_node_named_child(node, 1));
 }
 
-ast::ini::Section::Section(std::shared_ptr<SourceFile> file, TSNode node)
+ast::ini::Section::Section(const std::shared_ptr<SourceFile> &file, TSNode node)
     : ast::ini::Node(file, node) {
   this->name = ast::ini::makeNode(file, ts_node_named_child(node, 0));
   for (uint32_t i = 1; i < ts_node_named_child_count(node); i++) {
@@ -68,7 +68,7 @@ ast::ini::Section::Section(std::shared_ptr<SourceFile> file, TSNode node)
 }
 
 std::shared_ptr<ast::ini::Node>
-ast::ini::makeNode(std::shared_ptr<SourceFile> file, TSNode node) {
+ast::ini::makeNode(const std::shared_ptr<SourceFile> &file, TSNode node) {
   const auto *const nodeType = ts_node_type(node);
   if (strcmp(nodeType, "document") == 0) {
     return std::make_shared<ast::ini::IniFile>(file, node);

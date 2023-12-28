@@ -37,7 +37,7 @@ public:
   const uint64_t columns;
   const uint64_t lines;
 
-  std::string format() const {
+  [[nodiscard]] std::string format() const {
     return std::format("[{}:{}]->[{}:{}]", this->startLine, this->startColumn,
                        this->endLine, this->endColumn);
   }

@@ -52,7 +52,7 @@ protected:
   AbstractObject(
       std::string name,
       std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
-      : Type(name), parent(std::move(parent)) {}
+      : Type(std::move(name)), parent(std::move(parent)) {}
 };
 
 class Dict : public Type {
@@ -60,7 +60,8 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   // Public constructor
-  Dict(std::vector<std::shared_ptr<Type>> types) : Type("dict"), types(types) {
+  Dict(const std::vector<std::shared_ptr<Type>> &types)
+      : Type("dict"), types(types) {
     std::vector<std::string> names;
     for (const auto &element : types) {
       names.push_back(element->toString());
@@ -87,7 +88,8 @@ class List : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
-  List(std::vector<std::shared_ptr<Type>> types) : Type("list"), types(types) {
+  List(const std::vector<std::shared_ptr<Type>> &types)
+      : Type("list"), types(types) {
     std::vector<std::string> names;
     for (const auto &element : types) {
       names.push_back(element->toString());
@@ -115,7 +117,7 @@ public:
   std::vector<std::string> names;
 
   Subproject(std::vector<std::string> names)
-      : AbstractObject("subproject"), names(names) {
+      : AbstractObject("subproject"), names(std::move(names)) {
     std::sort(this->names.begin(), this->names.end());
     std::string cache;
     for (size_t i = 0; i < this->names.size(); i++) {

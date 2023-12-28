@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <sstream>
 #include <string>
+#include <utility>
 
 class TestJsonRpcHandler : public jsonrpc::JsonRpcHandler {
 private:
@@ -31,27 +32,27 @@ public:
     }
   }
 
-  ~TestJsonRpcHandler() = default;
+  ~TestJsonRpcHandler() override = default;
 };
 
-static std::string makeJsonrpcCall(int id, std::string method,
+static std::string makeJsonrpcCall(int id, const std::string &method,
                                    nlohmann::json params) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["method"] = method;
-  data["params"] = params;
+  data["params"] = std::move(params);
   data["id"] = id;
   std::string payload = data.dump();
   auto len = payload.size();
   return std::format("Content-Length:{}\r\n\r\n{}", len, payload);
 }
 
-static std::string makeJsonRpcNotification(std::string method,
+static std::string makeJsonRpcNotification(const std::string &method,
                                            nlohmann::json params) {
   nlohmann::json data;
   data["jsonrpc"] = "2.0";
   data["method"] = method;
-  data["params"] = params;
+  data["params"] = std::move(params);
   std::string payload = data.dump();
   auto len = payload.size();
   return std::format("Content-Length:{}\r\n\r\n{}", len, payload);

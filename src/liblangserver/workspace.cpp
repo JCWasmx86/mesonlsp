@@ -30,7 +30,7 @@
 #include <vector>
 
 std::vector<std::shared_ptr<MesonTree>>
-findTrees(std::shared_ptr<MesonTree> root) {
+findTrees(const std::shared_ptr<MesonTree> &root) {
   std::vector<std::shared_ptr<MesonTree>> ret;
   ret.emplace_back(root);
   for (const auto &subproj : root->state->subprojects) {
@@ -316,10 +316,9 @@ void Workspace::dropCache(const std::filesystem::path &path) {
 }
 
 void Workspace::patchFile(
-    std::filesystem::path path, std::string contents,
-    std::function<
-        void(std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>
-        func) {
+    const std::filesystem::path &path, const std::string &contents,
+    const std::function<void(
+        std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
   std::lock_guard<std::mutex> const lock(mtx);
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
@@ -328,7 +327,8 @@ void Workspace::patchFile(
     std::set<std::filesystem::path> oldDiags;
     auto identifier = subTree->identifier;
     {
-      std::lock_guard<std::mutex> const lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(
+          this->dataCollectionMtx);
       for (const auto &pair : subTree->metadata.diagnostics) {
         oldDiags.insert(pair.first);
       }
@@ -346,7 +346,8 @@ void Workspace::patchFile(
       subTree->overrides[path] = contents;
     }
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::lock_guard<std::mutex> const lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(
+          this->dataCollectionMtx);
       std::exception_ptr exception = nullptr;
       try {
         subTree->partialParse(
@@ -413,13 +414,13 @@ Workspace::parse(const TypeNamespace &ns) {
   tree->identifier = this->name;
   this->tree = tree;
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
-  for (auto subTree : findTrees(this->tree)) {
+  for (const auto &subTree : findTrees(this->tree)) {
     auto metadata = subTree->metadata;
-    for (auto pair : metadata.diagnostics) {
+    for (const auto &pair : metadata.diagnostics) {
       if (!ret.contains(pair.first)) {
         ret[pair.first] = {};
       }
-      for (auto diag : pair.second) {
+      for (const auto &diag : pair.second) {
         ret[pair.first].push_back(makeLSPDiagnostic(diag));
       }
     }

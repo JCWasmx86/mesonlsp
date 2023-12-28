@@ -26,8 +26,8 @@ public:
   std::set<std::string> requiredKwargs;
 
   Function(std::string name, std::string doc,
-           std::vector<std::shared_ptr<Argument>> args,
-           const std::vector<std::shared_ptr<Type>> returnTypes)
+           const std::vector<std::shared_ptr<Argument>> &args,
+           const std::vector<std::shared_ptr<Type>> &returnTypes)
       : name(std::move(name)), doc(std::move(doc)), args(args),
         returnTypes(returnTypes) {
     uint32_t minPosArgs = 0;
@@ -82,7 +82,7 @@ public:
     return last;
   }
 
-  virtual ~Function() {}
+  virtual ~Function() = default;
 };
 
 class Method : public Function {
@@ -90,9 +90,9 @@ public:
   const std::shared_ptr<Type> parentType;
 
   Method(std::string name, std::string doc,
-         std::vector<std::shared_ptr<Argument>> args,
-         const std::vector<std::shared_ptr<Type>> returnTypes,
-         const std::shared_ptr<Type> parentType)
+         const std::vector<std::shared_ptr<Argument>> &args,
+         const std::vector<std::shared_ptr<Type>> &returnTypes,
+         const std::shared_ptr<Type> &parentType)
       : Function(std::move(name), std::move(doc), std::move(args), returnTypes),
         parentType(parentType) {}
 

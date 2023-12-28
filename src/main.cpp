@@ -169,7 +169,7 @@ int main(int argc, char **argv) {
         error = true;
         break;
       }
-      wraps.emplace_back(std::string(argv[i + 1]));
+      wraps.emplace_back(argv[i + 1]);
       i++;
       continue;
     }
