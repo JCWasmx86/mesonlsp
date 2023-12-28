@@ -19,7 +19,7 @@ public:
   std::string identifier;
   std::filesystem::path root;
   std::set<std::filesystem::path> ownedFiles;
-  std::map<std::filesystem::path, std::shared_ptr<Node>> asts;
+  std::map<std::filesystem::path, std::vector<std::shared_ptr<Node>>> asts;
   std::map<std::filesystem::path, std::string> overrides;
   SubprojectState *state;
   Scope scope;

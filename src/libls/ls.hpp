@@ -26,8 +26,8 @@ public:
   virtual std::vector<DocumentHighlight>
   highlight(DocumentHighlightParams &params) = 0;
   virtual std::optional<WorkspaceEdit> rename(RenameParams &params) = 0;
-  virtual std::optional<LSPLocation> declaration(DeclarationParams &params) = 0;
-  virtual std::optional<LSPLocation> definition(DefinitionParams &params) = 0;
+  virtual std::vector<LSPLocation> declaration(DeclarationParams &params) = 0;
+  virtual std::vector<LSPLocation> definition(DefinitionParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

@@ -13,9 +13,12 @@
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
+#include <cstddef>
 #include <exception>
 #include <filesystem>
+#include <format>
 #include <future>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -52,7 +55,7 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     }
     auto ast = subTree->asts[path];
     auto visitor = InlayHintVisitor();
-    ast->visit(&visitor);
+    ast.back()->visit(&visitor);
     return visitor.hints;
   }
   return {};
@@ -133,25 +136,25 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
     }
     auto ast = subTree->asts[path];
     auto visitor = SemanticTokensVisitor();
-    ast->visit(&visitor);
+    ast.back()->visit(&visitor);
     return visitor.finish();
   }
   return {};
 }
 
-std::optional<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
-                                             const LSPPosition &position) {
+std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
+                                           const LSPPosition &position) {
   std::lock_guard<std::mutex> lock(dataCollectionMtx);
   // TODO: Jump to subdir/option
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
-    auto metadata = subTree->metadata;
+    const auto &metadata = &subTree->metadata;
     auto foundMyself = false;
     std::string toFind;
-    for (const auto *idExpr :
-         metadata.encounteredIds | std::ranges::views::reverse) {
+    for (size_t i = metadata->encounteredIds.size() - 1; i > 0; i--) {
+      const auto &idExpr = metadata->encounteredIds[i];
       if (MesonMetadata::contains(idExpr, position.line, position.character)) {
         foundMyself = true;
         toFind = idExpr->id;
@@ -166,19 +169,46 @@ std::optional<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
           const auto *loc = idExpr->location;
           auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
                                 LSPPosition(loc->endLine, loc->endColumn));
-          return LSPLocation(pathToUrl(idExpr->file->file), range);
+          return {LSPLocation(pathToUrl(idExpr->file->file), range)};
         }
       }
       if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
         const auto *loc = idExpr->location;
         auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
                               LSPPosition(loc->endLine, loc->endColumn));
-        return LSPLocation(pathToUrl(idExpr->file->file), range);
+        return {LSPLocation(pathToUrl(idExpr->file->file), range)};
       }
+    }
+    if (!metadata->functionCalls.contains(path)) {
+      return {};
+    }
+    for (const auto &funcCall : metadata->functionCalls.at(path)) {
+      if (!MesonMetadata::contains(funcCall, position.line,
+                                   position.character)) {
+        continue;
+      }
+      if (funcCall->functionName() != "subdir") {
+        return {};
+      }
+      auto key = std::format("{}-{}", funcCall->file->file.generic_string(),
+                             funcCall->location->format());
+      if (!metadata->subdirCalls.contains(key)) {
+        return {};
+      }
+      const auto &set = metadata->subdirCalls.at(key);
+      std::vector<std::string> sorted{set.begin(), set.end()};
+      std::sort(sorted.begin(), sorted.end());
+      std::vector<LSPLocation> ret;
+      for (const auto &subdir : sorted) {
+        auto subdirMesonPath = path.parent_path() / subdir / "meson.build";
+        auto range = LSPRange(LSPPosition(0, 0), LSPPosition(0, 0));
+        ret.emplace_back(pathToUrl(subdirMesonPath), range);
+      }
+      return ret;
     }
     break;
   }
-  return std::nullopt;
+  return {};
 }
 
 std::optional<WorkspaceEdit>
@@ -232,7 +262,7 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
     }
     auto ast = subTree->asts[path];
     auto visitor = FoldingRangeVisitor();
-    ast->visit(&visitor);
+    ast.back()->visit(&visitor);
     return visitor.ranges;
   }
   return {};
@@ -247,7 +277,7 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
     }
     auto ast = subTree->asts[path];
     auto visitor = DocumentSymbolVisitor();
-    ast->visit(&visitor);
+    ast.back()->visit(&visitor);
     return visitor.symbols;
   }
   return {};
