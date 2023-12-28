@@ -65,4 +65,9 @@ public:
     ret.emplace_back(this);
     return ret;
   }
+
+private:
+  OptionState parseFile(std::filesystem::path path, MesonMetadata *metadata);
+  OptionState parseOptions(std::filesystem::path &root,
+                           MesonMetadata *metadata);
 };
