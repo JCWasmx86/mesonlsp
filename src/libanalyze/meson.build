@@ -4,6 +4,7 @@ analyze_lib = static_library(
     'analyze',
     'options/optionstate.cpp',
     'options/optionextractor.cpp',
+    'options/optiondiagnosticvisitor.cpp',
     'typeanalyzer/typeanalyzer.cpp',
     'subprojects/subprojectstate.cpp',
     'typeanalyzer/partialinterpreter.cpp',

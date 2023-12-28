@@ -63,7 +63,8 @@ public:
   uint32_t endColumn;
   std::string message;
 
-  Diagnostic(Severity sev, Node *begin, Node *end, std::string message) {
+  Diagnostic(Severity sev, const Node *begin, const Node *end,
+             std::string message) {
     this->severity = sev;
     const auto *loc = begin->location;
     this->startLine = loc->startLine;
@@ -74,7 +75,7 @@ public:
     this->message = std::move(message);
   }
 
-  Diagnostic(Severity sev, Node *node, std::string message)
+  Diagnostic(Severity sev, const Node *node, std::string message)
       : Diagnostic(sev, node, node, std::move(message)) {}
 };
 
@@ -96,7 +97,7 @@ public:
   std::map<std::filesystem::path, std::vector<Diagnostic>> diagnostics;
   std::vector<IdExpression *> encounteredIds;
 
-  void registerDiagnostic(Node *node, const Diagnostic &diag) {
+  void registerDiagnostic(const Node *node, const Diagnostic &diag) {
     auto key = node->file->file;
     if (this->diagnostics.contains(key)) {
       this->diagnostics[key].push_back(diag);
