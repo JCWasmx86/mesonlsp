@@ -1,4 +1,3 @@
-#include "function.hpp"
 #include "node.hpp"
 #include "sourcefile.hpp"
 
@@ -8,7 +7,10 @@
 #include <gtest/gtest.h>
 #include <ini.hpp>
 #include <memory>
+#include <set>
+#include <string>
 #include <tree_sitter/api.h>
+#include <vector>
 
 extern "C" TSLanguage *tree_sitter_ini();   // NOLINT
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT

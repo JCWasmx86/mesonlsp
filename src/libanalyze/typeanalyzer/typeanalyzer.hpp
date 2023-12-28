@@ -7,9 +7,11 @@
 #include "node.hpp"
 #include "optionstate.hpp"
 #include "scope.hpp"
+#include "type.hpp"
 #include "typenamespace.hpp"
 
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>

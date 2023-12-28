@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 #include <utility>
-#include <vector> // NOLINT
+#include <vector>
 
 class BaseObject {
 public:

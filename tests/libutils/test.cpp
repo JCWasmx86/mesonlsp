@@ -1,9 +1,11 @@
 #include "utils.hpp"
 
+#include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <string>
 #include <uuid/uuid.h>
 
 std::string randomFile() {

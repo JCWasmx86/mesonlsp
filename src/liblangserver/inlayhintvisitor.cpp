@@ -1,10 +1,15 @@
 #include "inlayhintvisitor.hpp"
 
+#include "lsptypes.hpp"
+#include "node.hpp"
 #include "type.hpp"
 #include "utils.hpp"
 
 #include <algorithm>
 #include <format>
+#include <memory>
+#include <string>
+#include <vector>
 
 void InlayHintVisitor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);

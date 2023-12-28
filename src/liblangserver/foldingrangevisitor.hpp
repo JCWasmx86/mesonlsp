@@ -2,6 +2,8 @@
 #include "lsptypes.hpp"
 #include "node.hpp"
 
+#include <vector>
+
 class FoldingRangeVisitor : public CodeVisitor {
 public:
   std::vector<FoldingRange> ranges;

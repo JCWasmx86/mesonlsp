@@ -1,10 +1,12 @@
 #pragma once
+
 #include "lsptypes.hpp"
 #include "mesonmetadata.hpp"
 
 #include <ada.h>
 #include <cassert>
 #include <filesystem>
+#include <string>
 
 inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   auto url = ada::parse<ada::url>(urlStr);

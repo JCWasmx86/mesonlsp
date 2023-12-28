@@ -13,15 +13,21 @@
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
+#include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <future>
-#include <iostream>
+#include <map>
 #include <memory>
+#include <mutex>
 #include <optional>
-#include <ranges>
+#include <set>
+#include <string>
+#include <vector>
 
 std::vector<std::shared_ptr<MesonTree>>
 findTrees(std::shared_ptr<MesonTree> root) {

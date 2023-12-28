@@ -2,6 +2,8 @@
 #include "lsptypes.hpp"
 #include "node.hpp"
 
+#include <vector>
+
 class DocumentSymbolVisitor : public CodeVisitor {
 public:
   std::vector<SymbolInformation> symbols;

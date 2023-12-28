@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "log.hpp"
 #include "subproject.hpp"
+#include "typenamespace.hpp"
 #include "utils.hpp"
 
 #include <chrono>

@@ -3,12 +3,14 @@
 #include "location.hpp"
 #include "sourcefile.hpp"
 
+#include <cctype>
 #include <cstdint>
 #include <cstring>
 #include <format>
 #include <memory>
 #include <optional>
 #include <regex>
+#include <set>
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>

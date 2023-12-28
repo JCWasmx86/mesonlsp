@@ -5,8 +5,12 @@
 #include "typenamespace.hpp"
 #include "workspace.hpp"
 
+#include <cstdint>
+#include <filesystem>
+#include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 class LanguageServer : public AbstractLanguageServer {

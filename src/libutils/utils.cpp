@@ -15,15 +15,17 @@
 #include <exception>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <iostream>
 #include <optional>
 #include <ostream>
 #include <pwd.h>
+#include <stdlib.h>
+#include <string.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <uuid/uuid.h>
 #include <vector>
 
 #define HTTP_OK 200

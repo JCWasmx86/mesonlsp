@@ -2,6 +2,8 @@
 
 #include "node.hpp"
 
+#include <cstddef>
+
 void FoldingRangeVisitor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
 }

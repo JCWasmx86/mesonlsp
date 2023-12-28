@@ -10,6 +10,7 @@
 #include "scope.hpp"
 #include "sourcefile.hpp"
 #include "typeanalyzer.hpp"
+#include "utils.hpp"
 
 #include <filesystem>
 #include <format>

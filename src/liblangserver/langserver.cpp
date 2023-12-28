@@ -7,11 +7,20 @@
 #include "workspace.hpp"
 
 #include <cassert>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
+#include <fstream>
+#include <map>
+#include <memory>
 #include <optional>
+#include <ostream>
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <vector>
 extern "C" {
 #include <lang/fmt.h>
 #include <log.h>
