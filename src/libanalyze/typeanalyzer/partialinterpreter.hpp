@@ -62,7 +62,7 @@ class ArtificialArrayNode : public InterpretNode {
 public:
   ArtificialArrayNode(const std::vector<std::shared_ptr<InterpretNode>> &args)
       : InterpretNode(new ArrayLiteral({}, true)) {
-    for (auto arg : args) {
+    for (const auto &arg : args) {
       auto *asString = dynamic_cast<StringLiteral *>(arg->node);
       auto copy = std::make_shared<StringLiteral>(asString->id);
       dynamic_cast<ArrayLiteral *>(this->node)->args.push_back(copy);

@@ -1270,7 +1270,7 @@ next:
         continue;
       }
       auto parts = splitString(slNode->id);
-      for (auto part : parts) {
+      for (const auto &part : parts) {
         nodes.push_back(std::make_shared<ArtificialStringNode>(part));
       }
     }

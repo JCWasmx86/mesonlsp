@@ -32,7 +32,7 @@ public:
     this->state = TaskState::Pending;
   }
 
-  std::string getUUID() const { return uuid; }
+  [[nodiscard]] std::string getUUID() const { return uuid; }
 
   void cancel() {
     std::lock_guard<std::mutex> const lock(mtx);

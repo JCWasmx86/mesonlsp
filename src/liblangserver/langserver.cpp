@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -17,8 +18,6 @@
 #include <memory>
 #include <optional>
 #include <ostream>
-#include <stdio.h>
-#include <string.h>
 #include <string>
 #include <vector>
 extern "C" {
@@ -50,7 +49,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
   platform_init();
   log_init();
 
-  for (auto wspf : params.workspaceFolders) {
+  for (const auto &wspf : params.workspaceFolders) {
     auto workspace = std::make_shared<Workspace>(wspf);
     auto diags = workspace->parse(this->ns);
     this->diagnosticsFromInitialisation.emplace_back(diags);
@@ -153,7 +152,8 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   }
   (void)fflush(output);
   (void)fclose(output);
-  std::string const asString(static_cast<const char *>(formattedStr), formattedSize);
+  std::string const asString(static_cast<const char *>(formattedStr),
+                             formattedSize);
 
   // Editors don't care, if we tell them, that the file is
   // a lot longer than it really is, so we just guess some
@@ -258,7 +258,8 @@ void LanguageServer::onDidCloseTextDocument(
 }
 
 void LanguageServer::publishDiagnostics(
-    std::map<std::filesystem::path, std::vector<LSPDiagnostic>> newDiags) {
+    const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+        &newDiags) {
   for (const auto &pair : newDiags) {
     auto asURI = pathToUrl(pair.first);
     auto clearingParams = PublishDiagnosticsParams(asURI, {});

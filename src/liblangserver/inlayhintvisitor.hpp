@@ -35,5 +35,6 @@ public:
 
 private:
   void makeHint(Node *node);
-  std::string prettify(std::vector<std::shared_ptr<Type>> types, int depth);
+  std::string prettify(const std::vector<std::shared_ptr<Type>> &types,
+                       int depth);
 };

@@ -131,7 +131,7 @@ public:
     this->encounteredIds.push_back(node);
   }
 
-  void registerKwarg(KeywordItem *item, std::shared_ptr<Function> func) {
+  void registerKwarg(KeywordItem *item, const std::shared_ptr<Function> &func) {
     auto key = item->file->file;
     if (this->kwargs.contains(key)) {
       this->kwargs[key].emplace_back(item, func);

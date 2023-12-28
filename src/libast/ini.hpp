@@ -27,7 +27,7 @@ protected:
 class StringValue : public ast::ini::Node {
 public:
   std::string value;
-  StringValue(std::shared_ptr<SourceFile> file, TSNode node);
+  StringValue(const std::shared_ptr<SourceFile> &file, TSNode node);
 };
 
 class ErrorNode : public Node {
@@ -42,14 +42,14 @@ class KeyValuePair : public ast::ini::Node {
 public:
   std::shared_ptr<ast::ini::Node> key;
   std::shared_ptr<ast::ini::Node> value;
-  KeyValuePair(std::shared_ptr<SourceFile> file, TSNode node);
+  KeyValuePair(const std::shared_ptr<SourceFile> &file, TSNode node);
 };
 
 class Section : public ast::ini::Node {
 public:
   std::shared_ptr<ast::ini::Node> name;
   std::vector<std::shared_ptr<ast::ini::Node>> keyValuePairs;
-  Section(std::shared_ptr<SourceFile> file, TSNode node);
+  Section(const std::shared_ptr<SourceFile> &file, TSNode node);
 
   std::optional<std::string> findStringValue(const std::string &key);
 };
@@ -58,9 +58,10 @@ class IniFile : public ast::ini::Node {
 public:
   std::vector<std::shared_ptr<ast::ini::Node>> sections;
 
-  IniFile(std::shared_ptr<SourceFile> file, TSNode node);
+  IniFile(const std::shared_ptr<SourceFile> &file, TSNode node);
 };
 
-std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);
+std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
+                               TSNode node);
 
 } // namespace ast::ini

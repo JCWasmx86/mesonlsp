@@ -35,7 +35,7 @@ static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
 static bool sameType(std::shared_ptr<Type> &a, std::shared_ptr<Type> &b,
                      const std::string &name);
 
-void TypeAnalyzer::applyToStack(std::string name,
+void TypeAnalyzer::applyToStack(const std::string &name,
                                 std::vector<std::shared_ptr<Type>> types) {
   if (this->stack.empty()) {
     return;
@@ -138,7 +138,8 @@ void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
 }
 
 std::optional<std::shared_ptr<Type>>
-TypeAnalyzer::evalPlusEquals(std::shared_ptr<Type> l, std::shared_ptr<Type> r) {
+TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &l,
+                             const std::shared_ptr<Type> &r) {
   if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
     return this->ns.intType;
   }
@@ -173,8 +174,8 @@ TypeAnalyzer::evalPlusEquals(std::shared_ptr<Type> l, std::shared_ptr<Type> r) {
 }
 
 void TypeAnalyzer::evalAssignmentTypes(
-    std::shared_ptr<Type> l, std::shared_ptr<Type> r, AssignmentOperator op,
-    std::vector<std::shared_ptr<Type>> *newTypes) {
+    const std::shared_ptr<Type> &l, const std::shared_ptr<Type> &r,
+    AssignmentOperator op, std::vector<std::shared_ptr<Type>> *newTypes) {
   switch (op) {
   case DivEquals:
     if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
@@ -205,8 +206,8 @@ void TypeAnalyzer::evalAssignmentTypes(
 
 std::vector<std::shared_ptr<Type>>
 TypeAnalyzer::evalAssignment(AssignmentOperator op,
-                             std::vector<std::shared_ptr<Type>> lhs,
-                             std::vector<std::shared_ptr<Type>> rhs) {
+                             const std::vector<std::shared_ptr<Type>> &lhs,
+                             const std::vector<std::shared_ptr<Type>> &rhs) {
   std::vector<std::shared_ptr<Type>> ret;
   for (const auto &l : lhs) {
     for (const auto &r : rhs) {
@@ -285,7 +286,7 @@ bool TypeAnalyzer::isSpecial(std::vector<std::shared_ptr<Type>> &types) {
 
 std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
     BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
-    std::vector<std::shared_ptr<Type>> rhs, unsigned int *numErrors) {
+    const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors) {
   std::vector<std::shared_ptr<Type>> newTypes;
   for (auto lType : lhs) {
     for (auto rType : rhs) {
@@ -739,7 +740,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
                            joinTypes(node->condition->types)));
 }
 
-void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) {
+void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) const {
   std::set<std::string> seenKeys;
   for (const auto &keyV : node->values) {
     auto *asKVI = dynamic_cast<KeyValueItem *>(keyV.get());
@@ -775,7 +776,7 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
 }
 
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
-                                        std::shared_ptr<Function> fn) {
+                                        const std::shared_ptr<Function> &fn) {
   auto name = fn->name;
   if (name == "subproject") {
     auto values = ::guessSetVariable(node, this->options);
@@ -1007,8 +1008,8 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   }
 }
 
-void TypeAnalyzer::specialFunctionCallHandling(FunctionExpression *node,
-                                               std::shared_ptr<Function> fn) {
+void TypeAnalyzer::specialFunctionCallHandling(
+    FunctionExpression *node, const std::shared_ptr<Function> &fn) {
   auto name = fn->name;
   if (name != "subproject") {
     // TODO
@@ -1017,7 +1018,7 @@ void TypeAnalyzer::specialFunctionCallHandling(FunctionExpression *node,
 }
 
 void TypeAnalyzer::checkKwargsAfterPositionalArguments(
-    std::vector<std::shared_ptr<Node>> args) const {
+    const std::vector<std::shared_ptr<Node>> &args) const {
   auto kwargsOnly = false;
   for (const auto &arg : args) {
     if (dynamic_cast<KeywordItem *>(arg.get())) {
@@ -1034,9 +1035,9 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
   }
 }
 
-void TypeAnalyzer::checkKwargs(std::shared_ptr<Function> func,
-                               std::vector<std::shared_ptr<Node>> args,
-                               Node *node) {
+void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
+                               const std::vector<std::shared_ptr<Node>> &args,
+                               Node *node) const {
   std::map<std::string, KeywordItem *> usedKwargs;
   for (const auto &arg : args) {
     auto *kwi = dynamic_cast<KeywordItem *>(arg.get());
@@ -1070,8 +1071,8 @@ void TypeAnalyzer::checkKwargs(std::shared_ptr<Function> func,
   }
 }
 
-bool TypeAnalyzer::compatible(std::shared_ptr<Type> given,
-                              std::shared_ptr<Type> expected) {
+bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
+                              const std::shared_ptr<Type> &expected) {
   if (given->toString() == expected->toString()) {
     return true;
   }
@@ -1129,7 +1130,7 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
 }
 
 void TypeAnalyzer::checkTypes(
-    std::shared_ptr<Node> arg,
+    const std::shared_ptr<Node> &arg,
     const std::vector<std::shared_ptr<Type>> &expectedTypes,
     const std::vector<std::shared_ptr<Type>> &givenTypes) {
   if (this->atleastPartiallyCompatible(expectedTypes, givenTypes)) {
@@ -1142,8 +1143,8 @@ void TypeAnalyzer::checkTypes(
                              joinTypes(givenTypes))));
 }
 
-void TypeAnalyzer::checkArgTypes(std::shared_ptr<Function> func,
-                                 std::vector<std::shared_ptr<Node>> args,
+void TypeAnalyzer::checkArgTypes(const std::shared_ptr<Function> &func,
+                                 const std::vector<std::shared_ptr<Node>> &args,
                                  Node *node) {
   auto posArgsIdx = 0;
   for (const auto &arg : args) {
@@ -1628,7 +1629,7 @@ void TypeAnalyzer::visitKeywordItem(KeywordItem *node) {
 }
 
 bool TypeAnalyzer::findMethod(
-    MethodExpression *node, std::string methodName, int *nAny, int *bits,
+    MethodExpression *node, const std::string &methodName, int *nAny, int *bits,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
   auto found = false;
   auto types = node->obj->types;

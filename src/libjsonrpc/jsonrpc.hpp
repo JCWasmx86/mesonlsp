@@ -29,7 +29,7 @@ private:
   std::ostream &output;
   std::mutex output_mutex;
   std::vector<std::future<void>> futures;
-  void evaluateData(std::shared_ptr<jsonrpc::JsonRpcHandler> handler,
+  void evaluateData(const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler,
                     nlohmann::json data);
   void sendToClient(const nlohmann::json &data);
   bool shouldExit;
@@ -42,9 +42,9 @@ public:
 
   void loop(const std::shared_ptr<JsonRpcHandler> &handler);
   void reply(nlohmann::json callId, nlohmann::json result);
-  void notification(std::string method, nlohmann::json params);
+  void notification(const std::string &method, nlohmann::json params);
   void returnError(nlohmann::json callId, JsonrpcError error,
-                   std::string message);
+                   const std::string &message);
   void exit();
   void wait();
 };
@@ -54,7 +54,7 @@ public:
   std::shared_ptr<JsonRpcServer> server = nullptr;
   JsonRpcHandler();
 
-  virtual ~JsonRpcHandler() {}
+  virtual ~JsonRpcHandler() = default;
 
   virtual void handleNotification(std::string method,
                                   nlohmann::json params) = 0;

@@ -57,7 +57,7 @@ public:
   std::shared_ptr<Node> key;
   std::shared_ptr<Node> value;
   std::optional<std::string> name;
-  KeywordItem(std::shared_ptr<SourceFile> file, TSNode node);
+  KeywordItem(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -66,7 +66,7 @@ public:
 class ArgumentList : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
-  ArgumentList(std::shared_ptr<SourceFile> file, TSNode node);
+  ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node);
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
@@ -108,11 +108,11 @@ public:
 class ArrayLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
-  ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
   bool fake = false; // TODO: Remove this
 
   ArrayLiteral(std::vector<std::shared_ptr<Node>> args, bool fake) {
-    this->args = args;
+    this->args = std::move(args);
     this->fake = fake;
   }
 
@@ -156,7 +156,7 @@ public:
   std::shared_ptr<Node> lhs;
   std::shared_ptr<Node> rhs;
   AssignmentOperator op;
-  AssignmentStatement(std::shared_ptr<SourceFile> file, TSNode node);
+  AssignmentStatement(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -225,7 +225,7 @@ public:
   std::shared_ptr<Node> rhs;
   BinaryOperator op;
 
-  BinaryExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  BinaryExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -234,7 +234,7 @@ public:
 class BooleanLiteral : public Node {
 public:
   bool value;
-  BooleanLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  BooleanLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -251,7 +251,7 @@ public:
 class BuildDefinition : public Node {
 public:
   std::vector<std::shared_ptr<Node>> stmts;
-  BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node);
+  BuildDefinition(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -262,7 +262,7 @@ public:
   std::shared_ptr<Node> condition;
   std::shared_ptr<Node> ifTrue;
   std::shared_ptr<Node> ifFalse;
-  ConditionalExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  ConditionalExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -279,7 +279,7 @@ public:
 class DictionaryLiteral : public Node {
 public:
   std::vector<std::shared_ptr<Node>> values;
-  DictionaryLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  DictionaryLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -300,7 +300,7 @@ public:
 class IdExpression : public Node {
 public:
   std::string id;
-  IdExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  IdExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -314,7 +314,7 @@ public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
   std::shared_ptr<Function> function;
-  FunctionExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  FunctionExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -332,7 +332,7 @@ class IntegerLiteral : public Node {
 public:
   uint64_t valueAsInt;
   std::string value;
-  IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  IntegerLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -343,7 +343,7 @@ public:
   std::vector<std::shared_ptr<Node>> ids;
   std::shared_ptr<Node> expression;
   std::vector<std::shared_ptr<Node>> stmts;
-  IterationStatement(std::shared_ptr<SourceFile> file, TSNode node);
+  IterationStatement(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -353,7 +353,7 @@ class StringLiteral : public Node {
 public:
   std::string id;
   bool isFormat;
-  StringLiteral(std::shared_ptr<SourceFile> file, TSNode node);
+  StringLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
 
   StringLiteral(std::string str) {
     this->id = std::move(str);
@@ -369,7 +369,7 @@ class KeyValueItem : public Node {
 public:
   std::shared_ptr<Node> key;
   std::shared_ptr<Node> value;
-  KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node);
+  KeyValueItem(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -389,7 +389,7 @@ public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
   std::shared_ptr<Method> method;
-  MethodExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  MethodExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -399,7 +399,7 @@ class SelectionStatement : public Node {
 public:
   std::vector<std::shared_ptr<Node>> conditions;
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
-  SelectionStatement(std::shared_ptr<SourceFile> file, TSNode node);
+  SelectionStatement(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -409,7 +409,7 @@ class SubscriptExpression : public Node {
 public:
   std::shared_ptr<Node> outer;
   std::shared_ptr<Node> inner;
-  SubscriptExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  SubscriptExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
@@ -421,19 +421,20 @@ class UnaryExpression : public Node {
 public:
   std::shared_ptr<Node> expression;
   UnaryOperator op;
-  UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node);
+  UnaryExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 };
 
-std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node);
+std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
+                               TSNode node);
 
 class CodeVisitor {
 public:
   CodeVisitor() = default;
 
-  virtual ~CodeVisitor() {}
+  virtual ~CodeVisitor() = default;
 
   virtual void visitArgumentList(ArgumentList *node) = 0;
   virtual void visitArrayLiteral(ArrayLiteral *node) = 0;

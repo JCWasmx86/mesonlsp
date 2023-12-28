@@ -106,11 +106,12 @@ void InlayHintVisitor::visitContinueNode(ContinueNode *node) {
 void InlayHintVisitor::makeHint(Node *node) {
   auto pos = LSPPosition(node->location->startLine, node->location->endColumn);
   auto text = ":" + this->prettify(node->types, 0);
-  this->hints.emplace_back(InlayHint(pos, text));
+  this->hints.emplace_back(pos, text);
 }
 
-std::string InlayHintVisitor::prettify(std::vector<std::shared_ptr<Type>> types,
-                                       int depth) {
+std::string
+InlayHintVisitor::prettify(const std::vector<std::shared_ptr<Type>> &types,
+                           int depth) {
   std::vector<std::string> strs;
   for (const auto &type : types) {
     if (dynamic_cast<Disabler *>(type.get()) && types.size() > 1) {

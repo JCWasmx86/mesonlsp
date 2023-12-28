@@ -22,7 +22,7 @@ static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
 Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(std::move(file)), location(new Location(node)) {}
 
-ArgumentList::ArgumentList(std::shared_ptr<SourceFile> file, TSNode node)
+ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->args.push_back(makeNode(file, ts_node_named_child(node, i)));
@@ -42,7 +42,7 @@ void ArgumentList::setParents() {
   }
 }
 
-ArrayLiteral::ArrayLiteral(std::shared_ptr<SourceFile> file, TSNode node)
+ArrayLiteral::ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto child = ts_node_named_child(node, i);
@@ -63,7 +63,8 @@ void ArrayLiteral::setParents() {
   }
 }
 
-BuildDefinition::BuildDefinition(std::shared_ptr<SourceFile> file, TSNode node)
+BuildDefinition::BuildDefinition(const std::shared_ptr<SourceFile> &file,
+                                 TSNode node)
     : Node(file, node) {
   if (!node.id) {
     return;
@@ -89,7 +90,7 @@ void BuildDefinition::visitChildren(CodeVisitor *visitor) {
   }
 };
 
-DictionaryLiteral::DictionaryLiteral(std::shared_ptr<SourceFile> file,
+DictionaryLiteral::DictionaryLiteral(const std::shared_ptr<SourceFile> &file,
                                      TSNode node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
@@ -110,8 +111,8 @@ void DictionaryLiteral::visitChildren(CodeVisitor *visitor) {
   }
 };
 
-ConditionalExpression::ConditionalExpression(std::shared_ptr<SourceFile> file,
-                                             TSNode node)
+ConditionalExpression::ConditionalExpression(
+    const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->condition = makeNode(file, ts_node_named_child(node, 0));
   this->ifTrue = makeNode(file, ts_node_named_child(node, 1));
@@ -133,8 +134,8 @@ void ConditionalExpression::visitChildren(CodeVisitor *visitor) {
   this->ifFalse->visit(visitor);
 };
 
-SubscriptExpression::SubscriptExpression(std::shared_ptr<SourceFile> file,
-                                         TSNode node)
+SubscriptExpression::SubscriptExpression(
+    const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->outer = makeNode(file, ts_node_named_child(node, 0));
   this->inner = makeNode(file, ts_node_named_child(node, 1));
@@ -152,7 +153,7 @@ void SubscriptExpression::visitChildren(CodeVisitor *visitor) {
   this->inner->visit(visitor);
 };
 
-MethodExpression::MethodExpression(std::shared_ptr<SourceFile> file,
+MethodExpression::MethodExpression(const std::shared_ptr<SourceFile> &file,
                                    TSNode node)
     : Node(file, node) {
   this->obj = makeNode(file, ts_node_named_child(node, 0));
@@ -183,7 +184,7 @@ void MethodExpression::setParents() {
   }
 }
 
-FunctionExpression::FunctionExpression(std::shared_ptr<SourceFile> file,
+FunctionExpression::FunctionExpression(const std::shared_ptr<SourceFile> &file,
                                        TSNode node)
     : Node(file, node) {
   this->id = makeNode(file, ts_node_named_child(node, 0));
@@ -210,7 +211,7 @@ void FunctionExpression::visitChildren(CodeVisitor *visitor) {
   }
 };
 
-KeyValueItem::KeyValueItem(std::shared_ptr<SourceFile> file, TSNode node)
+KeyValueItem::KeyValueItem(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->key = makeNode(file, ts_node_named_child(node, 0));
   this->value = makeNode(file, ts_node_named_child(node, 1));
@@ -228,7 +229,7 @@ void KeyValueItem::visitChildren(CodeVisitor *visitor) {
   this->value->visit(visitor);
 };
 
-KeywordItem::KeywordItem(std::shared_ptr<SourceFile> file, TSNode node)
+KeywordItem::KeywordItem(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->key = makeNode(file, ts_node_named_child(node, 0));
   this->value = makeNode(file, ts_node_named_child(node, 1));
@@ -252,7 +253,7 @@ void KeywordItem::visitChildren(CodeVisitor *visitor) {
   this->value->visit(visitor);
 };
 
-IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
+IterationStatement::IterationStatement(const std::shared_ptr<SourceFile> &file,
                                        TSNode node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
@@ -274,30 +275,30 @@ IterationStatement::IterationStatement(std::shared_ptr<SourceFile> file,
 }
 
 void IterationStatement::visitChildren(CodeVisitor *visitor) {
-  for (auto id : this->ids) {
+  for (const auto &id : this->ids) {
     id->visit(visitor);
   }
   this->expression->visit(visitor);
-  for (auto stmt : this->stmts) {
+  for (const auto &stmt : this->stmts) {
     stmt->visit(visitor);
   }
 }
 
 void IterationStatement::setParents() {
-  for (auto id : this->ids) {
+  for (const auto &id : this->ids) {
     id->parent = this;
     id->setParents();
   }
   this->expression->parent = this;
   this->expression->setParents();
-  for (auto stmt : this->stmts) {
+  for (const auto &stmt : this->stmts) {
     stmt->parent = this;
     stmt->setParents();
   }
 }
 
-AssignmentStatement::AssignmentStatement(std::shared_ptr<SourceFile> file,
-                                         TSNode node)
+AssignmentStatement::AssignmentStatement(
+    const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   auto opStr = file->extractNodeValue(ts_node_named_child(node, 1));
@@ -331,7 +332,7 @@ void AssignmentStatement::visitChildren(CodeVisitor *visitor) {
   this->rhs->visit(visitor);
 }
 
-BinaryExpression::BinaryExpression(std::shared_ptr<SourceFile> file,
+BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
                                    TSNode node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
@@ -386,7 +387,8 @@ void BinaryExpression::visitChildren(CodeVisitor *visitor) {
   this->rhs->visit(visitor);
 }
 
-UnaryExpression::UnaryExpression(std::shared_ptr<SourceFile> file, TSNode node)
+UnaryExpression::UnaryExpression(const std::shared_ptr<SourceFile> &file,
+                                 TSNode node)
     : Node(file, node) {
   auto opStr = file->extractNodeValue(ts_node_child(node, 0));
   if (opStr == "not") {
@@ -443,7 +445,8 @@ std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
   return mesonString;
 }
 
-StringLiteral::StringLiteral(std::shared_ptr<SourceFile> file, TSNode node)
+StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
+                             TSNode node)
     : Node(file, node) {
   this->isFormat =
       strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
@@ -455,7 +458,7 @@ void StringLiteral::setParents() {}
 
 void StringLiteral::visitChildren(CodeVisitor *visitor) {}
 
-IdExpression::IdExpression(std::shared_ptr<SourceFile> file, TSNode node)
+IdExpression::IdExpression(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->id = file->extractNodeValue(node);
 }
@@ -464,7 +467,8 @@ void IdExpression::visitChildren(CodeVisitor *visitor) {}
 
 void IdExpression::setParents() {}
 
-BooleanLiteral::BooleanLiteral(std::shared_ptr<SourceFile> file, TSNode node)
+BooleanLiteral::BooleanLiteral(const std::shared_ptr<SourceFile> &file,
+                               TSNode node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node) == "true";
 }
@@ -473,7 +477,8 @@ void BooleanLiteral::setParents() {}
 
 void BooleanLiteral::visitChildren(CodeVisitor *visitor) {}
 
-IntegerLiteral::IntegerLiteral(std::shared_ptr<SourceFile> file, TSNode node)
+IntegerLiteral::IntegerLiteral(const std::shared_ptr<SourceFile> &file,
+                               TSNode node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node);
   if (this->value.starts_with("0x") || this->value.starts_with("0X")) {
@@ -492,20 +497,20 @@ void IntegerLiteral::setParents() {}
 void IntegerLiteral::visitChildren(CodeVisitor *visitor) {}
 
 ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, TSNode node)
-    : Node(file, node) {}
+    : Node(std::move(file), node) {}
 
 void ContinueNode::setParents() {}
 
 void ContinueNode::visitChildren(CodeVisitor *visitor) {}
 
 BreakNode::BreakNode(std::shared_ptr<SourceFile> file, TSNode node)
-    : Node(file, node) {}
+    : Node(std::move(file), node) {}
 
 void BreakNode::visitChildren(CodeVisitor *visitor) {}
 
 void BreakNode::setParents() {}
 
-SelectionStatement::SelectionStatement(std::shared_ptr<SourceFile> file,
+SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
                                        TSNode node)
     : Node(file, node) {
   auto childCount = ts_node_child_count(node);
@@ -664,7 +669,8 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
   visitor->visitUnaryExpression(this);
 }
 
-std::shared_ptr<Node> makeNode(std::shared_ptr<SourceFile> file, TSNode node) {
+std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
+                               TSNode node) {
   const auto *nodeType = ts_node_type(node);
   if (strcmp(nodeType, "argument_list") == 0) {
     return std::make_shared<ArgumentList>(file, node);
@@ -776,7 +782,7 @@ std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
     std::string const matchedStr = match.str(1);
     size_t const startPos = match.position();
     size_t const endPos = startPos + matchedStr.length() +
-                    2; // Including the surrounding @ symbols
+                          2; // Including the surrounding @ symbols
 
     if ((startPos != 0 && (std::isdigit(tempText[startPos - 1]) != 0)) ||
         (endPos != tempText.length() &&

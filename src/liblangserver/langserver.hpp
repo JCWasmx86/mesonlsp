@@ -42,10 +42,10 @@ public:
   void onDidSaveTextDocument(DidSaveTextDocumentParams &params) override;
   void onDidCloseTextDocument(DidCloseTextDocumentParams &params) override;
 
-  void publishDiagnostics(
-      std::map<std::filesystem::path, std::vector<LSPDiagnostic>> newDiags);
+  void publishDiagnostics(const std::map<std::filesystem::path,
+                                         std::vector<LSPDiagnostic>> &newDiags);
 
-  ~LanguageServer() {}
+  ~LanguageServer() override = default;
 
 private:
   TypeNamespace ns;
