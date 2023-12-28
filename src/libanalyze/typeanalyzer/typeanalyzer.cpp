@@ -1262,7 +1262,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   } else {
     LOG.info(msg);
   }
-  this->metadata->registerSubdirCall(node);
+  this->metadata->registerSubdirCall(node, asSet);
   for (auto dir : asSet) {
     auto dirpath = node->file->file.parent_path() / dir;
     if (!std::filesystem::exists(dirpath)) {
@@ -1374,6 +1374,13 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   }
   auto *kwi = dynamic_cast<KeywordItem *>(parent);
   if (kwi && kwi->key->equals(node)) {
+    return true;
+  }
+  auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+  if (ass && ass->lhs->equals(node)) {
+    return true;
+  }
+  if (dynamic_cast<IterationStatement *>(parent)) {
     return true;
   }
   return std::find(this->ignoreUnknownIdentifier.begin(),

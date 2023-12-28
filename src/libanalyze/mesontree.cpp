@@ -61,11 +61,14 @@ std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
     const TSNode rootNode = ts_tree_root_node(tree);
     auto root = makeNode(sourceFile, rootNode);
     this->ownedFiles.insert(std::filesystem::absolute(path));
-    this->asts[root->file->file] = root;
     root->setParents();
+    if (!this->asts.contains(root->file->file)) {
+      this->asts[root->file->file] = {};
+    }
+    this->asts[root->file->file].push_back(root);
     ts_tree_delete(tree);
     ts_parser_delete(parser);
-    return root;
+    return this->asts[root->file->file].back();
   }
   auto fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
@@ -73,12 +76,15 @@ std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
+  if (!this->asts.contains(root->file->file)) {
+    this->asts[root->file->file] = {};
+  }
   this->ownedFiles.insert(std::filesystem::absolute(path));
-  this->asts[root->file->file] = root;
   root->setParents();
+  this->asts[root->file->file].push_back(root);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
-  return root;
+  return this->asts[root->file->file].back();
 }
 
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {

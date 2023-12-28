@@ -82,8 +82,7 @@ class MesonMetadata {
 public:
   // Sadly raw pointers due to only getting raw pointers to the
   // code visitor.
-  std::map<std::filesystem::path, std::vector<FunctionExpression *>>
-      subdirCalls;
+  std::map<std::filesystem::path, std::set<std::string>> subdirCalls;
   std::map<std::filesystem::path, std::vector<MethodExpression *>> methodCalls;
   std::map<std::filesystem::path, std::vector<SubscriptExpression *>>
       arrayAccess;
@@ -106,7 +105,12 @@ public:
     }
   }
 
-  REGISTER(registerSubdirCall, subdirCalls, FunctionExpression)
+  void registerSubdirCall(FunctionExpression *node,
+                          const std::set<std::string> &subdirs) {
+    auto key = std::format("{}-{}", node->file->file.generic_string(),
+                           node->location->format());
+    this->subdirCalls[key] = subdirs;
+  }
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
   REGISTER(registerStringLiteral, stringLiterals, StringLiteral)
   REGISTER(registerMethodCall, methodCalls, MethodExpression)

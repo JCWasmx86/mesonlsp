@@ -27,8 +27,8 @@ public:
   std::vector<DocumentHighlight>
   highlight(DocumentHighlightParams &params) override;
   std::optional<WorkspaceEdit> rename(RenameParams &params) override;
-  std::optional<LSPLocation> declaration(DeclarationParams &params) override;
-  std::optional<LSPLocation> definition(DefinitionParams &params) override;
+  std::vector<LSPLocation> declaration(DeclarationParams &params) override;
+  std::vector<LSPLocation> definition(DefinitionParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

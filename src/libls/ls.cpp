@@ -113,20 +113,20 @@ void AbstractLanguageServer::handleRequest(std::string method,
       }
     } else if (method == "textDocument/declaration") {
       DeclarationParams serializedParams(params);
-      auto result = this->declaration(serializedParams);
-      if (result.has_value()) {
-        ret = result->toJson();
-      } else {
-        ret = nullptr;
+      auto results = this->declaration(serializedParams);
+      auto jsonObjects = nlohmann::json::array();
+      for (auto &result : results) {
+        jsonObjects.push_back(result.toJson());
       }
+      ret = jsonObjects;
     } else if (method == "textDocument/definition") {
       DefinitionParams serializedParams(params);
-      auto result = this->definition(serializedParams);
-      if (result.has_value()) {
-        ret = result->toJson();
-      } else {
-        ret = nullptr;
+      auto results = this->definition(serializedParams);
+      auto jsonObjects = nlohmann::json::array();
+      for (auto &result : results) {
+        jsonObjects.push_back(result.toJson());
       }
+      ret = jsonObjects;
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
       this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,
