@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cstdint>
 #include <optional>
+#include <set>
 #include <string>
 
 static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
@@ -58,7 +59,7 @@ void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
   }
   this->options.insert(contents);
   for (const auto chr : contents) {
-    if ((std::isalpha(chr) != 0) || chr == '_' || chr == '-') {
+    if ((std::isalnum(chr) != 0) || chr == '_' || chr == '-') {
       continue;
     }
     this->metadata->registerDiagnostic(
@@ -167,6 +168,125 @@ void OptionDiagnosticVisitor::validateFeatureOption(Node *defaultValue) const {
       defaultValue,
       Diagnostic(Severity::Error, defaultValue,
                  "Expected one of: 'enabled', 'disabled', 'auto'"));
+}
+
+void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
+                                                  ArgumentList *al) const {
+  const auto *defaultSL = dynamic_cast<StringLiteral *>(defaultValue);
+  std::optional<std::string> defaultString;
+  if (!defaultSL) {
+    this->metadata->registerDiagnostic(
+        defaultValue,
+        Diagnostic(Severity::Error, defaultValue, "Expected string literal"));
+  } else {
+    defaultString = defaultSL->id;
+  }
+  auto choicesKwarg = al->getKwarg("choices");
+  if (!choicesKwarg.has_value()) {
+    this->metadata->registerDiagnostic(
+        al->parent,
+        Diagnostic(Severity::Error, al->parent, "Missing 'choices' kwarg"));
+    return;
+  }
+  std::set<std::string> foundChoices;
+  const auto *choicesArray =
+      dynamic_cast<ArrayLiteral *>(choicesKwarg.value().get());
+  if (!choicesArray) {
+    this->metadata->registerDiagnostic(
+        choicesKwarg->get(), Diagnostic(Severity::Error, choicesKwarg->get(),
+                                        "Missing 'choices' kwarg"));
+    return;
+  }
+  for (const auto &choice : choicesArray->args) {
+    const auto *asLiteral = dynamic_cast<StringLiteral *>(choice.get());
+    if (!asLiteral) {
+      this->metadata->registerDiagnostic(
+          choice.get(),
+          Diagnostic(Severity::Error, choice.get(), "Expected string literal"));
+      continue;
+    }
+    auto content = asLiteral->id;
+    if (foundChoices.contains(content)) {
+      this->metadata->registerDiagnostic(
+          choice.get(), Diagnostic(Severity::Warning, choice.get(),
+                                   "Duplicate choice '" + content + "'"));
+      continue;
+    }
+    foundChoices.insert(content);
+  }
+  if (defaultString.has_value() &&
+      !foundChoices.contains(defaultString.value())) {
+    this->metadata->registerDiagnostic(
+        defaultValue,
+        Diagnostic(Severity::Error, defaultValue,
+                   "Default value is not contained in the choices array."));
+  }
+}
+
+void OptionDiagnosticVisitor::extractArrayChoices(
+    ArgumentList *al, std::set<std::string> **choices) const {
+  auto kwarg = al->getKwarg("choices");
+  if (!kwarg.has_value()) {
+    *choices = nullptr;
+    return;
+  }
+  const auto *arrayLit = dynamic_cast<ArrayLiteral *>(kwarg->get());
+  if (!arrayLit) {
+    *choices = nullptr;
+    this->metadata->registerDiagnostic(
+        kwarg->get(),
+        Diagnostic(Severity::Error, kwarg->get(), "Expected array literal"));
+    return;
+  }
+  auto *ret = new std::set<std::string>();
+  for (const auto &node : arrayLit->args) {
+    const auto *asStr = dynamic_cast<StringLiteral *>(node.get());
+    if (!asStr) {
+      this->metadata->registerDiagnostic(
+          node.get(),
+          Diagnostic(Severity::Error, node.get(), "Expected string literal"));
+      continue;
+    }
+    auto content = asStr->id;
+    if (!ret->contains(content)) {
+      ret->insert(content);
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        node.get(),
+        Diagnostic(Severity::Warning, node.get(), "Duplicate choice"));
+  }
+  *choices = ret;
+}
+
+void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
+                                                  ArgumentList *al) const {
+  std::set<std::string> *choices = nullptr;
+  extractArrayChoices(al, &choices);
+  const auto *arrLit = dynamic_cast<ArrayLiteral *>(defaultValue);
+  if (!arrLit) {
+    this->metadata->registerDiagnostic(
+        arrLit, Diagnostic(Severity::Error, arrLit, "Expected array literal"));
+    goto end;
+  }
+  for (const auto &node : arrLit->args) {
+    const auto *asStr = dynamic_cast<StringLiteral *>(node.get());
+    if (!asStr) {
+      this->metadata->registerDiagnostic(
+          node.get(),
+          Diagnostic(Severity::Error, node.get(), "Expected string literal"));
+      continue;
+    }
+    auto content = asStr->id;
+    if (!choices || choices->contains(content)) {
+      continue;
+    }
+    this->metadata->registerDiagnostic(
+        node.get(), Diagnostic(Severity::Error, node.get(),
+                               "Value is not a valid choice!"));
+  }
+end:
+  delete choices;
 }
 
 std::optional<int64_t>
@@ -313,6 +433,10 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
     validateBooleanOption(defaultValue.value().get());
   } else if (optionType == "feature") {
     validateFeatureOption(defaultValue.value().get());
+  } else if (optionType == "combo") {
+    validateComboOption(defaultValue.value().get(), al);
+  } else if (optionType == "array") {
+    validateArrayOption(defaultValue.value().get(), al);
   }
 }
 
