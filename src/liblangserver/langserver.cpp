@@ -49,7 +49,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
   }
   return {ServerCapabilities(
               TextDocumentSyncOptions(true, TextDocumentSyncKind::Full), true,
-              true, true, true, true, true, true, true, true, true, true,
+              true, true, true, true, true, true, true, true, true,
               CompletionOptions(false, {".", "_"}),
               SemanticTokensOptions(
                   true, SemanticTokensLegend({"substitute", "substitute_bounds",
