@@ -1,8 +1,10 @@
 #pragma once
 #include "node.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 class SemanticTokensVisitor : public CodeVisitor {
 public:

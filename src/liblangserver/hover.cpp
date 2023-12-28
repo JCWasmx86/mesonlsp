@@ -4,10 +4,12 @@
 #include "lsptypes.hpp"
 #include "mesonoption.hpp"
 #include "node.hpp"
+#include "optionstate.hpp"
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
 
 #include <format>
+#include <string>
 
 static std::string formatArgument(const Argument *arg);
 

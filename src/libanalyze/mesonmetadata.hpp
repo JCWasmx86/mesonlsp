@@ -4,8 +4,12 @@
 #include "node.hpp"
 
 #include <cstdint>
+#include <filesystem>
+#include <format>
 #include <map>
 #include <memory>
+#include <optional>
+#include <set>
 #include <string>
 #include <tuple>
 #include <utility>

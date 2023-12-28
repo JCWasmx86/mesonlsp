@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cstdint>
 #include <optional>
+#include <string>
 
 static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
 

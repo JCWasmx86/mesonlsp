@@ -9,7 +9,10 @@
 #include "typenamespace.hpp"
 
 #include <filesystem>
+#include <map>
+#include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 #define MAX_TREE_DEPTH 3

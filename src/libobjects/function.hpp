@@ -3,6 +3,7 @@
 #include "argument.hpp"
 #include "type.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>

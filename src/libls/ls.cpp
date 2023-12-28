@@ -7,7 +7,8 @@
 
 #include <exception>
 #include <format>
-#include <iostream>
+#include <string>
+#include <vector>
 
 static Logger LOG("AbstractLanguageServer"); // NOLINT
 

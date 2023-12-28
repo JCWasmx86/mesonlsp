@@ -1,8 +1,11 @@
 #pragma once
 #include "lsptypes.hpp"
 #include "node.hpp"
+#include "type.hpp"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 class InlayHintVisitor : public CodeVisitor {
 public:

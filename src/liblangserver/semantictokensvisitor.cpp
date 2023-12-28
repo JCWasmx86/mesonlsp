@@ -3,8 +3,12 @@
 #include "log.hpp"
 #include "node.hpp"
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <format>
 #include <regex>
+#include <vector>
 
 static Logger LOG("SemanticTokensVisitor");                          // NOLINT
 static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT

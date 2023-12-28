@@ -5,6 +5,7 @@
 #include "optionstate.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <set>
 #include <string>
 
