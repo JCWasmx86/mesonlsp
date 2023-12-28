@@ -23,8 +23,8 @@ public:
                      nlohmann::json params) override {
     this->logger.info(std::format("Got request: {}", method));
     if (strcmp(method.data(), "add") == 0) {
-      int a = params["a"];
-      int b = params["b"];
+      int const a = params["a"];
+      int const b = params["b"];
       nlohmann::json data;
       data["c"] = a + b;
       this->server->reply(callId, data);

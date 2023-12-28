@@ -20,7 +20,7 @@ void jsonrpc::JsonRpcServer::evaluateData(
                       "jsonrpc key is not a string");
     return;
   }
-  std::string version = data["jsonrpc"];
+  std::string const version = data["jsonrpc"];
   if (version != "2.0") {
     this->returnError(nullptr, JsonrpcError::ParseError,
                       "jsonrpc is not \"2.0\"");
@@ -35,8 +35,8 @@ void jsonrpc::JsonRpcServer::evaluateData(
                       "method key is not a string");
     return;
   }
-  std::string method = data["method"];
-  nlohmann::json params = data.contains("params") ? data["params"] : nullptr;
+  std::string const method = data["method"];
+  nlohmann::json const params = data.contains("params") ? data["params"] : nullptr;
   if (data.contains("id")) {
     auto callId = data["id"];
     if (this->shouldExit) {
@@ -57,7 +57,7 @@ void jsonrpc::JsonRpcServer::evaluateData(
 }
 
 void jsonrpc::JsonRpcServer::sendToClient(const nlohmann::json &data) {
-  std::lock_guard<std::mutex> guard(this->output_mutex);
+  std::lock_guard<std::mutex> const guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
   auto fullMessage = std::format("Content-Length: {}\r\n\r\n{}", len, payload);
@@ -106,7 +106,7 @@ enum JsonrpcState {
 
 void jsonrpc::JsonRpcServer::loop(
     const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler) {
-  std::string prefix = "Content-Length:";
+  std::string const prefix = "Content-Length:";
   while (true) {
     auto state = Initial;
     auto contentLength = 0;

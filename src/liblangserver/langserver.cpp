@@ -153,7 +153,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   }
   (void)fflush(output);
   (void)fclose(output);
-  std::string asString(static_cast<const char *>(formattedStr), formattedSize);
+  std::string const asString(static_cast<const char *>(formattedStr), formattedSize);
 
   // Editors don't care, if we tell them, that the file is
   // a lot longer than it really is, so we just guess some

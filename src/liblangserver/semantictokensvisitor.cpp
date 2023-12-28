@@ -139,7 +139,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   if (node->isFormat) {
     std::sregex_iterator iter(node->id.begin(), node->id.end(),
                               FORMAT_STRING_REGEX);
-    std::sregex_iterator end;
+    std::sregex_iterator const end;
 
     while (iter != end) {
       auto match = *iter;
@@ -172,7 +172,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
     return;
   }
   std::sregex_iterator iter(node->id.begin(), node->id.end(), STR_FORMAT_REGEX);
-  std::sregex_iterator end;
+  std::sregex_iterator const end;
 
   while (iter != end) {
     auto match = *iter;

@@ -137,7 +137,7 @@ std::shared_ptr<WrapFile> parseWrap(std::filesystem::path path) {
   ts_parser_set_language(parser, tree_sitter_ini());
   TSTree *tree = ts_parser_parse_string(parser, NULL, fileContent.data(),
                                         fileContent.length());
-  TSNode rootNode = ts_tree_root_node(tree);
+  TSNode const rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = ast::ini::makeNode(sourceFile, rootNode);
   ts_tree_delete(tree);

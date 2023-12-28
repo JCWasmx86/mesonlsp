@@ -501,7 +501,7 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     goto end;
   }
   if (auto *fe = dynamic_cast<FunctionExpression *>(node)) {
-    std::set<std::string> pureFunctions{
+    std::set<std::string> const pureFunctions{
         "disabler",
         "environment",
         "files",
@@ -522,7 +522,7 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     return;
   }
   if (auto *me = dynamic_cast<MethodExpression *>(node)) {
-    std::set<std::string> pureMethods{
+    std::set<std::string> const pureMethods{
         "build_machine.cpu",
         "build_machine.cpu_family",
         "build_machine.endian",
@@ -801,7 +801,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   }
   if (name == "get_option") {
     auto values = ::guessSetVariable(node, this->options);
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (auto val : asSet) {
       auto opt = this->options.findOption(val);
@@ -851,7 +851,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   }
   if (name == "build_target") {
     auto values = ::guessSetVariable(node, "target_type", this->options);
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (const auto &tgtType : asSet) {
       if (tgtType == "executable") {
@@ -875,7 +875,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   }
   if (name == "import") {
     auto values = ::guessSetVariable(node, this->options);
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (const auto &modname : values) {
       if (modname == "cmake") {
@@ -987,7 +987,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                    defaultArg->types.end());
     }
     auto values = ::guessSetVariable(node, this->options);
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     for (const auto &varname : asSet) {
       if (!this->scope.variables.contains(varname)) {
         continue;
@@ -1218,7 +1218,7 @@ void TypeAnalyzer::checkCall(Node *node) {
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                                     FunctionExpression *node) {
   auto guessed = ::guessSetVariable(node, this->options);
-  std::set<std::string> asSet(guessed.begin(), guessed.end());
+  std::set<std::string> const asSet(guessed.begin(), guessed.end());
   LOG.info(std::format("Guessed values for set_variable: {} at {}:{}",
                        joinStrings(asSet, '|'), node->file->file.c_str(),
                        node->location->format()));
@@ -1254,7 +1254,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     return;
   }
   auto guessed = ::guessSetVariable(node, this->options);
-  std::set<std::string> asSet{guessed.begin(), guessed.end()};
+  std::set<std::string> const asSet{guessed.begin(), guessed.end()};
   auto msg = std::format("Found subdircall with dirs: {} at {}:{}",
                          joinStrings(asSet, '|'), node->file->file.c_str(),
                          node->location->format());
@@ -1737,7 +1737,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     types.insert(types.end(), node->method->returnTypes.begin(),
                  node->method->returnTypes.end());
     auto values = ::guessGetVariableMethod(node, this->options);
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     for (const auto &objType : node->obj->types) {
       auto *subprojType = dynamic_cast<Subproject *>(objType.get());
       if (!subprojType) {
