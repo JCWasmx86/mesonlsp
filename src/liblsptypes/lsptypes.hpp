@@ -111,7 +111,6 @@ public:
   bool renameProvider;
   bool foldingRangeProvider;
   bool inlayHintProvider;
-  bool diagnosticProvider;
   CompletionOptions completionProvider;
   SemanticTokensOptions semanticTokensProvider;
 
@@ -122,7 +121,6 @@ public:
                      bool documentSymbolProvider, bool codeActionProvider,
                      bool documentFormattingProvider, bool renameProvider,
                      bool foldingRangeProvider, bool inlayHintProvider,
-                     bool diagnosticProvider,
                      CompletionOptions completionProvider,
                      SemanticTokensOptions semanticTokensProvider)
       : textDocumentSync(std::move(textDocumentSync)),
@@ -135,7 +133,6 @@ public:
         renameProvider(renameProvider),
         foldingRangeProvider(foldingRangeProvider),
         inlayHintProvider(inlayHintProvider),
-        diagnosticProvider(diagnosticProvider),
         completionProvider(std::move(completionProvider)),
         semanticTokensProvider(std::move(semanticTokensProvider)) {}
 
@@ -151,7 +148,6 @@ public:
             {"renameProvider", renameProvider},
             {"foldingRangeProvider", foldingRangeProvider},
             {"inlayHintProvider", inlayHintProvider},
-            {"diagnosticProvider", diagnosticProvider},
             {"completionProvider", completionProvider.toJson()},
             {"semanticTokensProvider", semanticTokensProvider.toJson()}};
   }
