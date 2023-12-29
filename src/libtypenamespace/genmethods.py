@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import csv
 import sys
 from collections import defaultdict
 
@@ -22,6 +23,16 @@ def extract_types(input_str):
     if s != "":
         ret.append(s)
     return ret
+
+
+def fetch_deprecation_data(file_pointer):
+    parsed_dict = {}
+    csv_reader = csv.reader(file_pointer)
+    for row in csv_reader:
+        key = row[0]
+        data = (row[1], row[2].split("|"))
+        parsed_dict[key] = data
+    return parsed_dict
 
 
 def type_to_cpp(t: str):
@@ -57,6 +68,8 @@ def parse_ascii_file(file_path):
 
 
 def main():
+    with open(sys.argv[4], "r", encoding="utf-8") as filep:
+        deprecations = fetch_deprecation_data(filep)
     with open(sys.argv[2], "w", encoding="utf-8") as output:
         with open(sys.argv[1], "r", encoding="utf-8") as filep:
             lines = filep.readlines()
@@ -137,8 +150,9 @@ def main():
                 file=output,
             )
             for idx, method in enumerate(full_data[obj_name]):
+                method_id = obj_name + "::" + method[0]
                 escaped = (
-                    data_dict[obj_name + "::" + method[0]]
+                    data_dict[method_id]
                     .encode("unicode-escape")
                     .decode("utf-8")
                     .replace('"', '\\"')
@@ -169,8 +183,9 @@ def main():
                     else:
                         print("        ),", file=output)
                 for idx_, arg in enumerate(kwargs):
+                    coded_kwarg_name = arg[0]
                     print("        std::make_shared<Kwarg>(", file=output)
-                    print(f'          "{arg[0][1:]}",', file=output)
+                    print(f'          "{coded_kwarg_name[1:]}",', file=output)
                     print("          std::vector<std::shared_ptr<Type>>{", file=output)
                     for t_idx, t in enumerate(arg[2]):
                         print(
@@ -181,6 +196,18 @@ def main():
                         )
                     print("          },", file=output)
                     print(f"          {arg[1]}", file=output)
+                    if coded_kwarg_name in deprecations:
+                        print(",DeprecationState(", file=output)
+                        deprecation_data = deprecations[coded_kwarg_name]
+                        print(
+                            f'"{deprecation_data[0]}", std::vector<std::string>',
+                            file=output,
+                        )
+                        print(
+                            "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
+                            file=output,
+                        )
+                        print("})", file=output)
                     if len(args) + idx_ == total_len - 1:
                         print("        )", file=output)
                     else:
@@ -196,6 +223,18 @@ def main():
                     )
                 print("      },", file=output)
                 print(f'     this->types["{obj_name}"]', file=output)
+                if method_id in deprecations:
+                    print(",DeprecationState(", file=output)
+                    deprecation_data = deprecations[method_id]
+                    print(
+                        f'"{deprecation_data[0]}", std::vector<std::string>',
+                        file=output,
+                    )
+                    print(
+                        "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
+                        file=output,
+                    )
+                    print("})", file=output)
                 if idx == len(full_data[obj_name]) - 1:
                     print("    )", file=output)
                 else:
