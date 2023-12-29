@@ -52,6 +52,7 @@ private:
   void makeDeclareDependencyAction(const Node *node);
   void makeLibraryToGenericAction(const Node *node);
   void makeSharedLibraryToModuleAction(const Node *node);
+  void makeModuleToSharedLibraryAction(const Node *node);
   void makeActionForBase(const IntegerLiteral *il, const std::string &title,
                          const std::string &prefix, const std::string &val);
   bool expectedArgsForCopyFile(const ArgumentList *al);
