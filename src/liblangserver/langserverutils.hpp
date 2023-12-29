@@ -27,7 +27,14 @@ inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
   auto severity = diag.severity == Severity::Error
                       ? DiagnosticSeverity::LSPError
                       : DiagnosticSeverity::LSPWarning;
-  return {range, severity, diag.message};
+  std::vector<DiagnosticTag> tags;
+  if (diag.deprecated) {
+    tags.push_back(DiagnosticTag::LSPDeprecated);
+  }
+  if (diag.unnecessary) {
+    tags.push_back(DiagnosticTag::LSPUnnecessary);
+  }
+  return {range, severity, diag.message, tags};
 }
 
 inline LSPRange nodeToRange(const Node *node) {

@@ -21,7 +21,7 @@ enum Severity {
 };
 
 #define REGISTER(methodName, variable, type)                                   \
-  void methodName(type *node) {                                                \
+  void methodName(type *node) /*NOLINT*/ {                                     \
     auto key = node->file->file;                                               \
     if (this->variable.contains(key)) {                                        \
       this->variable[key].push_back(node);                                     \
@@ -31,8 +31,8 @@ enum Severity {
   }
 
 #define FIND(type, variable)                                                   \
-  std::optional<type *> find##type##At(const std::filesystem::path &path,      \
-                                       uint64_t line, uint64_t column) {       \
+  std::optional<type *> /*NOLINT*/ find##type##At(                             \
+      const std::filesystem::path &path, uint64_t line, uint64_t column) {     \
     if (!this->variable.contains(path)) {                                      \
       return std::nullopt;                                                     \
     }                                                                          \
@@ -45,8 +45,8 @@ enum Severity {
   }
 
 #define FIND_FULL(type, variable)                                              \
-  std::optional<type *> find##type##At(const std::filesystem::path &path,      \
-                                       uint64_t line, uint64_t column) {       \
+  std::optional<type *> /*NOLINT*/ find##type##At(                             \
+      const std::filesystem::path &path, uint64_t line, uint64_t column) {     \
     if (!this->variable.contains(path)) {                                      \
       return std::nullopt;                                                     \
     }                                                                          \
@@ -66,9 +66,12 @@ public:
   uint32_t startColumn;
   uint32_t endColumn;
   std::string message;
+  bool deprecated;
+  bool unnecessary;
 
   Diagnostic(Severity sev, const Node *begin, const Node *end,
-             std::string message) {
+             std::string message, bool deprecated = false,
+             bool unnecessary = false) {
     this->severity = sev;
     const auto *loc = begin->location;
     this->startLine = loc->startLine;
@@ -77,10 +80,19 @@ public:
     this->endLine = loc->endLine;
     this->endColumn = loc->endColumn;
     this->message = std::move(message);
+    this->deprecated = deprecated;
+    this->unnecessary = unnecessary;
   }
 
   Diagnostic(Severity sev, const Node *node, std::string message)
       : Diagnostic(sev, node, node, std::move(message)) {}
+
+  Diagnostic(Severity sev, const Node *node, std::string message,
+             bool deprecated, bool unnecessary)
+      : Diagnostic(sev, node, node, std::move(message)) {
+    this->deprecated = deprecated;
+    this->unnecessary = unnecessary;
+  }
 };
 
 class MesonMetadata {
