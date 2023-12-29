@@ -27,6 +27,152 @@
 #define TYPE_STRING_LENGTH 12
 static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
+static std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
+    "arm",           "armclang",   "ccomp",      "ccrx",      "clang",
+    "clang-cl",      "dmd",        "emscripten", "flang",     "g95",
+    "gcc",           "intel",      "intel-cl",   "icc",       "intel-llvm",
+    "intel-llvm-cl", "lcc",        "llvm",       "mono",      "msvc",
+    "nagfor",        "nvidia_hpc", "open64",     "pathscale", "pgi",
+    "rustc",         "sun",        "c2000",      "ti",        "valac",
+    "xc16",          "cython",     "nasm",       "yasm",      "ml",
+    "armasm",        "mwasmarm",   "mwasmeppc",
+};
+
+static std::set<std::string> ARGUMENT_SYNTAXES /*NOLINT*/ = {"gcc", "msvc",
+                                                             "gnu", ""};
+static std::set<std::string> LINKER_IDS /*NOLINT*/ = {
+    "ld.bfd", "ld.gold",  "ld.lld",  "ld.mold",  "ld.solaris", "ld.wasm",
+    "ld64",   "ld64.lld", "link",    "lld-link", "xilink",     "optlink",
+    "rlink",  "xc16-ar",  "ar2000",  "ti-ar",    "armlink",    "pgi",
+    "nvlink", "ccomp",    "mwldarm", "mwldeppc",
+};
+
+static std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
+    "aarch64", "alpha",      "arc",    "arm",    "avr",     "c2000",
+    "csky",    "dspic",      "e2k",    "ft32",   "ia64",    "loongarch64",
+    "m68k",    "microblaze", "mips",   "mips32", "mips64",  "msp430",
+    "parisc",  "pic24",      "ppc",    "ppc64",  "riscv32", "riscv64",
+    "rl78",    "rx",         "s390",   "s390x",  "sh4",     "sparc",
+    "sparc64", "wasm32",     "wasm64", "x86",    "x86_64",
+};
+
+static std::set<std::string> OS_NAMES /*NOLINT*/ = {
+    "android", "cygwin", "darwin", "dragonfly", "emscripten", "freebsd", "gnu",
+    "haiku",   "linux",  "netbsd", "openbsd",   "windows",    "sunos",
+};
+
+static std::set<std::string> PURE_FUNCTIONS /*NOLINT*/ = {
+    "disabler",
+    "environment",
+    "files",
+    "generator",
+    "get_variable",
+    "import",
+    "include_directories",
+    "is_disabler",
+    "is_variable",
+    "join_paths",
+    "structured_sources",
+};
+
+static std::set<std::string> PURE_METHODS /* NOLINT */ = {
+    "build_machine.cpu",
+    "build_machine.cpu_family",
+    "build_machine.endian",
+    "build_machine.system",
+    "meson.backend",
+    "meson.build_options",
+    "meson.build_root",
+    "meson.can_run_host_binaries",
+    "meson.current_build_dir",
+    "meson.current_source_dir",
+    "meson.get_cross_property",
+    "meson.get_external_property",
+    "meson.global_build_root",
+    "meson.global_source_root",
+    "meson.has_exe_wrapper",
+    "meson.has_external_property",
+    "meson.is_cross_build",
+    "meson.is_subproject",
+    "meson.is_unity",
+    "meson.project_build_root",
+    "meson.project_license",
+    "meson.project_license_files",
+    "meson.project_name",
+    "meson.project_source_root",
+    "meson.project_version",
+    "meson.source_root",
+    "meson.version",
+    "both_libs.get_shared_lib",
+    "both_libs.get_static_lib",
+    "build_tgt.extract_all_objects",
+    "build_tgt.extract_objects",
+    "build_tgt.found",
+    "build_tgt.full_path",
+    "build_tgt.full_path",
+    "build_tgt.name",
+    "build_tgt.path",
+    "build_tgt.private_dir_include",
+    "cfg_data.get",
+    "cfg_data.get_unquoted",
+    "cfg_data.has",
+    "cfg_data.keys",
+    "custom_idx.full_path",
+    "custom_tgt.full_path",
+    "custom_tgt.to_list",
+    "dep.as_link_whole",
+    "dep.as_system",
+    "dep.found",
+    "dep.get_configtool_variable",
+    "dep.get_pkgconfig_variable",
+    "dep.get_variable",
+    "dep.include_type",
+    "dep.name",
+    "dep.partial_dependency",
+    "dep.type_name",
+    "dep.version",
+    "disabler.found",
+    "external_program.found",
+    "external_program.full_path",
+    "external_program.path",
+    "external_program.version",
+    "feature.allowed",
+    "feature.auto",
+    "feature.disabled",
+    "feature.enabled",
+    "module.found",
+    "runresult.compiled",
+    "runresult.returncode",
+    "runresult.stderr",
+    "runresult.stdout",
+    "subproject.found",
+    "subproject.get_variable",
+    "str.contains",
+    "str.endswith",
+    "str.format",
+    "str.join",
+    "str.replace",
+    "str.split",
+    "str.startswith",
+    "str.strip",
+    "str.substring",
+    "str.to_lower",
+    "str.to_upper",
+    "str.underscorify",
+    "str.version_compare",
+    "bool.to_int",
+    "bool.to_string",
+    "dict.get",
+    "dict.has_key",
+    "dict.keys",
+    "int.even",
+    "int.is_odd",
+    "int.to_string",
+    "list.contains",
+    "list.get",
+    "list.length",
+};
+
 static std::vector<std::shared_ptr<Type>>
 dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
@@ -445,7 +591,42 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
 
 void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
                                             StringLiteral *sl) {
-  // TODO
+  if (this->analysisOptions.disableAllIdLinting) {
+    return;
+  }
+  auto method = me->method;
+  if (!method) {
+    return;
+  }
+  auto mid = method->id();
+  auto arg = sl->id;
+  if (mid == "compiler.get_id" &&
+      !this->analysisOptions.disableCompilerIdLinting &&
+      COMPILER_IDS.contains(arg)) {
+    this->metadata->registerDiagnostic(
+        sl, Diagnostic(Severity::Warning, sl, "Unknown compiler id"));
+  } else if (mid == "compiler.get_argument_syntax" &&
+             !this->analysisOptions.disableCompilerArgumentIdLinting &&
+             ARGUMENT_SYNTAXES.contains(arg)) {
+    this->metadata->registerDiagnostic(
+        sl,
+        Diagnostic(Severity::Warning, sl, "Unknown compiler argument syntax"));
+  } else if (mid == "compiler.get_linker_id" &&
+             !this->analysisOptions.disableLinkerIdLinting &&
+             LINKER_IDS.contains(arg)) {
+    this->metadata->registerDiagnostic(
+        sl, Diagnostic(Severity::Warning, sl, "Unknown linker id"));
+  } else if (mid == "build_machine.cpu_family" &&
+             !this->analysisOptions.disableCpuFamilyLinting &&
+             CPU_FAMILIES.contains(arg)) {
+    this->metadata->registerDiagnostic(
+        sl, Diagnostic(Severity::Warning, sl, "Unknown CPU family"));
+  } else if (mid == "build_machine.system" &&
+             !this->analysisOptions.disableOsFamilyLinting &&
+             OS_NAMES.contains(arg)) {
+    this->metadata->registerDiagnostic(
+        sl, Diagnostic(Severity::Warning, sl, "Unknown OS family"));
+  }
 }
 
 void TypeAnalyzer::visitBooleanLiteral(BooleanLiteral *node) {
@@ -502,126 +683,16 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     goto end;
   }
   if (auto *fe = dynamic_cast<FunctionExpression *>(node)) {
-    std::set<std::string> const pureFunctions{
-        "disabler",
-        "environment",
-        "files",
-        "generator",
-        "get_variable",
-        "import",
-        "include_directories",
-        "is_disabler",
-        "is_variable",
-        "join_paths",
-        "structured_sources",
-    }; // TODO: Move to somewhere else
     auto fnid = fe->function;
-    if (fnid && pureFunctions.contains(fnid->name)) {
+    if (fnid && PURE_FUNCTIONS.contains(fnid->name)) {
       noEffect = true;
       goto end;
     }
     return;
   }
   if (auto *me = dynamic_cast<MethodExpression *>(node)) {
-    std::set<std::string> const pureMethods{
-        "build_machine.cpu",
-        "build_machine.cpu_family",
-        "build_machine.endian",
-        "build_machine.system",
-        "meson.backend",
-        "meson.build_options",
-        "meson.build_root",
-        "meson.can_run_host_binaries",
-        "meson.current_build_dir",
-        "meson.current_source_dir",
-        "meson.get_cross_property",
-        "meson.get_external_property",
-        "meson.global_build_root",
-        "meson.global_source_root",
-        "meson.has_exe_wrapper",
-        "meson.has_external_property",
-        "meson.is_cross_build",
-        "meson.is_subproject",
-        "meson.is_unity",
-        "meson.project_build_root",
-        "meson.project_license",
-        "meson.project_license_files",
-        "meson.project_name",
-        "meson.project_source_root",
-        "meson.project_version",
-        "meson.source_root",
-        "meson.version",
-        "both_libs.get_shared_lib",
-        "both_libs.get_static_lib",
-        "build_tgt.extract_all_objects",
-        "build_tgt.extract_objects",
-        "build_tgt.found",
-        "build_tgt.full_path",
-        "build_tgt.full_path",
-        "build_tgt.name",
-        "build_tgt.path",
-        "build_tgt.private_dir_include",
-        "cfg_data.get",
-        "cfg_data.get_unquoted",
-        "cfg_data.has",
-        "cfg_data.keys",
-        "custom_idx.full_path",
-        "custom_tgt.full_path",
-        "custom_tgt.to_list",
-        "dep.as_link_whole",
-        "dep.as_system",
-        "dep.found",
-        "dep.get_configtool_variable",
-        "dep.get_pkgconfig_variable",
-        "dep.get_variable",
-        "dep.include_type",
-        "dep.name",
-        "dep.partial_dependency",
-        "dep.type_name",
-        "dep.version",
-        "disabler.found",
-        "external_program.found",
-        "external_program.full_path",
-        "external_program.path",
-        "external_program.version",
-        "feature.allowed",
-        "feature.auto",
-        "feature.disabled",
-        "feature.enabled",
-        "module.found",
-        "runresult.compiled",
-        "runresult.returncode",
-        "runresult.stderr",
-        "runresult.stdout",
-        "subproject.found",
-        "subproject.get_variable",
-        "str.contains",
-        "str.endswith",
-        "str.format",
-        "str.join",
-        "str.replace",
-        "str.split",
-        "str.startswith",
-        "str.strip",
-        "str.substring",
-        "str.to_lower",
-        "str.to_upper",
-        "str.underscorify",
-        "str.version_compare",
-        "bool.to_int",
-        "bool.to_string",
-        "dict.get",
-        "dict.has_key",
-        "dict.keys",
-        "int.even",
-        "int.is_odd",
-        "int.to_string",
-        "list.contains",
-        "list.get",
-        "list.length",
-    }; // TODO: Move to somewhere else
     auto method = me->method;
-    if (method && pureMethods.contains(method->id())) {
+    if (method && PURE_METHODS.contains(method->id())) {
       noEffect = true;
       goto end;
     }
@@ -653,6 +724,9 @@ void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
   if (!lastAlive || !firstDead || !lastDead) {
     return;
   }
+  if (!lastAlive.get() || !firstDead.get() || !lastDead.get()) {
+    return;
+  }
   this->metadata->registerDiagnostic(
       firstDead.get(), Diagnostic(Severity::Warning, firstDead.get(),
                                   lastDead.get(), "Dead code"));
@@ -669,7 +743,7 @@ void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
         lastAlive = b;
       }
     } else {
-      if (firstDead) {
+      if (!firstDead) {
         firstDead = b;
         lastDead = b;
       } else {
@@ -1608,7 +1682,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
         lastAlive = b;
       }
     } else {
-      if (firstDead) {
+      if (!firstDead) {
         firstDead = b;
         lastDead = b;
       } else {
@@ -1873,7 +1947,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
           lastAlive = stmt;
         }
       } else {
-        if (firstDead) {
+        if (!firstDead) {
           firstDead = stmt;
           lastDead = stmt;
         } else {
