@@ -93,7 +93,7 @@ public:
   TextDocumentSyncOptions(bool openClose, TextDocumentSyncKind change)
       : openClose(openClose), change(change) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"openClose", openClose}, {"change", change}};
   }
 };
@@ -179,7 +179,7 @@ public:
   ServerInfo(std::string name, std::string version)
       : name(std::move(name)), version(std::move(version)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"name", name}, {"version", version}};
   }
 };
@@ -222,7 +222,7 @@ public:
     this->character = jsonObj["character"];
   }
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"line", line}, {"character", character}};
   }
 };
@@ -238,11 +238,11 @@ public:
   LSPRange(nlohmann::json &jsonObj)
       : start(jsonObj["start"]), end(jsonObj["end"]) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"start", start.toJson()}, {"end", end.toJson()}};
   }
 
-  bool contains(const LSPPosition &position) const {
+  [[nodiscard]] bool contains(const LSPPosition &position) const {
     if (position.line > this->start.line && position.line < this->end.line) {
       return true;
     }
@@ -271,7 +271,7 @@ public:
       : range(std::move(range)), severity(severity),
         message(std::move(message)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"range", range.toJson()},
             {"severity", severity},
             {"message", message}};
@@ -382,7 +382,7 @@ public:
   InlayHint(LSPPosition position, std::string label)
       : position(std::move(position)), label(std::move(label)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"position", position.toJson()}, {"label", this->label}};
   }
 };
@@ -403,7 +403,7 @@ public:
   FoldingRange(uint64_t startLine, uint64_t endLine)
       : startLine(startLine), endLine(endLine) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"startLine", startLine}, {"endLine", endLine}};
   }
 };
@@ -444,7 +444,7 @@ public:
   TextEdit(LSPRange range, std::string newText)
       : range(std::move(range)), newText(std::move(newText)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"range", range.toJson()}, {"newText", newText}};
   }
 };
@@ -474,7 +474,7 @@ public:
   LSPLocation(std::string uri, LSPRange range)
       : uri(std::move(uri)), range(std::move(range)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"uri", uri}, {"range", range.toJson()}};
   }
 };
@@ -488,7 +488,7 @@ public:
   SymbolInformation(std::string name, SymbolKind kind, LSPLocation location)
       : name(std::move(name)), kind(kind), location(std::move(location)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"name", name}, {"kind", kind}, {"location", location.toJson()}};
   }
 };
@@ -508,7 +508,7 @@ public:
 
   MarkupContent(std::string value) : value(std::move(value)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"value", value}, {"kind", "markdown"}};
   }
 };
@@ -519,7 +519,9 @@ public:
 
   Hover(MarkupContent contents) : contents(std::move(contents)) {}
 
-  nlohmann::json toJson() const { return {{"contents", contents.toJson()}}; }
+  [[nodiscard]] nlohmann::json toJson() const {
+    return {{"contents", contents.toJson()}};
+  }
 };
 
 class DocumentHighlightParams : public BaseObject {
@@ -544,7 +546,7 @@ public:
   DocumentHighlight(LSPRange range, DocumentHighlightKind kind)
       : range(std::move(range)), kind(kind) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"range", range.toJson()}, {"kind", kind}};
   }
 };
