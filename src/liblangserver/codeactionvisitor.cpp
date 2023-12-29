@@ -29,6 +29,7 @@ bool CodeActionVisitor::inRange(const Node *node, bool add) {
     makeDeclareDependencyAction(node);
     makeLibraryToGenericAction(node);
     makeSharedLibraryToModuleAction(node);
+    makeModuleToSharedLibraryAction(node);
     return true;
   }
   return false;
@@ -317,6 +318,23 @@ void CodeActionVisitor::makeSharedLibraryToModuleAction(const Node *node) {
   if (args->getKwarg("darwin_versions").has_value() ||
       args->getKwarg("soversion").has_value() ||
       args->getKwarg("version").has_value()) {
+    return;
+  }
+  auto range = nodeToRange(fExpr->id.get());
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = {TextEdit(range, "shared_module")};
+  this->actions.emplace_back(
+      std::format("Use shared_module() instead of shared_library()", name),
+      edit);
+}
+
+void CodeActionVisitor::makeModuleToSharedLibraryAction(const Node *node) {
+  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
+  if (!fExpr) {
+    return;
+  }
+  auto name = fExpr->functionName();
+  if (name != "shared_library") {
     return;
   }
   auto range = nodeToRange(fExpr->id.get());
