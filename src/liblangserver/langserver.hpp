@@ -15,6 +15,7 @@
 
 class LanguageServer : public AbstractLanguageServer {
 public:
+  LanguageServer();
   std::vector<std::shared_ptr<Workspace>> workspaces;
   std::map<std::filesystem::path, std::string> cachedContents;
   std::vector<std::map<std::filesystem::path, std::vector<LSPDiagnostic>>>
@@ -50,4 +51,5 @@ public:
 
 private:
   TypeNamespace ns;
+  std::set<std::string> pkgNames;
 };
