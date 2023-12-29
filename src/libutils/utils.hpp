@@ -131,3 +131,20 @@ inline std::string joinStrings(const Container &cont, const char chr) {
   }
   return strStream.str();
 }
+
+// From https://stackoverflow.com/a/56199972
+template <typename T>
+std::basic_string<T> lowercase(const std::basic_string<T> &str) {
+  std::basic_string<T> copy = str;
+  std::transform(copy.begin(), copy.end(), copy.begin(),
+                 [](const T val) { return static_cast<T>(std::tolower(val)); });
+  return copy;
+}
+
+template <typename T>
+std::basic_string<T> uppercase(const std::basic_string<T> &str) {
+  std::basic_string<T> copy = str;
+  std::transform(copy.begin(), copy.end(), copy.begin(),
+                 [](const T chr) { return static_cast<T>(std::toupper(chr)); });
+  return copy;
+}

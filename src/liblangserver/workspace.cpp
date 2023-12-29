@@ -1,6 +1,7 @@
 #include "workspace.hpp"
 
 #include "analysisoptions.hpp"
+#include "codeactionvisitor.hpp"
 #include "documentsymbolvisitor.hpp"
 #include "foldingrangevisitor.hpp"
 #include "hover.hpp"
@@ -96,6 +97,24 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     return {};
   }
   return std::nullopt;
+}
+
+std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
+                                              const LSPRange &range) {
+  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  for (const auto &subTree : findTrees(this->tree)) {
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    auto ast = subTree->asts[path];
+    if (ast.empty()) {
+      continue;
+    }
+    auto visitor = CodeActionVisitor(range, pathToUrl(path), subTree.get());
+    ast.back()->visit(&visitor);
+    return visitor.actions;
+  }
+  return {};
 }
 
 std::vector<DocumentHighlight>

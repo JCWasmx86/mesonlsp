@@ -72,7 +72,7 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  std::optional<std::shared_ptr<Node>> getPositionalArg(uint32_t idx) {
+  std::optional<std::shared_ptr<Node>> getPositionalArg(uint32_t idx) const {
     if (idx >= this->args.size()) {
       return std::nullopt;
     }
@@ -90,7 +90,7 @@ public:
     return std::nullopt;
   }
 
-  std::optional<std::shared_ptr<Node>> getKwarg(const std::string &name) {
+  std::optional<std::shared_ptr<Node>> getKwarg(const std::string &name) const {
     for (const auto &arg : this->args) {
       auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
       if (keywordItem == nullptr) {

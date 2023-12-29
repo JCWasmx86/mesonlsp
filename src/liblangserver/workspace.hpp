@@ -42,9 +42,10 @@ public:
                                       const RenameParams &params);
   std::vector<LSPLocation> jumpTo(const std::filesystem::path &path,
                                   const LSPPosition &position);
+  std::vector<CodeAction> codeAction(const std::filesystem::path &path,
+                                     const LSPRange &range);
 
   bool owns(const std::filesystem::path &path);
-
   void patchFile(
       const std::filesystem::path &path, const std::string &contents,
       const std::function<void(

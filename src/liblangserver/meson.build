@@ -9,6 +9,7 @@ langserver_lib = static_library(
     'foldingrangevisitor.cpp',
     'semantictokensvisitor.cpp',
     'documentsymbolvisitor.cpp',
+    'codeactionvisitor.cpp',
     'hover.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',

@@ -29,3 +29,9 @@ inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
                       : DiagnosticSeverity::LSPWarning;
   return {range, severity, diag.message};
 }
+
+inline LSPRange nodeToRange(const Node *node) {
+  const auto *loc = node->location;
+  return {LSPPosition(loc->startLine, loc->startColumn),
+          LSPPosition(loc->endLine, loc->endColumn)};
+}

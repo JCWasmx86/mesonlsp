@@ -51,7 +51,7 @@ public:
       : tokenTypes(std::move(tokenTypes)),
         tokenModifiers(std::move(tokenModifiers)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"tokenTypes", tokenTypes}, {"tokenModifiers", tokenModifiers}};
   }
 };
@@ -66,7 +66,7 @@ public:
       : triggerCharacters(std::move(triggerCharacters)),
         resolveProvider(resolveProvider) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"triggerCharacters", triggerCharacters},
             {"resolveProvider", resolveProvider}};
   }
@@ -80,7 +80,7 @@ public:
   SemanticTokensOptions(bool full, SemanticTokensLegend legend)
       : full(full), legend(std::move(legend)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"full", full}, {"legend", legend.toJson()}};
   }
 };
@@ -93,7 +93,7 @@ public:
   TextDocumentSyncOptions(bool openClose, TextDocumentSyncKind change)
       : openClose(openClose), change(change) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"openClose", openClose}, {"change", change}};
   }
 };
@@ -136,7 +136,7 @@ public:
         completionProvider(std::move(completionProvider)),
         semanticTokensProvider(std::move(semanticTokensProvider)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"textDocumentSync", this->textDocumentSync.toJson()},
             {"hoverProvider", hoverProvider},
             {"definitionProvider", definitionProvider},
@@ -179,7 +179,9 @@ public:
   ServerInfo(std::string name, std::string version)
       : name(std::move(name)), version(std::move(version)) {}
 
-  nlohmann::json toJson() { return {{"name", name}, {"version", version}}; }
+  nlohmann::json toJson() const {
+    return {{"name", name}, {"version", version}};
+  }
 };
 
 class InitializeResult : public BaseObject {
@@ -192,7 +194,7 @@ public:
       : capabilities(std::move(capabilities)),
         serverInfo(std::move(serverInfo)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     nlohmann::json ret;
     ret["capabilities"] = capabilities.toJson();
     if (serverInfo.has_value()) {
@@ -220,7 +222,9 @@ public:
     this->character = jsonObj["character"];
   }
 
-  nlohmann::json toJson() { return {{"line", line}, {"character", character}}; }
+  nlohmann::json toJson() const {
+    return {{"line", line}, {"character", character}};
+  }
 };
 
 class LSPRange : public BaseObject {
@@ -234,8 +238,25 @@ public:
   LSPRange(nlohmann::json &jsonObj)
       : start(jsonObj["start"]), end(jsonObj["end"]) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"start", start.toJson()}, {"end", end.toJson()}};
+  }
+
+  bool contains(const LSPPosition &position) const {
+    if (position.line > this->start.line && position.line < this->end.line) {
+      return true;
+    }
+    if (position.line == this->start.line && position.line == this->end.line) {
+      return position.character >= this->start.character &&
+             position.character <= this->end.character;
+    }
+    if (position.line == this->start.line) {
+      return position.character >= this->start.character;
+    }
+    if (position.line == this->end.line) {
+      return position.character <= this->end.character;
+    }
+    return false;
   }
 };
 
@@ -250,7 +271,7 @@ public:
       : range(std::move(range)), severity(severity),
         message(std::move(message)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"range", range.toJson()},
             {"severity", severity},
             {"message", message}};
@@ -266,10 +287,10 @@ public:
                            std::vector<LSPDiagnostic> diagnostics)
       : uri(std::move(uri)), diagnostics(std::move(diagnostics)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     std::vector<nlohmann::json> objs;
     objs.reserve(this->diagnostics.size());
-    for (auto diag : this->diagnostics) {
+    for (const auto &diag : this->diagnostics) {
       objs.push_back(diag.toJson());
     }
     return {{"uri", uri}, {"diagnostics", objs}};
@@ -361,7 +382,7 @@ public:
   InlayHint(LSPPosition position, std::string label)
       : position(std::move(position)), label(std::move(label)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"position", position.toJson()}, {"label", this->label}};
   }
 };
@@ -382,7 +403,7 @@ public:
   FoldingRange(uint64_t startLine, uint64_t endLine)
       : startLine(startLine), endLine(endLine) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"startLine", startLine}, {"endLine", endLine}};
   }
 };
@@ -423,7 +444,7 @@ public:
   TextEdit(LSPRange range, std::string newText)
       : range(std::move(range)), newText(std::move(newText)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"range", range.toJson()}, {"newText", newText}};
   }
 };
@@ -453,7 +474,9 @@ public:
   LSPLocation(std::string uri, LSPRange range)
       : uri(std::move(uri)), range(std::move(range)) {}
 
-  nlohmann::json toJson() { return {{"uri", uri}, {"range", range.toJson()}}; }
+  nlohmann::json toJson() const {
+    return {{"uri", uri}, {"range", range.toJson()}};
+  }
 };
 
 class SymbolInformation : public BaseObject {
@@ -465,7 +488,7 @@ public:
   SymbolInformation(std::string name, SymbolKind kind, LSPLocation location)
       : name(std::move(name)), kind(kind), location(std::move(location)) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"name", name}, {"kind", kind}, {"location", location.toJson()}};
   }
 };
@@ -485,7 +508,9 @@ public:
 
   MarkupContent(std::string value) : value(std::move(value)) {}
 
-  nlohmann::json toJson() { return {{"value", value}, {"kind", "markdown"}}; }
+  nlohmann::json toJson() const {
+    return {{"value", value}, {"kind", "markdown"}};
+  }
 };
 
 class Hover : public BaseObject {
@@ -494,7 +519,7 @@ public:
 
   Hover(MarkupContent contents) : contents(std::move(contents)) {}
 
-  nlohmann::json toJson() { return {{"contents", contents.toJson()}}; }
+  nlohmann::json toJson() const { return {{"contents", contents.toJson()}}; }
 };
 
 class DocumentHighlightParams : public BaseObject {
@@ -519,7 +544,7 @@ public:
   DocumentHighlight(LSPRange range, DocumentHighlightKind kind)
       : range(std::move(range)), kind(kind) {}
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     return {{"range", range.toJson()}, {"kind", kind}};
   }
 };
@@ -539,12 +564,12 @@ class WorkspaceEdit : public BaseObject {
 public:
   std::map<std::string, std::vector<TextEdit>> changes;
 
-  nlohmann::json toJson() {
+  nlohmann::json toJson() const {
     nlohmann::json ret;
-    for (auto &pair : changes) {
+    for (const auto &pair : changes) {
       std::vector<nlohmann::json> vec;
       vec.reserve(pair.second.size());
-      for (auto &edit : pair.second) {
+      for (const auto &edit : pair.second) {
         vec.push_back(edit.toJson());
       }
       ret[pair.first] = vec;
@@ -569,4 +594,28 @@ public:
 
   DefinitionParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};
+
+class CodeActionParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPRange range;
+
+  // Ignore the context :p
+
+  CodeActionParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), range(jsonObj["range"]) {}
+};
+
+class CodeAction : public BaseObject {
+public:
+  std::string title;
+  WorkspaceEdit edit;
+
+  CodeAction(std::string title, WorkspaceEdit edit)
+      : title(std::move(title)), edit(std::move(edit)) {}
+
+  nlohmann::json toJson() const {
+    return {{"title", title}, {"edit", edit.toJson()}};
+  }
 };
