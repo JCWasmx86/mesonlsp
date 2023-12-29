@@ -29,6 +29,7 @@ public:
   virtual std::optional<WorkspaceEdit> rename(RenameParams &params) = 0;
   virtual std::vector<LSPLocation> declaration(DeclarationParams &params) = 0;
   virtual std::vector<LSPLocation> definition(DefinitionParams &params) = 0;
+  virtual std::vector<CodeAction> codeAction(CodeActionParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;

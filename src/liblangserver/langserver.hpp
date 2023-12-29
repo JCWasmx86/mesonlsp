@@ -33,6 +33,7 @@ public:
   std::optional<WorkspaceEdit> rename(RenameParams &params) override;
   std::vector<LSPLocation> declaration(DeclarationParams &params) override;
   std::vector<LSPLocation> definition(DefinitionParams &params) override;
+  std::vector<CodeAction> codeAction(CodeActionParams &params) override;
   void shutdown() override;
 
   void onInitialized(InitializedParams & /*params*/) override;

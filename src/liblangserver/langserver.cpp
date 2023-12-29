@@ -219,6 +219,16 @@ std::vector<LSPLocation> LanguageServer::definition(DefinitionParams &params) {
   return {};
 }
 
+std::vector<CodeAction> LanguageServer::codeAction(CodeActionParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->codeAction(path, params.range);
+    }
+  }
+  return {};
+}
+
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
   auto path = extractPathFromUrl(params.textDocument.uri);
