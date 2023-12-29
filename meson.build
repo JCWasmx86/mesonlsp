@@ -58,6 +58,7 @@ nlohmann_json_dep = dependency('nlohmann_json')
 curl_dep = dependency('libcurl')
 archive_dep = dependency('libarchive')
 uuid_dep = dependency('uuid')
+pkgconf_dep = dependency('libpkgconf')
 
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')

@@ -18,6 +18,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <pkgconf/libpkgconf/libpkgconf.h>
 #include <string>
 #include <vector>
 extern "C" {
@@ -43,6 +44,43 @@ std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
   fileStream << contents << std::endl;
   fileStream.close();
   return fullPath;
+}
+
+extern "C" {
+static bool errorHandler(const char *msg, const pkgconf_client_t *client,
+                         void *data) {
+  (void)client;
+  (void)data;
+  (void)msg;
+  return true;
+}
+}
+
+LanguageServer::LanguageServer() {
+  auto *personality = pkgconf_cross_personality_default();
+  pkgconf_list_t dirList = PKGCONF_LIST_INITIALIZER;
+  pkgconf_path_copy_list(&personality->dir_list, &dirList);
+  pkgconf_path_free(&dirList);
+  pkgconf_client_t pkgClient;
+  memset(&pkgClient, 0, sizeof(pkgClient));
+  pkgconf_client_set_trace_handler(&pkgClient, nullptr, nullptr);
+  pkgconf_client_set_sysroot_dir(&pkgClient, nullptr);
+  pkgconf_client_init(&pkgClient, errorHandler, nullptr, personality);
+  pkgconf_client_set_trace_handler(&pkgClient, errorHandler, nullptr);
+  pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
+  pkgconf_client_dir_list_build(&pkgClient, personality);
+  pkgconf_scan_all(&pkgClient, this,
+                   [](const pkgconf_pkg_t *entry, void *data) {
+                     if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
+                       return false;
+                     }
+                     std::string pkgName{entry->id};
+                     LOG.info("Found package: " + pkgName);
+                     ((LanguageServer *)data)->pkgNames.insert(pkgName);
+                     return false;
+                   });
+  pkgconf_cross_personality_deinit(personality);
+  pkgconf_client_deinit(&pkgClient);
 }
 
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
