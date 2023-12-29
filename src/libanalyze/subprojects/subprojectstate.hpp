@@ -56,3 +56,5 @@ public:
     this->parseSubprojects(options, depth, parentIdentifier, ns);
   }
 };
+
+std::string createIdentifierForWrap(const std::filesystem::path &path);
