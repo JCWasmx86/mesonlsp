@@ -82,3 +82,10 @@ Status: In Progress
 - Fix all clang-tidy warnings as far as possible.
 - Write new docs
 - Write doc section for distributions
+- Port scripts
+
+
+## TODO
+- Pass AnalysisOptions from LanguageServer to MesonTree
+- Auto-completion
+- Improve wrap stuff
