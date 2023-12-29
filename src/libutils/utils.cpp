@@ -194,6 +194,11 @@ bool launchProcess(const std::string &executable,
     return false;
   }
   if (pid == 0) { // Child process
+    if (dup2(STDERR_FILENO, STDOUT_FILENO) == -1) {
+      LOG.error(std::format("Failed to redirect stdout to stderr: {}",
+                            errno2string()));
+      return false;
+    }
     if (execvp(executable.c_str(), const_cast<char *const *>(cArgs.data())) ==
         -1) {
       LOG.error(std::format("Failed to execvp(): {}", errno2string()));
