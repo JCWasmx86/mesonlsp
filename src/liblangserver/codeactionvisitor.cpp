@@ -6,7 +6,10 @@
 #include "node.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <format>
+#include <optional>
+#include <ranges>
 
 static Logger LOG("CodeActionVisitor"); // NOLINT
 
@@ -30,6 +33,9 @@ bool CodeActionVisitor::inRange(const Node *node, bool add) {
     makeLibraryToGenericAction(node);
     makeSharedLibraryToModuleAction(node);
     makeModuleToSharedLibraryAction(node);
+    makeSortFilenamesAction(node);
+    makeSortFilenamesIASAction(node);
+    makeSortFilenamesSAIAction(node);
     return true;
   }
   return false;
@@ -431,4 +437,263 @@ void CodeActionVisitor::makeDeclareDependencyAction(const Node *node) {
   edit.changes[this->uri] = {textEdit};
   this->actions.emplace_back(
       std::format("Declare dependency {} for library", dependencyName), edit);
+}
+
+void CodeActionVisitor::makeSortFilenamesAction(const Node *node) {
+  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
+  if (!fExpr) {
+    return;
+  }
+  auto func = fExpr->function;
+  if (!func || !CodeActionVisitor::createsLibrary(func)) {
+    return;
+  }
+  auto omitCountOpt = CodeActionVisitor::isSortableFunction(func);
+  if (!omitCountOpt.has_value()) {
+    return;
+  }
+  const auto omitCount = omitCountOpt.value();
+  const auto *args = dynamic_cast<const ArgumentList *>(fExpr->args.get());
+  if (!args) {
+    return;
+  }
+  auto strLiteralsOpt = this->extractStringLiterals(args, omitCount);
+  if (!strLiteralsOpt.has_value()) {
+    return;
+  }
+  auto strLiterals = strLiteralsOpt.value();
+  std::vector<const StringLiteral *> sortedStrLiterals{strLiterals.begin(),
+                                                       strLiterals.end()};
+  std::sort(sortedStrLiterals.begin(), sortedStrLiterals.end(),
+            [](const StringLiteral *lhs, const StringLiteral *rhs) -> bool {
+              auto aC = std::ranges::count(lhs->id, '/');
+              auto bC = std::ranges::count(rhs->id, '/');
+              if (aC != bC) {
+                return aC < bC; // Sort based on the count of slashes
+              }
+              return lhs->id <
+                     rhs->id; // If counts are equal, sort lexicographically
+            });
+  if (std::ranges::equal(sortedStrLiterals, strLiterals)) {
+    return;
+  }
+  auto nodes =
+      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
+  auto revSortedStrs = sortedStrLiterals | std::ranges::views::reverse;
+  std::vector<TextEdit> edits;
+  for (size_t i = 0; i < nodes.size(); i++) {
+    const auto &node = nodes[(long)i];
+    auto range = nodeToRange(node);
+    edits.emplace_back(range, std::format("'{}'", revSortedStrs[(long)i]->id));
+  }
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = edits;
+  this->actions.emplace_back("Sort filenames", edit);
+}
+
+std::optional<std::vector<const StringLiteral *>>
+CodeActionVisitor::extractStringLiterals(const ArgumentList *al,
+                                         size_t omitCount) {
+  std::vector<const StringLiteral *> ret;
+  for (const auto &arg : al->args) {
+    if (dynamic_cast<KeywordItem *>(arg.get())) {
+      continue;
+    }
+    if (omitCount != 0U) {
+      omitCount--;
+      continue;
+    }
+    const auto *asSL = dynamic_cast<StringLiteral *>(arg.get());
+    if (!asSL) {
+      return std::nullopt;
+    }
+    ret.push_back(asSL);
+  }
+  return ret;
+}
+
+std::optional<std::vector<const Node *>>
+CodeActionVisitor::extractSortableNodes(const ArgumentList *al,
+                                        size_t omitCount) {
+  std::vector<const Node *> ret;
+  for (const auto &arg : al->args) {
+    if (dynamic_cast<KeywordItem *>(arg.get())) {
+      continue;
+    }
+    if (omitCount != 0U) {
+      omitCount--;
+      continue;
+    }
+    if (dynamic_cast<StringLiteral *>(arg.get()) ||
+        dynamic_cast<IdExpression *>(arg.get())) {
+      ret.push_back(arg.get());
+      continue;
+    }
+    return std::nullopt;
+  }
+  return ret;
+}
+
+std::vector<const Node *>
+CodeActionVisitor::extractNodes(const ArgumentList *al, size_t omitCount) {
+  std::vector<const Node *> ret;
+  for (const auto &arg : al->args) {
+    if (dynamic_cast<KeywordItem *>(arg.get())) {
+      continue;
+    }
+    if (omitCount != 0U) {
+      omitCount--;
+      continue;
+    }
+    ret.push_back(arg.get());
+  }
+  return ret;
+}
+
+void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
+  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
+  if (!fExpr) {
+    return;
+  }
+  auto func = fExpr->function;
+  if (!func || !CodeActionVisitor::createsLibrary(func)) {
+    return;
+  }
+  auto omitCountOpt = CodeActionVisitor::isSortableFunction(func);
+  if (!omitCountOpt.has_value()) {
+    return;
+  }
+  const auto omitCount = omitCountOpt.value();
+  const auto *args = dynamic_cast<const ArgumentList *>(fExpr->args.get());
+  if (!args) {
+    return;
+  }
+  auto toSortOpt = this->extractSortableNodes(args, omitCount);
+  if (!toSortOpt.has_value()) {
+    return;
+  }
+  auto toSort = toSortOpt.value();
+  std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
+  std::sort(sortedNodes.begin(), sortedNodes.end(),
+            [](const Node *lhs, const Node *rhs) -> bool {
+              const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+              const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+              if (lhsIdExpr && rhsIdExpr) {
+                return lhsIdExpr->id < rhsIdExpr->id;
+              }
+              if (lhsIdExpr) {
+                return false;
+              }
+              if (rhsIdExpr) {
+                return true;
+              }
+              const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
+              const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+              auto aC = std::ranges::count(lhsSL->id, '/');
+              auto bC = std::ranges::count(rhsSL->id, '/');
+              if (aC != bC) {
+                return aC < bC; // Sort based on the count of slashes
+              }
+              return lhsSL->id <
+                     rhsSL->id; // If counts are equal, sort lexicographically
+            });
+
+  if (std::ranges::equal(sortedNodes, toSort)) {
+    return;
+  }
+  auto nodes =
+      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
+  auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
+  std::vector<TextEdit> edits;
+  for (size_t i = 0; i < nodes.size(); i++) {
+    const auto &node = nodes[(long)i];
+    auto range = nodeToRange(node);
+    const auto *asSL =
+        dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
+    if (asSL) {
+      edits.emplace_back(range, std::format("'{}'", asSL->id));
+    } else {
+      edits.emplace_back(
+          range,
+          dynamic_cast<const IdExpression *>(revSortedNodes[(long)i])->id);
+    }
+  }
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = edits;
+  this->actions.emplace_back(
+      "Sort filenames (Identifiers after string literals)", edit);
+}
+
+void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
+  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
+  if (!fExpr) {
+    return;
+  }
+  auto func = fExpr->function;
+  if (!func || !CodeActionVisitor::createsLibrary(func)) {
+    return;
+  }
+  auto omitCountOpt = CodeActionVisitor::isSortableFunction(func);
+  if (!omitCountOpt.has_value()) {
+    return;
+  }
+  const auto omitCount = omitCountOpt.value();
+  const auto *args = dynamic_cast<const ArgumentList *>(fExpr->args.get());
+  if (!args) {
+    return;
+  }
+  auto toSortOpt = this->extractSortableNodes(args, omitCount);
+  if (!toSortOpt.has_value()) {
+    return;
+  }
+  auto toSort = toSortOpt.value();
+  std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
+  std::sort(sortedNodes.begin(), sortedNodes.end(),
+            [](const Node *lhs, const Node *rhs) -> bool {
+              const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+              const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+              if (lhsIdExpr && rhsIdExpr) {
+                return lhsIdExpr->id < rhsIdExpr->id;
+              }
+              if (lhsIdExpr) {
+                return true;
+              }
+              if (rhsIdExpr) {
+                return false;
+              }
+              const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
+              const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+              auto aC = std::ranges::count(lhsSL->id, '/');
+              auto bC = std::ranges::count(rhsSL->id, '/');
+              if (aC != bC) {
+                return aC < bC; // Sort based on the count of slashes
+              }
+              return lhsSL->id <
+                     rhsSL->id; // If counts are equal, sort lexicographically
+            });
+
+  if (std::ranges::equal(sortedNodes, toSort)) {
+    return;
+  }
+  auto nodes =
+      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
+  auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
+  std::vector<TextEdit> edits;
+  for (size_t i = 0; i < nodes.size(); i++) {
+    const auto &node = nodes[(long)i];
+    auto range = nodeToRange(node);
+    const auto *asSL =
+        dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
+    if (asSL) {
+      edits.emplace_back(range, std::format("'{}'", asSL->id));
+    } else {
+      edits.emplace_back(
+          range,
+          dynamic_cast<const IdExpression *>(revSortedNodes[(long)i])->id);
+    }
+  }
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = edits;
+  this->actions.emplace_back(
+      "Sort filenames (String literals after identifiers)", edit);
 }
