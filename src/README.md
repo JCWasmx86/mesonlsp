@@ -89,3 +89,4 @@ Status: In Progress
 - Pass AnalysisOptions from LanguageServer to MesonTree
 - Auto-completion
 - Improve wrap stuff
+- Create namespaces

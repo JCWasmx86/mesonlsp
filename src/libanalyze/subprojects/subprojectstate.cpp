@@ -14,6 +14,8 @@
 
 Logger LOG("analyze::subprojectstate"); // NOLINT
 
+static std::string normalizeURLToFilePath(const std::string &url);
+
 void SubprojectState::findSubprojects() {
   auto subprojectsDir = std::filesystem::absolute(this->root) / "subprojects";
   if (!std::filesystem::exists(subprojectsDir) ||
@@ -31,11 +33,7 @@ void SubprojectState::findSubprojects() {
     if (!matchesWrap) {
       continue;
     }
-    auto ftime = std::filesystem::last_write_time(child);
-    const auto systemTime =
-        std::chrono::clock_cast<std::chrono::system_clock>(ftime);
-    const auto time = std::chrono::system_clock::to_time_t(systemTime);
-    auto identifier = std::format("{}-{}", hash(child), time);
+    auto identifier = createIdentifierForWrap(child);
     LOG.info(std::format("{}: Identifier is: {}", child.filename().c_str(),
                          identifier));
     auto wrapBaseDir = extractionDir / child.filename() / identifier;
@@ -104,4 +102,107 @@ void SubprojectState::parseSubprojects(AnalysisOptions &options, int depth,
   for (const auto &subproject : this->subprojects) {
     subproject->parse(options, depth, parentIdentifier, ns);
   }
+}
+
+std::string createIdentifierForWrap(const std::filesystem::path &path) {
+  std::ifstream file(path);
+  std::string line;
+  bool isFile = false;
+  bool isGit = false;
+  std::string url;
+  std::string revision;
+  if (!file.is_open()) {
+    goto makeDefault;
+  }
+  while (std::getline(file, line)) {
+    if (line.contains("wrap-file")) {
+      isFile = true;
+      continue;
+    }
+    if (line.contains("wrap-git")) {
+      isGit = true;
+      continue;
+    }
+    if (line.starts_with("url")) {
+      size_t lookAhead = 4;
+      while (lookAhead < line.size() - 1) {
+        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          continue;
+        }
+        break;
+      }
+      url = line.substr(lookAhead);
+      continue;
+    }
+    if (line.starts_with("source_url")) {
+      size_t lookAhead = sizeof("source_url") + 1;
+      while (lookAhead < line.size() - 1) {
+        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          continue;
+        }
+        break;
+      }
+      url = line.substr(lookAhead);
+      continue;
+    }
+    if (line.starts_with("revision")) {
+      size_t lookAhead = sizeof("revision") + 1;
+      while (lookAhead < line.size() - 1) {
+        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          continue;
+        }
+        break;
+      }
+      revision = line.substr(lookAhead);
+      continue;
+    }
+    if (line.starts_with("patch_") || line.starts_with("diff_files")) {
+      goto makeDefault;
+    }
+  }
+  file.close();
+  if (!isGit && !isFile) {
+    goto makeDefault;
+  }
+  if (isFile && !url.empty()) {
+    return normalizeURLToFilePath(url);
+  }
+  if (isGit && !url.empty()) {
+    return hash(url + "//" + revision);
+  }
+makeDefault:
+  auto ftime = std::filesystem::last_write_time(path);
+  const auto systemTime =
+      std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+  const auto time = std::chrono::system_clock::to_time_t(systemTime);
+  return std::format("{}-{}", hash(path), time);
+};
+
+static std::string normalizeURLToFilePath(const std::string &url) {
+  std::string normalizedPath = url;
+  std::replace_if(
+      normalizedPath.begin(), normalizedPath.end(),
+      [](char chr) {
+        return (isalnum(chr) == 0) && chr != '.' && chr != '-' && chr != '/' &&
+               chr != ':';
+      },
+      '_');
+  size_t pos = 0;
+  while ((pos = normalizedPath.find("//", pos)) != std::string::npos) {
+    normalizedPath.replace(pos, 2, "_");
+    pos += 1;
+  }
+
+  pos = 0;
+
+  while ((pos = normalizedPath.find('/', pos)) != std::string::npos) {
+    normalizedPath.replace(pos, 1, "_");
+    pos += 1;
+  }
+  pos = normalizedPath.find(':');
+  if (pos != std::string::npos) {
+    normalizedPath.replace(pos, 1, "_");
+  }
+
+  return normalizedPath;
 }
