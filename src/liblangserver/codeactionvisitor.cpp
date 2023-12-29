@@ -27,6 +27,7 @@ bool CodeActionVisitor::inRange(const Node *node, bool add) {
     makeIntegerToBaseAction(node);
     makeCopyFileAction(node);
     makeDeclareDependencyAction(node);
+    makeLibraryToGenericAction(node);
     return true;
   }
   return false;
@@ -280,6 +281,23 @@ bool CodeActionVisitor::expectedArgsForCopyFile(const ArgumentList *al) {
     return false;
   }
   return boolLit->value;
+}
+
+void CodeActionVisitor::makeLibraryToGenericAction(const Node *node) {
+  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
+  if (!fExpr) {
+    return;
+  }
+  auto name = fExpr->functionName();
+  if (name != "static_library" && name != "shared_library" &&
+      name != "both_libraries") {
+    return;
+  }
+  auto range = nodeToRange(fExpr->id.get());
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = {TextEdit(range, "library")};
+  this->actions.emplace_back(std::format("Use library() instead of {}()", name),
+                             edit);
 }
 
 void CodeActionVisitor::makeDeclareDependencyAction(const Node *node) {
