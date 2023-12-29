@@ -76,8 +76,6 @@ private:
   void checkDuplicateNodeKeys(DictionaryLiteral *node) const;
   void setFunctionCallTypes(FunctionExpression *node,
                             const std::shared_ptr<Function> &fn);
-  void specialFunctionCallHandling(FunctionExpression *node,
-                                   const std::shared_ptr<Function> &fn);
   void checkCall(Node *node);
   void checkSetVariable(FunctionExpression *node, ArgumentList *al);
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,

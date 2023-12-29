@@ -1084,15 +1084,6 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
   }
 }
 
-void TypeAnalyzer::specialFunctionCallHandling(
-    FunctionExpression *node, const std::shared_ptr<Function> &fn) {
-  auto name = fn->name;
-  if (name != "subproject") {
-    // TODO
-    return;
-  }
-}
-
 void TypeAnalyzer::checkKwargsAfterPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) const {
   auto kwargsOnly = false;
@@ -1413,7 +1404,6 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   auto fn = functionOpt.value();
   node->types = fn->returnTypes;
   this->setFunctionCallTypes(node, fn);
-  this->specialFunctionCallHandling(node, fn);
   node->function = fn;
   if (node->function->deprecationState.deprecated) {
     auto alternatives = node->function->deprecationState.replacements;
@@ -1449,7 +1439,7 @@ afterVersionCheck:
     this->checkCall(node);
     auto *asArgumentList = dynamic_cast<ArgumentList *>(args.get());
     if (!asArgumentList) {
-      goto checkVersion;
+      goto cont;
     }
     for (const auto &arg : asArgumentList->args) {
       auto *asKwi = dynamic_cast<KeywordItem *>(arg.get());
@@ -1462,8 +1452,7 @@ afterVersionCheck:
       this->checkSetVariable(node, asArgumentList);
     }
   }
-checkVersion:
-  // TODO: RegisterDeprecated
+cont:
 
   if (fn->name == "subdir") {
     this->enterSubdir(node);
