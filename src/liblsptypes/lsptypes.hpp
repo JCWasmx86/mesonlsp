@@ -209,6 +209,11 @@ enum DiagnosticSeverity {
   LSPWarning = 2,
 };
 
+enum DiagnosticTag {
+  LSPUnnecessary = 1,
+  LSPDeprecated = 2,
+};
+
 class LSPPosition : public BaseObject {
 public:
   uint64_t line;
@@ -265,16 +270,18 @@ public:
   LSPRange range;
   DiagnosticSeverity severity;
   std::string message;
+  std::vector<DiagnosticTag> tags;
 
   LSPDiagnostic(LSPRange range, DiagnosticSeverity severity,
-                std::string message)
+                std::string message, std::vector<DiagnosticTag> tags)
       : range(std::move(range)), severity(severity),
-        message(std::move(message)) {}
+        message(std::move(message)), tags(std::move(tags)) {}
 
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"range", range.toJson()},
             {"severity", severity},
-            {"message", message}};
+            {"message", message},
+            {"tags", tags}};
   }
 };
 

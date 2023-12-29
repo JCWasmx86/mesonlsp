@@ -731,7 +731,7 @@ void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
   }
   this->metadata->registerDiagnostic(
       firstDead.get(), Diagnostic(Severity::Warning, firstDead.get(),
-                                  lastDead.get(), "Dead code"));
+                                  lastDead.get(), "Dead code", false, true));
 }
 
 void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
@@ -894,7 +894,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       if (asSet.size() == 1 && opt->deprecated) {
         this->metadata->registerDiagnostic(
             node, Diagnostic(Severity::Warning, node,
-                             std::format("Deprecated option")));
+                             std::format("Deprecated option"), true, false));
       }
       if (dynamic_cast<StringOption *>(opt.get()) ||
           dynamic_cast<ComboOption *>(opt.get())) {
@@ -1136,7 +1136,8 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
             kwi->key.get(),
             Diagnostic(Severity::Warning, kwi->key.get(),
                        std::format("Deprecated keyword argument{}{}",
-                                   versionString, alternativesStr)));
+                                   versionString, alternativesStr),
+                       true, false));
       }
       continue;
     }
@@ -1422,7 +1423,8 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::Warning, node,
                          std::format("Deprecated function{}{}", versionString,
-                                     alternativesStr)));
+                                     alternativesStr),
+                         true, false));
   }
 afterVersionCheck:
   auto args = node->args;
@@ -1846,7 +1848,8 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::Warning, node,
                          std::format("Deprecated method{}{}", versionString,
-                                     alternativesStr)));
+                                     alternativesStr),
+                         true, false));
   }
 afterVersionCheck:
   if (node->args) {
