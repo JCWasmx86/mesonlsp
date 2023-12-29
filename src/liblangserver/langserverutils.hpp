@@ -12,7 +12,9 @@ inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   auto url = ada::parse<ada::url>(urlStr);
   assert(url);
   assert(url->get_protocol() == "file:");
-  return {url->path};
+  auto input = url->get_pathname();
+  auto ret = ada::unicode::percent_decode(input, input.find('%'));
+  return {ret};
 }
 
 inline std::string pathToUrl(const std::filesystem::path &path) {
