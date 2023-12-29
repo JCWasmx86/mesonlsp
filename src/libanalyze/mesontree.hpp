@@ -7,6 +7,7 @@
 #include "scope.hpp"
 #include "subprojects/subprojectstate.hpp"
 #include "typenamespace.hpp"
+#include "version.hpp"
 
 #include <filesystem>
 #include <map>
@@ -30,6 +31,7 @@ public:
   OptionState options;
   const TypeNamespace &ns;
   int depth = 0;
+  Version version = Version("9999.9999.9999");
 
   MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
       : identifier("root"), root(root), state(new SubprojectState(root)),

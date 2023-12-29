@@ -9,6 +9,7 @@
 #include "type.hpp"
 #include "typenamespace.hpp"
 #include "utils.hpp"
+#include "version.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -602,28 +603,28 @@ void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
   auto arg = sl->id;
   if (mid == "compiler.get_id" &&
       !this->analysisOptions.disableCompilerIdLinting &&
-      COMPILER_IDS.contains(arg)) {
+      !COMPILER_IDS.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Warning, sl, "Unknown compiler id"));
   } else if (mid == "compiler.get_argument_syntax" &&
              !this->analysisOptions.disableCompilerArgumentIdLinting &&
-             ARGUMENT_SYNTAXES.contains(arg)) {
+             !ARGUMENT_SYNTAXES.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl,
         Diagnostic(Severity::Warning, sl, "Unknown compiler argument syntax"));
   } else if (mid == "compiler.get_linker_id" &&
              !this->analysisOptions.disableLinkerIdLinting &&
-             LINKER_IDS.contains(arg)) {
+             !LINKER_IDS.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Warning, sl, "Unknown linker id"));
   } else if (mid == "build_machine.cpu_family" &&
              !this->analysisOptions.disableCpuFamilyLinting &&
-             CPU_FAMILIES.contains(arg)) {
+             !CPU_FAMILIES.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Warning, sl, "Unknown CPU family"));
   } else if (mid == "build_machine.system" &&
              !this->analysisOptions.disableOsFamilyLinting &&
-             OS_NAMES.contains(arg)) {
+             !OS_NAMES.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Warning, sl, "Unknown OS family"));
   }
@@ -670,6 +671,7 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
     return;
   }
   LOG.info(std::format("Meson version = {}", mesonVersionSL->id));
+  this->tree->version = Version(mesonVersionSL->id);
 }
 
 void TypeAnalyzer::checkNoEffect(Node *node) const {
@@ -1123,7 +1125,31 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
       continue;
     }
     usedKwargs[kId->id] = kwi;
-    if (func->kwargs.contains(kId->id) || kId->id == "kwargs") {
+    if (func->kwargs.contains(kId->id)) {
+      auto kwarg = func->kwargs[kId->id];
+      if (kwarg->deprecationState.deprecated) {
+        auto alternatives = kwarg->deprecationState.replacements;
+        auto sinceWhen = kwarg->deprecationState.sinceWhen;
+        if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
+          continue;
+        }
+        auto versionString =
+            sinceWhen.has_value()
+                ? std::format(" (Since {})", sinceWhen->versionString)
+                : "";
+        auto alternativesStr =
+            alternatives.empty()
+                ? ""
+                : (" Try one of: " + joinStrings(alternatives, ','));
+        this->metadata->registerDiagnostic(
+            kwi->key.get(),
+            Diagnostic(Severity::Warning, kwi->key.get(),
+                       std::format("Deprecated keyword argument{}{}",
+                                   versionString, alternativesStr)));
+      }
+      continue;
+    }
+    if (kId->id == "kwargs") {
       continue;
     }
     this->metadata->registerDiagnostic(
@@ -1389,6 +1415,26 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   this->setFunctionCallTypes(node, fn);
   this->specialFunctionCallHandling(node, fn);
   node->function = fn;
+  if (node->function->deprecationState.deprecated) {
+    auto alternatives = node->function->deprecationState.replacements;
+    auto sinceWhen = node->function->deprecationState.sinceWhen;
+    if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
+      goto afterVersionCheck;
+    }
+    auto versionString =
+        sinceWhen.has_value()
+            ? std::format(" (Since {})", sinceWhen->versionString)
+            : "";
+    auto alternativesStr =
+        alternatives.empty()
+            ? ""
+            : (" Try one of: " + joinStrings(alternatives, ','));
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Warning, node,
+                         std::format("Deprecated function{}{}", versionString,
+                                     alternativesStr)));
+  }
+afterVersionCheck:
   auto args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
     if (fn->minPosArgs > 0) {
@@ -1794,6 +1840,26 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     LOG.warn("Ignoring invalid method for disabler");
     return;
   }
+  if (node->method->deprecationState.deprecated) {
+    auto alternatives = node->method->deprecationState.replacements;
+    auto sinceWhen = node->method->deprecationState.sinceWhen;
+    if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
+      goto afterVersionCheck;
+    }
+    auto versionString =
+        sinceWhen.has_value()
+            ? std::format(" (Since {})", sinceWhen->versionString)
+            : "";
+    auto alternativesStr =
+        alternatives.empty()
+            ? ""
+            : (" Try one of: " + joinStrings(alternatives, ','));
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Warning, node,
+                         std::format("Deprecated method{}{}", versionString,
+                                     alternativesStr)));
+  }
+afterVersionCheck:
   if (node->args) {
     if (const auto &asArgumentList =
             dynamic_cast<ArgumentList *>(node->args.get())) {
