@@ -1780,8 +1780,8 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   }
 }
 
-void TypeAnalyzer::checkFormat(StringLiteral *sl,
-                               const std::vector<std::shared_ptr<Node>> &args) {
+void TypeAnalyzer::checkFormat(
+    StringLiteral *sl, const std::vector<std::shared_ptr<Node>> &args) const {
   auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
   for (size_t i = 0; i < args.size(); i++) {
     if (!foundIntegers.contains(i)) {

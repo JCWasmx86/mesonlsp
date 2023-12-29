@@ -110,7 +110,7 @@ private:
   void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl);
   std::vector<std::shared_ptr<Type>> evalBinaryExpression(
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
-      const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *nErrors);
+      const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors);
   void enterSubdir(FunctionExpression *node);
   void registerUsed(const std::string &id);
   std::vector<std::shared_ptr<Type>> evalStack(std::string &name);
@@ -123,7 +123,7 @@ private:
                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
   void checkNoEffect(Node *node) const;
   void checkFormat(StringLiteral *sl,
-                   const std::vector<std::shared_ptr<Node>> &args);
+                   const std::vector<std::shared_ptr<Node>> &args) const;
   void checkKwargsAfterPositionalArguments(
       const std::vector<std::shared_ptr<Node>> &args) const;
   void checkKwargs(const std::shared_ptr<Function> &func,
