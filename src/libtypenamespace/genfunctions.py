@@ -34,6 +34,14 @@ def fetch_deprecation_data(file_pointer):
     return parsed_dict
 
 
+def fetch_since_data(file_pointer):
+    parsed_dict = {}
+    csv_reader = csv.reader(file_pointer)
+    for row in csv_reader:
+        parsed_dict[row[0]] = row[1]
+    return parsed_dict
+
+
 def parse_ascii_file(file_path):
     data_dict = {}
     current_section = None
@@ -70,6 +78,8 @@ def main():
     data_dict = parse_ascii_file(sys.argv[3])
     with open(sys.argv[4], "r", encoding="utf-8") as filep:
         deprecations = fetch_deprecation_data(filep)
+    with open(sys.argv[5], "r", encoding="utf-8") as filep:
+        since_data = fetch_since_data(filep)
     with open(sys.argv[2], "w", encoding="utf-8") as output:
         with open(sys.argv[1], "r", encoding="utf-8") as filep:
             lines = filep.readlines()
@@ -176,6 +186,11 @@ def main():
                             file=output,
                         )
                         print("})", file=output)
+                    if curr_fn_name in since_data:
+                        if curr_fn_name not in deprecations:
+                            print(",DeprecationState()", file=output)
+                        since = since_data[curr_fn_name]
+                        print(f',Version("{since}")', file=output)
                     print("  );", file=output)
                     if idx == len(lines):
                         break
