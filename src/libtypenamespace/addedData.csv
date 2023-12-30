@@ -10,7 +10,7 @@ meson::global_build_root,0.58.0
 meson::global_source_root,0.58.0
 meson::has_external_property,0.58.0
 meson::override_dependency,0.54.0
-meson::override_find_program,0.64.0
+meson::override_find_program,0.46.0
 meson::project_build_root,0.56.0
 meson::project_license,0.45.0
 meson::project_license_files,1.1.0
@@ -83,7 +83,6 @@ fs_module::stem,0.54.0
 fs_module::relative_to,1.3.0
 fs_module::copyfile,0.64.0
 gnome_module::post_install,0.57.0
-i18n_module::gettext,0.60.0
 i18n_module::merge_file,0.37.0
 i18n_module::itstool_join,0.62.0
 icestorm_module::project,0.45.0

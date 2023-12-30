@@ -671,7 +671,15 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
     return;
   }
   LOG.info(std::format("Meson version = {}", mesonVersionSL->id));
-  this->tree->version = Version(mesonVersionSL->id);
+  auto subStr = 0;
+  for (const auto chr : mesonVersionSL->id) {
+    if (chr == '>' || chr == '=' || chr == '<' || chr == ' ') {
+      subStr++;
+      continue;
+    }
+    break;
+  }
+  this->tree->version = Version(mesonVersionSL->id.substr(subStr));
 }
 
 void TypeAnalyzer::checkNoEffect(Node *node) const {
@@ -1427,6 +1435,14 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
                          true, false));
   }
 afterVersionCheck:
+  if (fn->since.after(this->tree->version)) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Warning, node,
+                         std::format("Meson version {} is requested, but {}() "
+                                     "is only available since {}",
+                                     this->tree->version.versionString,
+                                     fn->id(), fn->since.versionString)));
+  }
   auto args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
     if (fn->minPosArgs > 0) {
@@ -1852,6 +1868,15 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
                          true, false));
   }
 afterVersionCheck:
+  if (node->method->since.after(this->tree->version)) {
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::Warning, node,
+                         std::format("Meson version {} is requested, but {}() "
+                                     "is only available since {}",
+                                     this->tree->version.versionString,
+                                     node->method->id(),
+                                     node->method->since.versionString)));
+  }
   if (node->args) {
     if (const auto &asArgumentList =
             dynamic_cast<ArgumentList *>(node->args.get())) {
