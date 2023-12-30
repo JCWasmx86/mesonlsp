@@ -1,1 +1,5 @@
-executable('jsonrpctest', 'test.cpp', dependencies: [jsonrpc_dep, log_dep] + extra_deps + extra_libs)
+executable(
+    'jsonrpctest',
+    'test.cpp',
+    dependencies: [jsonrpc_dep, log_dep] + extra_deps + extra_libs,
+)
