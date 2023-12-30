@@ -640,6 +640,7 @@ public:
 
 enum CompletionItemKind {
   CIKMethod = 2,
+  CIKFunction = 3,
 };
 
 class CompletionItem : public BaseObject {
