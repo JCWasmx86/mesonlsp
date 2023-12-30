@@ -50,6 +50,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
   // Less than 100kB/s in the last 10s => Timeout
   curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10L);
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
   curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 100000L);
   auto res = curl_easy_perform(curl);
   long httpCode = 0;
