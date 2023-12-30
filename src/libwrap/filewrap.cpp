@@ -29,16 +29,6 @@ FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
 
 bool FileWrap::setupDirectory(std::filesystem::path path,
                               std::filesystem::path packageFilesPath) {
-  auto url = this->sourceUrl;
-  if (url.empty()) {
-    LOG.warn("URL is empty");
-    return false;
-  }
-  auto hash = this->sourceHash;
-  if (hash->empty()) {
-    LOG.warn("Hash is empty");
-    return false;
-  }
   auto sfn = this->sourceFilename;
   if (sfn->empty()) {
     LOG.warn("Sourcefilename is empty");
@@ -60,15 +50,35 @@ bool FileWrap::setupDirectory(std::filesystem::path path,
     targetDirectory = result.value();
   }
   auto fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
+  auto workdir =
+      this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
+  auto url = this->sourceUrl;
+  if (url.empty()) {
+    LOG.info("URL is empty");
+    auto subprojectsPath = packageFilesPath.parent_path();
+    auto maybeDir = subprojectsPath / sfn.value();
+    if (std::filesystem::exists(maybeDir)) {
+      LOG.info(
+          "But we found a matching directory in subprojects/. Setting up in " +
+          workdir.generic_string());
+      std::filesystem::create_directories(workdir / sfn.value());
+      mergeDirectories(maybeDir, workdir / sfn.value());
+      return this->postSetup(fullPath, packageFilesPath);
+    }
+    return false;
+  }
+  std::filesystem::create_directories(workdir);
+  auto hash = this->sourceHash;
+  if (hash->empty()) {
+    LOG.warn("Hash is empty");
+    return false;
+  }
   auto archiveFileName = downloadWithFallback(url, this->sourceHash.value(),
                                               this->sourceFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
     return false;
   }
-  auto workdir =
-      this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
-  std::filesystem::create_directories(workdir);
   if (!extractFile(archiveFileName.value(), workdir)) {
     return false;
   }
