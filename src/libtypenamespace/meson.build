@@ -1,12 +1,36 @@
 typenamespace_inc = include_directories('.')
 genfunctions_cpp = configure_file(
-    command: [files('genfunctions.py'), '@INPUT0@', '@OUTPUT0@', '@INPUT1@', '@INPUT2@'],
-    input: ['functions.def', 'functiondocs.def', 'deprecations.csv'],
+    command: [
+        files('genfunctions.py'),
+        '@INPUT0@',
+        '@OUTPUT0@',
+        '@INPUT1@',
+        '@INPUT2@',
+        '@INPUT3@',
+    ],
+    input: [
+        'functions.def',
+        'functiondocs.def',
+        'deprecations.csv',
+        'addedData.csv',
+    ],
     output: 'genfunctions.cpp',
 )
 genmethods_cpp = configure_file(
-    command: [files('genmethods.py'), '@INPUT0@', '@OUTPUT0@', '@INPUT1@', '@INPUT2@'],
-    input: ['methods.def', 'methoddocs.def', 'deprecations.csv'],
+    command: [
+        files('genmethods.py'),
+        '@INPUT0@',
+        '@OUTPUT0@',
+        '@INPUT1@',
+        '@INPUT2@',
+        '@INPUT3@',
+    ],
+    input: [
+        'methods.def',
+        'methoddocs.def',
+        'deprecations.csv',
+        'addedData.csv',
+    ],
     output: 'genmethods.cpp',
 )
 genobjectdocs_cpp = configure_file(

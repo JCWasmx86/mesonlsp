@@ -3,6 +3,7 @@
 #include "argument.hpp"
 #include "deprecationstate.hpp"
 #include "type.hpp"
+#include "version.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -26,14 +27,16 @@ public:
   uint32_t maxPosArgs;
   std::set<std::string> requiredKwargs;
   DeprecationState deprecationState;
+  Version since;
 
   Function(std::string name, std::string doc,
            const std::vector<std::shared_ptr<Argument>> &args,
            const std::vector<std::shared_ptr<Type>> &returnTypes,
-           DeprecationState deprecationState = {})
+           DeprecationState deprecationState = {},
+           Version since = Version("0.0.0"))
       : name(std::move(name)), doc(std::move(doc)), args(args),
-        returnTypes(returnTypes),
-        deprecationState(std::move(deprecationState)) {
+        returnTypes(returnTypes), deprecationState(std::move(deprecationState)),
+        since(std::move(since)) {
     uint32_t minPosArgs = 0;
     for (const auto &arg : args) {
       auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
@@ -97,9 +100,10 @@ public:
          const std::vector<std::shared_ptr<Argument>> &args,
          const std::vector<std::shared_ptr<Type>> &returnTypes,
          const std::shared_ptr<Type> &parentType,
-         DeprecationState deprecationState = {})
+         DeprecationState deprecationState = {},
+         Version since = Version("0.0.0"))
       : Function(std::move(name), std::move(doc), args, returnTypes,
-                 std::move(deprecationState)),
+                 std::move(deprecationState), std::move(since)),
         parentType(parentType) {}
 
   std::string id() override;

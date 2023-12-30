@@ -46,6 +46,14 @@ def type_to_cpp(t: str):
     return f'this->types["{t}"]'
 
 
+def fetch_since_data(file_pointer):
+    parsed_dict = {}
+    csv_reader = csv.reader(file_pointer)
+    for row in csv_reader:
+        parsed_dict[row[0]] = row[1]
+    return parsed_dict
+
+
 def parse_ascii_file(file_path):
     data_dict = {}
     current_section = None
@@ -70,6 +78,8 @@ def parse_ascii_file(file_path):
 def main():
     with open(sys.argv[4], "r", encoding="utf-8") as filep:
         deprecations = fetch_deprecation_data(filep)
+    with open(sys.argv[5], "r", encoding="utf-8") as filep:
+        since_data = fetch_since_data(filep)
     with open(sys.argv[2], "w", encoding="utf-8") as output:
         with open(sys.argv[1], "r", encoding="utf-8") as filep:
             lines = filep.readlines()
@@ -235,6 +245,11 @@ def main():
                         file=output,
                     )
                     print("})", file=output)
+                if method_id in since_data:
+                    if method_id not in deprecations:
+                        print(",DeprecationState()", file=output)
+                    since = since_data[method_id]
+                    print(f',Version("{since}")', file=output)
                 if idx == len(full_data[obj_name]) - 1:
                     print("    )", file=output)
                 else:
