@@ -44,6 +44,8 @@ public:
                                   const LSPPosition &position);
   std::vector<CodeAction> codeAction(const std::filesystem::path &path,
                                      const LSPRange &range);
+  std::vector<CompletionItem> completion(const std::filesystem::path &path,
+                                         const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
   void patchFile(

@@ -13,6 +13,7 @@ langserver_deps = [
 langserver_lib = static_library(
     'langserver',
     'langserver.cpp',
+    'completion.cpp',
     'workspace.cpp',
     'task.cpp',
     'inlayhintvisitor.cpp',

@@ -639,7 +639,7 @@ public:
 };
 
 enum CompletionItemKind {
-
+  CIKMethod = 2,
 };
 
 class CompletionItem : public BaseObject {

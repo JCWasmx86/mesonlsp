@@ -2,6 +2,7 @@
 
 #include "analysisoptions.hpp"
 #include "codeactionvisitor.hpp"
+#include "completion.hpp"
 #include "documentsymbolvisitor.hpp"
 #include "foldingrangevisitor.hpp"
 #include "hover.hpp"
@@ -445,4 +446,26 @@ Workspace::parse(const TypeNamespace &ns) {
     }
   }
   return ret;
+}
+
+std::vector<CompletionItem>
+Workspace::completion(const std::filesystem::path &path,
+                      const LSPPosition &position) {
+  for (const auto &subTree : findTrees(this->tree)) {
+    auto identifier = subTree->identifier;
+    if (this->tasks.contains(identifier)) {
+      auto *tsk = this->tasks[identifier];
+      this->logger.info(
+          std::format("Waiting for {} to terminate", tsk->getUUID()));
+      while (tsk->state != TaskState::Ended) {
+      }
+      this->logger.info(
+          std::format("{} finally terminated...", tsk->getUUID()));
+    }
+    if (!subTree->ownedFiles.contains(path)) {
+      continue;
+    }
+    return complete(path, subTree, subTree->asts[path].back(), position);
+  }
+  return {};
 }

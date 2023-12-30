@@ -58,6 +58,20 @@ enum Severity {
     return std::nullopt;                                                       \
   }
 
+#define FIND_FULL2(type, variable)                                             \
+  std::optional<type *> /*NOLINT*/ findFull##type##At(                         \
+      const std::filesystem::path &path, uint64_t line, uint64_t column) {     \
+    if (!this->variable.contains(path)) {                                      \
+      return std::nullopt;                                                     \
+    }                                                                          \
+    for (auto &var : this->variable[path]) {                                   \
+      if (MesonMetadata::contains(var, line, column)) {                        \
+        return var;                                                            \
+      }                                                                        \
+    }                                                                          \
+    return std::nullopt;                                                       \
+  }
+
 class Diagnostic {
 public:
   Severity severity;
@@ -155,6 +169,11 @@ public:
   FIND(MethodExpression, methodCalls)
   FIND(FunctionExpression, functionCalls)
   FIND_FULL(IdExpression, identifiers)
+  FIND_FULL(SubscriptExpression, arrayAccess)
+  FIND_FULL(StringLiteral, stringLiterals)
+
+  FIND_FULL2(MethodExpression, methodCalls)
+  FIND_FULL2(FunctionExpression, functionCalls)
 
   void clear() {
     this->subdirCalls = {};

@@ -307,6 +307,12 @@ void LanguageServer::onDidCloseTextDocument(
 
 std::vector<CompletionItem>
 LanguageServer::completion(CompletionParams &params) {
+  auto path = extractPathFromUrl(params.textDocument.uri);
+  for (auto &workspace : this->workspaces) {
+    if (workspace->owns(path)) {
+      return workspace->completion(path, params.position);
+    }
+  }
   return {};
 }
 
