@@ -2,13 +2,17 @@
 
 #include "argument.hpp"
 #include "function.hpp"
+#include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
+#include "node.hpp"
 #include "utils.hpp"
 
+#include <cctype>
 #include <cstdint>
 #include <format>
 #include <memory>
+#include <optional>
 
 static Logger LOG("Completion"); // NOLINT
 
@@ -16,6 +20,7 @@ static std::optional<std::vector<std::shared_ptr<Type>>>
 afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
                    const std::filesystem::path &path, uint64_t line,
                    uint64_t character, bool recurse);
+static std::optional<std::string> extractErrorId(const std::string &prev);
 static std::set<std::shared_ptr<Method>>
 fillTypes(const std::shared_ptr<MesonTree> &tree,
           std::vector<std::shared_ptr<Type>> types);
@@ -40,14 +45,56 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
     auto types =
         afterDotCompletion(tree, path, position.line, position.character, true);
     if (types.has_value()) {
+      const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, types.value())) {
-        ret.emplace_back(
-            method->name, CompletionItemKind::CIKMethod,
-            TextEdit({position, position}, createTextForFunction(method)));
+        ret.emplace_back(method->name, CompletionItemKind::CIKMethod,
+                         TextEdit({position, position},
+                                  toAdd + createTextForFunction(method)));
+      }
+    } else {
+      auto errorId = extractErrorId(prev);
+      if (!errorId.has_value()) {
+        goto next;
+      }
+      std::vector<std::shared_ptr<Type>> types;
+      for (auto *const identifier : tree->metadata.identifiers[path]) {
+        types.insert(types.end(), identifier->types.begin(),
+                     identifier->types.end());
+      }
+      for (const auto &method : fillTypes(tree, types)) {
+        ret.emplace_back(method->name, CompletionItemKind::CIKMethod,
+                         TextEdit({position, position},
+                                  "." + createTextForFunction(method)));
       }
     }
   }
 next:
+  auto idExprAtPos = tree->metadata.findIdExpressionAt(path, position.line,
+                                                       position.character);
+  if (idExprAtPos.has_value()) {
+    const auto *idExpr = idExprAtPos.value();
+    const auto *parent = idExpr->parent;
+    auto rightParent =
+        (dynamic_cast<const BuildDefinition *>(parent) != nullptr) ||
+        (dynamic_cast<const SelectionStatement *>(parent) != nullptr) ||
+        (dynamic_cast<const IterationStatement *>(parent) != nullptr) ||
+        (dynamic_cast<const ArgumentList *>(parent) != nullptr) ||
+        (dynamic_cast<const BinaryExpression *>(parent) != nullptr) ||
+        (dynamic_cast<const UnaryExpression *>(parent) != nullptr) ||
+        (dynamic_cast<const AssignmentStatement *>(parent) != nullptr);
+    if (!rightParent) {
+      goto next;
+    }
+    auto loweredId = lowercase(idExpr->id);
+    for (const auto &function : tree->ns.functions) {
+      auto lowerName = lowercase(function.first);
+      if (lowerName.contains(loweredId)) {
+        ret.emplace_back(function.first, CompletionItemKind::CIKFunction,
+                         TextEdit(nodeToRange(idExpr),
+                                  createTextForFunction(function.second)));
+      }
+    }
+  }
   return ret;
 }
 
@@ -118,11 +165,33 @@ static std::string createTextForFunction(std::shared_ptr<Function> func) {
       continue;
     }
     if (!kwarg->optional) {
-      ret += std::format("{}: ${{{}:{}}}, ", kwarg->name, templateIdx, kwarg->name);
+      ret += std::format("{}: ${{{}:{}}}, ", kwarg->name, templateIdx,
+                         kwarg->name);
       templateIdx++;
     }
   }
   ret += ")";
   replace(ret, ", )", ")");
+  return ret;
+}
+
+static std::optional<std::string> extractErrorId(const std::string &prev) {
+  if (prev.empty()) {
+    return std::nullopt;
+  }
+  std::string ret = "";
+  auto idx = prev.size() - 1;
+  while (idx > 0) {
+    idx--;
+    auto chr = prev[idx];
+    if (std::isblank(chr) != 0) {
+      return ret;
+    }
+    if ((std::isalnum(chr) != 0) || chr == '_') {
+      ret = std::format("{}{}", chr, ret);
+      continue;
+    }
+    return ret;
+  }
   return ret;
 }
