@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -57,4 +58,5 @@ public:
   }
 };
 
-std::string createIdentifierForWrap(const std::filesystem::path &path);
+std::optional<std::string>
+createIdentifierForWrap(const std::filesystem::path &path);

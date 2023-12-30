@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <format>
 #include <memory>
+#include <optional>
 #include <string>
 
 Logger LOG("analyze::subprojectstate"); // NOLINT
@@ -33,7 +34,12 @@ void SubprojectState::findSubprojects() {
     if (!matchesWrap) {
       continue;
     }
-    auto identifier = createIdentifierForWrap(child);
+    auto identifierOpt = createIdentifierForWrap(child);
+    if (!identifierOpt.has_value()) {
+      LOG.info("Skipping redirect wrap: " + child.generic_string());
+      continue;
+    }
+    auto identifier = identifierOpt.value();
     LOG.info(std::format("{}: Identifier is: {}", child.filename().c_str(),
                          identifier));
     auto wrapBaseDir = extractionDir / child.filename() / identifier;
@@ -104,7 +110,8 @@ void SubprojectState::parseSubprojects(AnalysisOptions &options, int depth,
   }
 }
 
-std::string createIdentifierForWrap(const std::filesystem::path &path) {
+std::optional<std::string>
+createIdentifierForWrap(const std::filesystem::path &path) {
   std::ifstream file(path);
   std::string line;
   bool isFile = false;
@@ -123,10 +130,14 @@ std::string createIdentifierForWrap(const std::filesystem::path &path) {
       isGit = true;
       continue;
     }
+    if (line.contains("wrap-redirect")) {
+      return std::nullopt;
+    }
     if (line.starts_with("url")) {
       size_t lookAhead = 4;
       while (lookAhead < line.size() - 1) {
         if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          lookAhead++;
           continue;
         }
         break;
@@ -138,6 +149,7 @@ std::string createIdentifierForWrap(const std::filesystem::path &path) {
       size_t lookAhead = sizeof("source_url") + 1;
       while (lookAhead < line.size() - 1) {
         if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          lookAhead++;
           continue;
         }
         break;
@@ -149,6 +161,7 @@ std::string createIdentifierForWrap(const std::filesystem::path &path) {
       size_t lookAhead = sizeof("revision") + 1;
       while (lookAhead < line.size() - 1) {
         if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+          lookAhead++;
           continue;
         }
         break;
