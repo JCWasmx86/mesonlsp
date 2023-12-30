@@ -1,5 +1,12 @@
 wrap_inc = include_directories('.')
-wrap_deps = [tree_sitter_dep, tree_sitter_ini_dep, ast_dep, archive_dep, curl_dep, utils_dep]
+wrap_deps = [
+    tree_sitter_dep,
+    tree_sitter_ini_dep,
+    ast_dep,
+    archive_dep,
+    curl_dep,
+    utils_dep,
+]
 wrap_lib = static_library(
     'wrap',
     'filewrap.cpp',

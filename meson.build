@@ -10,7 +10,10 @@ if get_option('buildtype') == 'release'
     add_global_arguments(['-D_FORTIFY_SOURCE=3'], language: 'c')
     add_global_arguments(['-D_FORTIFY_SOURCE=3'], language: 'cpp')
 else
-    add_global_arguments(['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'], language: 'cpp')
+    add_global_arguments(
+        ['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'],
+        language: 'cpp',
+    )
 endif
 extra_flags = [
     '-fstack-protector-strong',
@@ -29,7 +32,10 @@ tree_sitter_dep = dependency(
     fallback: [],
 )
 if not tree_sitter_dep.found()
-    tree_sitter_proj = subproject('tree-sitter', default_options: ['default_library=static'])
+    tree_sitter_proj = subproject(
+        'tree-sitter',
+        default_options: ['default_library=static'],
+    )
     tree_sitter_dep = tree_sitter_proj.get_variable('tree_sitter_dep')
     meson.override_dependency('tree-sitter', tree_sitter_dep)
 endif
@@ -38,7 +44,9 @@ tree_sitter_meson_proj = subproject(
     'tree-sitter-meson',
     default_options: ['default_library=static'],
 )
-tree_sitter_meson_dep = tree_sitter_meson_proj.get_variable('tree_sitter_meson_dep')
+tree_sitter_meson_dep = tree_sitter_meson_proj.get_variable(
+    'tree_sitter_meson_dep',
+)
 
 tree_sitter_ini_proj = subproject(
     'tree-sitter-ini',
@@ -83,7 +91,7 @@ else
     extra_link_args = []
 endif
 
-gtest_dep = dependency('gtest', main : true, required : false)
+gtest_dep = dependency('gtest', main: true, required: false)
 
 subdir('src')
 subdir('tests')
