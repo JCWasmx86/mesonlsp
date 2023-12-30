@@ -305,6 +305,11 @@ void LanguageServer::onDidCloseTextDocument(
   }
 }
 
+std::vector<CompletionItem>
+LanguageServer::completion(CompletionParams &params) {
+  return {};
+}
+
 void LanguageServer::publishDiagnostics(
     const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
         &newDiags) {
