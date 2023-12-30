@@ -628,3 +628,35 @@ public:
     return {{"title", title}, {"edit", edit.toJson()}};
   }
 };
+
+class CompletionParams : public BaseObject {
+public:
+  TextDocumentIdentifier textDocument;
+  LSPPosition position;
+
+  CompletionParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
+};
+
+enum CompletionItemKind {
+
+};
+
+class CompletionItem : public BaseObject {
+public:
+  std::string label;
+  CompletionItemKind kind;
+  TextEdit textEdit;
+
+  CompletionItem(std::string label, CompletionItemKind kind, TextEdit textEdit)
+      : label(std::move(label)), kind(kind), textEdit(std::move(textEdit)) {}
+
+  [[nodiscard]] nlohmann::json toJson() const {
+    return {
+        {"label", label},
+        {"kind", kind},
+        {"textEdit", textEdit.toJson()},
+        {"insertTextFormat", 2},
+    };
+  }
+};

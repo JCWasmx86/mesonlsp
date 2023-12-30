@@ -30,6 +30,7 @@ public:
   virtual std::vector<LSPLocation> declaration(DeclarationParams &params) = 0;
   virtual std::vector<LSPLocation> definition(DefinitionParams &params) = 0;
   virtual std::vector<CodeAction> codeAction(CodeActionParams &params) = 0;
+  virtual std::vector<CompletionItem> completion(CompletionParams &params) = 0;
   virtual void shutdown() = 0;
 
   virtual void onInitialized(InitializedParams &params) = 0;
