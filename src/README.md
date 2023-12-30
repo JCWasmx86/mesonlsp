@@ -89,3 +89,4 @@ Status: In Progress
 - Pass AnalysisOptions from LanguageServer to MesonTree
 - Auto-completion
 - Create namespaces
+- Better analysis of conditions, whether they trigger
