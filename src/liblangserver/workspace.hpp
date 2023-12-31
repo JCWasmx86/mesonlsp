@@ -6,6 +6,8 @@
 #include "task.hpp"
 #include "typenamespace.hpp"
 
+#include <atomic>
+#include <condition_variable>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -23,6 +25,11 @@ public:
   std::filesystem::path root;
   std::string name;
   std::map<std::string /*Identifier*/, Task *> tasks;
+  std::atomic<bool> settingUp = false;
+  std::atomic<bool> completing = false;
+  std::atomic<bool> running = false;
+  std::condition_variable cv;
+  std::mutex cvMutex;
   std::mutex mtx;
   std::mutex dataCollectionMtx;
   Logger logger;
