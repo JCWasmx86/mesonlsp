@@ -187,5 +187,5 @@ This module provides support for building many targets against a single set of f
 the choice of which files to include in each target depends on the contents of a dictionary or a `configuration_data` object.
 @sourceset:
 The `source_set` object provides methods to add files to a source set and to query it. The source set becomes immutable after any method but `add` is called.
-@source_confguration:
+@source_configuration:
 The `source_configuration` object provides methods to query the result of an `apply` operation on a source set.
