@@ -45,11 +45,11 @@ public:
 
   void partialParse(AnalysisOptions analysisOptions);
 
-  void fullParse(AnalysisOptions analysisOptions) {
+  void fullParse(AnalysisOptions analysisOptions, bool downloadSubprojects) {
     if (this->depth < MAX_TREE_DEPTH) {
       this->state->used = true;
       this->state->fullSetup(analysisOptions, depth + 1, this->identifier,
-                             this->ns);
+                             this->ns, downloadSubprojects);
     }
     this->partialParse(analysisOptions);
   }

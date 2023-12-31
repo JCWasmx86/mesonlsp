@@ -27,7 +27,8 @@ public:
   virtual void init() = 0;
   virtual void update() = 0;
   void parse(AnalysisOptions &options, int depth,
-             const std::string &parentIdentifier, const TypeNamespace &ns);
+             const std::string &parentIdentifier, const TypeNamespace &ns,
+             bool downloadSubprojects);
 
   virtual ~MesonSubproject() = default;
 };

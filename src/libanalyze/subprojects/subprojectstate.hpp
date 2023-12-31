@@ -18,12 +18,12 @@ public:
 
   SubprojectState(std::filesystem::path root) : root(std::move(root)) {}
 
-  void findSubprojects();
+  void findSubprojects(bool downloadSubprojects);
   void initSubprojects();
   void updateSubprojects();
   void parseSubprojects(AnalysisOptions &options, int depth,
                         const std::string &parentIdentifier,
-                        const TypeNamespace &ns);
+                        const TypeNamespace &ns, bool downloadSubprojects);
 
   bool hasSubproject(const std::string &name) {
     if (!this->used) {
@@ -50,11 +50,13 @@ public:
   }
 
   void fullSetup(AnalysisOptions &options, int depth,
-                 const std::string &parentIdentifier, const TypeNamespace &ns) {
-    this->findSubprojects();
+                 const std::string &parentIdentifier, const TypeNamespace &ns,
+                 bool downloadSubprojects) {
+    this->findSubprojects(downloadSubprojects);
     this->initSubprojects();
     this->updateSubprojects();
-    this->parseSubprojects(options, depth, parentIdentifier, ns);
+    this->parseSubprojects(options, depth, parentIdentifier, ns,
+                           downloadSubprojects);
   }
 };
 
