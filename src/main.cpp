@@ -230,4 +230,14 @@ int main(int argc, char **argv) {
     printDiagnostics(tree);
     return 0;
   }
+  TypeNamespace const ns;
+  AnalysisOptions const opts(false, false, false, false, false, false, false);
+  for (const auto &toParse : paths) {
+    auto parent = std::filesystem::absolute(toParse).parent_path();
+    for (int i = 0; i < 100; i++) {
+      MesonTree tree(parent, ns);
+      tree.partialParse(opts);
+    }
+  }
+  return 0;
 }
