@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
     MesonTree tree(parent, ns);
     AnalysisOptions const opts(false, false, false, false, false, false, false);
     if (full) {
-      tree.fullParse(opts);
+      tree.fullParse(opts, true);
     } else {
       tree.partialParse(opts);
     }

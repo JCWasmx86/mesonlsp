@@ -466,7 +466,8 @@ std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
   this->settingUp = true;
   auto tree = std::make_shared<MesonTree>(this->root, ns);
-  tree->fullParse(this->options.analysisOptions);
+  tree->fullParse(this->options.analysisOptions,
+                  !this->options.neverDownloadAutomatically);
   tree->identifier = this->name;
   this->tree = tree;
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;

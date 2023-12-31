@@ -17,7 +17,7 @@ Logger LOG("analyze::subprojectstate"); // NOLINT
 
 static std::string normalizeURLToFilePath(const std::string &url);
 
-void SubprojectState::findSubprojects() {
+void SubprojectState::findSubprojects(bool downloadSubprojects) {
   auto subprojectsDir = std::filesystem::absolute(this->root) / "subprojects";
   if (!std::filesystem::exists(subprojectsDir) ||
       !std::filesystem::is_directory(subprojectsDir)) {
@@ -50,7 +50,7 @@ void SubprojectState::findSubprojects() {
       LOG.info("Wrap is already setup!");
       this->subprojects.emplace_back(std::make_shared<CachedSubproject>(
           subprojectName, wrapBaseDir / guessTargetDirectoryFromWrap(child)));
-    } else {
+    } else if (downloadSubprojects) {
       if (std::filesystem::exists(wrapBaseDir)) {
         LOG.warn(
             std::format("{} exists, but is not fully setup => Reattempting",
@@ -62,6 +62,10 @@ void SubprojectState::findSubprojects() {
       std::filesystem::create_directories(wrapBaseDir);
       this->subprojects.emplace_back(std::make_shared<WrapSubproject>(
           subprojectName, child, packageFiles, wrapBaseDir));
+    } else {
+      LOG.warn(std::format(
+          "Won't setup {}, as downloads etc. were disabled by the user!",
+          child.generic_string()));
     }
   }
   for (const auto &entry :
@@ -104,9 +108,11 @@ void SubprojectState::updateSubprojects() {
 
 void SubprojectState::parseSubprojects(AnalysisOptions &options, int depth,
                                        const std::string &parentIdentifier,
-                                       const TypeNamespace &ns) {
+                                       const TypeNamespace &ns,
+                                       bool downloadSubprojects) {
   for (const auto &subproject : this->subprojects) {
-    subproject->parse(options, depth, parentIdentifier, ns);
+    subproject->parse(options, depth, parentIdentifier, ns,
+                      downloadSubprojects);
   }
 }
 
