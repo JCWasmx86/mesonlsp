@@ -35,6 +35,8 @@ public:
 
   virtual void onInitialized(InitializedParams &params) = 0;
   virtual void onExit() = 0;
+  virtual void
+  onDidChangeConfiguration(DidChangeConfigurationParams &params) = 0;
   virtual void onDidOpenTextDocument(DidOpenTextDocumentParams &params) = 0;
   virtual void onDidChangeTextDocument(DidChangeTextDocumentParams &params) = 0;
   virtual void onDidSaveTextDocument(DidSaveTextDocumentParams &params) = 0;

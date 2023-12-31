@@ -164,6 +164,9 @@ public:
     if (jsonObj.contains("clientInfo")) {
       this->clientInfo = ClientInfo(jsonObj["clientInfo"]);
     }
+    if (jsonObj.contains("initializationOptions")) {
+      this->initializationOptions = jsonObj["initializationOptions"];
+    }
     assert(jsonObj.contains("workspaceFolders"));
     for (auto wsFolder : jsonObj["workspaceFolders"]) {
       this->workspaceFolders.emplace_back(wsFolder);
@@ -660,4 +663,12 @@ public:
         {"insertTextFormat", 2},
     };
   }
+};
+
+class DidChangeConfigurationParams : public BaseObject {
+public:
+  nlohmann::json settings;
+
+  DidChangeConfigurationParams(nlohmann::json &jsonObj)
+      : settings(jsonObj["settings"]) {}
 };

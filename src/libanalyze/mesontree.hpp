@@ -31,11 +31,12 @@ public:
   OptionState options;
   const TypeNamespace &ns;
   int depth = 0;
+  std::string name;
   Version version = Version("9999.9999.9999");
 
   MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
       : identifier("root"), root(root), state(new SubprojectState(root)),
-        ns(ns) {}
+        ns(ns), name("root") {}
 
   ~MesonTree() {
     delete this->state;

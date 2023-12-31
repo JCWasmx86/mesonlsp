@@ -1,5 +1,6 @@
 #pragma once
 
+#include "langserveroptions.hpp"
 #include "ls.hpp"
 #include "lsptypes.hpp"
 #include "typenamespace.hpp"
@@ -41,6 +42,7 @@ public:
   void onInitialized(InitializedParams & /*params*/) override;
   void onExit() override;
   void onDidOpenTextDocument(DidOpenTextDocumentParams &params) override;
+  void onDidChangeConfiguration(DidChangeConfigurationParams &params) override;
   void onDidChangeTextDocument(DidChangeTextDocumentParams &params) override;
   void onDidSaveTextDocument(DidSaveTextDocumentParams &params) override;
   void onDidCloseTextDocument(DidCloseTextDocumentParams &params) override;
@@ -53,4 +55,5 @@ public:
 private:
   TypeNamespace ns;
   std::set<std::string> pkgNames;
+  LanguageServerOptions options;
 };

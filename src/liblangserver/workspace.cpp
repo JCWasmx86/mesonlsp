@@ -381,8 +381,7 @@ void Workspace::patchFile(
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
-        subTree->partialParse(
-            AnalysisOptions(false, false, false, false, false, false, false));
+        subTree->partialParse(this->options.analysisOptions);
       } catch (...) {
         exception = std::current_exception();
       }
@@ -430,6 +429,21 @@ void Workspace::patchFile(
   cv.notify_one();
 }
 
+std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+Workspace::clearDiagnostics() {
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+
+  for (const auto &subTree : findTrees(this->tree)) {
+    const auto &metadata = subTree->metadata;
+    for (const auto &pair : metadata.diagnostics) {
+      if (!ret.contains(pair.first)) {
+        ret[pair.first] = {};
+      }
+    }
+  }
+  return ret;
+}
+
 std::optional<std::filesystem::path>
 Workspace::muonConfigFile(const std::filesystem::path &path) {
   for (const auto &tree : findTrees(this->tree)) {
@@ -452,13 +466,23 @@ std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
   this->settingUp = true;
   auto tree = std::make_shared<MesonTree>(this->root, ns);
-  tree->fullParse(
-      AnalysisOptions(false, false, false, false, false, false, false));
+  tree->fullParse(this->options.analysisOptions);
   tree->identifier = this->name;
   this->tree = tree;
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
   for (const auto &subTree : findTrees(this->tree)) {
     auto metadata = subTree->metadata;
+    if (subTree->depth > 0 &&
+        this->options.ignoreDiagnosticsFromSubprojects.has_value()) {
+      const auto &toIgnore = this->options.ignoreDiagnosticsFromSubprojects;
+      if (toIgnore->empty()) {
+        continue; // Skip every subproject
+      }
+      if (std::find(toIgnore->begin(), toIgnore->end(), subTree->name) !=
+          toIgnore->end()) {
+        continue;
+      }
+    }
     for (const auto &pair : metadata.diagnostics) {
       if (!ret.contains(pair.first)) {
         ret[pair.first] = {};

@@ -40,6 +40,11 @@ void AbstractLanguageServer::handleNotification(std::string method,
     this->onDidSaveTextDocument(serializedParams);
     return;
   }
+  if (method == "workspace/didChangeConfiguration") {
+    DidChangeConfigurationParams serializedParams(params);
+    this->onDidChangeConfiguration(serializedParams);
+    return;
+  }
   if (method == "exit") {
     this->onExit();
     return;
