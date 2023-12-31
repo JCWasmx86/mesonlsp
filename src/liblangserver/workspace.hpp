@@ -1,5 +1,6 @@
 #pragma once
 
+#include "langserveroptions.hpp"
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
@@ -33,8 +34,10 @@ public:
   std::mutex mtx;
   std::mutex dataCollectionMtx;
   Logger logger;
+  LanguageServerOptions &options;
 
-  Workspace(const WorkspaceFolder &wspf) : logger("ws-" + wspf.name) {
+  Workspace(const WorkspaceFolder &wspf, LanguageServerOptions &options)
+      : logger("ws-" + wspf.name), options(options) {
     this->root = extractPathFromUrl(wspf.uri);
     this->name = wspf.name;
   }
@@ -67,6 +70,8 @@ public:
   std::optional<std::filesystem::path>
   muonConfigFile(const std::filesystem::path &path);
   void dropCache(const std::filesystem::path &path);
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+  clearDiagnostics();
 
 private:
   std::shared_ptr<MesonTree> tree;

@@ -83,12 +83,26 @@ LanguageServer::LanguageServer() {
   pkgconf_client_deinit(&pkgClient);
 }
 
+void LanguageServer::onDidChangeConfiguration(
+    DidChangeConfigurationParams &params) {
+  this->options.update(params.settings);
+  for (auto &workspace : this->workspaces) {
+    auto oldDiags = workspace->clearDiagnostics();
+    workspace->options = this->options;
+    this->publishDiagnostics(oldDiags);
+    auto diags = workspace->parse(this->ns);
+    this->publishDiagnostics(diags);
+  }
+}
+
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
   platform_init();
   log_init();
 
+  this->options.update(params.initializationOptions);
+
   for (const auto &wspf : params.workspaceFolders) {
-    auto workspace = std::make_shared<Workspace>(wspf);
+    auto workspace = std::make_shared<Workspace>(wspf, this->options);
     auto diags = workspace->parse(this->ns);
     this->diagnosticsFromInitialisation.emplace_back(diags);
     this->workspaces.push_back(workspace);
@@ -137,6 +151,9 @@ void LanguageServer::onDidChangeTextDocument(
 }
 
 std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
+  if (this->options.disableInlayHints) {
+    return {};
+  }
   auto path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
