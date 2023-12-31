@@ -339,16 +339,26 @@ void Workspace::patchFile(
     const std::filesystem::path &path, const std::string &contents,
     const std::function<void(
         std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
-  std::lock_guard<std::mutex> const lock(mtx);
+
+  std::lock_guard<std::mutex> lock(mtx);
+  std::unique_lock<std::mutex> lockCV(cvMutex);
+  using namespace std::chrono_literals;
+  std::this_thread::sleep_for(100ms);
+
+  cv.wait(lockCV, [this]() {
+    return !(this->completing || this->running || this->settingUp);
+  });
+  this->settingUp = true;
+
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
+    this->running = true;
     std::set<std::filesystem::path> oldDiags;
     auto identifier = subTree->identifier;
     {
-      std::lock_guard<std::mutex> const lockEverythingElse(
-          this->dataCollectionMtx);
+      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
       for (const auto &pair : subTree->metadata.diagnostics) {
         oldDiags.insert(pair.first);
       }
@@ -365,18 +375,17 @@ void Workspace::patchFile(
       }
       subTree->overrides[path] = contents;
     }
+
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::lock_guard<std::mutex> const lockEverythingElse(
-          this->dataCollectionMtx);
+      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
         subTree->partialParse(
             AnalysisOptions(false, false, false, false, false, false, false));
-
       } catch (...) {
         exception = std::current_exception();
       }
-
       std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
 
       if (exception) {
@@ -384,10 +393,14 @@ void Workspace::patchFile(
           ret[oldDiag] = {};
         }
         func(ret);
+        this->tasks.erase(subTree->identifier);
+        this->running = false;
         std::rethrow_exception(exception);
+        cv.notify_all();
         return;
       }
-      auto metadata = subTree->metadata;
+
+      const auto &metadata = subTree->metadata;
       for (const auto &pair : metadata.diagnostics) {
         if (!ret.contains(pair.first)) {
           ret[pair.first] = {};
@@ -402,10 +415,19 @@ void Workspace::patchFile(
         }
       }
       func(ret);
+      this->tasks.erase(subTree->identifier);
+      this->running = false;
+      cv.notify_all();
     });
-    (void)std::async(std::launch::async, &Task::run, newTask);
+
     this->tasks[identifier] = newTask;
+    (void)std::async(std::launch::async, &Task::run, newTask);
+    this->settingUp = false;
+    return;
   }
+
+  this->settingUp = false;
+  cv.notify_one();
 }
 
 std::optional<std::filesystem::path>
@@ -428,6 +450,7 @@ Workspace::muonConfigFile(const std::filesystem::path &path) {
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
+  this->settingUp = true;
   auto tree = std::make_shared<MesonTree>(this->root, ns);
   tree->fullParse(
       AnalysisOptions(false, false, false, false, false, false, false));
@@ -445,12 +468,22 @@ Workspace::parse(const TypeNamespace &ns) {
       }
     }
   }
+  this->settingUp = false;
   return ret;
 }
 
 std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
                       const LSPPosition &position) {
+  std::unique_lock<std::mutex> lock(mtx);
+
+  cv.wait(lock, [this]() {
+    return !this->completing && !this->running && this->tasks.empty() &&
+           !this->settingUp;
+  });
+
+  this->completing = true;
+
   for (const auto &subTree : findTrees(this->tree)) {
     auto identifier = subTree->identifier;
     if (this->tasks.contains(identifier)) {
@@ -462,10 +495,17 @@ Workspace::completion(const std::filesystem::path &path,
       this->logger.info(
           std::format("{} finally terminated...", tsk->getUUID()));
     }
+
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
-    return complete(path, subTree, subTree->asts[path].back(), position);
+    cv.wait(lock, [this]() { return !(this->running || this->settingUp); });
+
+    auto ret = complete(path, subTree, subTree->asts[path].back(), position);
+    this->completing = false;
+    return ret;
   }
+
+  this->completing = false;
   return {};
 }

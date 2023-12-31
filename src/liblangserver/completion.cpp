@@ -47,7 +47,8 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
     if (types.has_value()) {
       const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, types.value())) {
-        ret.emplace_back(method->name, CompletionItemKind::CIKMethod,
+        ret.emplace_back(toAdd + method->name + "()",
+                         CompletionItemKind::CIKMethod,
                          TextEdit({position, position},
                                   toAdd + createTextForFunction(method)));
       }
@@ -62,7 +63,8 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
                      identifier->types.end());
       }
       for (const auto &method : fillTypes(tree, types)) {
-        ret.emplace_back(method->name, CompletionItemKind::CIKMethod,
+        ret.emplace_back("." + method->name + "()",
+                         CompletionItemKind::CIKMethod,
                          TextEdit({position, position},
                                   "." + createTextForFunction(method)));
       }
@@ -89,7 +91,7 @@ next:
     for (const auto &function : tree->ns.functions) {
       auto lowerName = lowercase(function.first);
       if (lowerName.contains(loweredId)) {
-        ret.emplace_back(function.first, CompletionItemKind::CIKFunction,
+        ret.emplace_back(function.first + "()", CompletionItemKind::CIKFunction,
                          TextEdit(nodeToRange(idExpr),
                                   createTextForFunction(function.second)));
       }
@@ -179,7 +181,7 @@ static std::optional<std::string> extractErrorId(const std::string &prev) {
   if (prev.empty()) {
     return std::nullopt;
   }
-  std::string ret = "";
+  std::string ret;
   auto idx = prev.size() - 1;
   while (idx > 0) {
     idx--;
