@@ -1950,6 +1950,7 @@ gnome_module::generate_gir:
       - Types:
         - list(str)
         - dict(str)
+        - env
     - @export_packages:
       - Optional: true
       - Types:
