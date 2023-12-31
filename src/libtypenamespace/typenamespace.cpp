@@ -79,7 +79,7 @@ TypeNamespace::TypeNamespace()
       {"simd_module", std::make_shared<SIMDModule>()},
       {"sourceset_module", std::make_shared<SourceSetModule>()},
       {"sourceset", std::make_shared<SourceSet>()},
-      {"source_confguration", std::make_shared<SourceConfiguration>()}};
+      {"source_configuration", std::make_shared<SourceConfiguration>()}};
   this->initFunctions();
   this->initMethods();
   this->initObjectDocs();

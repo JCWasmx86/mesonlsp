@@ -65,13 +65,13 @@ def parse_ascii_file(file_path):
 
 def type_to_cpp(t: str):
     if t == "subproject()":
-        return 'this->types["subproject"]'
+        return 'this->types.at("subproject")'
     if t.startswith("dict(") or t.startswith("list("):
         cpp_type = "Dict" if t.startswith("dict(") else "List"
         sub_types = map(type_to_cpp, extract_types(t))
         total_str = "{" + ",".join(sub_types) + "}"
         return f"std::make_shared<{cpp_type}>(std::vector<std::shared_ptr<Type>>{total_str})"
-    return f'this->types["{t}"]'
+    return f'this->types.at("{t}")'
 
 
 def main():
