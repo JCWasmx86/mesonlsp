@@ -368,10 +368,7 @@ GNOME_PROJECTS = {
 }
 
 N_ITERATIONS = 10
-MISC_N_TIMES = 100
 MS_IN_S = 1000
-N_REPEATS_IF_TOO_SHORT = 50
-TOO_SHORT_THRESHOLD = 1500
 
 
 def base_path():
@@ -458,7 +455,7 @@ def basic_analysis(ret, file, commit):
 def quick_parse(ret, absp):
     for proj_name in reduce(lambda x, y: dict(x, **y), (MISC_PROJECTS, PROJECTS)):
         logging.info("Quick parsing %s", proj_name)
-        command = [absp, "--path", proj_name + "/meson.build"]
+        command = [absp, proj_name + "/meson.build"]
         begin = datetime.datetime.now()
         subprocess.run(
             command,
@@ -468,23 +465,6 @@ def quick_parse(ret, absp):
         )
         end = datetime.datetime.now()
         duration = (end - begin).total_seconds() * MS_IN_S
-        if duration < TOO_SHORT_THRESHOLD:
-            logging.info("Too fast, repeating with more iterations: %s", str(duration))
-            command = [absp] + (
-                [proj_name + "/meson.build"] * (N_REPEATS_IF_TOO_SHORT * 101)
-            )
-            begin = datetime.datetime.now()
-            subprocess.run(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            end = datetime.datetime.now()
-            duration = (
-                (end - begin).total_seconds() * MS_IN_S
-            ) / N_REPEATS_IF_TOO_SHORT
-            logging.info("New duration: %s", str(duration))
         ret["quick"][proj_name] = duration
 
 
@@ -492,7 +472,7 @@ def misc_parse(ret, absp, is_ci):
     projs = []
     for projname in MISC_PROJECTS:
         projs.append(projname + "/meson.build")
-    command = [absp] + (projs * MISC_N_TIMES)
+    command = [absp] + (projs)
     logging.info("Parsing misc")
     begin = datetime.datetime.now()
     subprocess.run(
@@ -519,7 +499,7 @@ def projects_parse(ret, absp, is_ci):
         projobj = {}
         projobj["name"] = proj_name
         begin = datetime.datetime.now()
-        command = [absp, "--path", proj_name + "/meson.build"]
+        command = [absp, proj_name + "/meson.build"]
         for i in range(0, N_ITERATIONS):
             logging.info("Iteration %s", str(i))
             subprocess.run(
@@ -544,8 +524,7 @@ def projects_parse(ret, absp, is_ci):
 def parse_project_collection(absp, projs):
     command = [absp]
     for projname in projs.keys():
-        for _ in range(0, 100):
-            command.append(projname + "/meson.build")
+        command.append(projname + "/meson.build")
     logging.info("Parsing project collection")
     ret = {}
     begin = datetime.datetime.now()
