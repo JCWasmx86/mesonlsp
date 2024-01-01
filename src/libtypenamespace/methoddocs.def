@@ -272,6 +272,10 @@ Returns the object itself if the value is false; an error if the object is 'disa
 Returns whether the feature was set to 'enabled'
 @feature::require:
 Returns the object itself if the value is true; an error if the object is 'enabled' and the value is false; a disabled feature if the object is 'auto' or 'disabled' and the value is false.
+@file::full_path:
+Returns a full path pointing to the file. This is useful for printing the path with e.g. `message()` function for debugging purpose.
+
+**NOTE:** In most cases using the object itself will do the same job as this and will also allow Meson to setup dependencies correctly.
 @fs_module::exists:
 Takes a single string argument and returns true if an entity with that name exists on the file system. This can be a file, directory or a special entry such as a device node.
 @fs_module::is_dir:

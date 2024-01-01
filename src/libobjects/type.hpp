@@ -188,7 +188,7 @@ MAKE_TYPE_WITH_PARENT(FSModule, "fs_module", Module)
 MAKE_TYPE_WITH_PARENT(GNOMEModule, "gnome_module", Module)
 // Hotdoc Module
 MAKE_TYPE_WITH_PARENT(HotdocModule, "hotdoc_module", Module)
-MAKE_TYPE_WITH_PARENT(HotdocTarget, "hotdoc_tgt", CustomTgt)
+MAKE_TYPE_WITH_PARENT(HotdocTarget, "hotdoc_target", CustomTgt)
 // I18n Module
 MAKE_TYPE_WITH_PARENT(I18nModule, "i18n_module", Module)
 // Icestorm Module

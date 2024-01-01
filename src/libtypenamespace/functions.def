@@ -277,6 +277,10 @@ both_libraries:
       - Optional: true
       - Types:
         - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @d_args:
       - Optional: true
       - Types:
@@ -554,6 +558,10 @@ build_target:
       - Types:
         - list(str)
     - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
       - Optional: true
       - Types:
         - list(str)
@@ -1209,6 +1217,10 @@ executable:
       - Optional: true
       - Types:
         - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @d_args:
       - Optional: true
       - Types:
@@ -1796,6 +1808,10 @@ jar:
       - Optional: true
       - Types:
         - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @d_args:
       - Optional: true
       - Types:
@@ -2045,6 +2061,10 @@ library:
       - Types:
         - list(str)
     - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
       - Optional: true
       - Types:
         - list(str)
@@ -2471,6 +2491,10 @@ shared_library:
       - Optional: true
       - Types:
         - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @d_args:
       - Optional: true
       - Types:
@@ -2737,6 +2761,10 @@ shared_module:
       - Optional: true
       - Types:
         - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @d_args:
       - Optional: true
       - Types:
@@ -2983,6 +3011,10 @@ static_library:
       - Types:
         - list(str)
     - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
       - Optional: true
       - Types:
         - list(str)

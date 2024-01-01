@@ -401,6 +401,7 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   if (rhsTypes.empty() &&
       (dynamic_cast<FunctionExpression *>(node->rhs.get()) ||
        dynamic_cast<MethodExpression *>(node->rhs.get()))) {
+    this->metadata->registerIdentifier(idExpr);
     this->extractVoidAssignment(node);
     return;
   }
@@ -988,7 +989,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
         types.emplace_back(this->ns.types.at("pkgconfig_module"));
         continue;
       }
-      if (modname == "keyval") {
+      if (modname == "keyval" || modname == "unstable-keyval") {
         types.emplace_back(this->ns.types.at("keyval_module"));
         continue;
       }
@@ -1045,6 +1046,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
         types.emplace_back(this->ns.types.at("sourceset_module"));
         continue;
       }
+      types.emplace_back(this->ns.types.at("module"));
       this->metadata->registerDiagnostic(
           node, Diagnostic(Severity::Warning, node,
                            std::format("Unknown module `{}`", modname)));
@@ -2298,13 +2300,13 @@ std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types) {
 
 static bool isSnakeCase(const std::string &str) {
   return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
-    return (std::isupper(chr) != 0) || chr == '_';
+    return (std::isupper(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
   });
 }
 
 static bool isShoutingSnakeCase(const std::string &str) {
   return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
-    return (std::islower(chr) != 0) || chr == '_';
+    return (std::islower(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
   });
 }
 
