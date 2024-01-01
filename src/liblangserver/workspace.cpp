@@ -342,6 +342,7 @@ void Workspace::patchFile(
         std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
 
   std::lock_guard<std::mutex> const lock(mtx);
+  std::unique_lock<std::mutex> lockEverythingElse(this->dataCollectionMtx);
   this->settingUp = true;
 
   for (const auto &subTree : findTrees(this->tree)) {
@@ -351,29 +352,25 @@ void Workspace::patchFile(
     this->running = true;
     std::set<std::filesystem::path> oldDiags;
     auto identifier = subTree->identifier;
-    {
-      std::lock_guard<std::mutex> const lockEverythingElse(
-          this->dataCollectionMtx);
-      for (const auto &pair : subTree->metadata.diagnostics) {
-        oldDiags.insert(pair.first);
-      }
-      subTree->clear();
-      if (this->tasks.contains(identifier)) {
-        auto *tsk = this->tasks[identifier];
-        this->logger.info(
-            std::format("Waiting for {} to terminate", tsk->getUUID()));
-        while (tsk->state != TaskState::Ended) {
-        }
-        this->logger.info(
-            std::format("{} finally terminated...", tsk->getUUID()));
-        delete tsk;
-      }
-      subTree->overrides[path] = contents;
+    for (const auto &pair : subTree->metadata.diagnostics) {
+      oldDiags.insert(pair.first);
     }
+    subTree->clear();
+    if (this->tasks.contains(identifier)) {
+      auto *tsk = this->tasks[identifier];
+      this->logger.info(
+          std::format("Waiting for {} to terminate", tsk->getUUID()));
+      while (tsk->state != TaskState::Ended) {
+      }
+      this->logger.info(
+          std::format("{} finally terminated...", tsk->getUUID()));
+      delete tsk;
+    }
+    subTree->overrides[path] = contents;
 
-    auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::lock_guard<std::mutex> const lockEverythingElse(
-          this->dataCollectionMtx);
+    auto &dcm = this->dataCollectionMtx;
+
+    auto *newTask = new Task([&subTree, func, oldDiags, &dcm, this]() {
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
