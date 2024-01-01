@@ -519,6 +519,7 @@ std::optional<std::vector<const Node *>>
 CodeActionVisitor::extractSortableNodes(const ArgumentList *al,
                                         size_t omitCount) {
   std::vector<const Node *> ret;
+  auto onlyStringLiterals = true;
   for (const auto &arg : al->args) {
     if (dynamic_cast<KeywordItem *>(arg.get())) {
       continue;
@@ -530,8 +531,14 @@ CodeActionVisitor::extractSortableNodes(const ArgumentList *al,
     if (dynamic_cast<StringLiteral *>(arg.get()) ||
         dynamic_cast<IdExpression *>(arg.get())) {
       ret.push_back(arg.get());
+      if (dynamic_cast<IdExpression *>(arg.get())) {
+        onlyStringLiterals = false;
+      }
       continue;
     }
+    return std::nullopt;
+  }
+  if (onlyStringLiterals) {
     return std::nullopt;
   }
   return ret;
