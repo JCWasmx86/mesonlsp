@@ -31,7 +31,6 @@
 #include <optional>
 #include <set>
 #include <string>
-#include <thread>
 #include <vector>
 
 std::vector<std::shared_ptr<MesonTree>>
@@ -180,7 +179,6 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  // TODO: Jump to subdir/option
   for (const auto &subTree : findTrees(this->tree)) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
