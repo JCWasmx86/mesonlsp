@@ -1,0 +1,7 @@
+other_dict = {
+    'abcabc': 'dict11111',
+    'bbcbbc': 'dict22222',
+}
+foreach a, b : other_dict
+    set_variable(b, true)
+endforeach

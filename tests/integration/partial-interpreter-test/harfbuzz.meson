@@ -1,0 +1,13 @@
+tests = [
+    'hb-shape-fuzzer.cc',
+    'hb-subset-fuzzer.cc',
+    'hb-set-fuzzer.cc',
+    'hb-draw-fuzzer.cc',
+]
+if get_option('experimental_api')
+    tests += 'hb-repacker-fuzzer.cc'
+endif
+foreach file_name : tests
+    test_name = file_name.split('.')[0]
+    set_variable('@0@_exe'.format(test_name.underscorify()), true)
+endforeach

@@ -1,0 +1,27 @@
+generated_headers = [
+    {
+        'scanner_args': ['server-header'],
+        'output': 'wayland-server-protocol.h',
+        'install': true,
+    },
+    {
+        'scanner_args': ['server-header', '-c'],
+        'output': 'wayland-server-protocol-core.h',
+        'install': false,
+    },
+    {
+        'scanner_args': ['client-header'],
+        'output': 'wayland-client-protocol.h',
+        'install': true,
+    },
+    {
+        'scanner_args': ['client-header', '-c'],
+        'output': 'wayland-client-protocol-core.h',
+        'install': false,
+    },
+]
+foreach gen : generated_headers
+    output_file = gen.get('output')
+    target_name = output_file.underscorify()
+    set_variable(target_name, true)
+endforeach

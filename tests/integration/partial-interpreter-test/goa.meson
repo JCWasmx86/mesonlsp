@@ -1,0 +1,15 @@
+monitors = {}
+if enable_afc
+    monitors += {'Afc': true}
+endif
+if enable_goa
+    monitors += {'Goa': false}
+endif
+if enable_gphoto2
+    monitors += {'GPhoto2': true}
+endif
+monitors += {'MTP': false}
+foreach monitor, monitor_test : monitors
+    monitor_name = monitor.to_lower()
+    set_variable(monitor_name, true)
+endforeach

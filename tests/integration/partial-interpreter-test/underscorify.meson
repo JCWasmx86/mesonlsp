@@ -1,0 +1,7 @@
+python_tools = [
+    'glib-genmarshal',
+    'glib-mkenums',
+]
+foreach tool : python_tools
+    set_variable(tool.underscorify(), true)
+endforeach

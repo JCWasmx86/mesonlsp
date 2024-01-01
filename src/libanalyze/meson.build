@@ -2,6 +2,7 @@ analyze_inc = include_directories('.', 'options', 'subprojects', 'typeanalyzer')
 analyze_deps = [
     ast_dep,
     tree_sitter_dep,
+    tree_sitter_meson_dep,
     objects_dep,
     typenamespace_dep,
     wrap_dep,

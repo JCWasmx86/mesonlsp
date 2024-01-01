@@ -1,0 +1,7 @@
+funcs = ['foo', 'bar', 'baz']
+foreach x : funcs
+    set_variable('have_' + x, true)
+endforeach
+foreach x : funcs
+    set_variable(x + 'have_', true)
+endforeach
