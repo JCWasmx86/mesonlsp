@@ -2302,13 +2302,13 @@ std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types) {
 
 static bool isSnakeCase(const std::string &str) {
   return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
-    return (std::isupper(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
+    return (std::islower(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
   });
 }
 
 static bool isShoutingSnakeCase(const std::string &str) {
   return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
-    return (std::islower(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
+    return (std::isupper(chr) != 0) || (std::isdigit(chr) != 0) || chr == '_';
   });
 }
 
