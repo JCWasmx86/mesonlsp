@@ -3,6 +3,7 @@
 #include "subproject.hpp"
 #include "typenamespace.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -29,12 +30,9 @@ public:
     if (!this->used) {
       return false;
     }
-    for (const auto &subproj : this->subprojects) {
-      if (subproj->name == name) {
-        return true;
-      }
-    }
-    return false;
+    return std::ranges::any_of(
+        this->subprojects.begin(), this->subprojects.end(),
+        [&name](const auto subproj) { return subproj->name == name; });
   }
 
   std::shared_ptr<MesonSubproject> findSubproject(const std::string &name) {
