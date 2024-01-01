@@ -179,8 +179,8 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
 static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
-static bool sameType(std::shared_ptr<Type> &a, std::shared_ptr<Type> &b,
-                     const std::string &name);
+static bool sameType(std::shared_ptr<Type> &first,
+                     std::shared_ptr<Type> &second, const std::string &name);
 
 void TypeAnalyzer::applyToStack(const std::string &name,
                                 std::vector<std::shared_ptr<Type>> types) {
@@ -285,35 +285,36 @@ void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
 }
 
 std::optional<std::shared_ptr<Type>>
-TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &l,
-                             const std::shared_ptr<Type> &r) {
-  if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
+                             const std::shared_ptr<Type> &right) {
+  if (dynamic_cast<IntType *>(left.get()) &&
+      dynamic_cast<IntType *>(right.get())) {
     return this->ns.intType;
   }
-  if (dynamic_cast<Str *>(l.get()) && dynamic_cast<Str *>(r.get())) {
+  if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
     return this->ns.strType;
   }
-  auto *ll = dynamic_cast<List *>(l.get());
-  if (ll) {
-    auto *lr = dynamic_cast<List *>(r.get());
-    auto newTypes = ll->types;
-    if (lr) {
-      auto rTypes = lr->types;
+  auto *listL = dynamic_cast<List *>(left.get());
+  if (listL) {
+    auto *listR = dynamic_cast<List *>(right.get());
+    auto newTypes = listL->types;
+    if (listR) {
+      auto rTypes = listR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
     } else {
-      newTypes.emplace_back(r);
+      newTypes.emplace_back(right);
     }
     return std::make_shared<List>(dedup(this->ns, newTypes));
   }
-  auto *dl = dynamic_cast<Dict *>(l.get());
-  if (dl) {
-    auto *dr = dynamic_cast<Dict *>(r.get());
-    auto newTypes = dl->types;
-    if (dr) {
-      auto rTypes = dr->types;
+  auto *dictL = dynamic_cast<Dict *>(left.get());
+  if (dictL) {
+    auto *dictR = dynamic_cast<Dict *>(right.get());
+    auto newTypes = dictL->types;
+    if (dictR) {
+      auto rTypes = dictR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
     } else {
-      newTypes.emplace_back(r);
+      newTypes.emplace_back(right);
     }
     return std::make_shared<Dict>(dedup(this->ns, newTypes));
   }
@@ -321,26 +322,28 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &l,
 }
 
 void TypeAnalyzer::evalAssignmentTypes(
-    const std::shared_ptr<Type> &l, const std::shared_ptr<Type> &r,
+    const std::shared_ptr<Type> &left, const std::shared_ptr<Type> &right,
     AssignmentOperator op, std::vector<std::shared_ptr<Type>> *newTypes) {
   switch (op) {
   case DivEquals:
-    if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+    if (dynamic_cast<IntType *>(left.get()) &&
+        dynamic_cast<IntType *>(right.get())) {
       newTypes->push_back(this->ns.intType);
     }
-    if (dynamic_cast<Str *>(l.get()) && dynamic_cast<Str *>(r.get())) {
+    if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
       newTypes->push_back(this->ns.strType);
     }
     break;
   case MinusEquals:
   case ModEquals:
   case MulEquals:
-    if (dynamic_cast<IntType *>(l.get()) && dynamic_cast<IntType *>(r.get())) {
+    if (dynamic_cast<IntType *>(left.get()) &&
+        dynamic_cast<IntType *>(right.get())) {
       newTypes->push_back(this->ns.intType);
     }
     break;
   case PlusEquals: {
-    auto type = this->evalPlusEquals(l, r);
+    auto type = this->evalPlusEquals(left, right);
     if (type.has_value()) {
       newTypes->push_back(type.value());
     }
@@ -356,9 +359,9 @@ TypeAnalyzer::evalAssignment(AssignmentOperator op,
                              const std::vector<std::shared_ptr<Type>> &lhs,
                              const std::vector<std::shared_ptr<Type>> &rhs) {
   std::vector<std::shared_ptr<Type>> ret;
-  for (const auto &l : lhs) {
-    for (const auto &r : rhs) {
-      this->evalAssignmentTypes(l, r, op, &ret);
+  for (const auto &left : lhs) {
+    for (const auto &right : rhs) {
+      this->evalAssignmentTypes(left, right, op, &ret);
     }
   }
   return ret;
@@ -461,18 +464,11 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         break;
       case EqualsEquals:
       case NotEquals:
-        if (sameType(lType, rType, "int")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else if (sameType(lType, rType, "str")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else if (sameType(lType, rType, "bool")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else if (sameType(lType, rType, "dict")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else if (sameType(lType, rType, "list")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else if (dynamic_cast<AbstractObject *>(lType.get()) &&
-                   lType->name == rType->name) {
+        if (sameType(lType, rType, "int") || sameType(lType, rType, "str") ||
+            sameType(lType, rType, "bool") || sameType(lType, rType, "dict") ||
+            sameType(lType, rType, "list") ||
+            ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
+             lType->name == rType->name)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
@@ -746,18 +742,18 @@ void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
   std::shared_ptr<Node> lastAlive = nullptr;
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
-  for (const auto &b : node->stmts) {
-    this->checkNoEffect(b.get());
+  for (const auto &stmt : node->stmts) {
+    this->checkNoEffect(stmt.get());
     if (!lastAlive) {
-      if (this->isDead(b)) {
-        lastAlive = b;
+      if (this->isDead(stmt)) {
+        lastAlive = stmt;
       }
     } else {
       if (!firstDead) {
-        firstDead = b;
-        lastDead = b;
+        firstDead = stmt;
+        lastDead = stmt;
       } else {
-        lastDead = b;
+        lastDead = stmt;
       }
     }
   }
@@ -773,8 +769,8 @@ void TypeAnalyzer::checkUnusedVariables() {
     this->variablesNeedingUse.back() = toAppend;
     return;
   }
-  for (auto *n : needingUse) {
-    auto *ass = dynamic_cast<AssignmentStatement *>(n->parent);
+  for (auto *needed : needingUse) {
+    auto *ass = dynamic_cast<AssignmentStatement *>(needed->parent);
     if (!ass) {
       continue;
     }
@@ -786,7 +782,7 @@ void TypeAnalyzer::checkUnusedVariables() {
       }
     }
     this->metadata->registerDiagnostic(
-        n, Diagnostic(Severity::Warning, n, "Unused assignment"));
+        needed, Diagnostic(Severity::Warning, needed, "Unused assignment"));
   }
 }
 
@@ -860,8 +856,8 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
 }
 
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
-                                        const std::shared_ptr<Function> &fn) {
-  auto name = fn->name;
+                                        const std::shared_ptr<Function> &func) {
+  auto name = func->name;
   if (name == "subproject") {
     auto values = ::guessSetVariable(node, this->options);
     if (values.empty()) {
@@ -928,7 +924,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       }
     }
     if (types.empty()) {
-      node->types = fn->returnTypes;
+      node->types = func->returnTypes;
     } else {
       node->types = dedup(this->ns, types);
     }
@@ -941,16 +937,13 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     for (const auto &tgtType : asSet) {
       if (tgtType == "executable") {
         types.emplace_back(this->ns.types.at("exe"));
-      } else if (tgtType == "shared_library") {
+      } else if (tgtType == "shared_library" || tgtType == "static_library" ||
+                 tgtType == "library") {
         types.emplace_back(this->ns.types.at("lib"));
       } else if (tgtType == "shared_module") {
         types.emplace_back(this->ns.types.at("build_tgt"));
-      } else if (tgtType == "static_library") {
-        types.emplace_back(this->ns.types.at("lib"));
       } else if (tgtType == "both_libraries") {
         types.emplace_back(this->ns.types.at("both_libs"));
-      } else if (tgtType == "library") {
-        types.emplace_back(this->ns.types.at("lib"));
       } else if (tgtType == "jar") {
         types.emplace_back(this->ns.types.at("jar"));
       }
@@ -1081,7 +1074,8 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       types.insert(types.end(), vTypes.begin(), vTypes.end());
     }
     if (asSet.empty()) {
-      types.insert(types.end(), fn->returnTypes.begin(), fn->returnTypes.end());
+      types.insert(types.end(), func->returnTypes.begin(),
+                   func->returnTypes.end());
     }
     node->types = dedup(this->ns, types);
     LOG.info(std::format("get_variable: {} = {} ({}:{})",
@@ -1243,9 +1237,9 @@ void TypeAnalyzer::checkTypes(
                              joinTypes(givenTypes))));
 }
 
-void TypeAnalyzer::checkArgTypes(const std::shared_ptr<Function> &func,
-                                 const std::vector<std::shared_ptr<Node>> &args,
-                                 Node *node) {
+void TypeAnalyzer::checkArgTypes(
+    const std::shared_ptr<Function> &func,
+    const std::vector<std::shared_ptr<Node>> &args) {
   auto posArgsIdx = 0;
   for (const auto &arg : args) {
     if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
@@ -1268,17 +1262,17 @@ void TypeAnalyzer::checkArgTypes(const std::shared_ptr<Function> &func,
 
 void TypeAnalyzer::checkCall(Node *node) {
   std::vector<std::shared_ptr<Node>> args;
-  std::shared_ptr<Function> fn;
+  std::shared_ptr<Function> func;
   auto *fe = dynamic_cast<FunctionExpression *>(node);
   if (fe) {
-    fn = fe->function;
+    func = fe->function;
     if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get())) {
       args = al->args;
     }
   }
   auto *me = dynamic_cast<MethodExpression *>(node);
   if (me) {
-    fn = me->method;
+    func = me->method;
     if (auto *al = dynamic_cast<ArgumentList *>(me->args.get())) {
       args = al->args;
     }
@@ -1286,7 +1280,7 @@ void TypeAnalyzer::checkCall(Node *node) {
   if (!me && !fe) {
     return;
   }
-  if (!fn) {
+  if (!func) {
     return;
   }
   this->checkKwargsAfterPositionalArguments(args);
@@ -1296,24 +1290,24 @@ void TypeAnalyzer::checkCall(Node *node) {
       nPos++;
     }
   }
-  if (nPos < fn->minPosArgs) {
+  if (nPos < func->minPosArgs) {
     this->metadata->registerDiagnostic(
         node,
         Diagnostic(Severity::Error, node,
                    std::format(
                        "Expected at least {} positional arguments, but got {}!",
-                       fn->minPosArgs, nPos)));
+                       func->minPosArgs, nPos)));
   }
-  if (nPos > fn->maxPosArgs) {
+  if (nPos > func->maxPosArgs) {
     this->metadata->registerDiagnostic(
         node,
         Diagnostic(
             Severity::Error, node,
             std::format("Expected maximum {} positional arguments, but got {}!",
-                        fn->maxPosArgs, nPos)));
+                        func->maxPosArgs, nPos)));
   }
-  this->checkKwargs(fn, args, node);
-  this->checkArgTypes(fn, args, node);
+  this->checkKwargs(func, args, node);
+  this->checkArgTypes(func, args);
 }
 
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
@@ -1410,10 +1404,10 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
                          std::format("Unknown function `{}`", funcName)));
     return;
   }
-  auto fn = functionOpt.value();
-  node->types = fn->returnTypes;
-  this->setFunctionCallTypes(node, fn);
-  node->function = fn;
+  auto func = functionOpt.value();
+  node->types = func->returnTypes;
+  this->setFunctionCallTypes(node, func);
+  node->function = func;
   if (node->function->deprecationState.deprecated) {
     auto alternatives = node->function->deprecationState.replacements;
     auto sinceWhen = node->function->deprecationState.sinceWhen;
@@ -1435,23 +1429,23 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
                          true, false));
   }
 afterVersionCheck:
-  if (fn->since.after(this->tree->version)) {
+  if (func->since.after(this->tree->version)) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::Warning, node,
                          std::format("Meson version {} is requested, but {}() "
                                      "is only available since {}",
                                      this->tree->version.versionString,
-                                     fn->id(), fn->since.versionString)));
+                                     func->id(), func->since.versionString)));
   }
   auto args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
-    if (fn->minPosArgs > 0) {
+    if (func->minPosArgs > 0) {
       this->metadata->registerDiagnostic(
           node,
           Diagnostic(
               Severity::Error, node,
               std::format("Expected {} positional arguments, but got none!",
-                          fn->minPosArgs)));
+                          func->minPosArgs)));
     }
   } else {
     this->checkCall(node);
@@ -1466,24 +1460,25 @@ afterVersionCheck:
       }
       this->metadata->registerKwarg(asKwi, node->function);
     }
-    if (fn->name == "set_variable") {
+    if (func->name == "set_variable") {
       this->checkSetVariable(node, asArgumentList);
     }
   }
 cont:
 
-  if (fn->name == "subdir") {
+  if (func->name == "subdir") {
     this->enterSubdir(node);
   }
 }
 
 std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalStack(std::string &name) {
   std::vector<std::shared_ptr<Type>> ret;
-  for (const auto &ov : this->overriddenVariables) {
-    if (!ov.contains(name)) {
+  for (const auto &overridden : this->overriddenVariables) {
+    if (!overridden.contains(name)) {
       continue;
     }
-    ret.insert(ret.end(), ov.at(name).begin(), ov.at(name).end());
+    ret.insert(ret.end(), overridden.at(name).begin(),
+               overridden.at(name).end());
   }
   return ret;
 }
@@ -1517,15 +1512,15 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
                    node->id) != this->ignoreUnknownIdentifier.end();
 }
 
-bool TypeAnalyzer::isKnownId(IdExpression *id) {
-  auto *parent = id->parent;
+bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
+  auto *parent = idExpr->parent;
   if (!parent) {
     return true;
   }
   auto *ass = dynamic_cast<AssignmentStatement *>(parent);
   if (ass) {
     auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
-    if (lhsIdExpr && lhsIdExpr->id == id->id &&
+    if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
         ass->op == AssignmentOperator::Equals) {
       return true;
     }
@@ -1534,7 +1529,7 @@ bool TypeAnalyzer::isKnownId(IdExpression *id) {
   if (its) {
     for (const auto &itsId : its->ids) {
       auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
-      if (idexpr && idexpr->id == id->id) {
+      if (idexpr && idexpr->id == idExpr->id) {
         return true;
       }
     }
@@ -1542,25 +1537,25 @@ bool TypeAnalyzer::isKnownId(IdExpression *id) {
   auto *kwi = dynamic_cast<KeywordItem *>(parent);
   if (kwi) {
     auto *key = dynamic_cast<IdExpression *>(kwi->key.get());
-    if (key && key->id == id->id) {
+    if (key && key->id == idExpr->id) {
       return true;
     }
   }
   auto *fe = dynamic_cast<FunctionExpression *>(parent);
   if (fe) {
     auto *idexpr = dynamic_cast<IdExpression *>(fe->id.get());
-    if (idexpr && idexpr->id == id->id) {
+    if (idexpr && idexpr->id == idExpr->id) {
       return true;
     }
   }
   auto *me = dynamic_cast<MethodExpression *>(parent);
   if (me) {
     auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
-    if (idexpr && idexpr->id == id->id) {
+    if (idexpr && idexpr->id == idExpr->id) {
       return true;
     }
   }
-  return this->scope.variables.contains(id->id);
+  return this->scope.variables.contains(idExpr->id);
 }
 
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
@@ -1571,21 +1566,21 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   }
   node->types = dedup(this->ns, types);
   node->visitChildren(this);
-  auto *p = node->parent;
-  if (p) {
-    auto *ass = dynamic_cast<AssignmentStatement *>(p);
+  auto *parent = node->parent;
+  if (parent) {
+    auto *ass = dynamic_cast<AssignmentStatement *>(parent);
     if (ass) {
       if (ass->op != AssignmentOperator::Equals || ass->rhs->equals(node)) {
         this->registerUsed(node->id);
       }
       goto cont;
     }
-    auto *kw = dynamic_cast<KeywordItem *>(p);
-    if (kw && kw->value->equals(node)) {
+    auto *kwi = dynamic_cast<KeywordItem *>(parent);
+    if (kwi && kwi->value->equals(node)) {
       this->registerUsed(node->id);
       goto cont;
     }
-    if (dynamic_cast<FunctionExpression *>(p)) {
+    if (dynamic_cast<FunctionExpression *>(parent)) {
       goto cont; // Do nothing
     }
     this->registerUsed(node->id);
@@ -1604,13 +1599,13 @@ cont:
   this->metadata->registerIdentifier(node);
 }
 
-void TypeAnalyzer::registerUsed(const std::string &id) {
+void TypeAnalyzer::registerUsed(const std::string &varname) {
   std::vector<std::vector<IdExpression *>> newCopy;
   for (const auto &arr :
        this->variablesNeedingUse | std::ranges::views::reverse) {
     std::vector<IdExpression *> newArray;
     for (const auto &expr : arr) {
-      if (expr->id != id) {
+      if (expr->id != varname) {
         newArray.push_back(expr);
       }
     }
@@ -1708,8 +1703,8 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
 
 void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   node->expression->visit(this);
-  for (const auto &id : node->ids) {
-    id->visit(this);
+  for (const auto &itsId : node->ids) {
+    itsId->visit(this);
   }
   auto count = node->ids.size();
   if (count == 1) {
@@ -1727,19 +1722,19 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   std::shared_ptr<Node> lastAlive = nullptr;
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
-  for (const auto &b : node->stmts) {
-    b->visit(this);
-    this->checkNoEffect(b.get());
+  for (const auto &stmt : node->stmts) {
+    stmt->visit(this);
+    this->checkNoEffect(stmt.get());
     if (!lastAlive) {
-      if (this->isDead(b)) {
-        lastAlive = b;
+      if (this->isDead(stmt)) {
+        lastAlive = stmt;
       }
     } else {
       if (!firstDead) {
-        firstDead = b;
-        lastDead = b;
+        firstDead = stmt;
+        lastDead = stmt;
       } else {
-        lastDead = b;
+        lastDead = stmt;
       }
     }
   }
@@ -1830,7 +1825,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   auto found = this->findMethod(node, methodName, &nAny, &bits, ownResultTypes);
   node->types = dedup(this->ns, ownResultTypes);
   if (!found && (((size_t)nAny == types.size()) ||
-                 (bits == 0b111 && types.size() == 3))) {
+                 (bits == 0b111 /* NOLINT */ && types.size() == 3))) {
     found = this->guessMethod(node, methodName, ownResultTypes);
   }
   auto onlyDisabler = types.size() == 1 &&
@@ -1972,9 +1967,9 @@ void TypeAnalyzer::checkFormat(
 
 bool TypeAnalyzer::checkCondition(Node *condition) {
   auto appended = false;
-  auto *fn = dynamic_cast<FunctionExpression *>(condition);
-  if ((fn != nullptr) && fn->functionName() == "is_variable") {
-    auto *al = dynamic_cast<ArgumentList *>(fn->args.get());
+  auto *fe = dynamic_cast<FunctionExpression *>(condition);
+  if ((fe != nullptr) && fe->functionName() == "is_variable") {
+    auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
     if (al && !al->args.empty()) {
       auto *testedIdentifier = dynamic_cast<StringLiteral *>(al->args[0].get());
       if (testedIdentifier) {
@@ -2302,28 +2297,22 @@ std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types) {
 }
 
 static bool isSnakeCase(const std::string &str) {
-  for (auto chr : str) {
-    if (std::isupper(chr) != 0 && chr != '_') {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
+    return (std::isupper(chr) != 0) || chr == '_';
+  });
 }
 
 static bool isShoutingSnakeCase(const std::string &str) {
-  for (auto chr : str) {
-    if (std::islower(chr) != 0 && chr != '_') {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::all_of(str.begin(), str.end(), [](char chr) {
+    return (std::islower(chr) != 0) || chr == '_';
+  });
 }
 
 static bool isType(const std::shared_ptr<Type> &type, const std::string &name) {
   return type->name == name || type->name == "any";
 }
 
-static bool sameType(std::shared_ptr<Type> &a, std::shared_ptr<Type> &b,
-                     const std::string &name) {
-  return isType(a, name) && isType(b, name);
+static bool sameType(std::shared_ptr<Type> &first,
+                     std::shared_ptr<Type> &second, const std::string &name) {
+  return isType(first, name) && isType(second, name);
 }

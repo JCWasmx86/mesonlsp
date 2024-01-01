@@ -99,8 +99,8 @@ private:
   std::vector<std::string> calculateExpression(Node *parentExpr,
                                                Node *argExpression);
   static void
-  calculateEvalSubscriptExpression(const std::shared_ptr<InterpretNode> &i,
-                                   const std::shared_ptr<InterpretNode> &o,
+  calculateEvalSubscriptExpression(const std::shared_ptr<InterpretNode> &inner,
+                                   const std::shared_ptr<InterpretNode> &outer,
                                    std::vector<std::string> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
   analyseBuildDefinition(BuildDefinition *bd, Node *parentExpr,
@@ -118,13 +118,13 @@ private:
   std::vector<std::shared_ptr<InterpretNode>> fullEval(Node *stmt,
                                                        IdExpression *toResolve);
   std::vector<std::shared_ptr<InterpretNode>>
-  evalStatement(Node *b, IdExpression *toResolve);
+  evalStatement(Node *stmt, IdExpression *toResolve);
   static void
   addToArrayConcatenated(ArrayLiteral *arr, const std::string &contents,
                          const std::string &sep, bool literalFirst,
                          std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeBinaryExpr(
-      InterpretNode *l, InterpretNode *r, const std::string &sep,
+      InterpretNode *left, InterpretNode *right, const std::string &sep,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalBinaryExpression(BinaryExpression *be, Node *parentStmt);
@@ -132,7 +132,7 @@ private:
       ArrayLiteral *arr, StringLiteral *sl,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeSubscript(
-      InterpretNode *i, InterpretNode *o,
+      InterpretNode *inner, InterpretNode *outer,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalSubscriptExpression(SubscriptExpression *sse, Node *parentStmt);
@@ -144,7 +144,7 @@ private:
                                            MethodExpression *outerMe,
                                            Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalSimpleSubscriptExpression(SubscriptExpression *se,
+  abstractEvalSimpleSubscriptExpression(SubscriptExpression *sse,
                                         IdExpression *outerObj,
                                         Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
@@ -153,7 +153,7 @@ private:
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalArrayLiteral(ArrayLiteral *al, Node *toEval, Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalGenericSubscriptExpression(SubscriptExpression *se,
+  abstractEvalGenericSubscriptExpression(SubscriptExpression *sse,
                                          Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalFunction(FunctionExpression *fe, Node *parentStmt);

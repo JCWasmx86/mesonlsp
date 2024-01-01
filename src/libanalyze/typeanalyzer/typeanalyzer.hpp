@@ -75,7 +75,7 @@ private:
   bool isDead(const std::shared_ptr<Node> &node);
   void checkDuplicateNodeKeys(DictionaryLiteral *node) const;
   void setFunctionCallTypes(FunctionExpression *node,
-                            const std::shared_ptr<Function> &fn);
+                            const std::shared_ptr<Function> &func);
   void checkCall(Node *node);
   void checkSetVariable(FunctionExpression *node, ArgumentList *al);
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
@@ -90,13 +90,13 @@ private:
   evalAssignment(AssignmentOperator op,
                  const std::vector<std::shared_ptr<Type>> &lhs,
                  const std::vector<std::shared_ptr<Type>> &rhs);
-  void evalAssignmentTypes(const std::shared_ptr<Type> &l,
-                           const std::shared_ptr<Type> &r,
+  void evalAssignmentTypes(const std::shared_ptr<Type> &left,
+                           const std::shared_ptr<Type> &right,
                            AssignmentOperator op,
                            std::vector<std::shared_ptr<Type>> *newTypes);
   std::optional<std::shared_ptr<Type>>
-  evalPlusEquals(const std::shared_ptr<Type> &l,
-                 const std::shared_ptr<Type> &r);
+  evalPlusEquals(const std::shared_ptr<Type> &left,
+                 const std::shared_ptr<Type> &right);
   void applyToStack(const std::string &name,
                     std::vector<std::shared_ptr<Type>> types);
   void checkIdentifier(IdExpression *node) const;
@@ -110,10 +110,10 @@ private:
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
       const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors);
   void enterSubdir(FunctionExpression *node);
-  void registerUsed(const std::string &id);
+  void registerUsed(const std::string &varname);
   std::vector<std::shared_ptr<Type>> evalStack(std::string &name);
   bool ignoreIdExpression(IdExpression *node);
-  bool isKnownId(IdExpression *id);
+  bool isKnownId(IdExpression *idExpr);
   bool guessMethod(MethodExpression *node, const std::string &methodName,
                    std::vector<std::shared_ptr<Type>> &ownResultTypes);
   bool findMethod(MethodExpression *node, const std::string &methodName,
@@ -128,8 +128,7 @@ private:
                    const std::vector<std::shared_ptr<Node>> &args,
                    Node *node) const;
   void checkArgTypes(const std::shared_ptr<Function> &func,
-                     const std::vector<std::shared_ptr<Node>> &args,
-                     Node *node);
+                     const std::vector<std::shared_ptr<Node>> &args);
   void checkTypes(const std::shared_ptr<Node> &arg,
                   const std::vector<std::shared_ptr<Type>> &expectedTypes,
                   const std::vector<std::shared_ptr<Type>> &givenTypes);
