@@ -3,9 +3,7 @@ supported_arch = {
     'x86_64': 'x86',
 }
 arch = host_machine.cpu()
-xyz = (
-    'arch' / supported_arch[arch]
-)
+xyz = ('arch' / supported_arch[arch])
 set_variable(xyz, true)
 set_variable('arch1' / supported_arch[arch], true)
 
