@@ -12,7 +12,8 @@ Checks: |
   -modernize-use-trailing-return-type,
   -misc-non-private-member-variables-in-classes,
   -bugprone-easily-swappable-parameters,
-  -misc-use-anonymous-namespace
+  -misc-use-anonymous-namespace,
+  -readability-function-cognitive-complexity
 WarningsAsErrors: ""
 HeaderFilterRegex: ""
 FormatStyle: none
