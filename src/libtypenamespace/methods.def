@@ -1631,6 +1631,10 @@ feature::require:
         - str
   - returns:
     - feature
+file::full_path:
+  - args:
+  - returns:
+    - str
 fs_module::exists:
   - args:
     - file:
