@@ -45,3 +45,11 @@ CheckOptions:
       key: readability-implicit-bool-conversion.AllowPointerConditions,
       value: true,
     }
+  - {
+      key: readability-identifier-length.IgnoredVariableNames,
+      value: "al|fe|me|sl|be|ce|il|ns|bd|op",
+    }
+  - {
+      key: readability-identifier-length.IgnoredParameterNames,
+      value: "al|fe|me|sl|be|ce|il|ns|bd|op",
+    }
