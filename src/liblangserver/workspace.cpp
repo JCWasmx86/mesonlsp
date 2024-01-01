@@ -344,13 +344,6 @@ void Workspace::patchFile(
         std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
 
   std::lock_guard<std::mutex> const lock(mtx);
-  std::unique_lock<std::mutex> lockCV(cvMutex);
-  using namespace std::chrono_literals;
-  std::this_thread::sleep_for(100ms);
-
-  cv.wait(lockCV, [this]() {
-    return !(this->completing || this->running || this->settingUp);
-  });
   this->settingUp = true;
 
   for (const auto &subTree : findTrees(this->tree)) {
@@ -400,7 +393,6 @@ void Workspace::patchFile(
         this->tasks.erase(subTree->identifier);
         this->running = false;
         std::rethrow_exception(exception);
-        cv.notify_all();
         return;
       }
 
@@ -421,7 +413,6 @@ void Workspace::patchFile(
       func(ret);
       this->tasks.erase(subTree->identifier);
       this->running = false;
-      cv.notify_all();
     });
 
     this->tasks[identifier] = newTask;
@@ -431,7 +422,6 @@ void Workspace::patchFile(
   }
 
   this->settingUp = false;
-  cv.notify_one();
 }
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
@@ -505,12 +495,7 @@ Workspace::parse(const TypeNamespace &ns) {
 std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
                       const LSPPosition &position) {
-  std::unique_lock<std::mutex> lock(mtx);
-
-  cv.wait(lock, [this]() {
-    return !this->completing && !this->running && this->tasks.empty() &&
-           !this->settingUp;
-  });
+  std::unique_lock<std::mutex> lock(dataCollectionMtx);
 
   this->completing = true;
 
@@ -529,8 +514,6 @@ Workspace::completion(const std::filesystem::path &path,
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
-    cv.wait(lock, [this]() { return !(this->running || this->settingUp); });
-
     auto ret = complete(path, subTree, subTree->asts[path].back(), position);
     this->completing = false;
     return ret;
