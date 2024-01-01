@@ -74,7 +74,7 @@ LanguageServer::LanguageServer() {
                      if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
                        return false;
                      }
-                     std::string pkgName{entry->id};
+                     std::string const pkgName{entry->id};
                      LOG.info("Found package: " + pkgName);
                      ((LanguageServer *)data)->pkgNames.insert(pkgName);
                      return false;

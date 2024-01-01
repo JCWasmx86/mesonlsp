@@ -3,6 +3,7 @@
 #include "sha-256.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cctype>
 #include <cstddef>
@@ -45,8 +46,8 @@ static inline std::string vectorToString(const std::vector<std::string> &vec) {
 }
 
 static inline std::string hash(const void *data, const size_t len) {
-  uint8_t hash[SIZE_OF_SHA_256_HASH] = {0};
-  calc_sha_256(hash, data, len);
+  std::array<uint8_t, SIZE_OF_SHA_256_HASH> hash;
+  calc_sha_256(hash.data(), data, len);
   std::stringstream sss;
 
   sss << std::hex << std::setfill('0');

@@ -225,7 +225,7 @@ bool launchProcess(const std::string &executable,
 std::string errno2string() {
   char buf[ERRNO_BUF_SIZE] = {0};
   strerror_r(errno, buf, sizeof(buf) - 1); // NOLINT
-  return std::string(buf);
+  return {buf};
 }
 
 void mergeDirectories(const std::filesystem::path &sourcePath,

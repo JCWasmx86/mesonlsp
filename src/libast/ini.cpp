@@ -28,7 +28,7 @@ ast::ini::Section::findStringValue(const std::string &key) {
     if (value == nullptr) {
       continue;
     }
-    return std::optional<std::string>(value->value);
+    return value->value;
   }
   return std::nullopt;
 }

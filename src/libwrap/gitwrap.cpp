@@ -15,11 +15,11 @@
 
 static Logger LOG("wrap::GitWrap"); // NOLINT
 
-GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
-  if (auto pushUrl = section->findStringValue("push-url")) {
+GitWrap::GitWrap(ast::ini::Section *node) : VcsWrap(node) {
+  if (auto pushUrl = node->findStringValue("push-url")) {
     this->pushUrl = pushUrl;
   }
-  if (auto depthString = section->findStringValue("depth")) {
+  if (auto depthString = node->findStringValue("depth")) {
     int number;
     auto res = std::from_chars(
         depthString->data(), depthString->data() + depthString->size(), number);
@@ -27,7 +27,7 @@ GitWrap::GitWrap(ast::ini::Section *section) : VcsWrap(section) {
       this->depth = number;
     }
   }
-  if (auto val = section->findStringValue("clone-recursive")) {
+  if (auto val = node->findStringValue("clone-recursive")) {
     this->cloneRecursive = val == "true";
   }
 }
