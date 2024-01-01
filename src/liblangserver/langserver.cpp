@@ -1,6 +1,7 @@
 #include "langserver.hpp"
 
 #include "langserverutils.hpp"
+#include "libpkgconf/iter.h"
 #include "log.hpp"
 #include "lsptypes.hpp"
 #include "utils.hpp"
@@ -19,6 +20,8 @@
 #include <optional>
 #include <ostream>
 #include <pkgconf/libpkgconf/libpkgconf.h>
+#include <stdio.h>
+#include <string.h>
 #include <string>
 #include <vector>
 extern "C" {

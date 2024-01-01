@@ -5,14 +5,20 @@
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
+#include "mesontree.hpp"
 #include "node.hpp"
+#include "type.hpp"
 #include "utils.hpp"
 
 #include <cctype>
 #include <cstdint>
+#include <filesystem>
 #include <format>
 #include <memory>
 #include <optional>
+#include <set>
+#include <string>
+#include <vector>
 
 static Logger LOG("Completion"); // NOLINT
 

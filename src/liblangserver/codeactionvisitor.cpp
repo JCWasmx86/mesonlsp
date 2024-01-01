@@ -7,9 +7,12 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <format>
 #include <optional>
 #include <ranges>
+#include <string>
+#include <vector>
 
 static Logger LOG("CodeActionVisitor"); // NOLINT
 

@@ -3,6 +3,7 @@
 #include "version.hpp"
 
 #include <optional>
+#include <string>
 #include <vector>
 
 class DeprecationState {

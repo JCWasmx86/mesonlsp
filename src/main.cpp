@@ -1,4 +1,5 @@
 #include "analysisoptions.hpp"
+#include "jsonrpc.hpp"
 #include "langserver.hpp"
 #include "libwrap/wrap.hpp"
 #include "mesonmetadata.hpp"
@@ -10,8 +11,9 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
-#include <node.hpp>
-#include <sourcefile.hpp>
+#include <locale>
+#include <memory>
+#include <ranges>
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
