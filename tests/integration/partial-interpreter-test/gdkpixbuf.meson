@@ -1,0 +1,9 @@
+gdkpixbuf_bin = [
+    ['gdk-pixbuf-csource'],
+    ['gdk-pixbuf-pixdata'],
+    ['gdk-pixbuf-query-loaders', ['queryloaders.c']],
+]
+foreach bin : gdkpixbuf_bin
+    bin_name = bin[0]
+    set_variable(bin_name.underscorify(), true)
+endforeach

@@ -1,0 +1,3 @@
+foreach x : ['2', '3']
+    set_variable('have_@0@'.format(x), true)
+endforeach

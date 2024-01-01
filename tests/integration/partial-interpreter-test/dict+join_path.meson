@@ -1,0 +1,20 @@
+supported_arch = {
+    'x86': 'x86',
+    'x86_64': 'x86',
+}
+arch = host_machine.cpu()
+xyz = (
+    'arch' / supported_arch[arch]
+)
+set_variable(xyz, true)
+set_variable('arch1' / supported_arch[arch], true)
+
+set_variable(join_paths('a', 'b'), 1)
+xyz = join_paths('a1', 'b')
+set_variable(xyz, 1)
+supported_arch1 = {
+    'x86': 'x861',
+    'x86_64': 'x861',
+}
+arch1 = host_machine.cpu()
+set_variable(join_paths('arch', supported_arch1[arch1]), true)
