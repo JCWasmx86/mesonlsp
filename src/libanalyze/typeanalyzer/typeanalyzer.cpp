@@ -1384,7 +1384,9 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     auto ast = this->tree->parseFile(mesonpath);
     LOG.info(std::format("Entering {}", dir));
     ast->parent = node;
-    ast->visit(this);
+    if (!std::filesystem::equivalent(node->file->file, mesonpath)) {
+      ast->visit(this);
+    }
     LOG.info(std::format("Leaving {}", dir));
   }
 }
