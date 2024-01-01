@@ -6,9 +6,13 @@
 #include "typenamespace.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <memory>
 #include <optional>
 #include <string>

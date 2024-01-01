@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <format>
 #include <memory>
 #include <ranges>
 #include <set>

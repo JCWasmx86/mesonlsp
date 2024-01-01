@@ -20,6 +20,8 @@
 #include <optional>
 #include <ostream>
 #include <pwd.h>
+#include <stdlib.h>
+#include <string.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>

@@ -5,7 +5,6 @@
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
-#include <cstddef>
 #include <filesystem>
 #include <format>
 #include <fstream>

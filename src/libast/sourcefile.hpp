@@ -3,8 +3,9 @@
 #include "location.hpp"
 #include "utils.hpp"
 
+#include <cstddef>
 #include <filesystem>
-#include <memory>
+#include <format>
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>

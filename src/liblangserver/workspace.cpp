@@ -16,6 +16,8 @@
 #include "typenamespace.hpp"
 
 #include <algorithm>
+#include <bits/chrono.h>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -29,6 +31,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <thread>
 #include <vector>
 
 std::vector<std::shared_ptr<MesonTree>>
