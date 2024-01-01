@@ -29,7 +29,6 @@ public:
   std::atomic<bool> settingUp = false;
   std::atomic<bool> completing = false;
   std::atomic<bool> running = false;
-  std::condition_variable cv;
   std::mutex cvMutex;
   std::mutex mtx;
   std::mutex dataCollectionMtx;
