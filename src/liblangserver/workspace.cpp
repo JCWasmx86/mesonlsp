@@ -340,7 +340,7 @@ void Workspace::patchFile(
     const std::function<void(
         std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
 
-  std::lock_guard<std::mutex> lock(mtx);
+  std::lock_guard<std::mutex> const lock(mtx);
   std::unique_lock<std::mutex> lockCV(cvMutex);
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(100ms);
@@ -358,7 +358,8 @@ void Workspace::patchFile(
     std::set<std::filesystem::path> oldDiags;
     auto identifier = subTree->identifier;
     {
-      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(
+          this->dataCollectionMtx);
       for (const auto &pair : subTree->metadata.diagnostics) {
         oldDiags.insert(pair.first);
       }
@@ -377,7 +378,8 @@ void Workspace::patchFile(
     }
 
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::lock_guard<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+      std::lock_guard<std::mutex> const lockEverythingElse(
+          this->dataCollectionMtx);
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {

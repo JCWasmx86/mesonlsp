@@ -1,5 +1,6 @@
 #include "utils.hpp"
 
+#include <array>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
@@ -15,9 +16,9 @@ std::string randomFile() {
   }
   uuid_t filename;
   uuid_generate(filename);
-  char out[UUID_STR_LEN + 1] = {0};
-  uuid_unparse(filename, out);
-  return std::format("{}/{}", tmpdir, out);
+  std::array<char, UUID_STR_LEN + 1> out;
+  uuid_unparse(filename, out.data());
+  return std::format("{}/{}", tmpdir, out.data());
 }
 
 TEST(UtilsTest, testMergingDirectories) {

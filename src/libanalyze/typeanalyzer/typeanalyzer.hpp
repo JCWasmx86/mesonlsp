@@ -105,7 +105,7 @@ private:
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
   bool checkCondition(Node *condition);
   bool isSpecial(std::vector<std::shared_ptr<Type>> &types);
-  void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl);
+  void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl) const;
   std::vector<std::shared_ptr<Type>> evalBinaryExpression(
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
       const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors);

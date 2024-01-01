@@ -43,6 +43,7 @@ std::vector<std::string> guessSetVariable(FunctionExpression *fe,
       break;
     }
     parent = parent->parent;
+    assert(parent);
   }
   PartialInterpreter calc(opts);
   return calc.calculate(parent, toCalculate.get());
@@ -68,6 +69,7 @@ std::vector<std::string> guessSetVariable(FunctionExpression *fe,
       break;
     }
     parent = parent->parent;
+    assert(parent);
   }
   PartialInterpreter calc(opts);
   return calc.calculate(parent, toCalculate->get());

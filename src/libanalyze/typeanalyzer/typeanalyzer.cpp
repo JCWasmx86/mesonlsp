@@ -591,7 +591,7 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
 }
 
 void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
-                                            StringLiteral *sl) {
+                                            StringLiteral *sl) const {
   if (this->analysisOptions.disableAllIdLinting) {
     return;
   }

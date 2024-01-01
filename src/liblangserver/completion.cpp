@@ -23,8 +23,8 @@ afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
 static std::optional<std::string> extractErrorId(const std::string &prev);
 static std::set<std::shared_ptr<Method>>
 fillTypes(const std::shared_ptr<MesonTree> &tree,
-          std::vector<std::shared_ptr<Type>> types);
-static std::string createTextForFunction(std::shared_ptr<Function> func);
+          const std::vector<std::shared_ptr<Type>> &types);
+static std::string createTextForFunction(const std::shared_ptr<Function> &func);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      const std::shared_ptr<MesonTree> &tree,
@@ -135,7 +135,7 @@ afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
 
 std::set<std::shared_ptr<Method>>
 fillTypes(const std::shared_ptr<MesonTree> &tree,
-          std::vector<std::shared_ptr<Type>> types) {
+          const std::vector<std::shared_ptr<Type>> &types) {
   std::set<std::shared_ptr<Method>> ret;
   for (const auto &type : types) {
     if (!tree->ns.vtables.contains(type->name)) {
@@ -147,7 +147,8 @@ fillTypes(const std::shared_ptr<MesonTree> &tree,
   return ret;
 }
 
-static std::string createTextForFunction(std::shared_ptr<Function> func) {
+static std::string
+createTextForFunction(const std::shared_ptr<Function> &func) {
   std::string ret = std::format("{}(", func->name);
   auto templateIdx = 1;
   for (const auto &arg : func->args) {
