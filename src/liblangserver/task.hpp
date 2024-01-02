@@ -1,4 +1,5 @@
 #include <array>
+#include <atomic>
 #include <format>
 #include <functional>
 #include <mutex>
@@ -21,7 +22,7 @@ private:
   std::function<void()> taskFunction;
 
 public:
-  TaskState state;
+  std::atomic<TaskState> state;
 
   Task(std::function<void()> func) : taskFunction(std::move(func)) {
     uuid_t filename;

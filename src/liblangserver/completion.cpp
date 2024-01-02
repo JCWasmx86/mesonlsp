@@ -23,17 +23,16 @@
 static Logger LOG("Completion"); // NOLINT
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
-afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
-                   const std::filesystem::path &path, uint64_t line,
-                   uint64_t character, bool recurse);
+afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
+                   uint64_t line, uint64_t character, bool recurse);
 static std::optional<std::string> extractErrorId(const std::string &prev);
 static std::set<std::shared_ptr<Method>>
-fillTypes(const std::shared_ptr<MesonTree> &tree,
+fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types);
 static std::string createTextForFunction(const std::shared_ptr<Function> &func);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
-                                     const std::shared_ptr<MesonTree> &tree,
+                                     MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
                                      const LSPPosition &position) {
   const auto lines = split(ast->file->contents(), "\n");
@@ -107,9 +106,8 @@ next:
 }
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
-afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
-                   const std::filesystem::path &path, uint64_t line,
-                   uint64_t character, bool recurse) {
+afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
+                   uint64_t line, uint64_t character, bool recurse) {
   auto idExprOpt = tree->metadata.findIdExpressionAt(path, line, character);
   if (idExprOpt.has_value()) {
     return idExprOpt.value()->types;
@@ -140,7 +138,7 @@ afterDotCompletion(const std::shared_ptr<MesonTree> &tree,
 }
 
 std::set<std::shared_ptr<Method>>
-fillTypes(const std::shared_ptr<MesonTree> &tree,
+fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types) {
   std::set<std::shared_ptr<Method>> ret;
   for (const auto &type : types) {

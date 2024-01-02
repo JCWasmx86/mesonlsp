@@ -9,6 +9,6 @@
 #include <vector>
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
-                                     const std::shared_ptr<MesonTree> &tree,
+                                     MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
                                      const LSPPosition &position);

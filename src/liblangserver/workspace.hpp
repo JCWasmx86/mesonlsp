@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <future>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -26,12 +27,14 @@ public:
   std::filesystem::path root;
   std::string name;
   std::map<std::string /*Identifier*/, Task *> tasks;
+  std::map<std::string /*Identifier*/, std::future<void>> futures;
   std::atomic<bool> settingUp = false;
   std::atomic<bool> completing = false;
   std::atomic<bool> running = false;
   std::mutex cvMutex;
   std::mutex mtx;
   std::mutex dataCollectionMtx;
+  std::vector<MesonTree *> foundTrees;
   Logger logger;
   LanguageServerOptions &options;
 
