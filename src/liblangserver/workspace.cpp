@@ -16,6 +16,7 @@
 #include "typenamespace.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <bits/chrono.h>
 #include <cassert>
 #include <cstddef>
@@ -33,10 +34,9 @@
 #include <string>
 #include <vector>
 
-std::vector<std::shared_ptr<MesonTree>>
-findTrees(const std::shared_ptr<MesonTree> &root) {
-  std::vector<std::shared_ptr<MesonTree>> ret;
-  ret.emplace_back(root);
+std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
+  std::vector<MesonTree *> ret;
+  ret.emplace_back(root.get());
   for (const auto &subproj : root->state->subprojects) {
     if (subproj->tree) {
       auto recursiveTrees = findTrees(subproj->tree);
@@ -48,7 +48,7 @@ findTrees(const std::shared_ptr<MesonTree> &root) {
 
 bool Workspace::owns(const std::filesystem::path &path) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (subTree->ownedFiles.contains(path)) {
       return true;
     }
@@ -59,7 +59,7 @@ bool Workspace::owns(const std::filesystem::path &path) {
 std::vector<InlayHint>
 Workspace::inlayHints(const std::filesystem::path &path) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -77,7 +77,7 @@ Workspace::inlayHints(const std::filesystem::path &path) {
 std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
                                       const LSPPosition &position) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -105,7 +105,7 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
 std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
                                               const LSPRange &range) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -113,7 +113,7 @@ std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
     if (ast.empty()) {
       continue;
     }
-    auto visitor = CodeActionVisitor(range, pathToUrl(path), subTree.get());
+    auto visitor = CodeActionVisitor(range, pathToUrl(path), subTree);
     ast.back()->visit(&visitor);
     return visitor.actions;
   }
@@ -124,7 +124,7 @@ std::vector<DocumentHighlight>
 Workspace::highlight(const std::filesystem::path &path,
                      const LSPPosition &position) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -161,7 +161,7 @@ Workspace::highlight(const std::filesystem::path &path,
 std::vector<uint64_t>
 Workspace::semanticTokens(const std::filesystem::path &path) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -179,7 +179,7 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -251,7 +251,7 @@ std::optional<WorkspaceEdit>
 Workspace::rename(const std::filesystem::path &path,
                   const RenameParams &params) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -292,7 +292,7 @@ Workspace::rename(const std::filesystem::path &path,
 std::vector<FoldingRange>
 Workspace::foldingRanges(const std::filesystem::path &path) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -310,7 +310,7 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
 std::vector<SymbolInformation>
 Workspace::documentSymbols(const std::filesystem::path &path) {
   std::lock_guard<std::mutex> const lock(dataCollectionMtx);
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -326,7 +326,7 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
 }
 
 void Workspace::dropCache(const std::filesystem::path &path) {
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path) ||
         !subTree->overrides.contains(path)) {
       continue;
@@ -345,7 +345,7 @@ void Workspace::patchFile(
   std::unique_lock<std::mutex> lockEverythingElse(this->dataCollectionMtx);
   this->settingUp = true;
 
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
@@ -357,20 +357,19 @@ void Workspace::patchFile(
     }
     subTree->clear();
     if (this->tasks.contains(identifier)) {
+      lockEverythingElse.unlock();
       auto *tsk = this->tasks[identifier];
       this->logger.info(
           std::format("Waiting for {} to terminate", tsk->getUUID()));
-      while (tsk->state != TaskState::Ended) {
-      }
+      futures[identifier].wait();
       this->logger.info(
           std::format("{} finally terminated...", tsk->getUUID()));
-      delete tsk;
+      lockEverythingElse.lock();
     }
     subTree->overrides[path] = contents;
 
-    auto &dcm = this->dataCollectionMtx;
-
-    auto *newTask = new Task([&subTree, func, oldDiags, &dcm, this]() {
+    auto *newTask = new Task([&subTree, func, oldDiags, this]() {
+      std::unique_lock<std::mutex> lockTask(this->dataCollectionMtx);
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
@@ -407,12 +406,14 @@ void Workspace::patchFile(
       }
       func(ret);
       this->tasks.erase(subTree->identifier);
+      this->foundTrees = findTrees(this->tree);
       this->running = false;
     });
 
     this->tasks[identifier] = newTask;
-    (void)std::async(std::launch::async, &Task::run, newTask);
     this->settingUp = false;
+    lockEverythingElse.unlock();
+    futures[identifier] = std::async(std::launch::async, &Task::run, newTask);
     return;
   }
 
@@ -423,7 +424,7 @@ std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::clearDiagnostics() {
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
 
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     const auto &metadata = subTree->metadata;
     for (const auto &pair : metadata.diagnostics) {
       if (!ret.contains(pair.first)) {
@@ -436,7 +437,7 @@ Workspace::clearDiagnostics() {
 
 std::optional<std::filesystem::path>
 Workspace::muonConfigFile(const std::filesystem::path &path) {
-  for (const auto &tree : findTrees(this->tree)) {
+  for (const auto &tree : this->foundTrees) {
     auto treePath = tree->root;
     if (std::filesystem::relative(path, treePath)
             .generic_string()
@@ -460,8 +461,9 @@ Workspace::parse(const TypeNamespace &ns) {
                   !this->options.neverDownloadAutomatically);
   tree->identifier = this->name;
   this->tree = tree;
+  this->foundTrees = findTrees(this->tree);
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     auto metadata = subTree->metadata;
     if (subTree->depth > 0 &&
         this->options.ignoreDiagnosticsFromSubprojects.has_value()) {
@@ -494,7 +496,7 @@ Workspace::completion(const std::filesystem::path &path,
 
   this->completing = true;
 
-  for (const auto &subTree : findTrees(this->tree)) {
+  for (const auto &subTree : this->foundTrees) {
     auto identifier = subTree->identifier;
     if (this->tasks.contains(identifier)) {
       auto *tsk = this->tasks[identifier];
