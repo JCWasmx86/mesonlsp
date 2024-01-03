@@ -86,7 +86,7 @@ Status: In Progress
 
 
 ## TODO
-- Pass AnalysisOptions from LanguageServer to MesonTree
 - Auto-completion
 - Create namespaces
 - Better analysis of conditions, whether they trigger
+- OpenSSL backend for SHA256
