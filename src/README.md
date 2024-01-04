@@ -1,7 +1,5 @@
 # C++-Rewrite
 
-**TODO: Rename to meson-language-server**
-
 ## Structure
 ### liblog
 Provides a logging implementation
