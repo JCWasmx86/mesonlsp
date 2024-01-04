@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-swift build --static-swift-stdlib || exit 1
-cp .build/debug/Swift-MesonLSP Swift-MesonLSP.debug
-rm -rf .build/
-swift test || exit 1
-rm -rf .build/
-swift build -c release --static-swift-stdlib || exit 1
-cp .build/release/Swift-MesonLSP Swift-MesonLSP
+meson setup _release --buildtype release -Db_lto=true
+ninja -C _release || exit 1
+cp _release/src/mesonlsp mesonlsp
+rm -rf _release
+meson setup _build --buildtype debug
+ninja -C _build || exit 1
+cp _build/src/mesonlsp mesonlsp.debug
 zip -9 "$1".zip Swift-MesonLSP.debug Swift-MesonLSP
 sudo cp "$1".zip / || true
 cp "$1".zip / || true
