@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Build on Fedora ${{ matrix.version }}
         run: |
-          sudo dnf install ninja-build gcc g++ git pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config -y
+          sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config -y
           pip install meson
           sudo dnf clean all
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
