@@ -86,7 +86,7 @@ Status: In Progress
 
 
 ## TODO
-- Auto-completion
+- Improve auto-completion
 - Create namespaces
 - Better analysis of conditions, whether they trigger
 - OpenSSL backend for SHA256
