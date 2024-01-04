@@ -9,12 +9,12 @@ Status: Done
 Provides the data model for everything callable (Functions/Methods)
 and provides the types
 
-Status: Mostly done (Preparations for docs are missing)
+Status: Mostly done (Preparations for argument docs are missing)
 ### libtypenamespace
 Provides a "TypeNamespace" instance containing everything like arguments, return types, docs
 
 Depends on: libobjects
-Status: Mostly done (Docs are missing)
+Status: Mostly done (Argument docs are missing)
 ### libast
 Provides the AST as C++ objects.
 
@@ -36,17 +36,17 @@ Status: Done
 ### liblsptypes
 Provides the types needed for a language server.
 
-Status: In Progress
+Status: Mostly done.
 ### libls
 Combines libjsonrpc and liblsptypes to an abstract class
 
 Depends on: libjsonrpc, liblsptypes
-Status: In Progress
+Status: Mostly done
 ### liblangserver
 Implements the language server.
 
 Depends on: libwrap, libanalyze
-Status: In Progress
+Status: Mostly done
 ## Design Aspects
 - No dynamically linked dependencies
 - Minimal number of dependencies
