@@ -17,7 +17,7 @@ cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
 
 executable(
-    'Swift-MesonLSP',
+    'mesonlsp',
     'main.cpp',
     link_args: extra_link_args,
     cpp_args: [
@@ -38,4 +38,11 @@ executable(
         langserver_dep,
     ] + extra_deps + extra_libs,
     install: true,
+)
+
+install_dir = get_option('prefix') / get_option('bindir')
+install_symlink(
+    'Swift-MesonLSP',
+    install_dir: install_dir,
+    pointing_to: install_dir / 'mesonlsp',
 )
