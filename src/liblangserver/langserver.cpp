@@ -51,7 +51,7 @@ std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
 
 extern "C" {
 static bool pkgconfLogHandler(const char *msg, const pkgconf_client_t *client,
-                              void *data) {
+                              const void *data) {
   (void)client;
   (void)data;
   (void)msg;
@@ -68,8 +68,11 @@ LanguageServer::LanguageServer() {
   memset(&pkgClient, 0, sizeof(pkgClient));
   pkgconf_client_set_trace_handler(&pkgClient, nullptr, nullptr);
   pkgconf_client_set_sysroot_dir(&pkgClient, nullptr);
-  pkgconf_client_init(&pkgClient, pkgconfLogHandler, nullptr, personality);
-  pkgconf_client_set_trace_handler(&pkgClient, pkgconfLogHandler, nullptr);
+  pkgconf_client_init(&pkgClient,
+                      (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr,
+                      personality);
+  pkgconf_client_set_trace_handler(
+      &pkgClient, (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr);
   pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
   pkgconf_client_dir_list_build(&pkgClient, personality);
   pkgconf_scan_all(&pkgClient, this,
