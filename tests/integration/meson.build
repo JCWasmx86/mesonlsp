@@ -6,7 +6,7 @@ partial_interpreter_tester = executable(
         ast_dep,
         log_dep,
         objects_dep,
-    ],
+    ] + extra_deps + extra_libs,
 )
 
 partial_interpreter_tests = [
