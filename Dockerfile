@@ -22,7 +22,7 @@ RUN ninja -C _static
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
 WORKDIR /app/exportDir
-RUN zip -9 swift-mesonlsp-alpine-static.zip Swift-MesonLSP
+RUN zip -9 mesonlsp-alpine-static.zip mesonlsp
 
 FROM scratch AS export-stage
-COPY --from=stage1 /app/exportDir/swift-mesonlsp-alpine-static.zip .
+COPY --from=stage1 /app/exportDir/mesonlsp-alpine-static.zip .

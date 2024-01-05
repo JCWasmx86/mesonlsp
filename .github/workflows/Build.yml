@@ -20,11 +20,11 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
-          sudo cp out/swift-mesonlsp-alpine-static.zip /swift-mesonlsp-alpine-static.zip
+          sudo cp out/mesonlsp-alpine-static.zip /mesonlsp-alpine-static.zip
       - uses: actions/upload-artifact@v3
         with:
-          name: swift-mesonlsp-alpine-static.zip
-          path: /swift-mesonlsp-alpine-static.zip
+          name: mesonlsp-alpine-static.zip
+          path: /mesonlsp-alpine-static.zip
   fedora_in_container:
     strategy:
       matrix:
