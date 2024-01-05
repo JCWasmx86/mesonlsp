@@ -6,6 +6,6 @@ rm -rf _release
 meson setup _build --buildtype debug
 ninja -C _build || exit 1
 cp _build/src/mesonlsp mesonlsp.debug
-zip -9 "$1".zip Swift-MesonLSP.debug Swift-MesonLSP
+zip -9 "$1".zip mesonlsp.debug mesonlsp
 sudo cp "$1".zip / || true
 cp "$1".zip / || true

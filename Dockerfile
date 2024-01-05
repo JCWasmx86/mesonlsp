@@ -20,7 +20,7 @@ RUN meson setup _static --default-library=static --prefer-static \
     --buildtype=release -Db_lto=true
 RUN ninja -C _static
 RUN mkdir /app/exportDir
-RUN cp _static/src/Swift-MesonLSP /app/exportDir
+RUN cp _static/src/mesonlsp /app/exportDir
 WORKDIR /app/exportDir
 RUN zip -9 swift-mesonlsp-alpine-static.zip Swift-MesonLSP
 
