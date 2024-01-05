@@ -8,7 +8,7 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
   "servers": {
     "meson": {
       "command": [
-        "Swift-MesonLSP",
+        "mesonlsp",
         "--lsp"
       ],
       "rootIndicationFileNames": [
