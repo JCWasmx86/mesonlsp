@@ -1,19 +1,11 @@
-# Documentation for Swift-MesonLSP
-## Endusers
+# Documentation for mesonlsp
 - Installation
   - [From package repo (Arch Linux, Fedora, Ubuntu, Debian)](PackageInstall.md)
   - [From Source](SourceInstall.md)
-  - [Ubuntu 22.04/MacOS 12/Windows](ReleaseInstall.md)
+  - [Linux/macOS/Windows](ReleaseInstall.md)
 - Editor integration
   - [GNOME Builder 45 and Nightly](BuilderNightly.md)
   - [Kate](Kate.md)
   - [Neovim](Neovim.md)
   - [VSCode/Codium](VSCode.md)
 - [Configuration](Configuration.md)
-
-## Developers
-- [Overview](dev/Overview.md)
-- [Modules](modules/README.md)
-- [Renaming](dev/Renaming.md)
-- [Code coverage](dev/CodeCoverage.md)
-

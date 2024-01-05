@@ -1,3 +1,0 @@
-digraph G {
-	LanguageServer -> {MesonAnalyze Timing MesonDocs CMem IOUtils}
-}
