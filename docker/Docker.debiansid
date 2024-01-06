@@ -10,6 +10,7 @@ COPY subprojects /app/subprojects
 
 RUN meson setup _build --buildtype=release -Db_lto=true
 RUN ninja -C _build
+RUN ninja -C _build test
 RUN mkdir /app/exportDir
 RUN cp _build/src/mesonlsp /app/exportDir
 WORKDIR /app/exportDir
