@@ -23,7 +23,7 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file docker/Docker.debian${{ matrix.version }} --output out .
-          sudo cp out/mesonlsp-debian-static.zip /mesonlsp-alpine-debian-${{ matrix.version }}.zip
+          sudo cp out/mesonlsp-debian-static.zip /mesonlsp-debian-${{ matrix.version }}.zip
       - uses: actions/upload-artifact@v3
         with:
           name: mesonlsp-debian-${{ matrix.version }}.zip
