@@ -17,7 +17,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: |
-          sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config -y
+          sudo dnf install lcov genhtml zip ninja-build gcc g++ git pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config -y
           pip install meson
           sudo dnf clean all
           meson _build -Db_coverage=true
