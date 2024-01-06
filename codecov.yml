@@ -1,5 +1,0 @@
-ignore:
-  - "Sources/LanguageServer"
-  - "Sources/MesonDocs"
-  - "Sources/Swift-MesonLSP"
-  - "Sources/Timing"
