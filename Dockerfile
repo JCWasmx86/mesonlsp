@@ -19,6 +19,7 @@ RUN meson setup _static --default-library=static --prefer-static \
     -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
     --buildtype=release -Db_lto=true
 RUN ninja -C _static
+RUN ninja -C _static test
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
 WORKDIR /app/exportDir
