@@ -1,4 +1,4 @@
-name: Build on platforms
+name: Collect Coverage
 on:
   push:
     branches: ["main"]
@@ -6,7 +6,7 @@ on:
     branches: ["main"]
   workflow_dispatch:
 jobs:
-  fedora_in_container:
+  coverage:
     runs-on: ubuntu-latest
     container:
       image: fedora:38
