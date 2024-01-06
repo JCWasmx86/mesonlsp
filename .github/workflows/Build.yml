@@ -26,8 +26,8 @@ jobs:
           sudo cp out/mesonlsp-debian-static.zip /mesonlsp-alpine-debian-${{ matrix.version }}.zip
       - uses: actions/upload-artifact@v3
         with:
-          name: mesonlsp-alpine-static.zip
-          path: /mesonlsp-alpine-static.zip
+          name: mesonlsp-debian-${{ matrix.version }}.zip
+          path: /mesonlsp-debian-${{ matrix.version }}.zip
   alpine:
     runs-on: ubuntu-22.04
     steps:
