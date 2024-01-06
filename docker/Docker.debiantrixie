@@ -1,0 +1,19 @@
+FROM debian:trixie AS stage1
+
+RUN apt update &&apt install -y git gcc g++ meson ninja-build libpkgconf-dev libcurl4-openssl-dev pkg-config uuid-dev libarchive-dev
+WORKDIR /app
+
+COPY meson.build meson.options /app/
+COPY src /app/src
+COPY tests /app/tests
+COPY subprojects /app/subprojects
+
+RUN meson setup _build --buildtype=release -Db_lto=true
+RUN ninja -C _build
+RUN mkdir /app/exportDir
+RUN cp _build/src/mesonlsp /app/exportDir
+WORKDIR /app/exportDir
+RUN zip -9 mesonlsp-debian-static.zip mesonlsp
+
+FROM scratch AS export-stage
+COPY --from=stage1 /app/exportDir/mesonlsp-debian-static.zip .
