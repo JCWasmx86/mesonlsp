@@ -1,0 +1,27 @@
+name: Build on platforms
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+jobs:
+  fedora_in_container:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:38
+    steps:
+      - uses: actions/checkout@v1
+      - name: Collecting coverage
+        shell: bash
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+        run: |
+          sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config -y
+          pip install meson
+          sudo dnf clean all
+          meson _build -Db_coverage=true
+          ninja -C _build test
+          ninja -C _build coverage || true
+          cp _build/meson-logs/coverage.info out.lcov
+          bash <(curl -s https://codecov.io/bash)
