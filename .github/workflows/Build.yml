@@ -6,6 +6,28 @@ on:
     branches: ["main"]
   workflow_dispatch:
 jobs:
+  debian:
+    strategy:
+      matrix:
+        version: ["trixie", "sid"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build on Debian ${{ matrix.version }}
+        run: |
+          sudo apt purge -y podman
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
+          sudo apt-get update
+          sudo apt-get -y install podman
+          podman --version
+          DOCKER_BUILDKIT=1 docker build --network=host --file docker/Dockerfile.debian${{ matrix.version }} --output out .
+          sudo cp out/mesonlsp-debian-static.zip /mesonlsp-alpine-debian-${{ matrix.version }}.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mesonlsp-alpine-static.zip
+          path: /mesonlsp-alpine-static.zip
   alpine:
     runs-on: ubuntu-22.04
     steps:
