@@ -12,6 +12,7 @@
 #include "version.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <cstddef>
 #include <filesystem>
@@ -1821,6 +1822,34 @@ bool TypeAnalyzer::findMethod(
     }
     node->method = method;
     found = true;
+  }
+  if (*nAny == 3 && *bits == 0b111) {
+    return found;
+  }
+  if (!found && methodName == "get") {
+    for (const auto &type : types) {
+      if (dynamic_cast<Dict *>(type.get()) ||
+          dynamic_cast<List *>(type.get()) ||
+          dynamic_cast<CfgData *>(type.get())) {
+        auto method = this->ns.lookupMethod("get", type);
+        assert(method.has_value());
+        node->method = method.value();
+        ownResultTypes.insert(ownResultTypes.end(),
+                              method.value()->returnTypes.begin(),
+                              method.value()->returnTypes.end());
+        auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+        if (al && al->args.size() == 2 && methodName == "get") {
+          auto defaultArg = al->getPositionalArg(1);
+          if (defaultArg.has_value()) {
+            auto defaultTypes = defaultArg.value()->types;
+            ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
+                                  defaultTypes.end());
+          }
+        }
+        found = true;
+        break;
+      }
+    }
   }
   return found;
 }
