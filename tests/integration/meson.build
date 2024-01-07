@@ -182,6 +182,19 @@ type_analyzer_tests = [
         ],
         'options_options',
     ],
+    [
+        'build_target',
+        [
+            ['executable', 'exe'],
+            ['shared_library', 'lib'],
+            ['static_library', 'lib'],
+            ['library', 'lib'],
+            ['shared_module', 'build_tgt'],
+            ['both_libraries', 'both_libs'],
+            ['jar', 'jar'],
+            ['conditional', 'jar|lib']
+        ]
+    ]
 ]
 
 foreach test_data : type_analyzer_tests

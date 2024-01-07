@@ -1,0 +1,8 @@
+executable = build_target('executable', target_type: 'executable')
+shared_library = build_target('shared_library', target_type: 'shared_library')
+static_library = build_target('static_library', target_type: 'static_library')
+library = build_target('library', target_type: 'library')
+shared_module = build_target('shared_module', target_type: 'shared_module')
+both_libraries = build_target('both_libraries', target_type: 'both_libraries')
+jar = build_target('jar', target_type: 'jar')
+conditional = build_target('conditional', target_type: true ? 'jar' : 'library')
