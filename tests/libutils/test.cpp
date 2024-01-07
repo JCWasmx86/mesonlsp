@@ -21,6 +21,80 @@ std::string randomFile() {
   return std::format("{}/{}", tmpdir, out.data());
 }
 
+TEST(UtilsTest, testUpperCase) {
+  std::string input = "foo123";
+  ASSERT_EQ("FOO123", uppercase(input));
+  input = "foo123ß";
+  ASSERT_EQ("FOO123ß", uppercase(input));
+  input = "foo123 ";
+  ASSERT_EQ("FOO123 ", uppercase(input));
+}
+
+TEST(UtilsTest, testLowerCase) {
+  std::string input = "FOO123";
+  ASSERT_EQ("foo123", lowercase(input));
+  input = "FOO123ß";
+  ASSERT_EQ("foo123ß", lowercase(input));
+  input = "FOO123 ";
+  ASSERT_EQ("foo123 ", lowercase(input));
+}
+
+TEST(UtilsTest, testJoinStrings) {
+  ASSERT_EQ(
+      "foo,bar,baz,qux",
+      joinStrings(std::vector<std::string>{"foo", "bar", "baz", "qux"}, ','));
+}
+
+TEST(UtilsTest, testTrim) {
+  std::string input = "  foo \n";
+  trim(input);
+  ASSERT_EQ(input, "foo");
+}
+
+TEST(UtilsTest, testReplace) {
+  // https://github.com/openjdk/jdk/blob/faa9c6909dda635eb008b9dada6e06fca47c17d6/test/jdk/java/lang/String/LiteralReplace.java#L89
+  // Except "" doesn't replace anything (E.g. {"abcdefgh", "", "_",
+  // "_a_b_c_d_e_f_g_h_"} will fail)
+  for (const auto &vec : std::vector<std::vector<std::string>>{
+           {"aaa", "aa", "b", "ba"},
+           {"abcdefgh", "def", "DEF", "abcDEFgh"},
+           {"abcdefgh", "123", "DEF", "abcdefgh"},
+           {"abcdefgh", "abcdefghi", "DEF", "abcdefgh"},
+           {"abcdefghabc", "abc", "DEF", "DEFdefghDEF"},
+           {"abcdefghdef", "def", "", "abcgh"},
+           {"", "", "", ""},
+           {"", "a", "b", ""},
+           {"abcdefgh", "abcdefgh", "abcdefgh", "abcdefgh"},
+           {"abcdefgh", "abcdefgh", "abcdefghi", "abcdefghi"},
+           {"abcdefgh", "abcdefgh", "", ""},
+           {"abcdabcd", "abcd", "", ""},
+           {"aaaaaaaaa", "aa", "_X_", "_X__X__X__X_a"},
+           {"aaaaaaaaa", "aa", "aaa", "aaaaaaaaaaaaa"},
+           {"aaaaaaaaa", "aa", "aa", "aaaaaaaaa"},
+           {"a.c.e.g.", ".", "-", "a-c-e-g-"},
+       }) {
+    auto input = vec[0];
+    ASSERT_EQ(vec[3], replace(input, vec[1], vec[2]));
+  }
+}
+
+TEST(UtilsTest, testSplit) {
+  auto parts = split("foo||bar", "||");
+  auto expected = std::vector<std::string>{"foo", "bar"};
+  ASSERT_EQ(parts, expected);
+  parts = split("foo||bar||", "||");
+  expected = std::vector<std::string>{"foo", "bar"};
+  ASSERT_EQ(parts, expected);
+  parts = split("bar|foo", "||");
+  expected = std::vector<std::string>{"bar|foo"};
+  ASSERT_EQ(parts, expected);
+}
+
+TEST(UtilsTest, testHash) {
+  ASSERT_EQ("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            hash(std::string("abc")));
+}
+
 TEST(UtilsTest, testMergingDirectories) {
   auto workDir = std::filesystem::path{randomFile()};
   auto inputDir = workDir / "input";
