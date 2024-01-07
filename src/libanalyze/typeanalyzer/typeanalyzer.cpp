@@ -180,8 +180,9 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
 static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
-static bool sameType(std::shared_ptr<Type> &first,
-                     std::shared_ptr<Type> &second, const std::string &name);
+static bool sameType(const std::shared_ptr<Type> &first,
+                     const std::shared_ptr<Type> &second,
+                     const std::string &name);
 
 void TypeAnalyzer::applyToStack(const std::string &name,
                                 std::vector<std::shared_ptr<Type>> types) {
@@ -191,7 +192,7 @@ void TypeAnalyzer::applyToStack(const std::string &name,
   if (this->scope.variables.contains(name)) {
     auto orVCount = this->overriddenVariables.size() - 1;
     auto &atIdx = this->overriddenVariables[orVCount];
-    auto vars = this->scope.variables[name];
+    const auto &vars = this->scope.variables[name];
     if (atIdx.contains(name)) {
       atIdx[name].insert(atIdx[name].begin(), vars.begin(), vars.end());
     } else {
@@ -265,7 +266,7 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
       arr = {std::make_shared<Dict>(std::vector<std::shared_ptr<Type>>{})};
     }
   }
-  auto assignmentName = lhsIdExpr->id;
+  const auto &assignmentName = lhsIdExpr->id;
   if (assignmentName == "meson" || assignmentName == "build_machine" ||
       assignmentName == "target_machine" || assignmentName == "host_machine") {
     this->metadata->registerDiagnostic(
@@ -375,7 +376,7 @@ void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
     this->evaluatePureAssignment(node, lhsIdExpr);
     return;
   }
-  auto newTypes =
+  const auto &newTypes =
       dedup(this->ns,
             this->evalAssignment(node->op, node->lhs->types, node->rhs->types));
   lhsIdExpr->types = newTypes;
@@ -440,8 +441,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
     BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
     const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors) {
   std::vector<std::shared_ptr<Type>> newTypes;
-  for (auto lType : lhs) {
-    for (auto rType : rhs) {
+  for (const auto &lType : lhs) {
+    for (const auto &rType : rhs) {
       if (rType->name == "any" && lType->name == "any") {
         ++*numErrors;
         continue;
@@ -879,7 +880,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     return;
   }
   if (name == "get_option") {
-    auto values = ::guessSetVariable(node, this->options);
+    const auto &values = ::guessSetVariable(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (auto val : asSet) {
@@ -929,7 +930,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     return;
   }
   if (name == "build_target") {
-    auto values = ::guessSetVariable(node, "target_type", this->options);
+    const auto &values = ::guessSetVariable(node, "target_type", this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (const auto &tgtType : asSet) {
@@ -954,7 +955,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     return;
   }
   if (name == "import") {
-    auto values = ::guessSetVariable(node, this->options);
+    const auto &values = ::guessSetVariable(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (const auto &modname : values) {
@@ -1067,13 +1068,13 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       types.insert(types.end(), defaultArg->types.begin(),
                    defaultArg->types.end());
     }
-    auto values = ::guessSetVariable(node, this->options);
+    const auto &values = ::guessSetVariable(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     for (const auto &varname : asSet) {
       if (!this->scope.variables.contains(varname)) {
         continue;
       }
-      auto vTypes = this->scope.variables[varname];
+      const auto &vTypes = this->scope.variables[varname];
       types.insert(types.end(), vTypes.begin(), vTypes.end());
     }
     if (asSet.empty()) {
@@ -1122,9 +1123,9 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
     }
     usedKwargs[kId->id] = kwi;
     if (func->kwargs.contains(kId->id)) {
-      auto kwarg = func->kwargs[kId->id];
+      const auto &kwarg = func->kwargs[kId->id];
       if (kwarg->deprecationState.deprecated) {
-        auto alternatives = kwarg->deprecationState.replacements;
+        const auto &alternatives = kwarg->deprecationState.replacements;
         auto sinceWhen = kwarg->deprecationState.sinceWhen;
         if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
           continue;
@@ -1157,7 +1158,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
   if (usedKwargs.contains("kwargs")) {
     return;
   }
-  for (auto requiredKwarg : func->requiredKwargs) {
+  for (const auto &requiredKwarg : func->requiredKwargs) {
     if (usedKwargs.contains(requiredKwarg)) {
       continue;
     }
@@ -1246,12 +1247,12 @@ void TypeAnalyzer::checkArgTypes(
   auto posArgsIdx = 0;
   for (const auto &arg : args) {
     if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
-      auto givenTypes = kwi->value->types;
+      const auto &givenTypes = kwi->value->types;
       auto kwargName = kwi->name.value();
       if (!func->kwargs.contains(kwargName)) {
         continue;
       }
-      auto expectedTypes = func->kwargs[kwargName]->types;
+      const auto &expectedTypes = func->kwargs[kwargName]->types;
       this->checkTypes(arg, expectedTypes, givenTypes);
     } else {
       auto *posArg = func->posArg(posArgsIdx);
@@ -1264,20 +1265,40 @@ void TypeAnalyzer::checkArgTypes(
 }
 
 void TypeAnalyzer::checkCall(Node *node) {
-  std::vector<std::shared_ptr<Node>> args;
   std::shared_ptr<Function> func;
   auto *fe = dynamic_cast<FunctionExpression *>(node);
+  auto nPos = 0ULL;
   if (fe) {
     func = fe->function;
     if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get())) {
-      args = al->args;
+      const auto &args = al->args;
+      if (func) {
+        this->checkKwargsAfterPositionalArguments(args);
+        this->checkKwargs(func, args, node);
+        this->checkArgTypes(func, args);
+        for (const auto &arg : args) {
+          if (!dynamic_cast<KeywordItem *>(arg.get())) {
+            nPos++;
+          }
+        }
+      }
     }
   }
   auto *me = dynamic_cast<MethodExpression *>(node);
   if (me) {
     func = me->method;
     if (auto *al = dynamic_cast<ArgumentList *>(me->args.get())) {
-      args = al->args;
+      const auto &args = al->args;
+      if (func) {
+        this->checkKwargsAfterPositionalArguments(args);
+        this->checkKwargs(func, args, node);
+        this->checkArgTypes(func, args);
+        for (const auto &arg : args) {
+          if (!dynamic_cast<KeywordItem *>(arg.get())) {
+            nPos++;
+          }
+        }
+      }
     }
   }
   if (!me && !fe) {
@@ -1286,13 +1307,7 @@ void TypeAnalyzer::checkCall(Node *node) {
   if (!func) {
     return;
   }
-  this->checkKwargsAfterPositionalArguments(args);
-  auto nPos = 0ULL;
-  for (const auto &arg : args) {
-    if (!dynamic_cast<KeywordItem *>(arg.get())) {
-      nPos++;
-    }
-  }
+
   if (nPos < func->minPosArgs) {
     this->metadata->registerDiagnostic(
         node,
@@ -1309,8 +1324,6 @@ void TypeAnalyzer::checkCall(Node *node) {
             std::format("Expected maximum {} positional arguments, but got {}!",
                         func->maxPosArgs, nPos)));
   }
-  this->checkKwargs(func, args, node);
-  this->checkArgTypes(func, args);
 }
 
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
@@ -1351,7 +1364,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   if (!al || al->args.empty()) {
     return;
   }
-  auto guessed = ::guessSetVariable(node, this->options);
+  const auto &guessed = ::guessSetVariable(node, this->options);
   std::set<std::string> const asSet{guessed.begin(), guessed.end()};
   auto msg = std::format("Found subdircall with dirs: {} at {}:{}",
                          joinStrings(asSet, '|'), node->file->file.c_str(),
@@ -1362,8 +1375,8 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     LOG.info(msg);
   }
   this->metadata->registerSubdirCall(node, asSet);
-  for (auto dir : asSet) {
-    auto dirpath = node->file->file.parent_path() / dir;
+  for (const auto &dir : asSet) {
+    const auto &dirpath = node->file->file.parent_path() / dir;
     if (!std::filesystem::exists(dirpath)) {
       if (asSet.size() == 1) {
         this->metadata->registerDiagnostic(
@@ -1372,7 +1385,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
       }
       continue;
     }
-    auto mesonpath = dirpath / "meson.build";
+    const auto &mesonpath = dirpath / "meson.build";
     if (!std::filesystem::exists(mesonpath)) {
       if (asSet.size() == 1) {
         this->metadata->registerDiagnostic(
@@ -1382,7 +1395,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
       }
       continue;
     }
-    auto ast = this->tree->parseFile(mesonpath);
+    const auto &ast = this->tree->parseFile(mesonpath);
     LOG.info(std::format("Entering {}", dir));
     ast->parent = node;
     if (!std::filesystem::equivalent(node->file->file, mesonpath)) {
@@ -1395,7 +1408,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
 void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
   this->metadata->registerFunctionCall(node);
-  auto funcName = node->functionName();
+  const auto &funcName = node->functionName();
   if (funcName == INVALID_FUNCTION_NAME) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::Error, node,
@@ -1414,7 +1427,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   this->setFunctionCallTypes(node, func);
   node->function = func;
   if (node->function->deprecationState.deprecated) {
-    auto alternatives = node->function->deprecationState.replacements;
+    const auto &alternatives = node->function->deprecationState.replacements;
     auto sinceWhen = node->function->deprecationState.sinceWhen;
     if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
       goto afterVersionCheck;
@@ -1442,7 +1455,7 @@ afterVersionCheck:
                                      this->tree->version.versionString,
                                      func->id(), func->since.versionString)));
   }
-  auto args = node->args;
+  const auto &args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
     if (func->minPosArgs > 0) {
       this->metadata->registerDiagnostic(
@@ -1566,7 +1579,7 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   auto types = this->evalStack(node->id);
   if (this->scope.variables.contains(node->id)) {
-    auto scopeVariables = this->scope.variables[node->id];
+    const auto &scopeVariables = this->scope.variables[node->id];
     types.insert(types.end(), scopeVariables.begin(), scopeVariables.end());
   }
   node->types = dedup(this->ns, types);
@@ -1605,18 +1618,13 @@ cont:
 }
 
 void TypeAnalyzer::registerUsed(const std::string &varname) {
-  std::vector<std::vector<IdExpression *>> newCopy;
-  for (const auto &arr :
-       this->variablesNeedingUse | std::ranges::views::reverse) {
-    std::vector<IdExpression *> newArray;
-    for (const auto &expr : arr) {
-      if (expr->id != varname) {
-        newArray.push_back(expr);
-      }
-    }
-    newCopy.push_back(newArray);
+  for (auto &arr : this->variablesNeedingUse | std::ranges::views::reverse) {
+    arr.erase(std::remove_if(arr.begin(), arr.end(),
+                             [&varname](const auto &idExpr) {
+                               return idExpr->id != varname;
+                             }),
+              arr.end());
   }
-  this->variablesNeedingUse = newCopy;
 }
 
 void TypeAnalyzer::visitIntegerLiteral(IntegerLiteral *node) {
@@ -1759,7 +1767,7 @@ bool TypeAnalyzer::findMethod(
     MethodExpression *node, const std::string &methodName, int *nAny, int *bits,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
   auto found = false;
-  auto types = node->obj->types;
+  const auto &types = node->obj->types;
   for (const auto &type : types) {
     if (dynamic_cast<Any *>(type.get())) {
       *nAny = *nAny + 1;
@@ -1872,7 +1880,7 @@ bool TypeAnalyzer::guessMethod(
 void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
   this->metadata->registerMethodCall(node);
-  auto types = node->obj->types;
+  const auto &types = node->obj->types;
   std::vector<std::shared_ptr<Type>> ownResultTypes;
   auto *methodNameId = dynamic_cast<IdExpression *>(node->id.get());
   if (!methodNameId) {
@@ -1902,7 +1910,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     return;
   }
   if (node->method->deprecationState.deprecated) {
-    auto alternatives = node->method->deprecationState.replacements;
+    const auto &alternatives = node->method->deprecationState.replacements;
     auto sinceWhen = node->method->deprecationState.sinceWhen;
     if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
       goto afterVersionCheck;
@@ -1948,7 +1956,7 @@ afterVersionCheck:
     std::vector<std::shared_ptr<Type>> types;
     types.insert(types.end(), node->method->returnTypes.begin(),
                  node->method->returnTypes.end());
-    auto values = ::guessGetVariableMethod(node, this->options);
+    const auto &values = ::guessGetVariableMethod(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     for (const auto &objType : node->obj->types) {
       auto *subprojType = dynamic_cast<Subproject *>(objType.get());
@@ -1956,12 +1964,12 @@ afterVersionCheck:
         continue;
       }
       for (const auto &subprojName : subprojType->names) {
-        auto subproj = this->tree->state->findSubproject(subprojName);
+        const auto &subproj = this->tree->state->findSubproject(subprojName);
         if (!subproj) {
           LOG.warn(std::format("Unable to find subproject {}", subprojName));
           continue;
         }
-        auto scope = subproj->tree->scope;
+        const auto &scope = subproj->tree->scope;
         for (const auto &varname : asSet) {
           if (!scope.variables.contains(varname)) {
             LOG.warn(std::format("Unable to find variable {} in subproject {}",
@@ -1976,7 +1984,7 @@ afterVersionCheck:
             }
             continue;
           }
-          auto varTypes = scope.variables[varname];
+          const auto &varTypes = scope.variables.at(varname);
           types.insert(types.end(), varTypes.begin(), varTypes.end());
         }
       }
@@ -2059,7 +2067,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
   std::map<std::string, std::vector<std::shared_ptr<Type>>> oldVars;
-  for (auto oldVar : this->scope.variables) {
+  for (const auto &oldVar : this->scope.variables) {
     oldVars[oldVar.first] = std::vector<std::shared_ptr<Type>>{
         oldVar.second.begin(), oldVar.second.end()};
   }
@@ -2068,7 +2076,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   for (const auto &block : node->blocks) {
     auto appended = false;
     if (idx < node->conditions.size()) {
-      auto cond = node->conditions[idx];
+      const auto &cond = node->conditions[idx];
       cond->visit(this);
       appended = this->checkCondition(cond.get());
     }
@@ -2096,7 +2104,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     if (appended) {
       this->ignoreUnknownIdentifier.pop_back();
     }
-    auto lastNeedingUse = this->variablesNeedingUse.back();
+    const auto &lastNeedingUse = this->variablesNeedingUse.back();
     allLeft.insert(allLeft.end(), lastNeedingUse.begin(), lastNeedingUse.end());
     this->variablesNeedingUse.pop_back();
     idx++;
@@ -2111,12 +2119,11 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     toInsert.emplace_back(idExpr);
   }
   this->variablesNeedingUse.back() = toInsert;
-  auto types = this->stack.back();
-  this->stack.pop_back();
+  const auto &types = this->stack.back();
   // If: 1 c, 1 b
   // If,else if: 2c, 2b
   // if, else if, else, 2c, 3b
-  for (auto pair : types) {
+  for (const auto &pair : types) {
     // This leaks some overwritten types. This can't be solved
     // without costly static analysis
     // x = 'Foo'
@@ -2126,16 +2133,18 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     //   x = true
     // endif
     // x is now str|int|bool instead of int|bool
-    auto key = pair.first;
+    const auto &key = pair.first;
     auto arr = this->scope.variables.contains(key)
                    ? this->scope.variables[key]
                    : std::vector<std::shared_ptr<Type>>{};
     arr.insert(arr.end(), pair.second.begin(), pair.second.end());
     if (oldVars.contains(key)) {
-      arr.insert(arr.end(), oldVars[key].begin(), oldVars[key].end());
+      const auto &oldTypes = oldVars[key];
+      arr.insert(arr.end(), oldTypes.begin(), oldTypes.end());
     }
     this->scope.variables[key] = dedup(this->ns, arr);
   }
+  this->stack.pop_back();
   this->overriddenVariables.pop_back();
 }
 
@@ -2143,8 +2152,8 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
   node->types.push_back(this->ns.strType);
   this->metadata->registerStringLiteral(node);
-  auto str = node->id;
-  auto matches = extractTextBetweenAtSymbols(str);
+  const auto &str = node->id;
+  const auto &matches = extractTextBetweenAtSymbols(str);
   if (!node->isFormat && !matches.empty()) {
     auto reallyFound = true;
     for (const auto &match : matches) {
@@ -2371,7 +2380,8 @@ static bool isType(const std::shared_ptr<Type> &type, const std::string &name) {
   return type->name == name || type->name == "any";
 }
 
-static bool sameType(std::shared_ptr<Type> &first,
-                     std::shared_ptr<Type> &second, const std::string &name) {
+static bool sameType(const std::shared_ptr<Type> &first,
+                     const std::shared_ptr<Type> &second,
+                     const std::string &name) {
   return isType(first, name) && isType(second, name);
 }

@@ -2,6 +2,6 @@
 
 #include <string>
 
-std::string Function::id() { return this->name; }
+const std::string &Function::id() const { return this->name; }
 
-std::string Method::id() { return this->parentType->name + "." + this->name; }
+const std::string &Method::id() const { return this->privateId; }

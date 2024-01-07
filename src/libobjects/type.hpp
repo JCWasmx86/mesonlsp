@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -59,29 +61,28 @@ class Dict : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
-  // Public constructor
   Dict(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("dict"), types(types) {
+      : Type("dict"), types(types) {}
+
+  std::string toString() override {
+    if (this->cached) {
+      return this->cache;
+    }
     std::vector<std::string> names;
+    names.reserve(types.size());
     for (const auto &element : types) {
       names.push_back(element->toString());
     }
 
     std::sort(names.begin(), names.end());
-    std::string cache;
-    for (size_t i = 0; i < names.size(); i++) {
-      cache += names[i];
-      if (i != names.size() - 1) {
-        cache += "|";
-      }
-    }
-    this->cache = "dict(" + cache + ")";
+    this->cache = "dict(" + joinStrings(names, '|') + ")";
+    this->cached = true;
+    return this->cache;
   }
-
-  std::string toString() override { return this->cache; }
 
 private:
   std::string cache;
+  bool cached{false};
 };
 
 class List : public Type {
@@ -89,27 +90,27 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   List(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("list"), types(types) {
+      : Type("list"), types(types) {}
+
+  std::string toString() override {
+    if (this->cached) {
+      return this->cache;
+    }
     std::vector<std::string> names;
+    names.reserve(types.size());
     for (const auto &element : types) {
       names.push_back(element->toString());
     }
 
     std::sort(names.begin(), names.end());
-    std::string cache;
-    for (size_t i = 0; i < names.size(); i++) {
-      cache += names[i];
-      if (i != names.size() - 1) {
-        cache += "|";
-      }
-    }
-    this->cache = "list(" + cache + ")";
+    this->cache = "list(" + joinStrings(names, '|') + ")";
+    this->cached = true;
+    return this->cache;
   }
-
-  std::string toString() override { return this->cache; }
 
 private:
   std::string cache;
+  bool cached{false};
 };
 
 class Subproject : public AbstractObject {

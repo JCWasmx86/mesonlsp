@@ -22,7 +22,7 @@ enum Severity {
 
 #define REGISTER(methodName, variable, type)                                   \
   void methodName(type *node) /*NOLINT*/ {                                     \
-    auto key = node->file->file;                                               \
+    const auto &key = node->file->file;                                        \
     if (this->variable.contains(key)) {                                        \
       this->variable[key].push_back(node);                                     \
     } else {                                                                   \
@@ -148,7 +148,7 @@ public:
   REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
 
   void registerIdentifier(IdExpression *node) {
-    auto key = node->file->file;
+    const auto &key = node->file->file;
     if (this->identifiers.contains(key)) {
       this->identifiers[key].push_back(node);
     } else {
@@ -158,7 +158,7 @@ public:
   }
 
   void registerKwarg(KeywordItem *item, const std::shared_ptr<Function> &func) {
-    auto key = item->file->file;
+    const auto &key = item->file->file;
     if (this->kwargs.contains(key)) {
       this->kwargs[key].emplace_back(item, func);
     } else {
