@@ -1777,6 +1777,32 @@ bool TypeAnalyzer::findMethod(
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 2);
     }
+    if (methodName == "get") {
+      auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+      if (!al || al->args.empty()) {
+        continue;
+      }
+      const auto &firstArg = al->args[0];
+      if (firstArg->types.empty()) {
+        continue;
+      }
+      for (const auto &argType : firstArg->types) {
+        if (dynamic_cast<IntType *>(argType.get()) && listtype) {
+          goto cont;
+        }
+        if (dynamic_cast<Str *>(argType.get()) && dicttype) {
+          goto cont;
+        }
+        if (dynamic_cast<Str *>(argType.get()) &&
+            dynamic_cast<CfgData *>(type.get())) {
+          goto cont;
+        }
+      }
+      LOG.info(std::format("Unexpected get() method for {}: {}",
+                           type->toString(), joinTypes(firstArg->types)));
+      continue;
+    }
+  cont:
     auto methodOpt = this->ns.lookupMethod(methodName, type);
     if (!methodOpt) {
       continue;
