@@ -168,6 +168,20 @@ type_analyzer_tests = [
             ['target_machine', 'target_machine'],
         ],
     ],
+    [
+        'options',
+        [
+            ['strvalue', 'str'],
+            ['boolvalue', 'bool'],
+            ['combovalue', 'str'],
+            ['intvalue', 'int'],
+            ['arrayvalue', 'list(str)'],
+            ['featurevalue', 'feature'],
+            ['int_and_strvalue', 'int|str'],
+            ['unknownvalue', 'bool|feature|int|list(bool|int|str)|str'],
+        ],
+        'options_options',
+    ],
 ]
 
 foreach test_data : type_analyzer_tests

@@ -1,0 +1,6 @@
+option('stroption', type: 'string')
+option('booloption', type: 'boolean')
+option('combooption', type: 'combo', choices: ['one', 'two', 'three'])
+option('intoption', type: 'integer')
+option('arrayoption', type: 'array', choices: ['one', 'two', 'three'])
+option('featureoption', type: 'feature')
