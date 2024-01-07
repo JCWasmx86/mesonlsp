@@ -1,0 +1,8 @@
+strvalue = get_option('stroption')
+boolvalue = get_option('booloption')
+combovalue = get_option('combooption')
+intvalue = get_option('intoption')
+arrayvalue = get_option('arrayoption')
+featurevalue = get_option('featureoption')
+int_and_strvalue = get_option(true ? 'stroption' : 'intoption')
+unknownvalue = get_option('never-seen-before')
