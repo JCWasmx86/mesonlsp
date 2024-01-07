@@ -1,0 +1,16 @@
+conditional = true ? 1 : ''
+someint = 1
+somestr = ''
+somebool = true
+someemptydict = {}
+somedict = {'foo': 1, 'bar': ''}
+someemptyarray = []
+somearray = [1, '']
+
+foreach mixedbagiter : [[], {}, 1, '', bool, meson]
+
+endforeach
+
+foreach dictkey, dictvalue : {'foo': [[], {}, 1, '', bool, meson], 'bar': 1}
+
+endforeach

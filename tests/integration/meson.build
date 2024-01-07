@@ -1,6 +1,17 @@
 partial_interpreter_tester = executable(
     'partial-interpreter-tester',
-    'main.cpp',
+    'partial-interpreter-tester.cpp',
+    dependencies: [
+        analyze_dep,
+        ast_dep,
+        log_dep,
+        objects_dep,
+    ] + extra_deps + extra_libs,
+)
+
+type_analyzer_tester = executable(
+    'type-analyzer-tester',
+    'type-analyzer-tester.cpp',
     dependencies: [
         analyze_dep,
         ast_dep,
@@ -109,16 +120,69 @@ partial_interpreter_tests = [
             'dict22222',
         ],
     ],
-    ['imgui', ['python_binding', 'cpp_binding', 'human_binding', 'lua___shim'], 'imgui-options'],
+    [
+        'imgui',
+        ['python_binding', 'cpp_binding', 'human_binding', 'lua___shim'],
+        'imgui-options',
+    ],
 ]
 
 foreach test_data : partial_interpreter_tests
     file = files('partial-interpreter-test' / (test_data[0] + '.meson'))[0]
-    options_file = test_data.length() == 2 ? [] : (['--'] + files('partial-interpreter-test' / (test_data[2] + '.meson')))
+    options_file = (
+        test_data.length() == 2 ? [] : (
+            ['--'] + files(
+                'partial-interpreter-test' / (test_data[2] + '.meson'),
+            )
+        )
+    )
 
     test(
         'pt-' + test_data[0],
         partial_interpreter_tester,
+        args: [file] + test_data[1] + options_file,
+    )
+endforeach
+
+
+type_analyzer_tests = [
+    [
+        'basictests',
+        [
+            ['conditional', 'int|str'],
+            ['somestr', 'str'],
+            ['someint', 'int'],
+            ['somebool', 'bool'],
+            ['someemptydict', 'dict()'],
+            ['somedict', 'dict(int|str)'],
+            ['someemptyarray', 'list()'],
+            ['somearray', 'list(int|str)'],
+            ['mixedbagiter', 'dict()|int|list()|meson|str'],
+            ['dictkey', 'str'],
+            ['dictvalue', 'int|list(dict()|int|list()|meson|str)'],
+
+            # Builtins
+            ['meson', 'meson'],
+            ['build_machine', 'build_machine'],
+            ['host_machine', 'host_machine'],
+            ['target_machine', 'target_machine'],
+        ],
+    ],
+]
+
+foreach test_data : type_analyzer_tests
+    file = files('type-analyzer-test' / (test_data[0] + '.meson'))[0]
+    options_file = (
+        test_data.length() == 2 ? [] : (
+            ['--'] + files(
+                'type-analyzer-test' / (test_data[2] + '.meson'),
+            )
+        )
+    )
+
+    test(
+        'ta-' + test_data[0],
+        type_analyzer_tester,
         args: [file] + test_data[1] + options_file,
     )
 endforeach
