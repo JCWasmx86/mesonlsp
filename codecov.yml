@@ -1,3 +1,4 @@
 ignore:
-  - "subprojects"
   - "_build"
+  - "subprojects"
+  - "tests"
