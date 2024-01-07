@@ -277,7 +277,7 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
           Diagnostic(Severity::Error, node.get(), "Expected string literal"));
       continue;
     }
-    auto content = asStr->id;
+    const auto &content = asStr->id;
     if (!choices || choices->contains(content)) {
       continue;
     }
@@ -292,7 +292,7 @@ end:
 std::optional<int64_t>
 OptionDiagnosticVisitor::fetchIntOrNullOpt(ArgumentList *al,
                                            const std::string &kwarg) {
-  auto kwargNode = al->getKwarg(kwarg);
+  const auto &kwargNode = al->getKwarg(kwarg);
   if (!kwargNode.has_value()) {
     return std::nullopt;
   }

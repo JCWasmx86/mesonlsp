@@ -72,7 +72,7 @@ public:
     this->maxPosArgs = maxPosArgs;
   }
 
-  virtual std::string id();
+  virtual const std::string &id() const;
 
   PositionalArgument *posArg(size_t posArgsIdx) {
     PositionalArgument *last = nullptr;
@@ -90,6 +90,9 @@ public:
   }
 
   virtual ~Function() = default;
+
+  Function(const Function &) = delete;
+  Function &operator=(const Function &) = delete;
 };
 
 class Method : public Function {
@@ -104,7 +107,14 @@ public:
          Version since = Version("0.0.0"))
       : Function(std::move(name), std::move(doc), args, returnTypes,
                  std::move(deprecationState), std::move(since)),
-        parentType(parentType) {}
+        parentType(parentType),
+        privateId(this->parentType->name + "." + this->name) {}
 
-  std::string id() override;
+  const std::string &id() const override;
+
+  Method(const Method &) = delete;
+  Method &operator=(const Method &) = delete;
+
+private:
+  std::string privateId;
 };

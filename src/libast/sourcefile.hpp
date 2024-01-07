@@ -20,23 +20,24 @@ public:
   virtual const std::string &contents();
   virtual ~SourceFile() = default;
 
-  virtual std::string extractNodeValue(TSNode node) {
+  virtual std::string extractNodeValue(const TSNode &node) {
     auto startByte = ts_node_start_byte(node);
     auto endByte = ts_node_end_byte(node);
-    return this->contents().substr(startByte, endByte - startByte);
+    const auto &contents = this->contents();
+    return contents.substr(startByte, endByte - startByte);
   }
 
   virtual std::string extractNodeValue(const Location *loc) {
-    auto string = this->contents();
-    auto lines = split(string, "\n");
+    const auto &string = this->contents();
+    const auto &lines = split(string, "\n");
     if (loc->startLine == loc->endLine) {
-      auto line = lines[loc->startLine];
+      const auto &line = lines[loc->startLine];
       return line.substr(loc->startColumn, loc->endColumn - loc->startColumn);
     }
-    auto firstLine = lines[loc->startLine];
-    auto firstLine1 = firstLine.substr(loc->startColumn);
-    auto lastLine = lines[loc->endLine];
-    auto lastLine1 = lastLine.substr(0, loc->endColumn);
+    const auto &firstLine = lines[loc->startLine];
+    const auto &firstLine1 = firstLine.substr(loc->startColumn);
+    const auto &lastLine = lines[loc->endLine];
+    const auto &lastLine1 = lastLine.substr(0, loc->endColumn);
     std::string concatenated;
     for (size_t idx = loc->startLine + 1; idx < loc->endLine; idx++) {
       concatenated += std::format("{}\n", lines[idx]);
