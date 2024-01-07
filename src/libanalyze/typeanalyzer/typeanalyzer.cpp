@@ -517,13 +517,9 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         }
         auto *dict1 = dynamic_cast<Dict *>(lType.get());
         auto *dict2 = dynamic_cast<Dict *>(rType.get());
-        if (dict1) {
+        if (dict1 && dict2) {
           auto types = dict1->types;
-          if (dict2) {
-            types.insert(types.end(), dict2->types.begin(), dict2->types.end());
-          } else {
-            types.push_back(rType);
-          }
+          types.insert(types.end(), dict2->types.begin(), dict2->types.end());
           newTypes.emplace_back(std::make_shared<Dict>(types));
           break;
         }
@@ -949,7 +945,11 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
         types.emplace_back(this->ns.types.at("jar"));
       }
     }
-    node->types = dedup(this->ns, types);
+    if (!types.empty()) {
+      node->types = dedup(this->ns, types);
+    } else {
+      node->types = func->returnTypes;
+    }
     return;
   }
   if (name == "import") {
