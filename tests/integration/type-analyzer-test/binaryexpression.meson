@@ -1,0 +1,21 @@
+bool_and = true and (1 == 2)
+bool_or = true or (1 != 2)
+int_div = 4 / 2
+str_div = 'foo' / 'bar'
+int_eq = 1 == 1
+object_eq = meson == meson
+list_neq = [] != []
+int_ge = 4 >= 2
+int_gt = 4 > 2
+int_le = 4 <= 2
+int_lt = 4 < 2
+in_check = 'foo' in []
+not_in_check = 'foo' not in []
+int_minus = 4 - 4
+int_mod = 4 % 4
+int_mul = 4 * 4
+str_plus = 'f' + 'o'
+int_plus = 1 + 2
+list_list_plus = ['f'] + [1, ['foo']]
+list_other_plus = ['f'] + 1
+dict_dict_plus = {'a': 1} + {'a': meson, 'b': build_machine}

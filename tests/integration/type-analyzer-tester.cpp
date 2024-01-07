@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     }
   }
   if (errors != 0) {
-    logger.error(std::format("Unable to find {} variables", errors));
+    logger.error(std::format("{} errors", errors));
   }
   return static_cast<int>(errors != 0);
 }

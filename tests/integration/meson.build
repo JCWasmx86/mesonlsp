@@ -192,9 +192,35 @@ type_analyzer_tests = [
             ['shared_module', 'build_tgt'],
             ['both_libraries', 'both_libs'],
             ['jar', 'jar'],
-            ['conditional', 'jar|lib']
-        ]
-    ]
+            ['conditional', 'jar|lib'],
+        ],
+    ],
+    [
+        'binaryexpression',
+        [
+            ['bool_and', 'bool'],
+            ['bool_or', 'bool'],
+            ['int_div', 'int'],
+            ['str_div', 'str'],
+            ['int_eq', 'bool'],
+            ['object_eq', 'bool'],
+            ['list_neq', 'bool'],
+            ['int_ge', 'bool'],
+            ['int_gt', 'bool'],
+            ['int_le', 'bool'],
+            ['int_lt', 'bool'],
+            ['in_check', 'bool'],
+            ['not_in_check', 'bool'],
+            ['int_minus', 'int'],
+            ['int_mod', 'int'],
+            ['int_mul', 'int'],
+            ['str_plus', 'str'],
+            ['int_plus', 'int'],
+            ['list_list_plus', 'list(int|list(str)|str)'],
+            ['list_other_plus', 'list(int|str)'],
+            ['dict_dict_plus', 'dict(build_machine|int|meson)'],
+        ],
+    ],
 ]
 
 foreach test_data : type_analyzer_tests
