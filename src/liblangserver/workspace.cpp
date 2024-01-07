@@ -191,7 +191,8 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         break;
       }
       const auto &idExpr = metadata->encounteredIds[i];
-      if (MesonMetadata::contains(idExpr, position.line, position.character)) {
+      if (idExpr->file->file == path &&
+          MesonMetadata::contains(idExpr, position.line, position.character)) {
         foundMyself = true;
         toFind = idExpr->id;
       }
@@ -220,7 +221,8 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
     }
     for (const auto &funcCall : metadata->functionCalls.at(path)) {
       if (!MesonMetadata::contains(funcCall, position.line,
-                                   position.character)) {
+                                   position.character) ||
+          funcCall->file->file != path) {
         continue;
       }
       if (funcCall->functionName() != "subdir") {
