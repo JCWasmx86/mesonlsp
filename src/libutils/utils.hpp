@@ -30,7 +30,7 @@ std::string errno2string();
 void mergeDirectories(const std::filesystem::path &sourcePath,
                       const std::filesystem::path &destinationPath);
 std::filesystem::path cacheDir();
-std::string readFile(std::filesystem::path &path);
+std::string readFile(const std::filesystem::path &path);
 
 static inline std::string vectorToString(const std::vector<std::string> &vec) {
   std::stringstream output;

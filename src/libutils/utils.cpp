@@ -327,7 +327,7 @@ downloadWithFallback(std::string url, const std::string &hash,
   return std::nullopt;
 }
 
-std::string readFile(std::filesystem::path &path) {
+std::string readFile(const std::filesystem::path &path) {
   std::ifstream file(path.c_str());
   auto fileSize = std::filesystem::file_size(path);
   std::string fileContent;

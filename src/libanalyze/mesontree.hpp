@@ -60,7 +60,7 @@ public:
     this->metadata.clear();
   }
 
-  std::shared_ptr<Node> parseFile(std::filesystem::path path);
+  std::shared_ptr<Node> parseFile(const std::filesystem::path &path);
 
   std::vector<const MesonTree *> flatten() const {
     std::vector<const MesonTree *> ret;
@@ -73,7 +73,8 @@ public:
   }
 
 private:
-  OptionState parseFile(std::filesystem::path path, MesonMetadata *metadata);
-  OptionState parseOptions(std::filesystem::path &root,
+  OptionState parseFile(const std::filesystem::path &path,
+                        MesonMetadata *metadata);
+  OptionState parseOptions(const std::filesystem::path &root,
                            MesonMetadata *metadata);
 };
