@@ -22,13 +22,13 @@ extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 static Logger LOG("analyze::mesontree"); // NOLINT
 
-OptionState MesonTree::parseFile(std::filesystem::path path,
+OptionState MesonTree::parseFile(const std::filesystem::path &path,
                                  MesonMetadata *metadata) {
   auto visitor = OptionExtractor();
   auto diagnosticVisitor = OptionDiagnosticVisitor(metadata);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
-  auto fileContent =
+  const auto &fileContent =
       this->overrides.contains(path) ? this->overrides[path] : readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
@@ -45,7 +45,7 @@ OptionState MesonTree::parseFile(std::filesystem::path path,
   return optionState;
 }
 
-OptionState MesonTree::parseOptions(std::filesystem::path &root,
+OptionState MesonTree::parseOptions(const std::filesystem::path &root,
                                     MesonMetadata *metadata) {
   auto modernOptionsFile = root / "meson.options";
   if (std::filesystem::exists(modernOptionsFile) &&
@@ -62,7 +62,7 @@ OptionState MesonTree::parseOptions(std::filesystem::path &root,
   return {};
 }
 
-std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
+std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   if (this->overrides.contains(path)) {
@@ -82,7 +82,7 @@ std::shared_ptr<Node> MesonTree::parseFile(std::filesystem::path path) {
     ts_parser_delete(parser);
     return this->asts[root->file->file].back();
   }
-  auto fileContent = readFile(path);
+  const auto &fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         fileContent.length());
   const TSNode rootNode = ts_tree_root_node(tree);

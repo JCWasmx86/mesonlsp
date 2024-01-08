@@ -47,7 +47,7 @@ void OptionDiagnosticVisitor::visitDictionaryLiteral(DictionaryLiteral *node) {
 }
 
 void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
-  auto contents = sl->id;
+  const auto &contents = sl->id;
   if (this->options.contains(contents)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Error, sl, "Duplicate option: " + contents));
@@ -86,7 +86,7 @@ OptionDiagnosticVisitor::parseString(const Node *node) const {
   if (!asSL) {
     return std::nullopt;
   }
-  auto value = asSL->id;
+  const auto &value = asSL->id;
   if (value.empty()) {
     return std::nullopt;
   }
@@ -205,7 +205,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
           Diagnostic(Severity::Error, choice.get(), "Expected string literal"));
       continue;
     }
-    auto content = asLiteral->id;
+    const auto &content = asLiteral->id;
     if (foundChoices.contains(content)) {
       this->metadata->registerDiagnostic(
           choice.get(), Diagnostic(Severity::Warning, choice.get(),
@@ -247,7 +247,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
           Diagnostic(Severity::Error, node.get(), "Expected string literal"));
       continue;
     }
-    auto content = asStr->id;
+    const auto &content = asStr->id;
     if (!ret->contains(content)) {
       ret->insert(content);
       continue;
@@ -412,7 +412,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
                    "Expected option type to be a string literal"));
     return;
   }
-  auto optionType = optionTypeSL->id;
+  const auto &optionType = optionTypeSL->id;
   if (optionType != "string" && optionType != "integer" &&
       optionType != "boolean" && optionType != "combo" &&
       optionType != "array" && optionType != "feature") {

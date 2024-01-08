@@ -138,8 +138,8 @@ public:
 
   void registerSubdirCall(FunctionExpression *node,
                           const std::set<std::string> &subdirs) {
-    auto key = std::format("{}-{}", node->file->file.generic_string(),
-                           node->location->format());
+    const auto &key = std::format("{}-{}", node->file->file.generic_string(),
+                                  node->location->format());
     this->subdirCalls[key] = subdirs;
   }
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)

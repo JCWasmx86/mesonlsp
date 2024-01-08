@@ -97,7 +97,7 @@ int parseWraps(const std::vector<std::string> &wraps, const std::string &output,
 }
 
 void printDiagnostics(const MesonTree &tree) {
-  auto projects = tree.flatten();
+  const auto &projects = tree.flatten();
   for (const auto &proj : projects) {
     const auto &metadata = proj->metadata;
     if (metadata.diagnostics.empty()) {
@@ -106,13 +106,13 @@ void printDiagnostics(const MesonTree &tree) {
     std::cerr << "Diagnostics for project " << proj->identifier << " ("
               << std::filesystem::absolute(proj->root).generic_string() << ")"
               << std::endl;
-    auto keyview = std::views::keys(metadata.diagnostics);
+    const auto &keyview = std::views::keys(metadata.diagnostics);
     std::vector<std::filesystem::path> keys{keyview.begin(), keyview.end()};
     std::sort(keys.begin(), keys.end());
     for (const auto &file : keys) {
-      auto relative =
+      const auto &relative =
           std::filesystem::relative(file, proj->root).generic_string();
-      auto diags = proj->metadata.diagnostics.at(file);
+      const auto &diags = proj->metadata.diagnostics.at(file);
       for (const auto &diag : diags) {
         const auto *icon = diag.severity == Severity::Error ? "🔴" : "⚠️";
         std::cerr << relative << "[" << diag.startLine + 1 << ":"

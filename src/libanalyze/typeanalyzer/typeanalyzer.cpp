@@ -830,7 +830,7 @@ void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) const {
     if (!keyNode) {
       continue;
     }
-    auto keyName = keyNode->id;
+    const auto &keyName = keyNode->id;
     if (!seenKeys.contains(keyName)) {
       seenKeys.insert(keyName);
       continue;
@@ -1375,8 +1375,9 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     LOG.info(msg);
   }
   this->metadata->registerSubdirCall(node, asSet);
+  const auto &parentPath = node->file->file.parent_path();
   for (const auto &dir : asSet) {
-    const auto &dirpath = node->file->file.parent_path() / dir;
+    const auto &dirpath = parentPath / dir;
     if (!std::filesystem::exists(dirpath)) {
       if (asSet.size() == 1) {
         this->metadata->registerDiagnostic(
@@ -2150,7 +2151,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
 
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
-  node->types.push_back(this->ns.strType);
+  node->types.emplace_back(this->ns.strType);
   this->metadata->registerStringLiteral(node);
   const auto &str = node->id;
   const auto &matches = extractTextBetweenAtSymbols(str);

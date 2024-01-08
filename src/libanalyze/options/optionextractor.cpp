@@ -62,7 +62,7 @@ void OptionExtractor::visitFunctionExpression(FunctionExpression *node) {
   if (nameNode == nullptr) {
     return;
   }
-  auto optionName = nameNode->id;
+  const auto &optionName = nameNode->id;
   auto typeKwarg = al->getKwarg("type");
   if (!typeKwarg.has_value()) {
     return;
@@ -71,7 +71,7 @@ void OptionExtractor::visitFunctionExpression(FunctionExpression *node) {
   if (typeKwargAsStr == nullptr) {
     return;
   }
-  auto optionType = typeKwargAsStr->id;
+  const auto &optionType = typeKwargAsStr->id;
   LOG.info(
       std::format("Found option {} with type '{}'", optionName, optionType));
   std::optional<std::string> description = std::nullopt;

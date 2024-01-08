@@ -19,7 +19,7 @@ public:
     }
   }
 
-  std::shared_ptr<MesonOption> findOption(std::string &name) const {
+  std::shared_ptr<MesonOption> findOption(const std::string &name) const {
     for (const auto &option : this->options) {
       if (option->name == name) {
         return option;
