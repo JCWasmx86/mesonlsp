@@ -39,21 +39,20 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   auto root = makeNode(sourceFile, rootNode);
   root->visit(&visitor);
   root->visit(&diagnosticVisitor);
-  auto optionState = OptionState(visitor.options);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
-  return optionState;
+  return {visitor.options};
 }
 
 OptionState MesonTree::parseOptions(const std::filesystem::path &root,
                                     MesonMetadata *metadata) {
-  auto modernOptionsFile = root / "meson.options";
+  const auto &modernOptionsFile = root / "meson.options";
   if (std::filesystem::exists(modernOptionsFile) &&
       std::filesystem::is_regular_file(modernOptionsFile)) {
     this->ownedFiles.insert(modernOptionsFile);
     return this->parseFile(modernOptionsFile, metadata);
   }
-  auto legacyOptionsFile = root / "meson_options.txt";
+  const auto &legacyOptionsFile = root / "meson_options.txt";
   if (std::filesystem::exists(legacyOptionsFile) &&
       std::filesystem::is_regular_file(legacyOptionsFile)) {
     this->ownedFiles.insert(legacyOptionsFile);
@@ -66,7 +65,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   if (this->overrides.contains(path)) {
-    auto fileContent = this->overrides[path];
+    const auto &fileContent = this->overrides[path];
     TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                           fileContent.length());
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
@@ -106,7 +105,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   auto options = parseOptions(this->root, &this->metadata);
   // Then fetch diagnostics for the options
   // Then parse the root meson.build file
-  auto rootFile = this->root / "meson.build";
+  const auto &rootFile = this->root / "meson.build";
   if (!std::filesystem::exists(rootFile)) {
     LOG.warn(std::format("No meson.build file in {}", this->root.c_str()));
     return;
