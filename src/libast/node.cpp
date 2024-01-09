@@ -413,22 +413,21 @@ void UnaryExpression::visitChildren(CodeVisitor *visitor) {
 }
 
 std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
-  std::string const extractedValue;
   size_t startPos = std::string::npos;
   size_t endPos = std::string::npos;
 
   // Check if it's a multi-line format string (f''' ... ''')
-  if (mesonString.size() >= 7 && mesonString.substr(0, 4) == "f'''") {
+  if (mesonString.size() >= 7 && mesonString.starts_with("f'''")) {
     startPos = 4;
     endPos = mesonString.size() - 3;
   }
   // Check if it's a single-line format string (f' ... ')
-  else if (mesonString.size() >= 4 && mesonString.substr(0, 2) == "f'") {
+  else if (mesonString.size() >= 4 && mesonString.starts_with("f'")) {
     startPos = 2;
     endPos = mesonString.size() - 1;
   }
   // Check if it's a multi-line string (''' ... ''')
-  else if (mesonString.size() >= 6 && mesonString.substr(0, 3) == "'''") {
+  else if (mesonString.size() >= 6 && mesonString.starts_with("'''")) {
     startPos = 3;
     endPos = mesonString.size() - 3;
   }
