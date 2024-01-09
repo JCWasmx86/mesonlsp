@@ -30,15 +30,15 @@ ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node)
 }
 
 void ArgumentList::visitChildren(CodeVisitor *visitor) {
-  for (const auto &n : this->args) {
-    n->visit(visitor);
+  for (const auto &arg : this->args) {
+    arg->visit(visitor);
   }
 };
 
 void ArgumentList::setParents() {
-  for (const auto &n : this->args) {
-    n->parent = this;
-    n->setParents();
+  for (const auto &arg : this->args) {
+    arg->parent = this;
+    arg->setParents();
   }
 }
 
@@ -51,15 +51,15 @@ ArrayLiteral::ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node)
 }
 
 void ArrayLiteral::visitChildren(CodeVisitor *visitor) {
-  for (const auto &n : this->args) {
-    n->visit(visitor);
+  for (const auto &element : this->args) {
+    element->visit(visitor);
   }
 };
 
 void ArrayLiteral::setParents() {
-  for (const auto &n : this->args) {
-    n->parent = this;
-    n->setParents();
+  for (const auto &element : this->args) {
+    element->parent = this;
+    element->setParents();
   }
 }
 
@@ -78,15 +78,15 @@ BuildDefinition::BuildDefinition(const std::shared_ptr<SourceFile> &file,
 }
 
 void BuildDefinition::setParents() {
-  for (const auto &n : this->stmts) {
-    n->parent = this;
-    n->setParents();
+  for (const auto &stmt : this->stmts) {
+    stmt->parent = this;
+    stmt->setParents();
   }
 }
 
 void BuildDefinition::visitChildren(CodeVisitor *visitor) {
-  for (const auto &n : this->stmts) {
-    n->visit(visitor);
+  for (const auto &stmt : this->stmts) {
+    stmt->visit(visitor);
   }
 };
 
@@ -99,15 +99,15 @@ DictionaryLiteral::DictionaryLiteral(const std::shared_ptr<SourceFile> &file,
 }
 
 void DictionaryLiteral::setParents() {
-  for (const auto &n : this->values) {
-    n->parent = this;
-    n->setParents();
+  for (const auto &item : this->values) {
+    item->parent = this;
+    item->setParents();
   }
 }
 
 void DictionaryLiteral::visitChildren(CodeVisitor *visitor) {
-  for (const auto &n : this->values) {
-    n->visit(visitor);
+  for (const auto &item : this->values) {
+    item->visit(visitor);
   }
 };
 
@@ -275,8 +275,8 @@ IterationStatement::IterationStatement(const std::shared_ptr<SourceFile> &file,
 }
 
 void IterationStatement::visitChildren(CodeVisitor *visitor) {
-  for (const auto &id : this->ids) {
-    id->visit(visitor);
+  for (const auto &idExpr : this->ids) {
+    idExpr->visit(visitor);
   }
   this->expression->visit(visitor);
   for (const auto &stmt : this->stmts) {
@@ -285,9 +285,9 @@ void IterationStatement::visitChildren(CodeVisitor *visitor) {
 }
 
 void IterationStatement::setParents() {
-  for (const auto &id : this->ids) {
-    id->parent = this;
-    id->setParents();
+  for (const auto &idExpr : this->ids) {
+    idExpr->parent = this;
+    idExpr->setParents();
   }
   this->expression->parent = this;
   this->expression->setParents();
@@ -301,7 +301,7 @@ AssignmentStatement::AssignmentStatement(
     const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
-  auto opStr = file->extractNodeValue(ts_node_named_child(node, 1));
+  const auto &opStr = file->extractNodeValue(ts_node_named_child(node, 1));
   if (opStr == "=") {
     this->op = AssignmentOperator::Equals;
   } else if (opStr == "*=") {
@@ -337,7 +337,7 @@ BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   auto ncc = ts_node_named_child_count(node);
-  auto opStr = file->extractNodeValue(
+  const auto &opStr = file->extractNodeValue(
       (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1));
   if (opStr == "+") {
     this->op = BinaryOperator::Plus;
@@ -390,7 +390,7 @@ void BinaryExpression::visitChildren(CodeVisitor *visitor) {
 UnaryExpression::UnaryExpression(const std::shared_ptr<SourceFile> &file,
                                  TSNode node)
     : Node(file, node) {
-  auto opStr = file->extractNodeValue(ts_node_child(node, 0));
+  const auto &opStr = file->extractNodeValue(ts_node_child(node, 0));
   if (opStr == "not") {
     this->op = UnaryOperator::Not;
   } else if (opStr == "!") {
@@ -449,8 +449,8 @@ StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
     : Node(file, node) {
   this->isFormat =
       strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
-  auto id = file->extractNodeValue(node);
-  this->id = extractValueFromMesonStringLiteral(id);
+  const auto &fullValue = file->extractNodeValue(node);
+  this->id = extractValueFromMesonStringLiteral(fullValue);
 }
 
 void StringLiteral::setParents() {}
@@ -520,7 +520,7 @@ SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
   std::vector<std::vector<std::shared_ptr<Node>>> bb;
   while (idx < childCount) {
     auto c = ts_node_child(node, idx);
-    auto sv = file->extractNodeValue(c);
+    const auto &sv = file->extractNodeValue(c);
     const auto *nodeType = ts_node_type(c);
     if ((sv == "if" || strcmp(nodeType, "if") == 0) && !sI) {
       while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
@@ -560,9 +560,9 @@ void SelectionStatement::visitChildren(CodeVisitor *visitor) {
   for (const auto &condition : this->conditions) {
     condition->visit(visitor);
   }
-  for (const auto &b : this->blocks) {
-    for (const auto &bb : b) {
-      bb->visit(visitor);
+  for (const auto &block : this->blocks) {
+    for (const auto &stmt : block) {
+      stmt->visit(visitor);
     }
   }
 }
@@ -572,10 +572,10 @@ void SelectionStatement::setParents() {
     condition->parent = this;
     condition->setParents();
   }
-  for (const auto &b : this->blocks) {
-    for (const auto &bb : b) {
-      bb->parent = this;
-      bb->setParents();
+  for (const auto &block : this->blocks) {
+    for (const auto &stmt : block) {
+      stmt->parent = this;
+      stmt->setParents();
     }
   }
 }
@@ -778,7 +778,7 @@ std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
   std::string tempText = text;
 
   while (std::regex_search(tempText, match, FORMAT_STRING_REGEX)) {
-    std::string const matchedStr = match.str(1);
+    const std::string &matchedStr = match.str(1);
     size_t const startPos = match.position();
     size_t const endPos = startPos + matchedStr.length() +
                           2; // Including the surrounding @ symbols
@@ -790,7 +790,7 @@ std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
       continue;
     }
 
-    matches.push_back(matchedStr);
+    matches.emplace_back(matchedStr);
     tempText = match.suffix().str();
   }
 
@@ -804,7 +804,7 @@ std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text) {
   std::sregex_iterator const end;
 
   while (iter != end) {
-    std::string const match = iter->str(1);
+    const std::string &match = iter->str(1);
     integers.insert(std::stoull(match));
     ++iter;
   }

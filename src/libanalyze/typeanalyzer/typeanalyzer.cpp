@@ -856,27 +856,27 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
 
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                                         const std::shared_ptr<Function> &func) {
-  auto name = func->name;
+  const auto &name = func->name;
   if (name == "subproject") {
-    auto values = ::guessSetVariable(node, this->options);
+    const auto &values = ::guessSetVariable(node, this->options);
     if (values.empty()) {
       return;
     }
     std::set<std::string> asSet{values.begin(), values.end()};
-    values.clear();
-    values = {asSet.begin(), asSet.end()};
-    node->types = {std::make_shared<Subproject>(values)};
-    LOG.info("Values for `subproject` call: " + joinStrings(values, '|'));
-    if (!this->tree->state->used || values.size() > 1) {
+    node->types = {std::make_shared<Subproject>(
+        std::vector<std::string>{asSet.begin(), asSet.end()})};
+    LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
+    if (!this->tree->state->used || asSet.size() > 1) {
       return;
     }
     auto *subprojState = this->tree->state;
-    if (subprojState->hasSubproject(values[0])) {
+    if (subprojState->hasSubproject(*asSet.begin())) {
       return;
     }
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
-                         std::format("Unknown subproject `{}`", values[0])));
+        node,
+        Diagnostic(Severity::Error, node,
+                   std::format("Unknown subproject `{}`", *asSet.begin())));
     return;
   }
   if (name == "get_option") {
@@ -958,7 +958,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     const auto &values = ::guessSetVariable(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
-    for (const auto &modname : values) {
+    for (const auto &modname : asSet) {
       if (modname == "cmake") {
         types.emplace_back(this->ns.types.at("cmake_module"));
         continue;
@@ -1248,7 +1248,7 @@ void TypeAnalyzer::checkArgTypes(
   for (const auto &arg : args) {
     if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
       const auto &givenTypes = kwi->value->types;
-      auto kwargName = kwi->name.value();
+      const auto &kwargName = kwi->name.value();
       if (!func->kwargs.contains(kwargName)) {
         continue;
       }
@@ -2185,13 +2185,13 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
   for (const auto &type : node->outer->types) {
     auto *asDict = dynamic_cast<Dict *>(type.get());
     if (asDict != nullptr) {
-      auto dTypes = asDict->types;
+      const auto &dTypes = asDict->types;
       newTypes.insert(newTypes.begin(), dTypes.begin(), dTypes.end());
       continue;
     }
     auto *asList = dynamic_cast<List *>(type.get());
     if (asList != nullptr) {
-      auto lTypes = asList->types;
+      const auto &lTypes = asList->types;
       newTypes.insert(newTypes.begin(), lTypes.begin(), lTypes.end());
       continue;
     }
@@ -2294,25 +2294,22 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
     }
     auto *asDict = dynamic_cast<Dict *>(asRaw);
     if (asDict != nullptr) {
-      for (const auto &type : asDict->types) {
-        dicttypes.emplace_back(type);
-      }
+      dicttypes.insert(dicttypes.end(), asDict->types.begin(),
+                       asDict->types.end());
       gotDict = true;
       continue;
     }
     auto *asList = dynamic_cast<List *>(asRaw);
     if (asList != nullptr) {
-      for (const auto &type : asList->types) {
-        listtypes.emplace_back(type);
-      }
+      listtypes.insert(listtypes.end(), asList->types.begin(),
+                       asList->types.end());
       gotList = true;
       continue;
     }
     auto *asSubproject = dynamic_cast<Subproject *>(asRaw);
     if (asSubproject != nullptr) {
-      for (const auto &name : asSubproject->names) {
-        subprojectNames.insert(name);
-      }
+      subprojectNames.insert(asSubproject->names.begin(),
+                             asSubproject->names.end());
       gotSubproject = true;
       continue;
     }

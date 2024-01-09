@@ -9,7 +9,7 @@ const std::string &SourceFile::contents() {
   if (this->cached) {
     return this->cachedContents;
   }
-  auto path = std::filesystem::path(this->file);
+  const auto &path = std::filesystem::path(this->file);
   std::ifstream file(path);
   auto fileSize = std::filesystem::file_size(path);
   this->cachedContents.resize(fileSize, '\0');
