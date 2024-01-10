@@ -21,7 +21,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-c-cpp@v1
       - name: Run build-wrapper
         run: |
-          dnf install -y zip ninja-build gcc g++ git python3-pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel pkgconf-pkg-config
+          dnf install -y unzip zip ninja-build gcc g++ git python3-pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel pkgconf-pkg-config
           pip install meson
           dnf clean all
           meson _build
