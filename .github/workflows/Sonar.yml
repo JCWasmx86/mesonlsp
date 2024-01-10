@@ -17,13 +17,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@v1
-      - name: Run build-wrapper
+      - name: Install deps
         run: |
           dnf install -y unzip zip ninja-build gcc g++ git python3-pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel pkgconf-pkg-config
           pip install meson
           dnf clean all
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+      - name: Run build-wrapper
+        run: |
           meson _build
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} meson compile -C _build
       - name: Run sonar-scanner
