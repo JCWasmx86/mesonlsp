@@ -194,7 +194,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
   if (!choicesArray) {
     this->metadata->registerDiagnostic(
         choicesKwarg->get(), Diagnostic(Severity::Error, choicesKwarg->get(),
-                                        "Missing 'choices' kwarg"));
+                                        "Expected array of strings"));
     return;
   }
   for (const auto &choice : choicesArray->args) {
@@ -263,10 +263,16 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
                                                   ArgumentList *al) const {
   std::set<std::string> *choices = nullptr;
   extractArrayChoices(al, &choices);
+  if ((choices == nullptr) && !al->getKwarg("choices").has_value()) {
+    this->metadata->registerDiagnostic(
+        al->parent,
+        Diagnostic(Severity::Error, al->parent, "Missing 'choices' kwarg"));
+  }
   const auto *arrLit = dynamic_cast<ArrayLiteral *>(defaultValue);
   if (!arrLit) {
     this->metadata->registerDiagnostic(
-        arrLit, Diagnostic(Severity::Error, arrLit, "Expected array literal"));
+        defaultValue,
+        Diagnostic(Severity::Error, defaultValue, "Expected array literal"));
     goto end;
   }
   for (const auto &node : arrLit->args) {
