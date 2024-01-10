@@ -13,7 +13,7 @@
 
 int main(int argc, char **argv) {
   Logger logger("type-analyzer-tester");
-  std::filesystem::path toParse = argv[1];
+  std::filesystem::path const toParse = argv[1];
   std::map<std::string, std::string> haveToExist;
   std::optional<std::filesystem::path> optionsFile;
   for (int i = 2; i < argc; i += 2) {
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     }
     haveToExist[argv[i]] = argv[i + 1];
   }
-  std::filesystem::path parent(
+  std::filesystem::path const parent(
       std::format("/tmp/type-analyzer{}", std::chrono::system_clock::now()));
   std::filesystem::create_directories(parent);
   TypeNamespace const ns;

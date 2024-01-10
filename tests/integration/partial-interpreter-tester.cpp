@@ -11,7 +11,7 @@
 
 int main(int argc, char **argv) {
   Logger logger("partial-interpreter-tester");
-  std::filesystem::path toParse = argv[1];
+  std::filesystem::path const toParse = argv[1];
   std::vector<std::string> haveToExist;
   std::optional<std::filesystem::path> optionsFile;
   haveToExist.reserve(argc - 2);
@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
     }
     haveToExist.emplace_back(argv[i]);
   }
-  std::filesystem::path parent(std::format("/tmp/partial-interpreter{}",
-                                           std::chrono::system_clock::now()));
+  std::filesystem::path const parent(std::format(
+      "/tmp/partial-interpreter{}", std::chrono::system_clock::now()));
   std::filesystem::create_directories(parent);
   TypeNamespace const ns;
   std::error_code err;
