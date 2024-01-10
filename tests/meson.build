@@ -1,4 +1,5 @@
 subdir('liblog')
+subdir('libanalyze')
 subdir('libutils')
 subdir('libjsonrpc')
 subdir('libast')

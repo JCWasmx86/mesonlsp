@@ -37,6 +37,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
                         ? std::make_shared<MemorySourceFile>(fileContent, path)
                         : std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);
+  root->setParents();
   root->visit(&visitor);
   root->visit(&diagnosticVisitor);
   ts_tree_delete(tree);
