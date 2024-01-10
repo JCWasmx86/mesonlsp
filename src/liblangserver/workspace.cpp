@@ -371,7 +371,7 @@ void Workspace::patchFile(
     subTree->overrides[path] = contents;
 
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::unique_lock<std::mutex> lockTask(this->dataCollectionMtx);
+      std::unique_lock<std::mutex> const lockTask(this->dataCollectionMtx);
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
@@ -494,7 +494,7 @@ Workspace::parse(const TypeNamespace &ns) {
 std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
                       const LSPPosition &position) {
-  std::unique_lock<std::mutex> lock(dataCollectionMtx);
+  std::unique_lock<std::mutex> const lock(dataCollectionMtx);
 
   this->completing = true;
 

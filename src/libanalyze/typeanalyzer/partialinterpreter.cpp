@@ -685,8 +685,8 @@ void PartialInterpreter::addToArrayConcatenated(
     if (!asStr) {
       continue;
     }
-    auto full = literalFirst ? (contents + sep + asStr->id)
-                             : (asStr->id + sep + contents);
+    auto full = literalFirst ? std::format("{}{}{}", contents, sep, asStr->id)
+                             : std::format("{}{}{}", asStr->id, sep, contents);
     ret.emplace_back(std::make_shared<ArtificialStringNode>(full));
   }
 }
