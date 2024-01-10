@@ -144,7 +144,7 @@ TEST(TestOptionDiagnostics, testMinEqMax) {
 
 TEST(TestOptionDiagnostics, testDefaultLtMin) {
   auto metadata =
-      buildMetadata("option('testtt', type: 'integer', value: 1, min: 3)");
+      buildMetadata("option('testtt', type: 'integer', value: -1, min: 3)");
   ONLY_DIAGNOSTIC
   ASSERT_EQ("Default value is lower than the minimum value", diag.message);
 }
