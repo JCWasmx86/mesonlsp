@@ -594,8 +594,8 @@ void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
   if (!method) {
     return;
   }
-  auto mid = method->id();
-  auto arg = sl->id;
+  const auto &mid = method->id();
+  const auto &arg = sl->id;
   if (mid == "compiler.get_id" &&
       !this->analysisOptions.disableCompilerIdLinting &&
       !COMPILER_IDS.contains(arg)) {
@@ -719,7 +719,7 @@ bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
   if (!asFuncExpr) {
     return false;
   }
-  auto name = asFuncExpr->functionName();
+  const auto &name = asFuncExpr->functionName();
   return name == "error" || name == "subdir_done";
 }
 
@@ -775,7 +775,7 @@ void TypeAnalyzer::checkUnusedVariables() {
     }
     auto *rhs = dynamic_cast<FunctionExpression *>(ass->rhs.get());
     if (rhs) {
-      auto fnid = rhs->functionName();
+      const auto &fnid = rhs->functionName();
       if (fnid == "declare_dependency") {
         continue;
       }
@@ -1111,7 +1111,7 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
 void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                const std::vector<std::shared_ptr<Node>> &args,
                                Node *node) const {
-  std::map<std::string, KeywordItem *> usedKwargs;
+  std::set<std::string> usedKwargs;
   for (const auto &arg : args) {
     auto *kwi = dynamic_cast<KeywordItem *>(arg.get());
     if (!kwi) {
@@ -1121,7 +1121,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
     if (!kId) {
       continue;
     }
-    usedKwargs[kId->id] = kwi;
+    usedKwargs.insert(kId->id);
     if (func->kwargs.contains(kId->id)) {
       const auto &kwarg = func->kwargs[kId->id];
       if (kwarg->deprecationState.deprecated) {
@@ -1887,7 +1887,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   if (!methodNameId) {
     return;
   }
-  auto methodName = methodNameId->id;
+  const auto &methodName = methodNameId->id;
   auto nAny = 0;
   auto bits = 0;
   auto found = this->findMethod(node, methodName, &nAny, &bits, ownResultTypes);
@@ -1899,7 +1899,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   auto onlyDisabler = types.size() == 1 &&
                       (dynamic_cast<Disabler *>(types[0].get()) != nullptr);
   if (!found && !onlyDisabler) {
-    auto typeStr = joinTypes(types);
+    const auto &typeStr = joinTypes(types);
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::Error, node,
                          std::format("No method `{}` found for types `{}`",

@@ -260,12 +260,6 @@ TEST(TestOptionDiagnostics, testCorrectCombo) {
   NO_DIAGNOSTIC
 }
 
-TEST(TestOptionDiagnostics, testMissingChoices) {
-  auto metadata = buildMetadata("option('testtt', type: 'array', value: [])");
-  ONLY_DIAGNOSTIC
-  ASSERT_EQ("Missing 'choices' kwarg", diag.message);
-}
-
 TEST(TestOptionDiagnostics, testBadChoices) {
   auto metadata =
       buildMetadata("option('testtt', type: 'array', value: [], choices: 1)");

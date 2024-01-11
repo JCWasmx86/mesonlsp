@@ -263,11 +263,6 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
                                                   ArgumentList *al) const {
   std::set<std::string> *choices = nullptr;
   extractArrayChoices(al, &choices);
-  if ((choices == nullptr) && !al->getKwarg("choices").has_value()) {
-    this->metadata->registerDiagnostic(
-        al->parent,
-        Diagnostic(Severity::Error, al->parent, "Missing 'choices' kwarg"));
-  }
   const auto *arrLit = dynamic_cast<ArrayLiteral *>(defaultValue);
   if (!arrLit) {
     this->metadata->registerDiagnostic(

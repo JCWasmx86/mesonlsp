@@ -22,17 +22,18 @@ Logger LOG("analyze::subprojectstate"); // NOLINT
 static std::string normalizeURLToFilePath(const std::string &url);
 
 void SubprojectState::findSubprojects(bool downloadSubprojects) {
-  auto subprojectsDir = std::filesystem::absolute(this->root) / "subprojects";
+  const auto &subprojectsDir =
+      std::filesystem::absolute(this->root) / "subprojects";
   if (!std::filesystem::exists(subprojectsDir) ||
       !std::filesystem::is_directory(subprojectsDir)) {
     return;
   }
-  auto extractionDir = cacheDir() / "wrapsWorkspace";
+  const auto &extractionDir = cacheDir() / "wrapsWorkspace";
   std::filesystem::create_directories(extractionDir);
-  auto packageFiles = subprojectsDir / "packagefiles";
+  const auto &packageFiles = subprojectsDir / "packagefiles";
   for (const auto &entry :
        std::filesystem::directory_iterator(subprojectsDir)) {
-    auto child = std::filesystem::absolute(entry.path());
+    const auto &child = std::filesystem::absolute(entry.path());
     auto matchesWrap =
         std::filesystem::is_regular_file(child) && child.extension() == ".wrap";
     if (!matchesWrap) {
@@ -43,13 +44,13 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
       LOG.info("Skipping redirect wrap: " + child.generic_string());
       continue;
     }
-    auto identifier = identifierOpt.value();
+    const auto &identifier = identifierOpt.value();
     LOG.info(std::format("{}: Identifier is: {}", child.filename().c_str(),
                          identifier));
-    auto wrapBaseDir = extractionDir / child.filename() / identifier;
+    const auto &wrapBaseDir = extractionDir / child.filename() / identifier;
     LOG.info(std::format("Extracting wrap to {}", wrapBaseDir.c_str()));
-    auto checkFile = wrapBaseDir / ".fullysetup";
-    auto subprojectName = child.stem().string();
+    const auto &checkFile = wrapBaseDir / ".fullysetup";
+    const auto &subprojectName = child.stem().string();
     if (std::filesystem::exists(checkFile)) {
       LOG.info("Wrap is already setup!");
       this->subprojects.emplace_back(std::make_shared<CachedSubproject>(
@@ -74,11 +75,11 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
   }
   for (const auto &entry :
        std::filesystem::directory_iterator(subprojectsDir)) {
-    auto child = std::filesystem::absolute(entry.path());
+    const auto &child = std::filesystem::absolute(entry.path());
     if (!std::filesystem::is_directory(child)) {
       continue;
     }
-    auto filename = child.filename();
+    const auto &filename = child.filename();
     if (filename == "packagefiles" || filename == "packagecache" ||
         std::filesystem::exists(child / ".meson-subproject-wrap-hash.txt")) {
       continue;
