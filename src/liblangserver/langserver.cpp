@@ -20,8 +20,6 @@
 #include <optional>
 #include <ostream>
 #include <pkgconf/libpkgconf/libpkgconf.h>
-#include <stdio.h>
-#include <string.h>
 #include <string>
 #include <vector>
 extern "C" {
@@ -34,14 +32,15 @@ extern "C" {
 static Logger LOG("LanguageServer"); // NOLINT
 
 std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
-  auto name =
+  const auto &name =
       std::format("muon-fmt-{}-{}", options.insertSpaces, options.tabSize);
-  auto fullPath = cacheDir() / name;
+  const auto &fullPath = cacheDir() / name;
   if (std::filesystem::exists(fullPath)) {
     return fullPath;
   }
-  auto indent = options.insertSpaces ? std::string(options.tabSize, ' ') : "\t";
-  auto contents = std::format("indent_by = '{}'\n", indent);
+  const auto &indent =
+      options.insertSpaces ? std::string(options.tabSize, ' ') : "\t";
+  const auto &contents = std::format("indent_by = '{}'\n", indent);
   std::ofstream fileStream(fullPath);
   assert(fileStream.is_open());
   fileStream << contents << std::endl;
@@ -93,10 +92,10 @@ void LanguageServer::onDidChangeConfiguration(
     DidChangeConfigurationParams &params) {
   this->options.update(params.settings);
   for (auto &workspace : this->workspaces) {
-    auto oldDiags = workspace->clearDiagnostics();
+    const auto &oldDiags = workspace->clearDiagnostics();
     workspace->options = this->options;
     this->publishDiagnostics(oldDiags);
-    auto diags = workspace->parse(this->ns);
+    const auto &diags = workspace->parse(this->ns);
     this->publishDiagnostics(diags);
   }
 }
@@ -109,7 +108,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
 
   for (const auto &wspf : params.workspaceFolders) {
     auto workspace = std::make_shared<Workspace>(wspf, this->options);
-    auto diags = workspace->parse(this->ns);
+    const auto &diags = workspace->parse(this->ns);
     this->diagnosticsFromInitialisation.emplace_back(diags);
     this->workspaces.push_back(workspace);
   }
@@ -140,7 +139,7 @@ void LanguageServer::onDidOpenTextDocument(DidOpenTextDocumentParams &params) {}
 
 void LanguageServer::onDidChangeTextDocument(
     DidChangeTextDocumentParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   this->cachedContents[path] = params.contentChanges[0].text;
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
@@ -160,7 +159,7 @@ std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
   if (this->options.disableInlayHints) {
     return {};
   }
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->inlayHints(path);
@@ -171,7 +170,7 @@ std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
 
 std::vector<SymbolInformation>
 LanguageServer::documentSymbols(DocumentSymbolParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->documentSymbols(path);
@@ -181,10 +180,10 @@ LanguageServer::documentSymbols(DocumentSymbolParams &params) {
 }
 
 TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
-  auto toFormat = this->cachedContents.contains(path)
-                      ? this->cachedContents[path]
-                      : readFile(path);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
+  const auto &toFormat = this->cachedContents.contains(path)
+                             ? this->cachedContents[path]
+                             : readFile(path);
   std::filesystem::path configFile;
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
@@ -229,7 +228,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
 
 std::vector<uint64_t>
 LanguageServer::semanticTokens(SemanticTokensParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->semanticTokens(path);
@@ -240,7 +239,7 @@ LanguageServer::semanticTokens(SemanticTokensParams &params) {
 
 std::vector<DocumentHighlight>
 LanguageServer::highlight(DocumentHighlightParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->highlight(path, params.position);
@@ -250,7 +249,7 @@ LanguageServer::highlight(DocumentHighlightParams &params) {
 }
 
 std::optional<WorkspaceEdit> LanguageServer::rename(RenameParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->rename(path, params);
@@ -261,7 +260,7 @@ std::optional<WorkspaceEdit> LanguageServer::rename(RenameParams &params) {
 
 std::vector<LSPLocation>
 LanguageServer::declaration(DeclarationParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->jumpTo(path, params.position);
@@ -271,7 +270,7 @@ LanguageServer::declaration(DeclarationParams &params) {
 }
 
 std::vector<LSPLocation> LanguageServer::definition(DefinitionParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->jumpTo(path, params.position);
@@ -281,7 +280,7 @@ std::vector<LSPLocation> LanguageServer::definition(DefinitionParams &params) {
 }
 
 std::vector<CodeAction> LanguageServer::codeAction(CodeActionParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->codeAction(path, params.range);
@@ -292,7 +291,7 @@ std::vector<CodeAction> LanguageServer::codeAction(CodeActionParams &params) {
 
 std::vector<FoldingRange>
 LanguageServer::foldingRanges(FoldingRangeParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->foldingRanges(path);
@@ -302,7 +301,7 @@ LanguageServer::foldingRanges(FoldingRangeParams &params) {
 }
 
 std::optional<Hover> LanguageServer::hover(HoverParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->hover(path, params.position);
@@ -315,9 +314,9 @@ void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}
 
 void LanguageServer::onDidCloseTextDocument(
     DidCloseTextDocumentParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   if (this->cachedContents.contains(path)) {
-    auto iter = this->cachedContents.find(path);
+    const auto &iter = this->cachedContents.find(path);
     this->cachedContents.erase(iter);
   }
   for (auto &workspace : this->workspaces) {
@@ -330,7 +329,7 @@ void LanguageServer::onDidCloseTextDocument(
 
 std::vector<CompletionItem>
 LanguageServer::completion(CompletionParams &params) {
-  auto path = extractPathFromUrl(params.textDocument.uri);
+  const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
       return workspace->completion(path, params.position);
@@ -343,11 +342,11 @@ void LanguageServer::publishDiagnostics(
     const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
         &newDiags) {
   for (const auto &pair : newDiags) {
-    auto asURI = pathToUrl(pair.first);
-    auto clearingParams = PublishDiagnosticsParams(asURI, {});
+    const auto &asURI = pathToUrl(pair.first);
+    const auto &clearingParams = PublishDiagnosticsParams(asURI, {});
     this->server->notification("textDocument/publishDiagnostics",
                                clearingParams.toJson());
-    auto newParams = PublishDiagnosticsParams(asURI, pair.second);
+    const auto &newParams = PublishDiagnosticsParams(asURI, pair.second);
     this->server->notification("textDocument/publishDiagnostics",
                                newParams.toJson());
     LOG.info(std::format("Publishing {} diagnostics for {}", pair.second.size(),
