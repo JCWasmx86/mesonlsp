@@ -74,12 +74,12 @@ enum Severity {
 
 class Diagnostic {
 public:
+  std::string message;
   Severity severity;
   uint32_t startLine;
   uint32_t endLine;
   uint32_t startColumn;
   uint32_t endColumn;
-  std::string message;
   bool deprecated;
   bool unnecessary;
 
