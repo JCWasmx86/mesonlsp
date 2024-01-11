@@ -1257,7 +1257,7 @@ PartialInterpreter::abstractEval(Node *parentStmt, Node *toEval) {
     }
     auto *meObj = dynamic_cast<IdExpression *>(me->obj.get());
     auto *al = dynamic_cast<ArgumentList *>(me->args.get());
-    if (!al || al->args.empty()) {
+    if (!al || al->args.empty() || !meObj) {
       goto next;
     }
     return this->abstractEvalGetMethodCall(me, meObj, al, parentStmt);

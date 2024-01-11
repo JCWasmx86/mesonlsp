@@ -234,11 +234,18 @@ int main(int argc, char **argv) {
   }
   TypeNamespace const ns;
   AnalysisOptions const opts(false, false, false, false, false, false, false);
+  const auto count =
+      getenv("INTERNAL_SINGLE_PARSE") /*NOLINT(concurrency-mt-unsafe)*/ ? 1
+                                                                        : 100;
   for (const auto &toParse : paths) {
-    auto parent = std::filesystem::absolute(toParse).parent_path();
-    for (int i = 0; i < 100; i++) {
+    const auto &parent = std::filesystem::absolute(toParse).parent_path();
+    for (int i = 0; i < count; i++) {
       MesonTree tree(parent, ns);
-      tree.partialParse(opts);
+      if (full) {
+        tree.fullParse(opts, true);
+      } else {
+        tree.partialParse(opts);
+      }
     }
   }
   return 0;
