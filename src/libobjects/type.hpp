@@ -34,7 +34,7 @@ public:
   const std::string name;
   std::string docs;
 
-  virtual std::string toString() { return this->name; }
+  virtual const std::string &toString() { return this->name; }
 
   virtual ~Type() = default;
 
@@ -64,7 +64,7 @@ public:
   Dict(const std::vector<std::shared_ptr<Type>> &types)
       : Type("dict"), types(types) {}
 
-  std::string toString() override {
+  const std::string &toString() override {
     if (this->cached) {
       return this->cache;
     }
@@ -92,7 +92,7 @@ public:
   List(const std::vector<std::shared_ptr<Type>> &types)
       : Type("list"), types(types) {}
 
-  std::string toString() override {
+  const std::string &toString() override {
     if (this->cached) {
       return this->cache;
     }
@@ -130,7 +130,7 @@ public:
     this->cache = "subproject(" + cache + ")";
   }
 
-  std::string toString() override { return this->cache; }
+  const std::string &toString() override { return this->cache; }
 
 private:
   std::string cache;

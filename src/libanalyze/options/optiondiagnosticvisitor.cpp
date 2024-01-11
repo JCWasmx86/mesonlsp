@@ -3,6 +3,7 @@
 #include "log.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "optionstate.hpp"
 
 #include <cctype>
 #include <cstdint>
@@ -11,6 +12,7 @@
 #include <string>
 
 static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
+static OptionState STATE;                     // NOLINT
 
 void OptionDiagnosticVisitor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
@@ -52,7 +54,7 @@ void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Error, sl, "Duplicate option: " + contents));
   }
-  if (this->state.findOption(contents)) {
+  if (STATE.findOption(contents)) {
     this->metadata->registerDiagnostic(
         sl, Diagnostic(Severity::Error, sl,
                        "Declaration of reserved option: " + contents));

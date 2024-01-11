@@ -66,8 +66,8 @@ public:
 
 class GitWrap : public VcsWrap {
 public:
-  int depth = 0;
   std::optional<std::string> pushUrl;
+  int depth = 0;
   bool cloneRecursive = false;
 
   GitWrap(ast::ini::Section *node);

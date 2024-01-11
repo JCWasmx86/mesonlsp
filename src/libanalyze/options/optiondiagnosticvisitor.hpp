@@ -2,7 +2,6 @@
 
 #include "mesonmetadata.hpp"
 #include "node.hpp"
-#include "optionstate.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -40,7 +39,6 @@ public:
 
 private:
   std::set<std::string> options;
-  OptionState state;
   void checkName(StringLiteral *sl);
   void validateStringOption(Node *defaultValue) const;
   void validateIntegerOption(ArgumentList *al, Node *defaultValue);
