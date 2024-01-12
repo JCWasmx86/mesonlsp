@@ -19,6 +19,130 @@
 static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
 static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
 
+// NOLINTBEGIN
+enum {
+  anon_sym_if = 1,
+  anon_sym_elif = 2,
+  anon_sym_else = 3,
+  anon_sym_endif = 4,
+  anon_sym_foreach = 5,
+  anon_sym_COLON = 6,
+  anon_sym_endforeach = 7,
+  anon_sym_EQ = 8,
+  anon_sym_STAR_EQ = 9,
+  anon_sym_SLASH_EQ = 10,
+  anon_sym_PERCENT_EQ = 11,
+  anon_sym_PLUS_EQ = 12,
+  anon_sym_DASH_EQ = 13,
+  anon_sym_break = 14,
+  anon_sym_continue = 15,
+  anon_sym_LPAREN = 16,
+  anon_sym_RPAREN = 17,
+  anon_sym_COMMA = 18,
+  anon_sym_DOT = 19,
+  anon_sym_LBRACK = 20,
+  anon_sym_RBRACK = 21,
+  anon_sym_not = 22,
+  anon_sym_BANG = 23,
+  anon_sym_DASH = 24,
+  anon_sym_and = 25,
+  anon_sym_or = 26,
+  anon_sym_PLUS = 27,
+  anon_sym_STAR = 28,
+  anon_sym_SLASH = 29,
+  anon_sym_PERCENT = 30,
+  anon_sym_EQ_EQ = 31,
+  anon_sym_BANG_EQ = 32,
+  anon_sym_GT = 33,
+  anon_sym_LT = 34,
+  anon_sym_GT_EQ = 35,
+  anon_sym_LT_EQ = 36,
+  anon_sym_in = 37,
+  anon_sym_QMARK = 38,
+  sym__DECIMAL_NUMBER = 39,
+  anon_sym_0o = 40,
+  anon_sym_0O = 41,
+  sym__OCTAL_NUMBER = 42,
+  anon_sym_0x = 43,
+  anon_sym_0X = 44,
+  sym__HEX_NUMBER = 45,
+  anon_sym_0b = 46,
+  anon_sym_0B = 47,
+  sym__BINARY_NUMBER = 48,
+  sym_escape_sequence = 49,
+  anon_sym_SQUOTE = 50,
+  aux_sym_string_simple_token1 = 51,
+  anon_sym_f_SQUOTE = 52,
+  anon_sym_f_SQUOTE_SQUOTE_SQUOTE = 53,
+  aux_sym_string_format_multiline_token1 = 54,
+  anon_sym_SQUOTE_SQUOTE = 55,
+  anon_sym_SQUOTE_SQUOTE_SQUOTE = 56,
+  anon_sym_true = 57,
+  anon_sym_false = 58,
+  anon_sym_LF = 59,
+  anon_sym_CR_LF = 60,
+  anon_sym_LBRACE = 61,
+  anon_sym_RBRACE = 62,
+  sym__IDENTIFIER = 63,
+  sym__comment = 64,
+  sym_source_file = 65,
+  sym_build_definition = 66,
+  sym_statement = 67,
+  sym__statement_without = 68,
+  sym_selection_statement = 69,
+  sym_iteration_statement = 70,
+  sym_assignment_statement = 71,
+  sym_assignment_operator = 72,
+  sym_jump_statement = 73,
+  sym_condition = 74,
+  sym_expression = 75,
+  sym_function_expression = 76,
+  sym_argument_list = 77,
+  sym_keyword_item = 78,
+  sym_key_value_item = 79,
+  sym_method_expression = 80,
+  sym_subscript_expression = 81,
+  sym_unary_expression = 82,
+  sym_binary_expression = 83,
+  sym_add_operator = 84,
+  sym_mult_operator = 85,
+  sym_equ_operator = 86,
+  sym_rel_operator = 87,
+  sym_conditional_expression = 88,
+  sym__literal = 89,
+  sym_integer_literal = 90,
+  sym__decimal_literal = 91,
+  sym__octal_literal = 92,
+  sym__hex_literal = 93,
+  sym__binary_literal = 94,
+  sym_string_literal = 95,
+  sym_string_simple = 96,
+  sym_string_format = 97,
+  sym_string_format_simple = 98,
+  sym_string_format_multiline = 99,
+  sym_string_multiline = 100,
+  sym_boolean_literal = 101,
+  sym_array_literal = 102,
+  sym__NEWLINE = 103,
+  sym_dictionary_literal = 104,
+  sym_identifier_list = 105,
+  sym_primary_expression = 106,
+  sym_function_id = 107,
+  sym_keyword_arg_key = 108,
+  sym_id_expression = 109,
+  aux_sym_build_definition_repeat1 = 110,
+  aux_sym_selection_statement_repeat1 = 111,
+  aux_sym_selection_statement_repeat2 = 112,
+  aux_sym_argument_list_repeat1 = 113,
+  aux_sym_key_value_list_repeat1 = 114,
+  aux_sym_string_simple_repeat1 = 115,
+  aux_sym_string_format_multiline_repeat1 = 116,
+  aux_sym_array_literal_repeat1 = 117,
+  aux_sym_identifier_list_repeat1 = 118,
+};
+
+// NOLINTEND
+
 Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
     : file(std::move(file)), location(new Location(node)) {}
 
@@ -671,94 +795,89 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
                                TSNode node) {
   const auto *nodeType = ts_node_type(node);
-  if (strcmp(nodeType, "argument_list") == 0) {
+  auto symbol = ts_node_symbol(node);
+  if (symbol == sym_argument_list) {
     return std::make_shared<ArgumentList>(file, node);
   }
-  if (strcmp(nodeType, "array_literal") == 0) {
+  if (symbol == sym_array_literal) {
     return std::make_shared<ArrayLiteral>(file, node);
   }
-  if (strcmp(nodeType, "assignment_statement") == 0) {
+  if (symbol == sym_assignment_statement) {
     return std::make_shared<AssignmentStatement>(file, node);
   }
-  if (strcmp(nodeType, "binary_expression") == 0) {
+  if (symbol == sym_binary_expression) {
     return std::make_shared<BinaryExpression>(file, node);
   }
-  if (strcmp(nodeType, "boolean_literal") == 0) {
+  if (symbol == sym_boolean_literal) {
     return std::make_shared<BooleanLiteral>(file, node);
   }
-  if (strcmp(nodeType, "build_definition") == 0) {
+  if (symbol == sym_build_definition) {
     return std::make_shared<BuildDefinition>(file, node);
   }
-  if (strcmp(nodeType, "dictionary_literal") == 0) {
+  if (symbol == sym_dictionary_literal) {
     return std::make_shared<DictionaryLiteral>(file, node);
   }
-  if (strcmp(nodeType, "function_expression") == 0) {
+  if (symbol == sym_function_expression) {
     return std::make_shared<FunctionExpression>(file, node);
   }
-  if (strcmp(nodeType, "id_expression") == 0 ||
-      strcmp(nodeType, "function_id") == 0 ||
-      strcmp(nodeType, "keyword_arg_key") == 0) {
+  if (symbol == sym_id_expression || symbol == sym_function_id ||
+      symbol == sym_keyword_arg_key) {
     return std::make_shared<IdExpression>(file, node);
   }
-  if (strcmp(nodeType, "integer_literal") == 0) {
+  if (symbol == sym_integer_literal) {
     return std::make_shared<IntegerLiteral>(file, node);
   }
-  if (strcmp(nodeType, "iteration_statement") == 0) {
+  if (symbol == sym_iteration_statement) {
     return std::make_shared<IterationStatement>(file, node);
   }
-  if (strcmp(nodeType, "key_value_item") == 0) {
+  if (symbol == sym_key_value_item) {
     return std::make_shared<KeyValueItem>(file, node);
   }
-  if (strcmp(nodeType, "keyword_item") == 0) {
+  if (symbol == sym_keyword_item) {
     return std::make_shared<KeywordItem>(file, node);
   }
-  if (strcmp(nodeType, "method_expression") == 0) {
+  if (symbol == sym_method_expression) {
     return std::make_shared<MethodExpression>(file, node);
   }
-  if (strcmp(nodeType, "selection_statement") == 0) {
+  if (symbol == sym_selection_statement) {
     return std::make_shared<SelectionStatement>(file, node);
   }
-  if (strcmp(nodeType, "string_literal") == 0) {
+  if (symbol == sym_string_literal) {
     return std::make_shared<StringLiteral>(file, node);
   }
-  if (strcmp(nodeType, "subscript_expression") == 0) {
+  if (symbol == sym_subscript_expression) {
     return std::make_shared<SubscriptExpression>(file, node);
   }
-  if (strcmp(nodeType, "unary_expression") == 0) {
+  if (symbol == sym_unary_expression) {
     return std::make_shared<UnaryExpression>(file, node);
   }
-  if (strcmp(nodeType, "conditional_expression") == 0) {
+  if (symbol == sym_conditional_expression) {
     return std::make_shared<ConditionalExpression>(file, node);
   }
-  if (strcmp(nodeType, "source_file") == 0) {
+  if (symbol == sym_source_file) {
     return std::make_shared<BuildDefinition>(file,
                                              ts_node_named_child(node, 0));
   }
-  if (strcmp(nodeType, "statement") == 0 &&
+  if (symbol == sym_statement && ts_node_named_child_count(node) == 1) {
+    return makeNode(file, ts_node_named_child(node, 0));
+  }
+  if (symbol == sym_expression && ts_node_named_child_count(node) == 1) {
+    return makeNode(file, ts_node_named_child(node, 0));
+  }
+  if (symbol == sym_condition && ts_node_named_child_count(node) == 1) {
+    return makeNode(file, ts_node_named_child(node, 0));
+  }
+  if (symbol == sym_primary_expression &&
       ts_node_named_child_count(node) == 1) {
     return makeNode(file, ts_node_named_child(node, 0));
   }
-  if (strcmp(nodeType, "expression") == 0 &&
-      ts_node_named_child_count(node) == 1) {
+  if (symbol == sym_statement && ts_node_named_child_count(node) == 1) {
     return makeNode(file, ts_node_named_child(node, 0));
   }
-  if (strcmp(nodeType, "condition") == 0 &&
-      ts_node_named_child_count(node) == 1) {
-    return makeNode(file, ts_node_named_child(node, 0));
-  }
-  if (strcmp(nodeType, "primary_expression") == 0 &&
-      ts_node_named_child_count(node) == 1) {
-    return makeNode(file, ts_node_named_child(node, 0));
-  }
-  if (strcmp(nodeType, "statement") == 0 &&
-      ts_node_named_child_count(node) == 1) {
-    return makeNode(file, ts_node_named_child(node, 0));
-  }
-  if (strcmp(nodeType, "statement") == 0 &&
-      ts_node_named_child_count(node) == 0) {
+  if (symbol == sym_statement && ts_node_named_child_count(node) == 0) {
     return nullptr;
   }
-  if (strcmp(nodeType, "jump_statement") == 0) {
+  if (symbol == sym_jump_statement) {
     const auto &content = file->extractNodeValue(node);
     if (content == "break") {
       return std::make_shared<BreakNode>(file, node);
