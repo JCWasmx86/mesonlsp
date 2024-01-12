@@ -878,11 +878,11 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
     return nullptr;
   }
   if (symbol == sym_jump_statement) {
-    const auto &content = file->extractNodeValue(node);
-    if (content == "break") {
+    const auto diff = ts_node_end_byte(node) - ts_node_start_byte(node);
+    if (diff == sizeof("break") - 1) {
       return std::make_shared<BreakNode>(file, node);
     }
-    if (content == "continue") {
+    if (diff == sizeof("continue") - 1) {
       return std::make_shared<ContinueNode>(file, node);
     }
   }
