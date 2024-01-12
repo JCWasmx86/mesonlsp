@@ -759,7 +759,7 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
     return nullptr;
   }
   if (strcmp(nodeType, "jump_statement") == 0) {
-    auto content = file->extractNodeValue(node);
+    const auto &content = file->extractNodeValue(node);
     if (content == "break") {
       return std::make_shared<BreakNode>(file, node);
     }
