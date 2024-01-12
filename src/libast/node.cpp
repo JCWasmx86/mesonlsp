@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <regex>
@@ -425,21 +426,28 @@ AssignmentStatement::AssignmentStatement(
     const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
-  const auto &opStr = file->extractNodeValue(ts_node_named_child(node, 1));
-  if (opStr == "=") {
+  const auto opNode = ts_node_named_child(node, 1);
+  switch (ts_node_symbol(ts_node_child(opNode, 0))) {
+  case anon_sym_EQ:
     this->op = AssignmentOperator::Equals;
-  } else if (opStr == "*=") {
+    break;
+  case anon_sym_STAR_EQ:
     this->op = AssignmentOperator::MulEquals;
-  } else if (opStr == "/=") {
+    break;
+  case anon_sym_SLASH_EQ:
     this->op = AssignmentOperator::DivEquals;
-  } else if (opStr == "%=") {
+    break;
+  case anon_sym_PERCENT_EQ:
     this->op = AssignmentOperator::ModEquals;
-  } else if (opStr == "+=") {
+    break;
+  case anon_sym_PLUS_EQ:
     this->op = AssignmentOperator::PlusEquals;
-  } else if (opStr == "-=") {
+    break;
+  case anon_sym_DASH_EQ:
     this->op = AssignmentOperator::MinusEquals;
-  } else {
-    this->op = AssignmentOpOther;
+    break;
+  default:
+    this->op = AssignmentOperator::AssignmentOpOther;
   }
   this->rhs = makeNode(file, ts_node_named_child(node, 2));
 }
@@ -461,39 +469,73 @@ BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   auto ncc = ts_node_named_child_count(node);
-  const auto &opStr = file->extractNodeValue(
-      (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1));
-  if (opStr == "+") {
-    this->op = BinaryOperator::Plus;
-  } else if (opStr == "-") {
-    this->op = BinaryOperator::Minus;
-  } else if (opStr == "*") {
-    this->op = BinaryOperator::Mul;
-  } else if (opStr == "/") {
-    this->op = BinaryOperator::Div;
-  } else if (opStr == "%") {
-    this->op = BinaryOperator::Modulo;
-  } else if (opStr == "==") {
-    this->op = BinaryOperator::EqualsEquals;
-  } else if (opStr == "!=") {
-    this->op = BinaryOperator::NotEquals;
-  } else if (opStr == ">") {
-    this->op = BinaryOperator::Gt;
-  } else if (opStr == "<") {
-    this->op = BinaryOperator::Lt;
-  } else if (opStr == ">=") {
-    this->op = BinaryOperator::Ge;
-  } else if (opStr == "<=") {
-    this->op = BinaryOperator::Le;
-  } else if (opStr == "in") {
-    this->op = BinaryOperator::In;
-  } else if (opStr == "not in") {
-    this->op = BinaryOperator::NotIn;
-  } else if (opStr == "and") {
+  const auto opNode = (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1);
+  switch (ts_node_symbol(opNode)) {
+  case sym_equ_operator:
+    switch (ts_node_symbol(ts_node_child(opNode, 0))) {
+    case anon_sym_EQ_EQ:
+      this->op = BinaryOperator::EqualsEquals;
+      break;
+    case anon_sym_BANG_EQ:
+      this->op = BinaryOperator::NotEquals;
+      break;
+    default:
+      std::unreachable();
+    }
+    break;
+  case sym_mult_operator:
+  case sym_add_operator:
+    switch (ts_node_symbol(ts_node_child(opNode, 0))) {
+    case anon_sym_PLUS:
+      this->op = BinaryOperator::Plus;
+      break;
+    case anon_sym_DASH:
+      this->op = BinaryOperator::Minus;
+      break;
+    case anon_sym_STAR:
+      this->op = BinaryOperator::Mul;
+      break;
+    case anon_sym_SLASH:
+      this->op = BinaryOperator::Div;
+      break;
+    case anon_sym_PERCENT:
+      this->op = BinaryOperator::Modulo;
+      break;
+    default:
+      std::unreachable();
+    }
+    break;
+  case sym_rel_operator:
+    switch (ts_node_symbol(ts_node_child(opNode, 0))) {
+    case anon_sym_GT:
+      this->op = BinaryOperator::Gt;
+      break;
+    case anon_sym_LT:
+      this->op = BinaryOperator::Lt;
+      break;
+    case anon_sym_GT_EQ:
+      this->op = BinaryOperator::Ge;
+      break;
+    case anon_sym_LT_EQ:
+      this->op = BinaryOperator::Le;
+      break;
+    case anon_sym_in:
+      this->op = BinaryOperator::In;
+      break;
+    case anon_sym_not:
+      this->op = BinaryOperator::NotIn;
+      break;
+    default:
+      std::unreachable();
+    }
+    break;
+  case anon_sym_and:
     this->op = BinaryOperator::And;
-  } else if (opStr == "or") {
+    break;
+  case anon_sym_or:
     this->op = BinaryOperator::Or;
-  } else {
+    break;
+  default:
     this->op = BinaryOperator::BinOpOther;
   }
   this->rhs = makeNode(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
@@ -514,15 +556,19 @@ void BinaryExpression::visitChildren(CodeVisitor *visitor) {
 UnaryExpression::UnaryExpression(const std::shared_ptr<SourceFile> &file,
                                  TSNode node)
     : Node(file, node) {
-  const auto &opStr = file->extractNodeValue(ts_node_child(node, 0));
-  if (opStr == "not") {
+  const auto opNode = ts_node_child(node, 0);
+  switch (ts_node_symbol(opNode)) {
+  case anon_sym_not:
     this->op = UnaryOperator::Not;
-  } else if (opStr == "!") {
+    break;
+  case anon_sym_BANG:
     this->op = UnaryOperator::ExclamationMark;
-  } else if (opStr == "-") {
+    break;
+  case anon_sym_DASH:
     this->op = UnaryOperator::UnaryMinus;
-  } else {
-    this->op = UnaryOther;
+    break;
+  default:
+    this->op = UnaryOperator::UnaryOther;
   }
   this->expression = makeNode(file, ts_node_named_child(node, 0));
 }
@@ -571,8 +617,7 @@ std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
 StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
                              TSNode node)
     : Node(file, node) {
-  this->isFormat =
-      strcmp(ts_node_type(ts_node_child(node, 0)), "string_format") == 0;
+  this->isFormat = ts_node_symbol(ts_node_child(node, 0)) == sym_string_format;
   const auto &fullValue = file->extractNodeValue(node);
   this->id = extractValueFromMesonStringLiteral(fullValue);
 }
@@ -593,7 +638,8 @@ void IdExpression::setParents() {}
 BooleanLiteral::BooleanLiteral(const std::shared_ptr<SourceFile> &file,
                                TSNode node)
     : Node(file, node) {
-  this->value = file->extractNodeValue(node) == "true";
+  const auto diff = ts_node_end_byte(node) - ts_node_start_byte(node);
+  this->value = diff == sizeof("true") - 1;
 }
 
 void BooleanLiteral::setParents() {}
@@ -644,31 +690,27 @@ SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
   std::vector<std::vector<std::shared_ptr<Node>>> bb;
   while (idx < childCount) {
     auto c = ts_node_child(node, idx);
-    const auto &sv = file->extractNodeValue(c);
-    const auto *nodeType = ts_node_type(c);
-    if ((sv == "if" || strcmp(nodeType, "if") == 0) && !sI) {
-      while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
-             0) {
+    const auto nodeType = ts_node_symbol(c);
+    if (nodeType == anon_sym_if && !sI) {
+      while (ts_node_symbol(ts_node_child(node, idx + 1)) == sym__comment) {
         idx++;
       }
       sI = makeNode(file, ts_node_child(node, idx + 1));
       idx += 1;
-    } else if (sv == "elif") {
+    } else if (nodeType == anon_sym_elif) {
       bb.push_back(tmp);
-      while (strcmp(ts_node_type(ts_node_child(node, idx + 1)), "comment") ==
-             0) {
+      while (ts_node_symbol(ts_node_child(node, idx + 1)) == sym__comment) {
         idx++;
       }
       tmp = {};
       cs.push_back(makeNode(file, ts_node_child(node, idx + 1)));
       idx++;
-    } else if (sv == "else") {
+    } else if (nodeType == anon_sym_else) {
       bb.push_back(tmp);
       tmp = {};
-    } else if (strcmp(nodeType, "comment") != 0 &&
-               ts_node_named_child_count(c) == 1) {
-      const auto *cChildType = ts_node_type(ts_node_named_child(c, 0));
-      if (strcmp(cChildType, "comment") != 0) {
+    } else if (nodeType != sym__comment && ts_node_named_child_count(c) == 1) {
+      const auto cChildType = ts_node_symbol(ts_node_named_child(c, 0));
+      if (cChildType != sym__comment) {
         tmp.push_back(makeNode(file, c));
       }
     }
@@ -794,7 +836,6 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
 
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
                                TSNode node) {
-  const auto *nodeType = ts_node_type(node);
   auto symbol = ts_node_symbol(node);
   if (symbol == sym_argument_list) {
     return std::make_shared<ArgumentList>(file, node);
@@ -886,6 +927,7 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
       return std::make_shared<ContinueNode>(file, node);
     }
   }
+  const auto *nodeType = ts_node_type(node);
   return std::make_shared<ErrorNode>(
       file, node, std::format("Unknown node_type '{}'", nodeType));
 }
