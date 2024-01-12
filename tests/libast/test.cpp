@@ -132,6 +132,15 @@ TEST(TestAst, testArrayLiteral) {
   ASSERT_EQ(arrayLit->args.size(), 2);
 }
 
+TEST(TestAst, testJumpStatement) {
+  auto node = parseToNode("break\ncontinue\n");
+  auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+  ASSERT_NE(bd, nullptr);
+  ASSERT_EQ(bd->stmts.size(), 2);
+  ASSERT_NE(dynamic_cast<BreakNode *>(bd->stmts[0].get()), nullptr);
+  ASSERT_NE(dynamic_cast<ContinueNode *>(bd->stmts[1].get()), nullptr);
+}
+
 TEST(TestAst, testAssignmentStatement) {
   auto node = parseToNode("x = 5\ny *= 2\nz /= 3\na %= 2\nb += 2\nc -= 3");
   auto *bd = dynamic_cast<BuildDefinition *>(node.get());
