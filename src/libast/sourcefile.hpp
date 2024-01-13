@@ -21,18 +21,18 @@ public:
   virtual const std::string &contents();
   virtual ~SourceFile() = default;
 
-  virtual std::string extractNodeValue(const TSNode &node) {
+  std::string extractNodeValue(const TSNode &node) {
     auto startByte = ts_node_start_byte(node);
     auto endByte = ts_node_end_byte(node);
     return this->extractNodeValue(startByte, endByte);
   }
 
-  virtual std::string extractNodeValue(uint32_t startByte, uint32_t endByte) {
+  std::string extractNodeValue(uint32_t startByte, uint32_t endByte) {
     const auto &contents = this->contents();
     return contents.substr(startByte, endByte - startByte);
   }
 
-  virtual std::string extractNodeValue(const Location *loc) {
+  std::string extractNodeValue(const Location *loc) {
     const auto &string = this->contents();
     const auto &lines = split(string, "\n");
     if (loc->startLine == loc->endLine) {
