@@ -581,38 +581,6 @@ void UnaryExpression::visitChildren(CodeVisitor *visitor) {
   this->expression->visit(visitor);
 }
 
-std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
-  size_t startPos = std::string::npos;
-  size_t endPos = std::string::npos;
-
-  // Check if it's a multi-line format string (f''' ... ''')
-  if (mesonString.size() >= 7 && mesonString.starts_with("f'''")) {
-    startPos = 4;
-    endPos = mesonString.size() - 3;
-  }
-  // Check if it's a single-line format string (f' ... ')
-  else if (mesonString.size() >= 4 && mesonString.starts_with("f'")) {
-    startPos = 2;
-    endPos = mesonString.size() - 1;
-  }
-  // Check if it's a multi-line string (''' ... ''')
-  else if (mesonString.size() >= 6 && mesonString.starts_with("'''")) {
-    startPos = 3;
-    endPos = mesonString.size() - 3;
-  }
-  // Check if it's a single-line string (' ... ')
-  else if (mesonString.size() >= 2 && mesonString.front() == '\'' &&
-           mesonString.back() == '\'') {
-    startPos = 1;
-    endPos = mesonString.size() - 1;
-  }
-  if (startPos != std::string::npos && endPos != std::string::npos) {
-    return mesonString.substr(startPos, endPos - startPos);
-  }
-
-  return mesonString;
-}
-
 StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
                              TSNode node)
     : Node(file, node) {
