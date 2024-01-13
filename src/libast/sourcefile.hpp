@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <string>
@@ -23,6 +24,10 @@ public:
   virtual std::string extractNodeValue(const TSNode &node) {
     auto startByte = ts_node_start_byte(node);
     auto endByte = ts_node_end_byte(node);
+    return this->extractNodeValue(startByte, endByte);
+  }
+
+  virtual std::string extractNodeValue(uint32_t startByte, uint32_t endByte) {
     const auto &contents = this->contents();
     return contents.substr(startByte, endByte - startByte);
   }
