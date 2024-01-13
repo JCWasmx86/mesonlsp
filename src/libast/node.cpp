@@ -609,14 +609,14 @@ StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
 
 void StringLiteral::setParents() {}
 
-void StringLiteral::visitChildren(CodeVisitor *visitor) {}
+void StringLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
 IdExpression::IdExpression(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {
   this->id = file->extractNodeValue(node);
 }
 
-void IdExpression::visitChildren(CodeVisitor *visitor) {}
+void IdExpression::visitChildren(CodeVisitor * /*visitor*/) {}
 
 void IdExpression::setParents() {}
 
@@ -629,7 +629,7 @@ BooleanLiteral::BooleanLiteral(const std::shared_ptr<SourceFile> &file,
 
 void BooleanLiteral::setParents() {}
 
-void BooleanLiteral::visitChildren(CodeVisitor *visitor) {}
+void BooleanLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
 IntegerLiteral::IntegerLiteral(const std::shared_ptr<SourceFile> &file,
                                TSNode node)
@@ -648,19 +648,19 @@ IntegerLiteral::IntegerLiteral(const std::shared_ptr<SourceFile> &file,
 
 void IntegerLiteral::setParents() {}
 
-void IntegerLiteral::visitChildren(CodeVisitor *visitor) {}
+void IntegerLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
 ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(std::move(file), node) {}
 
 void ContinueNode::setParents() {}
 
-void ContinueNode::visitChildren(CodeVisitor *visitor) {}
+void ContinueNode::visitChildren(CodeVisitor * /*visitor*/) {}
 
 BreakNode::BreakNode(std::shared_ptr<SourceFile> file, TSNode node)
     : Node(std::move(file), node) {}
 
-void BreakNode::visitChildren(CodeVisitor *visitor) {}
+void BreakNode::visitChildren(CodeVisitor * /*visitor*/) {}
 
 void BreakNode::setParents() {}
 
@@ -731,7 +731,7 @@ void SelectionStatement::setParents() {
   }
 }
 
-void ErrorNode::visitChildren(CodeVisitor *visitor) {}
+void ErrorNode::visitChildren(CodeVisitor * /*visitor*/) {}
 
 void ErrorNode::setParents() {}
 
