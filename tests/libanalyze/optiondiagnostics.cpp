@@ -1,8 +1,13 @@
 #include "mesonmetadata.hpp"
+#include "node.hpp"
 #include "optiondiagnosticvisitor.hpp"
 #include "optionextractor.hpp"
+#include "sourcefile.hpp"
 
 #include <gtest/gtest.h>
+#include <memory>
+#include <set>
+#include <string>
 #include <tree_sitter/api.h>
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT

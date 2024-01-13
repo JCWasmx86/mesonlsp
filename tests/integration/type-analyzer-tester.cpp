@@ -1,3 +1,4 @@
+#include "analysisoptions.hpp"
 #include "log.hpp"
 #include "mesontree.hpp"
 #include "typeanalyzer.hpp"
@@ -5,9 +6,11 @@
 
 #include <cassert>
 #include <chrono>
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <map>
+#include <optional>
 #include <string>
 #include <system_error>
 

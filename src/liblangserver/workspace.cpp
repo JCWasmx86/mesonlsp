@@ -17,7 +17,6 @@
 
 #include <algorithm>
 #include <atomic>
-#include <bits/chrono.h>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>

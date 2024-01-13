@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <uuid/uuid.h>
+#include <vector>
 
 std::string randomFile() {
   auto *tmpdir = getenv("TMPDIR"); // NOLINT
