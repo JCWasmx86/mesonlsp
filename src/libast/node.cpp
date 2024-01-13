@@ -616,9 +616,27 @@ std::string extractValueFromMesonStringLiteral(const std::string &mesonString) {
 StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
                              TSNode node)
     : Node(file, node) {
-  this->isFormat = ts_node_symbol(ts_node_child(node, 0)) == sym_string_format;
-  const auto &fullValue = file->extractNodeValue(node);
-  this->id = extractValueFromMesonStringLiteral(fullValue);
+  const auto &typeNode = ts_node_child(node, 0);
+  switch (ts_node_symbol(typeNode)) {
+  case sym_string_multiline:
+  case sym_string_simple:
+    this->isFormat = false;
+    this->id =
+        file->extractNodeValue(ts_node_end_byte(ts_node_child(typeNode, 0)),
+                               ts_node_start_byte(ts_node_child(typeNode, 1)));
+    break;
+  case sym_string_format_multiline:
+  case sym_string_format: {
+    this->isFormat = true;
+    auto childNode = ts_node_child(typeNode, 0);
+    this->id =
+        file->extractNodeValue(ts_node_end_byte(ts_node_child(childNode, 0)),
+                               ts_node_start_byte(ts_node_child(childNode, 1)));
+    break;
+  }
+  default:
+    std::unreachable();
+  }
 }
 
 void StringLiteral::setParents() {}
