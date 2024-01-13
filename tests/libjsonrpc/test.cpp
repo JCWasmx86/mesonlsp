@@ -16,7 +16,8 @@ private:
 public:
   TestJsonRpcHandler() : logger(Logger("TestJsonRpcHandler")) {}
 
-  void handleNotification(std::string method, nlohmann::json params) override {
+  void handleNotification(std::string method,
+                          nlohmann::json /*params*/) override {
     this->logger.info(std::format("Got notification: {}", method));
   }
 
@@ -65,7 +66,7 @@ static std::string makeInputMessage() {
   return ret;
 }
 
-int main(int argc, char **argv) {
+int main(int /*unused*/, char ** /*unused*/) {
   auto handler = std::make_shared<TestJsonRpcHandler>();
   std::istringstream newSin(makeInputMessage());
   std::ostringstream newSout;

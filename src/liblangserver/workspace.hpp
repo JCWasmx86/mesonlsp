@@ -8,7 +8,6 @@
 #include "typenamespace.hpp"
 
 #include <atomic>
-#include <condition_variable>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
