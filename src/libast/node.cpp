@@ -18,6 +18,8 @@
 
 static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
 static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
+std::string INVALID_FUNCTION_NAME_STR = INVALID_FUNCTION_NAME;       // NOLINT
+std::string INVALID_KEY_NAME_STR = INVALID_KEY_NAME;                 // NOLINT
 
 // NOLINTBEGIN
 enum {

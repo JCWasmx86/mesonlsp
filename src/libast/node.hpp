@@ -17,6 +17,9 @@
 
 class CodeVisitor;
 
+extern std::string INVALID_FUNCTION_NAME_STR; // NOLINT
+extern std::string INVALID_KEY_NAME_STR;      // NOLINT
+
 class Node {
 public:
   const std::shared_ptr<SourceFile> file;
@@ -319,10 +322,10 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  std::string functionName() const {
+  const std::string &functionName() const {
     auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
     if (idExpr == nullptr) {
-      return INVALID_FUNCTION_NAME;
+      return INVALID_FUNCTION_NAME_STR;
     }
     return idExpr->id;
   }
@@ -374,12 +377,12 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  std::string getKeyName() {
+  const std::string &getKeyName() {
     auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
     if (sl) {
       return sl->id;
     }
-    return INVALID_KEY_NAME;
+    return INVALID_KEY_NAME_STR;
   }
 };
 
