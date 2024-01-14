@@ -32,19 +32,19 @@ public:
     return contents.substr(startByte, endByte - startByte);
   }
 
-  std::string extractNodeValue(const Location *loc) {
+  std::string extractNodeValue(const Location &loc) {
     const auto &string = this->contents();
     const auto &lines = split(string, "\n");
-    if (loc->startLine == loc->endLine) {
-      const auto &line = lines[loc->startLine];
-      return line.substr(loc->startColumn, loc->endColumn - loc->startColumn);
+    if (loc.startLine == loc.endLine) {
+      const auto &line = lines[loc.startLine];
+      return line.substr(loc.startColumn, loc.endColumn - loc.startColumn);
     }
-    const auto &firstLine = lines[loc->startLine];
-    const auto &firstLine1 = firstLine.substr(loc->startColumn);
-    const auto &lastLine = lines[loc->endLine];
-    const auto &lastLine1 = lastLine.substr(0, loc->endColumn);
+    const auto &firstLine = lines[loc.startLine];
+    const auto &firstLine1 = firstLine.substr(loc.startColumn);
+    const auto &lastLine = lines[loc.endLine];
+    const auto &lastLine1 = lastLine.substr(0, loc.endColumn);
     std::string concatenated;
-    for (size_t idx = loc->startLine + 1; idx < loc->endLine; idx++) {
+    for (size_t idx = loc.startLine + 1; idx < loc.endLine; idx++) {
       concatenated += std::format("{}\n", lines[idx]);
     }
     return std::format("{}\n{}{}", firstLine1, concatenated, lastLine1);

@@ -147,9 +147,9 @@ Workspace::highlight(const std::filesystem::path &path,
       if (ass && toCheck->equals(ass->lhs.get())) {
         kind = DocumentHighlightKind::WriteKind;
       }
-      const auto *loc = toCheck->location;
-      auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
-                            LSPPosition(loc->endLine, loc->endColumn));
+      const auto loc = toCheck->location;
+      auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
+                            LSPPosition(loc.endLine, loc.endColumn));
       ret.emplace_back(range, kind);
     }
     return ret;
@@ -202,16 +202,16 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
       if (ass && ass->op == AssignmentOperator::Equals) {
         auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
         if (lhsIdExpr && lhsIdExpr->id == toFind) {
-          const auto *loc = idExpr->location;
-          auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
-                                LSPPosition(loc->endLine, loc->endColumn));
+          const auto loc = idExpr->location;
+          auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
+                                LSPPosition(loc.endLine, loc.endColumn));
           return {LSPLocation(pathToUrl(idExpr->file->file), range)};
         }
       }
       if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
-        const auto *loc = idExpr->location;
-        auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
-                              LSPPosition(loc->endLine, loc->endColumn));
+        const auto loc = idExpr->location;
+        auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
+                              LSPPosition(loc.endLine, loc.endColumn));
         return {LSPLocation(pathToUrl(idExpr->file->file), range)};
       }
     }
@@ -228,7 +228,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         return {};
       }
       auto key = std::format("{}-{}", funcCall->file->file.generic_string(),
-                             funcCall->location->format());
+                             funcCall->location.format());
       if (!metadata->subdirCalls.contains(key)) {
         return {};
       }
@@ -278,9 +278,9 @@ Workspace::rename(const std::filesystem::path &path,
           }
           foundOurself = true;
         }
-        const auto *loc = identifier->location;
-        auto range = LSPRange(LSPPosition(loc->startLine, loc->startColumn),
-                              LSPPosition(loc->endLine, loc->endColumn));
+        const auto loc = identifier->location;
+        auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
+                              LSPPosition(loc.endLine, loc.endColumn));
         // TODO: Rename parent-project `get_variable`
         ret.changes[url].emplace_back(range, params.newName);
       }

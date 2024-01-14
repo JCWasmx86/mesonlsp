@@ -104,7 +104,7 @@ void InlayHintVisitor::visitContinueNode(ContinueNode *node) {
 }
 
 void InlayHintVisitor::makeHint(Node *node) {
-  auto pos = LSPPosition(node->location->startLine, node->location->endColumn);
+  auto pos = LSPPosition(node->location.startLine, node->location.endColumn);
   auto text = ":" + this->prettify(node->types, 0);
   this->hints.emplace_back(pos, text);
 }
