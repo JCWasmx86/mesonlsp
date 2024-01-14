@@ -64,6 +64,8 @@ public:
   Dict(const std::vector<std::shared_ptr<Type>> &types)
       : Type("dict"), types(types) {}
 
+  Dict() : Type("dict") {}
+
   const std::string &toString() override {
     if (this->cached) {
       return this->cache;
@@ -91,6 +93,8 @@ public:
 
   List(const std::vector<std::shared_ptr<Type>> &types)
       : Type("list"), types(types) {}
+
+  List() : Type("list") {}
 
   const std::string &toString() override {
     if (this->cached) {

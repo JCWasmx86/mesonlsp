@@ -220,7 +220,7 @@ int main(int argc, char **argv) {
     return parseWraps(wraps, wrapOutput, wrapPackageFiles);
   }
   if (paths.empty()) {
-    auto parent = std::filesystem::absolute(path).parent_path();
+    const auto &parent = std::filesystem::absolute(path).parent_path();
     TypeNamespace const ns;
     MesonTree tree(parent, ns);
     AnalysisOptions const opts(false, false, false, false, false, false, false);

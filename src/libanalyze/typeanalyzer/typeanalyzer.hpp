@@ -135,6 +135,12 @@ private:
   bool atleastPartiallyCompatible(
       const std::vector<std::shared_ptr<Type>> &expectedTypes,
       const std::vector<std::shared_ptr<Type>> &givenTypes);
+  bool atleastPartiallyCompatible(
+      const std::vector<std::shared_ptr<Type>> &expectedTypes,
+      const std::shared_ptr<Type> &givenType);
+  bool atleastPartiallyCompatible(
+      const std::shared_ptr<Type> &expectedType,
+      const std::vector<std::shared_ptr<Type>> &givenTypes);
   bool compatible(const std::shared_ptr<Type> &given,
                   const std::shared_ptr<Type> &expected);
 };

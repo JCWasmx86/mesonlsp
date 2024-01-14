@@ -17,8 +17,8 @@ public:
   bool after(const Version &other) {
     for (unsigned long i = 0;
          i < std::min(other.parts.size(), this->parts.size()); i++) {
-      auto thisPart = this->parts[i];
-      auto otherPart = other.parts[i];
+      const auto &thisPart = this->parts[i];
+      const auto &otherPart = other.parts[i];
       if (thisPart > otherPart) {
         return true;
       }

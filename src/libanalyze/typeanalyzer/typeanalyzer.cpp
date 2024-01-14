@@ -216,9 +216,7 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> types;
   for (const auto &arg : node->args) {
-    for (const auto &type : arg->types) {
-      types.emplace_back(type);
-    }
+    types.insert(types.end(), arg->types.begin(), arg->types.end());
   }
   node->types = std::vector<std::shared_ptr<Type>>{
       std::make_shared<List>(dedup(this->ns, types))};
@@ -259,11 +257,11 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
   if (arr.empty()) {
     auto *arrLit = dynamic_cast<ArrayLiteral *>(node->rhs.get());
     if (arrLit && arrLit->args.empty()) {
-      arr = {std::make_shared<List>(std::vector<std::shared_ptr<Type>>{})};
+      arr.push_back(std::make_shared<List>());
     }
     auto *dictLit = dynamic_cast<DictionaryLiteral *>(node->rhs.get());
     if (dictLit && dictLit->values.empty()) {
-      arr = {std::make_shared<Dict>(std::vector<std::shared_ptr<Type>>{})};
+      arr.push_back(std::make_shared<Dict>());
     }
   }
   const auto &assignmentName = lhsIdExpr->id;
@@ -399,7 +397,7 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
                                     "Unknown assignment operator"));
     return;
   }
-  auto rhsTypes = node->rhs->types;
+  const auto &rhsTypes = node->rhs->types;
   if (rhsTypes.empty() &&
       (dynamic_cast<FunctionExpression *>(node->rhs.get()) ||
        dynamic_cast<MethodExpression *>(node->rhs.get()))) {
@@ -763,9 +761,8 @@ void TypeAnalyzer::checkUnusedVariables() {
   auto needingUse = this->variablesNeedingUse.back();
   this->variablesNeedingUse.pop_back();
   if (!this->variablesNeedingUse.empty()) {
-    auto toAppend = this->variablesNeedingUse.back();
+    auto &toAppend = this->variablesNeedingUse.back();
     toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
-    this->variablesNeedingUse.back() = toAppend;
     return;
   }
   for (auto *needed : needingUse) {
@@ -1187,17 +1184,52 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
     return this->atleastPartiallyCompatible(eList->types, gList->types);
   }
   if ((eList != nullptr) &&
-      this->atleastPartiallyCompatible(eList->types, {given})) {
+      this->atleastPartiallyCompatible(eList->types, given)) {
     return true;
   }
   if ((gList != nullptr) &&
-      this->atleastPartiallyCompatible({expected}, gList->types)) {
+      this->atleastPartiallyCompatible(expected, gList->types)) {
     return true;
   }
   auto *gDict = dynamic_cast<Dict *>(given.get());
   auto *eDict = dynamic_cast<Dict *>(expected.get());
   if (gDict && eDict) {
     return this->atleastPartiallyCompatible(eDict->types, gDict->types);
+  }
+  return false;
+}
+
+bool TypeAnalyzer::atleastPartiallyCompatible(
+    const std::shared_ptr<Type> &expectedType,
+    const std::vector<std::shared_ptr<Type>> &givenTypes) {
+  if (givenTypes.empty()) {
+    return true;
+  }
+  if (dynamic_cast<Any *>(expectedType.get()) ||
+      dynamic_cast<Disabler *>(expectedType.get())) {
+    return true;
+  }
+  for /*NOLINT*/ (const auto &given : givenTypes) {
+    if (this->compatible(given, given) ||
+        (dynamic_cast<Any *>(given.get()) != nullptr)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool TypeAnalyzer::atleastPartiallyCompatible(
+    const std::vector<std::shared_ptr<Type>> &expectedTypes,
+    const std::shared_ptr<Type> &givenType) {
+  for /*NOLINT*/ (const auto &expected : expectedTypes) {
+    if (dynamic_cast<Any *>(expected.get()) ||
+        dynamic_cast<Disabler *>(expected.get())) {
+      return true;
+    }
+    if (this->compatible(givenType, expected) ||
+        (dynamic_cast<Any *>(givenType.get()) != nullptr)) {
+      return true;
+    }
   }
   return false;
 }
@@ -1213,15 +1245,8 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
         dynamic_cast<Disabler *>(given.get())) {
       return true;
     }
-    for (const auto &expected : expectedTypes) {
-      if (dynamic_cast<Any *>(expected.get()) ||
-          dynamic_cast<Disabler *>(expected.get())) {
-        return true;
-      }
-      if (this->compatible(given, expected) ||
-          (dynamic_cast<Any *>(given.get()) != nullptr)) {
-        return true;
-      }
+    if (this->atleastPartiallyCompatible(expectedTypes, given)) {
+      return true;
     }
   }
   return false;

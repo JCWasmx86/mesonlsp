@@ -40,7 +40,9 @@ def type_to_cpp(t: str):
         return 'this->types.at("subproject")'
     if t.startswith("dict(") or t.startswith("list("):
         cpp_type = "Dict" if t.startswith("dict(") else "List"
-        sub_types = map(type_to_cpp, extract_types(t))
+        sub_types = list(map(type_to_cpp, extract_types(t)))
+        if len(sub_types) == 0:
+            return f"std::make_shared<{cpp_type}>()"
         total_str = "{" + ",".join(sub_types) + "}"
         return f"std::make_shared<{cpp_type}>(std::vector<std::shared_ptr<Type>>{total_str})"
     return f'this->types.at("{t}")'

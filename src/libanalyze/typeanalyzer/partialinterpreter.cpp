@@ -1243,7 +1243,7 @@ PartialInterpreter::abstractEval(Node *parentStmt, Node *toEval) {
   if (me && me->args) {
     auto *meid = dynamic_cast<IdExpression *>(me->id.get());
     if (meid->id == "format" && me->args) {
-      auto strs = calculateStringFormatMethodCall(
+      const auto &strs = calculateStringFormatMethodCall(
           me, dynamic_cast<ArgumentList *>(me->args.get()), parentStmt);
       std::vector<std::shared_ptr<InterpretNode>> ret;
       ret.reserve(strs.size());
@@ -1291,7 +1291,7 @@ next2:
   auto *ce = dynamic_cast<ConditionalExpression *>(toEval);
   if (ce) {
     auto ret = this->abstractEval(parentStmt, ce->ifTrue.get());
-    auto ifFalse = this->abstractEval(parentStmt, ce->ifFalse.get());
+    const auto &ifFalse = this->abstractEval(parentStmt, ce->ifFalse.get());
     ret.insert(ret.end(), ifFalse.begin(), ifFalse.end());
     return ret;
   }
