@@ -17,15 +17,15 @@ static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
 // TODO: Use enum
 void SemanticTokensVisitor::makeSemanticToken(Node *node, size_t idx,
                                               uint64_t modifiers) {
-  if (node->location->startLine != node->location->endLine) {
+  if (node->location.startLine != node->location.endLine) {
     return;
   }
   if (idx >= 8) {
     return;
   }
-  tokens.push_back({node->location->startLine, node->location->startColumn,
-                    node->location->endColumn - node->location->startColumn,
-                    idx, modifiers});
+  tokens.push_back({node->location.startLine, node->location.startColumn,
+                    node->location.endColumn - node->location.startColumn, idx,
+                    modifiers});
 }
 
 std::vector<uint64_t> SemanticTokensVisitor::finish() {
@@ -135,7 +135,7 @@ void SemanticTokensVisitor::visitSelectionStatement(SelectionStatement *node) {
 
 void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
-  const auto *const loc = node->location;
+  const auto loc = node->location;
   if (node->isFormat) {
     std::sregex_iterator iter(node->id.begin(), node->id.end(),
                               FORMAT_STRING_REGEX);
@@ -144,22 +144,22 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
     while (iter != end) {
       auto match = *iter;
       this->tokens.push_back(
-          {loc->startLine,
-           static_cast<unsigned long>(loc->startColumn + match.position() + 2),
+          {loc.startLine,
+           static_cast<unsigned long>(loc.startColumn + match.position() + 2),
            1, 1, 0});
       this->tokens.push_back(
-          {loc->startLine,
-           static_cast<unsigned long>(loc->startColumn + match.position() + 3),
+          {loc.startLine,
+           static_cast<unsigned long>(loc.startColumn + match.position() + 3),
            static_cast<unsigned long>(match.length() - 2), 2, 0});
       this->tokens.push_back(
-          {loc->startLine,
-           static_cast<unsigned long>(loc->startColumn + match.position() +
+          {loc.startLine,
+           static_cast<unsigned long>(loc.startColumn + match.position() +
                                       match.length() + 1),
            1, 1});
       ++iter;
     }
   }
-  if (loc->startLine != loc->endLine) {
+  if (loc.startLine != loc.endLine) {
     return;
   }
   auto *parentNode = node->parent;
@@ -177,16 +177,16 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   while (iter != end) {
     auto match = *iter;
     this->tokens.push_back(
-        {loc->startLine,
-         static_cast<unsigned long>(loc->startColumn + match.position() + 2), 1,
+        {loc.startLine,
+         static_cast<unsigned long>(loc.startColumn + match.position() + 2), 1,
          1, 0});
     this->tokens.push_back(
-        {loc->startLine,
-         static_cast<unsigned long>(loc->startColumn + match.position() + 3),
+        {loc.startLine,
+         static_cast<unsigned long>(loc.startColumn + match.position() + 3),
          static_cast<unsigned long>(match.length() - 2), 2, 0});
     this->tokens.push_back(
-        {loc->startLine,
-         static_cast<unsigned long>(loc->startColumn + match.position() +
+        {loc.startLine,
+         static_cast<unsigned long>(loc.startColumn + match.position() +
                                     match.length() + 1),
          1, 1});
     ++iter;

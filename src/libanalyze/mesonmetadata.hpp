@@ -87,10 +87,10 @@ public:
              std::string message, bool deprecated = false,
              bool unnecessary = false) {
     this->severity = sev;
-    const auto *loc = begin->location;
+    const auto *loc = &begin->location;
     this->startLine = loc->startLine;
     this->startColumn = loc->startColumn;
-    loc = end->location;
+    loc = &end->location;
     this->endLine = loc->endLine;
     this->endColumn = loc->endColumn;
     this->message = std::move(message);
@@ -139,7 +139,7 @@ public:
   void registerSubdirCall(FunctionExpression *node,
                           const std::set<std::string> &subdirs) {
     const auto &key = std::format("{}-{}", node->file->file.generic_string(),
-                                  node->location->format());
+                                  node->location.format());
     this->subdirCalls[key] = subdirs;
   }
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
@@ -189,11 +189,11 @@ public:
 
   static inline bool contains(const Node *node, uint64_t line,
                               uint64_t column) {
-    const auto *loc = node->location;
-    if (loc->startLine > line || node->location->endLine < line) {
+    const auto *loc = &node->location;
+    if (loc->startLine > line || loc->endLine < line) {
       return false;
     }
-    if (loc->startLine == node->location->endLine) {
+    if (loc->startLine == loc->endLine) {
       return loc->startColumn <= column && loc->endColumn >= column;
     }
     if (loc->startLine < line && loc->endLine > line) {

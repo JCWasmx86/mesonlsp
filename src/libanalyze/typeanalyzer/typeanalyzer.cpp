@@ -1085,7 +1085,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     LOG.info(std::format("get_variable: {} = {} ({}:{})",
                          joinStrings(asSet, '|'), joinTypes(node->types),
                          node->file->file.generic_string(),
-                         node->location->format()));
+                         node->location.format()));
     return;
   }
 }
@@ -1332,7 +1332,7 @@ void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
   std::set<std::string> const asSet(guessed.begin(), guessed.end());
   LOG.info(std::format("Guessed values for set_variable: {} at {}:{}",
                        joinStrings(asSet, '|'), node->file->file.c_str(),
-                       node->location->format()));
+                       node->location.format()));
   for (const auto &varname : asSet) {
     auto types = args[1]->types;
     this->scope.variables[varname] = types;
@@ -1368,7 +1368,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   std::set<std::string> const asSet{guessed.begin(), guessed.end()};
   auto msg = std::format("Found subdircall with dirs: {} at {}:{}",
                          joinStrings(asSet, '|'), node->file->file.c_str(),
-                         node->location->format());
+                         node->location.format());
   if (asSet.empty()) {
     LOG.warn(msg);
   } else {

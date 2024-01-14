@@ -24,13 +24,10 @@ class Node {
 public:
   const std::shared_ptr<SourceFile> file;
   std::vector<std::shared_ptr<Type>> types;
-  const Location *location;
+  const Location location;
   Node *parent;
 
-  virtual ~Node() {
-    delete this->location;
-    this->location = nullptr;
-  }
+  virtual ~Node() = default;
 
   virtual void visitChildren(CodeVisitor *visitor) = 0;
   virtual void visit(CodeVisitor *visitor) = 0;
@@ -40,12 +37,12 @@ public:
     if (this->file->file != other->file->file) {
       return false;
     }
-    const auto *otherLoc = other->location;
-    return this->location->columns == otherLoc->columns &&
-           this->location->lines == otherLoc->lines;
+    const auto *otherLoc = &other->location;
+    return this->location.columns == otherLoc->columns &&
+           this->location.lines == otherLoc->lines;
   }
 
-  Node() { this->location = new Location(); }
+  Node() = default;
 
   Node(Node const &) = delete;
   void operator=(Node const &) = delete;

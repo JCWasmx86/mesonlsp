@@ -38,7 +38,7 @@ inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
 }
 
 inline LSPRange nodeToRange(const Node *node) {
-  const auto *loc = node->location;
-  return {LSPPosition(loc->startLine, loc->startColumn),
-          LSPPosition(loc->endLine, loc->endColumn)};
+  const auto loc = node->location;
+  return {LSPPosition(loc.startLine, loc.startColumn),
+          LSPPosition(loc.endLine, loc.endColumn)};
 }

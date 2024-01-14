@@ -54,8 +54,8 @@ void FoldingRangeVisitor::visitIterationStatement(IterationStatement *node) {
   if (node->stmts.empty()) {
     return;
   }
-  this->ranges.emplace_back(node->location->startLine,
-                            node->location->endLine - 1);
+  this->ranges.emplace_back(node->location.startLine,
+                            node->location.endLine - 1);
 }
 
 void FoldingRangeVisitor::visitKeyValueItem(KeyValueItem *node) {
@@ -79,11 +79,11 @@ void FoldingRangeVisitor::visitSelectionStatement(SelectionStatement *node) {
     if (block.empty()) {
       continue;
     }
-    auto startLine = block[0]->location->startLine - 1;
+    auto startLine = block[0]->location.startLine - 1;
     if (idx - 1 < node->conditions.size()) {
-      startLine = node->conditions[idx - 1]->location->endLine;
+      startLine = node->conditions[idx - 1]->location.endLine;
     }
-    this->ranges.emplace_back(startLine, block.back()->location->endLine);
+    this->ranges.emplace_back(startLine, block.back()->location.endLine);
   }
 }
 

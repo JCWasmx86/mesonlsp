@@ -147,7 +147,7 @@ enum {
 // NOLINTEND
 
 Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
-    : file(std::move(file)), location(new Location(node)) {}
+    : file(std::move(file)), location(node) {}
 
 ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node)
     : Node(file, node) {

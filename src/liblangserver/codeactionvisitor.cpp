@@ -18,15 +18,15 @@ static Logger LOG("CodeActionVisitor"); // NOLINT
 
 bool CodeActionVisitor::inRange(const Node *node, bool add) {
   auto startPos =
-      LSPPosition(node->location->startLine, node->location->startColumn);
-  auto endPos = LSPPosition(node->location->endLine, node->location->endColumn);
+      LSPPosition(node->location.startLine, node->location.startColumn);
+  auto endPos = LSPPosition(node->location.endLine, node->location.endColumn);
   auto nodeRange = LSPRange(startPos, endPos);
   auto pointsMatch =
       this->range.contains(startPos) || this->range.contains(endPos);
   auto rangesMatch = nodeRange.contains(this->range.start) ||
                      nodeRange.contains(this->range.end);
   if (pointsMatch || rangesMatch) {
-    LOG.info("Found node at range: " + node->location->format());
+    LOG.info("Found node at range: " + node->location.format());
     if (!add) {
       return true;
     }
@@ -402,7 +402,7 @@ void CodeActionVisitor::makeDeclareDependencyAction(const Node *node) {
   if (this->tree->scope.variables.contains(depname) && depname != libname) {
     return;
   }
-  auto nextLine = fExpr->parent->location->endLine + 1;
+  auto nextLine = fExpr->parent->location.endLine + 1;
   auto str = std::format("{} = declare_dependency(\n", dependencyName);
   for (const auto &kwargName : std::vector<std::string>{
            "d_import_dirs", "d_module_versions", "dependencies",
