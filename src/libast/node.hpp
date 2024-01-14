@@ -17,8 +17,8 @@
 
 class CodeVisitor;
 
-extern std::string INVALID_FUNCTION_NAME_STR; // NOLINT
-extern std::string INVALID_KEY_NAME_STR;      // NOLINT
+extern const std::string INVALID_FUNCTION_NAME_STR; // NOLINT
+extern const std::string INVALID_KEY_NAME_STR;      // NOLINT
 
 class Node {
 public:
