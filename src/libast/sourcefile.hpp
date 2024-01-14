@@ -47,7 +47,7 @@ public:
     for (size_t idx = loc->startLine + 1; idx < loc->endLine; idx++) {
       concatenated += std::format("{}\n", lines[idx]);
     }
-    return firstLine1 + concatenated + lastLine1;
+    return std::format("{}\n{}{}", firstLine1, concatenated, lastLine1);
   }
 
 private:
