@@ -1,0 +1,19 @@
+full = meson
+
+if true
+    full = true
+    if false
+        full = host_machine
+    else
+        if 1 == 1
+            full = target_machine
+        else
+            full = {}
+        endif
+    endif
+else
+    full = []
+    if 1 == 1
+        full = {'a': 1}
+    endif
+endif

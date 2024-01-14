@@ -63,6 +63,8 @@ private:
   std::vector<std::vector<IdExpression *>> variablesNeedingUse;
   std::vector<std::vector<std::string>> foundVariables;
   std::vector<std::string> ignoreUnknownIdentifier;
+  std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
+      selectionStatementStack;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>> stack;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
       overriddenVariables;
@@ -86,6 +88,8 @@ private:
                               IdExpression *lhsIdExpr);
   void evaluatePureAssignment(AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
+  void modifiedVariableType(const std::string &varname,
+                            const std::vector<std::shared_ptr<Type>> &newTypes);
   std::vector<std::shared_ptr<Type>>
   evalAssignment(AssignmentOperator op,
                  const std::vector<std::shared_ptr<Type>> &lhs,
