@@ -89,6 +89,11 @@ else
     extra_deps = []
     extra_libs = []
     extra_link_args = []
+    if get_option('use_jemalloc')
+        extra_deps += dependency('jemalloc', static: true)
+    elif get_option('use_mimalloc')
+        extra_deps += dependency('mimalloc', static: true)
+    endif
 endif
 
 gtest_dep = dependency('gtest', main: true, required: false)
