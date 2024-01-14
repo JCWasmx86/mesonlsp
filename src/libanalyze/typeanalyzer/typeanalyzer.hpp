@@ -20,7 +20,7 @@
 
 std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types);
 
-class TypeAnalyzer : public CodeVisitor {
+class TypeAnalyzer final : public CodeVisitor {
 public:
   const TypeNamespace &ns;
   MesonTree *tree;
