@@ -66,6 +66,31 @@ TEST(TestAst, testEmpty) {
   ASSERT_EQ(bd->stmts.size(), 0);
 }
 
+TEST(TestAst, testExtractNodeValueSingleLine) {
+  auto node = parseToNode("project('foo')");
+  auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+  ASSERT_NE(bd, nullptr);
+  ASSERT_EQ(bd->stmts.size(), 1);
+  auto *fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
+  ASSERT_NE(fe, nullptr);
+  auto str = fe->file->extractNodeValue(fe->id->location);
+  ASSERT_EQ(str, "project");
+  auto *const sl = dynamic_cast<StringLiteral *>(
+      dynamic_cast<ArgumentList *>(fe->args.get())->args[0].get());
+  str = fe->file->extractNodeValue(sl->location);
+  ASSERT_EQ(str, "'foo'");
+}
+
+TEST(TestAst, testExtractNodeValueMultiLine) {
+  auto node = parseToNode("xyz = [\n  1,\n]\n");
+  auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+  ASSERT_NE(bd, nullptr);
+  ASSERT_EQ(bd->stmts.size(), 1);
+  auto *asS = dynamic_cast<AssignmentStatement *>(bd->stmts[0].get());
+  auto str = asS->file->extractNodeValue(asS->rhs->location);
+  ASSERT_EQ(str, "[\n  1,\n]");
+}
+
 TEST(TestAst, testBuildDefinition) {
   auto node = parseToNode("x = 1");
   auto *bd = dynamic_cast<BuildDefinition *>(node.get());
