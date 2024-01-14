@@ -17,7 +17,7 @@ cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
 cd gtk || exit
 # Undefined variables in dead code
-[ "$($LSPPATH |& grep 🔴 -c)" -eq "14" ] || exit 1
+[ "$($LSPPATH |& grep 🔴 -c)" -eq "6" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
@@ -28,7 +28,7 @@ git clone --depth=1 https://github.com/GNOME/gnome-builder
 cd gnome-builder || exit
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
-git clone --depth=1 https://github.com/GNOME/fractal
+git clone --depth=1 https://gitlab.gnome.org/World/fractal.git
 cd fractal || exit
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
@@ -42,8 +42,7 @@ cd GNOME-Builder-Plugins || exit
 cd .. || exit
 git clone --depth=1 https://gitlab.com/qemu-project/qemu
 cd qemu || exit
-# Error: /qga/meson.build:149:8: 🔴 Unknown identifier `project`
-[ "$($LSPPATH |& grep 🔴 -c)" -eq "1" ] || exit 1
+[ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/harfbuzz/harfbuzz
 cd harfbuzz || exit
