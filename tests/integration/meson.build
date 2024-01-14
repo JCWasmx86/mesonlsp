@@ -221,6 +221,10 @@ type_analyzer_tests = [
             ['dict_dict_plus', 'dict(build_machine|int|meson)'],
         ],
     ],
+    [
+        'selectionstatement',
+        [['full', 'bool|dict(int)|host_machine|list()|meson|target_machine']],
+    ],
 ]
 
 foreach test_data : type_analyzer_tests

@@ -184,6 +184,32 @@ static bool sameType(const std::shared_ptr<Type> &first,
                      const std::shared_ptr<Type> &second,
                      const std::string &name);
 
+void TypeAnalyzer::modifiedVariableType(
+    const std::string &varname,
+    const std::vector<std::shared_ptr<Type>> &newTypes) {
+  if (this->selectionStatementStack.empty()) {
+    return;
+  }
+  auto &currStackItem = this->selectionStatementStack.back();
+  if (!currStackItem.contains(varname)) {
+    currStackItem[varname] = this->scope.variables.contains(varname)
+                                 ? this->scope.variables[varname]
+                                 : std::vector<std::shared_ptr<Type>>{};
+    auto &curr = currStackItem[varname];
+    curr.insert(curr.end(), newTypes.begin(), newTypes.end());
+    currStackItem[varname] = curr;
+  } else {
+    auto &curr = currStackItem[varname];
+    if (this->scope.variables.contains(varname)) {
+      curr.insert(curr.end(), this->scope.variables[varname].begin(),
+                  scope.variables[varname].end());
+    }
+    curr.insert(curr.end(), newTypes.begin(), newTypes.end());
+    currStackItem[varname] = curr;
+  }
+  this->selectionStatementStack.back() = currStackItem;
+}
+
 void TypeAnalyzer::applyToStack(const std::string &name,
                                 std::vector<std::shared_ptr<Type>> types) {
   if (this->stack.empty()) {
@@ -275,6 +301,7 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
   }
   lhsIdExpr->types = arr;
   this->checkIdentifier(lhsIdExpr);
+  this->modifiedVariableType(lhsIdExpr->id, arr);
   this->applyToStack(lhsIdExpr->id, arr);
   this->scope.variables[lhsIdExpr->id] = arr;
   this->registerNeedForUse(lhsIdExpr);
@@ -378,6 +405,7 @@ void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
       dedup(this->ns,
             this->evalAssignment(node->op, node->lhs->types, node->rhs->types));
   lhsIdExpr->types = newTypes;
+  this->modifiedVariableType(lhsIdExpr->id, newTypes);
   this->applyToStack(lhsIdExpr->id, newTypes);
   this->scope.variables[lhsIdExpr->id] = newTypes;
 }
@@ -842,9 +870,7 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> types;
   for (const auto &arg : node->values) {
-    for (const auto &type : arg->types) {
-      types.emplace_back(type);
-    }
+    types.insert(types.end(), arg->types.begin(), arg->types.end());
   }
   node->types = std::vector<std::shared_ptr<Type>>{
       std::make_shared<Dict>(dedup(this->ns, types))};
@@ -1359,7 +1385,8 @@ void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                        joinStrings(asSet, '|'), node->file->file.c_str(),
                        node->location.format()));
   for (const auto &varname : asSet) {
-    auto types = args[1]->types;
+    const auto &types = args[1]->types;
+    this->modifiedVariableType(varname, types);
     this->scope.variables[varname] = types;
     this->applyToStack(varname, types);
   }
@@ -1378,6 +1405,7 @@ void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
   } else if (args.size() > 1) {
     auto varname = variableName->id;
     auto types = args[1]->types;
+    this->modifiedVariableType(varname, types);
     this->scope.variables[varname] = types;
     this->applyToStack(varname, types);
     LOG.info(std::format("set_variable {} = {}", varname, joinTypes(types)));
@@ -1391,9 +1419,9 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   }
   const auto &guessed = ::guessSetVariable(node, this->options);
   std::set<std::string> const asSet{guessed.begin(), guessed.end()};
-  auto msg = std::format("Found subdircall with dirs: {} at {}:{}",
-                         joinStrings(asSet, '|'), node->file->file.c_str(),
-                         node->location.format());
+  const auto &msg = std::format(
+      "Found subdircall with dirs: {} at {}:{}", joinStrings(asSet, '|'),
+      node->file->file.c_str(), node->location.format());
   if (asSet.empty()) {
     LOG.warn(msg);
   } else {
@@ -1694,6 +1722,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
     return;
   }
   this->metadata->encounteredIds.push_back(id0Expr);
+  this->modifiedVariableType(id0Expr->id, node->ids[0]->types);
   this->applyToStack(id0Expr->id, node->ids[0]->types);
   this->scope.variables[id0Expr->id] = node->ids[0]->types;
   this->checkIdentifier(id0Expr);
@@ -1727,6 +1756,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
   if (id0Expr) {
     this->metadata->encounteredIds.push_back(id0Expr);
+    this->modifiedVariableType(id0Expr->id, node->ids[0]->types);
     this->applyToStack(id0Expr->id, node->ids[0]->types);
     this->scope.variables[id0Expr->id] = node->ids[0]->types;
     this->checkIdentifier(id0Expr);
@@ -1734,6 +1764,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   auto *id1Expr = dynamic_cast<IdExpression *>(node->ids[1].get());
   if (id1Expr) {
     this->metadata->encounteredIds.push_back(id1Expr);
+    this->modifiedVariableType(id1Expr->id, node->ids[1]->types);
     this->applyToStack(id1Expr->id, node->ids[1]->types);
     this->scope.variables[id1Expr->id] = node->ids[1]->types;
     this->checkIdentifier(id1Expr);
@@ -1849,7 +1880,7 @@ bool TypeAnalyzer::findMethod(
     if (al && al->args.size() == 2 && methodName == "get") {
       auto defaultArg = al->getPositionalArg(1);
       if (defaultArg.has_value()) {
-        auto defaultTypes = defaultArg.value()->types;
+        const auto &defaultTypes = defaultArg.value()->types;
         ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
                               defaultTypes.end());
       }
@@ -1875,7 +1906,7 @@ bool TypeAnalyzer::findMethod(
         if (al && al->args.size() == 2 && methodName == "get") {
           auto defaultArg = al->getPositionalArg(1);
           if (defaultArg.has_value()) {
-            auto defaultTypes = defaultArg.value()->types;
+            const auto &defaultTypes = defaultArg.value()->types;
             ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
                                   defaultTypes.end());
           }
@@ -2092,11 +2123,7 @@ bool TypeAnalyzer::checkCondition(Node *condition) {
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
-  std::map<std::string, std::vector<std::shared_ptr<Type>>> oldVars;
-  for (const auto &oldVar : this->scope.variables) {
-    oldVars[oldVar.first] = std::vector<std::shared_ptr<Type>>{
-        oldVar.second.begin(), oldVar.second.end()};
-  }
+  this->selectionStatementStack.emplace_back();
   auto idx = 0UL;
   std::vector<IdExpression *> allLeft;
   for (const auto &block : node->blocks) {
@@ -2146,6 +2173,8 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   }
   this->variablesNeedingUse.back() = toInsert;
   const auto &types = this->stack.back();
+  const auto changed = this->selectionStatementStack.back();
+  this->selectionStatementStack.pop_back();
   // If: 1 c, 1 b
   // If,else if: 2c, 2b
   // if, else if, else, 2c, 3b
@@ -2164,11 +2193,13 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
                    ? this->scope.variables[key]
                    : std::vector<std::shared_ptr<Type>>{};
     arr.insert(arr.end(), pair.second.begin(), pair.second.end());
-    if (oldVars.contains(key)) {
-      const auto &oldTypes = oldVars[key];
+    if (changed.contains(key)) {
+      const auto &oldTypes = changed.at(key);
       arr.insert(arr.end(), oldTypes.begin(), oldTypes.end());
     }
-    this->scope.variables[key] = dedup(this->ns, arr);
+    const auto &deduped = dedup(this->ns, arr);
+    this->modifiedVariableType(key, deduped);
+    this->scope.variables[key] = deduped;
   }
   this->stack.pop_back();
   this->overriddenVariables.pop_back();
