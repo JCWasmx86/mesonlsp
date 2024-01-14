@@ -52,7 +52,7 @@ protected:
   Node(std::shared_ptr<SourceFile> file, TSNode node);
 };
 
-class KeywordItem : public Node {
+class KeywordItem final : public Node {
 public:
   std::shared_ptr<Node> key;
   std::shared_ptr<Node> value;
@@ -63,7 +63,7 @@ public:
   void setParents() override;
 };
 
-class ArgumentList : public Node {
+class ArgumentList final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -105,7 +105,7 @@ public:
   }
 };
 
-class ArrayLiteral : public Node {
+class ArrayLiteral final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -151,7 +151,7 @@ inline std::string enum2String(AssignmentOperator op) {
   assert(false);
 }
 
-class AssignmentStatement : public Node {
+class AssignmentStatement final : public Node {
 public:
   std::shared_ptr<Node> lhs;
   std::shared_ptr<Node> rhs;
@@ -219,7 +219,7 @@ inline std::string enum2String(BinaryOperator op) {
   assert(false);
 }
 
-class BinaryExpression : public Node {
+class BinaryExpression final : public Node {
 public:
   std::shared_ptr<Node> lhs;
   std::shared_ptr<Node> rhs;
@@ -231,7 +231,7 @@ public:
   void setParents() override;
 };
 
-class BooleanLiteral : public Node {
+class BooleanLiteral final : public Node {
 public:
   bool value;
   BooleanLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -240,7 +240,7 @@ public:
   void setParents() override;
 };
 
-class BreakNode : public Node {
+class BreakNode final : public Node {
 public:
   BreakNode(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
@@ -248,7 +248,7 @@ public:
   void setParents() override;
 };
 
-class BuildDefinition : public Node {
+class BuildDefinition final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> stmts;
   BuildDefinition(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -257,7 +257,7 @@ public:
   void setParents() override;
 };
 
-class ConditionalExpression : public Node {
+class ConditionalExpression final : public Node {
 public:
   std::shared_ptr<Node> condition;
   std::shared_ptr<Node> ifTrue;
@@ -268,7 +268,7 @@ public:
   void setParents() override;
 };
 
-class ContinueNode : public Node {
+class ContinueNode final : public Node {
 public:
   ContinueNode(std::shared_ptr<SourceFile> file, TSNode node);
   void visitChildren(CodeVisitor *visitor) override;
@@ -276,7 +276,7 @@ public:
   void setParents() override;
 };
 
-class DictionaryLiteral : public Node {
+class DictionaryLiteral final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> values;
   DictionaryLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -285,7 +285,7 @@ public:
   void setParents() override;
 };
 
-class ErrorNode : public Node {
+class ErrorNode final : public Node {
 public:
   std::string message;
 
@@ -297,7 +297,7 @@ public:
   void setParents() override;
 };
 
-class IdExpression : public Node {
+class IdExpression final : public Node {
 public:
   std::string id;
   IdExpression(const std::shared_ptr<SourceFile> &file, TSNode node);
@@ -309,7 +309,7 @@ public:
 #define INVALID_FUNCTION_NAME "<<<Error>>>"
 #define INVALID_KEY_NAME "<<<$$$$ERROR$$$$>>>"
 
-class FunctionExpression : public Node {
+class FunctionExpression final : public Node {
 public:
   std::shared_ptr<Node> id;
   std::shared_ptr<Node> args;
@@ -328,7 +328,7 @@ public:
   }
 };
 
-class IntegerLiteral : public Node {
+class IntegerLiteral final : public Node {
 public:
   uint64_t valueAsInt;
   std::string value;
@@ -338,7 +338,7 @@ public:
   void setParents() override;
 };
 
-class IterationStatement : public Node {
+class IterationStatement final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> ids;
   std::shared_ptr<Node> expression;
@@ -349,7 +349,7 @@ public:
   void setParents() override;
 };
 
-class StringLiteral : public Node {
+class StringLiteral final : public Node {
 public:
   std::string id;
   bool isFormat;
@@ -365,7 +365,7 @@ public:
   void setParents() override;
 };
 
-class KeyValueItem : public Node {
+class KeyValueItem final : public Node {
 public:
   std::shared_ptr<Node> key;
   std::shared_ptr<Node> value;
@@ -383,7 +383,7 @@ public:
   }
 };
 
-class MethodExpression : public Node {
+class MethodExpression final : public Node {
 public:
   std::shared_ptr<Node> obj;
   std::shared_ptr<Node> id;
@@ -395,7 +395,7 @@ public:
   void setParents() override;
 };
 
-class SelectionStatement : public Node {
+class SelectionStatement final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> conditions;
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
@@ -405,7 +405,7 @@ public:
   void setParents() override;
 };
 
-class SubscriptExpression : public Node {
+class SubscriptExpression final : public Node {
 public:
   std::shared_ptr<Node> outer;
   std::shared_ptr<Node> inner;
@@ -417,7 +417,7 @@ public:
 
 enum UnaryOperator { Not, ExclamationMark, UnaryMinus, UnaryOther };
 
-class UnaryExpression : public Node {
+class UnaryExpression final : public Node {
 public:
   std::shared_ptr<Node> expression;
   UnaryOperator op;
