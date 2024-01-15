@@ -74,7 +74,7 @@ guessTargetDirectoryFromWrap(const std::filesystem::path &path) {
     while (std::getline(file, line)) {
       const auto pos = line.find("directory");
       if (pos != std::string::npos) {
-        auto directoryValue = line.substr(pos + strlen("directory"));
+        auto directoryValue = line.substr(pos + sizeof("directory") - 1);
         trim(directoryValue);
         if (directoryValue.empty() || directoryValue[0] != '=') {
           continue;
