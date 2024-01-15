@@ -35,9 +35,12 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
                                      const LSPPosition &position) {
-  const auto lines = split(ast->file->contents(), "\n");
+  auto lines = split(ast->file->contents(), "\n");
+  lines.emplace_back("\n");
   std::vector<CompletionItem> ret;
   if (position.line >= lines.size()) {
+    LOG.warn(
+        std::format("Completion OOB: {} >= {}", position.line, lines.size()));
     return {};
   }
   const auto &line = lines[position.line];
@@ -100,6 +103,12 @@ next:
                          TextEdit(nodeToRange(idExpr),
                                   createTextForFunction(function.second)));
       }
+    }
+  } else if (prev.empty()) {
+    for (const auto &function : tree->ns.functions) {
+      ret.emplace_back(function.first + "()", CompletionItemKind::CIKFunction,
+                       TextEdit(LSPRange(position, position),
+                                createTextForFunction(function.second)));
     }
   }
   return ret;
