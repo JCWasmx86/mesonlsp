@@ -14,7 +14,6 @@
 #include <future>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <optional>
 #include <semaphore>
 #include <string>
