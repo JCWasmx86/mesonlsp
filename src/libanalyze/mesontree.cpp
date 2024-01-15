@@ -103,7 +103,7 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   LOG.info(std::format("Parsing {} ({})", this->identifier,
                        this->root.generic_string()));
   // First fetch all the options
-  auto options = parseOptions(this->root, &this->metadata);
+  const auto &options = parseOptions(this->root, &this->metadata);
   // Then fetch diagnostics for the options
   // Then parse the root meson.build file
   const auto &rootFile = this->root / "meson.build";

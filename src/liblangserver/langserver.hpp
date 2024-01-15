@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <semaphore>
 #include <set>
 #include <string>
 #include <vector>
@@ -57,4 +58,5 @@ private:
   TypeNamespace ns;
   std::set<std::string> pkgNames;
   LanguageServerOptions options;
+  std::binary_semaphore smph{1};
 };

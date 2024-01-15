@@ -16,6 +16,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <semaphore>
 #include <string>
 #include <vector>
 
@@ -30,9 +31,6 @@ public:
   std::atomic<bool> settingUp = false;
   std::atomic<bool> completing = false;
   std::atomic<bool> running = false;
-  std::mutex cvMutex;
-  std::mutex mtx;
-  std::mutex dataCollectionMtx;
   std::vector<MesonTree *> foundTrees;
   Logger logger;
   LanguageServerOptions &options;
@@ -76,4 +74,5 @@ public:
 
 private:
   std::shared_ptr<MesonTree> tree;
+  std::binary_semaphore smph{1};
 };
