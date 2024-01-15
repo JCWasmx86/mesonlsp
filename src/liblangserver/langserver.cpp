@@ -135,10 +135,12 @@ void LanguageServer::onInitialized(InitializedParams & /*params*/) {
 
 void LanguageServer::onExit() {}
 
-void LanguageServer::onDidOpenTextDocument(DidOpenTextDocumentParams &params) {}
+void LanguageServer::onDidOpenTextDocument(
+    DidOpenTextDocumentParams & /*params*/) {}
 
 void LanguageServer::onDidChangeTextDocument(
     DidChangeTextDocumentParams &params) {
+  this->smph.acquire();
   const auto &path = extractPathFromUrl(params.textDocument.uri);
   this->cachedContents[path] = params.contentChanges[0].text;
   for (auto &workspace : this->workspaces) {
@@ -150,9 +152,11 @@ void LanguageServer::onDidChangeTextDocument(
           [this](
               const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
                   &changes) { this->publishDiagnostics(changes); });
+      this->smph.release();
       return;
     }
   }
+  this->smph.release();
 }
 
 std::vector<InlayHint> LanguageServer::inlayHints(InlayHintParams &params) {
@@ -310,7 +314,8 @@ std::optional<Hover> LanguageServer::hover(HoverParams &params) {
   return std::nullopt;
 }
 
-void LanguageServer::onDidSaveTextDocument(DidSaveTextDocumentParams &params) {}
+void LanguageServer::onDidSaveTextDocument(
+    DidSaveTextDocumentParams & /*params*/) {}
 
 void LanguageServer::onDidCloseTextDocument(
     DidCloseTextDocumentParams &params) {

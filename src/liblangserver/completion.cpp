@@ -37,7 +37,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      const LSPPosition &position) {
   const auto lines = split(ast->file->contents(), "\n");
   std::vector<CompletionItem> ret;
-  if (position.line > lines.size()) {
+  if (position.line >= lines.size()) {
     return {};
   }
   const auto &line = lines[position.line];

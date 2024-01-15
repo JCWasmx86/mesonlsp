@@ -46,18 +46,20 @@ std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
 }
 
 bool Workspace::owns(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (subTree->ownedFiles.contains(path)) {
+      this->smph.release();
       return true;
     }
   }
+  this->smph.release();
   return false;
 }
 
 std::vector<InlayHint>
 Workspace::inlayHints(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -68,14 +70,16 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     }
     auto visitor = InlayHintVisitor();
     ast.back()->visit(&visitor);
+    this->smph.release();
     return visitor.hints;
   }
+  this->smph.release();
   return {};
 }
 
 std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
                                       const LSPPosition &position) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -84,26 +88,35 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     auto feOpt = metadata.findFunctionExpressionAt(path, position.line,
                                                    position.character);
     if (feOpt.has_value()) {
-      return makeHoverForFunctionExpression(feOpt.value(), subTree->options);
+      auto val =
+          makeHoverForFunctionExpression(feOpt.value(), subTree->options);
+      this->smph.release();
+      return val;
     }
     auto meOpt = metadata.findMethodExpressionAt(path, position.line,
                                                  position.character);
     if (meOpt.has_value()) {
-      return makeHoverForMethodExpression(meOpt.value());
+      auto val = makeHoverForMethodExpression(meOpt.value());
+      this->smph.release();
+      return val;
     }
     auto idExprOpt =
         metadata.findIdExpressionAt(path, position.line, position.character);
     if (idExprOpt.has_value()) {
-      return makeHoverForId(idExprOpt.value());
+      auto val = makeHoverForId(idExprOpt.value());
+      this->smph.release();
+      return val;
     }
+    this->smph.release();
     return {};
   }
+  this->smph.release();
   return std::nullopt;
 }
 
 std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
                                               const LSPRange &range) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -114,15 +127,17 @@ std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
     }
     auto visitor = CodeActionVisitor(range, pathToUrl(path), subTree);
     ast.back()->visit(&visitor);
+    this->smph.release();
     return visitor.actions;
   }
+  this->smph.release();
   return {};
 }
 
 std::vector<DocumentHighlight>
 Workspace::highlight(const std::filesystem::path &path,
                      const LSPPosition &position) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -134,6 +149,7 @@ Workspace::highlight(const std::filesystem::path &path,
     auto idExpr =
         metadata.findIdExpressionAt(path, position.line, position.character);
     if (!idExpr) {
+      this->smph.release();
       return {};
     }
     auto identifiers = metadata.identifiers[path];
@@ -152,14 +168,16 @@ Workspace::highlight(const std::filesystem::path &path,
                             LSPPosition(loc.endLine, loc.endColumn));
       ret.emplace_back(range, kind);
     }
+    this->smph.release();
     return ret;
   }
+  this->smph.release();
   return {};
 }
 
 std::vector<uint64_t>
 Workspace::semanticTokens(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -170,14 +188,16 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
     }
     auto visitor = SemanticTokensVisitor();
     ast.back()->visit(&visitor);
+    this->smph.release();
     return visitor.finish();
   }
+  this->smph.release();
   return {};
 }
 
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -205,6 +225,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
           const auto loc = idExpr->location;
           auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                                 LSPPosition(loc.endLine, loc.endColumn));
+          this->smph.release();
           return {LSPLocation(pathToUrl(idExpr->file->file), range)};
         }
       }
@@ -212,10 +233,12 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         const auto loc = idExpr->location;
         auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                               LSPPosition(loc.endLine, loc.endColumn));
+        this->smph.release();
         return {LSPLocation(pathToUrl(idExpr->file->file), range)};
       }
     }
     if (!metadata->functionCalls.contains(path)) {
+      this->smph.release();
       return {};
     }
     for (const auto &funcCall : metadata->functionCalls.at(path)) {
@@ -225,11 +248,13 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         continue;
       }
       if (funcCall->functionName() != "subdir") {
+        this->smph.release();
         return {};
       }
       auto key = std::format("{}-{}", funcCall->file->file.generic_string(),
                              funcCall->location.format());
       if (!metadata->subdirCalls.contains(key)) {
+        this->smph.release();
         return {};
       }
       const auto &set = metadata->subdirCalls.at(key);
@@ -241,17 +266,19 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         auto range = LSPRange(LSPPosition(0, 0), LSPPosition(0, 0));
         ret.emplace_back(pathToUrl(subdirMesonPath), range);
       }
+      this->smph.release();
       return ret;
     }
     break;
   }
+  this->smph.release();
   return {};
 }
 
 std::optional<WorkspaceEdit>
 Workspace::rename(const std::filesystem::path &path,
                   const RenameParams &params) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -260,6 +287,7 @@ Workspace::rename(const std::filesystem::path &path,
     auto toRenameOpt = metadata.findIdExpressionAt(path, params.position.line,
                                                    params.position.character);
     if (!toRenameOpt.has_value()) {
+      this->smph.release();
       return std::nullopt;
     }
     auto *toRename = toRenameOpt.value();
@@ -285,14 +313,16 @@ Workspace::rename(const std::filesystem::path &path,
         ret.changes[url].emplace_back(range, params.newName);
       }
     }
+    this->smph.release();
     return ret;
   }
+  this->smph.release();
   return std::nullopt;
 }
 
 std::vector<FoldingRange>
 Workspace::foldingRanges(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -303,14 +333,16 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
     }
     auto visitor = FoldingRangeVisitor();
     ast.back()->visit(&visitor);
+    this->smph.release();
     return visitor.ranges;
   }
+  this->smph.release();
   return {};
 }
 
 std::vector<SymbolInformation>
 Workspace::documentSymbols(const std::filesystem::path &path) {
-  std::lock_guard<std::mutex> const lock(dataCollectionMtx);
+  this->smph.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -321,8 +353,10 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
     }
     auto visitor = DocumentSymbolVisitor();
     ast.back()->visit(&visitor);
+    this->smph.release();
     return visitor.symbols;
   }
+  this->smph.release();
   return {};
 }
 
@@ -341,9 +375,7 @@ void Workspace::patchFile(
     const std::filesystem::path &path, const std::string &contents,
     const std::function<void(
         std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
-
-  std::lock_guard<std::mutex> const lock(mtx);
-  std::unique_lock<std::mutex> lockEverythingElse(this->dataCollectionMtx);
+  this->smph.acquire();
   this->settingUp = true;
 
   for (const auto &subTree : this->foundTrees) {
@@ -357,20 +389,9 @@ void Workspace::patchFile(
       oldDiags.insert(pair.first);
     }
     subTree->clear();
-    if (this->tasks.contains(identifier)) {
-      lockEverythingElse.unlock();
-      auto *tsk = this->tasks[identifier];
-      this->logger.info(
-          std::format("Waiting for {} to terminate", tsk->getUUID()));
-      futures[identifier].wait();
-      this->logger.info(
-          std::format("{} finally terminated...", tsk->getUUID()));
-      lockEverythingElse.lock();
-    }
     subTree->overrides[path] = contents;
 
     auto *newTask = new Task([&subTree, func, oldDiags, this]() {
-      std::unique_lock<std::mutex> const lockTask(this->dataCollectionMtx);
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
@@ -387,6 +408,7 @@ void Workspace::patchFile(
         func(ret);
         this->tasks.erase(subTree->identifier);
         this->running = false;
+        this->smph.release();
         std::rethrow_exception(exception);
         return;
       }
@@ -409,11 +431,11 @@ void Workspace::patchFile(
       this->tasks.erase(subTree->identifier);
       this->foundTrees = findTrees(this->tree);
       this->running = false;
+      this->smph.release();
     });
 
     this->tasks[identifier] = newTask;
     this->settingUp = false;
-    lockEverythingElse.unlock();
     futures[identifier] = std::async(std::launch::async, &Task::run, newTask);
     return;
   }
@@ -493,30 +515,20 @@ Workspace::parse(const TypeNamespace &ns) {
 std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
                       const LSPPosition &position) {
-  std::unique_lock<std::mutex> const lock(dataCollectionMtx);
-
+  this->smph.acquire();
   this->completing = true;
 
   for (const auto &subTree : this->foundTrees) {
-    auto identifier = subTree->identifier;
-    if (this->tasks.contains(identifier)) {
-      auto *tsk = this->tasks[identifier];
-      this->logger.info(
-          std::format("Waiting for {} to terminate", tsk->getUUID()));
-      while (tsk->state != TaskState::Ended) {
-      }
-      this->logger.info(
-          std::format("{} finally terminated...", tsk->getUUID()));
-    }
-
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
     auto ret = complete(path, subTree, subTree->asts[path].back(), position);
     this->completing = false;
+    this->smph.release();
     return ret;
   }
 
   this->completing = false;
+  this->smph.release();
   return {};
 }
