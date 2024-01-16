@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "nlohmann/json.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <ostream>
@@ -15,6 +16,7 @@ public:
   bool neverDownloadAutomatically = false;
   std::optional<std::vector<std::string>> ignoreDiagnosticsFromSubprojects =
       std::nullopt;
+  std::optional<std::filesystem::path> defaultFormattingConfig;
   bool disableInlayHints = false;
 
   // No need for muon path anymore
@@ -29,6 +31,19 @@ public:
       }
       if (others.contains("disableInlayHints")) {
         this->disableInlayHints = others.value("disableInlayHints", false);
+      }
+      if (others.contains("defaultFormattingConfig")) {
+        const auto &config = others["defaultFormattingConfig"];
+        if (config.is_string()) {
+          const auto &path = std::filesystem::path{config};
+          if (path.is_absolute() && std::filesystem::exists(path)) {
+            this->defaultFormattingConfig = path;
+          } else {
+            this->defaultFormattingConfig = std::nullopt;
+          }
+        } else {
+          this->defaultFormattingConfig = std::nullopt;
+        }
       }
       if (others.contains("ignoreDiagnosticsFromSubprojects")) {
         const auto &ignore = others.at("ignoreDiagnosticsFromSubprojects");
