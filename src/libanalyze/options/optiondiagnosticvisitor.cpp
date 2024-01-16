@@ -423,6 +423,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
         nameNode->get(), Diagnostic(Severity::Error, nameNode->get(),
                                     "Unknown option type: " + optionType));
   }
+  this->metadata->registerOption(nameNodeSl);
   auto defaultValue = al->getKwarg("value");
   if (!defaultValue.has_value()) {
     // TODO: Check e.g. min/max for integer

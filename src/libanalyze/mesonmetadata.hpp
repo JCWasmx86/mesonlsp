@@ -126,6 +126,8 @@ public:
       kwargs;
   std::map<std::filesystem::path, std::vector<Diagnostic>> diagnostics;
   std::vector<IdExpression *> encounteredIds;
+  std::map<std::string, std::tuple<std::filesystem::path, uint32_t, uint32_t>>
+      options;
 
   void registerDiagnostic(const Node *node, const Diagnostic &diag) {
     const auto &key = node->file->file;
@@ -141,6 +143,12 @@ public:
     const auto &key = std::format("{}-{}", node->file->file.generic_string(),
                                   node->location.format());
     this->subdirCalls[key] = subdirs;
+  }
+
+  void registerOption(const StringLiteral *literal) {
+    this->options[literal->id] =
+        std::make_tuple(literal->file->file, literal->location.startLine,
+                        literal->location.startColumn);
   }
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
   REGISTER(registerStringLiteral, stringLiterals, StringLiteral)

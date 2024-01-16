@@ -246,6 +246,30 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
           funcCall->file->file != path) {
         continue;
       }
+      if (funcCall->functionName() == "get_option") {
+        if (!funcCall->args) {
+          goto nextIf;
+        }
+        const auto *al =
+            dynamic_cast<const ArgumentList *>(funcCall->args.get());
+        if (!al || al->args.empty()) {
+          goto nextIf;
+        }
+        const auto *nameSl = dynamic_cast<StringLiteral *>(al->args[0].get());
+        if (!nameSl) {
+          goto nextIf;
+        }
+        if (!metadata->options.contains(nameSl->id)) {
+          goto nextIf;
+        }
+        auto &tuple = metadata->options[nameSl->id];
+        LSPPosition pos{std::get<1>(tuple), std::get<2>(tuple)};
+        LSPRange range{pos, pos};
+        const std::filesystem::path &optionsPath = std::get<0>(tuple);
+        this->smph.release();
+        return {{pathToUrl(optionsPath), range}};
+      }
+    nextIf:
       if (funcCall->functionName() != "subdir") {
         this->smph.release();
         return {};
