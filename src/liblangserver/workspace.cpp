@@ -204,7 +204,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
     const auto &metadata = &subTree->metadata;
     auto foundMyself = false;
     std::string toFind;
-    for (size_t i = metadata->encounteredIds.size() - 1; i > 0; i--) {
+    for (size_t i = metadata->encounteredIds.size() - 1; i >= 0; i--) {
       if (i == (size_t)-1) {
         break;
       }
