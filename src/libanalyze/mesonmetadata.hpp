@@ -128,7 +128,7 @@ public:
   std::vector<IdExpression *> encounteredIds;
 
   void registerDiagnostic(const Node *node, const Diagnostic &diag) {
-    auto key = node->file->file;
+    const auto &key = node->file->file;
     if (this->diagnostics.contains(key)) {
       this->diagnostics[key].push_back(diag);
     } else {
