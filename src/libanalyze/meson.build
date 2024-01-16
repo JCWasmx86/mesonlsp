@@ -16,7 +16,6 @@ analyze_lib = static_library(
     'subprojects/subprojectstate.cpp',
     'typeanalyzer/partialinterpreter.cpp',
     'subprojects/subproject.cpp',
-    'mesonmetadata.cpp',
     'mesontree.cpp',
     include_directories: analyze_inc,
     dependencies: analyze_deps,
