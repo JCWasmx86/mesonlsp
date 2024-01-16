@@ -11,6 +11,7 @@
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
 
+#include <cassert>
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
@@ -31,6 +32,9 @@ static std::set<std::shared_ptr<Method>>
 fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types);
 static std::string createTextForFunction(const std::shared_ptr<Function> &func);
+static void
+specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
+                                   std::vector<CompletionItem> &ret);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
@@ -105,7 +109,8 @@ next:
           identifier->location.startLine > position.line) {
         break;
       }
-      if (lowercase(identifier->id).contains(loweredId)) {
+      if (lowercase(identifier->id).contains(loweredId) &&
+          loweredId != identifier->id) {
         toInsert.insert(identifier->id);
       }
     }
@@ -121,6 +126,43 @@ next:
     if (!rightParent) {
       goto next;
     }
+    const auto *al = dynamic_cast<const ArgumentList *>(parent);
+    if (al) {
+      const auto *parentOfArgs = al->parent;
+      assert(parentOfArgs);
+      std::shared_ptr<Function> func;
+      const auto *fe = dynamic_cast<const FunctionExpression *>(parentOfArgs);
+      if (fe) {
+        func = fe->function;
+      }
+      const auto *me = dynamic_cast<const MethodExpression *>(parentOfArgs);
+      if (me) {
+        func = me->method;
+      }
+      if (!func) {
+        goto insertFns;
+      }
+      std::set<std::string> unusedKwargs;
+      for (const auto &kwarg : func->kwargs) {
+        unusedKwargs.insert(kwarg.first);
+      }
+      for (const auto &arg : al->args) {
+        const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
+        if (!kwarg || !kwarg->name.has_value()) {
+          continue;
+        }
+        const auto &val = kwarg->name.value();
+        if (unusedKwargs.contains(val)) {
+          unusedKwargs.erase(val);
+        }
+      }
+      for (const auto &toAdd : unusedKwargs) {
+        ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+                         TextEdit(nodeToRange(idExpr),
+                                  std::format("{}: ${{1:{}}}", toAdd, toAdd)));
+      }
+    }
+  insertFns:
     for (const auto &function : tree->ns.functions) {
       auto lowerName = lowercase(function.first);
       if (lowerName.contains(loweredId)) {
@@ -135,6 +177,12 @@ next:
                        TextEdit(LSPRange(position, position),
                                 createTextForFunction(function.second)));
     }
+  }
+  auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
+                                                    position.character);
+  if (slAtPos.has_value()) {
+    LOG.info("Found string literal");
+    specialStringLiteralAutoCompletion(tree, slAtPos.value(), ret);
   }
   return ret;
 }
@@ -244,4 +292,78 @@ static std::optional<std::string> extractErrorId(const std::string &prev) {
     return ret;
   }
   return ret;
+}
+
+static void
+specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
+                                   std::vector<CompletionItem> &ret) {
+  auto *parent = literal->parent;
+  auto *al = dynamic_cast<ArgumentList *>(parent);
+  // TODO: Maybe check kwargs?
+  if (!al) {
+    LOG.info("Auto-completion in string literal => No argument list as parent");
+    return;
+  }
+  auto *fe = dynamic_cast<FunctionExpression *>(al->parent);
+  if (fe && fe->function) {
+    const auto &func = fe->function;
+    LOG.info("Found function: " + func->id());
+    // dependency, get_option
+    if (func->name == "files") {
+      std::set<std::filesystem::path> alreadyExisting;
+      const auto ppath = literal->file->file.parent_path();
+      for (const auto &arg : al->args) {
+        if (dynamic_cast<const KeywordItem *>(arg.get())) {
+          continue;
+        }
+        const auto *sl = dynamic_cast<const StringLiteral *>(arg.get());
+        if (!sl || sl->equals(literal)) {
+          continue;
+        }
+        const auto &fullPath = std::filesystem::absolute(ppath / sl->id);
+        LOG.info(std::format("Found path: {}", fullPath.generic_string()));
+        alreadyExisting.insert(fullPath);
+      }
+      const auto &toSearch =
+          !literal->id.contains("/")
+              ? ppath
+              : ppath / literal->id.substr(0, literal->id.rfind('/'));
+      if (!std::filesystem::exists(toSearch)) {
+        return;
+      }
+      for (const auto &entry : std::filesystem::directory_iterator{toSearch}) {
+        const auto &fullPath = std::filesystem::absolute(entry.path());
+        if (!std::filesystem::is_regular_file(fullPath)) {
+          continue;
+        }
+        if (alreadyExisting.contains(fullPath)) {
+          LOG.info(std::format("Skipping path: {}", fullPath.generic_string()));
+          continue;
+        }
+        const auto &relative =
+            fullPath.lexically_relative(ppath).generic_string();
+        LOG.info(std::format("Adding path: {}", relative));
+        // TODO: Works in Builder, but not in VSCode
+        ret.emplace_back(
+            relative, CompletionItemKind::CIKFile,
+            TextEdit(nodeToRange(literal), std::format("{}", relative)));
+      }
+    }
+
+    if (func->name == "get_option") {
+      for (const auto &opt : tree->options.options) {
+        LOG.info(std::format("Inserting option {}", opt->name));
+        // TODO: Works in Builder, but not in VSCode
+        ret.emplace_back(
+            opt->name, CompletionItemKind::CIKFile,
+            TextEdit(nodeToRange(literal), std::format("{}", opt->name)));
+      }
+    }
+
+    return;
+  }
+  auto *me = dynamic_cast<MethodExpression *>(al->parent);
+  if (!me || !me->method) {
+    return;
+  }
 }
