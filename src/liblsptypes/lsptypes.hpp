@@ -645,6 +645,8 @@ enum CompletionItemKind {
   CIKMethod = 2,
   CIKFunction = 3,
   CIKVariable = 6,
+  CIKKeyword = 14,
+  CIKFile = 17,
   CIKConstant = 21,
 };
 
