@@ -8,6 +8,7 @@
 #include "mesontree.hpp"
 #include "node.hpp"
 #include "type.hpp"
+#include "typeanalyzer.hpp"
 #include "utils.hpp"
 
 #include <cctype>
@@ -52,7 +53,9 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
     }
     auto types =
         afterDotCompletion(tree, path, position.line, position.character, true);
-    if (types.has_value()) {
+    if (types.has_value() && !types.value().empty()) {
+      LOG.info(std::format("Guessed types in afterDotCompletion: {}",
+                           joinTypes(types.value())));
       const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, types.value())) {
         ret.emplace_back(toAdd + method->name + "()",
@@ -62,9 +65,10 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
       }
     } else {
       auto errorId = extractErrorId(prev);
-      if (!errorId.has_value()) {
+      if (!errorId.has_value() || errorId.value().empty()) {
         goto next;
       }
+      LOG.info(std::format("ErrorID: '{}'", errorId.value()));
       std::vector<std::shared_ptr<Type>> types;
       for (auto *const identifier : tree->metadata.identifiers[path]) {
         types.insert(types.end(), identifier->types.begin(),
@@ -83,6 +87,8 @@ next:
                                                        position.character);
   if (idExprAtPos.has_value()) {
     const auto *idExpr = idExprAtPos.value();
+    LOG.info(std::format("Found idExpr: {} at {}", idExpr->id,
+                         idExpr->location.format()));
     const auto *parent = idExpr->parent;
     auto rightParent =
         (dynamic_cast<const BuildDefinition *>(parent) != nullptr) ||
@@ -92,10 +98,29 @@ next:
         (dynamic_cast<const BinaryExpression *>(parent) != nullptr) ||
         (dynamic_cast<const UnaryExpression *>(parent) != nullptr) ||
         (dynamic_cast<const AssignmentStatement *>(parent) != nullptr);
+    const auto &loweredId = lowercase(idExpr->id);
+    std::set<std::string> toInsert;
+    for (const auto &identifier : tree->metadata.encounteredIds) {
+      if (identifier->file->file == path &&
+          identifier->location.startLine > position.line) {
+        break;
+      }
+      if (lowercase(identifier->id).contains(loweredId)) {
+        toInsert.insert(identifier->id);
+      }
+    }
+    for (const auto &identifier : toInsert) {
+      auto kind = CompletionItemKind::CIKVariable;
+      if (identifier == "meson" || identifier == "build_machine" ||
+          identifier == "host_machine" || identifier == "target_machine") {
+        kind = CompletionItemKind::CIKConstant;
+      }
+      ret.emplace_back(identifier, kind,
+                       TextEdit(nodeToRange(idExpr), identifier));
+    }
     if (!rightParent) {
       goto next;
     }
-    auto loweredId = lowercase(idExpr->id);
     for (const auto &function : tree->ns.functions) {
       auto lowerName = lowercase(function.first);
       if (lowerName.contains(loweredId)) {
@@ -119,25 +144,34 @@ afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
                    uint64_t line, uint64_t character, bool recurse) {
   auto idExprOpt = tree->metadata.findIdExpressionAt(path, line, character);
   if (idExprOpt.has_value()) {
+    LOG.info(std::format("Found identifier {}", idExprOpt.value()->id));
     return idExprOpt.value()->types;
   }
   auto fExprOpt =
       tree->metadata.findFullFunctionExpressionAt(path, line, character - 1);
   if (fExprOpt.has_value() && fExprOpt.value()->function) {
+    LOG.info(
+        std::format("Found func call {}", fExprOpt.value()->function->id()));
     return fExprOpt.value()->types;
   }
   auto mExprOpt =
       tree->metadata.findFullMethodExpressionAt(path, line, character - 1);
   if (mExprOpt.has_value() && mExprOpt.value()->method) {
+    LOG.info(
+        std::format("Found method call {}", mExprOpt.value()->method->id()));
     return mExprOpt.value()->types;
   }
   auto sseOpt =
       tree->metadata.findSubscriptExpressionAt(path, line, character - 1);
   if (sseOpt.has_value()) {
+    LOG.info(std::format("Found subscript expression {}",
+                         sseOpt.value()->location.format()));
     return sseOpt.value()->types;
   }
   auto stringLit = tree->metadata.findStringLiteralAt(path, line, character);
   if (stringLit.has_value()) {
+    LOG.info(std::format("Found string literal {}",
+                         stringLit.value()->location.format()));
     return stringLit.value()->types;
   }
   if (recurse && character > 0) {
