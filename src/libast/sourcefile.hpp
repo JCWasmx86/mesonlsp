@@ -15,7 +15,7 @@ class SourceFile {
 public:
   const std::filesystem::path file;
 
-  SourceFile(const std::filesystem::path &file)
+  explicit SourceFile(const std::filesystem::path &file)
       : file(std::filesystem::absolute(file)) {}
 
   virtual const std::string &contents();

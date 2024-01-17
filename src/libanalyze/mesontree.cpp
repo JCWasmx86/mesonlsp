@@ -42,7 +42,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   root->visit(&diagnosticVisitor);
   ts_tree_delete(tree);
   ts_parser_delete(parser);
-  return {visitor.options};
+  return OptionState{visitor.options};
 }
 
 OptionState MesonTree::parseOptions(const std::filesystem::path &root,

@@ -27,32 +27,32 @@ public:
     }
   };
 
-  InterpretNode(Node *node) : node(node) {}
+  explicit InterpretNode(Node *node) : node(node) {}
 };
 
 class ArrayNode : public InterpretNode {
 public:
-  ArrayNode(Node *node) : InterpretNode(node) {}
+  explicit ArrayNode(Node *node) : InterpretNode(node) {}
 };
 
 class StringNode : public InterpretNode {
 public:
-  StringNode(Node *node) : InterpretNode(node) {}
+  explicit StringNode(Node *node) : InterpretNode(node) {}
 };
 
 class DictNode : public InterpretNode {
 public:
-  DictNode(Node *node) : InterpretNode(node) {}
+  explicit DictNode(Node *node) : InterpretNode(node) {}
 };
 
 class IntNode : public InterpretNode {
 public:
-  IntNode(Node *node) : InterpretNode(node) {}
+  explicit IntNode(Node *node) : InterpretNode(node) {}
 };
 
 class ArtificialStringNode : public InterpretNode {
 public:
-  ArtificialStringNode(std::string str)
+  explicit ArtificialStringNode(std::string str)
       : InterpretNode(new StringLiteral(std::move(str))) {
     this->deleteNode = true;
   }
@@ -60,7 +60,8 @@ public:
 
 class ArtificialArrayNode : public InterpretNode {
 public:
-  ArtificialArrayNode(const std::vector<std::shared_ptr<InterpretNode>> &args)
+  explicit ArtificialArrayNode(
+      const std::vector<std::shared_ptr<InterpretNode>> &args)
       : InterpretNode(new ArrayLiteral({}, true)) {
     for (const auto &arg : args) {
       auto *asString = dynamic_cast<StringLiteral *>(arg->node);
@@ -75,7 +76,7 @@ class PartialInterpreter {
   OptionState &options;
 
 public:
-  PartialInterpreter(OptionState &options) : options(options) {}
+  explicit PartialInterpreter(OptionState &options) : options(options) {}
 
   std::vector<std::string> calculate(Node *parent, Node *exprToCalculate);
 

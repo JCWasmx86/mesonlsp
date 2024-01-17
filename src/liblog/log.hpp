@@ -12,7 +12,7 @@ private:
   std::string reset;
 
 public:
-  Logger(std::string module);
+  explicit Logger(std::string module);
 
   void info(const std::string &msg,
             std::source_location location = std::source_location::current());

@@ -23,36 +23,36 @@ protected:
 
 class StringOption : public MesonOption {
 public:
-  StringOption(std::string name,
-               std::optional<std::string> description = std::nullopt,
-               bool deprecated = false)
+  explicit StringOption(std::string name,
+                        std::optional<std::string> description = std::nullopt,
+                        bool deprecated = false)
       : MesonOption(std::move(name), std::move(description), deprecated,
                     "string") {}
 };
 
 class IntOption : public MesonOption {
 public:
-  IntOption(std::string name,
-            std::optional<std::string> description = std::nullopt,
-            bool deprecated = false)
+  explicit IntOption(std::string name,
+                     std::optional<std::string> description = std::nullopt,
+                     bool deprecated = false)
       : MesonOption(std::move(name), std::move(description), deprecated,
                     "integer") {}
 };
 
 class BoolOption : public MesonOption {
 public:
-  BoolOption(std::string name,
-             std::optional<std::string> description = std::nullopt,
-             bool deprecated = false)
+  explicit BoolOption(std::string name,
+                      std::optional<std::string> description = std::nullopt,
+                      bool deprecated = false)
       : MesonOption(std::move(name), std::move(description), deprecated,
                     "boolean") {}
 };
 
 class FeatureOption : public MesonOption {
 public:
-  FeatureOption(std::string name,
-                std::optional<std::string> description = std::nullopt,
-                bool deprecated = false)
+  explicit FeatureOption(std::string name,
+                         std::optional<std::string> description = std::nullopt,
+                         bool deprecated = false)
       : MesonOption(std::move(name), std::move(description), deprecated,
                     "feature") {}
 };

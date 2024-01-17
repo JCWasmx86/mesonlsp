@@ -32,7 +32,7 @@ public:
   virtual ~Wrap() = default;
 
 protected:
-  Wrap(ast::ini::Section *section);
+  explicit Wrap(ast::ini::Section *section);
   bool postSetup(const std::filesystem::path &path,
                  const std::filesystem::path &packageFilesPath);
 
@@ -51,7 +51,7 @@ public:
   std::optional<std::string> sourceHash;
   bool leadDirectoryMissing = false;
 
-  FileWrap(ast::ini::Section *section);
+  explicit FileWrap(ast::ini::Section *section);
   bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
 };
@@ -61,7 +61,7 @@ public:
   std::string url;
   std::string revision;
 
-  VcsWrap(ast::ini::Section *section);
+  explicit VcsWrap(ast::ini::Section *section);
 };
 
 class GitWrap : public VcsWrap {
@@ -70,7 +70,7 @@ public:
   int depth = 0;
   bool cloneRecursive = false;
 
-  GitWrap(ast::ini::Section *node);
+  explicit GitWrap(ast::ini::Section *node);
 
   bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
@@ -78,7 +78,7 @@ public:
 
 class HgWrap : public VcsWrap {
 public:
-  HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
+  explicit HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
 
   bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;
@@ -86,7 +86,7 @@ public:
 
 class SvnWrap : public VcsWrap {
 public:
-  SvnWrap(ast::ini::Section *node) : VcsWrap(node) {}
+  explicit SvnWrap(ast::ini::Section *node) : VcsWrap(node) {}
 
   bool setupDirectory(std::filesystem::path path,
                       std::filesystem::path packageFilesPath) override;

@@ -17,7 +17,8 @@ public:
   std::vector<std::shared_ptr<MesonSubproject>> subprojects;
   bool used = false;
 
-  SubprojectState(std::filesystem::path root) : root(std::move(root)) {}
+  explicit SubprojectState(std::filesystem::path root)
+      : root(std::move(root)) {}
 
   void findSubprojects(bool downloadSubprojects);
   void initSubprojects();
