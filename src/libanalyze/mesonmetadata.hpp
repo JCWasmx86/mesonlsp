@@ -3,6 +3,7 @@
 #include "function.hpp"
 #include "node.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <format>
@@ -87,6 +88,8 @@ public:
              std::string message, bool deprecated = false,
              bool unnecessary = false) {
     this->severity = sev;
+    assert(begin);
+    assert(end);
     const auto *loc = &begin->location;
     this->startLine = loc->startLine;
     this->startColumn = loc->startColumn;

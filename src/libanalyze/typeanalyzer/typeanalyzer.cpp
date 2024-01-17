@@ -2089,7 +2089,7 @@ void TypeAnalyzer::checkFormat(
                  "Parameters out of bounds: " + joinStrings(oobIntegers, ',')));
 }
 
-bool TypeAnalyzer::checkCondition(Node *condition) {
+bool TypeAnalyzer::checkCondition(__attribute__((nonnull)) Node *condition) {
   auto appended = false;
   auto *fe = dynamic_cast<FunctionExpression *>(condition);
   if ((fe != nullptr) && fe->functionName() == "is_variable") {

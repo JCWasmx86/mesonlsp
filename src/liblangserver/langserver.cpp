@@ -216,7 +216,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
     free((void *)src.src);
     free(formattedStr);
     LOG.error("Failed to format");
-    throw "Failed to format";
+    throw std::runtime_error("Failed to format");
   }
   (void)fflush(output);
   (void)fclose(output);
