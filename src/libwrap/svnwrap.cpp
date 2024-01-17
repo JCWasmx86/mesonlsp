@@ -9,8 +9,8 @@
 
 const static Logger LOG("wrap::SvnWrap"); // NOLINT
 
-bool SvnWrap::setupDirectory(std::filesystem::path path,
-                             std::filesystem::path packageFilesPath) {
+bool SvnWrap::setupDirectory(const std::filesystem::path &path,
+                             const std::filesystem::path &packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");

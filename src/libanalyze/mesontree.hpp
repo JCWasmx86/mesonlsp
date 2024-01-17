@@ -20,7 +20,7 @@
 
 class MesonTree {
 public:
-  std::string identifier;
+  std::string identifier = "root";
   std::filesystem::path root;
   std::set<std::filesystem::path> ownedFiles;
   std::map<std::filesystem::path, std::vector<std::shared_ptr<Node>>> asts;
@@ -31,12 +31,11 @@ public:
   OptionState options;
   const TypeNamespace &ns;
   int depth = 0;
-  std::string name;
+  std::string name = "root";
   Version version = Version("9999.9999.9999");
 
   MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
-      : identifier("root"), root(root), state(new SubprojectState(root)),
-        ns(ns), name("root") {}
+      : root(root), state(new SubprojectState(root)), ns(ns) {}
 
   ~MesonTree() {
     delete this->state;

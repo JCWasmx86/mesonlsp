@@ -165,7 +165,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
           if (!kvi) {
             continue;
           }
-          auto name = kvi->getKeyName();
+          const auto &name = kvi->getKeyName();
           if (name != sl->id) {
             continue;
           }
@@ -186,7 +186,7 @@ std::vector<std::string> PartialInterpreter::calculateGetMethodCall(
       if (!kvi) {
         continue;
       }
-      auto name = kvi->getKeyName();
+      const auto &name = kvi->getKeyName();
       if (name != sl->id) {
         continue;
       }
@@ -261,7 +261,7 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
         if (!kvi) {
           continue;
         }
-        auto name = kvi->getKeyName();
+        const auto &name = kvi->getKeyName();
         if (name != sl->id) {
           continue;
         }
@@ -282,7 +282,7 @@ void PartialInterpreter::calculateEvalSubscriptExpression(
     if (!kvi) {
       continue;
     }
-    auto name = kvi->getKeyName();
+    const auto &name = kvi->getKeyName();
     if (name != sl->id) {
       continue;
     }
@@ -771,7 +771,7 @@ void PartialInterpreter::abstractEvalComputeSubscriptExtractDictArray(
       if (!kvi) {
         continue;
       }
-      auto name = kvi->getKeyName();
+      const auto &name = kvi->getKeyName();
       if (name != sl->id) {
         continue;
       }
@@ -813,7 +813,7 @@ void PartialInterpreter::abstractEvalComputeSubscript(
       if (!kvi) {
         continue;
       }
-      auto name = kvi->getKeyName();
+      const auto &name = kvi->getKeyName();
       if (name != sl->id) {
         continue;
       }
@@ -863,7 +863,7 @@ PartialInterpreter::abstractEvalSplitWithSubscriptExpression(
     Node *parentStmt) {
   auto objs = this->abstractEval(parentStmt, outerMe->obj.get());
   std::vector<std::shared_ptr<InterpretNode>> ret;
-  auto splitAt = sl->id;
+  const auto &splitAt = sl->id;
   auto idxI = idx->valueAsInt;
   for (const auto &obj : objs) {
     auto *sl1 = dynamic_cast<StringLiteral *>(obj->node);
@@ -965,7 +965,7 @@ PartialInterpreter::abstractEvalMethod(MethodExpression *me, Node *parentStmt) {
       if (!kvi) {
         continue;
       }
-      auto name = kvi->getKeyName();
+      const auto &name = kvi->getKeyName();
       if (name != INVALID_KEY_NAME) {
         ret.emplace_back(std::make_shared<StringNode>(kvi->key.get()));
       }
@@ -1014,7 +1014,7 @@ PartialInterpreter::abstractEvalSimpleSubscriptExpression(
         if (!kvi) {
           continue;
         }
-        auto name = kvi->getKeyName();
+        const auto &name = kvi->getKeyName();
         if (name != sl->id) {
           continue;
         }
@@ -1062,7 +1062,7 @@ PartialInterpreter::abstractEvalGetMethodCall(MethodExpression * /*me*/,
         if (!kvi) {
           continue;
         }
-        auto name = kvi->getKeyName();
+        const auto &name = kvi->getKeyName();
         if (name != sl->id) {
           continue;
         }
@@ -1176,7 +1176,7 @@ PartialInterpreter::abstractEvalFunction(FunctionExpression *fe,
   if (!feid) {
     return {};
   }
-  auto fnid = feid->id;
+  const auto &fnid = feid->id;
   if (fnid == "join_paths") {
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> items;
     for (const auto &arrayItem : al->args) {

@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <ios>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -131,7 +132,7 @@ std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path) {
   auto fileSize = std::filesystem::file_size(path);
   std::string fileContent;
   fileContent.resize(fileSize, '\0');
-  file.read(fileContent.data(), fileSize);
+  file.read(fileContent.data(), (std::streamsize)fileSize);
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_ini());
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
@@ -158,7 +159,7 @@ std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path) {
   if (sectionName == nullptr) {
     return std::make_shared<WrapFile>(nullptr, root);
   }
-  auto wrapType = sectionName->value;
+  const auto &wrapType = sectionName->value;
   if (wrapType == "wrap-git") {
     return std::make_shared<WrapFile>(std::make_shared<GitWrap>(section), root);
   }

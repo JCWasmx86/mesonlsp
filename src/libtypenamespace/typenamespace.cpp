@@ -6,9 +6,7 @@
 #include <string>
 #include <vector>
 
-TypeNamespace::TypeNamespace()
-    : strType(std::make_shared<Str>()), intType(std::make_shared<IntType>()),
-      boolType(std::make_shared<BoolType>()) {
+TypeNamespace::TypeNamespace() {
   std::vector<std::shared_ptr<Type>> const dictTypes;
   std::vector<std::shared_ptr<Type>> const listTypes;
   std::vector<std::string> const names;

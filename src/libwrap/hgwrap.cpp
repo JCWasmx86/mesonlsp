@@ -10,8 +10,8 @@
 
 const static Logger LOG("wrap::HgWrap"); // NOLINT
 
-bool HgWrap::setupDirectory(std::filesystem::path path,
-                            std::filesystem::path packageFilesPath) {
+bool HgWrap::setupDirectory(const std::filesystem::path &path,
+                            const std::filesystem::path &packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
