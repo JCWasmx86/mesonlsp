@@ -45,7 +45,7 @@ public:
   Node() = default;
 
   Node(Node const &) = delete;
-  void operator=(Node const &) = delete;
+  Node &operator=(Node const &) = delete;
   Node(Node &&) = delete;
 
 protected:
@@ -374,7 +374,7 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  const std::string &getKeyName() {
+  const std::string &getKeyName() const {
     auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
     if (sl) {
       return sl->id;
