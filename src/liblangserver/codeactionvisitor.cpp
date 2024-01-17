@@ -7,6 +7,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <format>
 #include <optional>
@@ -599,6 +600,8 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
               }
               const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
               const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+              assert(lhsSL);
+              assert(rhsSL);
               auto aC = std::ranges::count(lhsSL->id, '/');
               auto bC = std::ranges::count(rhsSL->id, '/');
               if (aC != bC) {
@@ -673,6 +676,8 @@ void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
               }
               const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
               const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+              assert(lhsSL);
+              assert(rhsSL);
               auto aC = std::ranges::count(lhsSL->id, '/');
               auto bC = std::ranges::count(rhsSL->id, '/');
               if (aC != bC) {

@@ -107,7 +107,7 @@ private:
   void registerNeedForUse(IdExpression *node);
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
-  bool checkCondition(Node *condition);
+  bool checkCondition(__attribute__((nonnull)) Node *condition);
   bool isSpecial(std::vector<std::shared_ptr<Type>> &types);
   void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl) const;
   std::vector<std::shared_ptr<Type>> evalBinaryExpression(

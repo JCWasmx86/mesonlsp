@@ -72,7 +72,6 @@ public:
 };
 
 class PartialInterpreter {
-
   OptionState &options;
 
 public:

@@ -257,10 +257,19 @@ std::filesystem::path cacheDir() {
     std::filesystem::create_directories(full);
     return full;
   }
+
+  std::array<char, 1024 /*NOLINT*/> homeBuffer;
+  struct passwd pwd;
   auto home = getenv("HOME"); // NOLINT
   if (home == nullptr || strcmp(home, "") == 0) {
-    home = getpwuid(getuid())->pw_dir; // NOLINT
+    struct passwd *result = nullptr;
+    if (getpwuid_r(getuid(), &pwd, homeBuffer.data(), homeBuffer.size(),
+                   &result) == 0 &&
+        result != nullptr) {
+      home = pwd.pw_dir;
+    }
   }
+
   auto full = std::filesystem::path{home} / ".cache" / suffix;
   std::filesystem::create_directories(full);
   return full;
