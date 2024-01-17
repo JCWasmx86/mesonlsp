@@ -5,7 +5,7 @@
 
 class Logger {
 private:
-  std::string module;
+  std::string logmodule;
   std::string red;
   std::string yellow;
   std::string blue;
