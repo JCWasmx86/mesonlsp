@@ -10,7 +10,7 @@ const static Logger LOG("Task"); // NOLINT
 void Task::run() {
   try {
     LOG.info("Running task " + this->uuid);
-    this->state = TaskState::Running;
+    this->state = TaskState::RUNNING;
     this->taskFunction();
     if (this->cancelled) {
       LOG.info(std::format("Task {} was cancelled", this->uuid));
@@ -21,5 +21,5 @@ void Task::run() {
     auto currentException = std::current_exception();
     LOG.error(std::format("Caught exception in task {}", this->uuid));
   }
-  this->state = TaskState::Ended;
+  this->state = TaskState::ENDED;
 }

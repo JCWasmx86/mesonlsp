@@ -384,13 +384,11 @@ IterationStatement::IterationStatement(const std::shared_ptr<SourceFile> &file,
                                        TSNode node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
-  std::vector<std::shared_ptr<Node>> ids;
   for (uint32_t i = 0; i < ts_node_named_child_count(idList); i++) {
     auto child = ts_node_named_child(idList, i);
     auto newNode = makeNode(file, child);
-    ids.push_back(newNode);
+    this->ids.push_back(newNode);
   }
-  this->ids = ids;
   this->expression = makeNode(file, ts_node_named_child(node, 1));
   for (uint32_t i = 2; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));

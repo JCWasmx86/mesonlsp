@@ -123,10 +123,11 @@ next:
       ret.emplace_back(identifier, kind,
                        TextEdit(nodeToRange(idExpr), identifier));
     }
+    const ArgumentList *al = nullptr;
     if (!rightParent) {
-      goto next;
+      goto insertFns;
     }
-    const auto *al = dynamic_cast<const ArgumentList *>(parent);
+    al = dynamic_cast<const ArgumentList *>(parent);
     if (al) {
       const auto *parentOfArgs = al->parent;
       assert(parentOfArgs);

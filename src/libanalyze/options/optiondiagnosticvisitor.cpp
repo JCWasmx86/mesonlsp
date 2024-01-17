@@ -12,7 +12,7 @@
 #include <string>
 
 const static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
-static OptionState STATE;                           // NOLINT
+static const OptionState STATE;                     // NOLINT
 
 void OptionDiagnosticVisitor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);
@@ -52,11 +52,11 @@ void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
   const auto &contents = sl->id;
   if (this->options.contains(contents)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Error, sl, "Duplicate option: " + contents));
+        sl, Diagnostic(Severity::ERROR, sl, "Duplicate option: " + contents));
   }
   if (STATE.findOption(contents)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Error, sl,
+        sl, Diagnostic(Severity::ERROR, sl,
                        "Declaration of reserved option: " + contents));
   }
   this->options.insert(contents);
@@ -67,7 +67,7 @@ void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
     this->metadata->registerDiagnostic(
         sl,
         Diagnostic(
-            Severity::Error, sl,
+            Severity::ERROR, sl,
             "Invalid chars in name: Expected `a-z`, `A-Z`, `0-9`, `-` or `_`"));
     return;
   }
@@ -79,7 +79,7 @@ void OptionDiagnosticVisitor::validateStringOption(Node *defaultValue) const {
   }
   this->metadata->registerDiagnostic(
       defaultValue,
-      Diagnostic(Severity::Error, defaultValue, "Expected string literal"));
+      Diagnostic(Severity::ERROR, defaultValue, "Expected string literal"));
 }
 
 std::optional<int64_t>
@@ -104,13 +104,13 @@ OptionDiagnosticVisitor::parseString(const Node *node) const {
       ret = std::stoll(value);
     }
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
+        node, Diagnostic(Severity::WARNING, node,
                          "String literals as value where integers are "
                          "expected, are deprecated"));
     return ret;
   } catch (...) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node, "Unable to parse as integer"));
+        node, Diagnostic(Severity::ERROR, node, "Unable to parse as integer"));
   }
   return std::nullopt;
 }
@@ -138,19 +138,19 @@ void OptionDiagnosticVisitor::validateBooleanOption(Node *defaultValue) const {
   const auto *sl = dynamic_cast<StringLiteral *>(defaultValue);
   if (!sl) {
     this->metadata->registerDiagnostic(
-        defaultValue, Diagnostic(Severity::Error, defaultValue,
+        defaultValue, Diagnostic(Severity::ERROR, defaultValue,
                                  "Expected boolean value for boolean option"));
     return;
   }
   if (sl->id != "true" && sl->id != "false") {
     this->metadata->registerDiagnostic(
-        defaultValue, Diagnostic(Severity::Error, defaultValue,
+        defaultValue, Diagnostic(Severity::ERROR, defaultValue,
                                  "Expected 'true' or 'false'"));
   }
   this->metadata->registerDiagnostic(
       defaultValue,
       Diagnostic(
-          Severity::Warning, defaultValue,
+          Severity::WARNING, defaultValue,
           "String literals as value for boolean options are deprecated."));
 }
 
@@ -159,7 +159,7 @@ void OptionDiagnosticVisitor::validateFeatureOption(Node *defaultValue) const {
   if (!slNode) {
     this->metadata->registerDiagnostic(
         defaultValue,
-        Diagnostic(Severity::Error, defaultValue, "Expected string"));
+        Diagnostic(Severity::ERROR, defaultValue, "Expected string"));
     return;
   }
   const auto &contents = slNode->id;
@@ -168,7 +168,7 @@ void OptionDiagnosticVisitor::validateFeatureOption(Node *defaultValue) const {
   }
   this->metadata->registerDiagnostic(
       defaultValue,
-      Diagnostic(Severity::Error, defaultValue,
+      Diagnostic(Severity::ERROR, defaultValue,
                  "Expected one of: 'enabled', 'disabled', 'auto'"));
 }
 
@@ -179,7 +179,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
   if (!defaultSL) {
     this->metadata->registerDiagnostic(
         defaultValue,
-        Diagnostic(Severity::Error, defaultValue, "Expected string literal"));
+        Diagnostic(Severity::ERROR, defaultValue, "Expected string literal"));
   } else {
     defaultString = defaultSL->id;
   }
@@ -187,7 +187,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
   if (!choicesKwarg.has_value()) {
     this->metadata->registerDiagnostic(
         al->parent,
-        Diagnostic(Severity::Error, al->parent, "Missing 'choices' kwarg"));
+        Diagnostic(Severity::ERROR, al->parent, "Missing 'choices' kwarg"));
     return;
   }
   std::set<std::string> foundChoices;
@@ -195,7 +195,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
       dynamic_cast<ArrayLiteral *>(choicesKwarg.value().get());
   if (!choicesArray) {
     this->metadata->registerDiagnostic(
-        choicesKwarg->get(), Diagnostic(Severity::Error, choicesKwarg->get(),
+        choicesKwarg->get(), Diagnostic(Severity::ERROR, choicesKwarg->get(),
                                         "Expected array of strings"));
     return;
   }
@@ -204,13 +204,13 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
     if (!asLiteral) {
       this->metadata->registerDiagnostic(
           choice.get(),
-          Diagnostic(Severity::Error, choice.get(), "Expected string literal"));
+          Diagnostic(Severity::ERROR, choice.get(), "Expected string literal"));
       continue;
     }
     const auto &content = asLiteral->id;
     if (foundChoices.contains(content)) {
       this->metadata->registerDiagnostic(
-          choice.get(), Diagnostic(Severity::Warning, choice.get(),
+          choice.get(), Diagnostic(Severity::WARNING, choice.get(),
                                    "Duplicate choice '" + content + "'"));
       continue;
     }
@@ -220,7 +220,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
       !foundChoices.contains(defaultString.value())) {
     this->metadata->registerDiagnostic(
         defaultValue,
-        Diagnostic(Severity::Error, defaultValue,
+        Diagnostic(Severity::ERROR, defaultValue,
                    "Default value is not contained in the choices array."));
   }
 }
@@ -237,7 +237,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
     *choices = nullptr;
     this->metadata->registerDiagnostic(
         kwarg->get(),
-        Diagnostic(Severity::Error, kwarg->get(), "Expected array literal"));
+        Diagnostic(Severity::ERROR, kwarg->get(), "Expected array literal"));
     return;
   }
   auto *ret = new std::set<std::string>();
@@ -246,7 +246,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
     if (!asStr) {
       this->metadata->registerDiagnostic(
           node.get(),
-          Diagnostic(Severity::Error, node.get(), "Expected string literal"));
+          Diagnostic(Severity::ERROR, node.get(), "Expected string literal"));
       continue;
     }
     const auto &content = asStr->id;
@@ -256,7 +256,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
     }
     this->metadata->registerDiagnostic(
         node.get(),
-        Diagnostic(Severity::Warning, node.get(), "Duplicate choice"));
+        Diagnostic(Severity::WARNING, node.get(), "Duplicate choice"));
   }
   *choices = ret;
 }
@@ -269,7 +269,7 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
   if (!arrLit) {
     this->metadata->registerDiagnostic(
         defaultValue,
-        Diagnostic(Severity::Error, defaultValue, "Expected array literal"));
+        Diagnostic(Severity::ERROR, defaultValue, "Expected array literal"));
     goto end;
   }
   for (const auto &node : arrLit->args) {
@@ -277,7 +277,7 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
     if (!asStr) {
       this->metadata->registerDiagnostic(
           node.get(),
-          Diagnostic(Severity::Error, node.get(), "Expected string literal"));
+          Diagnostic(Severity::ERROR, node.get(), "Expected string literal"));
       continue;
     }
     const auto &content = asStr->id;
@@ -285,7 +285,7 @@ void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
       continue;
     }
     this->metadata->registerDiagnostic(
-        node.get(), Diagnostic(Severity::Error, node.get(),
+        node.get(), Diagnostic(Severity::ERROR, node.get(),
                                "Value is not a valid choice!"));
   }
 end:
@@ -310,7 +310,7 @@ OptionDiagnosticVisitor::fetchIntOrNullOpt(ArgumentList *al,
   }
   this->metadata->registerDiagnostic(
       node,
-      Diagnostic(Severity::Error, node, "Unable to parse as integer literal"));
+      Diagnostic(Severity::ERROR, node, "Unable to parse as integer literal"));
   return std::nullopt;
 }
 
@@ -321,7 +321,7 @@ void OptionDiagnosticVisitor::validateIntegerOption(ArgumentList *al,
     defaultInt = this->parseString(defaultValue);
     if (!defaultInt.has_value()) {
       this->metadata->registerDiagnostic(
-          defaultValue, Diagnostic(Severity::Error, defaultValue,
+          defaultValue, Diagnostic(Severity::ERROR, defaultValue,
                                    "Unable to parse as integer literal"));
     }
   }
@@ -339,11 +339,11 @@ void OptionDiagnosticVisitor::validateIntegerOption(ArgumentList *al,
     if (minV > maxV) {
       this->metadata->registerDiagnostic(
           minKwarg,
-          Diagnostic(Severity::Warning, minKwarg,
+          Diagnostic(Severity::WARNING, minKwarg,
                      "Minimum value is greater than the maximum value"));
     } else if (minV == maxV) {
       this->metadata->registerDiagnostic(
-          minKwarg, Diagnostic(Severity::Warning, minKwarg,
+          minKwarg, Diagnostic(Severity::WARNING, minKwarg,
                                "Minimum value is equals to the maximum value"));
     }
   }
@@ -353,7 +353,7 @@ void OptionDiagnosticVisitor::validateIntegerOption(ArgumentList *al,
     if (minV > defaultV) {
       this->metadata->registerDiagnostic(
           defaultValue,
-          Diagnostic(Severity::Warning, defaultValue,
+          Diagnostic(Severity::WARNING, defaultValue,
                      "Default value is lower than the minimum value"));
     }
   }
@@ -363,7 +363,7 @@ void OptionDiagnosticVisitor::validateIntegerOption(ArgumentList *al,
     if (maxV < defaultV) {
       this->metadata->registerDiagnostic(
           defaultValue,
-          Diagnostic(Severity::Warning, defaultValue,
+          Diagnostic(Severity::WARNING, defaultValue,
                      "Default value is greater than the maximum value"));
     }
   }
@@ -374,7 +374,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
   node->visitChildren(this);
   if (node->functionName() != "option") {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          "Invalid function call in meson options file: " +
                              node->functionName()));
     return;
@@ -382,20 +382,20 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
   auto *al = dynamic_cast<ArgumentList *>(node->args.get());
   if (!al) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          "Missing arguments in call to `option`"));
     return;
   }
   auto nameNode = al->getPositionalArg(0);
   if (!nameNode.has_value()) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node, "Missing option name"));
+        node, Diagnostic(Severity::ERROR, node, "Missing option name"));
     return;
   }
   auto *nameNodeSl = dynamic_cast<StringLiteral *>(nameNode->get());
   if (!nameNodeSl) {
     this->metadata->registerDiagnostic(
-        nameNode->get(), Diagnostic(Severity::Error, nameNode->get(),
+        nameNode->get(), Diagnostic(Severity::ERROR, nameNode->get(),
                                     "Expected string literal"));
     return;
   }
@@ -403,7 +403,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
   auto optionTypeNode = al->getKwarg("type");
   if (!optionTypeNode.has_value()) {
     this->metadata->registerDiagnostic(
-        nameNode->get(), Diagnostic(Severity::Error, nameNode->get(),
+        nameNode->get(), Diagnostic(Severity::ERROR, nameNode->get(),
                                     "Missing option type kwarg"));
     return;
   }
@@ -411,7 +411,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
   if (!optionTypeSL) {
     this->metadata->registerDiagnostic(
         nameNode->get(),
-        Diagnostic(Severity::Error, nameNode->get(),
+        Diagnostic(Severity::ERROR, nameNode->get(),
                    "Expected option type to be a string literal"));
     return;
   }
@@ -420,7 +420,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
       optionType != "boolean" && optionType != "combo" &&
       optionType != "array" && optionType != "feature") {
     this->metadata->registerDiagnostic(
-        nameNode->get(), Diagnostic(Severity::Error, nameNode->get(),
+        nameNode->get(), Diagnostic(Severity::ERROR, nameNode->get(),
                                     "Unknown option type: " + optionType));
   }
   this->metadata->registerOption(nameNodeSl);
@@ -490,7 +490,7 @@ void OptionDiagnosticVisitor::visitUnaryExpression(UnaryExpression *node) {
 void OptionDiagnosticVisitor::visitErrorNode(ErrorNode *node) {
   node->visitChildren(this);
   this->metadata->registerDiagnostic(
-      node, Diagnostic(Severity::Error, node, node->message));
+      node, Diagnostic(Severity::ERROR, node, node->message));
 }
 
 void OptionDiagnosticVisitor::visitBreakNode(BreakNode *node) {

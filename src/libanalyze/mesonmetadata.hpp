@@ -16,9 +16,9 @@
 #include <utility>
 #include <vector>
 
-enum Severity {
-  Warning,
-  Error,
+enum class Severity {
+  WARNING,
+  ERROR,
 };
 
 #define REGISTER(methodName, variable, type)                                   \

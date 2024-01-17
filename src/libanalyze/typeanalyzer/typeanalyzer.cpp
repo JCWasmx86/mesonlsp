@@ -29,7 +29,7 @@
 #define TYPE_STRING_LENGTH 12
 const static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
-static std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
+static const std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
     "arm",           "armclang",   "ccomp",      "ccrx",      "clang",
     "clang-cl",      "dmd",        "emscripten", "flang",     "g95",
     "gcc",           "intel",      "intel-cl",   "icc",       "intel-llvm",
@@ -40,16 +40,16 @@ static std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
     "armasm",        "mwasmarm",   "mwasmeppc",
 };
 
-static std::set<std::string> ARGUMENT_SYNTAXES /*NOLINT*/ = {"gcc", "msvc",
-                                                             "gnu", ""};
-static std::set<std::string> LINKER_IDS /*NOLINT*/ = {
+static const std::set<std::string> ARGUMENT_SYNTAXES /*NOLINT*/ = {
+    "gcc", "msvc", "gnu", ""};
+static const std::set<std::string> LINKER_IDS /*NOLINT*/ = {
     "ld.bfd", "ld.gold",  "ld.lld",  "ld.mold",  "ld.solaris", "ld.wasm",
     "ld64",   "ld64.lld", "link",    "lld-link", "xilink",     "optlink",
     "rlink",  "xc16-ar",  "ar2000",  "ti-ar",    "armlink",    "pgi",
     "nvlink", "ccomp",    "mwldarm", "mwldeppc",
 };
 
-static std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
+static const std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
     "aarch64", "alpha",      "arc",    "arm",    "avr",     "c2000",
     "csky",    "dspic",      "e2k",    "ft32",   "ia64",    "loongarch64",
     "m68k",    "microblaze", "mips",   "mips32", "mips64",  "msp430",
@@ -58,12 +58,12 @@ static std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
     "sparc64", "wasm32",     "wasm64", "x86",    "x86_64",
 };
 
-static std::set<std::string> OS_NAMES /*NOLINT*/ = {
+static const std::set<std::string> OS_NAMES /*NOLINT*/ = {
     "android", "cygwin", "darwin", "dragonfly", "emscripten", "freebsd", "gnu",
     "haiku",   "linux",  "netbsd", "openbsd",   "windows",    "sunos",
 };
 
-static std::set<std::string> PURE_FUNCTIONS /*NOLINT*/ = {
+static const std::set<std::string> PURE_FUNCTIONS /*NOLINT*/ = {
     "disabler",
     "environment",
     "files",
@@ -77,7 +77,7 @@ static std::set<std::string> PURE_FUNCTIONS /*NOLINT*/ = {
     "structured_sources",
 };
 
-static std::set<std::string> PURE_METHODS /* NOLINT */ = {
+static const std::set<std::string> PURE_METHODS /* NOLINT */ = {
     "build_machine.cpu",
     "build_machine.cpu_family",
     "build_machine.endian",
@@ -262,7 +262,7 @@ void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
   if (!name.starts_with("install_")) {
     this->metadata->registerDiagnostic(
         node->lhs.get(),
-        Diagnostic(Severity::Error, node->lhs.get(), "Can't assign from void"));
+        Diagnostic(Severity::ERROR, node->lhs.get(), "Can't assign from void"));
   }
 }
 
@@ -274,7 +274,7 @@ void TypeAnalyzer::checkIdentifier(IdExpression *node) const {
     return;
   }
   this->metadata->registerDiagnostic(
-      node, Diagnostic(Severity::Warning, node, "Expected snake case"));
+      node, Diagnostic(Severity::WARNING, node, "Expected snake case"));
 }
 
 void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
@@ -295,7 +295,7 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
       assignmentName == "target_machine" || assignmentName == "host_machine") {
     this->metadata->registerDiagnostic(
         lhsIdExpr,
-        Diagnostic(Severity::Error, lhsIdExpr,
+        Diagnostic(Severity::ERROR, lhsIdExpr,
                    "Attempted to re-assign to existing, read-only variable"));
     return;
   }
@@ -415,13 +415,13 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   auto *idExpr = dynamic_cast<IdExpression *>(node->lhs.get());
   if (!idExpr) {
     this->metadata->registerDiagnostic(
-        node->lhs.get(), Diagnostic(Severity::Error, node->lhs.get(),
+        node->lhs.get(), Diagnostic(Severity::ERROR, node->lhs.get(),
                                     "Can only assign to variables"));
     return;
   }
   if (node->op == AssignmentOpOther) {
     this->metadata->registerDiagnostic(
-        node->lhs.get(), Diagnostic(Severity::Error, node->lhs.get(),
+        node->lhs.get(), Diagnostic(Severity::ERROR, node->lhs.get(),
                                     "Unknown assignment operator"));
     return;
   }
@@ -575,7 +575,7 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
     types.insert(types.end(), node->rhs->types.begin(), node->rhs->types.end());
     node->types = types;
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node, "Unknown operator"));
+        node, Diagnostic(Severity::ERROR, node, "Unknown operator"));
     return;
   }
   auto nErrors = 0U;
@@ -590,7 +590,7 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
     auto msg = std::format("Unable to apply operator {} to types {} and {}",
                            enum2String(node->op), lTypes, rTypes);
     this->metadata->registerDiagnostic(node,
-                                       Diagnostic(Severity::Error, node, msg));
+                                       Diagnostic(Severity::ERROR, node, msg));
   }
   node->types = dedup(this->ns, newTypes);
   auto *parent = node->parent;
@@ -626,28 +626,28 @@ void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
       !this->analysisOptions.disableCompilerIdLinting &&
       !COMPILER_IDS.contains(arg)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Warning, sl, "Unknown compiler id"));
+        sl, Diagnostic(Severity::WARNING, sl, "Unknown compiler id"));
   } else if (mid == "compiler.get_argument_syntax" &&
              !this->analysisOptions.disableCompilerArgumentIdLinting &&
              !ARGUMENT_SYNTAXES.contains(arg)) {
     this->metadata->registerDiagnostic(
         sl,
-        Diagnostic(Severity::Warning, sl, "Unknown compiler argument syntax"));
+        Diagnostic(Severity::WARNING, sl, "Unknown compiler argument syntax"));
   } else if (mid == "compiler.get_linker_id" &&
              !this->analysisOptions.disableLinkerIdLinting &&
              !LINKER_IDS.contains(arg)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Warning, sl, "Unknown linker id"));
+        sl, Diagnostic(Severity::WARNING, sl, "Unknown linker id"));
   } else if (mid == "build_machine.cpu_family" &&
              !this->analysisOptions.disableCpuFamilyLinting &&
              !CPU_FAMILIES.contains(arg)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Warning, sl, "Unknown CPU family"));
+        sl, Diagnostic(Severity::WARNING, sl, "Unknown CPU family"));
   } else if (mid == "build_machine.system" &&
              !this->analysisOptions.disableOsFamilyLinting &&
              !OS_NAMES.contains(arg)) {
     this->metadata->registerDiagnostic(
-        sl, Diagnostic(Severity::Warning, sl, "Unknown OS family"));
+        sl, Diagnostic(Severity::WARNING, sl, "Unknown OS family"));
   }
 }
 
@@ -662,7 +662,7 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
   }
   if (node->stmts.empty()) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          "Missing project() call at top of file"));
     return;
   }
@@ -670,7 +670,7 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
   auto *asCall = dynamic_cast<FunctionExpression *>(first.get());
   if (asCall == nullptr || asCall->functionName() != "project") {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          "Missing project() call at top of file"));
     return;
   }
@@ -735,7 +735,7 @@ end:
     return;
   }
   this->metadata->registerDiagnostic(
-      node, Diagnostic(Severity::Warning, node,
+      node, Diagnostic(Severity::WARNING, node,
                        "Statement does not have an effect or the result to the "
                        "call is unused"));
 }
@@ -759,7 +759,7 @@ void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
     return;
   }
   this->metadata->registerDiagnostic(
-      firstDead.get(), Diagnostic(Severity::Warning, firstDead.get(),
+      firstDead.get(), Diagnostic(Severity::WARNING, firstDead.get(),
                                   lastDead.get(), "Dead code", false, true));
 }
 
@@ -806,7 +806,7 @@ void TypeAnalyzer::checkUnusedVariables() {
       }
     }
     this->metadata->registerDiagnostic(
-        needed, Diagnostic(Severity::Warning, needed, "Unused assignment"));
+        needed, Diagnostic(Severity::WARNING, needed, "Unused assignment"));
   }
 }
 
@@ -839,7 +839,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
     }
   }
   this->metadata->registerDiagnostic(
-      node, Diagnostic(Severity::Error, node,
+      node, Diagnostic(Severity::ERROR, node,
                        "Condition is not bool: " +
                            joinTypes(node->condition->types)));
 }
@@ -861,7 +861,7 @@ void TypeAnalyzer::checkDuplicateNodeKeys(DictionaryLiteral *node) const {
       continue;
     }
     this->metadata->registerDiagnostic(
-        keyNode, Diagnostic(Severity::Warning, keyNode,
+        keyNode, Diagnostic(Severity::WARNING, keyNode,
                             std::format("Duplicate key \"{}\"", keyName)));
   }
 }
@@ -898,7 +898,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     }
     this->metadata->registerDiagnostic(
         node,
-        Diagnostic(Severity::Error, node,
+        Diagnostic(Severity::ERROR, node,
                    std::format("Unknown subproject `{}`", *asSet.begin())));
     return;
   }
@@ -913,13 +913,13 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
           continue;
         }
         this->metadata->registerDiagnostic(
-            node, Diagnostic(Severity::Error, node,
+            node, Diagnostic(Severity::ERROR, node,
                              std::format("Unknown option `{}`", val)));
         continue;
       }
       if (asSet.size() == 1 && opt->deprecated) {
         this->metadata->registerDiagnostic(
-            node, Diagnostic(Severity::Warning, node,
+            node, Diagnostic(Severity::WARNING, node,
                              std::format("Deprecated option"), true, false));
       }
       if (dynamic_cast<StringOption *>(opt.get()) ||
@@ -1073,7 +1073,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       }
       types.emplace_back(this->ns.types.at("module"));
       this->metadata->registerDiagnostic(
-          node, Diagnostic(Severity::Warning, node,
+          node, Diagnostic(Severity::WARNING, node,
                            std::format("Unknown module `{}`", modname)));
     }
     node->types = dedup(this->ns, types);
@@ -1126,7 +1126,7 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
     }
     this->metadata->registerDiagnostic(
         arg.get(),
-        Diagnostic(Severity::Error, arg.get(),
+        Diagnostic(Severity::ERROR, arg.get(),
                    "Unexpected positional argument after a keyword argument"));
   }
 }
@@ -1163,7 +1163,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                 : (" Try one of: " + joinStrings(alternatives, ','));
         this->metadata->registerDiagnostic(
             kwi->key.get(),
-            Diagnostic(Severity::Warning, kwi->key.get(),
+            Diagnostic(Severity::WARNING, kwi->key.get(),
                        std::format("Deprecated keyword argument{}{}",
                                    versionString, alternativesStr),
                        true, false));
@@ -1175,7 +1175,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
     }
     this->metadata->registerDiagnostic(
         arg.get(),
-        Diagnostic(Severity::Error, arg.get(),
+        Diagnostic(Severity::ERROR, arg.get(),
                    std::format("Unknown key word argument '{}'", kId->id)));
   }
   if (usedKwargs.contains("kwargs")) {
@@ -1186,7 +1186,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
       continue;
     }
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          std::format("Missing required key word argument '{}'",
                                      requiredKwarg)));
   }
@@ -1287,7 +1287,7 @@ void TypeAnalyzer::checkTypes(
   }
   this->metadata->registerDiagnostic(
       arg.get(),
-      Diagnostic(Severity::Error, arg.get(),
+      Diagnostic(Severity::ERROR, arg.get(),
                  std::format("Expected {}, got {}", joinTypes(expectedTypes),
                              joinTypes(givenTypes))));
 }
@@ -1362,7 +1362,7 @@ void TypeAnalyzer::checkCall(Node *node) {
   if (nPos < func->minPosArgs) {
     this->metadata->registerDiagnostic(
         node,
-        Diagnostic(Severity::Error, node,
+        Diagnostic(Severity::ERROR, node,
                    std::format(
                        "Expected at least {} positional arguments, but got {}!",
                        func->minPosArgs, nPos)));
@@ -1371,7 +1371,7 @@ void TypeAnalyzer::checkCall(Node *node) {
     this->metadata->registerDiagnostic(
         node,
         Diagnostic(
-            Severity::Error, node,
+            Severity::ERROR, node,
             std::format("Expected maximum {} positional arguments, but got {}!",
                         func->maxPosArgs, nPos)));
   }
@@ -1434,7 +1434,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     if (!std::filesystem::exists(dirpath)) {
       if (asSet.size() == 1) {
         this->metadata->registerDiagnostic(
-            node, Diagnostic(Severity::Error, node,
+            node, Diagnostic(Severity::ERROR, node,
                              std::format("Directory does not exist: {}", dir)));
       }
       continue;
@@ -1444,7 +1444,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
       if (asSet.size() == 1) {
         this->metadata->registerDiagnostic(
             node, Diagnostic(
-                      Severity::Error, node,
+                      Severity::ERROR, node,
                       std::format("File does not exist: {}/meson.build", dir)));
       }
       continue;
@@ -1465,14 +1465,14 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   const auto &funcName = node->functionName();
   if (funcName == INVALID_FUNCTION_NAME) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          std::format("Unknown function `{}`", funcName)));
     return;
   }
   auto functionOpt = this->ns.lookupFunction(funcName);
   if (!functionOpt.has_value()) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          std::format("Unknown function `{}`", funcName)));
     return;
   }
@@ -1495,7 +1495,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
             ? ""
             : (" Try one of: " + joinStrings(alternatives, ','));
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
+        node, Diagnostic(Severity::WARNING, node,
                          std::format("Deprecated function{}{}", versionString,
                                      alternativesStr),
                          true, false));
@@ -1503,7 +1503,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
 afterVersionCheck:
   if (func->since.after(this->tree->version)) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
+        node, Diagnostic(Severity::WARNING, node,
                          std::format("Meson version {} is requested, but {}() "
                                      "is only available since {}",
                                      this->tree->version.versionString,
@@ -1515,7 +1515,7 @@ afterVersionCheck:
       this->metadata->registerDiagnostic(
           node,
           Diagnostic(
-              Severity::Error, node,
+              Severity::ERROR, node,
               std::format("Expected {} positional arguments, but got none!",
                           func->minPosArgs)));
     }
@@ -1665,7 +1665,7 @@ cont:
   }
   if (!this->isKnownId(node)) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          std::format("Unknown identifier `{}`", node->id)));
   }
   this->metadata->registerIdentifier(node);
@@ -1713,7 +1713,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
     node->ids[0]->types = {};
     this->metadata->registerDiagnostic(
         node->expression.get(),
-        Diagnostic(Severity::Error, node->expression.get(),
+        Diagnostic(Severity::ERROR, node->expression.get(),
                    foundDict ? "Iterating over a dict requires two identifiers"
                              : "Expression yields no iterable result"));
   }
@@ -1748,7 +1748,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   if (!found) {
     this->metadata->registerDiagnostic(
         node->expression.get(),
-        Diagnostic(Severity::Error, node->expression.get(),
+        Diagnostic(Severity::ERROR, node->expression.get(),
                    foundBad
                        ? "Iterating over a list/range requires one identifier"
                        : "Expression yields no iterable result"));
@@ -1786,7 +1786,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
     auto *eNode = node->ids[1].get();
     this->metadata->registerDiagnostic(
         fNode,
-        Diagnostic(Severity::Error, fNode, eNode,
+        Diagnostic(Severity::ERROR, fNode, eNode,
                    "Iteration statement expects only one or two identifiers"));
   }
   std::shared_ptr<Node> lastAlive = nullptr;
@@ -1957,7 +1957,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   if (!found && !onlyDisabler) {
     const auto &typeStr = joinTypes(types);
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node,
+        node, Diagnostic(Severity::ERROR, node,
                          std::format("No method `{}` found for types `{}`",
                                      methodName, typeStr)));
     return;
@@ -1981,7 +1981,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
             ? ""
             : (" Try one of: " + joinStrings(alternatives, ','));
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
+        node, Diagnostic(Severity::WARNING, node,
                          std::format("Deprecated method{}{}", versionString,
                                      alternativesStr),
                          true, false));
@@ -1989,7 +1989,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
 afterVersionCheck:
   if (node->method->since.after(this->tree->version)) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Warning, node,
+        node, Diagnostic(Severity::WARNING, node,
                          std::format("Meson version {} is requested, but {}() "
                                      "is only available since {}",
                                      this->tree->version.versionString,
@@ -2035,7 +2035,7 @@ afterVersionCheck:
               this->metadata->registerDiagnostic(
                   node,
                   Diagnostic(
-                      Severity::Error, node,
+                      Severity::ERROR, node,
                       std::format("Unable to find variable {} in subproject {}",
                                   varname, subprojName)));
             }
@@ -2062,14 +2062,14 @@ void TypeAnalyzer::checkFormat(
   for (size_t i = 0; i < args.size(); i++) {
     if (!foundIntegers.contains(i)) {
       this->metadata->registerDiagnostic(
-          args[i].get(), Diagnostic(Severity::Warning, args[i].get(),
+          args[i].get(), Diagnostic(Severity::WARNING, args[i].get(),
                                     "Unused parameter in format() call"));
     }
   }
   if (foundIntegers.empty()) {
     if (args.empty()) {
       this->metadata->registerDiagnostic(
-          sl->parent, Diagnostic(Severity::Warning, sl->parent,
+          sl->parent, Diagnostic(Severity::WARNING, sl->parent,
                                  "Pointless str.format() call"));
       return;
     }
@@ -2085,7 +2085,7 @@ void TypeAnalyzer::checkFormat(
   }
   this->metadata->registerDiagnostic(
       sl,
-      Diagnostic(Severity::Error, sl,
+      Diagnostic(Severity::ERROR, sl,
                  "Parameters out of bounds: " + joinStrings(oobIntegers, ',')));
 }
 
@@ -2114,7 +2114,7 @@ bool TypeAnalyzer::checkCondition(__attribute__((nonnull)) Node *condition) {
   if (!foundBoolOrAny && !condition->types.empty()) {
     auto joined = joinTypes(condition->types);
     this->metadata->registerDiagnostic(
-        condition, Diagnostic(Severity::Error, condition,
+        condition, Diagnostic(Severity::ERROR, condition,
                               "Condition is not bool: " + joined));
   }
   return appended;
@@ -2224,7 +2224,7 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
     }
     if (reallyFound) {
       this->metadata->registerDiagnostic(
-          node, Diagnostic(Severity::Warning, node,
+          node, Diagnostic(Severity::WARNING, node,
                            "Found format identifiers in string, but literal is "
                            "not a format string."));
     }
@@ -2277,7 +2277,7 @@ void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
   case UnaryOther:
   default:
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::Error, node, "Bad unary operator"));
+        node, Diagnostic(Severity::ERROR, node, "Bad unary operator"));
     break;
   }
 }
@@ -2285,7 +2285,7 @@ void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
 void TypeAnalyzer::visitErrorNode(ErrorNode *node) {
   node->visitChildren(this);
   this->metadata->registerDiagnostic(
-      node, Diagnostic(Severity::Error, node, node->message));
+      node, Diagnostic(Severity::ERROR, node, node->message));
 }
 
 void TypeAnalyzer::visitBreakNode(BreakNode *node) {
@@ -2310,7 +2310,7 @@ void TypeAnalyzer::checkIfInLoop(Node *node, std::string str) const {
   this->metadata->registerDiagnostic(
       node,
       Diagnostic(
-          Severity::Error, node,
+          Severity::ERROR, node,
           std::format("{} statements are only allowed inside loops", str)));
 }
 

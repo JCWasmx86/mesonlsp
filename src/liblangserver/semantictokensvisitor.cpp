@@ -10,9 +10,10 @@
 #include <regex>
 #include <vector>
 
-const static Logger LOG("SemanticTokensVisitor");                    // NOLINT
-static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
-static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
+const static Logger LOG("SemanticTokensVisitor"); // NOLINT
+static const std::regex
+    FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
+static const std::regex STR_FORMAT_REGEX("@(\\d+)@");  // NOLINT
 
 // TODO: Use enum
 void SemanticTokensVisitor::makeSemanticToken(Node *node, size_t idx,

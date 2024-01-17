@@ -17,7 +17,7 @@
 #include <optional>
 #include <string>
 
-Logger LOG("analyze::subprojectstate"); // NOLINT
+static const Logger LOG("analyze::subprojectstate"); // NOLINT
 
 static std::string normalizeURLToFilePath(const std::string &url);
 
