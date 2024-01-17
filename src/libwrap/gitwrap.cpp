@@ -13,7 +13,7 @@
 #include <system_error>
 #include <vector>
 
-static Logger LOG("wrap::GitWrap"); // NOLINT
+const static Logger LOG("wrap::GitWrap"); // NOLINT
 
 GitWrap::GitWrap(ast::ini::Section *node) : VcsWrap(node) {
   if (auto pushUrl = node->findStringValue("push-url")) {

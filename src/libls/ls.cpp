@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("AbstractLanguageServer"); // NOLINT
+const static Logger LOG("AbstractLanguageServer"); // NOLINT
 
 void AbstractLanguageServer::handleNotification(std::string method,
                                                 nlohmann::json params) {

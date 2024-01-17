@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("wrap::SvnWrap"); // NOLINT
+const static Logger LOG("wrap::SvnWrap"); // NOLINT
 
 bool SvnWrap::setupDirectory(std::filesystem::path path,
                              std::filesystem::path packageFilesPath) {

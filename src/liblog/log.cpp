@@ -23,7 +23,7 @@ Logger::Logger(std::string module) : module(std::move(module)) {
 }
 
 void Logger::error(const std::string &msg,
-                   const std::source_location location) {
+                   const std::source_location location) const {
   auto fullMsg =
       std::format("{}[ ERROR ] {} - {}:{}: {}", this->red, this->module,
                   location.file_name(), location.line(), msg);
@@ -40,14 +40,16 @@ void Logger::error(const std::string &msg,
   }
 }
 
-void Logger::info(const std::string &msg, const std::source_location location) {
+void Logger::info(const std::string &msg,
+                  const std::source_location location) const {
   auto fullMsg =
       std::format("{}[ INFO ] {} - {}:{}: {} {}", this->blue, this->module,
                   location.file_name(), location.line(), msg, this->reset);
   std::clog << fullMsg << std::endl;
 }
 
-void Logger::warn(const std::string &msg, const std::source_location location) {
+void Logger::warn(const std::string &msg,
+                  const std::source_location location) const {
   auto fullMsg =
       std::format("{}[ WARN ] {} - {}:{}: {} {}", this->yellow, this->module,
                   location.file_name(), location.line(), msg, this->reset);

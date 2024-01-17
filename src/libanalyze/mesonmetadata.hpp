@@ -86,8 +86,9 @@ public:
 
   Diagnostic(Severity sev, const Node *begin, const Node *end,
              std::string message, bool deprecated = false,
-             bool unnecessary = false) {
-    this->severity = sev;
+             bool unnecessary = false)
+      : message(std::move(message)), severity(sev), deprecated(deprecated),
+        unnecessary(unnecessary) {
     assert(begin);
     assert(end);
     const auto *loc = &begin->location;
@@ -96,9 +97,6 @@ public:
     loc = &end->location;
     this->endLine = loc->endLine;
     this->endColumn = loc->endColumn;
-    this->message = std::move(message);
-    this->deprecated = deprecated;
-    this->unnecessary = unnecessary;
   }
 
   Diagnostic(Severity sev, const Node *node, std::string message)

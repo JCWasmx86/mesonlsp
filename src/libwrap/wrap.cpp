@@ -14,7 +14,7 @@
 #include <tree_sitter/api.h>
 #include <vector>
 
-static Logger LOG("wrap::Wrap"); // NOLINT
+const static Logger LOG("wrap::Wrap"); // NOLINT
 
 extern "C" TSLanguage *tree_sitter_ini(); // NOLINT
 

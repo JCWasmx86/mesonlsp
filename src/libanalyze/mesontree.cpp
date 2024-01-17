@@ -20,7 +20,7 @@
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
-static Logger LOG("analyze::mesontree"); // NOLINT
+const static Logger LOG("analyze::mesontree"); // NOLINT
 
 OptionState MesonTree::parseFile(const std::filesystem::path &path,
                                  MesonMetadata *metadata) {

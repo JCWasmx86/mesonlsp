@@ -5,7 +5,7 @@
 #include <exception>
 #include <format>
 
-static Logger LOG("Task"); // NOLINT
+const static Logger LOG("Task"); // NOLINT
 
 void Task::run() {
   try {

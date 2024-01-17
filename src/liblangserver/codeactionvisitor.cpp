@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("CodeActionVisitor"); // NOLINT
+const static Logger LOG("CodeActionVisitor"); // NOLINT
 
 bool CodeActionVisitor::inRange(const Node *node, bool add) {
   auto startPos =
