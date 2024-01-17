@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("analyze::optionextractor"); // NOLINT
+const static Logger LOG("analyze::optionextractor"); // NOLINT
 
 void OptionExtractor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);

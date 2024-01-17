@@ -27,7 +27,7 @@
 #include <vector>
 
 #define TYPE_STRING_LENGTH 12
-static Logger LOG("analyze::typeanalyzer"); // NOLINT
+const static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
     "arm",           "armclang",   "ccomp",      "ccrx",      "clang",

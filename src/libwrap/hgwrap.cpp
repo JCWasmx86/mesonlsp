@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("wrap::HgWrap"); // NOLINT
+const static Logger LOG("wrap::HgWrap"); // NOLINT
 
 bool HgWrap::setupDirectory(std::filesystem::path path,
                             std::filesystem::path packageFilesPath) {

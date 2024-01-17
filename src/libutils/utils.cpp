@@ -31,7 +31,7 @@
 #define LIBARCHIVE_BLOCKSIZE ((size_t)1024 * 32)
 #define ERRNO_BUF_SIZE 256
 
-static Logger LOG("utils"); // NOLINT
+const static Logger LOG("utils"); // NOLINT
 
 bool downloadFile(std::string url, const std::filesystem::path &output) {
   auto temporaryPath = std::filesystem::temp_directory_path() /

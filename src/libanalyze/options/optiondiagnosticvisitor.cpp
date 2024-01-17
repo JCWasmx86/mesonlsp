@@ -11,8 +11,8 @@
 #include <set>
 #include <string>
 
-static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
-static OptionState STATE;                     // NOLINT
+const static Logger LOG("OptionDiagnosticVisitor"); // NOLINT
+static OptionState STATE;                           // NOLINT
 
 void OptionDiagnosticVisitor::visitArgumentList(ArgumentList *node) {
   node->visitChildren(this);

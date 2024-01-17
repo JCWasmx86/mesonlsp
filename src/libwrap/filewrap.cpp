@@ -7,7 +7,7 @@
 #include <format>
 #include <string>
 
-static Logger LOG("wrap::FileWrap"); // NOLINT
+const static Logger LOG("wrap::FileWrap"); // NOLINT
 
 FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
   if (auto val = section->findStringValue("source_url")) {

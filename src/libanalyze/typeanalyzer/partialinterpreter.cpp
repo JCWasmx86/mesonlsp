@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
+const static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
 
 std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> arrays);

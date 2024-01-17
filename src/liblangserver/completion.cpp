@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-static Logger LOG("Completion"); // NOLINT
+const static Logger LOG("Completion"); // NOLINT
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
 afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,

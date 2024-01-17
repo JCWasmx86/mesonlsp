@@ -10,7 +10,7 @@
 #include <regex>
 #include <vector>
 
-static Logger LOG("SemanticTokensVisitor");                          // NOLINT
+const static Logger LOG("SemanticTokensVisitor");                    // NOLINT
 static std::regex FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@"); // NOLINT
 static std::regex STR_FORMAT_REGEX("@(\\d+)@");                      // NOLINT
 

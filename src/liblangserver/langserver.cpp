@@ -29,7 +29,7 @@ extern "C" {
 #include <platform/init.h>
 }
 
-static Logger LOG("LanguageServer"); // NOLINT
+const static Logger LOG("LanguageServer"); // NOLINT
 
 std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
   const auto &name =
