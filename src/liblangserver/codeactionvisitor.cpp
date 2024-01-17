@@ -468,16 +468,16 @@ void CodeActionVisitor::makeSortFilenamesAction(const Node *node) {
   auto strLiterals = strLiteralsOpt.value();
   std::vector<const StringLiteral *> sortedStrLiterals{strLiterals.begin(),
                                                        strLiterals.end()};
-  std::sort(sortedStrLiterals.begin(), sortedStrLiterals.end(),
-            [](const StringLiteral *lhs, const StringLiteral *rhs) -> bool {
-              auto aC = std::ranges::count(lhs->id, '/');
-              auto bC = std::ranges::count(rhs->id, '/');
-              if (aC != bC) {
-                return aC < bC; // Sort based on the count of slashes
-              }
-              return lhs->id <
-                     rhs->id; // If counts are equal, sort lexicographically
-            });
+  std::ranges::sort(
+      sortedStrLiterals,
+      [](const StringLiteral *lhs, const StringLiteral *rhs) -> bool {
+        auto aC = std::ranges::count(lhs->id, '/');
+        auto bC = std::ranges::count(rhs->id, '/');
+        if (aC != bC) {
+          return aC < bC; // Sort based on the count of slashes
+        }
+        return lhs->id < rhs->id; // If counts are equal, sort lexicographically
+      });
   if (std::ranges::equal(sortedStrLiterals, strLiterals)) {
     return;
   }
@@ -585,31 +585,29 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   }
   auto toSort = toSortOpt.value();
   std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::sort(sortedNodes.begin(), sortedNodes.end(),
-            [](const Node *lhs, const Node *rhs) -> bool {
-              const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-              const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-              if (lhsIdExpr && rhsIdExpr) {
-                return lhsIdExpr->id < rhsIdExpr->id;
-              }
-              if (lhsIdExpr) {
-                return false;
-              }
-              if (rhsIdExpr) {
-                return true;
-              }
-              const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
-              const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
-              assert(lhsSL);
-              assert(rhsSL);
-              auto aC = std::ranges::count(lhsSL->id, '/');
-              auto bC = std::ranges::count(rhsSL->id, '/');
-              if (aC != bC) {
-                return aC < bC; // Sort based on the count of slashes
-              }
-              return lhsSL->id <
-                     rhsSL->id; // If counts are equal, sort lexicographically
-            });
+  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) -> bool {
+    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+    if (lhsIdExpr && rhsIdExpr) {
+      return lhsIdExpr->id < rhsIdExpr->id;
+    }
+    if (lhsIdExpr) {
+      return false;
+    }
+    if (rhsIdExpr) {
+      return true;
+    }
+    const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
+    const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+    assert(lhsSL);
+    assert(rhsSL);
+    auto aC = std::ranges::count(lhsSL->id, '/');
+    auto bC = std::ranges::count(rhsSL->id, '/');
+    if (aC != bC) {
+      return aC < bC; // Sort based on the count of slashes
+    }
+    return lhsSL->id < rhsSL->id; // If counts are equal, sort lexicographically
+  });
 
   if (std::ranges::equal(sortedNodes, toSort)) {
     return;
@@ -661,31 +659,29 @@ void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
   }
   auto toSort = toSortOpt.value();
   std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::sort(sortedNodes.begin(), sortedNodes.end(),
-            [](const Node *lhs, const Node *rhs) -> bool {
-              const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-              const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-              if (lhsIdExpr && rhsIdExpr) {
-                return lhsIdExpr->id < rhsIdExpr->id;
-              }
-              if (lhsIdExpr) {
-                return true;
-              }
-              if (rhsIdExpr) {
-                return false;
-              }
-              const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
-              const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
-              assert(lhsSL);
-              assert(rhsSL);
-              auto aC = std::ranges::count(lhsSL->id, '/');
-              auto bC = std::ranges::count(rhsSL->id, '/');
-              if (aC != bC) {
-                return aC < bC; // Sort based on the count of slashes
-              }
-              return lhsSL->id <
-                     rhsSL->id; // If counts are equal, sort lexicographically
-            });
+  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) -> bool {
+    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+    if (lhsIdExpr && rhsIdExpr) {
+      return lhsIdExpr->id < rhsIdExpr->id;
+    }
+    if (lhsIdExpr) {
+      return true;
+    }
+    if (rhsIdExpr) {
+      return false;
+    }
+    const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
+    const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+    assert(lhsSL);
+    assert(rhsSL);
+    auto aC = std::ranges::count(lhsSL->id, '/');
+    auto bC = std::ranges::count(rhsSL->id, '/');
+    if (aC != bC) {
+      return aC < bC; // Sort based on the count of slashes
+    }
+    return lhsSL->id < rhsSL->id; // If counts are equal, sort lexicographically
+  });
 
   if (std::ranges::equal(sortedNodes, toSort)) {
     return;

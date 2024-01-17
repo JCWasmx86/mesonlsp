@@ -76,7 +76,7 @@ public:
       names.push_back(element->toString());
     }
 
-    std::sort(names.begin(), names.end());
+    std::ranges::sort(names);
     this->cache = "dict(" + joinStrings(names, '|') + ")";
     this->cached = true;
     return this->cache;
@@ -106,7 +106,7 @@ public:
       names.push_back(element->toString());
     }
 
-    std::sort(names.begin(), names.end());
+    std::ranges::sort(names);
     this->cache = "list(" + joinStrings(names, '|') + ")";
     this->cached = true;
     return this->cache;
@@ -123,7 +123,7 @@ public:
 
   explicit Subproject(std::vector<std::string> names)
       : AbstractObject("subproject"), names(std::move(names)) {
-    std::sort(this->names.begin(), this->names.end());
+    std::ranges::sort(this->names);
     std::string cache;
     for (size_t i = 0; i < this->names.size(); i++) {
       cache += this->names[i];

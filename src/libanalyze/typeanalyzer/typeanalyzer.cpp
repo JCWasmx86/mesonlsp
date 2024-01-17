@@ -1579,9 +1579,8 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   if (dynamic_cast<IterationStatement *>(parent)) {
     return true;
   }
-  return std::find(this->ignoreUnknownIdentifier.begin(),
-                   this->ignoreUnknownIdentifier.end(),
-                   node->id) != this->ignoreUnknownIdentifier.end();
+  return std::ranges::find(this->ignoreUnknownIdentifier, node->id) !=
+         this->ignoreUnknownIdentifier.end();
 }
 
 bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
@@ -1673,11 +1672,8 @@ cont:
 
 void TypeAnalyzer::registerUsed(const std::string &varname) {
   for (auto &arr : this->variablesNeedingUse | std::ranges::views::reverse) {
-    arr.erase(std::remove_if(arr.begin(), arr.end(),
-                             [&varname](const auto &idExpr) {
-                               return idExpr->id != varname;
-                             }),
-              arr.end());
+    std::erase_if(
+        arr, [&varname](const auto &idExpr) { return idExpr->id != varname; });
   }
 }
 
@@ -2406,7 +2402,7 @@ std::string joinTypes(const std::vector<std::shared_ptr<Type>> &types) {
   for (const auto &type : types) {
     vector.push_back(type->toString());
   }
-  std::sort(vector.begin(), vector.end());
+  std::ranges::sort(vector);
   std::string ret;
   ret.reserve(vector.size() * TYPE_STRING_LENGTH);
   for (size_t i = 0; i < vector.size(); i++) {

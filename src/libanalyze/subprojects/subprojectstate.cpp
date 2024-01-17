@@ -204,8 +204,8 @@ makeDefault:
 
 static std::string normalizeURLToFilePath(const std::string &url) {
   std::string normalizedPath = url;
-  std::replace_if(
-      normalizedPath.begin(), normalizedPath.end(),
+  std::ranges::replace_if(
+      normalizedPath,
       [](char chr) {
         return (isalnum(chr) == 0) && chr != '.' && chr != '-' && chr != '/' &&
                chr != ':';

@@ -12,6 +12,7 @@
 #include <cctype>
 #include <cstdint>
 #include <format>
+#include <iterator>
 #include <memory>
 #include <ranges>
 #include <set>
@@ -1339,15 +1340,15 @@ std::string applyMethod(const std::string &deduced, const std::string &name) {
     return ret;
   }
   if (name == "to_lower") {
-    std::string data = deduced;
-    std::transform(data.begin(), data.end(), data.begin(),
-                   [](unsigned char chr) { return std::tolower(chr); });
+    std::string data;
+    std::ranges::transform(deduced, std::back_inserter(data),
+                           [](unsigned char chr) { return std::tolower(chr); });
     return data;
   }
   if (name == "to_upper") {
-    std::string data = deduced;
-    std::transform(data.begin(), data.end(), data.begin(),
-                   [](unsigned char chr) { return std::toupper(chr); });
+    std::string data;
+    std::ranges::transform(deduced, std::back_inserter(data),
+                           [](unsigned char chr) { return std::toupper(chr); });
     return data;
   }
   if (name == "strip") {
