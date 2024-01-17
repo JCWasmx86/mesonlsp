@@ -45,8 +45,8 @@ static bool isHead(std::string rev) {
           std::tolower(rev[2]) == 'a' && std::tolower(rev[3]) == 'd');
 }
 
-bool GitWrap::setupDirectory(std::filesystem::path path,
-                             std::filesystem::path packageFilesPath) {
+bool GitWrap::setupDirectory(const std::filesystem::path &path,
+                             const std::filesystem::path &packageFilesPath) {
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
@@ -62,7 +62,7 @@ bool GitWrap::setupDirectory(std::filesystem::path path,
   }
   auto rev = this->revision;
   auto targetDirectory = this->directory.value();
-  std::string const fullPath =
+  std::filesystem::path const fullPath =
       std::format("{}/{}", path.c_str(), targetDirectory);
   auto isShallow = this->depth != 0;
   auto depthOptions =
@@ -170,7 +170,7 @@ bool GitWrap::setupDirectory(std::filesystem::path path,
   auto result = launchProcess(
       "git", std::vector<std::string>{"-C", fullPath, "pull", "origin"});
   if (result) {
-    auto pullableFile = std::filesystem::path{fullPath} / ".git_pullable";
+    auto pullableFile = fullPath / ".git_pullable";
     std::ofstream{pullableFile}.put('\n');
   }
   // If it fails, it was a tag, not a branch

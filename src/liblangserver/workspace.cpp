@@ -162,7 +162,7 @@ Workspace::highlight(const std::filesystem::path &path,
       if (ass && toCheck->equals(ass->lhs.get())) {
         kind = DocumentHighlightKind::WriteKind;
       }
-      const auto loc = toCheck->location;
+      const auto &loc = toCheck->location;
       auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                             LSPPosition(loc.endLine, loc.endColumn));
       ret.emplace_back(range, kind);
@@ -221,7 +221,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
       if (ass && ass->op == AssignmentOperator::Equals) {
         auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
         if (lhsIdExpr && lhsIdExpr->id == toFind) {
-          const auto loc = idExpr->location;
+          const auto &loc = idExpr->location;
           auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                                 LSPPosition(loc.endLine, loc.endColumn));
           this->smph.release();
@@ -229,7 +229,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         }
       }
       if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
-        const auto loc = idExpr->location;
+        const auto &loc = idExpr->location;
         auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                               LSPPosition(loc.endLine, loc.endColumn));
         this->smph.release();
@@ -274,8 +274,9 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         this->smph.release();
         return {};
       }
-      auto key = std::format("{}-{}", funcCall->file->file.generic_string(),
-                             funcCall->location.format());
+      const std::filesystem::path &key =
+          std::format("{}-{}", funcCall->file->file.generic_string(),
+                      funcCall->location.format());
       if (!metadata->subdirCalls.contains(key)) {
         this->smph.release();
         return {};
@@ -329,7 +330,7 @@ Workspace::rename(const std::filesystem::path &path,
           }
           foundOurself = true;
         }
-        const auto loc = identifier->location;
+        const auto &loc = identifier->location;
         auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                               LSPPosition(loc.endLine, loc.endColumn));
         // TODO: Rename parent-project `get_variable`
@@ -407,7 +408,9 @@ void Workspace::patchFile(
     }
     this->running = true;
     std::set<std::filesystem::path> oldDiags;
-    auto identifier = subTree->identifier;
+    const auto /*Copy explicitly, as subtree is not valid anymore after
+                  parsing*/
+        identifier = subTree->identifier;
     for (const auto &pair : subTree->metadata.diagnostics) {
       oldDiags.insert(pair.first);
     }
@@ -484,7 +487,7 @@ Workspace::clearDiagnostics() {
 std::optional<std::filesystem::path>
 Workspace::muonConfigFile(const std::filesystem::path &path) {
   for (const auto &tree : this->foundTrees) {
-    auto treePath = tree->root;
+    const auto &treePath = tree->root;
     if (std::filesystem::relative(path, treePath)
             .generic_string()
             .contains("..")) {

@@ -27,8 +27,8 @@ FileWrap::FileWrap(ast::ini::Section *section) : Wrap(section) {
   }
 }
 
-bool FileWrap::setupDirectory(std::filesystem::path path,
-                              std::filesystem::path packageFilesPath) {
+bool FileWrap::setupDirectory(const std::filesystem::path &path,
+                              const std::filesystem::path &packageFilesPath) {
   auto sfn = this->sourceFilename;
   if (sfn->empty()) {
     LOG.warn("Sourcefilename is empty");
