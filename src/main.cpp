@@ -114,7 +114,7 @@ void printDiagnostics(const MesonTree &tree) {
           std::filesystem::relative(file, proj->root).generic_string();
       const auto &diags = proj->metadata.diagnostics.at(file);
       for (const auto &diag : diags) {
-        const auto *icon = diag.severity == Severity::Error ? "🔴" : "⚠️";
+        const auto *icon = diag.severity == Severity::ERROR ? "🔴" : "⚠️";
         std::cerr << relative << "[" << diag.startLine + 1 << ":"
                   << diag.startColumn << "] " << icon << "  " << diag.message
                   << std::endl;

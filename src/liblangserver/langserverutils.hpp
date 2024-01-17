@@ -24,7 +24,7 @@ inline std::string pathToUrl(const std::filesystem::path &path) {
 inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
   auto range = LSPRange(LSPPosition(diag.startLine, diag.startColumn),
                         LSPPosition(diag.endLine, diag.endColumn));
-  auto severity = diag.severity == Severity::Error
+  auto severity = diag.severity == Severity::ERROR
                       ? DiagnosticSeverity::LSPError
                       : DiagnosticSeverity::LSPWarning;
   std::vector<DiagnosticTag> tags;

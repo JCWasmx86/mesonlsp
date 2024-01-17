@@ -7,10 +7,10 @@
 #include <utility>
 #include <uuid/uuid.h>
 
-enum TaskState {
-  Pending,
-  Running,
-  Ended,
+enum class TaskState {
+  PENDING,
+  RUNNING,
+  ENDED,
 };
 
 class Task {
@@ -31,7 +31,7 @@ public:
     uuid_unparse(filename, out.data());
     this->uuid = std::format("{}", out.data());
     cancelled = false;
-    this->state = TaskState::Pending;
+    this->state = TaskState::PENDING;
   }
 
   [[nodiscard]] std::string getUUID() const { return uuid; }
