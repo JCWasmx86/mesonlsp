@@ -282,7 +282,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
       }
       const auto &set = metadata->subdirCalls.at(key);
       std::vector<std::string> sorted{set.begin(), set.end()};
-      std::sort(sorted.begin(), sorted.end());
+      std::ranges::sort(sorted);
       std::vector<LSPLocation> ret;
       for (const auto &subdir : sorted) {
         auto subdirMesonPath = path.parent_path() / subdir / "meson.build";
@@ -517,7 +517,7 @@ Workspace::parse(const TypeNamespace &ns) {
       if (toIgnore->empty()) {
         continue; // Skip every subproject
       }
-      if (std::find(toIgnore->begin(), toIgnore->end(), subTree->name) !=
+      if (std::ranges::find(toIgnore.value(), subTree->name) !=
           toIgnore->end()) {
         continue;
       }

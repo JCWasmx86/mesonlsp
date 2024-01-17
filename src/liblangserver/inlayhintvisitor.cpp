@@ -143,6 +143,6 @@ InlayHintVisitor::prettify(const std::vector<std::shared_ptr<Type>> &types,
     }
     strs.push_back(type->toString());
   }
-  std::sort(strs.begin(), strs.end());
+  std::ranges::sort(strs);
   return joinStrings(strs, '|');
 }

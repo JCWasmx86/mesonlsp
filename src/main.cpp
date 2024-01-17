@@ -108,7 +108,7 @@ void printDiagnostics(const MesonTree &tree) {
               << std::endl;
     const auto &keyview = std::views::keys(metadata.diagnostics);
     std::vector<std::filesystem::path> keys{keyview.begin(), keyview.end()};
-    std::sort(keys.begin(), keys.end());
+    std::ranges::sort(keys);
     for (const auto &file : keys) {
       const auto &relative =
           std::filesystem::relative(file, proj->root).generic_string();

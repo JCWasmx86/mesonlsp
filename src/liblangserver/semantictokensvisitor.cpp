@@ -30,13 +30,12 @@ void SemanticTokensVisitor::makeSemanticToken(Node *node, size_t idx,
 }
 
 std::vector<uint64_t> SemanticTokensVisitor::finish() {
-  std::sort(this->tokens.begin(), this->tokens.end(),
-            [](const auto &lhs, const auto &rhs) {
-              if (lhs[0] == rhs[0]) {
-                return lhs[1] < rhs[1];
-              }
-              return lhs[0] < rhs[0];
-            });
+  std::ranges::sort(this->tokens, [](const auto &lhs, const auto &rhs) {
+    if (lhs[0] == rhs[0]) {
+      return lhs[1] < rhs[1];
+    }
+    return lhs[0] < rhs[0];
+  });
   std::vector<uint64_t> ret;
   uint64_t prevLine = 0;
   uint64_t prevChar = 0;

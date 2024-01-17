@@ -73,8 +73,7 @@ static inline std::string hash(const std::filesystem::path &path) {
 }
 
 static inline void ltrim(std::string &str) {
-  str.erase(str.begin(),
-            std::find_if(str.begin(), str.end(), [](unsigned char chr) {
+  str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char chr) {
               return std::isspace(chr) == 0;
             }));
 }
@@ -136,16 +135,18 @@ inline std::string joinStrings(const Container &cont, const char chr) {
 // From https://stackoverflow.com/a/56199972
 template <typename T>
 std::basic_string<T> lowercase(const std::basic_string<T> &str) {
-  std::basic_string<T> copy = str;
-  std::transform(copy.begin(), copy.end(), copy.begin(),
-                 [](const T val) { return static_cast<T>(std::tolower(val)); });
+  std::basic_string<T> copy;
+  std::ranges::transform(str, std::back_inserter(copy), [](const T val) {
+    return static_cast<T>(std::tolower(val));
+  });
   return copy;
 }
 
 template <typename T>
 std::basic_string<T> uppercase(const std::basic_string<T> &str) {
-  std::basic_string<T> copy = str;
-  std::transform(copy.begin(), copy.end(), copy.begin(),
-                 [](const T chr) { return static_cast<T>(std::toupper(chr)); });
+  std::basic_string<T> copy;
+  std::ranges::transform(str, std::back_inserter(copy), [](const T chr) {
+    return static_cast<T>(std::toupper(chr));
+  });
   return copy;
 }
