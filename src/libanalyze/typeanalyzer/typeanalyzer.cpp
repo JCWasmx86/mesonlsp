@@ -554,7 +554,6 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         ++*numErrors;
         break;
       }
-      case BinOpOther:
       default:
         LOG.error("Whoops???");
         ++*numErrors;
@@ -2270,7 +2269,6 @@ void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
   case UnaryMinus:
     node->types.push_back(this->ns.intType);
     break;
-  case UnaryOther:
   default:
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::ERROR, node, "Bad unary operator"));
