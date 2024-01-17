@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <utility>
 
-Logger::Logger(std::string module) : module(std::move(module)) {
+Logger::Logger(std::string module) : logmodule(std::move(module)) {
   if (isatty(STDERR_FILENO) != 0) {
     this->blue = "\033[96m";
     this->red = "\033[91m";
@@ -25,7 +25,7 @@ Logger::Logger(std::string module) : module(std::move(module)) {
 void Logger::error(const std::string &msg,
                    const std::source_location location) const {
   auto fullMsg =
-      std::format("{}[ ERROR ] {} - {}:{}: {}", this->red, this->module,
+      std::format("{}[ ERROR ] {} - {}:{}: {}", this->red, this->logmodule,
                   location.file_name(), location.line(), msg);
   std::clog << fullMsg;
   auto eptr = std::current_exception();
@@ -43,7 +43,7 @@ void Logger::error(const std::string &msg,
 void Logger::info(const std::string &msg,
                   const std::source_location location) const {
   auto fullMsg =
-      std::format("{}[ INFO ] {} - {}:{}: {} {}", this->blue, this->module,
+      std::format("{}[ INFO ] {} - {}:{}: {} {}", this->blue, this->logmodule,
                   location.file_name(), location.line(), msg, this->reset);
   std::clog << fullMsg << std::endl;
 }
@@ -51,7 +51,7 @@ void Logger::info(const std::string &msg,
 void Logger::warn(const std::string &msg,
                   const std::source_location location) const {
   auto fullMsg =
-      std::format("{}[ WARN ] {} - {}:{}: {} {}", this->yellow, this->module,
+      std::format("{}[ WARN ] {} - {}:{}: {} {}", this->yellow, this->logmodule,
                   location.file_name(), location.line(), msg, this->reset);
   std::clog << fullMsg << std::endl;
 }
