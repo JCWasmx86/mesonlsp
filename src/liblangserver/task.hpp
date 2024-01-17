@@ -24,7 +24,7 @@ private:
 public:
   std::atomic<TaskState> state;
 
-  Task(std::function<void()> func) : taskFunction(std::move(func)) {
+  explicit Task(std::function<void()> func) : taskFunction(std::move(func)) {
     uuid_t filename;
     uuid_generate(filename);
     std::array<char, UUID_STR_LEN + 1> out;

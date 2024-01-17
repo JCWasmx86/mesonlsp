@@ -112,16 +112,17 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
     this->diagnosticsFromInitialisation.emplace_back(diags);
     this->workspaces.push_back(workspace);
   }
-  return {ServerCapabilities(
-              TextDocumentSyncOptions(true, TextDocumentSyncKind::Full), true,
-              true, true, true, true, true, true, true, true, true,
-              CompletionOptions(false, {".", "_", ")"}),
-              SemanticTokensOptions(
-                  true, SemanticTokensLegend({"substitute", "substitute_bounds",
-                                              "variable", "function", "method",
-                                              "keyword", "string", "number"},
-                                             {"readonly", "defaultLibrary"}))),
-          ServerInfo("c++-mesonlsp", VERSION)};
+  return InitializeResult{
+      ServerCapabilities(
+          TextDocumentSyncOptions(true, TextDocumentSyncKind::Full), true, true,
+          true, true, true, true, true, true, true, true,
+          CompletionOptions(false, {".", "_", ")"}),
+          SemanticTokensOptions(
+              true, SemanticTokensLegend({"substitute", "substitute_bounds",
+                                          "variable", "function", "method",
+                                          "keyword", "string", "number"},
+                                         {"readonly", "defaultLibrary"}))),
+      ServerInfo("c++-mesonlsp", VERSION)};
 }
 
 void LanguageServer::shutdown() {}

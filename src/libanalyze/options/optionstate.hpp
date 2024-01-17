@@ -12,7 +12,7 @@ public:
 
   OptionState();
 
-  OptionState(const std::vector<std::shared_ptr<MesonOption>> &options)
+  explicit OptionState(const std::vector<std::shared_ptr<MesonOption>> &options)
       : OptionState() {
     for (const auto &option : options) {
       this->options.push_back(option);

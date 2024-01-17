@@ -43,7 +43,7 @@ public:
   Type(Type &&) = delete;
 
 protected:
-  Type(std::string name) : name(std::move(name)) {}
+  explicit Type(std::string name) : name(std::move(name)) {}
 };
 
 class AbstractObject : public Type {
@@ -51,7 +51,7 @@ public:
   std::optional<std::shared_ptr<AbstractObject>> parent;
 
 protected:
-  AbstractObject(
+  explicit AbstractObject(
       std::string name,
       std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
       : Type(std::move(name)), parent(std::move(parent)) {}
@@ -61,7 +61,7 @@ class Dict : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
-  Dict(const std::vector<std::shared_ptr<Type>> &types)
+  explicit Dict(const std::vector<std::shared_ptr<Type>> &types)
       : Type("dict"), types(types) {}
 
   Dict() : Type("dict") {}
@@ -91,7 +91,7 @@ class List : public Type {
 public:
   std::vector<std::shared_ptr<Type>> types;
 
-  List(const std::vector<std::shared_ptr<Type>> &types)
+  explicit List(const std::vector<std::shared_ptr<Type>> &types)
       : Type("list"), types(types) {}
 
   List() : Type("list") {}
@@ -121,7 +121,7 @@ class Subproject : public AbstractObject {
 public:
   std::vector<std::string> names;
 
-  Subproject(std::vector<std::string> names)
+  explicit Subproject(std::vector<std::string> names)
       : AbstractObject("subproject"), names(std::move(names)) {
     std::sort(this->names.begin(), this->names.end());
     std::string cache;

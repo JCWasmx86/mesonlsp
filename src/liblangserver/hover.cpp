@@ -16,7 +16,8 @@ static std::string formatArgument(const Argument *arg);
 Hover makeHoverForFunctionExpression(FunctionExpression *fe,
                                      const OptionState &options) {
   if (!fe->function) {
-    return {MarkupContent("Unable to find information about this function!")};
+    return Hover{
+        MarkupContent("Unable to find information about this function!")};
   }
   auto fn = fe->function;
   if (fn->name == "get_option") {
@@ -49,7 +50,7 @@ Hover makeHoverForFunctionExpression(FunctionExpression *fe,
                    dynamic_cast<ComboOption *>(corrOption.get())) {
       ret += std::format("\nValues: {}", joinStrings(comboOption->values, '|'));
     }
-    return {MarkupContent(ret)};
+    return Hover{MarkupContent(ret)};
   }
 cont:
   auto header = std::format("## {}\n\n", fn->name);
@@ -71,13 +72,14 @@ cont:
     signature += ")\n";
   }
 
-  return {MarkupContent(std::format("{}{}\n{}\n\n```meson\n{}```\n", header,
-                                    returns, docs, signature))};
+  return Hover{MarkupContent(std::format("{}{}\n{}\n\n```meson\n{}```\n",
+                                         header, returns, docs, signature))};
 }
 
 Hover makeHoverForMethodExpression(MethodExpression *me) {
   if (!me->method) {
-    return {MarkupContent("Unable to find information about this method!")};
+    return Hover{
+        MarkupContent("Unable to find information about this method!")};
   }
   auto method = me->method;
   auto header = std::format("## {}\n\n", method->id());
@@ -98,22 +100,22 @@ Hover makeHoverForMethodExpression(MethodExpression *me) {
     }
     signature += ")\n";
   }
-  return {MarkupContent(std::format("{}{}\n{}\n```meson\n{}```\n", header,
-                                    returns, docs, signature))};
+  return Hover{MarkupContent(std::format("{}{}\n{}\n```meson\n{}```\n", header,
+                                         returns, docs, signature))};
 }
 
 Hover makeHoverForId(IdExpression *idExpr) {
   auto header = std::format("## variable `{}`\n\n", idExpr->id);
   auto types = idExpr->types;
   if (types.empty()) {
-    return {MarkupContent(header)};
+    return Hover{MarkupContent(header)};
   }
   auto joined = joinTypes(types);
   if (types.size() > 1) {
-    return {MarkupContent(std::format("{}Types: `{}`", header, joined))};
+    return Hover{MarkupContent(std::format("{}Types: `{}`", header, joined))};
   }
   auto onlyType = types[0];
-  return {MarkupContent(
+  return Hover{MarkupContent(
       std::format("{}Type: `{}`\n\n{}\n", header, joined, onlyType->docs))};
 }
 

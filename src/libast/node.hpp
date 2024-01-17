@@ -355,7 +355,7 @@ public:
   bool isFormat;
   StringLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
 
-  StringLiteral(std::string str) {
+  explicit StringLiteral(std::string str) {
     this->id = std::move(str);
     this->isFormat = false;
   }

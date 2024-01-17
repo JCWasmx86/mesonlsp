@@ -18,7 +18,7 @@ public:
   std::string name;
   std::optional<std::string> version;
 
-  ClientInfo(nlohmann::json data) {
+  explicit ClientInfo(nlohmann::json data) {
     this->name = data["name"];
     if (data.contains("version")) {
       this->version = data["version"];
@@ -31,7 +31,7 @@ public:
   std::string uri;
   std::string name;
 
-  WorkspaceFolder(nlohmann::json &jsonObj) {
+  explicit WorkspaceFolder(nlohmann::json &jsonObj) {
     this->uri = jsonObj["uri"];
     this->name = jsonObj["name"];
   }
@@ -160,7 +160,7 @@ public:
   std::optional<nlohmann::json> initializationOptions;
   ClientCapabilities capabilities;
 
-  InitializeParams(nlohmann::json &jsonObj) {
+  explicit InitializeParams(nlohmann::json &jsonObj) {
     if (jsonObj.contains("clientInfo")) {
       this->clientInfo = ClientInfo(jsonObj["clientInfo"]);
     }
@@ -192,8 +192,8 @@ public:
   ServerCapabilities capabilities;
   std::optional<ServerInfo> serverInfo;
 
-  InitializeResult(ServerCapabilities capabilities,
-                   std::optional<ServerInfo> serverInfo = std::nullopt)
+  explicit InitializeResult(ServerCapabilities capabilities,
+                            std::optional<ServerInfo> serverInfo = std::nullopt)
       : capabilities(std::move(capabilities)),
         serverInfo(std::move(serverInfo)) {}
 
@@ -225,7 +225,7 @@ public:
   LSPPosition(uint64_t line, uint64_t character)
       : line(line), character(character) {}
 
-  LSPPosition(nlohmann::json &jsonObj) {
+  explicit LSPPosition(nlohmann::json &jsonObj) {
     this->line = jsonObj["line"];
     this->character = jsonObj["character"];
   }
@@ -243,7 +243,7 @@ public:
   LSPRange(LSPPosition start, LSPPosition end)
       : start(std::move(start)), end(std::move(end)) {}
 
-  LSPRange(nlohmann::json &jsonObj)
+  explicit LSPRange(nlohmann::json &jsonObj)
       : start(jsonObj["start"]), end(jsonObj["end"]) {}
 
   [[nodiscard]] nlohmann::json toJson() const {
@@ -317,7 +317,7 @@ public:
   std::string uri;
   std::string text;
 
-  TextDocumentItem(nlohmann::json &jsonObj) {
+  explicit TextDocumentItem(nlohmann::json &jsonObj) {
     this->uri = jsonObj["uri"];
     this->text = jsonObj["text"];
   }
@@ -327,21 +327,23 @@ class DidOpenTextDocumentParams : public BaseObject {
 public:
   TextDocumentItem textDocument;
 
-  DidOpenTextDocumentParams(nlohmann::json &jsonObj) : textDocument(jsonObj) {}
+  explicit DidOpenTextDocumentParams(nlohmann::json &jsonObj)
+      : textDocument(jsonObj) {}
 };
 
 class TextDocumentIdentifier : public BaseObject {
 public:
   std::string uri;
 
-  TextDocumentIdentifier(nlohmann::json &jsonObj) : uri(jsonObj["uri"]) {}
+  explicit TextDocumentIdentifier(nlohmann::json &jsonObj)
+      : uri(jsonObj["uri"]) {}
 };
 
 class TextDocumentContentChangeEvent : public BaseObject {
 public:
   std::string text;
 
-  TextDocumentContentChangeEvent(nlohmann::json &jsonObj)
+  explicit TextDocumentContentChangeEvent(nlohmann::json &jsonObj)
       : text(jsonObj["text"]) {}
 };
 
@@ -350,7 +352,7 @@ public:
   TextDocumentIdentifier textDocument;
   std::vector<TextDocumentContentChangeEvent> contentChanges;
 
-  DidChangeTextDocumentParams(nlohmann::json &jsonObj)
+  explicit DidChangeTextDocumentParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {
     for (auto &change : jsonObj["contentChanges"]) {
       contentChanges.emplace_back(change);
@@ -363,7 +365,7 @@ public:
   TextDocumentIdentifier textDocument;
   std::string text;
 
-  DidSaveTextDocumentParams(nlohmann::json &jsonObj)
+  explicit DidSaveTextDocumentParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), text(jsonObj["text"]) {}
 };
 
@@ -371,7 +373,7 @@ class DidCloseTextDocumentParams : public BaseObject {
 public:
   TextDocumentIdentifier textDocument;
 
-  DidCloseTextDocumentParams(nlohmann::json &jsonObj)
+  explicit DidCloseTextDocumentParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
 };
 
@@ -380,7 +382,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPRange range;
 
-  InlayHintParams(nlohmann::json &jsonObj)
+  explicit InlayHintParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), range(jsonObj["range"]) {}
 };
 
@@ -401,7 +403,7 @@ class FoldingRangeParams : public BaseObject {
 public:
   TextDocumentIdentifier textDocument;
 
-  FoldingRangeParams(nlohmann::json &jsonObj)
+  explicit FoldingRangeParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
 };
 
@@ -422,7 +424,7 @@ class SemanticTokensParams : public BaseObject {
 public:
   TextDocumentIdentifier textDocument;
 
-  SemanticTokensParams(nlohmann::json &jsonObj)
+  explicit SemanticTokensParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
 };
 
@@ -431,7 +433,7 @@ public:
   uint8_t tabSize;
   bool insertSpaces;
 
-  FormattingOptions(nlohmann::json &jsonObj) {
+  explicit FormattingOptions(nlohmann::json &jsonObj) {
     this->tabSize = jsonObj["tabSize"];
     this->insertSpaces = jsonObj["insertSpaces"];
   }
@@ -442,7 +444,7 @@ public:
   TextDocumentIdentifier textDocument;
   FormattingOptions options;
 
-  DocumentFormattingParams(nlohmann::json &jsonObj)
+  explicit DocumentFormattingParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), options(jsonObj["options"]) {}
 };
 
@@ -463,7 +465,7 @@ class DocumentSymbolParams : public BaseObject {
 public:
   TextDocumentIdentifier textDocument;
 
-  DocumentSymbolParams(nlohmann::json &jsonObj)
+  explicit DocumentSymbolParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]) {}
 };
 
@@ -508,7 +510,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPPosition position;
 
-  HoverParams(nlohmann::json &jsonObj)
+  explicit HoverParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
@@ -516,7 +518,7 @@ class MarkupContent : public BaseObject {
 public:
   std::string value;
 
-  MarkupContent(std::string value) : value(std::move(value)) {}
+  explicit MarkupContent(std::string value) : value(std::move(value)) {}
 
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"value", value}, {"kind", "markdown"}};
@@ -527,7 +529,7 @@ class Hover : public BaseObject {
 public:
   MarkupContent contents;
 
-  Hover(MarkupContent contents) : contents(std::move(contents)) {}
+  explicit Hover(MarkupContent contents) : contents(std::move(contents)) {}
 
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"contents", contents.toJson()}};
@@ -539,7 +541,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPPosition position;
 
-  DocumentHighlightParams(nlohmann::json &jsonObj)
+  explicit DocumentHighlightParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
@@ -567,7 +569,7 @@ public:
   LSPPosition position;
   std::string newName;
 
-  RenameParams(nlohmann::json &jsonObj)
+  explicit RenameParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]),
         newName(jsonObj["newName"]) {}
 };
@@ -595,7 +597,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPPosition position;
 
-  DeclarationParams(nlohmann::json &jsonObj)
+  explicit DeclarationParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
@@ -604,7 +606,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPPosition position;
 
-  DefinitionParams(nlohmann::json &jsonObj)
+  explicit DefinitionParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
@@ -615,7 +617,7 @@ public:
 
   // Ignore the context :p
 
-  CodeActionParams(nlohmann::json &jsonObj)
+  explicit CodeActionParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), range(jsonObj["range"]) {}
 };
 
@@ -637,7 +639,7 @@ public:
   TextDocumentIdentifier textDocument;
   LSPPosition position;
 
-  CompletionParams(nlohmann::json &jsonObj)
+  explicit CompletionParams(nlohmann::json &jsonObj)
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
@@ -673,6 +675,6 @@ class DidChangeConfigurationParams : public BaseObject {
 public:
   nlohmann::json settings;
 
-  DidChangeConfigurationParams(nlohmann::json &jsonObj)
+  explicit DidChangeConfigurationParams(nlohmann::json &jsonObj)
       : settings(jsonObj["settings"]) {}
 };

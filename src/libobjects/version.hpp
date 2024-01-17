@@ -9,7 +9,7 @@ class Version {
 public:
   std::string versionString;
 
-  Version(const std::string &string) {
+  explicit Version(const std::string &string) {
     this->versionString = string;
     this->parts = split(this->versionString, ".");
   }

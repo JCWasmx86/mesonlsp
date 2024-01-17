@@ -12,7 +12,8 @@ class OptionDiagnosticVisitor : public CodeVisitor {
 public:
   MesonMetadata *metadata;
 
-  OptionDiagnosticVisitor(MesonMetadata *metadata) : metadata(metadata) {}
+  explicit OptionDiagnosticVisitor(MesonMetadata *metadata)
+      : metadata(metadata) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;
