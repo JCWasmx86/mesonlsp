@@ -146,10 +146,11 @@ enum {
 
 // NOLINTEND
 
-Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
+Node::Node(std::shared_ptr<SourceFile> file, const TSNode &node)
     : file(std::move(file)), location(node) {}
 
-ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file, TSNode node)
+ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file,
+                           const TSNode &node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->args.push_back(makeNode(file, ts_node_named_child(node, i)));
@@ -169,7 +170,8 @@ void ArgumentList::setParents() {
   }
 }
 
-ArrayLiteral::ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node)
+ArrayLiteral::ArrayLiteral(const std::shared_ptr<SourceFile> &file,
+                           const TSNode &node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto child = ts_node_named_child(node, i);
@@ -191,7 +193,7 @@ void ArrayLiteral::setParents() {
 }
 
 BuildDefinition::BuildDefinition(const std::shared_ptr<SourceFile> &file,
-                                 TSNode node)
+                                 const TSNode &node)
     : Node(file, node) {
   if (!node.id) {
     return;
@@ -218,7 +220,7 @@ void BuildDefinition::visitChildren(CodeVisitor *visitor) {
 };
 
 DictionaryLiteral::DictionaryLiteral(const std::shared_ptr<SourceFile> &file,
-                                     TSNode node)
+                                     const TSNode &node)
     : Node(file, node) {
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->values.push_back(makeNode(file, ts_node_named_child(node, i)));
@@ -239,7 +241,7 @@ void DictionaryLiteral::visitChildren(CodeVisitor *visitor) {
 };
 
 ConditionalExpression::ConditionalExpression(
-    const std::shared_ptr<SourceFile> &file, TSNode node)
+    const std::shared_ptr<SourceFile> &file, const TSNode &node)
     : Node(file, node) {
   this->condition = makeNode(file, ts_node_named_child(node, 0));
   this->ifTrue = makeNode(file, ts_node_named_child(node, 1));
@@ -262,7 +264,7 @@ void ConditionalExpression::visitChildren(CodeVisitor *visitor) {
 };
 
 SubscriptExpression::SubscriptExpression(
-    const std::shared_ptr<SourceFile> &file, TSNode node)
+    const std::shared_ptr<SourceFile> &file, const TSNode &node)
     : Node(file, node) {
   this->outer = makeNode(file, ts_node_named_child(node, 0));
   this->inner = makeNode(file, ts_node_named_child(node, 1));
@@ -281,7 +283,7 @@ void SubscriptExpression::visitChildren(CodeVisitor *visitor) {
 };
 
 MethodExpression::MethodExpression(const std::shared_ptr<SourceFile> &file,
-                                   TSNode node)
+                                   const TSNode &node)
     : Node(file, node) {
   this->obj = makeNode(file, ts_node_named_child(node, 0));
   this->id = makeNode(file, ts_node_named_child(node, 1));
@@ -312,7 +314,7 @@ void MethodExpression::setParents() {
 }
 
 FunctionExpression::FunctionExpression(const std::shared_ptr<SourceFile> &file,
-                                       TSNode node)
+                                       const TSNode &node)
     : Node(file, node) {
   this->id = makeNode(file, ts_node_named_child(node, 0));
   if (ts_node_named_child_count(node) != 1) {
@@ -338,7 +340,8 @@ void FunctionExpression::visitChildren(CodeVisitor *visitor) {
   }
 };
 
-KeyValueItem::KeyValueItem(const std::shared_ptr<SourceFile> &file, TSNode node)
+KeyValueItem::KeyValueItem(const std::shared_ptr<SourceFile> &file,
+                           const TSNode &node)
     : Node(file, node) {
   this->key = makeNode(file, ts_node_named_child(node, 0));
   this->value = makeNode(file, ts_node_named_child(node, 1));
@@ -356,7 +359,8 @@ void KeyValueItem::visitChildren(CodeVisitor *visitor) {
   this->value->visit(visitor);
 };
 
-KeywordItem::KeywordItem(const std::shared_ptr<SourceFile> &file, TSNode node)
+KeywordItem::KeywordItem(const std::shared_ptr<SourceFile> &file,
+                         const TSNode &node)
     : Node(file, node) {
   this->key = makeNode(file, ts_node_named_child(node, 0));
   this->value = makeNode(file, ts_node_named_child(node, 1));
@@ -381,7 +385,7 @@ void KeywordItem::visitChildren(CodeVisitor *visitor) {
 };
 
 IterationStatement::IterationStatement(const std::shared_ptr<SourceFile> &file,
-                                       TSNode node)
+                                       const TSNode &node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
   for (uint32_t i = 0; i < ts_node_named_child_count(idList); i++) {
@@ -423,7 +427,7 @@ void IterationStatement::setParents() {
 }
 
 AssignmentStatement::AssignmentStatement(
-    const std::shared_ptr<SourceFile> &file, TSNode node)
+    const std::shared_ptr<SourceFile> &file, const TSNode &node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   const auto opNode = ts_node_named_child(node, 1);
@@ -465,7 +469,7 @@ void AssignmentStatement::visitChildren(CodeVisitor *visitor) {
 }
 
 BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
-                                   TSNode node)
+                                   const TSNode &node)
     : Node(file, node) {
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   auto ncc = ts_node_named_child_count(node);
@@ -554,7 +558,7 @@ void BinaryExpression::visitChildren(CodeVisitor *visitor) {
 }
 
 UnaryExpression::UnaryExpression(const std::shared_ptr<SourceFile> &file,
-                                 TSNode node)
+                                 const TSNode &node)
     : Node(file, node) {
   const auto opNode = ts_node_child(node, 0);
   switch (ts_node_symbol(opNode)) {
@@ -583,7 +587,7 @@ void UnaryExpression::visitChildren(CodeVisitor *visitor) {
 }
 
 StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
-                             TSNode node)
+                             const TSNode &node)
     : Node(file, node) {
   const auto &typeNode = ts_node_child(node, 0);
   switch (ts_node_symbol(typeNode)) {
@@ -612,7 +616,8 @@ void StringLiteral::setParents() {}
 
 void StringLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
-IdExpression::IdExpression(const std::shared_ptr<SourceFile> &file, TSNode node)
+IdExpression::IdExpression(const std::shared_ptr<SourceFile> &file,
+                           const TSNode &node)
     : Node(file, node) {
   this->id = file->extractNodeValue(node);
 }
@@ -622,7 +627,7 @@ void IdExpression::visitChildren(CodeVisitor * /*visitor*/) {}
 void IdExpression::setParents() {}
 
 BooleanLiteral::BooleanLiteral(const std::shared_ptr<SourceFile> &file,
-                               TSNode node)
+                               const TSNode &node)
     : Node(file, node) {
   const auto diff = ts_node_end_byte(node) - ts_node_start_byte(node);
   this->value = diff == sizeof("true") - 1;
@@ -633,7 +638,7 @@ void BooleanLiteral::setParents() {}
 void BooleanLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
 IntegerLiteral::IntegerLiteral(const std::shared_ptr<SourceFile> &file,
-                               TSNode node)
+                               const TSNode &node)
     : Node(file, node) {
   this->value = file->extractNodeValue(node);
   if (this->value.starts_with("0x") || this->value.starts_with("0X")) {
@@ -651,14 +656,14 @@ void IntegerLiteral::setParents() {}
 
 void IntegerLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
-ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, TSNode node)
+ContinueNode::ContinueNode(std::shared_ptr<SourceFile> file, const TSNode &node)
     : Node(std::move(file), node) {}
 
 void ContinueNode::setParents() {}
 
 void ContinueNode::visitChildren(CodeVisitor * /*visitor*/) {}
 
-BreakNode::BreakNode(std::shared_ptr<SourceFile> file, TSNode node)
+BreakNode::BreakNode(std::shared_ptr<SourceFile> file, const TSNode &node)
     : Node(std::move(file), node) {}
 
 void BreakNode::visitChildren(CodeVisitor * /*visitor*/) {}
@@ -666,7 +671,7 @@ void BreakNode::visitChildren(CodeVisitor * /*visitor*/) {}
 void BreakNode::setParents() {}
 
 SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
-                                       TSNode node)
+                                       const TSNode &node)
     : Node(file, node) {
   auto childCount = ts_node_child_count(node);
   uint32_t idx = 0;
@@ -675,7 +680,7 @@ SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
   std::vector<std::shared_ptr<Node>> cs;
   std::vector<std::vector<std::shared_ptr<Node>>> bb;
   while (idx < childCount) {
-    auto c = ts_node_child(node, idx);
+    const auto &c = ts_node_child(node, idx);
     const auto nodeType = ts_node_symbol(c);
     if (nodeType == anon_sym_if && !sI) {
       while (ts_node_symbol(ts_node_child(node, idx + 1)) == sym__comment) {
@@ -821,8 +826,8 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
 }
 
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
-                               TSNode node) {
-  auto symbol = ts_node_symbol(node);
+                               const TSNode &node) {
+  const auto &symbol = ts_node_symbol(node);
   if (symbol == sym_argument_list) {
     return std::make_shared<ArgumentList>(file, node);
   }

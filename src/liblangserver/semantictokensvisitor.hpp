@@ -35,5 +35,5 @@ public:
 
 private:
   std::vector<std::array<uint64_t, 5>> tokens;
-  void makeSemanticToken(Node *node, size_t idx, uint64_t modifiers);
+  void makeSemanticToken(const Node *node, size_t idx, uint64_t modifiers);
 };

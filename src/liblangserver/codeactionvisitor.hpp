@@ -74,7 +74,7 @@ private:
   }
 
   static std::optional<size_t>
-  isSortableFunction(std::shared_ptr<Function> &func) {
+  isSortableFunction(const std::shared_ptr<Function> &func) {
     auto name = func->id();
     if (name == "both_libraries" || name == "build_target" ||
         name == "executable" || name == "jar" || name == "library" ||

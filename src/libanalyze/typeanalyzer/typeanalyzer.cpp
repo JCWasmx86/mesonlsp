@@ -248,13 +248,14 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
       std::make_shared<List>(dedup(this->ns, types))};
 }
 
-void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
+void TypeAnalyzer::extractVoidAssignment(
+    const AssignmentStatement *node) const {
   std::string name;
-  const auto *fe = dynamic_cast<FunctionExpression *>(node->rhs.get());
+  const auto *fe = dynamic_cast<const FunctionExpression *>(node->rhs.get());
   if (fe && fe->function) {
     name = fe->function->id();
   } else {
-    const auto *me = dynamic_cast<MethodExpression *>(node->rhs.get());
+    const auto *me = dynamic_cast<const MethodExpression *>(node->rhs.get());
     if (me && me->method) {
       name = me->method->id();
     }
@@ -266,7 +267,7 @@ void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
   }
 }
 
-void TypeAnalyzer::checkIdentifier(IdExpression *node) const {
+void TypeAnalyzer::checkIdentifier(const IdExpression *node) const {
   if (this->analysisOptions.disableNameLinting) {
     return;
   }
@@ -277,7 +278,7 @@ void TypeAnalyzer::checkIdentifier(IdExpression *node) const {
       node, Diagnostic(Severity::WARNING, node, "Expected snake case"));
 }
 
-void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
+void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   auto arr = node->rhs->types;
   if (arr.empty()) {
@@ -436,7 +437,7 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   this->evaluateFullAssignment(node, idExpr);
 }
 
-bool TypeAnalyzer::isSpecial(std::vector<std::shared_ptr<Type>> &types) {
+bool TypeAnalyzer::isSpecial(const std::vector<std::shared_ptr<Type>> &types) {
   if (types.size() != 3) {
     return false;
   }
@@ -610,8 +611,8 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   }
 }
 
-void TypeAnalyzer::checkIfSpecialComparison(MethodExpression *me,
-                                            StringLiteral *sl) const {
+void TypeAnalyzer::checkIfSpecialComparison(const MethodExpression *me,
+                                            const StringLiteral *sl) const {
   if (this->analysisOptions.disableAllIdLinting) {
     return;
   }
@@ -748,9 +749,9 @@ bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
   return name == "error" || name == "subdir_done";
 }
 
-void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
-                             std::shared_ptr<Node> &firstDead,
-                             std::shared_ptr<Node> &lastDead) const {
+void TypeAnalyzer::applyDead(const std::shared_ptr<Node> &lastAlive,
+                             const std::shared_ptr<Node> &firstDead,
+                             const std::shared_ptr<Node> &lastDead) const {
   if (!lastAlive || !firstDead || !lastDead) {
     return;
   }
@@ -762,7 +763,7 @@ void TypeAnalyzer::applyDead(std::shared_ptr<Node> &lastAlive,
                                   lastDead.get(), "Dead code", false, true));
 }
 
-void TypeAnalyzer::checkDeadNodes(BuildDefinition *node) {
+void TypeAnalyzer::checkDeadNodes(const BuildDefinition *node) {
   std::shared_ptr<Node> lastAlive = nullptr;
   std::shared_ptr<Node> firstDead = nullptr;
   std::shared_ptr<Node> lastDead = nullptr;
@@ -1392,7 +1393,7 @@ void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
 }
 
 void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
-                                    ArgumentList *al) {
+                                    const ArgumentList *al) {
   auto args = al->args;
   if (args.empty()) {
     return;
@@ -1542,7 +1543,8 @@ cont:
   }
 }
 
-std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalStack(std::string &name) {
+std::vector<std::shared_ptr<Type>>
+TypeAnalyzer::evalStack(const std::string &name) {
   std::vector<std::shared_ptr<Type>> ret;
   for (const auto &overridden : this->overriddenVariables) {
     if (!overridden.contains(name)) {

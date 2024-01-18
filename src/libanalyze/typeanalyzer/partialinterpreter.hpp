@@ -81,7 +81,8 @@ class PartialInterpreter {
 public:
   explicit PartialInterpreter(OptionState &options) : options(options) {}
 
-  std::vector<std::string> calculate(Node *parent, Node *exprToCalculate);
+  std::vector<std::string> calculate(const Node *parent,
+                                     const Node *exprToCalculate);
 
 private:
   std::vector<std::shared_ptr<InterpretNode>> keepAlives;

@@ -34,7 +34,7 @@ public:
   void visitContinueNode(ContinueNode *node) override;
 
 private:
-  void makeHint(Node *node);
+  void makeHint(const Node *node);
   std::string prettify(const std::vector<std::shared_ptr<Type>> &types,
                        int depth);
 };
