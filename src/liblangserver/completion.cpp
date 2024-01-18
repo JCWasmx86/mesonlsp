@@ -229,7 +229,7 @@ afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
   return std::nullopt;
 }
 
-std::set<std::shared_ptr<Method>>
+static std::set<std::shared_ptr<Method>>
 fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types) {
   std::set<std::shared_ptr<Method>> ret;

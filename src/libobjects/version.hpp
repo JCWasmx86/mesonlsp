@@ -3,14 +3,14 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Version {
 public:
   std::string versionString;
 
-  explicit Version(const std::string &string) {
-    this->versionString = string;
+  explicit Version(std::string string) : versionString(std::move(string)) {
     this->parts = split(this->versionString, ".");
   }
 

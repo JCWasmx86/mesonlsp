@@ -35,9 +35,8 @@ public:
   LanguageServerOptions &options;
 
   Workspace(const WorkspaceFolder &wspf, LanguageServerOptions &options)
-      : logger("ws-" + wspf.name), options(options) {
+      : name(wspf.name), logger("ws-" + wspf.name), options(options) {
     this->root = extractPathFromUrl(wspf.uri);
-    this->name = wspf.name;
   }
 
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>>

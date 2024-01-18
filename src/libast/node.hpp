@@ -78,7 +78,7 @@ public:
     }
     uint32_t posIdx = 0;
     for (const auto &arg : this->args) {
-      auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
+      const auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
       if (keywordItem != nullptr) {
         continue;
       }
@@ -96,7 +96,7 @@ public:
       if (keywordItem == nullptr) {
         continue;
       }
-      auto kwname = keywordItem->name;
+      const auto &kwname = keywordItem->name;
       if (kwname.has_value() && kwname == name) {
         return keywordItem->value;
       }
@@ -109,11 +109,9 @@ class ArrayLiteral final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
   ArrayLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
-  bool fake = false; // TODO: Remove this
 
-  ArrayLiteral(std::vector<std::shared_ptr<Node>> args, bool fake) {
+  ArrayLiteral(std::vector<std::shared_ptr<Node>> args) {
     this->args = std::move(args);
-    this->fake = fake;
   }
 
   void visitChildren(CodeVisitor *visitor) override;
@@ -320,7 +318,7 @@ public:
   void setParents() override;
 
   const std::string &functionName() const {
-    auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
+    const auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
     if (idExpr == nullptr) {
       return INVALID_FUNCTION_NAME_STR;
     }
@@ -352,13 +350,10 @@ public:
 class StringLiteral final : public Node {
 public:
   std::string id;
-  bool isFormat;
+  bool isFormat = false;
   StringLiteral(const std::shared_ptr<SourceFile> &file, TSNode node);
 
-  explicit StringLiteral(std::string str) {
-    this->id = std::move(str);
-    this->isFormat = false;
-  }
+  explicit StringLiteral(std::string str) { this->id = std::move(str); }
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
@@ -375,7 +370,7 @@ public:
   void setParents() override;
 
   const std::string &getKeyName() const {
-    auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
+    const auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
     if (sl) {
       return sl->id;
     }

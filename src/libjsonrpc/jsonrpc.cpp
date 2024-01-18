@@ -59,7 +59,7 @@ void jsonrpc::JsonRpcServer::evaluateData(
 }
 
 void jsonrpc::JsonRpcServer::sendToClient(const nlohmann::json &data) {
-  std::lock_guard<std::mutex> const guard(this->output_mutex);
+  std::scoped_lock<std::mutex> const guard(this->output_mutex);
   std::string payload = data.dump();
   auto len = payload.size();
   auto fullMessage = std::format("Content-Length: {}\r\n\r\n{}", len, payload);
@@ -158,7 +158,8 @@ void jsonrpc::JsonRpcServer::loop(
       auto data = nlohmann::json::parse(messageData);
       this->evaluateData(handler, data);
     } catch (nlohmann::json::parse_error &ex) {
-      this->returnError(nullptr, JsonrpcError::ParseError, "Invalid JSON");
+      this->returnError(nullptr, JsonrpcError::ParseError,
+                        std::format("Invalid JSON: {}", ex.what()));
     }
   }
 }

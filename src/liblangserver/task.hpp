@@ -36,12 +36,12 @@ public:
   [[nodiscard]] std::string getUUID() const { return uuid; }
 
   void cancel() {
-    std::lock_guard<std::mutex> const lock(mtx);
+    std::scoped_lock const lock(mtx);
     cancelled = true;
   }
 
   [[nodiscard]] bool isCancelled() {
-    std::lock_guard<std::mutex> const lock(mtx);
+    std::scoped_lock const lock(mtx);
     return cancelled;
   }
 

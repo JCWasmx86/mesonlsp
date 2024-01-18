@@ -18,7 +18,7 @@ std::vector<std::string> guessGetVariableMethod(MethodExpression *me,
 
 class InterpretNode {
 public:
-  Node *node;
+  const Node *node;
   bool deleteNode{};
 
   virtual ~InterpretNode() {
@@ -27,27 +27,29 @@ public:
     }
   };
 
-  explicit InterpretNode(Node *node) : node(node) {}
+  explicit InterpretNode(const Node *node) : node(node) {}
+
+  InterpretNode() = default;
 };
 
 class ArrayNode : public InterpretNode {
 public:
-  explicit ArrayNode(Node *node) : InterpretNode(node) {}
+  explicit ArrayNode(const Node *node) : InterpretNode(node) {}
 };
 
 class StringNode : public InterpretNode {
 public:
-  explicit StringNode(Node *node) : InterpretNode(node) {}
+  explicit StringNode(const Node *node) : InterpretNode(node) {}
 };
 
 class DictNode : public InterpretNode {
 public:
-  explicit DictNode(Node *node) : InterpretNode(node) {}
+  explicit DictNode(const Node *node) : InterpretNode(node) {}
 };
 
 class IntNode : public InterpretNode {
 public:
-  explicit IntNode(Node *node) : InterpretNode(node) {}
+  explicit IntNode(const Node *node) : InterpretNode(node) {}
 };
 
 class ArtificialStringNode : public InterpretNode {
@@ -61,12 +63,13 @@ public:
 class ArtificialArrayNode : public InterpretNode {
 public:
   explicit ArtificialArrayNode(
-      const std::vector<std::shared_ptr<InterpretNode>> &args)
-      : InterpretNode(new ArrayLiteral({}, true)) {
+      const std::vector<std::shared_ptr<InterpretNode>> &args) {
+    auto *arr = new ArrayLiteral({});
+    this->node = arr;
     for (const auto &arg : args) {
-      auto *asString = dynamic_cast<StringLiteral *>(arg->node);
+      const auto *asString = dynamic_cast<const StringLiteral *>(arg->node);
       auto copy = std::make_shared<StringLiteral>(asString->id);
-      dynamic_cast<ArrayLiteral *>(this->node)->args.push_back(copy);
+      arr->args.push_back(copy);
     }
     this->deleteNode = true;
   }
@@ -82,82 +85,92 @@ public:
 
 private:
   std::vector<std::shared_ptr<InterpretNode>> keepAlives;
-  std::vector<std::string> calculateStringFormatMethodCall(MethodExpression *me,
-                                                           ArgumentList *al,
-                                                           Node *parentExpr);
-  std::vector<std::string> calculateBinaryExpression(Node *parentExpr,
-                                                     BinaryExpression *be);
-  std::vector<std::string> calculateGetMethodCall(ArgumentList *al,
-                                                  IdExpression *meObj,
-                                                  Node *parentExpr);
-  std::vector<std::string> calculateIdExpression(IdExpression *idExpr,
-                                                 Node *parentExpr);
   std::vector<std::string>
-  calculateSubscriptExpression(SubscriptExpression *sse, Node *parentExpr);
-  std::vector<std::string> calculateFunctionExpression(FunctionExpression *fe,
-                                                       Node *parentExpr);
-  std::vector<std::string> calculateExpression(Node *parentExpr,
-                                               Node *argExpression);
+  calculateStringFormatMethodCall(const MethodExpression *me,
+                                  const ArgumentList *al,
+                                  const Node *parentExpr);
+  std::vector<std::string>
+  calculateBinaryExpression(const Node *parentExpr, const BinaryExpression *be);
+  std::vector<std::string> calculateGetMethodCall(const ArgumentList *al,
+                                                  const IdExpression *meObj,
+                                                  const Node *parentExpr);
+  std::vector<std::string> calculateIdExpression(const IdExpression *idExpr,
+                                                 const Node *parentExpr);
+  std::vector<std::string>
+  calculateSubscriptExpression(const SubscriptExpression *sse,
+                               const Node *parentExpr);
+  std::vector<std::string>
+  calculateFunctionExpression(const FunctionExpression *fe,
+                              const Node *parentExpr);
+  std::vector<std::string> calculateExpression(const Node *parentExpr,
+                                               const Node *argExpression);
   static void
   calculateEvalSubscriptExpression(const std::shared_ptr<InterpretNode> &inner,
                                    const std::shared_ptr<InterpretNode> &outer,
                                    std::vector<std::string> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
-  analyseBuildDefinition(BuildDefinition *bd, Node *parentExpr,
-                         IdExpression *toResolve);
+  analyseBuildDefinition(const BuildDefinition *bd, const Node *parentExpr,
+                         const IdExpression *toResolve);
   std::vector<std::shared_ptr<InterpretNode>>
-  analyseIterationStatement(IterationStatement *its, Node *parentExpr,
-                            IdExpression *toResolve);
+  analyseIterationStatement(const IterationStatement *its,
+                            const Node *parentExpr,
+                            const IdExpression *toResolve);
   std::vector<std::shared_ptr<InterpretNode>>
-  analyseSelectionStatement(SelectionStatement *sst, Node *parentExpr,
-                            IdExpression *toResolve);
-  std::vector<std::shared_ptr<InterpretNode>> abstractEval(Node *parentStmt,
-                                                           Node *toEval);
+  analyseSelectionStatement(const SelectionStatement *sst,
+                            const Node *parentExpr,
+                            const IdExpression *toResolve);
   std::vector<std::shared_ptr<InterpretNode>>
-  resolveArrayOrDict(Node *parentExpr, IdExpression *toResolve);
-  std::vector<std::shared_ptr<InterpretNode>> fullEval(Node *stmt,
-                                                       IdExpression *toResolve);
+  abstractEval(const Node *parentStmt, const Node *toEval);
   std::vector<std::shared_ptr<InterpretNode>>
-  evalStatement(Node *stmt, IdExpression *toResolve);
+  resolveArrayOrDict(const Node *parentExpr, const IdExpression *toResolve);
+  std::vector<std::shared_ptr<InterpretNode>>
+  fullEval(const Node *stmt, const IdExpression *toResolve);
+  std::vector<std::shared_ptr<InterpretNode>>
+  evalStatement(const Node *stmt, const IdExpression *toResolve);
   static void
-  addToArrayConcatenated(ArrayLiteral *arr, const std::string &contents,
+  addToArrayConcatenated(const ArrayLiteral *arr, const std::string &contents,
                          const std::string &sep, bool literalFirst,
                          std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeBinaryExpr(
-      InterpretNode *left, InterpretNode *right, const std::string &sep,
-      std::vector<std::shared_ptr<InterpretNode>> &ret);
+      const InterpretNode *left, const InterpretNode *right,
+      const std::string &sep, std::vector<std::shared_ptr<InterpretNode>> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalBinaryExpression(BinaryExpression *be, Node *parentStmt);
+  abstractEvalBinaryExpression(const BinaryExpression *be,
+                               const Node *parentStmt);
   static void abstractEvalComputeSubscriptExtractDictArray(
-      ArrayLiteral *arr, StringLiteral *sl,
+      const ArrayLiteral *arr, const StringLiteral *sl,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   void abstractEvalComputeSubscript(
-      InterpretNode *inner, InterpretNode *outer,
+      const InterpretNode *inner, const InterpretNode *outer,
       std::vector<std::shared_ptr<InterpretNode>> &ret);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalSubscriptExpression(SubscriptExpression *sse, Node *parentStmt);
+  abstractEvalSubscriptExpression(const SubscriptExpression *sse,
+                                  const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalMethod(MethodExpression *me, Node *parentStmt);
+  abstractEvalMethod(const MethodExpression *me, const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalSplitWithSubscriptExpression(IntegerLiteral *idx,
-                                           StringLiteral *sl,
-                                           MethodExpression *outerMe,
-                                           Node *parentStmt);
+  abstractEvalSplitWithSubscriptExpression(const IntegerLiteral *idx,
+                                           const StringLiteral *sl,
+                                           const MethodExpression *outerMe,
+                                           const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalSimpleSubscriptExpression(SubscriptExpression *sse,
-                                        IdExpression *outerObj,
-                                        Node *parentStmt);
+  abstractEvalSimpleSubscriptExpression(const SubscriptExpression *sse,
+                                        const IdExpression *outerObj,
+                                        const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalGetMethodCall(MethodExpression *me, IdExpression *meobj,
-                            ArgumentList *al, Node *parentStmt);
+  abstractEvalGetMethodCall(const MethodExpression *me,
+                            const IdExpression *meobj, const ArgumentList *al,
+                            const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalArrayLiteral(ArrayLiteral *al, Node *toEval, Node *parentStmt);
+  abstractEvalArrayLiteral(const ArrayLiteral *al, const Node *toEval,
+                           const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalGenericSubscriptExpression(SubscriptExpression *sse,
-                                         Node *parentStmt);
+  abstractEvalGenericSubscriptExpression(const SubscriptExpression *sse,
+                                         const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalFunction(FunctionExpression *fe, Node *parentStmt);
+  abstractEvalFunction(const FunctionExpression *fe, const Node *parentStmt);
   std::vector<std::shared_ptr<InterpretNode>>
-  abstractEvalSplitByWhitespace(IntegerLiteral *idx, MethodExpression *outerMe,
-                                Node *parentStmt);
+  abstractEvalSplitByWhitespace(const IntegerLiteral *idx,
+                                const MethodExpression *outerMe,
+                                const Node *parentStmt);
 };

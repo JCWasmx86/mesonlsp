@@ -39,7 +39,7 @@ public:
         since(std::move(since)) {
     uint32_t minPosArgs = 0;
     for (const auto &arg : args) {
-      auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
+      const auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->optional) {
           break;
@@ -49,7 +49,7 @@ public:
     }
     uint32_t maxPosArgs = 0;
     for (const auto &arg : args) {
-      auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
+      const auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->varargs) {
           maxPosArgs = UINT32_MAX;
@@ -59,7 +59,7 @@ public:
       }
     }
     for (const auto &arg : args) {
-      auto *kw = dynamic_cast<Kwarg *>(arg.get());
+      const auto *kw = dynamic_cast<Kwarg *>(arg.get());
       if (!kw) {
         continue;
       }

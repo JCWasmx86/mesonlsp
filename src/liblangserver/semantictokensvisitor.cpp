@@ -166,7 +166,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   if (!parentNode) {
     return;
   }
-  auto *asCall = dynamic_cast<MethodExpression *>(parentNode);
+  const auto *asCall = dynamic_cast<MethodExpression *>(parentNode);
   if ((asCall == nullptr) || !asCall->method ||
       asCall->method->id() != "str.format") {
     return;
