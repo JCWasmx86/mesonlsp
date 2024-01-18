@@ -25,7 +25,7 @@ class Workspace {
 public:
   std::filesystem::path root;
   std::string name;
-  std::map<std::string /*Identifier*/, Task *> tasks;
+  std::map<std::string /*Identifier*/, std::shared_ptr<Task>> tasks;
   std::map<std::string /*Identifier*/, std::future<void>> futures;
   std::atomic<bool> settingUp = false;
   std::atomic<bool> completing = false;

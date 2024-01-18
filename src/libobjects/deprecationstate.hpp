@@ -17,4 +17,10 @@ public:
   DeprecationState(const std::string &sinceWhen,
                    const std::vector<std::string> &replacements)
       : sinceWhen(sinceWhen), replacements(replacements), deprecated(true) {}
+
+  DeprecationState(DeprecationState &&other) noexcept = default;
+  DeprecationState &operator=(DeprecationState const &other);
+  DeprecationState &operator=(DeprecationState &&other) noexcept;
 };
+
+void swap(DeprecationState &first, DeprecationState &second) noexcept;

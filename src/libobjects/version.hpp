@@ -26,10 +26,8 @@ public:
         return false;
       }
     }
-    if (this->parts.size() > other.parts.size()) {
-      if (this->parts.back() == "0") {
-        return false;
-      }
+    if (this->parts.size() > other.parts.size() && this->parts.back() == "0") {
+      return false;
     }
     return this->parts.size() > other.parts.size();
   }

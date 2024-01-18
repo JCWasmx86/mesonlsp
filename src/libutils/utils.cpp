@@ -26,10 +26,10 @@
 #include <unistd.h>
 #include <vector>
 
-#define HTTP_OK 200
-#define FTP_OK 226
-#define LIBARCHIVE_BLOCKSIZE ((size_t)1024 * 32)
-#define ERRNO_BUF_SIZE 256
+constexpr auto HTTP_OK = 200;
+constexpr auto FTP_OK = 226;
+constexpr auto LIBARCHIVE_BLOCKSIZE = ((size_t)1024 * 32);
+constexpr auto ERRNO_BUF_SIZE = 256;
 
 const static Logger LOG("utils"); // NOLINT
 
@@ -223,9 +223,9 @@ bool launchProcess(const std::string &executable,
 }
 
 std::string errno2string() {
-  char buf[ERRNO_BUF_SIZE] = {0};
-  strerror_r(errno, buf, sizeof(buf) - 1); // NOLINT
-  return {buf};
+  std::array<char, ERRNO_BUF_SIZE> buf = {0};
+  strerror_r(errno, buf.data(), buf.max_size()); // NOLINT
+  return {buf.data()};
 }
 
 void mergeDirectories(const std::filesystem::path &sourcePath,

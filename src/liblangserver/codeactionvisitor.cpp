@@ -280,7 +280,7 @@ bool CodeActionVisitor::expectedArgsForCopyFile(const ArgumentList *al) {
     if (!nameOpt.has_value()) {
       return false;
     }
-    auto name = nameOpt.value();
+    const auto &name = nameOpt.value();
     if (name == "copy" || name == "input" || name == "output" ||
         name == "install" || name == "install_dir" || name == "install_mode" ||
         name == "install_tag") {

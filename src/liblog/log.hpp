@@ -12,7 +12,7 @@ private:
   std::string reset;
 
 public:
-  explicit Logger(std::string module);
+  explicit Logger(std::string logmodule);
 
   void
   info(const std::string &msg,

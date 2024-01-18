@@ -49,7 +49,8 @@ bool FileWrap::setupDirectory(const std::filesystem::path &path,
     }
     targetDirectory = result.value();
   }
-  auto fullPath = std::format("{}/{}", path.c_str(), targetDirectory);
+  const std::filesystem::path fullPath =
+      std::format("{}/{}", path.c_str(), targetDirectory);
   auto workdir =
       this->leadDirectoryMissing ? std::filesystem::path{fullPath} : path;
   auto url = this->sourceUrl;

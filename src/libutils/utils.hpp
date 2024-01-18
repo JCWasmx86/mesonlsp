@@ -45,7 +45,7 @@ static inline std::string vectorToString(const std::vector<std::string> &vec) {
   return output.str();
 }
 
-static inline std::string hash(const void *data, const size_t len) {
+static inline std::string hash(const unsigned char *data, const size_t len) {
   std::array<uint8_t, SIZE_OF_SHA_256_HASH> hash;
   calc_sha_256(hash.data(), data, len);
   std::stringstream sss;
@@ -58,7 +58,7 @@ static inline std::string hash(const void *data, const size_t len) {
 }
 
 static inline std::string hash(const std::string &key) {
-  return hash(key.c_str(), key.size());
+  return hash(reinterpret_cast<const unsigned char *>(key.c_str()), key.size());
 }
 
 static inline std::string hash(const std::filesystem::path &path) {

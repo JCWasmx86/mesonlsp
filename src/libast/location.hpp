@@ -5,7 +5,7 @@
 #include <string>
 #include <tree_sitter/api.h>
 
-#define HALF_OF_U64 32U
+constexpr auto HALF_OF_U64 = 32U;
 
 class Location {
 public:

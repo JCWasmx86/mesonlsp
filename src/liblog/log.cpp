@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <utility>
 
-Logger::Logger(std::string module) : logmodule(std::move(module)) {
+Logger::Logger(std::string logmodule) : logmodule(std::move(logmodule)) {
   if (isatty(STDERR_FILENO) != 0) {
     this->blue = "\033[96m";
     this->red = "\033[91m";
