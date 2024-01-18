@@ -1,6 +1,6 @@
 # Swift-MesonLSP
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/)
-[![AUR Version](https://img.shields.io/aur/version/swift-mesonlsp)](https://aur.archlinux.org/packages/swift-mesonlsp/)
+[![CodeFactor](https://www.codefactor.io/repository/github/jcwasmx86/swift-mesonlsp/badge)](https://www.codefactor.io/repository/github/jcwasmx86/swift-mesonlsp)
 [![codecov](https://codecov.io/github/JCWasmx86/Swift-MesonLSP/branch/main/graph/badge.svg?token=5OV4WH5DL1)](https://codecov.io/github/JCWasmx86/Swift-MesonLSP)
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/swift-mesonlsp.svg)](https://repology.org/project/swift-mesonlsp/versions)
