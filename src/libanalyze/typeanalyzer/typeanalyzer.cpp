@@ -395,7 +395,7 @@ TypeAnalyzer::evalAssignment(AssignmentOperator op,
   return ret;
 }
 
-void TypeAnalyzer::evaluateFullAssignment(AssignmentStatement *node,
+void TypeAnalyzer::evaluateFullAssignment(const AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   this->metadata->registerIdentifier(lhsIdExpr);
   if (node->op == AssignmentOperator::Equals) {
