@@ -13,12 +13,9 @@ namespace ast::ini {
 class Node {
 public:
   const std::shared_ptr<SourceFile> file;
-  const Location *location;
+  const Location location;
 
-  virtual ~Node() {
-    delete this->location;
-    this->location = nullptr;
-  }
+  virtual ~Node() = default;
 
 protected:
   Node(std::shared_ptr<SourceFile> file, TSNode node);

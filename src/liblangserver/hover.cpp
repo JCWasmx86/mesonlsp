@@ -30,7 +30,7 @@ Hover makeHoverForFunctionExpression(FunctionExpression *fe,
     if (!optionSL) {
       goto cont;
     }
-    auto option = optionSL->id;
+    const auto &option = optionSL->id;
     auto corrOption = options.findOption(option);
     if (!corrOption) {
       goto cont;

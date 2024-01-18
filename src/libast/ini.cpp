@@ -34,7 +34,7 @@ ast::ini::Section::findStringValue(const std::string &key) {
 }
 
 ast::ini::Node::Node(std::shared_ptr<SourceFile> file, TSNode node)
-    : file(std::move(file)), location(new Location(node)) {}
+    : file(std::move(file)), location(Location(node)) {}
 
 ast::ini::IniFile::IniFile(const std::shared_ptr<SourceFile> &file, TSNode node)
     : ast::ini::Node(file, node) {

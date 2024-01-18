@@ -32,13 +32,13 @@ private:
   void evaluateData(const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler,
                     nlohmann::json data);
   void sendToClient(const nlohmann::json &data);
-  bool shouldExit;
+  bool shouldExit = false;
 
 public:
-  JsonRpcServer() : input(std::cin), output(std::cout), shouldExit(false) {}
+  JsonRpcServer() : input(std::cin), output(std::cout) {}
 
   JsonRpcServer(std::istringstream &input, std::ostringstream &output)
-      : input(input), output(output), shouldExit(false) {}
+      : input(input), output(output) {}
 
   void loop(const std::shared_ptr<JsonRpcHandler> &handler);
   void reply(nlohmann::json callId, nlohmann::json result);

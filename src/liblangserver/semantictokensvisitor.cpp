@@ -24,9 +24,9 @@ void SemanticTokensVisitor::makeSemanticToken(Node *node, size_t idx,
   if (idx >= 8) {
     return;
   }
-  tokens.push_back({node->location.startLine, node->location.startColumn,
-                    node->location.endColumn - node->location.startColumn, idx,
-                    modifiers});
+  tokens.emplace_back(std::array<uint64_t, 5>{
+      node->location.startLine, node->location.startColumn,
+      node->location.endColumn - node->location.startColumn, idx, modifiers});
 }
 
 std::vector<uint64_t> SemanticTokensVisitor::finish() {
@@ -101,7 +101,7 @@ void SemanticTokensVisitor::visitFunctionExpression(FunctionExpression *node) {
 
 void SemanticTokensVisitor::visitIdExpression(IdExpression *node) {
   node->visitChildren(this);
-  auto exprId = node->id;
+  const auto &exprId = node->id;
   if (exprId == "meson" || exprId == "host_machine" ||
       exprId == "target_machine" || exprId == "build_machine") {
     this->makeSemanticToken(node, 2, 0b11);
@@ -135,7 +135,7 @@ void SemanticTokensVisitor::visitSelectionStatement(SelectionStatement *node) {
 
 void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
-  const auto loc = node->location;
+  const auto &loc = node->location;
   if (node->isFormat) {
     std::sregex_iterator iter(node->id.begin(), node->id.end(),
                               FORMAT_STRING_REGEX);
@@ -143,19 +143,19 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
 
     while (iter != end) {
       auto match = *iter;
-      this->tokens.push_back(
+      this->tokens.emplace_back(std::array<uint64_t, 5>(
           {loc.startLine,
            static_cast<unsigned long>(loc.startColumn + match.position() + 2),
-           1, 1, 0});
-      this->tokens.push_back(
+           1, 1, 0}));
+      this->tokens.emplace_back(std::array<uint64_t, 5>(
           {loc.startLine,
            static_cast<unsigned long>(loc.startColumn + match.position() + 3),
-           static_cast<unsigned long>(match.length() - 2), 2, 0});
-      this->tokens.push_back(
+           static_cast<unsigned long>(match.length() - 2), 2, 0}));
+      this->tokens.emplace_back(std::array<uint64_t, 5>(
           {loc.startLine,
            static_cast<unsigned long>(loc.startColumn + match.position() +
                                       match.length() + 1),
-           1, 1});
+           1, 1}));
       ++iter;
     }
   }
@@ -176,19 +176,19 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
 
   while (iter != end) {
     auto match = *iter;
-    this->tokens.push_back(
+    this->tokens.emplace_back(std::array<uint64_t, 5>(
         {loc.startLine,
          static_cast<unsigned long>(loc.startColumn + match.position() + 2), 1,
-         1, 0});
-    this->tokens.push_back(
+         1, 0}));
+    this->tokens.emplace_back(std::array<uint64_t, 5>(
         {loc.startLine,
          static_cast<unsigned long>(loc.startColumn + match.position() + 3),
-         static_cast<unsigned long>(match.length() - 2), 2, 0});
-    this->tokens.push_back(
+         static_cast<unsigned long>(match.length() - 2), 2, 0}));
+    this->tokens.emplace_back(std::array<uint64_t, 5>(
         {loc.startLine,
          static_cast<unsigned long>(loc.startColumn + match.position() +
                                     match.length() + 1),
-         1, 1});
+         1, 1}));
     ++iter;
   }
 }

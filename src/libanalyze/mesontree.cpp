@@ -12,6 +12,7 @@
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <memory>
@@ -31,7 +32,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   const auto &fileContent =
       this->overrides.contains(path) ? this->overrides[path] : readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
-                                        fileContent.length());
+                                        (uint32_t)fileContent.length());
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = this->overrides.contains(path)
                         ? std::make_shared<MemorySourceFile>(fileContent, path)
@@ -68,7 +69,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   if (this->overrides.contains(path)) {
     const auto &fileContent = this->overrides[path];
     TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
-                                          fileContent.length());
+                                          (uint32_t)fileContent.length());
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
     const TSNode rootNode = ts_tree_root_node(tree);
     auto root = makeNode(sourceFile, rootNode);
@@ -84,7 +85,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   }
   const auto &fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
-                                        fileContent.length());
+                                        (uint32_t)fileContent.length());
   const TSNode rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = makeNode(sourceFile, rootNode);

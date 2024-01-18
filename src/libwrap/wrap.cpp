@@ -5,6 +5,7 @@
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -136,7 +137,7 @@ std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_ini());
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
-                                        fileContent.length());
+                                        (uint32_t)fileContent.length());
   TSNode const rootNode = ts_tree_root_node(tree);
   auto sourceFile = std::make_shared<SourceFile>(path);
   auto root = ast::ini::makeNode(sourceFile, rootNode);

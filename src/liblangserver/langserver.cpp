@@ -75,7 +75,7 @@ LanguageServer::LanguageServer() {
   pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
   pkgconf_client_dir_list_build(&pkgClient, personality);
   pkgconf_scan_all(&pkgClient, this,
-                   [](const pkgconf_pkg_t *entry, void *data) {
+                   [](const pkgconf_pkg_t *entry, auto *data) {
                      if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
                        return false;
                      }

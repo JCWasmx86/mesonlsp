@@ -16,7 +16,7 @@ enum class TaskState {
 class Task {
 private:
   std::string uuid;
-  bool cancelled;
+  bool cancelled = false;
   std::mutex mtx;
 
   std::function<void()> taskFunction;
@@ -30,7 +30,6 @@ public:
     std::array<char, UUID_STR_LEN + 1> out;
     uuid_unparse(filename, out.data());
     this->uuid = std::format("{}", out.data());
-    cancelled = false;
     this->state = TaskState::PENDING;
   }
 

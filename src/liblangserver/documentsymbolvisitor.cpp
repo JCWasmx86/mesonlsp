@@ -112,7 +112,7 @@ void DocumentSymbolVisitor::visitContinueNode(ContinueNode *node) {
 
 void DocumentSymbolVisitor::createSymbol(IdExpression *idExpr) {
   auto name = idExpr->id;
-  const auto loc = idExpr->location;
+  const auto &loc = idExpr->location;
   auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                         LSPPosition(loc.endLine, loc.endColumn));
   auto lspLocation = LSPLocation(pathToUrl(idExpr->file->file), range);

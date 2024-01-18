@@ -306,8 +306,8 @@ public:
   void setParents() override;
 };
 
-#define INVALID_FUNCTION_NAME "<<<Error>>>"
-#define INVALID_KEY_NAME "<<<$$$$ERROR$$$$>>>"
+constexpr const char *INVALID_FUNCTION_NAME = "<<<Error>>>";
+constexpr const char *INVALID_KEY_NAME = "<<<$$$$ERROR$$$$>>>";
 
 class FunctionExpression final : public Node {
 public:

@@ -26,7 +26,7 @@
 #include <utility>
 #include <vector>
 
-#define TYPE_STRING_LENGTH 12
+constexpr int TYPE_STRING_LENGTH = 12;
 const static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static const std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
@@ -888,11 +888,11 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     node->types = {std::make_shared<Subproject>(
         std::vector<std::string>{asSet.begin(), asSet.end()})};
     LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
-    if (!this->tree->state->used || asSet.size() > 1) {
+    if (!this->tree->state.used || asSet.size() > 1) {
       return;
     }
-    auto *subprojState = this->tree->state;
-    if (subprojState->hasSubproject(*asSet.begin())) {
+    auto &subprojState = this->tree->state;
+    if (subprojState.hasSubproject(*asSet.begin())) {
       return;
     }
     this->metadata->registerDiagnostic(
@@ -2004,7 +2004,7 @@ afterVersionCheck:
     }
   }
   if (node->method->id() == "subproject.get_variable" &&
-      this->tree->state->used) {
+      this->tree->state.used) {
     std::vector<std::shared_ptr<Type>> types;
     types.insert(types.end(), node->method->returnTypes.begin(),
                  node->method->returnTypes.end());
@@ -2016,7 +2016,7 @@ afterVersionCheck:
         continue;
       }
       for (const auto &subprojName : subprojType->names) {
-        const auto &subproj = this->tree->state->findSubproject(subprojName);
+        const auto &subproj = this->tree->state.findSubproject(subprojName);
         if (!subproj) {
           LOG.warn(std::format("Unable to find subproject {}", subprojName));
           continue;

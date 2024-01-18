@@ -104,10 +104,8 @@ public:
 
   Diagnostic(Severity sev, const Node *node, std::string message,
              bool deprecated, bool unnecessary)
-      : Diagnostic(sev, node, node, std::move(message)) {
-    this->deprecated = deprecated;
-    this->unnecessary = unnecessary;
-  }
+      : Diagnostic(sev, node, node, std::move(message), deprecated,
+                   unnecessary) {}
 };
 
 class MesonMetadata {

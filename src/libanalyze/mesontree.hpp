@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#define MAX_TREE_DEPTH 3
+constexpr int MAX_TREE_DEPTH = 3;
 
 class MesonTree {
 public:
@@ -25,7 +25,7 @@ public:
   std::set<std::filesystem::path> ownedFiles;
   std::map<std::filesystem::path, std::vector<std::shared_ptr<Node>>> asts;
   std::map<std::filesystem::path, std::string> overrides;
-  SubprojectState *state;
+  SubprojectState state;
   Scope scope;
   MesonMetadata metadata;
   OptionState options;
@@ -35,20 +35,15 @@ public:
   Version version = Version("9999.9999.9999");
 
   MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
-      : root(root), state(new SubprojectState(root)), ns(ns) {}
-
-  ~MesonTree() {
-    delete this->state;
-    this->state = nullptr;
-  }
+      : root(root), state(SubprojectState(root)), ns(ns) {}
 
   void partialParse(AnalysisOptions analysisOptions);
 
   void fullParse(AnalysisOptions analysisOptions, bool downloadSubprojects) {
     if (this->depth < MAX_TREE_DEPTH) {
-      this->state->used = true;
-      this->state->fullSetup(analysisOptions, depth + 1, this->identifier,
-                             this->ns, downloadSubprojects);
+      this->state.used = true;
+      this->state.fullSetup(analysisOptions, depth + 1, this->identifier,
+                            this->ns, downloadSubprojects);
     }
     this->partialParse(analysisOptions);
   }
@@ -63,7 +58,7 @@ public:
 
   std::vector<const MesonTree *> flatten() const {
     std::vector<const MesonTree *> ret;
-    for (const auto &subproj : this->state->subprojects) {
+    for (const auto &subproj : this->state.subprojects) {
       auto flattened = subproj->tree->flatten();
       ret.insert(ret.end(), flattened.begin(), flattened.end());
     }

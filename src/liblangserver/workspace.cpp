@@ -35,7 +35,7 @@
 std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
   std::vector<MesonTree *> ret;
   ret.emplace_back(root.get());
-  for (const auto &subproj : root->state->subprojects) {
+  for (const auto &subproj : root->state.subprojects) {
     if (subproj->tree) {
       auto recursiveTrees = findTrees(subproj->tree);
       ret.insert(ret.end(), recursiveTrees.begin(), recursiveTrees.end());
@@ -204,7 +204,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
     const auto &metadata = &subTree->metadata;
     auto foundMyself = false;
     std::string toFind;
-    for (size_t i = metadata->encounteredIds.size() - 1; i >= 0; i--) {
+    for (size_t i = metadata->encounteredIds.size() - 1;; i--) {
       if (i == (size_t)-1) {
         break;
       }
@@ -417,7 +417,7 @@ void Workspace::patchFile(
     subTree->clear();
     subTree->overrides[path] = contents;
 
-    auto *newTask = new Task([&subTree, func, oldDiags, this]() {
+    auto newTask = std::make_shared<Task>([&subTree, func, oldDiags, this]() {
       assert(!this->completing);
       std::exception_ptr exception = nullptr;
       try {
@@ -513,7 +513,7 @@ Workspace::parse(const TypeNamespace &ns) {
   this->foundTrees = findTrees(this->tree);
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
   for (const auto &subTree : this->foundTrees) {
-    auto metadata = subTree->metadata;
+    const auto &metadata = subTree->metadata;
     if (subTree->depth > 0 &&
         this->options.ignoreDiagnosticsFromSubprojects.has_value()) {
       const auto &toIgnore = this->options.ignoreDiagnosticsFromSubprojects;
