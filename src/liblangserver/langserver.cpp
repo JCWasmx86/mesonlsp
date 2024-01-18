@@ -197,8 +197,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
       }
     }
   }
-  if (configFile.empty() &&
-      !this->options.defaultFormattingConfig.has_value()) {
+  if (configFile.empty() && this->options.defaultFormattingConfig.has_value()) {
     configFile = this->options.defaultFormattingConfig.value();
   }
   if (configFile.empty()) {
