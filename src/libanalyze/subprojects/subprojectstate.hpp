@@ -23,7 +23,7 @@ public:
   void findSubprojects(bool downloadSubprojects);
   void initSubprojects();
   void updateSubprojects();
-  void parseSubprojects(AnalysisOptions &options, int depth,
+  void parseSubprojects(const AnalysisOptions &options, int depth,
                         const std::string &parentIdentifier,
                         const TypeNamespace &ns, bool downloadSubprojects);
 
@@ -49,7 +49,7 @@ public:
     return nullptr;
   }
 
-  void fullSetup(AnalysisOptions &options, int depth,
+  void fullSetup(const AnalysisOptions &options, int depth,
                  const std::string &parentIdentifier, const TypeNamespace &ns,
                  bool downloadSubprojects) {
     this->findSubprojects(downloadSubprojects);

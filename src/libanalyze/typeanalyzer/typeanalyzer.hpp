@@ -84,7 +84,7 @@ private:
                         FunctionExpression *node);
   void checkIfInLoop(Node *node, std::string str) const;
   void extractVoidAssignment(const AssignmentStatement *node) const;
-  void evaluateFullAssignment(AssignmentStatement *node,
+  void evaluateFullAssignment(const AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
   void evaluatePureAssignment(const AssignmentStatement *node,
                               IdExpression *lhsIdExpr);

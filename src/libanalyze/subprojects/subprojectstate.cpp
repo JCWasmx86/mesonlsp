@@ -111,7 +111,8 @@ void SubprojectState::updateSubprojects() {
   }
 }
 
-void SubprojectState::parseSubprojects(AnalysisOptions &options, int depth,
+void SubprojectState::parseSubprojects(const AnalysisOptions &options,
+                                       int depth,
                                        const std::string &parentIdentifier,
                                        const TypeNamespace &ns,
                                        bool downloadSubprojects) {
