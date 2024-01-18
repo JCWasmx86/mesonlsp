@@ -50,6 +50,8 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
   }
   const auto &line = lines[position.line];
   auto prev = line.substr(0, position.character);
+  auto following = line;
+  following.erase(0, prev.length());
   if (!prev.empty()) {
     auto lastCharSeen = prev.back();
     if (lastCharSeen != '.' && lastCharSeen != ')') {
@@ -78,11 +80,12 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
         types.insert(types.end(), identifier->types.begin(),
                      identifier->types.end());
       }
+      const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, types)) {
-        ret.emplace_back("." + method->name + "()",
+        ret.emplace_back(toAdd + method->name + "()",
                          CompletionItemKind::CIKMethod,
                          TextEdit({position, position},
-                                  "." + createTextForFunction(method)));
+                                  toAdd + createTextForFunction(method)));
       }
     }
   }
@@ -179,6 +182,75 @@ next:
                                 createTextForFunction(function.second)));
     }
   }
+  auto /*explicit copy*/ trimmedPrev = prev;
+  trim(trimmedPrev);
+  trim(following);
+  const auto inCall = trimmedPrev.empty() || trimmedPrev == ")" ||
+                      following.starts_with(",") || following.starts_with(")");
+  if (inCall) {
+    const auto callOpt = tree->metadata.findFullMethodExpressionAt(
+        path, position.line, position.character);
+    if (!callOpt.has_value()) {
+      goto attempt2;
+    }
+    const auto &alNode = callOpt.value()->args;
+    if (!alNode || !callOpt.value()->method) {
+      goto attempt2;
+    }
+    const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+    std::set<std::string> unusedKwargs;
+    for (const auto &kwarg : callOpt.value()->method->kwargs) {
+      unusedKwargs.insert(kwarg.first);
+    }
+    for (const auto &arg : al->args) {
+      const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
+      if (!kwarg || !kwarg->name.has_value()) {
+        continue;
+      }
+      const auto &val = kwarg->name.value();
+      if (unusedKwargs.contains(val)) {
+        unusedKwargs.erase(val);
+      }
+    }
+    for (const auto &toAdd : unusedKwargs) {
+      ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+                       TextEdit(LSPRange(position, position),
+                                std::format("{}: ${{1:{}}}", toAdd, toAdd)));
+    }
+  }
+attempt2:
+  if (inCall) {
+    const auto callOpt = tree->metadata.findFullFunctionExpressionAt(
+        path, position.line, position.character);
+    if (!callOpt.has_value()) {
+      goto slSpecial;
+    }
+    const auto &alNode = callOpt.value()->args;
+    if (!alNode || !callOpt.value()->function) {
+      goto slSpecial;
+    }
+    const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+    std::set<std::string> unusedKwargs;
+    for (const auto &kwarg : callOpt.value()->function->kwargs) {
+      unusedKwargs.insert(kwarg.first);
+    }
+    for (const auto &arg : al->args) {
+      const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
+      if (!kwarg || !kwarg->name.has_value()) {
+        continue;
+      }
+      const auto &val = kwarg->name.value();
+      if (unusedKwargs.contains(val)) {
+        unusedKwargs.erase(val);
+      }
+    }
+    for (const auto &toAdd : unusedKwargs) {
+      ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+                       TextEdit(LSPRange(position, position),
+                                std::format("{}: ${{1:{}}}", toAdd, toAdd)));
+    }
+  }
+slSpecial:
   auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
                                                     position.character);
   if (slAtPos.has_value()) {
