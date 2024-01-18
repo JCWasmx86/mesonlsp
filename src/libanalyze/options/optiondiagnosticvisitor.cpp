@@ -407,7 +407,8 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
                                     "Missing option type kwarg"));
     return;
   }
-  auto *optionTypeSL = dynamic_cast<StringLiteral *>(optionTypeNode->get());
+  const auto *optionTypeSL =
+      dynamic_cast<StringLiteral *>(optionTypeNode->get());
   if (!optionTypeSL) {
     this->metadata->registerDiagnostic(
         nameNode->get(),

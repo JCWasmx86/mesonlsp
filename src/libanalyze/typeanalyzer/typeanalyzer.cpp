@@ -250,11 +250,11 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
 
 void TypeAnalyzer::extractVoidAssignment(AssignmentStatement *node) const {
   std::string name;
-  auto *fe = dynamic_cast<FunctionExpression *>(node->rhs.get());
+  const auto *fe = dynamic_cast<FunctionExpression *>(node->rhs.get());
   if (fe && fe->function) {
     name = fe->function->id();
   } else {
-    auto *me = dynamic_cast<MethodExpression *>(node->rhs.get());
+    const auto *me = dynamic_cast<MethodExpression *>(node->rhs.get());
     if (me && me->method) {
       name = me->method->id();
     }
@@ -281,11 +281,11 @@ void TypeAnalyzer::evaluatePureAssignment(AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   auto arr = node->rhs->types;
   if (arr.empty()) {
-    auto *arrLit = dynamic_cast<ArrayLiteral *>(node->rhs.get());
+    const auto *arrLit = dynamic_cast<ArrayLiteral *>(node->rhs.get());
     if (arrLit && arrLit->args.empty()) {
       arr.push_back(std::make_shared<List>());
     }
-    auto *dictLit = dynamic_cast<DictionaryLiteral *>(node->rhs.get());
+    const auto *dictLit = dynamic_cast<DictionaryLiteral *>(node->rhs.get());
     if (dictLit && dictLit->values.empty()) {
       arr.push_back(std::make_shared<Dict>());
     }
@@ -321,9 +321,9 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
   if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
     return this->ns.strType;
   }
-  auto *listL = dynamic_cast<List *>(left.get());
+  const auto *listL = dynamic_cast<List *>(left.get());
   if (listL) {
-    auto *listR = dynamic_cast<List *>(right.get());
+    const auto *listR = dynamic_cast<List *>(right.get());
     auto newTypes = listL->types;
     if (listR) {
       auto rTypes = listR->types;
@@ -333,9 +333,9 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     }
     return std::make_shared<List>(dedup(this->ns, newTypes));
   }
-  auto *dictL = dynamic_cast<Dict *>(left.get());
+  const auto *dictL = dynamic_cast<Dict *>(left.get());
   if (dictL) {
-    auto *dictR = dynamic_cast<Dict *>(right.get());
+    const auto *dictR = dynamic_cast<Dict *>(right.get());
     auto newTypes = dictL->types;
     if (dictR) {
       auto rTypes = dictR->types;
@@ -531,8 +531,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
-        auto *list1 = dynamic_cast<List *>(lType.get());
-        auto *list2 = dynamic_cast<List *>(rType.get());
+        const auto *list1 = dynamic_cast<List *>(lType.get());
+        const auto *list2 = dynamic_cast<List *>(rType.get());
         if (list1) {
           auto types = list1->types;
           if (list2) {
@@ -543,8 +543,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           newTypes.emplace_back(std::make_shared<List>(types));
           break;
         }
-        auto *dict1 = dynamic_cast<Dict *>(lType.get());
-        auto *dict2 = dynamic_cast<Dict *>(rType.get());
+        const auto *dict1 = dynamic_cast<Dict *>(lType.get());
+        const auto *dict2 = dynamic_cast<Dict *>(rType.get());
         if (dict1 && dict2) {
           auto types = dict1->types;
           types.insert(types.end(), dict2->types.begin(), dict2->types.end());
@@ -712,7 +712,7 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     noEffect = true;
     goto end;
   }
-  if (auto *fe = dynamic_cast<FunctionExpression *>(node)) {
+  if (const auto *fe = dynamic_cast<FunctionExpression *>(node)) {
     auto fnid = fe->function;
     if (fnid && PURE_FUNCTIONS.contains(fnid->name)) {
       noEffect = true;
@@ -720,7 +720,7 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     }
     return;
   }
-  if (auto *me = dynamic_cast<MethodExpression *>(node)) {
+  if (const auto *me = dynamic_cast<MethodExpression *>(node)) {
     auto method = me->method;
     if (method && PURE_METHODS.contains(method->id())) {
       noEffect = true;
@@ -740,7 +740,7 @@ end:
 }
 
 bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
-  auto *asFuncExpr = dynamic_cast<FunctionExpression *>(node.get());
+  const auto *asFuncExpr = dynamic_cast<FunctionExpression *>(node.get());
   if (!asFuncExpr) {
     return false;
   }
@@ -792,12 +792,12 @@ void TypeAnalyzer::checkUnusedVariables() {
     toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
     return;
   }
-  for (auto *needed : needingUse) {
-    auto *ass = dynamic_cast<AssignmentStatement *>(needed->parent);
+  for (const auto *needed : needingUse) {
+    const auto *ass = dynamic_cast<AssignmentStatement *>(needed->parent);
     if (!ass) {
       continue;
     }
-    auto *rhs = dynamic_cast<FunctionExpression *>(ass->rhs.get());
+    const auto *rhs = dynamic_cast<FunctionExpression *>(ass->rhs.get());
     if (rhs) {
       const auto &fnid = rhs->functionName();
       if (fnid == "declare_dependency") {
@@ -1203,8 +1203,8 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
       return true;
     }
   }
-  auto *gList = dynamic_cast<List *>(given.get());
-  auto *eList = dynamic_cast<List *>(expected.get());
+  const auto *gList = dynamic_cast<List *>(given.get());
+  const auto *eList = dynamic_cast<List *>(expected.get());
   if (gList && eList) {
     return this->atleastPartiallyCompatible(eList->types, gList->types);
   }
@@ -1216,8 +1216,8 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
       this->atleastPartiallyCompatible(expected, gList->types)) {
     return true;
   }
-  auto *gDict = dynamic_cast<Dict *>(given.get());
-  auto *eDict = dynamic_cast<Dict *>(expected.get());
+  const auto *gDict = dynamic_cast<Dict *>(given.get());
+  const auto *eDict = dynamic_cast<Dict *>(expected.get());
   if (gDict && eDict) {
     return this->atleastPartiallyCompatible(eDict->types, gDict->types);
   }
@@ -1305,7 +1305,7 @@ void TypeAnalyzer::checkArgTypes(
       const auto &expectedTypes = func->kwargs[kwargName]->types;
       this->checkTypes(arg, expectedTypes, givenTypes);
     } else {
-      auto *posArg = func->posArg(posArgsIdx);
+      const auto *posArg = func->posArg(posArgsIdx);
       if (posArg) {
         this->checkTypes(arg, posArg->types, arg->types);
       }
@@ -1316,7 +1316,7 @@ void TypeAnalyzer::checkArgTypes(
 
 void TypeAnalyzer::checkCall(Node *node) {
   std::shared_ptr<Function> func;
-  auto *fe = dynamic_cast<FunctionExpression *>(node);
+  const auto *fe = dynamic_cast<FunctionExpression *>(node);
   auto nPos = 0ULL;
   if (fe) {
     func = fe->function;
@@ -1334,7 +1334,7 @@ void TypeAnalyzer::checkCall(Node *node) {
       }
     }
   }
-  auto *me = dynamic_cast<MethodExpression *>(node);
+  const auto *me = dynamic_cast<MethodExpression *>(node);
   if (me) {
     func = me->method;
     if (auto *al = dynamic_cast<ArgumentList *>(me->args.get())) {
@@ -1398,7 +1398,7 @@ void TypeAnalyzer::checkSetVariable(FunctionExpression *node,
     return;
   }
   auto firstArg = args[0];
-  auto *variableName = dynamic_cast<StringLiteral *>(firstArg.get());
+  const auto *variableName = dynamic_cast<StringLiteral *>(firstArg.get());
   if (!variableName) {
     this->guessSetVariable(args, node);
   } else if (args.size() > 1) {
@@ -1559,19 +1559,19 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   if (!parent) {
     return false;
   }
-  auto *fe = dynamic_cast<FunctionExpression *>(parent);
+  const auto *fe = dynamic_cast<FunctionExpression *>(parent);
   if (fe && fe->id->equals(node)) {
     return true;
   }
-  auto *me = dynamic_cast<MethodExpression *>(parent);
+  const auto *me = dynamic_cast<MethodExpression *>(parent);
   if (me && me->id->equals(node)) {
     return true;
   }
-  auto *kwi = dynamic_cast<KeywordItem *>(parent);
+  const auto *kwi = dynamic_cast<KeywordItem *>(parent);
   if (kwi && kwi->key->equals(node)) {
     return true;
   }
-  auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
   if (ass && ass->lhs->equals(node)) {
     return true;
   }
@@ -1587,40 +1587,40 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
   if (!parent) {
     return true;
   }
-  auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
   if (ass) {
-    auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
+    const auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
     if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
         ass->op == AssignmentOperator::Equals) {
       return true;
     }
   }
-  auto *its = dynamic_cast<IterationStatement *>(parent);
+  const auto *its = dynamic_cast<IterationStatement *>(parent);
   if (its) {
     for (const auto &itsId : its->ids) {
-      auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
+      const auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
       if (idexpr && idexpr->id == idExpr->id) {
         return true;
       }
     }
   }
-  auto *kwi = dynamic_cast<KeywordItem *>(parent);
+  const auto *kwi = dynamic_cast<KeywordItem *>(parent);
   if (kwi) {
-    auto *key = dynamic_cast<IdExpression *>(kwi->key.get());
+    const auto *key = dynamic_cast<IdExpression *>(kwi->key.get());
     if (key && key->id == idExpr->id) {
       return true;
     }
   }
-  auto *fe = dynamic_cast<FunctionExpression *>(parent);
+  const auto *fe = dynamic_cast<FunctionExpression *>(parent);
   if (fe) {
-    auto *idexpr = dynamic_cast<IdExpression *>(fe->id.get());
+    const auto *idexpr = dynamic_cast<IdExpression *>(fe->id.get());
     if (idexpr && idexpr->id == idExpr->id) {
       return true;
     }
   }
-  auto *me = dynamic_cast<MethodExpression *>(parent);
+  const auto *me = dynamic_cast<MethodExpression *>(parent);
   if (me) {
-    auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
+    const auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
     if (idexpr && idexpr->id == idExpr->id) {
       return true;
     }
@@ -1730,7 +1730,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   auto found = false;
   auto foundBad = false;
   for (const auto &iterT : iterTypes) {
-    auto *dict = dynamic_cast<Dict *>(iterT.get());
+    const auto *dict = dynamic_cast<Dict *>(iterT.get());
     foundBad |= dynamic_cast<List *>(iterT.get()) != nullptr ||
                 dynamic_cast<Range *>(iterT.get()) != nullptr;
     if (!dict) {
@@ -1777,8 +1777,8 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   } else if (count == 2) {
     analyseIterationStatementTwoIdentifiers(node);
   } else {
-    auto *fNode = node->ids[0].get();
-    auto *eNode = node->ids[1].get();
+    const auto *fNode = node->ids[0].get();
+    const auto *eNode = node->ids[1].get();
     this->metadata->registerDiagnostic(
         fNode,
         Diagnostic(Severity::ERROR, fNode, eNode,
@@ -2061,13 +2061,11 @@ void TypeAnalyzer::checkFormat(
                                     "Unused parameter in format() call"));
     }
   }
-  if (foundIntegers.empty()) {
-    if (args.empty()) {
-      this->metadata->registerDiagnostic(
-          sl->parent, Diagnostic(Severity::WARNING, sl->parent,
-                                 "Pointless str.format() call"));
-      return;
-    }
+  if (foundIntegers.empty() && args.empty()) {
+    this->metadata->registerDiagnostic(
+        sl->parent, Diagnostic(Severity::WARNING, sl->parent,
+                               "Pointless str.format() call"));
+    return;
   }
   std::vector<std::string> oobIntegers;
   for (auto integer : foundIntegers) {
@@ -2086,9 +2084,9 @@ void TypeAnalyzer::checkFormat(
 
 bool TypeAnalyzer::checkCondition(Node *condition) {
   auto appended = false;
-  auto *fe = dynamic_cast<FunctionExpression *>(condition);
+  const auto *fe = dynamic_cast<FunctionExpression *>(condition);
   if ((fe != nullptr) && fe->functionName() == "is_variable") {
-    auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
+    const auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
     if (al && !al->args.empty()) {
       auto *testedIdentifier = dynamic_cast<StringLiteral *>(al->args[0].get());
       if (testedIdentifier) {
@@ -2234,13 +2232,13 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
   node->visitChildren(this);
   std::vector<std::shared_ptr<Type>> newTypes;
   for (const auto &type : node->outer->types) {
-    auto *asDict = dynamic_cast<Dict *>(type.get());
+    const auto *asDict = dynamic_cast<Dict *>(type.get());
     if (asDict != nullptr) {
       const auto &dTypes = asDict->types;
       newTypes.insert(newTypes.begin(), dTypes.begin(), dTypes.end());
       continue;
     }
-    auto *asList = dynamic_cast<List *>(type.get());
+    const auto *asList = dynamic_cast<List *>(type.get());
     if (asList != nullptr) {
       const auto &lTypes = asList->types;
       newTypes.insert(newTypes.begin(), lTypes.begin(), lTypes.end());

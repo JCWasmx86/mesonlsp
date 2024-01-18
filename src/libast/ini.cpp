@@ -15,16 +15,17 @@
 
 std::optional<std::string>
 ast::ini::Section::findStringValue(const std::string &key) {
-  for (auto &keyValuePair : this->keyValuePairs) {
-    auto *kvp = dynamic_cast<ast::ini::KeyValuePair *>(keyValuePair.get());
+  for (const auto &keyValuePair : this->keyValuePairs) {
+    const auto *kvp =
+        dynamic_cast<ast::ini::KeyValuePair *>(keyValuePair.get());
     if (kvp == nullptr) {
       continue;
     }
-    auto *keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
+    const auto *keyN = dynamic_cast<ast::ini::StringValue *>(kvp->key.get());
     if ((keyN == nullptr) || keyN->value != key) {
       continue;
     }
-    auto *value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
+    const auto *value = dynamic_cast<ast::ini::StringValue *>(kvp->value.get());
     if (value == nullptr) {
       continue;
     }

@@ -468,16 +468,15 @@ void CodeActionVisitor::makeSortFilenamesAction(const Node *node) {
   auto strLiterals = strLiteralsOpt.value();
   std::vector<const StringLiteral *> sortedStrLiterals{strLiterals.begin(),
                                                        strLiterals.end()};
-  std::ranges::sort(
-      sortedStrLiterals,
-      [](const StringLiteral *lhs, const StringLiteral *rhs) -> bool {
-        auto aC = std::ranges::count(lhs->id, '/');
-        auto bC = std::ranges::count(rhs->id, '/');
-        if (aC != bC) {
-          return aC < bC; // Sort based on the count of slashes
-        }
-        return lhs->id < rhs->id; // If counts are equal, sort lexicographically
-      });
+  std::ranges::sort(sortedStrLiterals, [](const StringLiteral *lhs,
+                                          const StringLiteral *rhs) {
+    auto aC = std::ranges::count(lhs->id, '/');
+    auto bC = std::ranges::count(rhs->id, '/');
+    if (aC != bC) {
+      return aC < bC; // Sort based on the count of slashes
+    }
+    return lhs->id < rhs->id; // If counts are equal, sort lexicographically
+  });
   if (std::ranges::equal(sortedStrLiterals, strLiterals)) {
     return;
   }
@@ -585,7 +584,7 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   }
   auto toSort = toSortOpt.value();
   std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) -> bool {
+  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) {
     const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
     const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
     if (lhsIdExpr && rhsIdExpr) {
@@ -659,7 +658,7 @@ void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
   }
   auto toSort = toSortOpt.value();
   std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) -> bool {
+  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) {
     const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
     const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
     if (lhsIdExpr && rhsIdExpr) {

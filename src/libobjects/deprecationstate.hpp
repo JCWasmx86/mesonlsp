@@ -21,6 +21,8 @@ public:
   DeprecationState(DeprecationState &&other) noexcept = default;
   DeprecationState &operator=(DeprecationState const &other);
   DeprecationState &operator=(DeprecationState &&other) noexcept;
+
+  ~DeprecationState() = default;
 };
 
 void swap(DeprecationState &first, DeprecationState &second) noexcept;

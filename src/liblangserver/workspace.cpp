@@ -158,7 +158,7 @@ Workspace::highlight(const std::filesystem::path &path,
         continue;
       }
       auto kind = DocumentHighlightKind::ReadKind;
-      auto *ass = dynamic_cast<AssignmentStatement *>(toCheck->parent);
+      const auto *ass = dynamic_cast<AssignmentStatement *>(toCheck->parent);
       if (ass && toCheck->equals(ass->lhs.get())) {
         kind = DocumentHighlightKind::WriteKind;
       }
@@ -314,13 +314,13 @@ Workspace::rename(const std::filesystem::path &path,
       this->smph.release();
       return std::nullopt;
     }
-    auto *toRename = toRenameOpt.value();
+    const auto *toRename = toRenameOpt.value();
     WorkspaceEdit ret;
     auto foundOurself = false;
     for (const auto &pair : metadata.identifiers) {
       auto url = pathToUrl(pair.first);
       ret.changes[url] = {};
-      for (auto *identifier : pair.second) {
+      for (const auto *identifier : pair.second) {
         if (identifier->id != toRename->id) {
           continue;
         }
