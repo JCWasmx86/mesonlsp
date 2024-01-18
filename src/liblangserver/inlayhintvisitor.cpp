@@ -103,7 +103,7 @@ void InlayHintVisitor::visitContinueNode(ContinueNode *node) {
   node->visitChildren(this);
 }
 
-void InlayHintVisitor::makeHint(Node *node) {
+void InlayHintVisitor::makeHint(const Node *node) {
   auto pos = LSPPosition(node->location.startLine, node->location.endColumn);
   auto text = ":" + this->prettify(node->types, 0);
   this->hints.emplace_back(pos, text);

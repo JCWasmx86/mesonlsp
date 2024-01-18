@@ -16,7 +16,7 @@ static const std::regex
 static const std::regex STR_FORMAT_REGEX("@(\\d+)@");  // NOLINT
 
 // TODO: Use enum
-void SemanticTokensVisitor::makeSemanticToken(Node *node, size_t idx,
+void SemanticTokensVisitor::makeSemanticToken(const Node *node, size_t idx,
                                               uint64_t modifiers) {
   if (node->location.startLine != node->location.endLine) {
     return;

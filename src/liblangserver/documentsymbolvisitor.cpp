@@ -110,7 +110,7 @@ void DocumentSymbolVisitor::visitContinueNode(ContinueNode *node) {
   node->visitChildren(this);
 }
 
-void DocumentSymbolVisitor::createSymbol(IdExpression *idExpr) {
+void DocumentSymbolVisitor::createSymbol(const IdExpression *idExpr) {
   auto name = idExpr->id;
   const auto &loc = idExpr->location;
   auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),

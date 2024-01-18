@@ -5,7 +5,6 @@
 #include "utils.hpp"
 #include "wrap.hpp"
 
-#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -26,7 +25,7 @@ public:
 
   virtual void init() = 0;
   virtual void update() = 0;
-  void parse(AnalysisOptions &options, int depth,
+  void parse(const AnalysisOptions &options, int depth,
              const std::string &parentIdentifier, const TypeNamespace &ns,
              bool downloadSubprojects);
 
@@ -102,16 +101,16 @@ public:
         wrapFile(std::move(wrapFile)), packageFiles(std::move(packageFiles)) {}
 
   void init() override {
-    auto ptr = parseWrap(this->wrapFile);
+    const auto ptr = parseWrap(this->wrapFile);
     if (!ptr || !ptr->serializedWrap) {
       return;
     }
-    auto result = ptr->serializedWrap->setupDirectory(
+    const auto result = ptr->serializedWrap->setupDirectory(
         this->realpath.parent_path(), this->packageFiles);
     if (!result) {
       return;
     }
-    auto setupFile = this->realpath.parent_path() / ".fullysetup";
+    const auto setupFile = this->realpath.parent_path() / ".fullysetup";
     std::ofstream{setupFile}.put('\n');
     this->initialized = true;
   }

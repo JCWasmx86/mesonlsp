@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-void MesonSubproject::parse(AnalysisOptions &options, int depth,
+void MesonSubproject::parse(const AnalysisOptions &options, int depth,
                             const std::string &parentIdentifier,
                             const TypeNamespace &ns, bool downloadSubprojects) {
   this->tree = std::make_shared<MesonTree>(this->realpath, ns);

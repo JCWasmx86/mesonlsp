@@ -48,7 +48,7 @@ void OptionDiagnosticVisitor::visitDictionaryLiteral(DictionaryLiteral *node) {
   node->visitChildren(this);
 }
 
-void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
+void OptionDiagnosticVisitor::checkName(const StringLiteral *sl) {
   const auto &contents = sl->id;
   if (this->options.contains(contents)) {
     this->metadata->registerDiagnostic(
@@ -73,8 +73,9 @@ void OptionDiagnosticVisitor::checkName(StringLiteral *sl) {
   }
 }
 
-void OptionDiagnosticVisitor::validateStringOption(Node *defaultValue) const {
-  if (dynamic_cast<StringLiteral *>(defaultValue)) {
+void OptionDiagnosticVisitor::validateStringOption(
+    const Node *defaultValue) const {
+  if (dynamic_cast<const StringLiteral *>(defaultValue)) {
     return;
   }
   this->metadata->registerDiagnostic(
@@ -131,11 +132,12 @@ std::optional<int64_t> OptionDiagnosticVisitor::parseInt(const Node *node) {
   return std::nullopt;
 }
 
-void OptionDiagnosticVisitor::validateBooleanOption(Node *defaultValue) const {
-  if (dynamic_cast<BooleanLiteral *>(defaultValue)) {
+void OptionDiagnosticVisitor::validateBooleanOption(
+    const Node *defaultValue) const {
+  if (dynamic_cast<const BooleanLiteral *>(defaultValue)) {
     return;
   }
-  const auto *sl = dynamic_cast<StringLiteral *>(defaultValue);
+  const auto *sl = dynamic_cast<const StringLiteral *>(defaultValue);
   if (!sl) {
     this->metadata->registerDiagnostic(
         defaultValue, Diagnostic(Severity::ERROR, defaultValue,
@@ -154,8 +156,9 @@ void OptionDiagnosticVisitor::validateBooleanOption(Node *defaultValue) const {
           "String literals as value for boolean options are deprecated."));
 }
 
-void OptionDiagnosticVisitor::validateFeatureOption(Node *defaultValue) const {
-  const auto *slNode = dynamic_cast<StringLiteral *>(defaultValue);
+void OptionDiagnosticVisitor::validateFeatureOption(
+    const Node *defaultValue) const {
+  const auto *slNode = dynamic_cast<const StringLiteral *>(defaultValue);
   if (!slNode) {
     this->metadata->registerDiagnostic(
         defaultValue,
@@ -172,9 +175,9 @@ void OptionDiagnosticVisitor::validateFeatureOption(Node *defaultValue) const {
                  "Expected one of: 'enabled', 'disabled', 'auto'"));
 }
 
-void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
-                                                  ArgumentList *al) const {
-  const auto *defaultSL = dynamic_cast<StringLiteral *>(defaultValue);
+void OptionDiagnosticVisitor::validateComboOption(
+    const Node *defaultValue, const ArgumentList *al) const {
+  const auto *defaultSL = dynamic_cast<const StringLiteral *>(defaultValue);
   std::optional<std::string> defaultString;
   if (!defaultSL) {
     this->metadata->registerDiagnostic(
@@ -200,7 +203,7 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
     return;
   }
   for (const auto &choice : choicesArray->args) {
-    const auto *asLiteral = dynamic_cast<StringLiteral *>(choice.get());
+    const auto *asLiteral = dynamic_cast<const StringLiteral *>(choice.get());
     if (!asLiteral) {
       this->metadata->registerDiagnostic(
           choice.get(),
@@ -226,13 +229,13 @@ void OptionDiagnosticVisitor::validateComboOption(Node *defaultValue,
 }
 
 void OptionDiagnosticVisitor::extractArrayChoices(
-    ArgumentList *al, std::set<std::string> **choices) const {
+    const ArgumentList *al, std::set<std::string> **choices) const {
   auto kwarg = al->getKwarg("choices");
   if (!kwarg.has_value()) {
     *choices = nullptr;
     return;
   }
-  const auto *arrayLit = dynamic_cast<ArrayLiteral *>(kwarg->get());
+  const auto *arrayLit = dynamic_cast<const ArrayLiteral *>(kwarg->get());
   if (!arrayLit) {
     *choices = nullptr;
     this->metadata->registerDiagnostic(
@@ -242,7 +245,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
   }
   auto *ret = new std::set<std::string>();
   for (const auto &node : arrayLit->args) {
-    const auto *asStr = dynamic_cast<StringLiteral *>(node.get());
+    const auto *asStr = dynamic_cast<const StringLiteral *>(node.get());
     if (!asStr) {
       this->metadata->registerDiagnostic(
           node.get(),
@@ -261,11 +264,11 @@ void OptionDiagnosticVisitor::extractArrayChoices(
   *choices = ret;
 }
 
-void OptionDiagnosticVisitor::validateArrayOption(Node *defaultValue,
-                                                  ArgumentList *al) const {
+void OptionDiagnosticVisitor::validateArrayOption(
+    const Node *defaultValue, const ArgumentList *al) const {
   std::set<std::string> *choices = nullptr;
   extractArrayChoices(al, &choices);
-  const auto *arrLit = dynamic_cast<ArrayLiteral *>(defaultValue);
+  const auto *arrLit = dynamic_cast<const ArrayLiteral *>(defaultValue);
   if (!arrLit) {
     this->metadata->registerDiagnostic(
         defaultValue,
@@ -293,7 +296,7 @@ end:
 }
 
 std::optional<int64_t>
-OptionDiagnosticVisitor::fetchIntOrNullOpt(ArgumentList *al,
+OptionDiagnosticVisitor::fetchIntOrNullOpt(const ArgumentList *al,
                                            const std::string &kwarg) {
   const auto &kwargNode = al->getKwarg(kwarg);
   if (!kwargNode.has_value()) {
@@ -314,8 +317,8 @@ OptionDiagnosticVisitor::fetchIntOrNullOpt(ArgumentList *al,
   return std::nullopt;
 }
 
-void OptionDiagnosticVisitor::validateIntegerOption(ArgumentList *al,
-                                                    Node *defaultValue) {
+void OptionDiagnosticVisitor::validateIntegerOption(const ArgumentList *al,
+                                                    const Node *defaultValue) {
   auto defaultInt = this->parseInt(defaultValue);
   if (!defaultInt.has_value()) {
     defaultInt = this->parseString(defaultValue);

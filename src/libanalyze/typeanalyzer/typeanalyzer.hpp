@@ -69,24 +69,24 @@ private:
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
       overriddenVariables;
   void checkProjectCall(BuildDefinition *node);
-  void checkDeadNodes(BuildDefinition *node);
-  void applyDead(std::shared_ptr<Node> &lastAlive,
-                 std::shared_ptr<Node> &firstDead,
-                 std::shared_ptr<Node> &lastDead) const;
+  void checkDeadNodes(const BuildDefinition *node);
+  void applyDead(const std::shared_ptr<Node> &lastAlive,
+                 const std::shared_ptr<Node> &firstDead,
+                 const std::shared_ptr<Node> &lastDead) const;
   void checkUnusedVariables();
   bool isDead(const std::shared_ptr<Node> &node);
   void checkDuplicateNodeKeys(DictionaryLiteral *node) const;
   void setFunctionCallTypes(FunctionExpression *node,
                             const std::shared_ptr<Function> &func);
   void checkCall(Node *node);
-  void checkSetVariable(FunctionExpression *node, ArgumentList *al);
+  void checkSetVariable(FunctionExpression *node, const ArgumentList *al);
   void guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                         FunctionExpression *node);
   void checkIfInLoop(Node *node, std::string str) const;
-  void extractVoidAssignment(AssignmentStatement *node) const;
+  void extractVoidAssignment(const AssignmentStatement *node) const;
   void evaluateFullAssignment(AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
-  void evaluatePureAssignment(AssignmentStatement *node,
+  void evaluatePureAssignment(const AssignmentStatement *node,
                               IdExpression *lhsIdExpr);
   void modifiedVariableType(const std::string &varname,
                             const std::vector<std::shared_ptr<Type>> &newTypes);
@@ -103,19 +103,20 @@ private:
                  const std::shared_ptr<Type> &right);
   void applyToStack(const std::string &name,
                     std::vector<std::shared_ptr<Type>> types);
-  void checkIdentifier(IdExpression *node) const;
+  void checkIdentifier(const IdExpression *node) const;
   void registerNeedForUse(IdExpression *node);
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
   bool checkCondition(Node *condition) __attribute__((nonnull));
-  bool isSpecial(std::vector<std::shared_ptr<Type>> &types);
-  void checkIfSpecialComparison(MethodExpression *me, StringLiteral *sl) const;
+  bool isSpecial(const std::vector<std::shared_ptr<Type>> &types);
+  void checkIfSpecialComparison(const MethodExpression *me,
+                                const StringLiteral *sl) const;
   std::vector<std::shared_ptr<Type>> evalBinaryExpression(
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
       const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors);
   void enterSubdir(FunctionExpression *node);
   void registerUsed(const std::string &varname);
-  std::vector<std::shared_ptr<Type>> evalStack(std::string &name);
+  std::vector<std::shared_ptr<Type>> evalStack(const std::string &name);
   bool ignoreIdExpression(IdExpression *node);
   bool isKnownId(IdExpression *idExpr);
   bool guessMethod(MethodExpression *node, const std::string &methodName,

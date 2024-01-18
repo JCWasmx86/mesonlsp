@@ -21,7 +21,7 @@ public:
       : startLine(0), endLine(0), startColumn(0), endColumn(0), columns(0),
         lines(0) {}
 
-  explicit Location(TSNode node)
+  explicit Location(const TSNode &node)
       : startLine(ts_node_start_point(node).row),
         endLine(node.id ? (ts_node_end_point(node).row) : 0),
         startColumn(ts_node_start_point(node).column),

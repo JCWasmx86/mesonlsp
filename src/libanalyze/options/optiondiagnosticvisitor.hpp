@@ -40,17 +40,19 @@ public:
 
 private:
   std::set<std::string> options;
-  void checkName(StringLiteral *sl);
-  void validateStringOption(Node *defaultValue) const;
-  void validateIntegerOption(ArgumentList *al, Node *defaultValue);
-  void validateBooleanOption(Node *defaultValue) const;
-  void validateFeatureOption(Node *defaultValue) const;
-  void validateArrayOption(Node *defaultValue, ArgumentList *al) const;
-  void validateComboOption(Node *defaultValue, ArgumentList *al) const;
-  void extractArrayChoices(ArgumentList *al,
+  void checkName(const StringLiteral *sl);
+  void validateStringOption(const Node *defaultValue) const;
+  void validateIntegerOption(const ArgumentList *al, const Node *defaultValue);
+  void validateBooleanOption(const Node *defaultValue) const;
+  void validateFeatureOption(const Node *defaultValue) const;
+  void validateArrayOption(const Node *defaultValue,
+                           const ArgumentList *al) const;
+  void validateComboOption(const Node *defaultValue,
+                           const ArgumentList *al) const;
+  void extractArrayChoices(const ArgumentList *al,
                            std::set<std::string> **choices) const;
   std::optional<int64_t> parseInt(const Node *node);
   std::optional<int64_t> parseString(const Node *node) const;
-  std::optional<int64_t> fetchIntOrNullOpt(ArgumentList *al,
+  std::optional<int64_t> fetchIntOrNullOpt(const ArgumentList *al,
                                            const std::string &kwarg);
 };

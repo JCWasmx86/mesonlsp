@@ -31,5 +31,5 @@ public:
   void visitContinueNode(ContinueNode *node) override;
 
 private:
-  void createSymbol(IdExpression *idExpr);
+  void createSymbol(const IdExpression *idExpr);
 };
