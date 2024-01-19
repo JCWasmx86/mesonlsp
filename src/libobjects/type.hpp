@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <format>
 #include <memory>
 #include <optional>
 #include <string>
@@ -62,9 +63,21 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   explicit Dict(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("dict"), types(types) {}
+      : Type("dict"), types(types) {
+    const auto len = types.size();
+    if (len == 0) {
+      this->cached = true;
+      this->cache = "dict()";
+    } else if (len == 1) {
+      this->cached = true;
+      this->cache = std::format("dict({})", types[0]->toString());
+    }
+  }
 
-  Dict() : Type("dict") {}
+  Dict() : Type("dict") {
+    this->cached = true;
+    this->cache = "dict()";
+  }
 
   const std::string &toString() override {
     if (this->cached) {
@@ -92,9 +105,21 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   explicit List(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("list"), types(types) {}
+      : Type("list"), types(types) {
+    const auto len = types.size();
+    if (len == 0) {
+      this->cached = true;
+      this->cache = "list()";
+    } else if (len == 1) {
+      this->cached = true;
+      this->cache = std::format("list({})", types[0]->toString());
+    }
+  }
 
-  List() : Type("list") {}
+  List() : Type("list") {
+    this->cached = true;
+    this->cache = "list()";
+  }
 
   const std::string &toString() override {
     if (this->cached) {
@@ -124,14 +149,7 @@ public:
   explicit Subproject(std::vector<std::string> names)
       : AbstractObject("subproject"), names(std::move(names)) {
     std::ranges::sort(this->names);
-    std::string cached;
-    for (size_t i = 0; i < this->names.size(); i++) {
-      cached += this->names[i];
-      if (i != this->names.size() - 1) {
-        cached += "|";
-      }
-    }
-    this->cache = "subproject(" + cached + ")";
+    this->cache = "subproject(" + joinStrings(this->names, '|') + ")";
   }
 
   const std::string &toString() override { return this->cache; }
