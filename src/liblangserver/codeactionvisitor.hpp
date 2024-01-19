@@ -15,13 +15,13 @@
 class CodeActionVisitor : public CodeVisitor {
 public:
   std::vector<CodeAction> actions;
-  const LSPRange &range;
+  const LSPRange &editorRange;
   const std::string uri;
   const MesonTree *tree;
 
   CodeActionVisitor(const LSPRange &range, std::string uri,
                     const MesonTree *tree)
-      : range(range), uri(std::move(uri)), tree(tree) {}
+      : editorRange(range), uri(std::move(uri)), tree(tree) {}
 
   void visitArgumentList(ArgumentList *node) override;
   void visitArrayLiteral(ArrayLiteral *node) override;

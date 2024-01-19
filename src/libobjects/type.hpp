@@ -124,14 +124,14 @@ public:
   explicit Subproject(std::vector<std::string> names)
       : AbstractObject("subproject"), names(std::move(names)) {
     std::ranges::sort(this->names);
-    std::string cache;
+    std::string cached;
     for (size_t i = 0; i < this->names.size(); i++) {
-      cache += this->names[i];
+      cached += this->names[i];
       if (i != this->names.size() - 1) {
-        cache += "|";
+        cached += "|";
       }
     }
-    this->cache = "subproject(" + cache + ")";
+    this->cache = "subproject(" + cached + ")";
   }
 
   const std::string &toString() override { return this->cache; }

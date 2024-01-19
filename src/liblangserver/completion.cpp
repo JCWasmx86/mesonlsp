@@ -79,13 +79,13 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
         goto next;
       }
       LOG.info(std::format("ErrorID: '{}'", errorId.value()));
-      std::vector<std::shared_ptr<Type>> types;
+      std::vector<std::shared_ptr<Type>> errorTypes;
       for (auto *const identifier : tree->metadata.identifiers[path]) {
-        types.insert(types.end(), identifier->types.begin(),
-                     identifier->types.end());
+        errorTypes.insert(errorTypes.end(), identifier->types.begin(),
+                          identifier->types.end());
       }
       const auto *toAdd = lastCharSeen == '.' ? "" : ".";
-      for (const auto &method : fillTypes(tree, types)) {
+      for (const auto &method : fillTypes(tree, errorTypes)) {
         ret.emplace_back(toAdd + method->name + "()",
                          CompletionItemKind::CIKMethod,
                          TextEdit({position, position},

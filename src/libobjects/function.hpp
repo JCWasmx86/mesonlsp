@@ -37,25 +37,25 @@ public:
       : name(std::move(name)), doc(std::move(doc)), args(args),
         returnTypes(returnTypes), deprecationState(std::move(deprecationState)),
         since(std::move(since)) {
-    uint32_t minPosArgs = 0;
+    uint32_t minPosArgsCnter = 0;
     for (const auto &arg : args) {
       const auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->optional) {
           break;
         }
-        minPosArgs++;
+        minPosArgsCnter++;
       }
     }
-    uint32_t maxPosArgs = 0;
+    uint32_t maxPosArgsCnter = 0;
     for (const auto &arg : args) {
       const auto *pa = dynamic_cast<PositionalArgument *>(arg.get());
       if (pa) {
         if (pa->varargs) {
-          maxPosArgs = UINT32_MAX;
+          maxPosArgsCnter = UINT32_MAX;
           break;
         }
-        maxPosArgs++;
+        maxPosArgsCnter++;
       }
     }
     for (const auto &arg : args) {
@@ -68,8 +68,8 @@ public:
         this->requiredKwargs.insert(kw->name);
       }
     }
-    this->minPosArgs = minPosArgs;
-    this->maxPosArgs = maxPosArgs;
+    this->minPosArgs = minPosArgsCnter;
+    this->maxPosArgs = maxPosArgsCnter;
   }
 
   virtual const std::string &id() const;

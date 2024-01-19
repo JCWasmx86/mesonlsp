@@ -68,7 +68,7 @@ public:
 
 private:
   OptionState parseFile(const std::filesystem::path &path,
-                        MesonMetadata *metadata);
+                        MesonMetadata *originalMetadata);
   OptionState parseOptions(const std::filesystem::path &root,
-                           MesonMetadata *metadata);
+                           MesonMetadata *originalMetadata);
 };

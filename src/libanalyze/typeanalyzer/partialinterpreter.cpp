@@ -664,15 +664,15 @@ PartialInterpreter::fullEval(const Node *stmt, const IdExpression *toResolve) {
   std::vector<std::shared_ptr<InterpretNode>> ret;
   const auto *bd = dynamic_cast<const BuildDefinition *>(stmt);
   if (bd) {
-    for (const auto &stmt : bd->stmts | std::ranges::views::reverse) {
-      auto evaled = this->evalStatement(stmt.get(), toResolve);
+    for (const auto &blockStmt : bd->stmts | std::ranges::views::reverse) {
+      auto evaled = this->evalStatement(blockStmt.get(), toResolve);
       ret.insert(ret.end(), evaled.begin(), evaled.end());
     }
   }
   const auto *its = dynamic_cast<const IterationStatement *>(stmt);
   if (its) {
-    for (const auto &stmt : its->stmts | std::ranges::views::reverse) {
-      auto evaled = this->evalStatement(stmt.get(), toResolve);
+    for (const auto &blockStmt : its->stmts | std::ranges::views::reverse) {
+      auto evaled = this->evalStatement(blockStmt.get(), toResolve);
       ret.insert(ret.end(), evaled.begin(), evaled.end());
     }
     for (const auto &itsId : its->ids) {
@@ -687,8 +687,8 @@ PartialInterpreter::fullEval(const Node *stmt, const IdExpression *toResolve) {
   const auto *sst = dynamic_cast<const SelectionStatement *>(stmt);
   if (sst) {
     for (const auto &block : sst->blocks | std::ranges::views::reverse) {
-      for (const auto &stmt : block | std::ranges::views::reverse) {
-        auto evaled = this->evalStatement(stmt.get(), toResolve);
+      for (const auto &blockStmt : block | std::ranges::views::reverse) {
+        auto evaled = this->evalStatement(blockStmt.get(), toResolve);
         ret.insert(ret.end(), evaled.begin(), evaled.end());
       }
     }
@@ -902,11 +902,11 @@ PartialInterpreter::abstractEvalSplitWithSubscriptExpression(
       continue;
     }
     for (const auto &arrArg : arr->args) {
-      const auto *sl1 = dynamic_cast<const StringLiteral *>(arrArg.get());
-      if (!sl1) {
+      const auto *sl2 = dynamic_cast<const StringLiteral *>(arrArg.get());
+      if (!sl2) {
         continue;
       }
-      auto parts = split(sl1->id, splitAt);
+      auto parts = split(sl2->id, splitAt);
       if (idxI < parts.size()) {
         ret.emplace_back(std::make_shared<ArtificialStringNode>(parts[idxI]));
       }
@@ -936,11 +936,11 @@ PartialInterpreter::abstractEvalSplitByWhitespace(
       continue;
     }
     for (const auto &arrArg : arr->args) {
-      const auto *sl1 = dynamic_cast<const StringLiteral *>(arrArg.get());
-      if (!sl1) {
+      const auto *sl2 = dynamic_cast<const StringLiteral *>(arrArg.get());
+      if (!sl2) {
         continue;
       }
-      auto parts = splitString(sl1->id);
+      auto parts = splitString(sl2->id);
       if (idxI < parts.size()) {
         ret.emplace_back(std::make_shared<ArtificialStringNode>(parts[idxI]));
       }

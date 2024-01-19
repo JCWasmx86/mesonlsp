@@ -105,8 +105,8 @@ cont2:
     }
     auto asStringLiterals =
         asArrayKwarg->args |
-        std::ranges::views::filter([](const std::shared_ptr<Node> &node) {
-          return dynamic_cast<StringLiteral *>(node.get()) != nullptr;
+        std::ranges::views::filter([](const std::shared_ptr<Node> &toFilter) {
+          return dynamic_cast<StringLiteral *>(toFilter.get()) != nullptr;
         });
     for (const auto &sl : asStringLiterals) {
       choices.push_back(dynamic_cast<StringLiteral *>(sl.get())->id);

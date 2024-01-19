@@ -22,10 +22,10 @@ bool CodeActionVisitor::inRange(const Node *node, bool add) {
       LSPPosition(node->location.startLine, node->location.startColumn);
   auto endPos = LSPPosition(node->location.endLine, node->location.endColumn);
   auto nodeRange = LSPRange(startPos, endPos);
-  auto pointsMatch =
-      this->range.contains(startPos) || this->range.contains(endPos);
-  auto rangesMatch = nodeRange.contains(this->range.start) ||
-                     nodeRange.contains(this->range.end);
+  auto pointsMatch = this->editorRange.contains(startPos) ||
+                     this->editorRange.contains(endPos);
+  auto rangesMatch = nodeRange.contains(this->editorRange.start) ||
+                     nodeRange.contains(this->editorRange.end);
   if (pointsMatch || rangesMatch) {
     LOG.info("Found node at range: " + node->location.format());
     if (!add) {
@@ -423,10 +423,10 @@ void CodeActionVisitor::makeDeclareDependencyAction(const Node *node) {
       }
       const auto *arrLi = dynamic_cast<const ArrayLiteral *>(kwarg->get());
       if (arrLi) {
-        auto str = kwarg.value()
-                       ->file->extractNodeValue(kwarg.value()->location)
-                       .substr(1);
-        str += std::format("link_with: [{}, {}, \n", libname, str);
+        auto extracted = kwarg.value()
+                             ->file->extractNodeValue(kwarg.value()->location)
+                             .substr(1);
+        str += std::format("link_with: [{}, {}, \n", libname, extracted);
       }
       continue;
     }
@@ -485,8 +485,8 @@ void CodeActionVisitor::makeSortFilenamesAction(const Node *node) {
   auto revSortedStrs = sortedStrLiterals | std::ranges::views::reverse;
   std::vector<TextEdit> edits;
   for (size_t i = 0; i < nodes.size(); i++) {
-    const auto &node = nodes[(long)i];
-    auto range = nodeToRange(node);
+    const auto &subNode = nodes[(long)i];
+    auto range = nodeToRange(subNode);
     edits.emplace_back(range, std::format("'{}'", revSortedStrs[(long)i]->id));
   }
   WorkspaceEdit edit;
@@ -616,8 +616,8 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
   std::vector<TextEdit> edits;
   for (size_t i = 0; i < nodes.size(); i++) {
-    const auto &node = nodes[(long)i];
-    auto range = nodeToRange(node);
+    const auto &subNode = nodes[(long)i];
+    auto range = nodeToRange(subNode);
     const auto *asSL =
         dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
     if (asSL) {
@@ -690,8 +690,8 @@ void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
   auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
   std::vector<TextEdit> edits;
   for (size_t i = 0; i < nodes.size(); i++) {
-    const auto &node = nodes[(long)i];
-    auto range = nodeToRange(node);
+    const auto &subNode = nodes[(long)i];
+    auto range = nodeToRange(subNode);
     const auto *asSL =
         dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
     if (asSL) {

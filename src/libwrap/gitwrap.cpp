@@ -16,8 +16,8 @@
 const static Logger LOG("wrap::GitWrap"); // NOLINT
 
 GitWrap::GitWrap(ast::ini::Section *node) : VcsWrap(node) {
-  if (auto pushUrl = node->findStringValue("push-url")) {
-    this->pushUrl = pushUrl;
+  if (auto optPushUrl = node->findStringValue("push-url")) {
+    this->pushUrl = optPushUrl;
   }
   if (auto depthString = node->findStringValue("depth")) {
     int number;
@@ -153,10 +153,11 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
       return false;
     }
   }
-  if (auto pushUrl = this->pushUrl) {
+  if (auto optPushUrl = this->pushUrl) {
     auto result = launchProcess(
-        "git", std::vector<std::string>{"-C", fullPath, "remote", "set-url",
-                                        "--push", "origin", pushUrl.value()});
+        "git",
+        std::vector<std::string>{"-C", fullPath, "remote", "set-url", "--push",
+                                 "origin", optPushUrl.value()});
     if (!result) {
       return false;
     }

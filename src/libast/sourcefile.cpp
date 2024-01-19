@@ -10,10 +10,10 @@ const std::string &SourceFile::contents() {
     return this->cachedContents;
   }
   const auto &path = std::filesystem::path(this->file);
-  std::ifstream file(path);
+  std::ifstream fstream(path);
   auto fileSize = std::filesystem::file_size(path);
   this->cachedContents.resize(fileSize, '\0');
-  file.read(this->cachedContents.data(), (std::streamsize)fileSize);
+  fstream.read(this->cachedContents.data(), (std::streamsize)fileSize);
   this->cached = true;
   return this->cachedContents;
 }
