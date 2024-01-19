@@ -32,4 +32,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner -X -Dsonar.projectSettings=sonar-project.properties
+          sonar-scanner -X -Dsonar.projectSettings=sonar-project.properties --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
