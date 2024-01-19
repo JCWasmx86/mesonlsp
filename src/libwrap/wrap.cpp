@@ -71,20 +71,20 @@ bool Wrap::applyPatch(const std::filesystem::path &path,
     mergeDirectories(packagePath, path);
     return true;
   }
-  auto patchFilename = this->patchFilename;
-  if (!patchFilename.has_value() || patchFilename->empty()) {
+  auto optPatchFilename = this->patchFilename;
+  if (!optPatchFilename.has_value() || optPatchFilename->empty()) {
     return true;
   }
-  auto patchUrl = this->patchUrl;
-  if (!patchUrl.has_value() || patchUrl->empty()) {
+  auto optPatchUrl = this->patchUrl;
+  if (!optPatchUrl.has_value() || optPatchUrl->empty()) {
     return false;
   }
-  auto patchHash = this->patchHash;
-  if (!patchHash.has_value() || patchHash->empty()) {
+  auto optPatchHash = this->patchHash;
+  if (!optPatchHash.has_value() || optPatchHash->empty()) {
     return false;
   }
   auto archiveFileName = downloadWithFallback(
-      patchUrl.value(), patchHash.value(), this->patchFallbackUrl);
+      optPatchUrl.value(), optPatchHash.value(), this->patchFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
     return false;

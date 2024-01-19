@@ -2007,9 +2007,9 @@ afterVersionCheck:
   }
   if (node->method->id() == "subproject.get_variable" &&
       this->tree->state.used) {
-    std::vector<std::shared_ptr<Type>> types;
-    types.insert(types.end(), node->method->returnTypes.begin(),
-                 node->method->returnTypes.end());
+    std::vector<std::shared_ptr<Type>> newTypes;
+    newTypes.insert(newTypes.end(), node->method->returnTypes.begin(),
+                    node->method->returnTypes.end());
     const auto &values = ::guessGetVariableMethod(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
     for (const auto &objType : node->obj->types) {
@@ -2023,9 +2023,9 @@ afterVersionCheck:
           LOG.warn(std::format("Unable to find subproject {}", subprojName));
           continue;
         }
-        const auto &scope = subproj->tree->scope;
+        const auto &variables = subproj->tree->scope;
         for (const auto &varname : asSet) {
-          if (!scope.variables.contains(varname)) {
+          if (!variables.variables.contains(varname)) {
             LOG.warn(std::format("Unable to find variable {} in subproject {}",
                                  varname, subprojName));
             if (asSet.size() == 1 && subprojType->names.size() == 1) {
@@ -2038,12 +2038,12 @@ afterVersionCheck:
             }
             continue;
           }
-          const auto &varTypes = scope.variables.at(varname);
-          types.insert(types.end(), varTypes.begin(), varTypes.end());
+          const auto &varTypes = variables.variables.at(varname);
+          newTypes.insert(newTypes.end(), varTypes.begin(), varTypes.end());
         }
       }
     }
-    node->types = dedup(this->ns, types);
+    node->types = dedup(this->ns, newTypes);
   }
   this->checkCall(node);
   auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());

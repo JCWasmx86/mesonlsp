@@ -486,8 +486,8 @@ Workspace::clearDiagnostics() {
 
 std::optional<std::filesystem::path>
 Workspace::muonConfigFile(const std::filesystem::path &path) {
-  for (const auto &tree : this->foundTrees) {
-    const auto &treePath = tree->root;
+  for (const auto &subTree : this->foundTrees) {
+    const auto &treePath = subTree->root;
     if (std::filesystem::relative(path, treePath)
             .generic_string()
             .contains("..")) {
@@ -505,11 +505,11 @@ Workspace::muonConfigFile(const std::filesystem::path &path) {
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
   this->settingUp = true;
-  auto tree = std::make_shared<MesonTree>(this->root, ns);
-  tree->fullParse(this->options.analysisOptions,
-                  !this->options.neverDownloadAutomatically);
-  tree->identifier = this->name;
-  this->tree = tree;
+  auto newTree = std::make_shared<MesonTree>(this->root, ns);
+  newTree->fullParse(this->options.analysisOptions,
+                     !this->options.neverDownloadAutomatically);
+  newTree->identifier = this->name;
+  this->tree = newTree;
   this->foundTrees = findTrees(this->tree);
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
   for (const auto &subTree : this->foundTrees) {

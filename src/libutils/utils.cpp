@@ -142,7 +142,7 @@ bool extractFile(const std::filesystem::path &archivePath,
       archive_entry_set_hardlink(entry, newHardlink.c_str());
     }
 
-    if (auto res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
+    if (res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
       LOG.error(
           std::format("Failed writing header: {}", archive_error_string(ext)));
       goto cleanup;
@@ -156,7 +156,7 @@ bool extractFile(const std::filesystem::path &archivePath,
       }
     }
 
-    if (auto res = archive_write_finish_entry(ext); res < ARCHIVE_OK) {
+    if (res = archive_write_finish_entry(ext); res < ARCHIVE_OK) {
       LOG.error(
           std::format("Failed finishing entry: {}", archive_error_string(ext)));
       goto cleanup;
