@@ -1234,13 +1234,11 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
   if (givenTypes.empty()) {
     return true;
   }
-  if (dynamic_cast<Any *>(expectedType.get()) ||
-      dynamic_cast<Disabler *>(expectedType.get())) {
+  if (expectedType->name == "any" || expectedType->name == "disabler") {
     return true;
   }
   for /*NOLINT*/ (const auto &given : givenTypes) {
-    if (this->compatible(given, given) ||
-        (dynamic_cast<Any *>(given.get()) != nullptr)) {
+    if (this->compatible(given, given) || given->name == "any") {
       return true;
     }
   }
@@ -1251,12 +1249,10 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
     const std::vector<std::shared_ptr<Type>> &expectedTypes,
     const std::shared_ptr<Type> &givenType) {
   for /*NOLINT*/ (const auto &expected : expectedTypes) {
-    if (dynamic_cast<Any *>(expected.get()) ||
-        dynamic_cast<Disabler *>(expected.get())) {
+    if (expected->name == "any" || expected->name == "disabler") {
       return true;
     }
-    if (this->compatible(givenType, expected) ||
-        (dynamic_cast<Any *>(givenType.get()) != nullptr)) {
+    if (this->compatible(givenType, expected) || givenType->name == "any") {
       return true;
     }
   }
@@ -1270,8 +1266,7 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
     return true;
   }
   for (const auto &given : givenTypes) {
-    if (dynamic_cast<Any *>(given.get()) ||
-        dynamic_cast<Disabler *>(given.get())) {
+    if (given->name == "any" || given->name == "disabler") {
       return true;
     }
     if (this->atleastPartiallyCompatible(expectedTypes, given)) {
@@ -1564,25 +1559,38 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   if (!parent) {
     return false;
   }
-  const auto *fe = dynamic_cast<FunctionExpression *>(parent);
-  if (fe && fe->id->equals(node)) {
-    return true;
-  }
   const auto *me = dynamic_cast<MethodExpression *>(parent);
-  if (me && me->id->equals(node)) {
-    return true;
+  if (me) {
+    if (me->id->equals(node)) {
+      return true;
+    }
+    goto end;
   }
-  const auto *kwi = dynamic_cast<KeywordItem *>(parent);
-  if (kwi && kwi->key->equals(node)) {
-    return true;
+  {
+    const auto *kwi = dynamic_cast<KeywordItem *>(parent);
+    if (kwi) {
+      if (kwi->key->equals(node)) {
+        return true;
+      }
+      goto end;
+    }
+    const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+    if (ass) {
+      if (ass->lhs->equals(node)) {
+        return true;
+      }
+      goto end;
+    }
+    const auto *fe = dynamic_cast<FunctionExpression *>(parent);
+    // The only children of FunctionExpression are <ID>(<ARGS>)
+    if (fe) {
+      return true;
+    }
+    if (dynamic_cast<IterationStatement *>(parent)) {
+      return true;
+    }
   }
-  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
-  if (ass && ass->lhs->equals(node)) {
-    return true;
-  }
-  if (dynamic_cast<IterationStatement *>(parent)) {
-    return true;
-  }
+end:
   return std::ranges::find(this->ignoreUnknownIdentifier, node->id) !=
          this->ignoreUnknownIdentifier.end();
 }
@@ -1688,7 +1696,7 @@ void TypeAnalyzer::visitIntegerLiteral(IntegerLiteral *node) {
 
 void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
     IterationStatement *node) {
-  auto iterTypes = node->expression->types;
+  const auto &iterTypes = node->expression->types;
   std::vector<std::shared_ptr<Type>> res;
   auto errs = 0UL;
   auto foundDict = false;
@@ -2328,44 +2336,47 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   auto gotSubproject = false;
   for (const auto &type : types) {
     auto *asRaw = type.get();
-    if (dynamic_cast<Str *>(asRaw) != nullptr) {
+    if (asRaw->name == "str") {
       hasStr = true;
       continue;
     }
-    if (dynamic_cast<BoolType *>(asRaw) != nullptr) {
-      hasBool = true;
-      continue;
-    }
-    if (dynamic_cast<Any *>(asRaw) != nullptr) {
-      hasAny = true;
-      continue;
-    }
-    if (dynamic_cast<IntType *>(asRaw) != nullptr) {
-      hasInt = true;
-      continue;
-    }
-    auto *asDict = dynamic_cast<Dict *>(asRaw);
-    if (asDict != nullptr) {
-      dicttypes.insert(dicttypes.end(), asDict->types.begin(),
-                       asDict->types.end());
-      gotDict = true;
-      continue;
-    }
-    auto *asList = dynamic_cast<List *>(asRaw);
-    if (asList != nullptr) {
+    if (asRaw->name == "list") {
+      auto *asList = static_cast<List *>(asRaw);
       listtypes.insert(listtypes.end(), asList->types.begin(),
                        asList->types.end());
       gotList = true;
       continue;
     }
-    auto *asSubproject = dynamic_cast<Subproject *>(asRaw);
+    if (asRaw->name == "dict") {
+      auto *asDict = static_cast<Dict *>(asRaw);
+      dicttypes.insert(dicttypes.end(), asDict->types.begin(),
+                       asDict->types.end());
+      gotDict = true;
+      continue;
+    }
+    if (asRaw->name == "bool") {
+      hasBool = true;
+      continue;
+    }
+    if (asRaw->name == "any") {
+      hasAny = true;
+      continue;
+    }
+    if (asRaw->name == "int") {
+      hasInt = true;
+      continue;
+    }
+    if (type->name != "subproject") {
+      objs[type->name] = type;
+      continue;
+    }
+    auto *asSubproject = static_cast<Subproject *>(asRaw);
     if (asSubproject != nullptr) {
       subprojectNames.insert(asSubproject->names.begin(),
                              asSubproject->names.end());
       gotSubproject = true;
       continue;
     }
-    objs[type->name] = type;
   }
   std::vector<std::shared_ptr<Type>> ret;
   if ((!listtypes.empty()) || gotList) {
