@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <format>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
@@ -353,6 +354,13 @@ void TypeAnalyzer::evalAssignmentTypes(
     const std::shared_ptr<Type> &left, const std::shared_ptr<Type> &right,
     AssignmentOperator op, std::vector<std::shared_ptr<Type>> *newTypes) {
   switch (op) {
+  [[likely]] case PlusEquals: {
+    auto type = this->evalPlusEquals(left, right);
+    if (type.has_value()) {
+      newTypes->push_back(type.value());
+    }
+    break;
+  }
   case DivEquals:
     if (dynamic_cast<IntType *>(left.get()) &&
         dynamic_cast<IntType *>(right.get())) {
@@ -370,13 +378,6 @@ void TypeAnalyzer::evalAssignmentTypes(
       newTypes->push_back(this->ns.intType);
     }
     break;
-  case PlusEquals: {
-    auto type = this->evalPlusEquals(left, right);
-    if (type.has_value()) {
-      newTypes->push_back(type.value());
-    }
-    break;
-  }
   default:
     break;
   }
@@ -475,59 +476,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         continue;
       }
       switch (op) {
-      case And:
-      case Or:
-        if (sameType(lType, rType, "bool")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case Div:
-        if (sameType(lType, rType, "int")) {
-          newTypes.emplace_back(this->ns.intType);
-        } else if (sameType(lType, rType, "str")) {
-          newTypes.emplace_back(this->ns.strType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case EqualsEquals:
-      case NotEquals:
-        if (sameType(lType, rType, "int") || sameType(lType, rType, "str") ||
-            sameType(lType, rType, "bool") || sameType(lType, rType, "dict") ||
-            sameType(lType, rType, "list") ||
-            ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
-             lType->name == rType->name)) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case Ge:
-      case Gt:
-      case Le:
-      case Lt:
-        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case In:
-      case NotIn:
-        newTypes.emplace_back(this->ns.boolType);
-        break;
-      case Minus:
-      case Modulo:
-      case Mul:
-        if (sameType(lType, rType, "int")) {
-          newTypes.emplace_back(this->ns.intType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case Plus: {
+      [[likely]] case Plus: {
         if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
@@ -555,6 +504,58 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         ++*numErrors;
         break;
       }
+      [[likely]] case EqualsEquals:
+      case NotEquals:
+        if (sameType(lType, rType, "int") || sameType(lType, rType, "str") ||
+            sameType(lType, rType, "bool") || sameType(lType, rType, "dict") ||
+            sameType(lType, rType, "list") ||
+            ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
+             lType->name == rType->name)) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case And:
+      case Or:
+        if (sameType(lType, rType, "bool")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case Div:
+        if (sameType(lType, rType, "int")) {
+          newTypes.emplace_back(this->ns.intType);
+        } else if (sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.strType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case Ge:
+      case Gt:
+      case Le:
+      case Lt:
+        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
+          newTypes.emplace_back(this->ns.boolType);
+        } else {
+          ++*numErrors;
+        }
+        break;
+      case In:
+      case NotIn:
+        newTypes.emplace_back(this->ns.boolType);
+        break;
+      case Minus:
+      case Modulo:
+      case Mul:
+        if (sameType(lType, rType, "int")) {
+          newTypes.emplace_back(this->ns.intType);
+        } else {
+          ++*numErrors;
+        }
+        break;
       default:
         LOG.error("Whoops???");
         ++*numErrors;
@@ -2327,20 +2328,20 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   auto gotSubproject = false;
   for (const auto &type : types) {
     auto *asRaw = type.get();
-    if (dynamic_cast<Any *>(asRaw) != nullptr) {
-      hasAny = true;
+    if (dynamic_cast<Str *>(asRaw) != nullptr) {
+      hasStr = true;
       continue;
     }
     if (dynamic_cast<BoolType *>(asRaw) != nullptr) {
       hasBool = true;
       continue;
     }
-    if (dynamic_cast<IntType *>(asRaw) != nullptr) {
-      hasInt = true;
+    if (dynamic_cast<Any *>(asRaw) != nullptr) {
+      hasAny = true;
       continue;
     }
-    if (dynamic_cast<Str *>(asRaw) != nullptr) {
-      hasStr = true;
+    if (dynamic_cast<IntType *>(asRaw) != nullptr) {
+      hasInt = true;
       continue;
     }
     auto *asDict = dynamic_cast<Dict *>(asRaw);
