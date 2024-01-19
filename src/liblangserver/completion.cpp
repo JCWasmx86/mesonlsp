@@ -35,6 +35,10 @@ static std::string createTextForFunction(const std::shared_ptr<Function> &func);
 static void
 specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
                                    std::vector<CompletionItem> &ret);
+static void inCallCompletion(const ArgumentList *al,
+                             const std::shared_ptr<Function> &func,
+                             std::vector<CompletionItem> &ret,
+                             const LSPPosition &position);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
@@ -198,25 +202,7 @@ next:
       goto attempt2;
     }
     const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-    std::set<std::string> unusedKwargs;
-    for (const auto &kwarg : callOpt.value()->method->kwargs) {
-      unusedKwargs.insert(kwarg.first);
-    }
-    for (const auto &arg : al->args) {
-      const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
-      if (!kwarg || !kwarg->name.has_value()) {
-        continue;
-      }
-      const auto &val = kwarg->name.value();
-      if (unusedKwargs.contains(val)) {
-        unusedKwargs.erase(val);
-      }
-    }
-    for (const auto &toAdd : unusedKwargs) {
-      ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
-                       TextEdit(LSPRange(position, position),
-                                std::format("{}: ${{1:{}}}", toAdd, toAdd)));
-    }
+    inCallCompletion(al, callOpt.value()->method, ret, position);
   }
 attempt2:
   if (inCall) {
@@ -230,25 +216,7 @@ attempt2:
       goto slSpecial;
     }
     const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-    std::set<std::string> unusedKwargs;
-    for (const auto &kwarg : callOpt.value()->function->kwargs) {
-      unusedKwargs.insert(kwarg.first);
-    }
-    for (const auto &arg : al->args) {
-      const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
-      if (!kwarg || !kwarg->name.has_value()) {
-        continue;
-      }
-      const auto &val = kwarg->name.value();
-      if (unusedKwargs.contains(val)) {
-        unusedKwargs.erase(val);
-      }
-    }
-    for (const auto &toAdd : unusedKwargs) {
-      ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
-                       TextEdit(LSPRange(position, position),
-                                std::format("{}: ${{1:{}}}", toAdd, toAdd)));
-    }
+    inCallCompletion(al, callOpt.value()->function, ret, position);
   }
 slSpecial:
   auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
@@ -438,5 +406,30 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
   auto *me = dynamic_cast<MethodExpression *>(al->parent);
   if (!me || !me->method) {
     return;
+  }
+}
+
+static void inCallCompletion(const ArgumentList *al,
+                             const std::shared_ptr<Function> &func,
+                             std::vector<CompletionItem> &ret,
+                             const LSPPosition &position) {
+  std::set<std::string> unusedKwargs;
+  for (const auto &kwarg : func->kwargs) {
+    unusedKwargs.insert(kwarg.first);
+  }
+  for (const auto &arg : al->args) {
+    const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
+    if (!kwarg || !kwarg->name.has_value()) {
+      continue;
+    }
+    const auto &val = kwarg->name.value();
+    if (unusedKwargs.contains(val)) {
+      unusedKwargs.erase(val);
+    }
+  }
+  for (const auto &toAdd : unusedKwargs) {
+    ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+                     TextEdit(LSPRange(position, position),
+                              std::format("{}: ${{1:{}}}", toAdd, toAdd)));
   }
 }
