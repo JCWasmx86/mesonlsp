@@ -14,10 +14,10 @@ public:
 
   std::optional<std::string>
   findVariableOfType(const std::shared_ptr<Type> &expected) const {
-    for (const auto &pair : this->variables) {
-      for (const auto &type : pair.second) {
+    for (const auto &[name, types] : this->variables) {
+      for (const auto &type : types) {
         if (type->toString() == expected->toString()) {
-          return pair.first;
+          return name;
         }
       }
     }

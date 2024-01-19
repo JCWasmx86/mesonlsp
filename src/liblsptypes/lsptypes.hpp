@@ -580,13 +580,13 @@ public:
 
   nlohmann::json toJson() const {
     nlohmann::json ret;
-    for (const auto &pair : changes) {
+    for (const auto &[path, edits] : changes) {
       std::vector<nlohmann::json> vec;
-      vec.reserve(pair.second.size());
-      for (const auto &edit : pair.second) {
+      vec.reserve(edits.size());
+      for (const auto &edit : edits) {
         vec.push_back(edit.toJson());
       }
-      ret[pair.first] = vec;
+      ret[path] = vec;
     }
     return {{"changes", ret}};
   }

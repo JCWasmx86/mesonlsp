@@ -151,8 +151,8 @@ next:
         goto insertFns;
       }
       std::set<std::string> unusedKwargs;
-      for (const auto &kwarg : func->kwargs) {
-        unusedKwargs.insert(kwarg.first);
+      for (const auto &[kwargName, _] : func->kwargs) {
+        unusedKwargs.insert(kwargName);
       }
       for (const auto &arg : al->args) {
         const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
@@ -171,19 +171,19 @@ next:
       }
     }
   insertFns:
-    for (const auto &function : tree->ns.functions) {
-      auto lowerName = lowercase(function.first);
+    for (const auto &[funcName, funcRef] : tree->ns.functions) {
+      auto lowerName = lowercase(funcName);
       if (lowerName.contains(loweredId)) {
-        ret.emplace_back(function.first + "()", CompletionItemKind::CIKFunction,
-                         TextEdit(nodeToRange(idExpr),
-                                  createTextForFunction(function.second)));
+        ret.emplace_back(
+            funcName + "()", CompletionItemKind::CIKFunction,
+            TextEdit(nodeToRange(idExpr), createTextForFunction(funcRef)));
       }
     }
   } else if (prev.empty()) {
-    for (const auto &function : tree->ns.functions) {
-      ret.emplace_back(function.first + "()", CompletionItemKind::CIKFunction,
+    for (const auto &[funcName, funcRef] : tree->ns.functions) {
+      ret.emplace_back(funcName + "()", CompletionItemKind::CIKFunction,
                        TextEdit(LSPRange(position, position),
-                                createTextForFunction(function.second)));
+                                createTextForFunction(funcRef)));
     }
   }
   auto /*explicit copy*/ trimmedPrev = prev;
@@ -414,8 +414,8 @@ static void inCallCompletion(const ArgumentList *al,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position) {
   std::set<std::string> unusedKwargs;
-  for (const auto &kwarg : func->kwargs) {
-    unusedKwargs.insert(kwarg.first);
+  for (const auto &[kwargName, _] : func->kwargs) {
+    unusedKwargs.insert(kwargName);
   }
   for (const auto &arg : al->args) {
     const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());

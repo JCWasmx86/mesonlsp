@@ -2173,7 +2173,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   // If: 1 c, 1 b
   // If,else if: 2c, 2b
   // if, else if, else, 2c, 3b
-  for (const auto &pair : types) {
+  for (const auto &[key, keyTypes] : types) {
     // This leaks some overwritten types. This can't be solved
     // without costly static analysis
     // x = 'Foo'
@@ -2183,11 +2183,10 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     //   x = true
     // endif
     // x is now str|int|bool instead of int|bool
-    const auto &key = pair.first;
     auto arr = this->scope.variables.contains(key)
                    ? this->scope.variables[key]
                    : std::vector<std::shared_ptr<Type>>{};
-    arr.insert(arr.end(), pair.second.begin(), pair.second.end());
+    arr.insert(arr.end(), keyTypes.begin(), keyTypes.end());
     if (changed.contains(key)) {
       const auto &oldTypes = changed.at(key);
       arr.insert(arr.end(), oldTypes.begin(), oldTypes.end());
@@ -2388,8 +2387,8 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   if (hasStr) {
     ret.emplace_back(ns.strType);
   }
-  for (const auto &obj : objs) {
-    ret.emplace_back(obj.second);
+  for (const auto &[_, typeRef] : objs) {
+    ret.emplace_back(typeRef);
   }
   return ret;
 }
