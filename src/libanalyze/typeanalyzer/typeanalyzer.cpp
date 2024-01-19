@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <filesystem>
 #include <format>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
@@ -316,13 +315,6 @@ void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
 std::optional<std::shared_ptr<Type>>
 TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
                              const std::shared_ptr<Type> &right) {
-  if (dynamic_cast<IntType *>(left.get()) &&
-      dynamic_cast<IntType *>(right.get())) {
-    return this->ns.intType;
-  }
-  if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
-    return this->ns.strType;
-  }
   const auto *listL = dynamic_cast<List *>(left.get());
   if (listL) {
     const auto *listR = dynamic_cast<List *>(right.get());
@@ -346,6 +338,13 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
       newTypes.emplace_back(right);
     }
     return std::make_shared<Dict>(dedup(this->ns, newTypes));
+  }
+  if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
+    return this->ns.strType;
+  }
+  if (dynamic_cast<IntType *>(left.get()) &&
+      dynamic_cast<IntType *>(right.get())) {
+    return this->ns.intType;
   }
   return std::nullopt;
 }
@@ -477,7 +476,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       }
       switch (op) {
       [[likely]] case Plus: {
-        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
+        if (sameType(lType, rType, "str") || sameType(lType, rType, "int")) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
@@ -506,7 +505,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       }
       [[likely]] case EqualsEquals:
       case NotEquals:
-        if (sameType(lType, rType, "int") || sameType(lType, rType, "str") ||
+        if (sameType(lType, rType, "str") || sameType(lType, rType, "int") ||
             sameType(lType, rType, "bool") || sameType(lType, rType, "dict") ||
             sameType(lType, rType, "list") ||
             ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
@@ -883,28 +882,6 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                                         const std::shared_ptr<Function> &func) {
   const auto &name = func->name;
-  if (name == "subproject") {
-    const auto &values = ::guessSetVariable(node, this->options);
-    if (values.empty()) {
-      return;
-    }
-    std::set<std::string> asSet{values.begin(), values.end()};
-    node->types = {std::make_shared<Subproject>(
-        std::vector<std::string>{asSet.begin(), asSet.end()})};
-    LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
-    if (!this->tree->state.used || asSet.size() > 1) {
-      return;
-    }
-    auto &subprojState = this->tree->state;
-    if (subprojState.hasSubproject(*asSet.begin())) {
-      return;
-    }
-    this->metadata->registerDiagnostic(
-        node,
-        Diagnostic(Severity::ERROR, node,
-                   std::format("Unknown subproject `{}`", *asSet.begin())));
-    return;
-  }
   if (name == "get_option") {
     const auto &values = ::guessSetVariable(node, this->options);
     std::set<std::string> const asSet{values.begin(), values.end()};
@@ -930,10 +907,6 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
         types.emplace_back(this->ns.strType);
         continue;
       }
-      if (dynamic_cast<IntOption *>(opt.get())) {
-        types.emplace_back(this->ns.intType);
-        continue;
-      }
       if (dynamic_cast<BoolOption *>(opt.get())) {
         types.emplace_back(this->ns.boolType);
         continue;
@@ -947,30 +920,9 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
             std::vector<std::shared_ptr<Type>>{this->ns.strType}));
         continue;
       }
-    }
-    if (types.empty()) {
-      node->types = func->returnTypes;
-    } else {
-      node->types = dedup(this->ns, types);
-    }
-    return;
-  }
-  if (name == "build_target") {
-    const auto &values = ::guessSetVariable(node, "target_type", this->options);
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    std::vector<std::shared_ptr<Type>> types;
-    for (const auto &tgtType : asSet) {
-      if (tgtType == "executable") {
-        types.emplace_back(this->ns.types.at("exe"));
-      } else if (tgtType == "shared_library" || tgtType == "static_library" ||
-                 tgtType == "library") {
-        types.emplace_back(this->ns.types.at("lib"));
-      } else if (tgtType == "shared_module") {
-        types.emplace_back(this->ns.types.at("build_tgt"));
-      } else if (tgtType == "both_libraries") {
-        types.emplace_back(this->ns.types.at("both_libs"));
-      } else if (tgtType == "jar") {
-        types.emplace_back(this->ns.types.at("jar"));
+      if (dynamic_cast<IntOption *>(opt.get())) {
+        types.emplace_back(this->ns.intType);
+        continue;
       }
     }
     if (!types.empty()) {
@@ -985,36 +937,40 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     std::set<std::string> const asSet{values.begin(), values.end()};
     std::vector<std::shared_ptr<Type>> types;
     for (const auto &modname : asSet) {
-      if (modname == "cmake") {
-        types.emplace_back(this->ns.types.at("cmake_module"));
-        continue;
-      }
-      if (modname == "fs") {
-        types.emplace_back(this->ns.types.at("fs_module"));
+      if (modname == "pkgconfig") {
+        types.emplace_back(this->ns.types.at("pkgconfig_module"));
         continue;
       }
       if (modname == "gnome") {
         types.emplace_back(this->ns.types.at("gnome_module"));
         continue;
       }
+      if (modname == "python") {
+        types.emplace_back(this->ns.types.at("python_module"));
+        continue;
+      }
+      if (modname == "windows") {
+        types.emplace_back(this->ns.types.at("windows_module"));
+        continue;
+      }
       if (modname == "i18n") {
         types.emplace_back(this->ns.types.at("i18n_module"));
+        continue;
+      }
+      if (modname == "fs") {
+        types.emplace_back(this->ns.types.at("fs_module"));
+        continue;
+      }
+      if (modname == "cmake") {
+        types.emplace_back(this->ns.types.at("cmake_module"));
         continue;
       }
       if (modname == "rust" || modname == "unstable-rust") {
         types.emplace_back(this->ns.types.at("rust_module"));
         continue;
       }
-      if (modname == "python") {
-        types.emplace_back(this->ns.types.at("python_module"));
-        continue;
-      }
       if (modname == "python3") {
         types.emplace_back(this->ns.types.at("python3_module"));
-        continue;
-      }
-      if (modname == "pkgconfig") {
-        types.emplace_back(this->ns.types.at("pkgconfig_module"));
         continue;
       }
       if (modname == "keyval" || modname == "unstable-keyval") {
@@ -1036,10 +992,6 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
       }
       if (modname == "java") {
         types.emplace_back(this->ns.types.at("java_module"));
-        continue;
-      }
-      if (modname == "windows") {
-        types.emplace_back(this->ns.types.at("windows_module"));
         continue;
       }
       if (modname == "unstable-cuda" || modname == "cuda") {
@@ -1080,6 +1032,53 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                            std::format("Unknown module `{}`", modname)));
     }
     node->types = dedup(this->ns, types);
+    return;
+  }
+  if (name == "subproject") {
+    const auto &values = ::guessSetVariable(node, this->options);
+    if (values.empty()) {
+      return;
+    }
+    std::set<std::string> asSet{values.begin(), values.end()};
+    node->types = {std::make_shared<Subproject>(
+        std::vector<std::string>{asSet.begin(), asSet.end()})};
+    LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
+    if (!this->tree->state.used || asSet.size() > 1) {
+      return;
+    }
+    auto &subprojState = this->tree->state;
+    if (subprojState.hasSubproject(*asSet.begin())) {
+      return;
+    }
+    this->metadata->registerDiagnostic(
+        node,
+        Diagnostic(Severity::ERROR, node,
+                   std::format("Unknown subproject `{}`", *asSet.begin())));
+    return;
+  }
+  if (name == "build_target") {
+    const auto &values = ::guessSetVariable(node, "target_type", this->options);
+    std::set<std::string> const asSet{values.begin(), values.end()};
+    std::vector<std::shared_ptr<Type>> types;
+    for (const auto &tgtType : asSet) {
+      if (tgtType == "executable") {
+        types.emplace_back(this->ns.types.at("exe"));
+      } else if (tgtType == "shared_library" || tgtType == "static_library" ||
+                 tgtType == "library") {
+        types.emplace_back(this->ns.types.at("lib"));
+      } else if (tgtType == "shared_module") {
+        types.emplace_back(this->ns.types.at("build_tgt"));
+      } else if (tgtType == "both_libraries") {
+        types.emplace_back(this->ns.types.at("both_libs"));
+      } else if (tgtType == "jar") {
+        types.emplace_back(this->ns.types.at("jar"));
+      }
+    }
+    if (!types.empty()) {
+      node->types = dedup(this->ns, types);
+    } else {
+      node->types = func->returnTypes;
+    }
     return;
   }
   if (name == "get_variable") {
@@ -1600,21 +1599,11 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
   if (!parent) {
     return true;
   }
-  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
-  if (ass) {
-    const auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
-    if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
-        ass->op == AssignmentOperator::Equals) {
+  const auto *me = dynamic_cast<MethodExpression *>(parent);
+  if (me) {
+    const auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
+    if (idexpr && idexpr->id == idExpr->id) {
       return true;
-    }
-  }
-  const auto *its = dynamic_cast<IterationStatement *>(parent);
-  if (its) {
-    for (const auto &itsId : its->ids) {
-      const auto *idexpr = dynamic_cast<IdExpression *>(itsId.get());
-      if (idexpr && idexpr->id == idExpr->id) {
-        return true;
-      }
     }
   }
   const auto *kwi = dynamic_cast<KeywordItem *>(parent);
@@ -1624,17 +1613,11 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
       return true;
     }
   }
-  const auto *fe = dynamic_cast<FunctionExpression *>(parent);
-  if (fe) {
-    const auto *idexpr = dynamic_cast<IdExpression *>(fe->id.get());
-    if (idexpr && idexpr->id == idExpr->id) {
-      return true;
-    }
-  }
-  const auto *me = dynamic_cast<MethodExpression *>(parent);
-  if (me) {
-    const auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
-    if (idexpr && idexpr->id == idExpr->id) {
+  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+  if (ass) {
+    const auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
+    if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
+        ass->op == AssignmentOperator::Equals) {
       return true;
     }
   }

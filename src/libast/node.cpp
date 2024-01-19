@@ -828,8 +828,28 @@ void UnaryExpression::visit(CodeVisitor *visitor) {
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
                                const TSNode &node) {
   const auto &symbol = ts_node_symbol(node);
+  if (symbol == sym_expression && ts_node_named_child_count(node) == 1) {
+    return makeNode(file, ts_node_named_child(node, 0));
+  }
+  if (symbol == sym_string_literal) {
+    return std::make_shared<StringLiteral>(file, node);
+  }
+  if (symbol == sym_id_expression || symbol == sym_function_id ||
+      symbol == sym_keyword_arg_key) {
+    return std::make_shared<IdExpression>(file, node);
+  }
+  if (symbol == sym_primary_expression &&
+      ts_node_named_child_count(node) == 1) {
+    return makeNode(file, ts_node_named_child(node, 0));
+  }
   if (symbol == sym_argument_list) {
     return std::make_shared<ArgumentList>(file, node);
+  }
+  if (symbol == sym_keyword_item) {
+    return std::make_shared<KeywordItem>(file, node);
+  }
+  if (symbol == sym_method_expression) {
+    return std::make_shared<MethodExpression>(file, node);
   }
   if (symbol == sym_array_literal) {
     return std::make_shared<ArrayLiteral>(file, node);
@@ -852,10 +872,6 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
   if (symbol == sym_function_expression) {
     return std::make_shared<FunctionExpression>(file, node);
   }
-  if (symbol == sym_id_expression || symbol == sym_function_id ||
-      symbol == sym_keyword_arg_key) {
-    return std::make_shared<IdExpression>(file, node);
-  }
   if (symbol == sym_integer_literal) {
     return std::make_shared<IntegerLiteral>(file, node);
   }
@@ -865,17 +881,8 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
   if (symbol == sym_key_value_item) {
     return std::make_shared<KeyValueItem>(file, node);
   }
-  if (symbol == sym_keyword_item) {
-    return std::make_shared<KeywordItem>(file, node);
-  }
-  if (symbol == sym_method_expression) {
-    return std::make_shared<MethodExpression>(file, node);
-  }
   if (symbol == sym_selection_statement) {
     return std::make_shared<SelectionStatement>(file, node);
-  }
-  if (symbol == sym_string_literal) {
-    return std::make_shared<StringLiteral>(file, node);
   }
   if (symbol == sym_subscript_expression) {
     return std::make_shared<SubscriptExpression>(file, node);
@@ -893,14 +900,7 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
   if (symbol == sym_statement && ts_node_named_child_count(node) == 1) {
     return makeNode(file, ts_node_named_child(node, 0));
   }
-  if (symbol == sym_expression && ts_node_named_child_count(node) == 1) {
-    return makeNode(file, ts_node_named_child(node, 0));
-  }
   if (symbol == sym_condition && ts_node_named_child_count(node) == 1) {
-    return makeNode(file, ts_node_named_child(node, 0));
-  }
-  if (symbol == sym_primary_expression &&
-      ts_node_named_child_count(node) == 1) {
     return makeNode(file, ts_node_named_child(node, 0));
   }
   if (symbol == sym_statement && ts_node_named_child_count(node) == 1) {
