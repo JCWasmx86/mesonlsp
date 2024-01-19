@@ -811,6 +811,7 @@ void TypeAnalyzer::checkUnusedVariables() {
 }
 
 void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
+  this->metadata->beginIdentifiers();
   this->variablesNeedingUse.emplace_back();
   this->sourceFileStack.push_back(node->file->file);
   this->tree->ownedFiles.insert(node->file->file);
@@ -819,6 +820,7 @@ void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
   this->checkDeadNodes(node);
   this->checkUnusedVariables();
   this->sourceFileStack.pop_back();
+  this->metadata->endIdentifiers(node->file->file);
 }
 
 void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {

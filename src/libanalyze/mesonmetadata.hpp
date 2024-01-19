@@ -127,6 +127,12 @@ public:
   std::vector<IdExpression *> encounteredIds;
   std::map<std::string, std::tuple<std::filesystem::path, uint32_t, uint32_t>>
       options;
+  std::vector<std::vector<IdExpression *>> idExprs;
+  std::vector<std::vector<StringLiteral *>> tempStringLiterals;
+  std::vector<std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>>>
+      tempKwargs;
+
+  MesonMetadata() { this->encounteredIds.reserve(1024); }
 
   void registerDiagnostic(const Node *node, const Diagnostic &diag) {
     const auto &key = node->file->file;
@@ -149,28 +155,37 @@ public:
         std::make_tuple(literal->file->file, literal->location.startLine,
                         literal->location.startColumn);
   }
+
+  void registerStringLiteral(StringLiteral *node) {
+    this->tempStringLiterals.back().push_back(node);
+  }
+
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
-  REGISTER(registerStringLiteral, stringLiterals, StringLiteral)
   REGISTER(registerMethodCall, methodCalls, MethodExpression)
   REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
 
+  void beginIdentifiers() {
+    this->idExprs.emplace_back();
+    this->tempStringLiterals.emplace_back();
+    this->tempKwargs.emplace_back();
+  }
+
   void registerIdentifier(IdExpression *node) {
-    const auto &key = node->file->file;
-    if (this->identifiers.contains(key)) {
-      this->identifiers[key].push_back(node);
-    } else {
-      this->identifiers[key] = {node};
-    }
+    this->idExprs.back().push_back(node);
     this->encounteredIds.push_back(node);
   }
 
+  void endIdentifiers(const std::filesystem::path &path) {
+    this->identifiers[path] = this->idExprs.back();
+    this->idExprs.pop_back();
+    this->stringLiterals[path] = this->tempStringLiterals.back();
+    this->tempStringLiterals.pop_back();
+    this->kwargs[path] = this->tempKwargs.back();
+    this->tempKwargs.pop_back();
+  }
+
   void registerKwarg(KeywordItem *item, const std::shared_ptr<Function> &func) {
-    const auto &key = item->file->file;
-    if (this->kwargs.contains(key)) {
-      this->kwargs[key].emplace_back(item, func);
-    } else {
-      this->kwargs[key] = {std::make_tuple(item, func)};
-    }
+    this->tempKwargs.back().emplace_back(item, func);
   }
 
   FIND(MethodExpression, methodCalls)
