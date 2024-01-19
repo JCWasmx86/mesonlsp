@@ -45,15 +45,15 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   return OptionState{visitor.options};
 }
 
-OptionState MesonTree::parseOptions(const std::filesystem::path &root,
+OptionState MesonTree::parseOptions(const std::filesystem::path &treeRoot,
                                     MesonMetadata *originalMetadata) {
-  const auto &modernOptionsFile = root / "meson.options";
+  const auto &modernOptionsFile = treeRoot / "meson.options";
   if (std::filesystem::exists(modernOptionsFile) &&
       std::filesystem::is_regular_file(modernOptionsFile)) {
     this->ownedFiles.insert(modernOptionsFile);
     return this->parseFile(modernOptionsFile, originalMetadata);
   }
-  const auto &legacyOptionsFile = root / "meson_options.txt";
+  const auto &legacyOptionsFile = treeRoot / "meson_options.txt";
   if (std::filesystem::exists(legacyOptionsFile) &&
       std::filesystem::is_regular_file(legacyOptionsFile)) {
     this->ownedFiles.insert(legacyOptionsFile);
