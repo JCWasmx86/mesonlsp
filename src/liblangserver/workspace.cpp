@@ -262,10 +262,9 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         if (!metadata->options.contains(nameSl->id)) {
           goto nextIf;
         }
-        auto &tuple = metadata->options[nameSl->id];
-        LSPPosition pos{std::get<1>(tuple), std::get<2>(tuple)};
+        auto &[optionsPath, line, character] = metadata->options[nameSl->id];
+        LSPPosition pos{line, character};
         LSPRange range{pos, pos};
-        const std::filesystem::path &optionsPath = std::get<0>(tuple);
         this->smph.release();
         return {{pathToUrl(optionsPath), range}};
       }
@@ -317,10 +316,10 @@ Workspace::rename(const std::filesystem::path &path,
     const auto *toRename = toRenameOpt.value();
     WorkspaceEdit ret;
     auto foundOurself = false;
-    for (const auto &pair : metadata.identifiers) {
-      auto url = pathToUrl(pair.first);
+    for (const auto &[identifierPath, identifiers] : metadata.identifiers) {
+      auto url = pathToUrl(identifierPath);
       ret.changes[url] = {};
-      for (const auto *identifier : pair.second) {
+      for (const auto *identifier : identifiers) {
         if (identifier->id != toRename->id) {
           continue;
         }
@@ -411,8 +410,8 @@ void Workspace::patchFile(
     const auto /*Copy explicitly, as subtree is not valid anymore after
                   parsing*/
         identifier = subTree->identifier;
-    for (const auto &pair : subTree->metadata.diagnostics) {
-      oldDiags.insert(pair.first);
+    for (const auto &[diagPath, _] : subTree->metadata.diagnostics) {
+      oldDiags.insert(diagPath);
     }
     subTree->clear();
     subTree->overrides[path] = contents;
@@ -440,12 +439,12 @@ void Workspace::patchFile(
       }
 
       const auto &metadata = subTree->metadata;
-      for (const auto &pair : metadata.diagnostics) {
-        if (!ret.contains(pair.first)) {
-          ret[pair.first] = {};
+      for (const auto &[diagPath, diags] : metadata.diagnostics) {
+        if (!ret.contains(diagPath)) {
+          ret[diagPath] = {};
         }
-        for (const auto &diag : pair.second) {
-          ret[pair.first].push_back(makeLSPDiagnostic(diag));
+        for (const auto &diag : diags) {
+          ret[diagPath].push_back(makeLSPDiagnostic(diag));
         }
       }
       for (const auto &oldDiag : oldDiags) {
@@ -475,9 +474,9 @@ Workspace::clearDiagnostics() {
 
   for (const auto &subTree : this->foundTrees) {
     const auto &metadata = subTree->metadata;
-    for (const auto &pair : metadata.diagnostics) {
-      if (!ret.contains(pair.first)) {
-        ret[pair.first] = {};
+    for (const auto &[diagPath, _] : metadata.diagnostics) {
+      if (!ret.contains(diagPath)) {
+        ret[diagPath] = {};
       }
     }
   }
@@ -525,12 +524,12 @@ Workspace::parse(const TypeNamespace &ns) {
         continue;
       }
     }
-    for (const auto &pair : metadata.diagnostics) {
-      if (!ret.contains(pair.first)) {
-        ret[pair.first] = {};
+    for (const auto &[diagPath, diags] : metadata.diagnostics) {
+      if (!ret.contains(diagPath)) {
+        ret[diagPath] = {};
       }
-      for (const auto &diag : pair.second) {
-        ret[pair.first].push_back(makeLSPDiagnostic(diag));
+      for (const auto &diag : diags) {
+        ret[diagPath].push_back(makeLSPDiagnostic(diag));
       }
     }
   }

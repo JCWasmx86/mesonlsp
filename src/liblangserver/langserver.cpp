@@ -350,15 +350,15 @@ LanguageServer::completion(CompletionParams &params) {
 void LanguageServer::publishDiagnostics(
     const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
         &newDiags) {
-  for (const auto &pair : newDiags) {
-    const auto &asURI = pathToUrl(pair.first);
+  for (const auto &[filePath, diags] : newDiags) {
+    const auto &asURI = pathToUrl(filePath);
     const auto &clearingParams = PublishDiagnosticsParams(asURI, {});
     this->server->notification("textDocument/publishDiagnostics",
                                clearingParams.toJson());
-    const auto &newParams = PublishDiagnosticsParams(asURI, pair.second);
+    const auto &newParams = PublishDiagnosticsParams(asURI, diags);
     this->server->notification("textDocument/publishDiagnostics",
                                newParams.toJson());
-    LOG.info(std::format("Publishing {} diagnostics for {}", pair.second.size(),
-                         pair.first.generic_string()));
+    LOG.info(std::format("Publishing {} diagnostics for {}", diags.size(),
+                         filePath.generic_string()));
   }
 }

@@ -47,8 +47,8 @@ public:
 
   std::optional<const std::shared_ptr<Method>>
   lookupMethod(const std::string &name) const {
-    for (const auto &vtable : this->vtables) {
-      for (const auto &method : vtable.second) {
+    for (const auto &[_, methods] : this->vtables) {
+      for (const auto &method : methods) {
         if (method->name == name) {
           return method;
         }
