@@ -20,7 +20,8 @@ extra_flags = [
     '-fstack-clash-protection',
     '-fcf-protection',
     '-g3',
-    '-frecord-gcc-switches'
+    '-frecord-gcc-switches',
+    '-Wshadow=local'
 ]
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
