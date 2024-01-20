@@ -2,3 +2,6 @@ ignore:
   - "_build"
   - "subprojects"
   - "tests"
+comment:
+  layout: "diff, flags, files"
+  behavior: default
