@@ -4,4 +4,4 @@ ignore:
   - "tests"
 comment:
   layout: "diff, flags, files"
-  behavior: new
+  behavior: default
