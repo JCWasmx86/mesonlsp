@@ -1236,26 +1236,22 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
   if (expectedType->name == "any" || expectedType->name == "disabler") {
     return true;
   }
-  for /*NOLINT*/ (const auto &given : givenTypes) {
-    if (this->compatible(given, given) || given->name == "any") {
-      return true;
-    }
-  }
-  return false;
+  return std::ranges::any_of(
+      givenTypes, [&expectedType, this](const auto &given) {
+        return this->compatible(given, expectedType) || given->name == "any";
+      });
 }
 
 bool TypeAnalyzer::atleastPartiallyCompatible(
     const std::vector<std::shared_ptr<Type>> &expectedTypes,
     const std::shared_ptr<Type> &givenType) {
-  for /*NOLINT*/ (const auto &expected : expectedTypes) {
+  return std::ranges::any_of(expectedTypes, [this,
+                                             &givenType](const auto &expected) {
     if (expected->name == "any" || expected->name == "disabler") {
       return true;
     }
-    if (this->compatible(givenType, expected) || givenType->name == "any") {
-      return true;
-    }
-  }
-  return false;
+    return this->compatible(givenType, expected) || givenType->name == "any";
+  });
 }
 
 bool TypeAnalyzer::atleastPartiallyCompatible(
@@ -1264,15 +1260,13 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
   if (givenTypes.empty()) {
     return true;
   }
-  for (const auto &given : givenTypes) {
-    if (given->name == "any" || given->name == "disabler") {
-      return true;
-    }
-    if (this->atleastPartiallyCompatible(expectedTypes, given)) {
-      return true;
-    }
-  }
-  return false;
+  return std::ranges::any_of(
+      givenTypes, [&expectedTypes, this](const auto &given) {
+        if (given->name == "any" || given->name == "disabler") {
+          return true;
+        }
+        return this->atleastPartiallyCompatible(expectedTypes, given);
+      });
 }
 
 void TypeAnalyzer::checkTypes(
