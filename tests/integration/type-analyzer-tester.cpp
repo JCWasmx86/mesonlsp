@@ -15,7 +15,7 @@
 #include <system_error>
 
 int main(int argc, char **argv) {
-  Logger logger("type-analyzer-tester");
+  Logger const logger("type-analyzer-tester");
   std::filesystem::path const toParse = argv[1];
   std::map<std::string, std::string> haveToExist;
   std::optional<std::filesystem::path> optionsFile;

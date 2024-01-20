@@ -20,6 +20,7 @@
 #include <optional>
 #include <ostream>
 #include <pkgconf/libpkgconf/libpkgconf.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 extern "C" {

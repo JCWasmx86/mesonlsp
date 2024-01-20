@@ -3,7 +3,6 @@
 #include "utils.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <format>
 #include <memory>
 #include <optional>

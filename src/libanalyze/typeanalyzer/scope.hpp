@@ -12,7 +12,7 @@ class Scope {
 public:
   std::map<std::string, std::vector<std::shared_ptr<Type>>> variables;
 
-  std::optional<std::string>
+  [[nodiscard]] std::optional<std::string>
   findVariableOfType(const std::shared_ptr<Type> &expected) const {
     for (const auto &[name, types] : this->variables) {
       for (const auto &type : types) {

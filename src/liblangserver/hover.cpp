@@ -41,7 +41,7 @@ Hover makeHoverForFunctionExpression(FunctionExpression *fe,
       ret += "\n**Deprecated**\n";
     }
     if (corrOption->description.has_value()) {
-      ret += corrOption->description.value() + "\n";
+      ret += /*NOLINT*/ corrOption->description.value() + "\n";
     }
     if (auto *arrayOption = dynamic_cast<ArrayOption *>(corrOption.get())) {
       ret +=

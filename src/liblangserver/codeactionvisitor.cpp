@@ -191,8 +191,8 @@ void CodeActionVisitor::makeCopyFileAction(const Node *node) {
   if (!args || !this->expectedArgsForCopyFile(args)) {
     return;
   }
-  auto input = args->getKwarg("input").value();
-  auto output = args->getKwarg("output").value();
+  auto input = /*NOLINT*/ args->getKwarg("input").value();
+  auto output = /*NOLINT*/ args->getKwarg("output").value();
   auto str = input->file->extractNodeValue(input->location) + ",\n" +
              output->file->extractNodeValue(output->location) + ",\n";
   for (const auto &kwargName : std::vector<std::string>{

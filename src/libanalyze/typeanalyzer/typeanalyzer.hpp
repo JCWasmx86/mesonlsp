@@ -118,7 +118,7 @@ private:
   void registerUsed(const std::string &varname);
   std::vector<std::shared_ptr<Type>> evalStack(const std::string &name);
   bool ignoreIdExpression(IdExpression *node);
-  bool isKnownId(IdExpression *idExpr);
+  bool isKnownId(IdExpression *idExpr) const;
   bool guessMethod(MethodExpression *node, const std::string &methodName,
                    std::vector<std::shared_ptr<Type>> &ownResultTypes);
   bool findMethod(MethodExpression *node, const std::string &methodName,

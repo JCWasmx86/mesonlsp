@@ -2,6 +2,7 @@
 
 #include "lsptypes.hpp"
 #include "mesonmetadata.hpp"
+#include "node.hpp"
 
 #include <ada.h>
 #include <cassert>
