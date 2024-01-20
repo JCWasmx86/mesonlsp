@@ -21,6 +21,8 @@ static const Logger LOG("analyze::subprojectstate"); // NOLINT
 
 static std::string normalizeURLToFilePath(const std::string &url);
 
+static std::string lookAhead(const std::string &line, size_t initialOffset);
+
 void SubprojectState::findSubprojects(bool downloadSubprojects) {
   const auto &subprojectsDir =
       std::filesystem::absolute(this->root) / "subprojects";
@@ -122,6 +124,18 @@ void SubprojectState::parseSubprojects(const AnalysisOptions &options,
   }
 }
 
+static std::string lookAhead(const std::string &line, size_t initialOffset) {
+  size_t lookAhead = initialOffset;
+  while (lookAhead < line.size() - 1) {
+    if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
+      lookAhead++;
+      continue;
+    }
+    break;
+  }
+  return line.substr(lookAhead);
+}
+
 std::optional<std::string>
 createIdentifierForWrap(const std::filesystem::path &path) {
   std::ifstream file(path);
@@ -146,39 +160,15 @@ createIdentifierForWrap(const std::filesystem::path &path) {
       return std::nullopt;
     }
     if (line.starts_with("url")) {
-      size_t lookAhead = 4;
-      while (lookAhead < line.size() - 1) {
-        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
-          lookAhead++;
-          continue;
-        }
-        break;
-      }
-      url = line.substr(lookAhead);
+      url = lookAhead(line, 4);
       continue;
     }
     if (line.starts_with("source_url")) {
-      size_t lookAhead = sizeof("source_url") + 1;
-      while (lookAhead < line.size() - 1) {
-        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
-          lookAhead++;
-          continue;
-        }
-        break;
-      }
-      url = line.substr(lookAhead);
+      url = lookAhead(line, sizeof("source_url") + 1);
       continue;
     }
     if (line.starts_with("revision")) {
-      size_t lookAhead = sizeof("revision") + 1;
-      while (lookAhead < line.size() - 1) {
-        if (line[lookAhead] == ' ' || line[lookAhead] == '=') {
-          lookAhead++;
-          continue;
-        }
-        break;
-      }
-      revision = line.substr(lookAhead);
+      revision = lookAhead(line, sizeof("revision") + 1);
       continue;
     }
     if (line.starts_with("patch_") || line.starts_with("diff_files")) {
