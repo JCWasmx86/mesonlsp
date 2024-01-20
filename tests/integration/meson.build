@@ -20,6 +20,12 @@ type_analyzer_tester = executable(
     ] + extra_deps + extra_libs,
 )
 
+workspace_tester = executable(
+    'workspace-tester',
+    'workspace-tester.cpp',
+    dependencies: [log_dep, langserver_dep] + extra_deps + extra_libs,
+)
+
 partial_interpreter_tests = [
     [
         'foreach',
@@ -243,3 +249,10 @@ foreach test_data : type_analyzer_tests
         args: [file] + test_data[1] + options_file,
     )
 endforeach
+
+
+test(
+    'workspace-tester',
+    workspace_tester,
+    args: files('workspace-test/meson.build'),
+)
