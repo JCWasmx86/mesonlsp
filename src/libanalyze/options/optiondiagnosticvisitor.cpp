@@ -382,7 +382,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
                              node->functionName()));
     return;
   }
-  auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+  const auto *al = dynamic_cast<ArgumentList *>(node->args.get());
   if (!al) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::ERROR, node,
@@ -395,7 +395,7 @@ void OptionDiagnosticVisitor::visitFunctionExpression(
         node, Diagnostic(Severity::ERROR, node, "Missing option name"));
     return;
   }
-  auto *nameNodeSl = dynamic_cast<StringLiteral *>(nameNode->get());
+  const auto *nameNodeSl = dynamic_cast<StringLiteral *>(nameNode->get());
   if (!nameNodeSl) {
     this->metadata->registerDiagnostic(
         nameNode->get(), Diagnostic(Severity::ERROR, nameNode->get(),
