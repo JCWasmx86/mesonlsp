@@ -117,8 +117,8 @@ bool extractFile(const std::filesystem::path &archivePath,
 
   if (auto res =
           archive_read_open_filename(archive, filename, LIBARCHIVE_BLOCKSIZE)) {
-    LOG.error(std::format("Unable to open archive: {} {}",
-                          res, archive_error_string(archive)));
+    LOG.error(std::format("Unable to open archive: {} {}", res,
+                          archive_error_string(archive)));
     return false;
   }
 
