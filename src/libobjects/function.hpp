@@ -72,7 +72,7 @@ public:
     this->maxPosArgs = maxPosArgsCnter;
   }
 
-  virtual const std::string &id() const;
+  [[nodiscard]] virtual const std::string &id() const;
 
   PositionalArgument *posArg(size_t posArgsIdx) {
     PositionalArgument *last = nullptr;
@@ -110,7 +110,7 @@ public:
         parentType(parentType),
         privateId(this->parentType->name + "." + this->name) {}
 
-  const std::string &id() const override;
+  [[nodiscard]] const std::string &id() const override;
 
   Method(const Method &) = delete;
   Method &operator=(const Method &) = delete;

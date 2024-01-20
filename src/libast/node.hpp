@@ -72,7 +72,8 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  std::optional<std::shared_ptr<Node>> getPositionalArg(uint32_t idx) const {
+  [[nodiscard]] std::optional<std::shared_ptr<Node>>
+  getPositionalArg(uint32_t idx) const {
     if (idx >= this->args.size()) {
       return std::nullopt;
     }
@@ -90,7 +91,8 @@ public:
     return std::nullopt;
   }
 
-  std::optional<std::shared_ptr<Node>> getKwarg(const std::string &name) const {
+  [[nodiscard]] std::optional<std::shared_ptr<Node>>
+  getKwarg(const std::string &name) const {
     for (const auto &arg : this->args) {
       auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
       if (keywordItem == nullptr) {
@@ -322,7 +324,7 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  const std::string &functionName() const {
+  [[nodiscard]] const std::string &functionName() const {
     const auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
     if (idExpr == nullptr) {
       return INVALID_FUNCTION_NAME_STR;
@@ -375,7 +377,7 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
 
-  const std::string &getKeyName() const {
+  [[nodiscard]] const std::string &getKeyName() const {
     const auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
     if (sl) {
       return sl->id;

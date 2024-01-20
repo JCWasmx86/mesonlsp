@@ -27,7 +27,7 @@ public:
                         const std::string &parentIdentifier,
                         const TypeNamespace &ns, bool downloadSubprojects);
 
-  bool hasSubproject(const std::string &name) const {
+  [[nodiscard]] bool hasSubproject(const std::string &name) const {
     if (!this->used) {
       return false;
     }
@@ -36,7 +36,7 @@ public:
         [&name](const auto subproj) { return subproj->name == name; });
   }
 
-  std::shared_ptr<MesonSubproject>
+  [[nodiscard]] std::shared_ptr<MesonSubproject>
   findSubproject(const std::string &name) const {
     if (!this->used) {
       return nullptr;

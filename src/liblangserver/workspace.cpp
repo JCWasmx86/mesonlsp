@@ -263,8 +263,8 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
           goto nextIf;
         }
         auto &[optionsPath, line, character] = metadata->options[nameSl->id];
-        LSPPosition pos{line, character};
-        LSPRange range{pos, pos};
+        LSPPosition const pos{line, character};
+        LSPRange const range{pos, pos};
         this->smph.release();
         return {{pathToUrl(optionsPath), range}};
       }

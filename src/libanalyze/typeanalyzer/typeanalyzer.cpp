@@ -1039,7 +1039,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     if (values.empty()) {
       return;
     }
-    std::set<std::string> asSet{values.begin(), values.end()};
+    std::set<std::string> const asSet{values.begin(), values.end()};
     node->types = {std::make_shared<Subproject>(
         std::vector<std::string>{asSet.begin(), asSet.end()})};
     LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
@@ -1290,7 +1290,7 @@ void TypeAnalyzer::checkArgTypes(
   for (const auto &arg : args) {
     if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
       const auto &givenTypes = kwi->value->types;
-      const auto &kwargName = kwi->name.value();
+      const auto &kwargName = /*NOLINT*/ kwi->name.value();
       if (!func->kwargs.contains(kwargName)) {
         continue;
       }
@@ -1588,7 +1588,7 @@ end:
          this->ignoreUnknownIdentifier.end();
 }
 
-bool TypeAnalyzer::isKnownId(IdExpression *idExpr) {
+bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
   auto *parent = idExpr->parent;
   if (!parent) {
     return true;

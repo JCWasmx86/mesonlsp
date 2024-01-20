@@ -14,7 +14,7 @@
 #include <vector>
 
 int main(int argc, char **argv) {
-  Logger logger("partial-interpreter-tester");
+  Logger const logger("partial-interpreter-tester");
   std::filesystem::path const toParse = argv[1];
   std::vector<std::string> haveToExist;
   std::optional<std::filesystem::path> optionsFile;

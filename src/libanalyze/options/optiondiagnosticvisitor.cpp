@@ -338,7 +338,7 @@ void OptionDiagnosticVisitor::validateIntegerOption(const ArgumentList *al,
   if (minValue.has_value() && maxValue.has_value()) {
     auto minV = minValue.value();
     auto maxV = maxValue.value();
-    const auto *minKwarg = al->getKwarg("min").value().get();
+    const auto *minKwarg = /*NOLINT*/ al->getKwarg("min").value().get();
     if (minV > maxV) {
       this->metadata->registerDiagnostic(
           minKwarg,

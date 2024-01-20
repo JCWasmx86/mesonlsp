@@ -51,7 +51,7 @@ public:
       : tokenTypes(std::move(tokenTypes)),
         tokenModifiers(std::move(tokenModifiers)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"tokenTypes", tokenTypes}, {"tokenModifiers", tokenModifiers}};
   }
 };
@@ -66,7 +66,7 @@ public:
       : triggerCharacters(std::move(triggerCharacters)),
         resolveProvider(resolveProvider) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"triggerCharacters", triggerCharacters},
             {"resolveProvider", resolveProvider}};
   }
@@ -80,7 +80,7 @@ public:
   SemanticTokensOptions(bool full, SemanticTokensLegend legend)
       : full(full), legend(std::move(legend)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"full", full}, {"legend", legend.toJson()}};
   }
 };
@@ -136,7 +136,7 @@ public:
         completionProvider(std::move(completionProvider)),
         semanticTokensProvider(std::move(semanticTokensProvider)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"textDocumentSync", this->textDocumentSync.toJson()},
             {"hoverProvider", hoverProvider},
             {"definitionProvider", definitionProvider},
@@ -197,7 +197,7 @@ public:
       : capabilities(std::move(capabilities)),
         serverInfo(std::move(serverInfo)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     nlohmann::json ret;
     ret["capabilities"] = capabilities.toJson();
     if (serverInfo.has_value()) {
@@ -297,7 +297,7 @@ public:
                            std::vector<LSPDiagnostic> diagnostics)
       : uri(std::move(uri)), diagnostics(std::move(diagnostics)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     std::vector<nlohmann::json> objs;
     objs.reserve(this->diagnostics.size());
     for (const auto &diag : this->diagnostics) {
@@ -578,7 +578,7 @@ class WorkspaceEdit : public BaseObject {
 public:
   std::map<std::string, std::vector<TextEdit>> changes;
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     nlohmann::json ret;
     for (const auto &[path, edits] : changes) {
       std::vector<nlohmann::json> vec;
@@ -629,7 +629,7 @@ public:
   CodeAction(std::string title, WorkspaceEdit edit)
       : title(std::move(title)), edit(std::move(edit)) {}
 
-  nlohmann::json toJson() const {
+  [[nodiscard]] nlohmann::json toJson() const {
     return {{"title", title}, {"edit", edit.toJson()}};
   }
 };
