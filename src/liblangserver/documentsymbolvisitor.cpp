@@ -19,7 +19,7 @@ void DocumentSymbolVisitor::visitAssignmentStatement(
   if (node->op != AssignmentOperator::Equals) {
     return;
   }
-  auto *lhsId = dynamic_cast<IdExpression *>(node->lhs.get());
+  const auto *lhsId = dynamic_cast<IdExpression *>(node->lhs.get());
   if (lhsId) {
     this->createSymbol(lhsId);
   }
@@ -61,7 +61,7 @@ void DocumentSymbolVisitor::visitIntegerLiteral(IntegerLiteral *node) {
 void DocumentSymbolVisitor::visitIterationStatement(IterationStatement *node) {
   node->visitChildren(this);
   for (const auto &iter : node->ids) {
-    auto *idExpr = dynamic_cast<IdExpression *>(iter.get());
+    const auto *idExpr = dynamic_cast<IdExpression *>(iter.get());
     if (!idExpr) {
       continue;
     }
