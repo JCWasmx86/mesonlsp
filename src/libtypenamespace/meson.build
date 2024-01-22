@@ -48,7 +48,7 @@ generated_lib = static_library(
     genobjectdocs_cpp,
     include_directories: typenamespace_inc,
     dependencies: typenamespace_deps,
-    cpp_args: ['-fno-var-tracking-assignments'],
+    cpp_args: cxx.get_id() == 'clang' ? [] : ['-fno-var-tracking-assignments'],
 )
 
 typenamespace_lib = static_library(
