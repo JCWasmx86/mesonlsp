@@ -189,3 +189,16 @@ the choice of which files to include in each target depends on the contents of a
 The `source_set` object provides methods to add files to a source set and to query it. The source set becomes immutable after any method but `add` is called.
 @source_configuration:
 The `source_configuration` object provides methods to query the result of an `apply` operation on a source set.
+@cmake_subproject:
+A CMake Subproject
+@cmake_subprojectoptions:
+Options for configuring CMake subprojects
+@cmake_tgt:
+A CMake target
+@external_project:
+An external project.
+@hotdoc_target:
+A `custom_target()` with the following extra method:
+- `config_path()`: Path to the generated hotdoc configuration file.
+@java_module:
+Provides functionality for generating JNI headers.
