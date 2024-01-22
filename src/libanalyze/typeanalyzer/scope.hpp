@@ -2,15 +2,15 @@
 
 #include "type.hpp"
 
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class Scope {
 public:
-  std::map<std::string, std::vector<std::shared_ptr<Type>>> variables;
+  std::unordered_map<std::string, std::vector<std::shared_ptr<Type>>> variables;
 
   [[nodiscard]] std::optional<std::string>
   findVariableOfType(const std::shared_ptr<Type> &expected) const {
