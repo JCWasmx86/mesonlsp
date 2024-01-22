@@ -299,7 +299,6 @@ fillTypes(const MesonTree *tree,
   std::set<std::shared_ptr<Method>> ret;
   for (const auto &type : types) {
     const auto *ao = dynamic_cast<const AbstractObject *>(type.get());
-    LOG.info(std::format("Found AO of {}: {}", type->toString(), (void *)ao));
     if (ao && ao->parent.has_value()) {
       auto parentMethods = fillTypes(
           tree, std::vector<std::shared_ptr<Type>>{ao->parent.value()});
