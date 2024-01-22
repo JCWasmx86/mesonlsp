@@ -2,7 +2,11 @@ project(
     'mesonlsp',
     'c',
     'cpp',
-    default_options: ['cpp_std=gnu++23', 'warning_level=3'],
+    default_options: [
+        'cpp_std=gnu++23',
+        'warning_level=3',
+        'b_ndebug=if-release',
+    ],
     version: 'v4.0.0',
 )
 

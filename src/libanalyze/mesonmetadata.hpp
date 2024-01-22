@@ -28,7 +28,6 @@ enum class Severity {
       this->variable[key].push_back(node);                                     \
     } else {                                                                   \
       this->variable[key] = {node};                                            \
-      this->variable[key].reserve(256);                                        \
     }                                                                          \
   }
 
@@ -132,6 +131,8 @@ public:
   std::vector<std::vector<StringLiteral *>> tempStringLiterals;
   std::vector<std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>>>
       tempKwargs;
+  std::vector<std::vector<FunctionExpression *>> tempFuncCalls;
+  std::vector<std::vector<MethodExpression *>> tempMethodCalls;
 
   MesonMetadata() { this->encounteredIds.reserve(1024); }
 
@@ -162,13 +163,21 @@ public:
   }
 
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
-  REGISTER(registerMethodCall, methodCalls, MethodExpression)
-  REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
 
   void beginFile() {
     this->idExprs.emplace_back();
     this->tempStringLiterals.emplace_back();
     this->tempKwargs.emplace_back();
+    this->tempFuncCalls.emplace_back();
+    this->tempMethodCalls.emplace_back();
+  }
+
+  void registerFunctionCall(FunctionExpression *node) {
+    this->tempFuncCalls.back().push_back(node);
+  }
+
+  void registerMethodCall(MethodExpression *node) {
+    this->tempMethodCalls.back().push_back(node);
   }
 
   void registerIdentifier(IdExpression *node) {
@@ -183,6 +192,10 @@ public:
     this->tempStringLiterals.pop_back();
     this->kwargs[path] = this->tempKwargs.back();
     this->tempKwargs.pop_back();
+    this->functionCalls[path] = this->tempFuncCalls.back();
+    this->tempFuncCalls.pop_back();
+    this->methodCalls[path] = this->tempMethodCalls.back();
+    this->tempMethodCalls.pop_back();
   }
 
   void registerKwarg(KeywordItem *item, const std::shared_ptr<Function> &func) {
