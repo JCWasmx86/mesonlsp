@@ -3,6 +3,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <format>
 #include <memory>
 #include <optional>
@@ -30,7 +31,7 @@
     className() : Type(internalId, TypeName::tag) {}                           \
   }; // NOLINT(misc-macro-parentheses);
 
-enum class TypeName {
+enum class TypeName : uint32_t {
   DICT,
   LIST,
   SUBPROJECT,
@@ -103,6 +104,7 @@ enum class TypeName {
 class Type {
 public:
   const TypeName tag;
+  bool simple = true;
   const std::string name;
 
   virtual const std::string &toString() { return this->name; }
@@ -136,6 +138,7 @@ public:
   explicit Dict(const std::vector<std::shared_ptr<Type>> &types)
       : Type("dict", TypeName::DICT), types(types) {
     const auto len = types.size();
+    this->simple = false;
     if (len == 0) {
       this->cached = true;
       this->cache = "dict()";
@@ -145,7 +148,9 @@ public:
     }
   }
 
-  Dict() : Type("dict", TypeName::DICT), cache("dict()"), cached(true) {}
+  Dict() : Type("dict", TypeName::DICT), cache("dict()"), cached(true) {
+    this->simple = false;
+  }
 
   const std::string &toString() override {
     if (this->cached) {
@@ -175,6 +180,7 @@ public:
   explicit List(const std::vector<std::shared_ptr<Type>> &types)
       : Type("list", TypeName::LIST), types(types) {
     const auto len = types.size();
+    this->simple = false;
     if (len == 0) {
       this->cached = true;
       this->cache = "list()";
@@ -184,7 +190,9 @@ public:
     }
   }
 
-  List() : Type("list", TypeName::LIST), cache("list()"), cached(true) {}
+  List() : Type("list", TypeName::LIST), cache("list()"), cached(true) {
+    this->simple = false;
+  }
 
   const std::string &toString() override {
     if (this->cached) {
@@ -215,6 +223,7 @@ public:
       : AbstractObject("subproject", TypeName::SUBPROJECT),
         names(std::move(names)) {
     std::ranges::sort(this->names);
+    this->simple = 0;
     this->cache = "subproject(" + joinStrings(this->names, '|') + ")";
   }
 

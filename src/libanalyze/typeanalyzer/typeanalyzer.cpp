@@ -1199,6 +1199,9 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
 
 bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
                               const std::shared_ptr<Type> &expected) {
+  if (expected->simple && given->simple && expected->name == given->name) {
+    return true;
+  }
   if (given->toString() == expected->toString()) {
     return true;
   }
@@ -1209,22 +1212,21 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
       return true;
     }
   }
-  const auto *gList = dynamic_cast<List *>(given.get());
-  const auto *eList = dynamic_cast<List *>(expected.get());
-  if (gList && eList) {
-    return this->atleastPartiallyCompatible(eList->types, gList->types);
+  if (given->tag == TypeName::LIST) {
+    const auto *gList = static_cast<List *>(given.get());
+    if (expected->tag == TypeName::LIST) {
+      const auto *eList = static_cast<List *>(expected.get());
+      return this->atleastPartiallyCompatible(eList->types, gList->types);
+    }
+    return this->atleastPartiallyCompatible(expected, gList->types);
   }
-  if ((eList != nullptr) &&
-      this->atleastPartiallyCompatible(eList->types, given)) {
-    return true;
+  if (expected->tag == TypeName::LIST) {
+    const auto *eList = static_cast<List *>(expected.get());
+    return this->atleastPartiallyCompatible(eList->types, given);
   }
-  if ((gList != nullptr) &&
-      this->atleastPartiallyCompatible(expected, gList->types)) {
-    return true;
-  }
-  const auto *gDict = dynamic_cast<Dict *>(given.get());
-  const auto *eDict = dynamic_cast<Dict *>(expected.get());
-  if (gDict && eDict) {
+  if (given->tag == expected->tag && given->tag == TypeName::DICT) {
+    const auto *gDict = static_cast<Dict *>(given.get());
+    const auto *eDict = static_cast<Dict *>(expected.get());
     return this->atleastPartiallyCompatible(eDict->types, gDict->types);
   }
   return false;
