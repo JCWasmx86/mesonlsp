@@ -14,6 +14,7 @@ public:
   std::map<std::string, std::shared_ptr<Function>> functions;
   std::map<std::string, std::shared_ptr<Type>> types;
   std::map<std::string, std::vector<std::shared_ptr<Method>>> vtables;
+  std::map<std::string, std::string> objectDocs;
   std::shared_ptr<Str> strType = std::make_shared<Str>();
   std::shared_ptr<IntType> intType = std::make_shared<IntType>();
   std::shared_ptr<BoolType> boolType = std::make_shared<BoolType>();

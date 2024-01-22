@@ -6,6 +6,7 @@
 #include "node.hpp"
 #include "optionstate.hpp"
 #include "typeanalyzer.hpp"
+#include "typenamespace.hpp"
 #include "utils.hpp"
 
 #include <format>
@@ -104,7 +105,7 @@ Hover makeHoverForMethodExpression(MethodExpression *me) {
                                          returns, docs, signature))};
 }
 
-Hover makeHoverForId(IdExpression *idExpr) {
+Hover makeHoverForId(const TypeNamespace &ns, IdExpression *idExpr) {
   auto header = std::format("## variable `{}`\n\n", idExpr->id);
   auto types = idExpr->types;
   if (types.empty()) {
@@ -115,8 +116,8 @@ Hover makeHoverForId(IdExpression *idExpr) {
     return Hover{MarkupContent(std::format("{}Types: `{}`", header, joined))};
   }
   auto onlyType = types[0];
-  return Hover{MarkupContent(
-      std::format("{}Type: `{}`\n\n{}\n", header, joined, onlyType->docs))};
+  return Hover{MarkupContent(std::format("{}Type: `{}`\n\n{}\n", header, joined,
+                                         ns.objectDocs.at(onlyType->name)))};
 }
 
 static std::string formatArgument(const Argument *arg) {

@@ -102,7 +102,7 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     auto idExprOpt =
         metadata.findIdExpressionAt(path, position.line, position.character);
     if (idExprOpt.has_value()) {
-      auto val = makeHoverForId(idExprOpt.value());
+      auto val = makeHoverForId(tree->ns, idExprOpt.value());
       this->smph.release();
       return val;
     }
