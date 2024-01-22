@@ -44,6 +44,15 @@ TEST(TypeNamespaceTest, testFullObjectDocCoverage) {
   }
 }
 
+TEST(TypeNamespaceTest, testFullMethodDocCoverage) {
+  auto tns = TypeNamespace();
+  for (const auto &[typeName, methods] : tns.vtables) {
+    for (const auto &method : methods) {
+      ASSERT_NE(method->doc, "");
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
