@@ -73,10 +73,7 @@ public:
     }
   }
 
-  Dict() : Type("dict") {
-    this->cached = true;
-    this->cache = "dict()";
-  }
+  Dict() : Type("dict"), cache("dict()"), cached(true) {}
 
   const std::string &toString() override {
     if (this->cached) {
@@ -115,10 +112,7 @@ public:
     }
   }
 
-  List() : Type("list") {
-    this->cached = true;
-    this->cache = "list()";
-  }
+  List() : Type("list"), cache("list()"), cached(true) {}
 
   const std::string &toString() override {
     if (this->cached) {
