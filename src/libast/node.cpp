@@ -618,9 +618,7 @@ void StringLiteral::visitChildren(CodeVisitor * /*visitor*/) {}
 
 IdExpression::IdExpression(const std::shared_ptr<SourceFile> &file,
                            const TSNode &node)
-    : Node(file, node) {
-  this->id = file->extractNodeValue(node);
-}
+    : Node(file, node), id(file->extractNodeValue(node)) {}
 
 void IdExpression::visitChildren(CodeVisitor * /*visitor*/) {}
 
