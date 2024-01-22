@@ -37,6 +37,13 @@ TEST(TypeNamespaceTest, testLookupMethodByName) {
   ASSERT_FALSE(doesNotExist.has_value());
 }
 
+TEST(TypeNamespaceTest, testFullObjectDocCoverage) {
+  auto tns = TypeNamespace();
+  for (const auto &[name, typeRef] : tns.types) {
+    ASSERT_TRUE(tns.objectDocs.contains(name));
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
