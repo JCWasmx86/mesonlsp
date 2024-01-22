@@ -300,14 +300,14 @@ fillTypes(const MesonTree *tree,
   for (const auto &type : types) {
     const auto *ao = dynamic_cast<const AbstractObject *>(type.get());
     if (ao && ao->parent.has_value()) {
-      auto parentMethods = fillTypes(
+      const auto &parentMethods = fillTypes(
           tree, std::vector<std::shared_ptr<Type>>{ao->parent.value()});
       ret.insert(parentMethods.begin(), parentMethods.end());
     }
     if (!tree->ns.vtables.contains(type->name)) {
       continue;
     }
-    auto methods = tree->ns.vtables.at(type->name);
+    const auto &methods = tree->ns.vtables.at(type->name);
     ret.insert(methods.begin(), methods.end());
   }
   return ret;
