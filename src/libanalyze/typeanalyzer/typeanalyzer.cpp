@@ -179,10 +179,9 @@ static std::vector<std::shared_ptr<Type>>
 dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
-static bool isType(const std::shared_ptr<Type> &type, const std::string &name);
+static bool isType(const std::shared_ptr<Type> &type, TypeName tag);
 static bool sameType(const std::shared_ptr<Type> &first,
-                     const std::shared_ptr<Type> &second,
-                     const std::string &name);
+                     const std::shared_ptr<Type> &second, TypeName tag);
 
 void TypeAnalyzer::modifiedVariableType(
     const std::string &varname,
@@ -470,13 +469,14 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
   std::vector<std::shared_ptr<Type>> newTypes;
   for (const auto &lType : lhs) {
     for (const auto &rType : rhs) {
-      if (rType->name == "any" && lType->name == "any") {
+      if (rType->tag == lType->tag && lType->tag == TypeName::ANY) {
         ++*numErrors;
         continue;
       }
       switch (op) {
       [[likely]] case Plus: {
-        if (sameType(lType, rType, "str") || sameType(lType, rType, "int")) {
+        if (sameType(lType, rType, TypeName::STR) ||
+            sameType(lType, rType, TypeName::INT)) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
@@ -505,11 +505,13 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       }
       [[likely]] case EqualsEquals:
       case NotEquals:
-        if (sameType(lType, rType, "str") || sameType(lType, rType, "int") ||
-            sameType(lType, rType, "bool") || sameType(lType, rType, "dict") ||
-            sameType(lType, rType, "list") ||
+        if (sameType(lType, rType, TypeName::STR) ||
+            sameType(lType, rType, TypeName::INT) ||
+            sameType(lType, rType, TypeName::BOOL) ||
+            sameType(lType, rType, TypeName::DICT) ||
+            sameType(lType, rType, TypeName::LIST) ||
             ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
-             lType->name == rType->name)) {
+             lType->tag == rType->tag)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
@@ -517,16 +519,16 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         break;
       case And:
       case Or:
-        if (sameType(lType, rType, "bool")) {
+        if (sameType(lType, rType, TypeName::BOOL)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
       case Div:
-        if (sameType(lType, rType, "int")) {
+        if (sameType(lType, rType, TypeName::INT)) {
           newTypes.emplace_back(this->ns.intType);
-        } else if (sameType(lType, rType, "str")) {
+        } else if (sameType(lType, rType, TypeName::STR)) {
           newTypes.emplace_back(this->ns.strType);
         } else {
           ++*numErrors;
@@ -536,7 +538,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       case Gt:
       case Le:
       case Lt:
-        if (sameType(lType, rType, "int") || sameType(lType, rType, "str")) {
+        if (sameType(lType, rType, TypeName::INT) ||
+            sameType(lType, rType, TypeName::STR)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
@@ -549,7 +552,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       case Minus:
       case Modulo:
       case Mul:
-        if (sameType(lType, rType, "int")) {
+        if (sameType(lType, rType, TypeName::INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else {
           ++*numErrors;
@@ -1233,13 +1236,14 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
   if (givenTypes.empty()) {
     return true;
   }
-  if (expectedType->name == "any" || expectedType->name == "disabler") {
+  if (expectedType->tag == TypeName::ANY ||
+      expectedType->tag == TypeName::DISABLER) {
     return true;
   }
-  return std::ranges::any_of(
-      givenTypes, [&expectedType, this](const auto &given) {
-        return this->compatible(given, expectedType) || given->name == "any";
-      });
+  return std::ranges::any_of(givenTypes, [&expectedType,
+                                          this](const auto &given) {
+    return this->compatible(given, expectedType) || given->tag == TypeName::ANY;
+  });
 }
 
 bool TypeAnalyzer::atleastPartiallyCompatible(
@@ -1247,10 +1251,11 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
     const std::shared_ptr<Type> &givenType) {
   return std::ranges::any_of(expectedTypes, [this,
                                              &givenType](const auto &expected) {
-    if (expected->name == "any" || expected->name == "disabler") {
+    if (expected->tag == TypeName::ANY || expected->tag == TypeName::DISABLER) {
       return true;
     }
-    return this->compatible(givenType, expected) || givenType->name == "any";
+    return this->compatible(givenType, expected) ||
+           givenType->tag == TypeName::ANY;
   });
 }
 
@@ -2307,44 +2312,44 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   auto hasBool = false;
   auto hasInt = false;
   auto hasStr = false;
-  std::map<std::string, std::shared_ptr<Type>> objs;
+  std::map<TypeName, std::shared_ptr<Type>> objs;
   auto gotList = false;
   auto gotDict = false;
   auto gotSubproject = false;
   for (const auto &type : types) {
     auto *asRaw = type.get();
-    if (asRaw->name == "str") {
+    if (asRaw->tag == TypeName::STR) {
       hasStr = true;
       continue;
     }
-    if (asRaw->name == "list") {
+    if (asRaw->tag == TypeName::LIST) {
       auto *asList = static_cast<List *>(asRaw);
       listtypes.insert(listtypes.end(), asList->types.begin(),
                        asList->types.end());
       gotList = true;
       continue;
     }
-    if (asRaw->name == "dict") {
+    if (asRaw->tag == TypeName::DICT) {
       auto *asDict = static_cast<Dict *>(asRaw);
       dicttypes.insert(dicttypes.end(), asDict->types.begin(),
                        asDict->types.end());
       gotDict = true;
       continue;
     }
-    if (asRaw->name == "bool") {
+    if (asRaw->tag == TypeName::BOOL) {
       hasBool = true;
       continue;
     }
-    if (asRaw->name == "any") {
+    if (asRaw->tag == TypeName::ANY) {
       hasAny = true;
       continue;
     }
-    if (asRaw->name == "int") {
+    if (asRaw->tag == TypeName::INT) {
       hasInt = true;
       continue;
     }
-    if (type->name != "subproject") {
-      objs[type->name] = type;
+    if (asRaw->tag != TypeName::SUBPROJECT) {
+      objs[type->tag] = type;
       continue;
     }
     auto *asSubproject = static_cast<Subproject *>(asRaw);
@@ -2414,12 +2419,11 @@ static bool isShoutingSnakeCase(const std::string &str) {
   });
 }
 
-static bool isType(const std::shared_ptr<Type> &type, const std::string &name) {
-  return type->name == name || type->name == "any";
+static bool isType(const std::shared_ptr<Type> &type, const TypeName tag) {
+  return type->tag == tag || type->tag == TypeName::ANY;
 }
 
 static bool sameType(const std::shared_ptr<Type> &first,
-                     const std::shared_ptr<Type> &second,
-                     const std::string &name) {
-  return isType(first, name) && isType(second, name);
+                     const std::shared_ptr<Type> &second, const TypeName tag) {
+  return isType(first, tag) && isType(second, tag);
 }
