@@ -10,27 +10,99 @@
 #include <utility>
 #include <vector>
 
-#define MAKE_TYPE_WITH_PARENT(className, internalId, parentClass)              \
+#define MAKE_TYPE_WITH_PARENT(className, internalId, parentClass, tag)         \
   class className : public AbstractObject {                                    \
   public:                                                                      \
     className()                                                                \
-        : AbstractObject(internalId, std::make_shared<parentClass>()) {}       \
+        : AbstractObject(internalId, TypeName::tag,                            \
+                         std::make_shared<parentClass>()) {}                   \
   }; // NOLINT(misc-macro-parentheses);
 
-#define MAKE_TYPE(className, internalId)                                       \
+#define MAKE_TYPE(className, internalId, tag)                                  \
   class className : public AbstractObject {                                    \
   public:                                                                      \
-    className() : AbstractObject(internalId) {}                                \
+    className() : AbstractObject(internalId, TypeName::tag) {}                 \
   }; // NOLINT(misc-macro-parentheses);
 
-#define MAKE_BASIC_TYPE(className, internalId)                                 \
+#define MAKE_BASIC_TYPE(className, internalId, tag)                            \
   class className : public Type {                                              \
   public:                                                                      \
-    className() : Type(internalId) {}                                          \
+    className() : Type(internalId, TypeName::tag) {}                           \
   }; // NOLINT(misc-macro-parentheses);
+
+enum class TypeName {
+  DICT,
+  LIST,
+  SUBPROJECT,
+  ANY,
+  BOOL,
+  INT,
+  STR,
+  MESON,
+  BUILD_MACHINE,
+  HOST_MACHINE,
+  TARGET_MACHINE,
+  TGT,
+  ALIAS_TGT,
+  BUILD_TGT,
+  CUSTOM_TGT,
+  EXE,
+  JAR,
+  LIB,
+  BOTH_LIBS,
+  RUN_TGT,
+  CFG_DATA,
+  COMPILER,
+  CUSTOM_IDX,
+  DEP,
+  DISABLER,
+  ENV,
+  EXTERNAL_PROGRAM,
+  EXTRACTED_OBJ,
+  FEATURE,
+  FILE,
+  GENERATED_LIST,
+  GENERATOR,
+  INC,
+  MODULE,
+  RANGE,
+  RUN_RESULT,
+  STRUCTURED_SRC,
+  CMAKE_MODULE,
+  CMAKE_SUBPROJECT,
+  CMAKE_TGT,
+  CMAKE_SUBPROJECT_OPTIONS,
+  CUDA_MODULE,
+  DLANG_MODULE,
+  EXTERNAL_PROJECT_MODULE,
+  EXTERNAL_PROJECT,
+  FS_MODULE,
+  GNOME_MODULE,
+  HOTDOC_MODULE,
+  HOTDOC_TARGET,
+  I18N_MODULE,
+  ICESTORM_MODULE,
+  JAVA_MODULE,
+  KEYVAL_MODULE,
+  PKGCONFIG_MODULE,
+  PYTHON_MODULE,
+  PYTHON_INSTALLATION,
+  PYTHON3_MODULE,
+  QT4_MODULE,
+  QT5_MODULE,
+  QT6_MODULE,
+  RUST_MODULE,
+  SIMD_MODULE,
+  SOURCE_SET_MODULE,
+  SOURCE_SET,
+  SOURCE_CONFIGURATION,
+  WAYLAND_MODULE,
+  WINDOWS_MODULE,
+};
 
 class Type {
 public:
+  const TypeName tag;
   const std::string name;
   std::string docs;
 
@@ -43,7 +115,8 @@ public:
   Type(Type &&) = delete;
 
 protected:
-  explicit Type(std::string name) : name(std::move(name)) {}
+  explicit Type(std::string name, TypeName tag)
+      : tag(tag), name(std::move(name)) {}
 };
 
 class AbstractObject : public Type {
@@ -52,9 +125,9 @@ public:
 
 protected:
   explicit AbstractObject(
-      std::string name,
+      std::string name, TypeName tag,
       std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
-      : Type(std::move(name)), parent(std::move(parent)) {}
+      : Type(std::move(name), tag), parent(std::move(parent)) {}
 };
 
 class Dict : public Type {
@@ -62,7 +135,7 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   explicit Dict(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("dict"), types(types) {
+      : Type("dict", TypeName::DICT), types(types) {
     const auto len = types.size();
     if (len == 0) {
       this->cached = true;
@@ -73,7 +146,7 @@ public:
     }
   }
 
-  Dict() : Type("dict"), cache("dict()"), cached(true) {}
+  Dict() : Type("dict", TypeName::DICT), cache("dict()"), cached(true) {}
 
   const std::string &toString() override {
     if (this->cached) {
@@ -101,7 +174,7 @@ public:
   std::vector<std::shared_ptr<Type>> types;
 
   explicit List(const std::vector<std::shared_ptr<Type>> &types)
-      : Type("list"), types(types) {
+      : Type("list", TypeName::LIST), types(types) {
     const auto len = types.size();
     if (len == 0) {
       this->cached = true;
@@ -112,7 +185,7 @@ public:
     }
   }
 
-  List() : Type("list"), cache("list()"), cached(true) {}
+  List() : Type("list", TypeName::LIST), cache("list()"), cached(true) {}
 
   const std::string &toString() override {
     if (this->cached) {
@@ -140,7 +213,8 @@ public:
   std::vector<std::string> names;
 
   explicit Subproject(std::vector<std::string> names)
-      : AbstractObject("subproject"), names(std::move(names)) {
+      : AbstractObject("subproject", TypeName::SUBPROJECT),
+        names(std::move(names)) {
     std::ranges::sort(this->names);
     this->cache = "subproject(" + joinStrings(this->names, '|') + ")";
   }
@@ -152,88 +226,94 @@ private:
 };
 
 // Builtin stuff
-MAKE_BASIC_TYPE(Any, "any")
-MAKE_BASIC_TYPE(BoolType, "bool")
-MAKE_BASIC_TYPE(IntType, "int")
-MAKE_BASIC_TYPE(Str, "str")
-MAKE_TYPE(Meson, "meson")
-MAKE_TYPE(BuildMachine, "build_machine")
-MAKE_TYPE_WITH_PARENT(HostMachine, "host_machine", BuildMachine)
-MAKE_TYPE_WITH_PARENT(TargetMachine, "target_machine", BuildMachine)
-MAKE_TYPE(Tgt, "tgt")
-MAKE_TYPE_WITH_PARENT(AliasTgt, "alias_tgt", Tgt)
-MAKE_TYPE_WITH_PARENT(BuildTgt, "build_tgt", Tgt)
-MAKE_TYPE_WITH_PARENT(CustomTgt, "custom_tgt", Tgt)
-MAKE_TYPE_WITH_PARENT(Exe, "exe", BuildTgt)
-MAKE_TYPE_WITH_PARENT(Jar, "jar", BuildTgt)
-MAKE_TYPE_WITH_PARENT(Lib, "lib", BuildTgt)
-MAKE_TYPE_WITH_PARENT(BothLibs, "both_libs", Lib)
-MAKE_TYPE_WITH_PARENT(RunTgt, "run_tgt", Tgt)
-MAKE_TYPE(CfgData, "cfg_data")
-MAKE_TYPE(Compiler, "compiler")
-MAKE_TYPE(CustomIdx, "custom_idx")
-MAKE_TYPE(Dep, "dep")
-MAKE_TYPE(Disabler, "disabler")
-MAKE_TYPE(Env, "env")
-MAKE_TYPE(ExternalProgram, "external_program")
-MAKE_TYPE(ExtractedObj, "extracted_obj")
-MAKE_TYPE(Feature, "feature")
-MAKE_TYPE(File, "file")
-MAKE_TYPE(GeneratedList, "generated_list")
-MAKE_TYPE(Generator, "generator")
-MAKE_TYPE(Inc, "inc")
-MAKE_TYPE(Module, "module")
-MAKE_TYPE(Range, "range")
-MAKE_TYPE(RunResult, "runresult")
-MAKE_TYPE(StructuredSrc, "structured_src")
+MAKE_BASIC_TYPE(Any, "any", ANY)
+MAKE_BASIC_TYPE(BoolType, "bool", BOOL)
+MAKE_BASIC_TYPE(IntType, "int", INT)
+MAKE_BASIC_TYPE(Str, "str", STR)
+MAKE_TYPE(Meson, "meson", MESON)
+MAKE_TYPE(BuildMachine, "build_machine", BUILD_MACHINE)
+MAKE_TYPE_WITH_PARENT(HostMachine, "host_machine", BuildMachine, HOST_MACHINE)
+MAKE_TYPE_WITH_PARENT(TargetMachine, "target_machine", BuildMachine,
+                      TARGET_MACHINE)
+MAKE_TYPE(Tgt, "tgt", TGT)
+MAKE_TYPE_WITH_PARENT(AliasTgt, "alias_tgt", Tgt, ALIAS_TGT)
+MAKE_TYPE_WITH_PARENT(BuildTgt, "build_tgt", Tgt, BUILD_TGT)
+MAKE_TYPE_WITH_PARENT(CustomTgt, "custom_tgt", Tgt, CUSTOM_TGT)
+MAKE_TYPE_WITH_PARENT(Exe, "exe", BuildTgt, EXE)
+MAKE_TYPE_WITH_PARENT(Jar, "jar", BuildTgt, JAR)
+MAKE_TYPE_WITH_PARENT(Lib, "lib", BuildTgt, LIB)
+MAKE_TYPE_WITH_PARENT(BothLibs, "both_libs", Lib, BOTH_LIBS)
+MAKE_TYPE_WITH_PARENT(RunTgt, "run_tgt", Tgt, RUN_TGT)
+MAKE_TYPE(CfgData, "cfg_data", CFG_DATA)
+MAKE_TYPE(Compiler, "compiler", COMPILER)
+MAKE_TYPE(CustomIdx, "custom_idx", CUSTOM_IDX)
+MAKE_TYPE(Dep, "dep", DEP)
+MAKE_TYPE(Disabler, "disabler", DISABLER)
+MAKE_TYPE(Env, "env", ENV)
+MAKE_TYPE(ExternalProgram, "external_program", EXTERNAL_PROGRAM)
+MAKE_TYPE(ExtractedObj, "extracted_obj", EXTRACTED_OBJ)
+MAKE_TYPE(Feature, "feature", FEATURE)
+MAKE_TYPE(File, "file", FILE)
+MAKE_TYPE(GeneratedList, "generated_list", GENERATED_LIST)
+MAKE_TYPE(Generator, "generator", GENERATOR)
+MAKE_TYPE(Inc, "inc", INC)
+MAKE_TYPE(Module, "module", MODULE)
+MAKE_TYPE(Range, "range", RANGE)
+MAKE_TYPE(RunResult, "runresult", RUN_RESULT)
+MAKE_TYPE(StructuredSrc, "structured_src", STRUCTURED_SRC)
 // CMake Module
-MAKE_TYPE_WITH_PARENT(CMakeModule, "cmake_module", Module)
-MAKE_TYPE(CMakeSubproject, "cmake_subproject")
-MAKE_TYPE(CMakeTarget, "cmake_tgt")
-MAKE_TYPE(CMakeSubprojectOptions, "cmake_subprojectoptions")
+MAKE_TYPE_WITH_PARENT(CMakeModule, "cmake_module", Module, MODULE)
+MAKE_TYPE(CMakeSubproject, "cmake_subproject", CMAKE_SUBPROJECT)
+MAKE_TYPE(CMakeTarget, "cmake_tgt", CMAKE_TGT)
+MAKE_TYPE(CMakeSubprojectOptions, "cmake_subprojectoptions",
+          CMAKE_SUBPROJECT_OPTIONS)
 // CUDA Module
-MAKE_TYPE_WITH_PARENT(CudaModule, "cuda_module", Module)
+MAKE_TYPE_WITH_PARENT(CudaModule, "cuda_module", Module, CUDA_MODULE)
 // Dlang Module
-MAKE_TYPE_WITH_PARENT(DlangModule, "dlang_module", Module)
+MAKE_TYPE_WITH_PARENT(DlangModule, "dlang_module", Module, DLANG_MODULE)
 // External Project Module
-MAKE_TYPE_WITH_PARENT(ExternalProjectModule, "external_project_module", Module)
-MAKE_TYPE(ExternalProject, "external_project")
+MAKE_TYPE_WITH_PARENT(ExternalProjectModule, "external_project_module", Module,
+                      EXTERNAL_PROJECT_MODULE)
+MAKE_TYPE(ExternalProject, "external_project", EXTERNAL_PROJECT)
 // FS module
-MAKE_TYPE_WITH_PARENT(FSModule, "fs_module", Module)
+MAKE_TYPE_WITH_PARENT(FSModule, "fs_module", Module, FS_MODULE)
 // GNOME Module
-MAKE_TYPE_WITH_PARENT(GNOMEModule, "gnome_module", Module)
+MAKE_TYPE_WITH_PARENT(GNOMEModule, "gnome_module", Module, GNOME_MODULE)
 // Hotdoc Module
-MAKE_TYPE_WITH_PARENT(HotdocModule, "hotdoc_module", Module)
-MAKE_TYPE_WITH_PARENT(HotdocTarget, "hotdoc_target", CustomTgt)
+MAKE_TYPE_WITH_PARENT(HotdocModule, "hotdoc_module", Module, HOTDOC_MODULE)
+MAKE_TYPE_WITH_PARENT(HotdocTarget, "hotdoc_target", CustomTgt, HOTDOC_TARGET)
 // I18n Module
-MAKE_TYPE_WITH_PARENT(I18nModule, "i18n_module", Module)
+MAKE_TYPE_WITH_PARENT(I18nModule, "i18n_module", Module, I18N_MODULE)
 // Icestorm Module
-MAKE_TYPE_WITH_PARENT(IcestormModule, "icestorm_module", Module)
+MAKE_TYPE_WITH_PARENT(IcestormModule, "icestorm_module", Module,
+                      ICESTORM_MODULE)
 // Java Module
-MAKE_TYPE_WITH_PARENT(JavaModule, "java_module", Module)
+MAKE_TYPE_WITH_PARENT(JavaModule, "java_module", Module, JAVA_MODULE)
 // Keyval Module
-MAKE_TYPE_WITH_PARENT(KeyvalModule, "keyval_module", Module)
+MAKE_TYPE_WITH_PARENT(KeyvalModule, "keyval_module", Module, KEYVAL_MODULE)
 // Pkgconfig Module
-MAKE_TYPE_WITH_PARENT(PkgconfigModule, "pkgconfig_module", Module)
+MAKE_TYPE_WITH_PARENT(PkgconfigModule, "pkgconfig_module", Module,
+                      PKGCONFIG_MODULE)
 // Python Module
-MAKE_TYPE_WITH_PARENT(PythonModule, "python_module", Module)
+MAKE_TYPE_WITH_PARENT(PythonModule, "python_module", Module, PYTHON_MODULE)
 MAKE_TYPE_WITH_PARENT(PythonInstallation, "python_installation",
-                      ExternalProgram)
+                      ExternalProgram, PYTHON_INSTALLATION)
 // Python3 Module
-MAKE_TYPE_WITH_PARENT(Python3Module, "python3_module", Module)
+MAKE_TYPE_WITH_PARENT(Python3Module, "python3_module", Module, PYTHON3_MODULE)
 // Qt* Modules
-MAKE_TYPE_WITH_PARENT(Qt4Module, "qt4_module", Module)
-MAKE_TYPE_WITH_PARENT(Qt5Module, "qt5_module", Module)
-MAKE_TYPE_WITH_PARENT(Qt6Module, "qt6_module", Module)
+MAKE_TYPE_WITH_PARENT(Qt4Module, "qt4_module", Module, QT4_MODULE)
+MAKE_TYPE_WITH_PARENT(Qt5Module, "qt5_module", Module, QT5_MODULE)
+MAKE_TYPE_WITH_PARENT(Qt6Module, "qt6_module", Module, QT6_MODULE)
 // Rust Module
-MAKE_TYPE_WITH_PARENT(RustModule, "rust_module", Module)
+MAKE_TYPE_WITH_PARENT(RustModule, "rust_module", Module, RUST_MODULE)
 // SIMD Module
-MAKE_TYPE_WITH_PARENT(SIMDModule, "simd_module", Module)
+MAKE_TYPE_WITH_PARENT(SIMDModule, "simd_module", Module, SIMD_MODULE)
 // SourceSet Module
-MAKE_TYPE_WITH_PARENT(SourceSetModule, "sourceset_module", Module)
-MAKE_TYPE(SourceSet, "sourceset")
-MAKE_TYPE(SourceConfiguration, "source_configuration")
+MAKE_TYPE_WITH_PARENT(SourceSetModule, "sourceset_module", Module,
+                      SOURCE_SET_MODULE)
+MAKE_TYPE(SourceSet, "sourceset", SOURCE_SET)
+MAKE_TYPE(SourceConfiguration, "source_configuration", SOURCE_CONFIGURATION)
 // Wayland Module
-MAKE_TYPE_WITH_PARENT(WaylandModule, "wayland_module", Module)
+MAKE_TYPE_WITH_PARENT(WaylandModule, "wayland_module", Module, WAYLAND_MODULE)
 // Windows Module
-MAKE_TYPE_WITH_PARENT(WindowsModule, "windows_module", Module)
+MAKE_TYPE_WITH_PARENT(WindowsModule, "windows_module", Module, WINDOWS_MODULE)
