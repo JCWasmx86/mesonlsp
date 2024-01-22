@@ -45,6 +45,8 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      const std::shared_ptr<Node> &ast,
                                      const LSPPosition &position) {
   auto lines = split(ast->file->contents(), "\n");
+  const std::set<std::string> builtins{"meson", "build_machine", "host_machine",
+                                       "target_machine"};
   lines.emplace_back("\n");
   std::vector<CompletionItem> ret;
   if (position.line >= lines.size()) {
@@ -121,16 +123,14 @@ next:
         toInsert.insert(identifier->id);
       }
     }
-    for (const auto &builtin : std::vector<std::string>{
-             "meson", "build_machine", "host_machine", "target_machine"}) {
+    for (const auto &builtin : builtins) {
       if (builtin.contains(loweredId) && loweredId != builtin) {
         toInsert.insert(builtin);
       }
     }
     for (const auto &identifier : toInsert) {
       auto kind = CompletionItemKind::CIKVariable;
-      if (identifier == "meson" || identifier == "build_machine" ||
-          identifier == "host_machine" || identifier == "target_machine") {
+      if (builtins.contains(identifier)) {
         kind = CompletionItemKind::CIKConstant;
       }
       ret.emplace_back(identifier, kind,
@@ -190,6 +190,24 @@ next:
       ret.emplace_back(funcName + "()", CompletionItemKind::CIKFunction,
                        TextEdit(LSPRange(position, position),
                                 createTextForFunction(funcRef)));
+    }
+    for (const auto &builtin : builtins) {
+      ret.emplace_back(builtin, CompletionItemKind::CIKConstant,
+                       TextEdit(LSPRange(position, position), builtin));
+    }
+    std::set<std::string> inserted;
+    for (const auto &identifier : tree->metadata.encounteredIds) {
+      if ((identifier->file->file == path &&
+           identifier->location.startLine > position.line)) {
+        break;
+      }
+      if (inserted.contains(identifier->id) ||
+          builtins.contains(identifier->id)) {
+        continue;
+      }
+      inserted.insert(identifier->id);
+      ret.emplace_back(identifier->id, CompletionItemKind::CIKVariable,
+                       TextEdit(LSPRange(position, position), identifier->id));
     }
   }
   auto /*explicit copy*/ trimmedPrev = prev;
