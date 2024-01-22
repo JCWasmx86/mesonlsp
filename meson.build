@@ -21,7 +21,7 @@ extra_flags = [
     '-fcf-protection',
     '-g3',
     '-frecord-gcc-switches',
-    '-Wshadow=local'
+    '-Wshadow=local',
 ]
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
@@ -71,6 +71,14 @@ pkgconf_dep = dependency('libpkgconf')
 
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
+cc_id = cc.get_id()
+if cc_id != 'gcc' and cc_id != 'clang'
+    warning(f'Unknown compiler: @cc_id@')
+endif
+system_id = target_machine.system()
+if system_id != 'linux'
+    warning(f'Untested OS: @system_id@')
+endif
 
 if get_option('static_build')
     extra_deps = [
