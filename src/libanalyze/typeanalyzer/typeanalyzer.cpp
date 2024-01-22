@@ -1716,7 +1716,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
 
 void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
     IterationStatement *node) {
-  auto iterTypes = node->expression->types;
+  const auto &iterTypes = node->expression->types;
   node->ids[0]->types = {this->ns.strType};
   auto found = false;
   auto foundBad = false;
