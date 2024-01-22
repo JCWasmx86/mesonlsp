@@ -67,7 +67,7 @@ public:
     if (len == 0) {
       this->cached = true;
       this->cache = "dict()";
-    } else if (len == 1) {
+    } else if (len == 1) [[likely]] {
       this->cached = true;
       this->cache = std::format("dict({})", types[0]->toString());
     }
@@ -106,7 +106,7 @@ public:
     if (len == 0) {
       this->cached = true;
       this->cache = "list()";
-    } else if (len == 1) {
+    } else if (len == 1) [[likely]] {
       this->cached = true;
       this->cache = std::format("list({})", types[0]->toString());
     }
