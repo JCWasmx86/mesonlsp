@@ -5,14 +5,13 @@ project(
     default_options: [
         'cpp_std=gnu++23',
         'warning_level=3',
-        'b_ndebug=if-release',
     ],
     version: 'v4.0.0',
 )
 
 if get_option('buildtype') == 'release'
-    add_global_arguments(['-D_FORTIFY_SOURCE=3'], language: 'c')
-    add_global_arguments(['-D_FORTIFY_SOURCE=3'], language: 'cpp')
+    add_global_arguments(['-D_FORTIFY_SOURCE=3', '-DNDEBUG'], language: 'c')
+    add_global_arguments(['-D_FORTIFY_SOURCE=3', '-DNDEBUG'], language: 'cpp')
 else
     add_global_arguments(
         ['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'],

@@ -120,16 +120,18 @@ inline std::vector<std::string> split(const std::string &str,
 
 template <typename Container>
 inline std::string joinStrings(const Container &cont, const char chr) {
-  std::stringstream strStream;
+  std::string ret;
+  ret.reserve(100);
   auto iter = std::begin(cont);
   if (iter != std::end(cont)) {
-    strStream << *iter;
+    ret += *iter;
     ++iter;
   }
   for (; iter != std::end(cont); ++iter) {
-    strStream << chr << *iter;
+    ret.push_back(chr);
+    ret.append(*iter);
   }
-  return strStream.str();
+  return ret;
 }
 
 // From https://stackoverflow.com/a/56199972

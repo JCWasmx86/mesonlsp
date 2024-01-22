@@ -152,6 +152,7 @@ Node::Node(std::shared_ptr<SourceFile> file, const TSNode &node)
 ArgumentList::ArgumentList(const std::shared_ptr<SourceFile> &file,
                            const TSNode &node)
     : Node(file, node) {
+  this->args.reserve(ts_node_named_child_count(node));
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     this->args.push_back(makeNode(file, ts_node_named_child(node, i)));
   }
@@ -173,6 +174,7 @@ void ArgumentList::setParents() {
 ArrayLiteral::ArrayLiteral(const std::shared_ptr<SourceFile> &file,
                            const TSNode &node)
     : Node(file, node) {
+  this->args.reserve(ts_node_named_child_count(node));
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto child = ts_node_named_child(node, i);
     this->args.push_back(makeNode(file, child));
