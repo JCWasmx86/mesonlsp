@@ -1549,7 +1549,7 @@ TypeAnalyzer::evalStack(const std::string &name) {
 
 bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   auto *parent = node->parent;
-  if (!parent) {
+  if (!parent) [[unlikely]] {
     return false;
   }
   const auto *me = dynamic_cast<MethodExpression *>(parent);
@@ -1627,7 +1627,7 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   node->types = dedup(this->ns, types);
   node->visitChildren(this);
   auto *parent = node->parent;
-  if (parent) {
+  if (parent) [[likely]] {
     auto *ass = dynamic_cast<AssignmentStatement *>(parent);
     if (ass) {
       if (ass->op != AssignmentOperator::Equals || ass->rhs->equals(node)) {
@@ -1703,7 +1703,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
                              : "Expression yields no iterable result"));
   }
   auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
-  if (!id0Expr) {
+  if (!id0Expr) [[unlikely]] {
     return;
   }
   this->metadata->encounteredIds.push_back(id0Expr);
@@ -1739,7 +1739,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
                        : "Expression yields no iterable result"));
   }
   auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
-  if (id0Expr) {
+  if (id0Expr) [[likely]] {
     this->metadata->encounteredIds.push_back(id0Expr);
     this->modifiedVariableType(id0Expr->id, node->ids[0]->types);
     this->applyToStack(id0Expr->id, node->ids[0]->types);
@@ -1747,7 +1747,7 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
     this->checkIdentifier(id0Expr);
   }
   auto *id1Expr = dynamic_cast<IdExpression *>(node->ids[1].get());
-  if (id1Expr) {
+  if (id1Expr) [[likely]] {
     this->metadata->encounteredIds.push_back(id1Expr);
     this->modifiedVariableType(id1Expr->id, node->ids[1]->types);
     this->applyToStack(id1Expr->id, node->ids[1]->types);
@@ -1766,7 +1766,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
     analyseIterationStatementSingleIdentifier(node);
   } else if (count == 2) {
     analyseIterationStatementTwoIdentifiers(node);
-  } else {
+  } else [[unlikely]] {
     const auto *fNode = node->ids[0].get();
     const auto *eNode = node->ids[1].get();
     this->metadata->registerDiagnostic(
