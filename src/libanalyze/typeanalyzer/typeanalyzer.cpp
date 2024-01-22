@@ -314,11 +314,11 @@ void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
 std::optional<std::shared_ptr<Type>>
 TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
                              const std::shared_ptr<Type> &right) {
-  const auto *listL = dynamic_cast<List *>(left.get());
-  if (listL) {
-    const auto *listR = dynamic_cast<List *>(right.get());
+  if (left->tag == TypeName::LIST) {
+    const auto *listL = static_cast<List *>(left.get());
     auto newTypes = listL->types;
-    if (listR) {
+    if (right->tag == TypeName::LIST) {
+      const auto *listR = static_cast<List *>(right.get());
       auto rTypes = listR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
     } else {
@@ -326,11 +326,11 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     }
     return std::make_shared<List>(dedup(this->ns, newTypes));
   }
-  const auto *dictL = dynamic_cast<Dict *>(left.get());
-  if (dictL) {
-    const auto *dictR = dynamic_cast<Dict *>(right.get());
+  if (left->tag == TypeName::DICT) {
+    const auto *dictL = static_cast<Dict *>(left.get());
     auto newTypes = dictL->types;
-    if (dictR) {
+    if (right->tag == TypeName::DICT) {
+      const auto *dictR = static_cast<Dict *>(right.get());
       auto rTypes = dictR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
     } else {
@@ -338,11 +338,10 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     }
     return std::make_shared<Dict>(dedup(this->ns, newTypes));
   }
-  if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
+  if (left->tag == right->tag && left->tag == TypeName::STR) {
     return this->ns.strType;
   }
-  if (dynamic_cast<IntType *>(left.get()) &&
-      dynamic_cast<IntType *>(right.get())) {
+  if (left->tag == right->tag && left->tag == TypeName::INT) {
     return this->ns.intType;
   }
   return std::nullopt;
@@ -360,19 +359,17 @@ void TypeAnalyzer::evalAssignmentTypes(
     break;
   }
   case DivEquals:
-    if (dynamic_cast<IntType *>(left.get()) &&
-        dynamic_cast<IntType *>(right.get())) {
+    if (sameType(left, right, TypeName::INT)) {
       newTypes->push_back(this->ns.intType);
     }
-    if (dynamic_cast<Str *>(left.get()) && dynamic_cast<Str *>(right.get())) {
+    if (sameType(left, right, TypeName::STR)) {
       newTypes->push_back(this->ns.strType);
     }
     break;
   case MinusEquals:
   case ModEquals:
   case MulEquals:
-    if (dynamic_cast<IntType *>(left.get()) &&
-        dynamic_cast<IntType *>(right.get())) {
+    if (sameType(left, right, TypeName::INT)) {
       newTypes->push_back(this->ns.intType);
     }
     break;
@@ -442,20 +439,22 @@ bool TypeAnalyzer::isSpecial(const std::vector<std::shared_ptr<Type>> &types) {
   }
   auto counter = 0;
   for (const auto &type : types) {
-    if (dynamic_cast<Any *>(type.get())) {
+    if (type->tag == TypeName::ANY) {
       counter++;
       continue;
     }
-    auto *asList = dynamic_cast<List *>(type.get());
-    if (asList && asList->types.size() == 1 &&
-        dynamic_cast<Any *>(asList->types[0].get())) {
-      counter++;
+    if (type->tag == TypeName::LIST) {
+      auto *asList = static_cast<List *>(type.get());
+      if (asList->types.size() == 1 && asList->types[0]->tag == TypeName::ANY) {
+        counter++;
+      }
       continue;
     }
-    auto *asDict = dynamic_cast<Dict *>(type.get());
-    if (asDict && asDict->types.size() == 1 &&
-        dynamic_cast<Any *>(asDict->types[0].get())) {
-      counter++;
+    if (type->tag == TypeName::DICT) {
+      auto *asDict = static_cast<Dict *>(type.get());
+      if (asDict->types.size() == 1 && asDict->types[0]->tag == TypeName::ANY) {
+        counter++;
+      }
       continue;
     }
     return false;
@@ -480,11 +479,11 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
-        const auto *list1 = dynamic_cast<List *>(lType.get());
-        const auto *list2 = dynamic_cast<List *>(rType.get());
-        if (list1) {
+        if (lType->tag == TypeName::LIST) {
+          const auto *list1 = static_cast<List *>(lType.get());
           auto types = list1->types;
-          if (list2) {
+          if (rType->tag == TypeName::LIST) {
+            const auto *list2 = static_cast<List *>(rType.get());
             types.insert(types.end(), list2->types.begin(), list2->types.end());
           } else {
             types.push_back(rType);
@@ -492,9 +491,9 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           newTypes.emplace_back(std::make_shared<List>(types));
           break;
         }
-        const auto *dict1 = dynamic_cast<Dict *>(lType.get());
-        const auto *dict2 = dynamic_cast<Dict *>(rType.get());
-        if (dict1 && dict2) {
+        if (lType->tag == rType->tag && lType->tag == TypeName::DICT) {
+          const auto *dict1 = static_cast<Dict *>(lType.get());
+          const auto *dict2 = static_cast<Dict *>(rType.get());
           auto types = dict1->types;
           types.insert(types.end(), dict2->types.begin(), dict2->types.end());
           newTypes.emplace_back(std::make_shared<Dict>(types));
@@ -833,13 +832,8 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
                node->ifFalse->types.end());
   node->types = types;
   for (const auto &type : node->condition->types) {
-    if (dynamic_cast<Any *>(type.get())) {
-      return;
-    }
-    if (dynamic_cast<BoolType *>(type.get())) {
-      return;
-    }
-    if (dynamic_cast<Disabler *>(type.get())) {
+    if (type->tag == TypeName::ANY || type->tag == TypeName::BOOL ||
+        type->tag == TypeName::DISABLER) {
       return;
     }
   }
@@ -1685,16 +1679,16 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   auto errs = 0UL;
   auto foundDict = false;
   for (const auto &iterT : iterTypes) {
-    if (dynamic_cast<Range *>(iterT.get())) {
+    if (iterT->tag == TypeName::RANGE) {
       res.emplace_back(this->ns.intType);
       continue;
     }
-    auto *asList = dynamic_cast<List *>(iterT.get());
-    if (asList) {
+    if (iterT->tag == TypeName::LIST) {
+      auto *asList = static_cast<List *>(iterT.get());
       res.insert(res.end(), asList->types.begin(), asList->types.end());
       continue;
     }
-    if (dynamic_cast<Dict *>(iterT.get())) {
+    if (iterT->tag == TypeName::DICT) {
       foundDict = true;
     }
     errs++;
@@ -1727,12 +1721,11 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   auto found = false;
   auto foundBad = false;
   for (const auto &iterT : iterTypes) {
-    const auto *dict = dynamic_cast<Dict *>(iterT.get());
-    foundBad |= dynamic_cast<List *>(iterT.get()) != nullptr ||
-                dynamic_cast<Range *>(iterT.get()) != nullptr;
-    if (!dict) {
+    if (iterT->tag != TypeName::DICT) {
+      foundBad |= iterT->tag == TypeName::LIST || iterT->tag == TypeName::RANGE;
       continue;
     }
+    const auto *dict = static_cast<Dict *>(iterT.get());
     node->ids[1]->types = dict->types;
     found = true;
     break;
@@ -1818,22 +1811,30 @@ bool TypeAnalyzer::findMethod(
   auto found = false;
   const auto &types = node->obj->types;
   for (const auto &type : types) {
-    if (dynamic_cast<Any *>(type.get())) {
+    if (type->tag == TypeName::ANY) {
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 0);
       continue;
     }
-    auto *listtype = dynamic_cast<List *>(type.get());
-    if (listtype && listtype->types.size() == 1 &&
-        dynamic_cast<Any *>(listtype->types[0].get())) {
-      *nAny = *nAny + 1;
-      *bits = (*bits) | (1 << 1);
+    auto hasDict = false;
+    auto hasList = false;
+    if (type->tag == TypeName::LIST) {
+      hasList = true;
+      auto *listtype = static_cast<List *>(type.get());
+      if (listtype->types.size() == 1 &&
+          listtype->types[0]->tag == TypeName::ANY) {
+        *nAny = *nAny + 1;
+        *bits = (*bits) | (1 << 1);
+      }
     }
-    auto *dicttype = dynamic_cast<Dict *>(type.get());
-    if (dicttype && dicttype->types.size() == 1 &&
-        dynamic_cast<Any *>(dicttype->types[0].get())) {
-      *nAny = *nAny + 1;
-      *bits = (*bits) | (1 << 2);
+    if (type->tag == TypeName::DICT) {
+      hasDict = true;
+      auto *dicttype = static_cast<Dict *>(type.get());
+      if (dicttype->types.size() == 1 &&
+          dicttype->types[0]->tag == TypeName::ANY) {
+        *nAny = *nAny + 1;
+        *bits = (*bits) | (1 << 2);
+      }
     }
     if (methodName == "get") {
       auto *al = dynamic_cast<ArgumentList *>(node->args.get());
@@ -1845,14 +1846,13 @@ bool TypeAnalyzer::findMethod(
         continue;
       }
       for (const auto &argType : firstArg->types) {
-        if (dynamic_cast<IntType *>(argType.get()) && listtype) {
+        if (argType->tag == TypeName::INT && hasList) {
           goto cont;
         }
-        if (dynamic_cast<Str *>(argType.get()) && dicttype) {
+        if (argType->tag == TypeName::STR && hasDict) {
           goto cont;
         }
-        if (dynamic_cast<Str *>(argType.get()) &&
-            dynamic_cast<CfgData *>(type.get())) {
+        if (argType->tag == TypeName::STR && type->tag == TypeName::CFG_DATA) {
           goto cont;
         }
       }
@@ -1885,9 +1885,8 @@ bool TypeAnalyzer::findMethod(
   }
   if (!found && methodName == "get") {
     for (const auto &type : types) {
-      if (dynamic_cast<Dict *>(type.get()) ||
-          dynamic_cast<List *>(type.get()) ||
-          dynamic_cast<CfgData *>(type.get())) {
+      if (type->tag == TypeName::DICT || type->tag == TypeName::LIST ||
+          type->tag == TypeName::CFG_DATA) {
         auto method = this->ns.lookupMethod("get", type);
         assert(method.has_value());
         node->method = method.value();
@@ -1944,8 +1943,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
                  (bits == 0b111 /* NOLINT */ && types.size() == 3))) {
     found = this->guessMethod(node, methodName, ownResultTypes);
   }
-  auto onlyDisabler = types.size() == 1 &&
-                      (dynamic_cast<Disabler *>(types[0].get()) != nullptr);
+  auto onlyDisabler = types.size() == 1 && types[0]->tag == TypeName::DISABLER;
   if (!found && !onlyDisabler) {
     const auto &typeStr = joinTypes(types);
     this->metadata->registerDiagnostic(
@@ -2094,9 +2092,8 @@ bool TypeAnalyzer::checkCondition(Node *condition) {
   }
   auto foundBoolOrAny = false;
   for (const auto &type : condition->types) {
-    if (dynamic_cast<Any *>(type.get()) ||
-        dynamic_cast<BoolType *>(type.get()) ||
-        dynamic_cast<Disabler *>(type.get())) {
+    if (type->tag == TypeName::ANY || type->tag == TypeName::BOOL ||
+        type->tag == TypeName::DISABLER) {
       foundBoolOrAny = true;
       break;
     }
@@ -2240,11 +2237,11 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
       newTypes.insert(newTypes.begin(), lTypes.begin(), lTypes.end());
       continue;
     }
-    if (dynamic_cast<Str *>(type.get()) != nullptr) {
+    if (type->tag == TypeName::STR) {
       newTypes.emplace_back(this->ns.strType);
       continue;
     }
-    if (dynamic_cast<CustomTgt *>(type.get()) != nullptr) {
+    if (type->tag == TypeName::CUSTOM_TGT) {
       newTypes.emplace_back(this->ns.types.at("custom_idx"));
       continue;
     }
