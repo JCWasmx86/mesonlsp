@@ -61,7 +61,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
     if (lastCharSeen != '.' && lastCharSeen != ')') {
       goto next;
     }
-    auto types =
+    const auto &types =
         afterDotCompletion(tree, path, position.line, position.character, true);
     if (types.has_value() && !types.value().empty()) {
       LOG.info(std::format("Guessed types in afterDotCompletion: {}",
@@ -119,6 +119,12 @@ next:
       if (lowercase(identifier->id).contains(loweredId) &&
           loweredId != identifier->id) {
         toInsert.insert(identifier->id);
+      }
+    }
+    for (const auto &builtin : std::vector<std::string>{
+             "meson", "build_machine", "host_machine", "target_machine"}) {
+      if (builtin.contains(loweredId) && loweredId != builtin) {
+        toInsert.insert(builtin);
       }
     }
     for (const auto &identifier : toInsert) {
@@ -274,6 +280,13 @@ fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types) {
   std::set<std::shared_ptr<Method>> ret;
   for (const auto &type : types) {
+    const auto *ao = dynamic_cast<const AbstractObject *>(type.get());
+    LOG.info(std::format("Found AO of {}: {}", type->toString(), (void *)ao));
+    if (ao && ao->parent.has_value()) {
+      auto parentMethods = fillTypes(
+          tree, std::vector<std::shared_ptr<Type>>{ao->parent.value()});
+      ret.insert(parentMethods.begin(), parentMethods.end());
+    }
     if (!tree->ns.vtables.contains(type->name)) {
       continue;
     }
