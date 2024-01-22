@@ -53,6 +53,13 @@ TEST(TypeNamespaceTest, testFullMethodDocCoverage) {
   }
 }
 
+TEST(TypeNamespaceTest, testFullFunctionDocCoverage) {
+  auto tns = TypeNamespace();
+  for (const auto &func : tns.functions) {
+    ASSERT_NE(func.second->doc, "");
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
