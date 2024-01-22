@@ -198,6 +198,7 @@ BuildDefinition::BuildDefinition(const std::shared_ptr<SourceFile> &file,
   if (!node.id) {
     return;
   }
+  this->stmts.reserve(ts_node_named_child_count(node));
   for (uint32_t i = 0; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));
     if (stmt) {
@@ -388,12 +389,14 @@ IterationStatement::IterationStatement(const std::shared_ptr<SourceFile> &file,
                                        const TSNode &node)
     : Node(file, node) {
   auto idList = ts_node_named_child(node, 0);
+  this->ids.reserve(2);
   for (uint32_t i = 0; i < ts_node_named_child_count(idList); i++) {
     auto child = ts_node_named_child(idList, i);
     auto newNode = makeNode(file, child);
     this->ids.push_back(newNode);
   }
   this->expression = makeNode(file, ts_node_named_child(node, 1));
+  this->stmts.reserve(ts_node_named_child_count(node) - 2);
   for (uint32_t i = 2; i < ts_node_named_child_count(node); i++) {
     auto stmt = makeNode(file, ts_node_named_child(node, i));
     if (stmt == nullptr) {
@@ -677,6 +680,8 @@ SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
   std::vector<std::shared_ptr<Node>> tmp;
   std::vector<std::shared_ptr<Node>> cs;
   std::vector<std::vector<std::shared_ptr<Node>>> bb;
+  // Place enough for 4 blocks (E.g. if/if/if/else)
+  bb.reserve(4);
   while (idx < childCount) {
     const auto &c = ts_node_child(node, idx);
     const auto nodeType = ts_node_symbol(c);
@@ -691,12 +696,16 @@ SelectionStatement::SelectionStatement(const std::shared_ptr<SourceFile> &file,
       while (ts_node_symbol(ts_node_child(node, idx + 1)) == sym__comment) {
         idx++;
       }
+      const auto oldSize = tmp.size();
       tmp = {};
+      tmp.reserve(oldSize);
       cs.push_back(makeNode(file, ts_node_child(node, idx + 1)));
       idx++;
     } else if (nodeType == anon_sym_else) {
       bb.push_back(tmp);
+      const auto oldSize = tmp.size();
       tmp = {};
+      tmp.reserve(oldSize);
     } else if (nodeType != sym__comment && ts_node_named_child_count(c) == 1) {
       const auto cChildType = ts_node_symbol(ts_node_named_child(c, 0));
       if (cChildType != sym__comment) {
