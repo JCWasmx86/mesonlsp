@@ -1,4 +1,6 @@
 typenamespace_inc = include_directories('.')
+typenamespace_deps = [objects_dep]
+
 genfunctions_cpp = configure_file(
     command: [
         files('genfunctions.py'),
@@ -38,18 +40,25 @@ genobjectdocs_cpp = configure_file(
     input: ['objectdocs.def'],
     output: 'genobjectdocs.cpp',
 )
-typenamespace_deps = [objects_dep]
-typenamespace_lib = static_library(
-    'typenamespace',
-    'typenamespace.cpp',
+
+generated_lib = static_library(
+    'generated_lib',
     genfunctions_cpp,
     genmethods_cpp,
     genobjectdocs_cpp,
+    include_directories: typenamespace_inc,
+    dependencies: typenamespace_deps,
+    cpp_args: ['-fno-var-tracking-assignments'],
+)
+
+typenamespace_lib = static_library(
+    'typenamespace',
+    'typenamespace.cpp',
     include_directories: typenamespace_inc,
     dependencies: typenamespace_deps,
 )
 typenamespace_dep = declare_dependency(
     dependencies: typenamespace_deps,
     include_directories: typenamespace_inc,
-    link_with: [typenamespace_lib],
+    link_with: [typenamespace_lib, generated_lib],
 )
