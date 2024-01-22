@@ -205,7 +205,7 @@ public:
     }
 
     std::ranges::sort(names);
-    this->cache = "list(" + joinStrings(names, '|') + ")";
+    this->cache = std::format("list({})", joinStrings(names, '|'));
     this->cached = true;
     return this->cache;
   }
@@ -223,7 +223,7 @@ public:
       : AbstractObject("subproject", TypeName::SUBPROJECT),
         names(std::move(names)) {
     std::ranges::sort(this->names);
-    this->simple = 0;
+    this->simple = false;
     this->cache = "subproject(" + joinStrings(this->names, '|') + ")";
   }
 

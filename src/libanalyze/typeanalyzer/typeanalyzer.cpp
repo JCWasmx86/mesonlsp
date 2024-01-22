@@ -1539,7 +1539,7 @@ std::vector<std::shared_ptr<Type>>
 TypeAnalyzer::evalStack(const std::string &name) {
   std::vector<std::shared_ptr<Type>> ret;
   for (const auto &overridden : this->overriddenVariables) {
-    if (!overridden.contains(name)) {
+    if (!overridden.contains(name)) [[likely]] {
       continue;
     }
     ret.insert(ret.end(), overridden.at(name).begin(),
