@@ -70,6 +70,8 @@ This method is the equivalent of the corresponding CMake function. It generates 
 - `configuration`: a `configuration_data` object used for variable substitution in the template file. Since 0.62.0, it can take a dictionary instead.
 
 @cmake_subproject::dependency:
+Returns a dependency object for any CMake target.
+The `include_type` kwarg (new in 0.56.0) controls the include type of the returned dependency object similar to the same kwarg in the `dependency()` function.
 @cmake_subproject::include_directories:
 Returns a Meson `inc` object for the specified target. Using this method is not necessary if the dependency object is used.
 @cmake_subproject::target:
