@@ -104,7 +104,6 @@ class Type {
 public:
   const TypeName tag;
   const std::string name;
-  std::string docs;
 
   virtual const std::string &toString() { return this->name; }
 
