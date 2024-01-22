@@ -28,6 +28,7 @@ enum class Severity {
       this->variable[key].push_back(node);                                     \
     } else {                                                                   \
       this->variable[key] = {node};                                            \
+      this->variable[key].reserve(256);                                        \
     }                                                                          \
   }
 
@@ -164,7 +165,7 @@ public:
   REGISTER(registerMethodCall, methodCalls, MethodExpression)
   REGISTER(registerFunctionCall, functionCalls, FunctionExpression)
 
-  void beginIdentifiers() {
+  void beginFile() {
     this->idExprs.emplace_back();
     this->tempStringLiterals.emplace_back();
     this->tempKwargs.emplace_back();
@@ -175,7 +176,7 @@ public:
     this->encounteredIds.push_back(node);
   }
 
-  void endIdentifiers(const std::filesystem::path &path) {
+  void endFile(const std::filesystem::path &path) {
     this->identifiers[path] = this->idExprs.back();
     this->idExprs.pop_back();
     this->stringLiterals[path] = this->tempStringLiterals.back();
