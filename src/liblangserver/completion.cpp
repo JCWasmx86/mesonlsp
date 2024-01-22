@@ -379,7 +379,7 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
   if (fe && fe->function) {
     const auto &func = fe->function;
     LOG.info("Found function: " + func->id());
-    // dependency, get_option
+    // dependency
     if (func->name == "files") {
       std::set<std::filesystem::path> alreadyExisting;
       const auto ppath = literal->file->file.parent_path();
