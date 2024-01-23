@@ -1411,13 +1411,11 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   }
   const auto &guessed = ::guessSetVariable(node, this->options);
   std::set<std::string> const asSet{guessed.begin(), guessed.end()};
-  const auto &msg = std::format(
-      "Found subdircall with dirs: {} at {}:{}", joinStrings(asSet, '|'),
-      node->file->file.c_str(), node->location.format());
   if (asSet.empty()) {
+    const auto &msg =
+        std::format("Found no dirs at subdircall at {}:{}",
+                    node->file->file.c_str(), node->location.format());
     LOG.warn(msg);
-  } else {
-    LOG.info(msg);
   }
   this->metadata->registerSubdirCall(node, asSet);
   const auto &parentPath = node->file->file.parent_path();
