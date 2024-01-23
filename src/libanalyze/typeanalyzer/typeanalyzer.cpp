@@ -1567,7 +1567,7 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
     }
     const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
     if (ass) {
-      if (ass->lhs->equals(node) && ass->op == Equals) {
+      if (ass->lhs->equals(node)) {
         return true;
       }
       goto end;
