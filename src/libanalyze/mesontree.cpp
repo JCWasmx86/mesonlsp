@@ -110,18 +110,14 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
     return;
   }
   auto rootNode = this->parseFile(rootFile);
-  Scope typeanalysisScope;
-  typeanalysisScope.variables["meson"] = {this->ns.types.at("meson")};
-  typeanalysisScope.variables["build_machine"] = {
-      this->ns.types.at("build_machine")};
-  typeanalysisScope.variables["host_machine"] = {
-      this->ns.types.at("host_machine")};
-  typeanalysisScope.variables["target_machine"] = {
+  this->scope.variables["meson"] = {this->ns.types.at("meson")};
+  this->scope.variables["build_machine"] = {this->ns.types.at("build_machine")};
+  this->scope.variables["host_machine"] = {this->ns.types.at("host_machine")};
+  this->scope.variables["target_machine"] = {
       this->ns.types.at("target_machine")};
-  TypeAnalyzer visitor(this->ns, &this->metadata, this, typeanalysisScope,
+  TypeAnalyzer visitor(this->ns, &this->metadata, this, this->scope,
                        analysisOptions, optState);
   rootNode->setParents();
   rootNode->visit(&visitor);
-  this->scope = visitor.scope;
   this->options = visitor.options;
 }

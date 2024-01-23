@@ -25,14 +25,14 @@ public:
   const TypeNamespace &ns;
   MesonTree *tree;
   MesonMetadata *metadata;
-  Scope scope;
+  Scope &scope;
   AnalysisOptions analysisOptions;
   OptionState options;
 
   TypeAnalyzer(const TypeNamespace &ns, MesonMetadata *metadata,
-               MesonTree *tree, Scope scope, AnalysisOptions analysisOptions,
+               MesonTree *tree, Scope &scope, AnalysisOptions analysisOptions,
                OptionState options)
-      : ns(ns), tree(tree), metadata(metadata), scope(std::move(scope)),
+      : ns(ns), tree(tree), metadata(metadata), scope(scope),
         analysisOptions(analysisOptions), options(std::move(options)) {}
 
   void visitArgumentList(ArgumentList *node) override;
