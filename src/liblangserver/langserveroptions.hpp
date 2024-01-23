@@ -42,6 +42,10 @@ private:
       this->analysisOptions.disableNameLinting =
           linting.value("disableNameLinting", false);
     }
+    if (linting.contains("disableUnusedVariableCheck")) {
+      this->analysisOptions.disableUnusedVariableCheck =
+          linting.value("disableUnusedVariableCheck", false);
+    }
     if (linting.contains("disableAllIdLinting")) {
       this->analysisOptions.disableAllIdLinting =
           linting.value("disableAllIdLinting", false);

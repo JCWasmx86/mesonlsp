@@ -9,6 +9,7 @@ public:
   bool disableLinkerIdLinting;
   bool disableCpuFamilyLinting;
   bool disableOsFamilyLinting;
+  bool disableUnusedVariableCheck;
 
   // This should be a better API somehow
   explicit AnalysisOptions(bool disableNameLinting = false,
@@ -17,12 +18,14 @@ public:
                            bool disableCompilerArgumentIdLinting = false,
                            bool disableLinkerIdLinting = false,
                            bool disableCpuFamilyLinting = false,
-                           bool disableOsFamilyLinting = false)
+                           bool disableOsFamilyLinting = false,
+                           bool disableUnusedVariableCheck = false)
       : disableNameLinting(disableNameLinting),
         disableAllIdLinting(disableAllIdLinting),
         disableCompilerIdLinting(disableCompilerIdLinting),
         disableCompilerArgumentIdLinting(disableCompilerArgumentIdLinting),
         disableLinkerIdLinting(disableLinkerIdLinting),
         disableCpuFamilyLinting(disableCpuFamilyLinting),
-        disableOsFamilyLinting(disableOsFamilyLinting) {}
+        disableOsFamilyLinting(disableOsFamilyLinting),
+        disableUnusedVariableCheck(disableUnusedVariableCheck) {}
 };
