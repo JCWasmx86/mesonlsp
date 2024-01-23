@@ -796,6 +796,9 @@ void TypeAnalyzer::checkUnusedVariables() {
     this->variablesNeedingUse.back() = toAppend;
     return;
   }
+  if (this->analysisOptions.disableUnusedVariableCheck) {
+    return;
+  }
   for (const auto *needed : needingUse) {
     const auto *ass = dynamic_cast<AssignmentStatement *>(needed->parent);
     if (!ass) {
