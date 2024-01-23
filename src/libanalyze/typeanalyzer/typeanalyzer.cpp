@@ -793,6 +793,7 @@ void TypeAnalyzer::checkUnusedVariables() {
   if (!this->variablesNeedingUse.empty()) {
     auto &toAppend = this->variablesNeedingUse.back();
     toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
+    this->variablesNeedingUse.back() = toAppend;
     return;
   }
   for (const auto *needed : needingUse) {
@@ -1639,10 +1640,35 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
       this->registerUsed(node->id);
       goto cont;
     }
+    auto *kvi = dynamic_cast<KeyValueItem *>(parent);
+    if (kvi && kvi->value->equals(node)) {
+      this->registerUsed(node->id);
+      goto cont;
+    }
     if (dynamic_cast<FunctionExpression *>(parent)) {
       goto cont; // Do nothing
     }
-    this->registerUsed(node->id);
+
+    auto *its = dynamic_cast<IterationStatement *>(parent);
+    if (its && its->expression->equals(node)) {
+      this->registerUsed(node->id);
+      goto cont;
+    }
+    auto *me = dynamic_cast<MethodExpression *>(parent);
+    if (me && me->obj->equals(node)) {
+      this->registerUsed(node->id);
+      goto cont;
+    }
+
+    if (dynamic_cast<BinaryExpression *>(parent) ||
+        dynamic_cast<UnaryExpression *>(parent) ||
+        dynamic_cast<ArgumentList *>(parent) ||
+        dynamic_cast<ArrayLiteral *>(parent) ||
+        dynamic_cast<ConditionalExpression *>(parent) ||
+        dynamic_cast<SubscriptExpression *>(parent) ||
+        dynamic_cast<SelectionStatement *>(parent)) {
+      this->registerUsed(node->id);
+    }
   } else {
     this->registerUsed(node->id);
   }
@@ -1661,7 +1687,7 @@ cont:
 void TypeAnalyzer::registerUsed(const std::string &varname) {
   for (auto &arr : this->variablesNeedingUse | std::ranges::views::reverse) {
     std::erase_if(
-        arr, [&varname](const auto &idExpr) { return idExpr->id != varname; });
+        arr, [&varname](const auto &idExpr) { return idExpr->id == varname; });
   }
 }
 
@@ -2150,7 +2176,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   std::set<std::string> dedupedUnusedAssignments;
   auto toInsert = this->variablesNeedingUse.back();
   for (auto *idExpr : allLeft) {
-    if (!dedupedUnusedAssignments.contains(idExpr->id)) {
+    if (dedupedUnusedAssignments.contains(idExpr->id)) {
       continue;
     }
     dedupedUnusedAssignments.insert(idExpr->id);
