@@ -229,7 +229,8 @@ void OptionDiagnosticVisitor::validateComboOption(
 }
 
 void OptionDiagnosticVisitor::extractArrayChoices(
-    const ArgumentList *al, std::set<std::string> **choices) const {
+    const ArgumentList *al,
+    std::shared_ptr<std::set<std::string>> *choices) const {
   auto kwarg = al->getKwarg("choices");
   if (!kwarg.has_value()) {
     *choices = nullptr;
@@ -243,7 +244,7 @@ void OptionDiagnosticVisitor::extractArrayChoices(
         Diagnostic(Severity::ERROR, kwarg->get(), "Expected array literal"));
     return;
   }
-  auto *ret = new std::set<std::string>();
+  auto ret = std::set<std::string>();
   for (const auto &node : arrayLit->args) {
     const auto *asStr = dynamic_cast<const StringLiteral *>(node.get());
     if (!asStr) {
@@ -253,27 +254,27 @@ void OptionDiagnosticVisitor::extractArrayChoices(
       continue;
     }
     const auto &content = asStr->id;
-    if (!ret->contains(content)) {
-      ret->insert(content);
+    if (!ret.contains(content)) {
+      ret.insert(content);
       continue;
     }
     this->metadata->registerDiagnostic(
         node.get(),
         Diagnostic(Severity::WARNING, node.get(), "Duplicate choice"));
   }
-  *choices = ret;
+  *choices = std::make_shared<std::set<std::string>>(ret);
 }
 
 void OptionDiagnosticVisitor::validateArrayOption(
     const Node *defaultValue, const ArgumentList *al) const {
-  std::set<std::string> *choices = nullptr;
+  std::shared_ptr<std::set<std::string>> choices = nullptr;
   extractArrayChoices(al, &choices);
   const auto *arrLit = dynamic_cast<const ArrayLiteral *>(defaultValue);
   if (!arrLit) {
     this->metadata->registerDiagnostic(
         defaultValue,
         Diagnostic(Severity::ERROR, defaultValue, "Expected array literal"));
-    goto end;
+    return;
   }
   for (const auto &node : arrLit->args) {
     const auto *asStr = dynamic_cast<StringLiteral *>(node.get());
@@ -291,8 +292,6 @@ void OptionDiagnosticVisitor::validateArrayOption(
         node.get(), Diagnostic(Severity::ERROR, node.get(),
                                "Value is not a valid choice!"));
   }
-end:
-  delete choices;
 }
 
 std::optional<int64_t>

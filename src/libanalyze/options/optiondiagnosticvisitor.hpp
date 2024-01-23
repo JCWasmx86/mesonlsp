@@ -49,8 +49,9 @@ private:
                            const ArgumentList *al) const;
   void validateComboOption(const Node *defaultValue,
                            const ArgumentList *al) const;
-  void extractArrayChoices(const ArgumentList *al,
-                           std::set<std::string> **choices) const;
+  void
+  extractArrayChoices(const ArgumentList *al,
+                      std::shared_ptr<std::set<std::string>> *choices) const;
   std::optional<int64_t> parseInt(const Node *node);
   std::optional<int64_t> parseString(const Node *node) const;
   std::optional<int64_t> fetchIntOrNullOpt(const ArgumentList *al,

@@ -175,6 +175,8 @@ static const std::set<std::string> PURE_METHODS /* NOLINT */ = {
     "list.length",
 };
 
+using enum TypeName;
+
 static std::vector<std::shared_ptr<Type>>
 dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
 static bool isSnakeCase(const std::string &str);
@@ -314,10 +316,10 @@ void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
 std::optional<std::shared_ptr<Type>>
 TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
                              const std::shared_ptr<Type> &right) {
-  if (left->tag == TypeName::LIST) {
+  if (left->tag == LIST) {
     const auto *listL = static_cast<List *>(left.get());
     auto newTypes = listL->types;
-    if (right->tag == TypeName::LIST) {
+    if (right->tag == LIST) {
       const auto *listR = static_cast<List *>(right.get());
       auto rTypes = listR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
@@ -326,10 +328,10 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     }
     return std::make_shared<List>(dedup(this->ns, newTypes));
   }
-  if (left->tag == TypeName::DICT) {
+  if (left->tag == DICT) {
     const auto *dictL = static_cast<Dict *>(left.get());
     auto newTypes = dictL->types;
-    if (right->tag == TypeName::DICT) {
+    if (right->tag == DICT) {
       const auto *dictR = static_cast<Dict *>(right.get());
       auto rTypes = dictR->types;
       newTypes.insert(newTypes.end(), rTypes.begin(), rTypes.end());
@@ -338,10 +340,10 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     }
     return std::make_shared<Dict>(dedup(this->ns, newTypes));
   }
-  if (left->tag == right->tag && left->tag == TypeName::STR) {
+  if (left->tag == right->tag && left->tag == STR) {
     return this->ns.strType;
   }
-  if (left->tag == right->tag && left->tag == TypeName::INT) {
+  if (left->tag == right->tag && left->tag == INT) {
     return this->ns.intType;
   }
   return std::nullopt;
@@ -359,17 +361,17 @@ void TypeAnalyzer::evalAssignmentTypes(
     break;
   }
   case DivEquals:
-    if (sameType(left, right, TypeName::INT)) {
+    if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
-    if (sameType(left, right, TypeName::STR)) {
+    if (sameType(left, right, STR)) {
       newTypes->push_back(this->ns.strType);
     }
     break;
   case MinusEquals:
   case ModEquals:
   case MulEquals:
-    if (sameType(left, right, TypeName::INT)) {
+    if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
     break;
@@ -439,20 +441,20 @@ bool TypeAnalyzer::isSpecial(const std::vector<std::shared_ptr<Type>> &types) {
   }
   auto counter = 0;
   for (const auto &type : types) {
-    if (type->tag == TypeName::ANY) {
+    if (type->tag == ANY) {
       counter++;
       continue;
     }
-    if (type->tag == TypeName::LIST) {
+    if (type->tag == LIST) {
       auto *asList = static_cast<List *>(type.get());
-      if (asList->types.size() == 1 && asList->types[0]->tag == TypeName::ANY) {
+      if (asList->types.size() == 1 && asList->types[0]->tag == ANY) {
         counter++;
       }
       continue;
     }
-    if (type->tag == TypeName::DICT) {
+    if (type->tag == DICT) {
       auto *asDict = static_cast<Dict *>(type.get());
-      if (asDict->types.size() == 1 && asDict->types[0]->tag == TypeName::ANY) {
+      if (asDict->types.size() == 1 && asDict->types[0]->tag == ANY) {
         counter++;
       }
       continue;
@@ -468,21 +470,20 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
   std::vector<std::shared_ptr<Type>> newTypes;
   for (const auto &lType : lhs) {
     for (const auto &rType : rhs) {
-      if (rType->tag == lType->tag && lType->tag == TypeName::ANY) {
+      if (rType->tag == lType->tag && lType->tag == ANY) {
         ++*numErrors;
         continue;
       }
       switch (op) {
       [[likely]] case Plus: {
-        if (sameType(lType, rType, TypeName::STR) ||
-            sameType(lType, rType, TypeName::INT)) {
+        if (sameType(lType, rType, STR) || sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
         }
-        if (lType->tag == TypeName::LIST) {
+        if (lType->tag == LIST) {
           const auto *list1 = static_cast<List *>(lType.get());
           auto types = list1->types;
-          if (rType->tag == TypeName::LIST) {
+          if (rType->tag == LIST) {
             const auto *list2 = static_cast<List *>(rType.get());
             types.insert(types.end(), list2->types.begin(), list2->types.end());
           } else {
@@ -491,7 +492,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           newTypes.emplace_back(std::make_shared<List>(types));
           break;
         }
-        if (lType->tag == rType->tag && lType->tag == TypeName::DICT) {
+        if (lType->tag == rType->tag && lType->tag == DICT) {
           const auto *dict1 = static_cast<Dict *>(lType.get());
           const auto *dict2 = static_cast<Dict *>(rType.get());
           auto types = dict1->types;
@@ -504,11 +505,9 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       }
       [[likely]] case EqualsEquals:
       case NotEquals:
-        if (sameType(lType, rType, TypeName::STR) ||
-            sameType(lType, rType, TypeName::INT) ||
-            sameType(lType, rType, TypeName::BOOL) ||
-            sameType(lType, rType, TypeName::DICT) ||
-            sameType(lType, rType, TypeName::LIST) ||
+        if (sameType(lType, rType, STR) || sameType(lType, rType, INT) ||
+            sameType(lType, rType, BOOL) || sameType(lType, rType, DICT) ||
+            sameType(lType, rType, LIST) ||
             ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
              lType->tag == rType->tag)) {
           newTypes.emplace_back(this->ns.boolType);
@@ -518,16 +517,16 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         break;
       case And:
       case Or:
-        if (sameType(lType, rType, TypeName::BOOL)) {
+        if (sameType(lType, rType, BOOL)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
       case Div:
-        if (sameType(lType, rType, TypeName::INT)) {
+        if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
-        } else if (sameType(lType, rType, TypeName::STR)) {
+        } else if (sameType(lType, rType, STR)) {
           newTypes.emplace_back(this->ns.strType);
         } else {
           ++*numErrors;
@@ -537,8 +536,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       case Gt:
       case Le:
       case Lt:
-        if (sameType(lType, rType, TypeName::INT) ||
-            sameType(lType, rType, TypeName::STR)) {
+        if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
@@ -551,7 +549,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
       case Minus:
       case Modulo:
       case Mul:
-        if (sameType(lType, rType, TypeName::INT)) {
+        if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else {
           ++*numErrors;
@@ -680,7 +678,7 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
   if (!alNode) {
     return;
   }
-  auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+  const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
   if (!al) {
     return;
   }
@@ -688,7 +686,7 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
   if (!mesonVersionKwarg) {
     return;
   }
-  auto *mesonVersionSL =
+  const auto *mesonVersionSL =
       dynamic_cast<StringLiteral *>(mesonVersionKwarg->get());
   if (!mesonVersionSL) {
     return;
@@ -836,8 +834,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
                node->ifFalse->types.end());
   node->types = types;
   for (const auto &type : node->condition->types) {
-    if (type->tag == TypeName::ANY || type->tag == TypeName::BOOL ||
-        type->tag == TypeName::DISABLER) {
+    if (type->tag == ANY || type->tag == BOOL || type->tag == DISABLER) {
       return;
     }
   }
@@ -1210,19 +1207,19 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
       return true;
     }
   }
-  if (given->tag == TypeName::LIST) {
+  if (given->tag == LIST) {
     const auto *gList = static_cast<List *>(given.get());
-    if (expected->tag == TypeName::LIST) {
+    if (expected->tag == LIST) {
       const auto *eList = static_cast<List *>(expected.get());
       return this->atleastPartiallyCompatible(eList->types, gList->types);
     }
     return this->atleastPartiallyCompatible(expected, gList->types);
   }
-  if (expected->tag == TypeName::LIST) {
+  if (expected->tag == LIST) {
     const auto *eList = static_cast<List *>(expected.get());
     return this->atleastPartiallyCompatible(eList->types, given);
   }
-  if (given->tag == expected->tag && given->tag == TypeName::DICT) {
+  if (given->tag == expected->tag && given->tag == DICT) {
     const auto *gDict = static_cast<Dict *>(given.get());
     const auto *eDict = static_cast<Dict *>(expected.get());
     return this->atleastPartiallyCompatible(eDict->types, gDict->types);
@@ -1236,27 +1233,25 @@ bool TypeAnalyzer::atleastPartiallyCompatible(
   if (givenTypes.empty()) {
     return true;
   }
-  if (expectedType->tag == TypeName::ANY ||
-      expectedType->tag == TypeName::DISABLER) {
+  if (expectedType->tag == ANY || expectedType->tag == DISABLER) {
     return true;
   }
-  return std::ranges::any_of(givenTypes, [&expectedType,
-                                          this](const auto &given) {
-    return this->compatible(given, expectedType) || given->tag == TypeName::ANY;
-  });
+  return std::ranges::any_of(
+      givenTypes, [&expectedType, this](const auto &given) {
+        return this->compatible(given, expectedType) || given->tag == ANY;
+      });
 }
 
 bool TypeAnalyzer::atleastPartiallyCompatible(
     const std::vector<std::shared_ptr<Type>> &expectedTypes,
     const std::shared_ptr<Type> &givenType) {
-  return std::ranges::any_of(expectedTypes, [this,
-                                             &givenType](const auto &expected) {
-    if (expected->tag == TypeName::ANY || expected->tag == TypeName::DISABLER) {
-      return true;
-    }
-    return this->compatible(givenType, expected) ||
-           givenType->tag == TypeName::ANY;
-  });
+  return std::ranges::any_of(
+      expectedTypes, [this, &givenType](const auto &expected) {
+        if (expected->tag == ANY || expected->tag == DISABLER) {
+          return true;
+        }
+        return this->compatible(givenType, expected) || givenType->tag == ANY;
+      });
 }
 
 bool TypeAnalyzer::atleastPartiallyCompatible(
@@ -1631,19 +1626,19 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   node->visitChildren(this);
   auto *parent = node->parent;
   if (parent) [[likely]] {
-    auto *ass = dynamic_cast<AssignmentStatement *>(parent);
+    const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
     if (ass) {
       if (ass->op != AssignmentOperator::Equals || ass->rhs->equals(node)) {
         this->registerUsed(node->id);
       }
       goto cont;
     }
-    auto *kwi = dynamic_cast<KeywordItem *>(parent);
+    const auto *kwi = dynamic_cast<KeywordItem *>(parent);
     if (kwi && kwi->value->equals(node)) {
       this->registerUsed(node->id);
       goto cont;
     }
-    auto *kvi = dynamic_cast<KeyValueItem *>(parent);
+    const auto *kvi = dynamic_cast<KeyValueItem *>(parent);
     if (kvi && kvi->value->equals(node)) {
       this->registerUsed(node->id);
       goto cont;
@@ -1652,12 +1647,12 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
       goto cont; // Do nothing
     }
 
-    auto *its = dynamic_cast<IterationStatement *>(parent);
+    const auto *its = dynamic_cast<IterationStatement *>(parent);
     if (its && its->expression->equals(node)) {
       this->registerUsed(node->id);
       goto cont;
     }
-    auto *me = dynamic_cast<MethodExpression *>(parent);
+    const auto *me = dynamic_cast<MethodExpression *>(parent);
     if (me && me->obj->equals(node)) {
       this->registerUsed(node->id);
       goto cont;
@@ -1706,16 +1701,16 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   auto errs = 0UL;
   auto foundDict = false;
   for (const auto &iterT : iterTypes) {
-    if (iterT->tag == TypeName::RANGE) {
+    if (iterT->tag == RANGE) {
       res.emplace_back(this->ns.intType);
       continue;
     }
-    if (iterT->tag == TypeName::LIST) {
+    if (iterT->tag == LIST) {
       auto *asList = static_cast<List *>(iterT.get());
       res.insert(res.end(), asList->types.begin(), asList->types.end());
       continue;
     }
-    if (iterT->tag == TypeName::DICT) {
+    if (iterT->tag == DICT) {
       foundDict = true;
     }
     errs++;
@@ -1748,8 +1743,8 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   auto found = false;
   auto foundBad = false;
   for (const auto &iterT : iterTypes) {
-    if (iterT->tag != TypeName::DICT) {
-      foundBad |= iterT->tag == TypeName::LIST || iterT->tag == TypeName::RANGE;
+    if (iterT->tag != DICT) {
+      foundBad |= iterT->tag == LIST || iterT->tag == RANGE;
       continue;
     }
     const auto *dict = static_cast<Dict *>(iterT.get());
@@ -1838,27 +1833,25 @@ bool TypeAnalyzer::findMethod(
   auto found = false;
   const auto &types = node->obj->types;
   for (const auto &type : types) {
-    if (type->tag == TypeName::ANY) {
+    if (type->tag == ANY) {
       *nAny = *nAny + 1;
       *bits = (*bits) | (1 << 0);
       continue;
     }
     auto hasDict = false;
     auto hasList = false;
-    if (type->tag == TypeName::LIST) {
+    if (type->tag == LIST) {
       hasList = true;
       auto *listtype = static_cast<List *>(type.get());
-      if (listtype->types.size() == 1 &&
-          listtype->types[0]->tag == TypeName::ANY) {
+      if (listtype->types.size() == 1 && listtype->types[0]->tag == ANY) {
         *nAny = *nAny + 1;
         *bits = (*bits) | (1 << 1);
       }
     }
-    if (type->tag == TypeName::DICT) {
+    if (type->tag == DICT) {
       hasDict = true;
       auto *dicttype = static_cast<Dict *>(type.get());
-      if (dicttype->types.size() == 1 &&
-          dicttype->types[0]->tag == TypeName::ANY) {
+      if (dicttype->types.size() == 1 && dicttype->types[0]->tag == ANY) {
         *nAny = *nAny + 1;
         *bits = (*bits) | (1 << 2);
       }
@@ -1873,13 +1866,13 @@ bool TypeAnalyzer::findMethod(
         continue;
       }
       for (const auto &argType : firstArg->types) {
-        if (argType->tag == TypeName::INT && hasList) {
+        if (argType->tag == INT && hasList) {
           goto cont;
         }
-        if (argType->tag == TypeName::STR && hasDict) {
+        if (argType->tag == STR && hasDict) {
           goto cont;
         }
-        if (argType->tag == TypeName::STR && type->tag == TypeName::CFG_DATA) {
+        if (argType->tag == STR && type->tag == CFG_DATA) {
           goto cont;
         }
       }
@@ -1912,8 +1905,7 @@ bool TypeAnalyzer::findMethod(
   }
   if (!found && methodName == "get") {
     for (const auto &type : types) {
-      if (type->tag == TypeName::DICT || type->tag == TypeName::LIST ||
-          type->tag == TypeName::CFG_DATA) {
+      if (type->tag == DICT || type->tag == LIST || type->tag == CFG_DATA) {
         auto method = this->ns.lookupMethod("get", type);
         assert(method.has_value());
         node->method = method.value();
@@ -1970,7 +1962,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
                  (bits == 0b111 /* NOLINT */ && types.size() == 3))) {
     found = this->guessMethod(node, methodName, ownResultTypes);
   }
-  auto onlyDisabler = types.size() == 1 && types[0]->tag == TypeName::DISABLER;
+  auto onlyDisabler = types.size() == 1 && types[0]->tag == DISABLER;
   if (!found && !onlyDisabler) {
     const auto &typeStr = joinTypes(types);
     this->metadata->registerDiagnostic(
@@ -2119,8 +2111,7 @@ bool TypeAnalyzer::checkCondition(Node *condition) {
   }
   auto foundBoolOrAny = false;
   for (const auto &type : condition->types) {
-    if (type->tag == TypeName::ANY || type->tag == TypeName::BOOL ||
-        type->tag == TypeName::DISABLER) {
+    if (type->tag == ANY || type->tag == BOOL || type->tag == DISABLER) {
       foundBoolOrAny = true;
       break;
     }
@@ -2264,11 +2255,11 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
       newTypes.insert(newTypes.begin(), lTypes.begin(), lTypes.end());
       continue;
     }
-    if (type->tag == TypeName::STR) {
+    if (type->tag == STR) {
       newTypes.emplace_back(this->ns.strType);
       continue;
     }
-    if (type->tag == TypeName::CUSTOM_TGT) {
+    if (type->tag == CUSTOM_TGT) {
       newTypes.emplace_back(this->ns.types.at("custom_idx"));
       continue;
     }
@@ -2344,37 +2335,37 @@ dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
   auto gotSubproject = false;
   for (const auto &type : types) {
     auto *asRaw = type.get();
-    if (asRaw->tag == TypeName::STR) {
+    if (asRaw->tag == STR) {
       hasStr = true;
       continue;
     }
-    if (asRaw->tag == TypeName::LIST) {
+    if (asRaw->tag == LIST) {
       auto *asList = static_cast<List *>(asRaw);
       listtypes.insert(listtypes.end(), asList->types.begin(),
                        asList->types.end());
       gotList = true;
       continue;
     }
-    if (asRaw->tag == TypeName::DICT) {
+    if (asRaw->tag == DICT) {
       auto *asDict = static_cast<Dict *>(asRaw);
       dicttypes.insert(dicttypes.end(), asDict->types.begin(),
                        asDict->types.end());
       gotDict = true;
       continue;
     }
-    if (asRaw->tag == TypeName::BOOL) {
+    if (asRaw->tag == BOOL) {
       hasBool = true;
       continue;
     }
-    if (asRaw->tag == TypeName::ANY) {
+    if (asRaw->tag == ANY) {
       hasAny = true;
       continue;
     }
-    if (asRaw->tag == TypeName::INT) {
+    if (asRaw->tag == INT) {
       hasInt = true;
       continue;
     }
-    if (asRaw->tag != TypeName::SUBPROJECT) {
+    if (asRaw->tag != SUBPROJECT) {
       objs[type->tag] = type;
       continue;
     }
@@ -2446,7 +2437,7 @@ static bool isShoutingSnakeCase(const std::string &str) {
 }
 
 static bool isType(const std::shared_ptr<Type> &type, const TypeName tag) {
-  return type->tag == tag || type->tag == TypeName::ANY;
+  return type->tag == tag || type->tag == ANY;
 }
 
 static bool sameType(const std::shared_ptr<Type> &first,
