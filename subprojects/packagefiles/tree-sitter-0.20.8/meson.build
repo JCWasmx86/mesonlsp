@@ -10,6 +10,10 @@ libtree_sitter = static_library(
     include_directories: tree_sitter_inc,
     implicit_include_directories: false,
     install: not meson.is_subproject(),
+    # Horrible hack, but that's how we can
+    # avoid the overhead from atomics in this
+    # case
+    c_args: ['-D__TINYC__=1']
 )
 
 tree_sitter_dep = declare_dependency(
