@@ -117,7 +117,7 @@ InlayHintVisitor::prettify(const std::vector<std::shared_ptr<Type>> &types,
     if (dynamic_cast<Disabler *>(type.get()) && types.size() > 1) {
       continue;
     }
-    auto *asList = dynamic_cast<List *>(type.get());
+    const auto *asList = dynamic_cast<List *>(type.get());
     if (asList) {
       if (depth >= 1) {
         strs.emplace_back("list(...)");
@@ -127,7 +127,7 @@ InlayHintVisitor::prettify(const std::vector<std::shared_ptr<Type>> &types,
       }
       continue;
     }
-    auto *asDict = dynamic_cast<Dict *>(type.get());
+    const auto *asDict = dynamic_cast<Dict *>(type.get());
     if (asDict) {
       if (depth >= 1) {
         strs.emplace_back("dict(...)");

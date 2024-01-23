@@ -61,7 +61,7 @@ enum class TypeName : uint32_t {
   EXTERNAL_PROGRAM,
   EXTRACTED_OBJ,
   FEATURE,
-  FILE,
+  FFILE,
   GENERATED_LIST,
   GENERATOR,
   INC,
@@ -261,7 +261,7 @@ MAKE_TYPE(Env, "env", ENV)
 MAKE_TYPE(ExternalProgram, "external_program", EXTERNAL_PROGRAM)
 MAKE_TYPE(ExtractedObj, "extracted_obj", EXTRACTED_OBJ)
 MAKE_TYPE(Feature, "feature", FEATURE)
-MAKE_TYPE(File, "file", FILE)
+MAKE_TYPE(File, "file", FFILE)
 MAKE_TYPE(GeneratedList, "generated_list", GENERATED_LIST)
 MAKE_TYPE(Generator, "generator", GENERATOR)
 MAKE_TYPE(Inc, "inc", INC)

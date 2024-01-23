@@ -333,9 +333,8 @@ void CodeActionVisitor::makeSharedLibraryToModuleAction(const Node *node) {
   auto range = nodeToRange(fExpr->id.get());
   WorkspaceEdit edit;
   edit.changes[this->uri] = {TextEdit(range, "shared_module")};
-  this->actions.emplace_back(
-      std::format("Use shared_module() instead of shared_library()", name),
-      edit);
+  this->actions.emplace_back("Use shared_module() instead of shared_library()",
+                             edit);
 }
 
 void CodeActionVisitor::makeModuleToSharedLibraryAction(const Node *node) {
@@ -350,9 +349,8 @@ void CodeActionVisitor::makeModuleToSharedLibraryAction(const Node *node) {
   auto range = nodeToRange(fExpr->id.get());
   WorkspaceEdit edit;
   edit.changes[this->uri] = {TextEdit(range, "shared_module")};
-  this->actions.emplace_back(
-      std::format("Use shared_module() instead of shared_library()", name),
-      edit);
+  this->actions.emplace_back("Use shared_module() instead of shared_library()",
+                             edit);
 }
 
 void CodeActionVisitor::makeDeclareDependencyAction(const Node *node) {

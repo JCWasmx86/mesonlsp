@@ -197,8 +197,8 @@ next:
     }
     std::set<std::string> inserted;
     for (const auto &identifier : tree->metadata.encounteredIds) {
-      if ((identifier->file->file == path &&
-           identifier->location.startLine > position.line)) {
+      if (identifier->file->file == path &&
+          identifier->location.startLine > position.line) {
         break;
       }
       if (inserted.contains(identifier->id) ||
