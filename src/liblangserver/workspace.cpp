@@ -550,6 +550,7 @@ Workspace::completion(const std::filesystem::path &path,
     auto ret = complete(path, subTree, subTree->asts[path].back(), position);
     this->completing = false;
     this->smph.release();
+    this->logger.info(std::format("Created {} completions", ret.size()));
     return ret;
   }
 
