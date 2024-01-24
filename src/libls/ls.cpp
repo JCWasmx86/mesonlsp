@@ -58,6 +58,14 @@ void AbstractLanguageServer::handleRequest(std::string method,
   LOG.info(std::format("Received request: {}", method));
   try {
     nlohmann::json ret;
+    if (params.contains("textDocument") &&
+        params["textDocument"].contains("uri")) {
+      const auto &uri = params["textDocument"]["uri"];
+      if (uri.is_string() && !uri.get<std::string>().starts_with("file")) {
+        this->server->reply(callId, ret);
+        return;
+      }
+    }
     if (method == "initialize") {
       InitializeParams serializedParams(params);
       auto results = this->initialize(serializedParams);
