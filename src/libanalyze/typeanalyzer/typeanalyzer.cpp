@@ -497,6 +497,99 @@ bool TypeAnalyzer::isSpecial(const std::vector<std::shared_ptr<Type>> &types) {
   return counter == 3;
 }
 
+void TypeAnalyzer::evalBinaryExpression(
+    BinaryOperator op, const std::shared_ptr<Type> &lType,
+    const std::shared_ptr<Type> &rType,
+    std::vector<std::shared_ptr<Type>> &newTypes, unsigned int *numErrors) {
+  switch (op) {
+    using enum BinaryOperator;
+  [[likely]] case PLUS: {
+    if (sameType(lType, rType, STR) || sameType(lType, rType, INT)) {
+      newTypes.emplace_back(this->ns.types.at(lType->name));
+      break;
+    }
+    if (lType->tag == LIST) {
+      const auto *list1 = static_cast<List *>(lType.get());
+      auto types = list1->types;
+      if (rType->tag == LIST) {
+        const auto *list2 = static_cast<List *>(rType.get());
+        types.insert(types.end(), list2->types.begin(), list2->types.end());
+      } else {
+        types.push_back(rType);
+      }
+      newTypes.emplace_back(std::make_shared<List>(types));
+      break;
+    }
+    if (lType->tag == rType->tag && lType->tag == DICT) {
+      const auto *dict1 = static_cast<Dict *>(lType.get());
+      const auto *dict2 = static_cast<Dict *>(rType.get());
+      auto types = dict1->types;
+      types.insert(types.end(), dict2->types.begin(), dict2->types.end());
+      newTypes.emplace_back(std::make_shared<Dict>(types));
+      break;
+    }
+    ++*numErrors;
+    break;
+  }
+  [[likely]] case EQUALS_EQUALS:
+  case NOT_EQUALS:
+    if (sameType(lType, rType, STR) || sameType(lType, rType, INT) ||
+        sameType(lType, rType, BOOL) || sameType(lType, rType, DICT) ||
+        sameType(lType, rType, LIST) ||
+        ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
+         lType->tag == rType->tag)) {
+      newTypes.emplace_back(this->ns.boolType);
+    } else {
+      ++*numErrors;
+    }
+    break;
+  case AND:
+  case OR:
+    if (sameType(lType, rType, BOOL)) {
+      newTypes.emplace_back(this->ns.boolType);
+    } else {
+      ++*numErrors;
+    }
+    break;
+  case DIV:
+    if (sameType(lType, rType, INT)) {
+      newTypes.emplace_back(this->ns.intType);
+    } else if (sameType(lType, rType, STR)) {
+      newTypes.emplace_back(this->ns.strType);
+    } else {
+      ++*numErrors;
+    }
+    break;
+  case GE:
+  case GT:
+  case LE:
+  case LT:
+    if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
+      newTypes.emplace_back(this->ns.boolType);
+    } else {
+      ++*numErrors;
+    }
+    break;
+  case IN:
+  case NOT_IN:
+    newTypes.emplace_back(this->ns.boolType);
+    break;
+  case MINUS:
+  case MODULO:
+  case MUL:
+    if (sameType(lType, rType, INT)) {
+      newTypes.emplace_back(this->ns.intType);
+    } else {
+      ++*numErrors;
+    }
+    break;
+  default:
+    LOG.error("Whoops???");
+    ++*numErrors;
+    break;
+  }
+}
+
 std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
     BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
     const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors) {
@@ -507,93 +600,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         ++*numErrors;
         continue;
       }
-      switch (op) {
-        using enum BinaryOperator;
-      [[likely]] case PLUS: {
-        if (sameType(lType, rType, STR) || sameType(lType, rType, INT)) {
-          newTypes.emplace_back(this->ns.types.at(lType->name));
-          break;
-        }
-        if (lType->tag == LIST) {
-          const auto *list1 = static_cast<List *>(lType.get());
-          auto types = list1->types;
-          if (rType->tag == LIST) {
-            const auto *list2 = static_cast<List *>(rType.get());
-            types.insert(types.end(), list2->types.begin(), list2->types.end());
-          } else {
-            types.push_back(rType);
-          }
-          newTypes.emplace_back(std::make_shared<List>(types));
-          break;
-        }
-        if (lType->tag == rType->tag && lType->tag == DICT) {
-          const auto *dict1 = static_cast<Dict *>(lType.get());
-          const auto *dict2 = static_cast<Dict *>(rType.get());
-          auto types = dict1->types;
-          types.insert(types.end(), dict2->types.begin(), dict2->types.end());
-          newTypes.emplace_back(std::make_shared<Dict>(types));
-          break;
-        }
-        ++*numErrors;
-        break;
-      }
-      [[likely]] case EQUALS_EQUALS:
-      case NOT_EQUALS:
-        if (sameType(lType, rType, STR) || sameType(lType, rType, INT) ||
-            sameType(lType, rType, BOOL) || sameType(lType, rType, DICT) ||
-            sameType(lType, rType, LIST) ||
-            ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
-             lType->tag == rType->tag)) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case AND:
-      case OR:
-        if (sameType(lType, rType, BOOL)) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case DIV:
-        if (sameType(lType, rType, INT)) {
-          newTypes.emplace_back(this->ns.intType);
-        } else if (sameType(lType, rType, STR)) {
-          newTypes.emplace_back(this->ns.strType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case GE:
-      case GT:
-      case LE:
-      case LT:
-        if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
-          newTypes.emplace_back(this->ns.boolType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      case IN:
-      case NOT_IN:
-        newTypes.emplace_back(this->ns.boolType);
-        break;
-      case MINUS:
-      case MODULO:
-      case MUL:
-        if (sameType(lType, rType, INT)) {
-          newTypes.emplace_back(this->ns.intType);
-        } else {
-          ++*numErrors;
-        }
-        break;
-      default:
-        LOG.error("Whoops???");
-        ++*numErrors;
-        break;
-      }
+      evalBinaryExpression(op, lType, rType, newTypes, numErrors);
     }
   }
   if (*numErrors == lhs.size() * rhs.size()) {
@@ -912,153 +919,174 @@ void TypeAnalyzer::visitDictionaryLiteral(DictionaryLiteral *node) {
   this->checkDuplicateNodeKeys(node);
 }
 
+void TypeAnalyzer::setFunctionCallTypesImport(FunctionExpression *node) {
+  const auto &values = ::guessSetVariable(node, this->options);
+  std::set<std::string> const asSet{values.begin(), values.end()};
+  std::vector<std::shared_ptr<Type>> types;
+  for (const auto &modname : asSet) {
+    if (MODULES.contains(modname)) {
+      types.emplace_back(this->ns.types.at(MODULES.at(modname)));
+      continue;
+    }
+    types.emplace_back(this->ns.types.at("module"));
+    this->metadata->registerDiagnostic(
+        node, Diagnostic(Severity::WARNING, node,
+                         std::format("Unknown module `{}`", modname)));
+  }
+  node->types = dedup(this->ns, types);
+}
+
+void TypeAnalyzer::setFunctionCallTypesGetOption(
+    FunctionExpression *node, const std::shared_ptr<Function> &func) {
+  const auto &values = ::guessSetVariable(node, this->options);
+  std::set<std::string> const asSet{values.begin(), values.end()};
+  std::vector<std::shared_ptr<Type>> types;
+  for (auto val : asSet) {
+    auto opt = this->options.findOption(val);
+    if (!opt) {
+      if (asSet.size() > 1) {
+        continue;
+      }
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::ERROR, node,
+                           std::format("Unknown option `{}`", val)));
+      continue;
+    }
+    if (asSet.size() == 1 && opt->deprecated) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::WARNING, node,
+                           std::format("Deprecated option"), true, false));
+    }
+    if (dynamic_cast<StringOption *>(opt.get()) ||
+        dynamic_cast<ComboOption *>(opt.get())) {
+      types.emplace_back(this->ns.strType);
+      continue;
+    }
+    if (dynamic_cast<BoolOption *>(opt.get())) {
+      types.emplace_back(this->ns.boolType);
+      continue;
+    }
+    if (dynamic_cast<FeatureOption *>(opt.get())) {
+      types.emplace_back(this->ns.types.at("feature"));
+      continue;
+    }
+    if (dynamic_cast<ArrayOption *>(opt.get())) {
+      types.emplace_back(std::make_shared<List>(
+          std::vector<std::shared_ptr<Type>>{this->ns.strType}));
+      continue;
+    }
+    if (dynamic_cast<IntOption *>(opt.get())) {
+      types.emplace_back(this->ns.intType);
+      continue;
+    }
+  }
+  if (!types.empty()) {
+    node->types = dedup(this->ns, types);
+  } else {
+    node->types = func->returnTypes;
+  }
+}
+
+void TypeAnalyzer::setFunctionCallTypesSubproject(FunctionExpression *node) {
+  const auto &values = ::guessSetVariable(node, this->options);
+  if (values.empty()) {
+    return;
+  }
+  std::set<std::string> const asSet{values.begin(), values.end()};
+  node->types = {std::make_shared<Subproject>(
+      std::vector<std::string>{asSet.begin(), asSet.end()})};
+  LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
+  if (!this->tree->state.used || asSet.size() > 1) {
+    return;
+  }
+  auto &subprojState = this->tree->state;
+  if (subprojState.hasSubproject(*asSet.begin())) {
+    return;
+  }
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::ERROR, node,
+                       std::format("Unknown subproject `{}`", *asSet.begin())));
+}
+
+void TypeAnalyzer::setFunctionCallTypesBuildTarget(
+    FunctionExpression *node, const std::shared_ptr<Function> &func) {
+  const auto &values = ::guessSetVariable(node, "target_type", this->options);
+  std::set<std::string> const asSet{values.begin(), values.end()};
+  std::vector<std::shared_ptr<Type>> types;
+  for (const auto &tgtType : asSet) {
+    if (tgtType == "executable") {
+      types.emplace_back(this->ns.types.at("exe"));
+    } else if (tgtType == "shared_library" || tgtType == "static_library" ||
+               tgtType == "library") {
+      types.emplace_back(this->ns.types.at("lib"));
+    } else if (tgtType == "shared_module") {
+      types.emplace_back(this->ns.types.at("build_tgt"));
+    } else if (tgtType == "both_libraries") {
+      types.emplace_back(this->ns.types.at("both_libs"));
+    } else if (tgtType == "jar") {
+      types.emplace_back(this->ns.types.at("jar"));
+    }
+  }
+  if (!types.empty()) {
+    node->types = dedup(this->ns, types);
+  } else {
+    node->types = func->returnTypes;
+  }
+}
+
+void TypeAnalyzer::setFunctionCallTypesGetVariable(
+    FunctionExpression *node, const std::shared_ptr<Function> &func) {
+  std::vector<std::shared_ptr<Type>> types;
+  auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+  if (!al) {
+    return;
+  }
+  if (al->args.size() == 2 && !dynamic_cast<KeywordItem *>(al->args[1].get())) {
+    auto defaultArg = al->args[1];
+    types.insert(types.end(), defaultArg->types.begin(),
+                 defaultArg->types.end());
+  }
+  const auto &values = ::guessSetVariable(node, this->options);
+  std::set<std::string> const asSet{values.begin(), values.end()};
+  for (const auto &varname : asSet) {
+    if (!this->scope.variables.contains(varname)) {
+      continue;
+    }
+    const auto &vTypes = this->scope.variables[varname];
+    types.insert(types.end(), vTypes.begin(), vTypes.end());
+  }
+  if (asSet.empty()) {
+    types.insert(types.end(), func->returnTypes.begin(),
+                 func->returnTypes.end());
+  }
+  node->types = dedup(this->ns, types);
+  LOG.info(std::format("get_variable: {} = {} ({}:{})", joinStrings(asSet, '|'),
+                       joinTypes(node->types),
+                       node->file->file.generic_string(),
+                       node->location.format()));
+}
+
 void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
                                         const std::shared_ptr<Function> &func) {
   const auto &name = func->name;
   if (name == "get_option") {
-    const auto &values = ::guessSetVariable(node, this->options);
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    std::vector<std::shared_ptr<Type>> types;
-    for (auto val : asSet) {
-      auto opt = this->options.findOption(val);
-      if (!opt) {
-        if (asSet.size() > 1) {
-          continue;
-        }
-        this->metadata->registerDiagnostic(
-            node, Diagnostic(Severity::ERROR, node,
-                             std::format("Unknown option `{}`", val)));
-        continue;
-      }
-      if (asSet.size() == 1 && opt->deprecated) {
-        this->metadata->registerDiagnostic(
-            node, Diagnostic(Severity::WARNING, node,
-                             std::format("Deprecated option"), true, false));
-      }
-      if (dynamic_cast<StringOption *>(opt.get()) ||
-          dynamic_cast<ComboOption *>(opt.get())) {
-        types.emplace_back(this->ns.strType);
-        continue;
-      }
-      if (dynamic_cast<BoolOption *>(opt.get())) {
-        types.emplace_back(this->ns.boolType);
-        continue;
-      }
-      if (dynamic_cast<FeatureOption *>(opt.get())) {
-        types.emplace_back(this->ns.types.at("feature"));
-        continue;
-      }
-      if (dynamic_cast<ArrayOption *>(opt.get())) {
-        types.emplace_back(std::make_shared<List>(
-            std::vector<std::shared_ptr<Type>>{this->ns.strType}));
-        continue;
-      }
-      if (dynamic_cast<IntOption *>(opt.get())) {
-        types.emplace_back(this->ns.intType);
-        continue;
-      }
-    }
-    if (!types.empty()) {
-      node->types = dedup(this->ns, types);
-    } else {
-      node->types = func->returnTypes;
-    }
+    this->setFunctionCallTypesGetOption(node, func);
     return;
   }
   if (name == "import") {
-    const auto &values = ::guessSetVariable(node, this->options);
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    std::vector<std::shared_ptr<Type>> types;
-    for (const auto &modname : asSet) {
-      if (MODULES.contains(modname)) {
-        types.emplace_back(this->ns.types.at(MODULES.at(modname)));
-        continue;
-      }
-      types.emplace_back(this->ns.types.at("module"));
-      this->metadata->registerDiagnostic(
-          node, Diagnostic(Severity::WARNING, node,
-                           std::format("Unknown module `{}`", modname)));
-    }
-    node->types = dedup(this->ns, types);
+    this->setFunctionCallTypesImport(node);
     return;
   }
   if (name == "subproject") {
-    const auto &values = ::guessSetVariable(node, this->options);
-    if (values.empty()) {
-      return;
-    }
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    node->types = {std::make_shared<Subproject>(
-        std::vector<std::string>{asSet.begin(), asSet.end()})};
-    LOG.info("Values for `subproject` call: " + joinStrings(asSet, '|'));
-    if (!this->tree->state.used || asSet.size() > 1) {
-      return;
-    }
-    auto &subprojState = this->tree->state;
-    if (subprojState.hasSubproject(*asSet.begin())) {
-      return;
-    }
-    this->metadata->registerDiagnostic(
-        node,
-        Diagnostic(Severity::ERROR, node,
-                   std::format("Unknown subproject `{}`", *asSet.begin())));
+    this->setFunctionCallTypesSubproject(node);
     return;
   }
   if (name == "build_target") {
-    const auto &values = ::guessSetVariable(node, "target_type", this->options);
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    std::vector<std::shared_ptr<Type>> types;
-    for (const auto &tgtType : asSet) {
-      if (tgtType == "executable") {
-        types.emplace_back(this->ns.types.at("exe"));
-      } else if (tgtType == "shared_library" || tgtType == "static_library" ||
-                 tgtType == "library") {
-        types.emplace_back(this->ns.types.at("lib"));
-      } else if (tgtType == "shared_module") {
-        types.emplace_back(this->ns.types.at("build_tgt"));
-      } else if (tgtType == "both_libraries") {
-        types.emplace_back(this->ns.types.at("both_libs"));
-      } else if (tgtType == "jar") {
-        types.emplace_back(this->ns.types.at("jar"));
-      }
-    }
-    if (!types.empty()) {
-      node->types = dedup(this->ns, types);
-    } else {
-      node->types = func->returnTypes;
-    }
+    this->setFunctionCallTypesBuildTarget(node, func);
     return;
   }
   if (name == "get_variable") {
-    std::vector<std::shared_ptr<Type>> types;
-    auto *al = dynamic_cast<ArgumentList *>(node->args.get());
-    if (!al) {
-      return;
-    }
-    if (al->args.size() == 2 &&
-        !dynamic_cast<KeywordItem *>(al->args[1].get())) {
-      auto defaultArg = al->args[1];
-      types.insert(types.end(), defaultArg->types.begin(),
-                   defaultArg->types.end());
-    }
-    const auto &values = ::guessSetVariable(node, this->options);
-    std::set<std::string> const asSet{values.begin(), values.end()};
-    for (const auto &varname : asSet) {
-      if (!this->scope.variables.contains(varname)) {
-        continue;
-      }
-      const auto &vTypes = this->scope.variables[varname];
-      types.insert(types.end(), vTypes.begin(), vTypes.end());
-    }
-    if (asSet.empty()) {
-      types.insert(types.end(), func->returnTypes.begin(),
-                   func->returnTypes.end());
-    }
-    node->types = dedup(this->ns, types);
-    LOG.info(std::format("get_variable: {} = {} ({}:{})",
-                         joinStrings(asSet, '|'), joinTypes(node->types),
-                         node->file->file.generic_string(),
-                         node->location.format()));
+    this->setFunctionCallTypesGetVariable(node, func);
     return;
   }
 }
@@ -1554,6 +1582,55 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
   return this->scope.variables.contains(idExpr->id);
 }
 
+void TypeAnalyzer::checkUsage(const IdExpression *node) {
+  const auto *parent = node->parent;
+  if (!parent) {
+    this->registerUsed(node->id);
+    return;
+  }
+  const auto *ass = dynamic_cast<const AssignmentStatement *>(parent);
+  if (ass) {
+    if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
+      this->registerUsed(node->id);
+    }
+    return;
+  }
+  const auto *kwi = dynamic_cast<const KeywordItem *>(parent);
+  if (kwi && kwi->value->equals(node)) {
+    this->registerUsed(node->id);
+    return;
+  }
+  const auto *kvi = dynamic_cast<const KeyValueItem *>(parent);
+  if (kvi && kvi->value->equals(node)) {
+    this->registerUsed(node->id);
+    return;
+  }
+  if (dynamic_cast<const FunctionExpression *>(parent)) {
+    return; // Do nothing
+  }
+
+  const auto *its = dynamic_cast<const IterationStatement *>(parent);
+  if (its && its->expression->equals(node)) {
+    this->registerUsed(node->id);
+    return;
+  }
+  const auto *me = dynamic_cast<const MethodExpression *>(parent);
+  if (me && me->obj->equals(node)) {
+    this->registerUsed(node->id);
+    return;
+  }
+
+  if (dynamic_cast<const BinaryExpression *>(parent) ||
+      dynamic_cast<const UnaryExpression *>(parent) ||
+      dynamic_cast<const ArgumentList *>(parent) ||
+      dynamic_cast<const ArrayLiteral *>(parent) ||
+      dynamic_cast<const ConditionalExpression *>(parent) ||
+      dynamic_cast<const SubscriptExpression *>(parent) ||
+      dynamic_cast<const SelectionStatement *>(parent)) {
+    this->registerUsed(node->id);
+  }
+}
+
 void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   auto types = this->evalStack(node->id);
   if (this->scope.variables.contains(node->id)) {
@@ -1562,53 +1639,7 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   }
   node->types = dedup(this->ns, types);
   node->visitChildren(this);
-  auto *parent = node->parent;
-  if (parent) [[likely]] {
-    const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
-    if (ass) {
-      if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
-        this->registerUsed(node->id);
-      }
-      goto cont;
-    }
-    const auto *kwi = dynamic_cast<KeywordItem *>(parent);
-    if (kwi && kwi->value->equals(node)) {
-      this->registerUsed(node->id);
-      goto cont;
-    }
-    const auto *kvi = dynamic_cast<KeyValueItem *>(parent);
-    if (kvi && kvi->value->equals(node)) {
-      this->registerUsed(node->id);
-      goto cont;
-    }
-    if (dynamic_cast<FunctionExpression *>(parent)) {
-      goto cont; // Do nothing
-    }
-
-    const auto *its = dynamic_cast<IterationStatement *>(parent);
-    if (its && its->expression->equals(node)) {
-      this->registerUsed(node->id);
-      goto cont;
-    }
-    const auto *me = dynamic_cast<MethodExpression *>(parent);
-    if (me && me->obj->equals(node)) {
-      this->registerUsed(node->id);
-      goto cont;
-    }
-
-    if (dynamic_cast<BinaryExpression *>(parent) ||
-        dynamic_cast<UnaryExpression *>(parent) ||
-        dynamic_cast<ArgumentList *>(parent) ||
-        dynamic_cast<ArrayLiteral *>(parent) ||
-        dynamic_cast<ConditionalExpression *>(parent) ||
-        dynamic_cast<SubscriptExpression *>(parent) ||
-        dynamic_cast<SelectionStatement *>(parent)) {
-      this->registerUsed(node->id);
-    }
-  } else {
-    this->registerUsed(node->id);
-  }
-cont:
+  this->checkUsage(node);
   if (this->ignoreIdExpression(node)) {
     return;
   }

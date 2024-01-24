@@ -152,4 +152,18 @@ private:
   void createDeprecationWarning(const DeprecationState &deprecationState,
                                 const Node *node,
                                 const std::string &type) const;
+  void evalBinaryExpression(BinaryOperator op,
+                            const std::shared_ptr<Type> &lType,
+                            const std::shared_ptr<Type> &rType,
+                            std::vector<std::shared_ptr<Type>> &newTypes,
+                            unsigned int *numErrors);
+  void setFunctionCallTypesGetOption(FunctionExpression *node,
+                                     const std::shared_ptr<Function> &func);
+  void setFunctionCallTypesImport(FunctionExpression *node);
+  void setFunctionCallTypesSubproject(FunctionExpression *node);
+  void setFunctionCallTypesBuildTarget(FunctionExpression *node,
+                                       const std::shared_ptr<Function> &func);
+  void setFunctionCallTypesGetVariable(FunctionExpression *node,
+                                       const std::shared_ptr<Function> &func);
+  void checkUsage(const IdExpression *node);
 };
