@@ -37,7 +37,7 @@ fillTypes(const MesonTree *tree,
 static std::string createTextForFunction(const std::shared_ptr<Function> &func);
 static void
 specialStringLiteralAutoCompletion(const MesonTree *tree,
-                                   StringLiteral *literal,
+                                   const StringLiteral *literal,
                                    std::vector<CompletionItem> &ret);
 static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
@@ -457,7 +457,7 @@ specialStringLiteralAutoCompletion(const StringLiteral *literal,
 
 static void
 specialStringLiteralAutoCompletion(const MesonTree *tree,
-                                   StringLiteral *literal,
+                                   const StringLiteral *literal,
                                    std::vector<CompletionItem> &ret) {
   const auto *parent = literal->parent;
   const auto *al = dynamic_cast<const ArgumentList *>(parent);
