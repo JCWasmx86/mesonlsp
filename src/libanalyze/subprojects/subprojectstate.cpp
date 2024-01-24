@@ -57,7 +57,9 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
       LOG.info("Wrap is already setup!");
       this->subprojects.emplace_back(std::make_shared<CachedSubproject>(
           subprojectName, wrapBaseDir / guessTargetDirectoryFromWrap(child)));
-    } else if (downloadSubprojects) {
+      continue;
+    }
+    if (downloadSubprojects) {
       if (std::filesystem::exists(wrapBaseDir)) {
         LOG.warn(
             std::format("{} exists, but is not fully setup => Reattempting",
@@ -90,14 +92,12 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
       if (subproject->name == filename) {
         LOG.info(std::format("Found already registered subproject: {}",
                              subproject->name));
-        goto cont;
+        continue;
       }
     }
     LOG.info(std::format("Found folder based subproject {}", filename.c_str()));
     this->subprojects.emplace_back(
         std::make_shared<FolderSubproject>(filename, child));
-  cont:
-    continue;
   }
 }
 
