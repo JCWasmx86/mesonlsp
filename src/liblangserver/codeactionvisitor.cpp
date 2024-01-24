@@ -300,7 +300,7 @@ void CodeActionVisitor::makeLibraryToGenericAction(const Node *node) {
   if (!fExpr) {
     return;
   }
-  auto name = fExpr->functionName();
+  const auto &name = fExpr->functionName();
   if (name != "static_library" && name != "shared_library" &&
       name != "both_libraries") {
     return;
@@ -317,7 +317,7 @@ void CodeActionVisitor::makeSharedLibraryToModuleAction(const Node *node) {
   if (!fExpr) {
     return;
   }
-  auto name = fExpr->functionName();
+  const auto &name = fExpr->functionName();
   if (name != "shared_library") {
     return;
   }
@@ -342,7 +342,7 @@ void CodeActionVisitor::makeModuleToSharedLibraryAction(const Node *node) {
   if (!fExpr) {
     return;
   }
-  auto name = fExpr->functionName();
+  const auto &name = fExpr->functionName();
   if (name != "shared_library") {
     return;
   }
