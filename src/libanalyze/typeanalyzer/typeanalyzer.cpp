@@ -384,14 +384,14 @@ void TypeAnalyzer::evalAssignmentTypes(
     const std::shared_ptr<Type> &left, const std::shared_ptr<Type> &right,
     AssignmentOperator op, std::vector<std::shared_ptr<Type>> *newTypes) {
   switch (op) {
-  [[likely]] case PlusEquals: {
+  [[likely]] case AssignmentOperator::PLUS_EQUALS: {
     auto type = this->evalPlusEquals(left, right);
     if (type.has_value()) {
       newTypes->push_back(type.value());
     }
     break;
   }
-  case DivEquals:
+  case AssignmentOperator::DIV_EQUALS:
     if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
@@ -399,9 +399,9 @@ void TypeAnalyzer::evalAssignmentTypes(
       newTypes->push_back(this->ns.strType);
     }
     break;
-  case MinusEquals:
-  case ModEquals:
-  case MulEquals:
+  case AssignmentOperator::MINUS_EQUALS:
+  case AssignmentOperator::MOD_EQUALS:
+  case AssignmentOperator::MUL_EQUALS:
     if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
@@ -427,7 +427,7 @@ TypeAnalyzer::evalAssignment(AssignmentOperator op,
 void TypeAnalyzer::evaluateFullAssignment(const AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   this->metadata->registerIdentifier(lhsIdExpr);
-  if (node->op == AssignmentOperator::Equals) {
+  if (node->op == AssignmentOperator::EQUALS) {
     this->evaluatePureAssignment(node, lhsIdExpr);
     return;
   }
@@ -449,7 +449,7 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
                                     "Can only assign to variables"));
     return;
   }
-  if (node->op == AssignmentOpOther) {
+  if (node->op == AssignmentOperator::ASSIGNMENT_OP_OTHER) {
     this->metadata->registerDiagnostic(
         node->lhs.get(), Diagnostic(Severity::ERROR, node->lhs.get(),
                                     "Unknown assignment operator"));
@@ -506,7 +506,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         continue;
       }
       switch (op) {
-      [[likely]] case Plus: {
+      [[likely]] case BinaryOperator::PLUS: {
         if (sameType(lType, rType, STR) || sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
@@ -534,8 +534,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         ++*numErrors;
         break;
       }
-      [[likely]] case EqualsEquals:
-      case NotEquals:
+      [[likely]] case BinaryOperator::EQUALS_EQUALS:
+      case BinaryOperator::NOT_EQUALS:
         if (sameType(lType, rType, STR) || sameType(lType, rType, INT) ||
             sameType(lType, rType, BOOL) || sameType(lType, rType, DICT) ||
             sameType(lType, rType, LIST) ||
@@ -546,15 +546,15 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           ++*numErrors;
         }
         break;
-      case And:
-      case Or:
+      case BinaryOperator::AND:
+      case BinaryOperator::OR:
         if (sameType(lType, rType, BOOL)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
-      case Div:
+      case BinaryOperator::DIV:
         if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else if (sameType(lType, rType, STR)) {
@@ -563,23 +563,23 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           ++*numErrors;
         }
         break;
-      case Ge:
-      case Gt:
-      case Le:
-      case Lt:
+      case BinaryOperator::GE:
+      case BinaryOperator::GT:
+      case BinaryOperator::LE:
+      case BinaryOperator::LT:
         if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
-      case In:
-      case NotIn:
+      case BinaryOperator::IN:
+      case BinaryOperator::NOT_IN:
         newTypes.emplace_back(this->ns.boolType);
         break;
-      case Minus:
-      case Modulo:
-      case Mul:
+      case BinaryOperator::MINUS:
+      case BinaryOperator::MODULO:
+      case BinaryOperator::MUL:
         if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else {
@@ -601,7 +601,7 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
 
 void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   node->visitChildren(this);
-  if (node->op == BinaryOperator::BinOpOther) {
+  if (node->op == BinaryOperator::BIN_OP_OTHER) {
     auto types = node->lhs->types;
     types.insert(types.end(), node->rhs->types.begin(), node->rhs->types.end());
     node->types = types;
@@ -1543,7 +1543,7 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
   if (ass) {
     const auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
     if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
-        ass->op == AssignmentOperator::Equals) {
+        ass->op == AssignmentOperator::EQUALS) {
       return true;
     }
   }
@@ -1562,7 +1562,7 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
   if (parent) [[likely]] {
     const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
     if (ass) {
-      if (ass->op != AssignmentOperator::Equals || ass->rhs->equals(node)) {
+      if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
         this->registerUsed(node->id);
       }
       goto cont;
@@ -2184,11 +2184,11 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
 void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
   node->visitChildren(this);
   switch (node->op) {
-  case Not:
-  case ExclamationMark:
+  case UnaryOperator::NOT:
+  case UnaryOperator::EXCLAMATION_MARK:
     node->types.push_back(this->ns.boolType);
     break;
-  case UnaryMinus:
+  case UnaryOperator::UNARY_MINUS:
     node->types.push_back(this->ns.intType);
     break;
   default:

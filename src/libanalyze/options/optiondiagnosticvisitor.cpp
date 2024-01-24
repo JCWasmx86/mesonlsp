@@ -121,7 +121,7 @@ std::optional<int64_t> OptionDiagnosticVisitor::parseInt(const Node *node) {
     return integerLit->valueAsInt;
   }
   if (const auto *unaryExpr = dynamic_cast<const UnaryExpression *>(node)) {
-    if (unaryExpr->op != UnaryOperator::UnaryMinus) {
+    if (unaryExpr->op != UnaryOperator::UNARY_MINUS) {
       return std::nullopt;
     }
     auto parsed = this->parseInt(unaryExpr->expression.get());

@@ -16,7 +16,7 @@ void DocumentSymbolVisitor::visitArrayLiteral(ArrayLiteral *node) {
 void DocumentSymbolVisitor::visitAssignmentStatement(
     AssignmentStatement *node) {
   node->visitChildren(this);
-  if (node->op != AssignmentOperator::Equals) {
+  if (node->op != AssignmentOperator::EQUALS) {
     return;
   }
   const auto *lhsId = dynamic_cast<IdExpression *>(node->lhs.get());
