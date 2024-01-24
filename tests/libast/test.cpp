@@ -178,17 +178,17 @@ TEST(TestAst, testAssignmentStatement) {
     ASSERT_NE(dynamic_cast<IntegerLiteral *>(ass->rhs.get()), nullptr);
   }
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[0].get())->op,
-            AssignmentOperator::Equals);
+            AssignmentOperator::EQUALS);
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[1].get())->op,
-            AssignmentOperator::MulEquals);
+            AssignmentOperator::MUL_EQUALS);
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[2].get())->op,
-            AssignmentOperator::DivEquals);
+            AssignmentOperator::DIV_EQUALS);
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[3].get())->op,
-            AssignmentOperator::ModEquals);
+            AssignmentOperator::MOD_EQUALS);
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[4].get())->op,
-            AssignmentOperator::PlusEquals);
+            AssignmentOperator::PLUS_EQUALS);
   ASSERT_EQ(dynamic_cast<AssignmentStatement *>(bd->stmts[5].get())->op,
-            AssignmentOperator::MinusEquals);
+            AssignmentOperator::MINUS_EQUALS);
 }
 
 TEST(TestAst, testBinaryExpressionArithmetic) {
@@ -203,13 +203,13 @@ TEST(TestAst, testBinaryExpressionArithmetic) {
     ASSERT_NE(dynamic_cast<IdExpression *>(ass->rhs.get()), nullptr);
   }
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[0].get())->op,
-            BinaryOperator::Plus);
+            BinaryOperator::PLUS);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[1].get())->op,
-            BinaryOperator::Minus);
+            BinaryOperator::MINUS);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[2].get())->op,
-            BinaryOperator::Mul);
+            BinaryOperator::MUL);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[3].get())->op,
-            BinaryOperator::Div);
+            BinaryOperator::DIV);
 }
 
 TEST(TestAst, testBinaryExpressionComparison) {
@@ -224,17 +224,17 @@ TEST(TestAst, testBinaryExpressionComparison) {
     ASSERT_NE(dynamic_cast<IdExpression *>(ass->rhs.get()), nullptr);
   }
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[0].get())->op,
-            BinaryOperator::EqualsEquals);
+            BinaryOperator::EQUALS_EQUALS);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[1].get())->op,
-            BinaryOperator::NotEquals);
+            BinaryOperator::NOT_EQUALS);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[2].get())->op,
-            BinaryOperator::Gt);
+            BinaryOperator::GT);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[3].get())->op,
-            BinaryOperator::Lt);
+            BinaryOperator::LT);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[4].get())->op,
-            BinaryOperator::Ge);
+            BinaryOperator::GE);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[5].get())->op,
-            BinaryOperator::Le);
+            BinaryOperator::LE);
 }
 
 TEST(TestAst, testBinaryExpressionOther) {
@@ -249,13 +249,13 @@ TEST(TestAst, testBinaryExpressionOther) {
     ASSERT_NE(dynamic_cast<IdExpression *>(ass->rhs.get()), nullptr);
   }
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[0].get())->op,
-            BinaryOperator::In);
+            BinaryOperator::IN);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[1].get())->op,
-            BinaryOperator::NotIn);
+            BinaryOperator::NOT_IN);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[2].get())->op,
-            BinaryOperator::Or);
+            BinaryOperator::OR);
   ASSERT_EQ(dynamic_cast<BinaryExpression *>(bd->stmts[3].get())->op,
-            BinaryOperator::And);
+            BinaryOperator::AND);
 }
 
 TEST(TestAst, testBooleanLiteral) {
@@ -564,17 +564,17 @@ TEST(TestAst, testUnaryOperator) {
       dynamic_cast<UnaryExpression *>(
           dynamic_cast<AssignmentStatement *>(bd->stmts[0].get())->rhs.get())
           ->op,
-      UnaryOperator::Not);
+      UnaryOperator::NOT);
   ASSERT_EQ(
       dynamic_cast<UnaryExpression *>(
           dynamic_cast<AssignmentStatement *>(bd->stmts[1].get())->rhs.get())
           ->op,
-      UnaryOperator::ExclamationMark);
+      UnaryOperator::EXCLAMATION_MARK);
   ASSERT_EQ(
       dynamic_cast<UnaryExpression *>(
           dynamic_cast<AssignmentStatement *>(bd->stmts[2].get())->rhs.get())
           ->op,
-      UnaryOperator::UnaryMinus);
+      UnaryOperator::UNARY_MINUS);
 }
 
 TEST(TestAstOther, extractTextBetweenAtSymbols) {

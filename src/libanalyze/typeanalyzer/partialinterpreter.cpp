@@ -109,7 +109,7 @@ PartialInterpreter::calculateBinaryExpression(const Node *parentExpr,
   auto lhs = this->calculateExpression(parentExpr, be->lhs.get());
   auto rhs = this->calculateExpression(parentExpr, be->rhs.get());
   std::vector<std::string> ret;
-  const auto *opStr = be->op == BinaryOperator::Div ? "/" : "";
+  const auto *opStr = be->op == BinaryOperator::DIV ? "/" : "";
   for (const auto &left : lhs) {
     for (const auto &right : rhs) {
       ret.emplace_back(std::format("{}{}{}", left, opStr, right));
@@ -491,7 +491,7 @@ PartialInterpreter::analyseBuildDefinition(const BuildDefinition *bd,
       continue;
     }
     auto others = this->abstractEval(stmt.get(), assignment->rhs.get());
-    if (assignment->op == AssignmentOperator::Equals) {
+    if (assignment->op == AssignmentOperator::EQUALS) {
       others.insert(others.end(), tmp.begin(), tmp.end());
       return others;
     }
@@ -528,7 +528,7 @@ PartialInterpreter::analyseIterationStatement(const IterationStatement *its,
       continue;
     }
     auto others = this->abstractEval(stmt.get(), assignment->rhs.get());
-    if (assignment->op == AssignmentOperator::Equals) {
+    if (assignment->op == AssignmentOperator::EQUALS) {
       others.insert(others.end(), tmp.begin(), tmp.end());
       return others;
     }
@@ -613,7 +613,7 @@ PartialInterpreter::analyseSelectionStatement(const SelectionStatement *sst,
         continue;
       }
       auto others = this->abstractEval(stmt.get(), assignment->rhs.get());
-      if (assignment->op == AssignmentOperator::Equals) {
+      if (assignment->op == AssignmentOperator::EQUALS) {
         others.insert(others.end(), tmp.begin(), tmp.end());
         return others;
       }
@@ -768,7 +768,7 @@ PartialInterpreter::abstractEvalBinaryExpression(const BinaryExpression *be,
   auto rhs = this->abstractEval(parentStmt, be->rhs.get());
   auto lhs = this->abstractEval(parentStmt, be->lhs.get());
   std::vector<std::shared_ptr<InterpretNode>> ret;
-  const auto *sep = be->op == BinaryOperator::Div ? "/" : "";
+  const auto *sep = be->op == BinaryOperator::DIV ? "/" : "";
   for (const auto &left : lhs) {
     for (const auto &right : rhs) {
       abstractEvalComputeBinaryExpr(left.get(), right.get(), sep, ret);

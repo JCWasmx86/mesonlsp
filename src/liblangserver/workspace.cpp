@@ -234,7 +234,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
         continue;
       }
       const auto *ass = dynamic_cast<AssignmentStatement *>(idExpr->parent);
-      if (ass && ass->op == AssignmentOperator::Equals) {
+      if (ass && ass->op == AssignmentOperator::EQUALS) {
         auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
         if (lhsIdExpr && lhsIdExpr->id == toFind) {
           const auto &loc = idExpr->location;

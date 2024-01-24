@@ -121,31 +121,31 @@ public:
   void setParents() override;
 };
 
-enum AssignmentOperator {
-  Equals,
-  MulEquals,
-  DivEquals,
-  ModEquals,
-  PlusEquals,
-  MinusEquals,
-  AssignmentOpOther,
+enum class AssignmentOperator {
+  EQUALS,
+  MUL_EQUALS,
+  DIV_EQUALS,
+  MOD_EQUALS,
+  PLUS_EQUALS,
+  MINUS_EQUALS,
+  ASSIGNMENT_OP_OTHER,
 };
 
 inline std::string enum2String(AssignmentOperator op) {
   switch (op) {
-  case Equals:
+  case AssignmentOperator::EQUALS:
     return "=";
-  case MulEquals:
+  case AssignmentOperator::MUL_EQUALS:
     return "*=";
-  case DivEquals:
+  case AssignmentOperator::DIV_EQUALS:
     return "/=";
-  case ModEquals:
+  case AssignmentOperator::MOD_EQUALS:
     return "%=";
-  case PlusEquals:
+  case AssignmentOperator::PLUS_EQUALS:
     return "+=";
-  case MinusEquals:
+  case AssignmentOperator::MINUS_EQUALS:
     return "-=";
-  case AssignmentOpOther:
+  case AssignmentOperator::ASSIGNMENT_OP_OTHER:
     return "<<Unknown>>";
   }
   assert(false);
@@ -163,58 +163,58 @@ public:
   void setParents() override;
 };
 
-enum BinaryOperator {
-  Plus,
-  Minus,
-  Mul,
-  Div,
-  Modulo,
-  EqualsEquals,
-  NotEquals,
-  Gt,
-  Lt,
-  Ge,
-  Le,
-  In,
-  NotIn,
-  Or,
-  And,
-  BinOpOther,
+enum class BinaryOperator {
+  PLUS,
+  MINUS,
+  MUL,
+  DIV,
+  MODULO,
+  EQUALS_EQUALS,
+  NOT_EQUALS,
+  GT,
+  LT,
+  GE,
+  LE,
+  IN,
+  NOT_IN,
+  OR,
+  AND,
+  BIN_OP_OTHER,
 };
 
 inline std::string enum2String(BinaryOperator op) {
   switch (op) {
-  case Plus:
+  case BinaryOperator::PLUS:
     return "+";
-  case Minus:
+  case BinaryOperator::MINUS:
     return "-";
-  case Mul:
+  case BinaryOperator::MUL:
     return "*";
-  case Div:
+  case BinaryOperator::DIV:
     return "/";
-  case Modulo:
+  case BinaryOperator::MODULO:
     return "%";
-  case EqualsEquals:
+  case BinaryOperator::EQUALS_EQUALS:
     return "==";
-  case NotEquals:
+  case BinaryOperator::NOT_EQUALS:
     return "!=";
-  case Gt:
+  case BinaryOperator::GT:
     return ">";
-  case Lt:
+  case BinaryOperator::LT:
     return "<";
-  case Ge:
+  case BinaryOperator::GE:
     return ">=";
-  case Le:
+  case BinaryOperator::LE:
     return "<=";
-  case In:
+  case BinaryOperator::IN:
     return "in";
-  case NotIn:
+  case BinaryOperator::NOT_IN:
     return "not in";
-  case Or:
+  case BinaryOperator::OR:
     return "or";
-  case And:
+  case BinaryOperator::AND:
     return "and";
-  case BinOpOther:
+  case BinaryOperator::BIN_OP_OTHER:
     return "<<Unknown>>";
   }
   assert(false);
@@ -420,7 +420,7 @@ public:
   void setParents() override;
 };
 
-enum UnaryOperator { Not, ExclamationMark, UnaryMinus, UnaryOther };
+enum class UnaryOperator { NOT, EXCLAMATION_MARK, UNARY_MINUS, UNARY_OTHER };
 
 class UnaryExpression final : public Node {
 public:
