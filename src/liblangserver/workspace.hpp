@@ -82,6 +82,9 @@ private:
   jumpToFunctionCall(const MesonMetadata *metadata,
                      const std::filesystem::path &path,
                      const LSPPosition &position);
+  static WorkspaceEdit rename(MesonMetadata &metadata,
+                              const IdExpression *toRename,
+                              const std::string &newName);
   std::shared_ptr<MesonTree> tree;
   std::binary_semaphore smph{1};
 };
