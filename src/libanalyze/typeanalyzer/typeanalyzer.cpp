@@ -1291,7 +1291,7 @@ unsigned long long TypeAnalyzer::countPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) {
   auto nPos = 0ULL;
   for (const auto &arg : args) {
-    if (!dynamic_cast<KeywordItem *>(arg.get())) {
+    if (!dynamic_cast<const KeywordItem *>(arg.get())) {
       nPos++;
     }
   }
@@ -1325,7 +1325,8 @@ void TypeAnalyzer::checkCall(Node *node) {
   auto nPos = 0ULL;
   if (fe) {
     func = fe->function;
-    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get()); al && func) {
+    if (const auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
+        al && func) {
       const auto &args = al->args;
       this->checkKwargsAfterPositionalArguments(args);
       this->checkKwargs(func, args, node);
@@ -1336,7 +1337,8 @@ void TypeAnalyzer::checkCall(Node *node) {
   const auto *me = dynamic_cast<MethodExpression *>(node);
   if (me) {
     func = me->method;
-    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get()); al && func) {
+    if (const auto *al = dynamic_cast<ArgumentList *>(me->args.get());
+        al && func) {
       const auto &args = al->args;
       this->checkKwargsAfterPositionalArguments(args);
       this->checkKwargs(func, args, node);
