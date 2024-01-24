@@ -1295,16 +1295,14 @@ void TypeAnalyzer::checkCall(Node *node) {
   auto nPos = 0ULL;
   if (fe) {
     func = fe->function;
-    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get())) {
+    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get()); al && func) {
       const auto &args = al->args;
-      if (func) {
-        this->checkKwargsAfterPositionalArguments(args);
-        this->checkKwargs(func, args, node);
-        this->checkArgTypes(func, args);
-        for (const auto &arg : args) {
-          if (!dynamic_cast<KeywordItem *>(arg.get())) {
-            nPos++;
-          }
+      this->checkKwargsAfterPositionalArguments(args);
+      this->checkKwargs(func, args, node);
+      this->checkArgTypes(func, args);
+      for (const auto &arg : args) {
+        if (!dynamic_cast<KeywordItem *>(arg.get())) {
+          nPos++;
         }
       }
     }
@@ -1312,16 +1310,14 @@ void TypeAnalyzer::checkCall(Node *node) {
   const auto *me = dynamic_cast<MethodExpression *>(node);
   if (me) {
     func = me->method;
-    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get())) {
+    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get()); al && func) {
       const auto &args = al->args;
-      if (func) {
-        this->checkKwargsAfterPositionalArguments(args);
-        this->checkKwargs(func, args, node);
-        this->checkArgTypes(func, args);
-        for (const auto &arg : args) {
-          if (!dynamic_cast<KeywordItem *>(arg.get())) {
-            nPos++;
-          }
+      this->checkKwargsAfterPositionalArguments(args);
+      this->checkKwargs(func, args, node);
+      this->checkArgTypes(func, args);
+      for (const auto &arg : args) {
+        if (!dynamic_cast<KeywordItem *>(arg.get())) {
+          nPos++;
         }
       }
     }
@@ -1765,26 +1761,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
         Diagnostic(Severity::ERROR, fNode, eNode,
                    "Iteration statement expects only one or two identifiers"));
   }
-  std::shared_ptr<Node> lastAlive = nullptr;
-  std::shared_ptr<Node> firstDead = nullptr;
-  std::shared_ptr<Node> lastDead = nullptr;
-  for (const auto &stmt : node->stmts) {
-    stmt->visit(this);
-    this->checkNoEffect(stmt.get());
-    if (!lastAlive) {
-      if (TypeAnalyzer::isDead(stmt)) {
-        lastAlive = stmt;
-      }
-    } else {
-      if (!firstDead) {
-        firstDead = stmt;
-        lastDead = stmt;
-      } else {
-        lastDead = stmt;
-      }
-    }
-  }
-  this->applyDead(lastAlive, firstDead, lastDead);
+  this->visitChildren(node->stmts);
 }
 
 void TypeAnalyzer::visitKeyValueItem(KeyValueItem *node) {
@@ -2073,6 +2050,30 @@ bool TypeAnalyzer::checkCondition(Node *condition) {
   return appended;
 }
 
+void TypeAnalyzer::visitChildren(
+    const std::vector<std::shared_ptr<Node>> &stmts) {
+  std::shared_ptr<Node> lastAlive = nullptr;
+  std::shared_ptr<Node> firstDead = nullptr;
+  std::shared_ptr<Node> lastDead = nullptr;
+  for (const auto &stmt : stmts) {
+    stmt->visit(this);
+    this->checkNoEffect(stmt.get());
+    if (!lastAlive) {
+      if (TypeAnalyzer::isDead(stmt)) {
+        lastAlive = stmt;
+      }
+    } else {
+      if (!firstDead) {
+        firstDead = stmt;
+        lastDead = stmt;
+      } else {
+        lastDead = stmt;
+      }
+    }
+  }
+  this->applyDead(lastAlive, firstDead, lastDead);
+}
+
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
@@ -2086,27 +2087,8 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
       cond->visit(this);
       appended = this->checkCondition(cond.get());
     }
-    std::shared_ptr<Node> lastAlive = nullptr;
-    std::shared_ptr<Node> firstDead = nullptr;
-    std::shared_ptr<Node> lastDead = nullptr;
     this->variablesNeedingUse.emplace_back();
-    for (const auto &stmt : block) {
-      stmt->visit(this);
-      this->checkNoEffect(stmt.get());
-      if (!lastAlive) {
-        if (TypeAnalyzer::isDead(stmt)) {
-          lastAlive = stmt;
-        }
-      } else {
-        if (!firstDead) {
-          firstDead = stmt;
-          lastDead = stmt;
-        } else {
-          lastDead = stmt;
-        }
-      }
-    }
-    this->applyDead(lastAlive, firstDead, lastDead);
+    this->visitChildren(block);
     if (appended) {
       this->ignoreUnknownIdentifier.pop_back();
     }
