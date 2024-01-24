@@ -73,7 +73,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
       const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, types.value())) {
         ret.emplace_back(toAdd + method->name + "()",
-                         CompletionItemKind::CIKMethod,
+                         CompletionItemKind::METHOD,
                          TextEdit({position, position},
                                   toAdd + createTextForFunction(method)));
       }
@@ -91,7 +91,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
       const auto *toAdd = lastCharSeen == '.' ? "" : ".";
       for (const auto &method : fillTypes(tree, errorTypes)) {
         ret.emplace_back(toAdd + method->name + "()",
-                         CompletionItemKind::CIKMethod,
+                         CompletionItemKind::METHOD,
                          TextEdit({position, position},
                                   toAdd + createTextForFunction(method)));
       }
@@ -131,9 +131,9 @@ next:
       }
     }
     for (const auto &identifier : toInsert) {
-      auto kind = CompletionItemKind::CIKVariable;
+      auto kind = CompletionItemKind::VARIABLE;
       if (builtins.contains(identifier)) {
-        kind = CompletionItemKind::CIKConstant;
+        kind = CompletionItemKind::CONSTANT;
       }
       ret.emplace_back(identifier, kind,
                        TextEdit(nodeToRange(idExpr), identifier));
@@ -159,7 +159,7 @@ next:
         goto insertFns;
       }
       for (const auto &toAdd : findUnusedKwargs(al, func)) {
-        ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+        ret.emplace_back(toAdd, CompletionItemKind::KEYWORD,
                          TextEdit(nodeToRange(idExpr),
                                   std::format("{}: ${{1:{}}}", toAdd, toAdd)));
       }
@@ -169,18 +169,18 @@ next:
       auto lowerName = lowercase(funcName);
       if (lowerName.contains(loweredId)) {
         ret.emplace_back(
-            funcName + "()", CompletionItemKind::CIKFunction,
+            funcName + "()", CompletionItemKind::FUNCTION,
             TextEdit(nodeToRange(idExpr), createTextForFunction(funcRef)));
       }
     }
   } else if (prev.empty()) {
     for (const auto &[funcName, funcRef] : tree->ns.functions) {
-      ret.emplace_back(funcName + "()", CompletionItemKind::CIKFunction,
+      ret.emplace_back(funcName + "()", CompletionItemKind::FUNCTION,
                        TextEdit(LSPRange(position, position),
                                 createTextForFunction(funcRef)));
     }
     for (const auto &builtin : builtins) {
-      ret.emplace_back(builtin, CompletionItemKind::CIKConstant,
+      ret.emplace_back(builtin, CompletionItemKind::CONSTANT,
                        TextEdit(LSPRange(position, position), builtin));
     }
     std::set<std::string> inserted;
@@ -194,7 +194,7 @@ next:
         continue;
       }
       inserted.insert(identifier->id);
-      ret.emplace_back(identifier->id, CompletionItemKind::CIKVariable,
+      ret.emplace_back(identifier->id, CompletionItemKind::VARIABLE,
                        TextEdit(LSPRange(position, position), identifier->id));
     }
   }
@@ -404,7 +404,7 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
         LOG.info(std::format("Adding path: {}", relative));
         // TODO: Works in Builder, but not in VSCode
         ret.emplace_back(
-            relative, CompletionItemKind::CIKFile,
+            relative, CompletionItemKind::CIK_FILE,
             TextEdit(nodeToRange(literal), std::format("{}", relative)));
       }
     }
@@ -414,7 +414,7 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
         LOG.info(std::format("Inserting option {}", opt->name));
         // TODO: Works in Builder, but not in VSCode
         ret.emplace_back(
-            opt->name, CompletionItemKind::CIKFile,
+            opt->name, CompletionItemKind::CIK_FILE,
             TextEdit(nodeToRange(literal), std::format("{}", opt->name)));
       }
     }
@@ -432,7 +432,7 @@ static void inCallCompletion(const ArgumentList *al,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position) {
   for (const auto &toAdd : findUnusedKwargs(al, func)) {
-    ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+    ret.emplace_back(toAdd, CompletionItemKind::KEYWORD,
                      TextEdit(LSPRange(position, position),
                               std::format("{}: ${{1:{}}}", toAdd, toAdd)));
   }

@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   const auto &firstDiags = diags.begin()->second;
   assert(firstDiags.size() == 1);
   const auto &diag = firstDiags[0];
-  assert(diag.severity == DiagnosticSeverity::LSPWarning);
+  assert(diag.severity == DiagnosticSeverity::LSP_WARNING);
   assert(diag.message ==
          "Meson version 0.21.0 is requested, but meson.project_build_root() is "
          "only available since 0.56.0");

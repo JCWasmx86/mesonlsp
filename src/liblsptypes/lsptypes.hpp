@@ -39,7 +39,7 @@ public:
 
 class ClientCapabilities : public BaseObject {};
 
-enum TextDocumentSyncKind { None = 0, Full = 1, Incremental = 2 };
+enum class TextDocumentSyncKind { NONE = 0, FULL = 1, INCREMENTAL = 2 };
 
 class SemanticTokensLegend : public BaseObject {
 public:
@@ -207,14 +207,14 @@ public:
   }
 };
 
-enum DiagnosticSeverity {
-  LSPError = 1,
-  LSPWarning = 2,
+enum class DiagnosticSeverity {
+  LSP_ERROR = 1,
+  LSP_WARNING = 2,
 };
 
-enum DiagnosticTag {
-  LSPUnnecessary = 1,
-  LSPDeprecated = 2,
+enum class DiagnosticTag {
+  LSP_UNNECESSARY = 1,
+  LSP_DEPRECATED = 2,
 };
 
 class LSPPosition : public BaseObject {
@@ -469,13 +469,13 @@ public:
       : textDocument(jsonObj["textDocument"]) {}
 };
 
-enum SymbolKind {
-  VariableKind = 13,
-  StringKind = 15,
-  NumberKind = 16,
-  BooleanKind = 17,
-  ListKind = 18,
-  ObjectKind = 19,
+enum class SymbolKind {
+  VARIABLE_KIND = 13,
+  STRING_KIND = 15,
+  NUMBER_KIND = 16,
+  BOOLEAN_KIND = 17,
+  LIST_KIND = 18,
+  OBJECT_KIND = 19,
 };
 
 class LSPLocation {
@@ -545,9 +545,9 @@ public:
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
-enum DocumentHighlightKind {
-  ReadKind = 1,
-  WriteKind = 2,
+enum class DocumentHighlightKind {
+  READ_KIND = 1,
+  WRITE_KIND = 2,
 };
 
 class DocumentHighlight : public BaseObject {
@@ -643,13 +643,13 @@ public:
       : textDocument(jsonObj["textDocument"]), position(jsonObj["position"]) {}
 };
 
-enum CompletionItemKind {
-  CIKMethod = 2,
-  CIKFunction = 3,
-  CIKVariable = 6,
-  CIKKeyword = 14,
-  CIKFile = 17,
-  CIKConstant = 21,
+enum class CompletionItemKind {
+  METHOD = 2,
+  FUNCTION = 3,
+  VARIABLE = 6,
+  KEYWORD = 14,
+  CIK_FILE = 17,
+  CONSTANT = 21,
 };
 
 class CompletionItem : public BaseObject {

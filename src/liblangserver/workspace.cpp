@@ -160,10 +160,10 @@ Workspace::highlight(const std::filesystem::path &path,
       if (idExpr.value()->id != toCheck->id) {
         continue;
       }
-      auto kind = DocumentHighlightKind::ReadKind;
+      auto kind = DocumentHighlightKind::READ_KIND;
       const auto *ass = dynamic_cast<AssignmentStatement *>(toCheck->parent);
       if (ass && toCheck->equals(ass->lhs.get())) {
-        kind = DocumentHighlightKind::WriteKind;
+        kind = DocumentHighlightKind::WRITE_KIND;
       }
       const auto &loc = toCheck->location;
       auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),

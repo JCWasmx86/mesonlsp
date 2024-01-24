@@ -116,20 +116,20 @@ void DocumentSymbolVisitor::createSymbol(const IdExpression *idExpr) {
   auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                         LSPPosition(loc.endLine, loc.endColumn));
   auto lspLocation = LSPLocation(pathToUrl(idExpr->file->file), range);
-  auto kind = SymbolKind::VariableKind;
+  auto kind = SymbolKind::VARIABLE_KIND;
   auto types = idExpr->types;
   if (types.size() == 1) {
     auto *type = types[0].get();
     if (dynamic_cast<AbstractObject *>(type)) {
-      kind = SymbolKind::ObjectKind;
+      kind = SymbolKind::OBJECT_KIND;
     } else if (dynamic_cast<Str *>(type)) {
-      kind = SymbolKind::StringKind;
+      kind = SymbolKind::STRING_KIND;
     } else if (dynamic_cast<IntType *>(type)) {
-      kind = SymbolKind::NumberKind;
+      kind = SymbolKind::NUMBER_KIND;
     } else if (dynamic_cast<BoolType *>(type)) {
-      kind = SymbolKind::BooleanKind;
+      kind = SymbolKind::BOOLEAN_KIND;
     } else if (dynamic_cast<List *>(type)) {
-      kind = SymbolKind::ListKind;
+      kind = SymbolKind::LIST_KIND;
     }
   }
   this->symbols.emplace_back(name, kind, lspLocation);

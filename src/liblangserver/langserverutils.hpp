@@ -26,14 +26,14 @@ inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
   auto range = LSPRange(LSPPosition(diag.startLine, diag.startColumn),
                         LSPPosition(diag.endLine, diag.endColumn));
   auto severity = diag.severity == Severity::ERROR
-                      ? DiagnosticSeverity::LSPError
-                      : DiagnosticSeverity::LSPWarning;
+                      ? DiagnosticSeverity::LSP_ERROR
+                      : DiagnosticSeverity::LSP_WARNING;
   std::vector<DiagnosticTag> tags;
   if (diag.deprecated) {
-    tags.push_back(DiagnosticTag::LSPDeprecated);
+    tags.push_back(DiagnosticTag::LSP_DEPRECATED);
   }
   if (diag.unnecessary) {
-    tags.push_back(DiagnosticTag::LSPUnnecessary);
+    tags.push_back(DiagnosticTag::LSP_UNNECESSARY);
   }
   return {range, severity, diag.message, tags};
 }
