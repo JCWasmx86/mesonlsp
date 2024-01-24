@@ -122,16 +122,16 @@ void jsonrpc::JsonRpcServer::loop(
         return;
       }
       switch (chr) {
+        using enum JsonrpcState;
       case '\r':
-        state = state == JsonrpcState::FIRST_N ? JsonrpcState::SECOND_R
-                                               : JsonrpcState::FIRST_R;
+        state = state == JsonrpcState::FIRST_N ? SECOND_R : FIRST_R;
         break;
       case '\n':
-        if (state == JsonrpcState::SECOND_R) {
+        if (state == SECOND_R) {
           breakFromLoop = true;
           break;
         }
-        state = JsonrpcState::FIRST_N;
+        state = FIRST_N;
         if (header.starts_with(prefix)) {
           auto numberAsStr = header.substr(prefix.length());
           contentLength = std::stoi(numberAsStr);
@@ -139,7 +139,7 @@ void jsonrpc::JsonRpcServer::loop(
         break;
       default:
         header += (char)chr;
-        state = JsonrpcState::READING;
+        state = READING;
       }
       if (breakFromLoop) {
         break;
