@@ -75,7 +75,7 @@ private:
                  const std::shared_ptr<Node> &firstDead,
                  const std::shared_ptr<Node> &lastDead) const;
   void checkUnusedVariables();
-  bool isDead(const std::shared_ptr<Node> &node);
+  static bool isDead(const std::shared_ptr<Node> &node);
   void checkDuplicateNodeKeys(DictionaryLiteral *node) const;
   void setFunctionCallTypes(FunctionExpression *node,
                             const std::shared_ptr<Function> &func);
@@ -109,7 +109,7 @@ private:
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
   void analyseIterationStatementTwoIdentifiers(IterationStatement *node);
   bool checkCondition(Node *condition) __attribute__((nonnull));
-  bool isSpecial(const std::vector<std::shared_ptr<Type>> &types);
+  static bool isSpecial(const std::vector<std::shared_ptr<Type>> &types);
   void checkIfSpecialComparison(const MethodExpression *me,
                                 const StringLiteral *sl) const;
   std::vector<std::shared_ptr<Type>> evalBinaryExpression(
