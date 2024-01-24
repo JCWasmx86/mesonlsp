@@ -10,6 +10,125 @@ from shared import (
 )
 
 
+def print_methods(
+    obj_name, method, data_dict, output, deprecations, since_data, idx, full_data
+):
+    method_id = obj_name + "::" + method[0]
+    escaped = (
+        data_dict[method_id]
+        .encode("unicode-escape")
+        .decode("utf-8")
+        .replace('"', '\\"')
+    )
+    print("    std::make_shared<Method>(", file=output)
+    print(f'      "{method[0]}",', file=output)
+    print(f'      "{escaped}",', file=output)
+    print("      std::vector<std::shared_ptr<Argument>> {", file=output)
+    args = method[1]
+    kwargs = method[2]
+    total_len = len(args) + len(kwargs)
+    for idx_, arg in enumerate(args):
+        print("        std::make_shared<PositionalArgument>(", file=output)
+        print(f'          "{arg[0]}",', file=output)
+        print("          std::vector<std::shared_ptr<Type>>{", file=output)
+        for t_idx, t in enumerate(arg[3]):
+            print(
+                "            "
+                + type_to_cpp(t)
+                + ("," if t_idx != len(arg[3]) - 1 else ""),
+                file=output,
+            )
+        print("          },", file=output)
+        print(f"          {arg[2]},", file=output)
+        print(f"          {arg[1]}", file=output)
+        if idx_ == total_len - 1:
+            print("        )", file=output)
+        else:
+            print("        ),", file=output)
+    for idx_, arg in enumerate(kwargs):
+        coded_kwarg_name = arg[0]
+        print("        std::make_shared<Kwarg>(", file=output)
+        print(f'          "{coded_kwarg_name[1:]}",', file=output)
+        print("          std::vector<std::shared_ptr<Type>>{", file=output)
+        for t_idx, t in enumerate(arg[2]):
+            print(
+                "            "
+                + type_to_cpp(t)
+                + ("," if t_idx != len(arg[2]) - 1 else ""),
+                file=output,
+            )
+        print("          },", file=output)
+        print(f"          {arg[1]}", file=output)
+        if coded_kwarg_name in deprecations:
+            print(",DeprecationState(", file=output)
+            deprecation_data = deprecations[coded_kwarg_name]
+            print(
+                f'"{deprecation_data[0]}", std::vector<std::string>',
+                file=output,
+            )
+            print(
+                "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
+                file=output,
+            )
+            print("})", file=output)
+        if len(args) + idx_ == total_len - 1:
+            print("        )", file=output)
+        else:
+            print("        ),", file=output)
+    print("      },", file=output)
+    print("      std::vector<std::shared_ptr<Type>>{", file=output)
+    for t_idx, t in enumerate(method[3]):
+        print(
+            "        " + type_to_cpp(t) + ("," if t_idx != len(method[3]) - 1 else ""),
+            file=output,
+        )
+    print("      },", file=output)
+    print(f'     this->types.at("{obj_name}")', file=output)
+    if method_id in deprecations:
+        print(",DeprecationState(", file=output)
+        deprecation_data = deprecations[method_id]
+        print(
+            f'"{deprecation_data[0]}", std::vector<std::string>',
+            file=output,
+        )
+        print(
+            "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
+            file=output,
+        )
+        print("})", file=output)
+    if method_id in since_data:
+        if method_id not in deprecations:
+            print(",DeprecationState()", file=output)
+        since = since_data[method_id]
+        print(f',Version("{since}")', file=output)
+    if idx == len(full_data[obj_name]) - 1:
+        print("    )", file=output)
+    else:
+        print("    ),", file=output)
+
+
+def print_methods_full(full_data, output, data_dict, deprecations, since_data):
+    for obj_name in sorted(full_data.keys()):
+        print(
+            f'  this->vtables["{obj_name}"] = std::vector<std::shared_ptr<Method>>'
+            + "{",
+            file=output,
+        )
+        for idx, method in enumerate(full_data[obj_name]):
+            print_methods(
+                obj_name,
+                method,
+                data_dict,
+                output,
+                deprecations,
+                since_data,
+                idx,
+                full_data,
+            )
+        print("  };", file=output)
+    print("}", file=output)
+
+
 def main():
     with open(sys.argv[4], "r", encoding="utf-8") as filep:
         deprecations = fetch_deprecation_data(filep)
@@ -88,109 +207,7 @@ def main():
                     )
                     idx += 1
         data_dict = parse_ascii_file(sys.argv[3])
-        for obj_name in sorted(full_data.keys()):
-            print(
-                f'  this->vtables["{obj_name}"] = std::vector<std::shared_ptr<Method>>'
-                + "{",
-                file=output,
-            )
-            for idx, method in enumerate(full_data[obj_name]):
-                method_id = obj_name + "::" + method[0]
-                escaped = (
-                    data_dict[method_id]
-                    .encode("unicode-escape")
-                    .decode("utf-8")
-                    .replace('"', '\\"')
-                )
-                print("    std::make_shared<Method>(", file=output)
-                print(f'      "{method[0]}",', file=output)
-                print(f'      "{escaped}",', file=output)
-                print("      std::vector<std::shared_ptr<Argument>> {", file=output)
-                args = method[1]
-                kwargs = method[2]
-                total_len = len(args) + len(kwargs)
-                for idx_, arg in enumerate(args):
-                    print("        std::make_shared<PositionalArgument>(", file=output)
-                    print(f'          "{arg[0]}",', file=output)
-                    print("          std::vector<std::shared_ptr<Type>>{", file=output)
-                    for t_idx, t in enumerate(arg[3]):
-                        print(
-                            "            "
-                            + type_to_cpp(t)
-                            + ("," if t_idx != len(arg[3]) - 1 else ""),
-                            file=output,
-                        )
-                    print("          },", file=output)
-                    print(f"          {arg[2]},", file=output)
-                    print(f"          {arg[1]}", file=output)
-                    if idx_ == total_len - 1:
-                        print("        )", file=output)
-                    else:
-                        print("        ),", file=output)
-                for idx_, arg in enumerate(kwargs):
-                    coded_kwarg_name = arg[0]
-                    print("        std::make_shared<Kwarg>(", file=output)
-                    print(f'          "{coded_kwarg_name[1:]}",', file=output)
-                    print("          std::vector<std::shared_ptr<Type>>{", file=output)
-                    for t_idx, t in enumerate(arg[2]):
-                        print(
-                            "            "
-                            + type_to_cpp(t)
-                            + ("," if t_idx != len(arg[2]) - 1 else ""),
-                            file=output,
-                        )
-                    print("          },", file=output)
-                    print(f"          {arg[1]}", file=output)
-                    if coded_kwarg_name in deprecations:
-                        print(",DeprecationState(", file=output)
-                        deprecation_data = deprecations[coded_kwarg_name]
-                        print(
-                            f'"{deprecation_data[0]}", std::vector<std::string>',
-                            file=output,
-                        )
-                        print(
-                            "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
-                            file=output,
-                        )
-                        print("})", file=output)
-                    if len(args) + idx_ == total_len - 1:
-                        print("        )", file=output)
-                    else:
-                        print("        ),", file=output)
-                print("      },", file=output)
-                print("      std::vector<std::shared_ptr<Type>>{", file=output)
-                for t_idx, t in enumerate(method[3]):
-                    print(
-                        "        "
-                        + type_to_cpp(t)
-                        + ("," if t_idx != len(method[3]) - 1 else ""),
-                        file=output,
-                    )
-                print("      },", file=output)
-                print(f'     this->types.at("{obj_name}")', file=output)
-                if method_id in deprecations:
-                    print(",DeprecationState(", file=output)
-                    deprecation_data = deprecations[method_id]
-                    print(
-                        f'"{deprecation_data[0]}", std::vector<std::string>',
-                        file=output,
-                    )
-                    print(
-                        "{" + ",".join([f'"{x}"' for x in deprecation_data[1]]),
-                        file=output,
-                    )
-                    print("})", file=output)
-                if method_id in since_data:
-                    if method_id not in deprecations:
-                        print(",DeprecationState()", file=output)
-                    since = since_data[method_id]
-                    print(f',Version("{since}")', file=output)
-                if idx == len(full_data[obj_name]) - 1:
-                    print("    )", file=output)
-                else:
-                    print("    ),", file=output)
-            print("  };", file=output)
-        print("}", file=output)
+        print_methods_full(full_data, output, data_dict, deprecations, since_data)
 
 
 if __name__ == "__main__":
