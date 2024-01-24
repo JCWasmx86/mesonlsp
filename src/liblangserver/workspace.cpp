@@ -318,7 +318,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
   return {};
 }
 
-WorkspaceEdit Workspace::rename(MesonMetadata &metadata,
+WorkspaceEdit Workspace::rename(const MesonMetadata &metadata,
                                 const IdExpression *toRename,
                                 const std::string &newName) {
   WorkspaceEdit ret;
@@ -327,20 +327,15 @@ WorkspaceEdit Workspace::rename(MesonMetadata &metadata,
     auto url = pathToUrl(identifierPath);
     ret.changes[url] = {};
     for (const auto *identifier : identifiers) {
-      if (identifier->id != toRename->id) {
+      auto equals = identifier->equals(toRename);
+      if (identifier->id != toRename->id || (equals && foundOurself)) {
         continue;
       }
-      if (identifier->equals(toRename)) {
-        if (foundOurself) {
-          continue;
-        }
+      if (equals) {
         foundOurself = true;
       }
-      const auto &loc = identifier->location;
-      auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
-                            LSPPosition(loc.endLine, loc.endColumn));
       // TODO: Rename parent-project `get_variable`
-      ret.changes[url].emplace_back(range, newName);
+      ret.changes[url].emplace_back(nodeToRange(identifier), newName);
     }
   }
   return ret;
@@ -419,88 +414,6 @@ void Workspace::dropCache(const std::filesystem::path &path) {
     auto iter = subTree->overrides.find(path);
     subTree->overrides.erase(iter);
   }
-}
-
-void Workspace::update(
-    MesonTree *subTree,
-    const std::function<void(
-        std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func,
-    const std::set<std::filesystem::path> &oldDiags) {
-  assert(!this->completing);
-  std::exception_ptr exception = nullptr;
-  try {
-    subTree->partialParse(this->options.analysisOptions);
-  } catch (...) {
-    exception = std::current_exception();
-  }
-  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
-
-  if (exception) {
-    for (const auto &oldDiag : oldDiags) {
-      ret[oldDiag] = {};
-    }
-    func(ret);
-    this->tasks.erase(subTree->identifier);
-    this->running = false;
-    this->smph.release();
-    std::rethrow_exception(exception);
-    return;
-  }
-
-  const auto &metadata = subTree->metadata;
-  for (const auto &[diagPath, diags] : metadata.diagnostics) {
-    if (!ret.contains(diagPath)) {
-      ret[diagPath] = {};
-    }
-    for (const auto &diag : diags) {
-      ret[diagPath].push_back(makeLSPDiagnostic(diag));
-    }
-  }
-  for (const auto &oldDiag : oldDiags) {
-    if (!ret.contains(oldDiag)) {
-      ret[oldDiag] = {};
-    }
-  }
-  func(ret);
-  this->tasks.erase(subTree->identifier);
-  this->foundTrees = findTrees(this->tree);
-  this->running = false;
-  this->smph.release();
-}
-
-void Workspace::patchFile(
-    const std::filesystem::path &path, const std::string &contents,
-    const std::function<void(
-        std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func) {
-  this->smph.acquire();
-  this->settingUp = true;
-
-  for (const auto &subTree : this->foundTrees) {
-    if (!subTree->ownedFiles.contains(path)) {
-      continue;
-    }
-    this->running = true;
-    std::set<std::filesystem::path> oldDiags;
-    const auto /*Copy explicitly, as subtree is not valid anymore after
-                  parsing*/
-        identifier = subTree->identifier;
-    for (const auto &[diagPath, _] : subTree->metadata.diagnostics) {
-      oldDiags.insert(diagPath);
-    }
-    subTree->clear();
-    subTree->overrides[path] = contents;
-
-    auto newTask = std::make_shared<Task>([&subTree, func, oldDiags, this]() {
-      this->update(subTree, func, oldDiags);
-    });
-
-    this->tasks[identifier] = newTask;
-    this->settingUp = false;
-    futures[identifier] = std::async(std::launch::async, &Task::run, newTask);
-    return;
-  }
-
-  this->settingUp = false;
 }
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>

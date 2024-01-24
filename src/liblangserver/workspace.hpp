@@ -4,6 +4,7 @@
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
+#include "mesontree.hpp"
 #include "task.hpp"
 #include "typenamespace.hpp"
 
@@ -19,7 +20,7 @@
 #include <string>
 #include <vector>
 
-class MesonTree;
+std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root);
 
 class Workspace {
 public:
@@ -55,10 +56,41 @@ public:
                                          const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
-  void patchFile(
-      const std::filesystem::path &path, const std::string &contents,
-      const std::function<void(
-          std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func);
+
+  template <typename Func>
+  void patchFile(const std::filesystem::path &path, const std::string &contents,
+                 const Func &func) {
+    this->smph.acquire();
+    this->settingUp = true;
+
+    for (const auto &subTree : this->foundTrees) {
+      if (!subTree->ownedFiles.contains(path)) {
+        continue;
+      }
+      this->running = true;
+      std::set<std::filesystem::path> oldDiags;
+      const auto /*Copy explicitly, as subtree is not valid anymore after
+                    parsing*/
+          identifier = subTree->identifier;
+      for (const auto &[diagPath, _] : subTree->metadata.diagnostics) {
+        oldDiags.insert(diagPath);
+      }
+      subTree->clear();
+      subTree->overrides[path] = contents;
+
+      auto newTask = std::make_shared<Task>([&subTree, func, oldDiags, this]() {
+        this->update<Func>(subTree, func, oldDiags);
+      });
+
+      this->tasks[identifier] = newTask;
+      this->settingUp = false;
+      futures[identifier] = std::async(std::launch::async, &Task::run, newTask);
+      return;
+    }
+
+    this->settingUp = false;
+  }
+
   std::vector<InlayHint> inlayHints(const std::filesystem::path &path);
   std::vector<FoldingRange> foldingRanges(const std::filesystem::path &path);
   std::vector<uint64_t> semanticTokens(const std::filesystem::path &path);
@@ -82,14 +114,55 @@ private:
   jumpToFunctionCall(const MesonMetadata *metadata,
                      const std::filesystem::path &path,
                      const LSPPosition &position);
-  static WorkspaceEdit rename(MesonMetadata &metadata,
+  static WorkspaceEdit rename(const MesonMetadata &metadata,
                               const IdExpression *toRename,
                               const std::string &newName);
-  void update(
-      MesonTree *subTree,
-      const std::function<void(
-          std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func,
-      const std::set<std::filesystem::path> &oldDiags);
+
+  template <typename Func>
+  void update(MesonTree *subTree, const Func &func,
+              const std::set<std::filesystem::path> &oldDiags) {
+    assert(!this->completing);
+    std::exception_ptr exception = nullptr;
+    try {
+      subTree->partialParse(this->options.analysisOptions);
+    } catch (...) {
+      exception = std::current_exception();
+    }
+    std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+
+    if (exception) {
+      for (const auto &oldDiag : oldDiags) {
+        ret[oldDiag] = {};
+      }
+      func(ret);
+      this->tasks.erase(subTree->identifier);
+      this->running = false;
+      this->smph.release();
+      std::rethrow_exception(exception);
+      return;
+    }
+
+    const auto &metadata = subTree->metadata;
+    for (const auto &[diagPath, diags] : metadata.diagnostics) {
+      if (!ret.contains(diagPath)) {
+        ret[diagPath] = {};
+      }
+      for (const auto &diag : diags) {
+        ret[diagPath].push_back(makeLSPDiagnostic(diag));
+      }
+    }
+    for (const auto &oldDiag : oldDiags) {
+      if (!ret.contains(oldDiag)) {
+        ret[oldDiag] = {};
+      }
+    }
+    func(ret);
+    this->tasks.erase(subTree->identifier);
+    this->foundTrees = findTrees(this->tree);
+    this->running = false;
+    this->smph.release();
+  }
+
   std::shared_ptr<MesonTree> tree;
   std::binary_semaphore smph{1};
 };
