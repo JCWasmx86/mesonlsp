@@ -510,6 +510,9 @@ findUnusedKwargs(const ArgumentList *al,
   for (const auto &[kwargName, _] : func->kwargs) {
     unusedKwargs.insert(kwargName);
   }
+  if (!al) {
+    return unusedKwargs;
+  }
   for (const auto &arg : al->args) {
     const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
     if (!kwarg || !kwarg->name.has_value()) {
