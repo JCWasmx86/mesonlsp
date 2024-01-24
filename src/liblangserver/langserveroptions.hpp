@@ -101,13 +101,14 @@ private:
         } else {
           this->ignoreDiagnosticsFromSubprojects = std::nullopt;
         }
-      } else if (ignore.is_array()) {
-        this->ignoreDiagnosticsFromSubprojects = std::vector<std::string>{};
-        for (const auto &element : ignore.get<std::vector<nlohmann::json>>()) {
-          if (element.is_string()) {
-            this->ignoreDiagnosticsFromSubprojects->push_back(
-                element.get<std::string>());
-          }
+      } else if (!ignore.is_array()) {
+        return;
+      }
+      this->ignoreDiagnosticsFromSubprojects = std::vector<std::string>{};
+      for (const auto &element : ignore.get<std::vector<nlohmann::json>>()) {
+        if (element.is_string()) {
+          this->ignoreDiagnosticsFromSubprojects->push_back(
+              element.get<std::string>());
         }
       }
     }
