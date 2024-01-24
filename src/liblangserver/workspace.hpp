@@ -85,6 +85,11 @@ private:
   static WorkspaceEdit rename(MesonMetadata &metadata,
                               const IdExpression *toRename,
                               const std::string &newName);
+  void update(
+      MesonTree *subTree,
+      const std::function<void(
+          std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func,
+      const std::set<std::filesystem::path> &oldDiags);
   std::shared_ptr<MesonTree> tree;
   std::binary_semaphore smph{1};
 };
