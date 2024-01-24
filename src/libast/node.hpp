@@ -132,20 +132,21 @@ enum class AssignmentOperator {
 };
 
 inline std::string enum2String(AssignmentOperator op) {
+  using enum AssignmentOperator;
   switch (op) {
-  case AssignmentOperator::EQUALS:
+  case EQUALS:
     return "=";
-  case AssignmentOperator::MUL_EQUALS:
+  case MUL_EQUALS:
     return "*=";
-  case AssignmentOperator::DIV_EQUALS:
+  case DIV_EQUALS:
     return "/=";
-  case AssignmentOperator::MOD_EQUALS:
+  case MOD_EQUALS:
     return "%=";
-  case AssignmentOperator::PLUS_EQUALS:
+  case PLUS_EQUALS:
     return "+=";
-  case AssignmentOperator::MINUS_EQUALS:
+  case MINUS_EQUALS:
     return "-=";
-  case AssignmentOperator::ASSIGNMENT_OP_OTHER:
+  case ASSIGNMENT_OP_OTHER:
     return "<<Unknown>>";
   }
   assert(false);
@@ -183,38 +184,39 @@ enum class BinaryOperator {
 };
 
 inline std::string enum2String(BinaryOperator op) {
+  using enum BinaryOperator;
   switch (op) {
-  case BinaryOperator::PLUS:
+  case PLUS:
     return "+";
-  case BinaryOperator::MINUS:
+  case MINUS:
     return "-";
-  case BinaryOperator::MUL:
+  case MUL:
     return "*";
-  case BinaryOperator::DIV:
+  case DIV:
     return "/";
-  case BinaryOperator::MODULO:
+  case MODULO:
     return "%";
-  case BinaryOperator::EQUALS_EQUALS:
+  case EQUALS_EQUALS:
     return "==";
-  case BinaryOperator::NOT_EQUALS:
+  case NOT_EQUALS:
     return "!=";
-  case BinaryOperator::GT:
+  case GT:
     return ">";
-  case BinaryOperator::LT:
+  case LT:
     return "<";
-  case BinaryOperator::GE:
+  case GE:
     return ">=";
-  case BinaryOperator::LE:
+  case LE:
     return "<=";
-  case BinaryOperator::IN:
+  case IN:
     return "in";
-  case BinaryOperator::NOT_IN:
+  case NOT_IN:
     return "not in";
-  case BinaryOperator::OR:
+  case OR:
     return "or";
-  case BinaryOperator::AND:
+  case AND:
     return "and";
-  case BinaryOperator::BIN_OP_OTHER:
+  case BIN_OP_OTHER:
     return "<<Unknown>>";
   }
   assert(false);

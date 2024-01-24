@@ -384,14 +384,15 @@ void TypeAnalyzer::evalAssignmentTypes(
     const std::shared_ptr<Type> &left, const std::shared_ptr<Type> &right,
     AssignmentOperator op, std::vector<std::shared_ptr<Type>> *newTypes) {
   switch (op) {
-  [[likely]] case AssignmentOperator::PLUS_EQUALS: {
+    using enum AssignmentOperator;
+  [[likely]] case PLUS_EQUALS: {
     auto type = this->evalPlusEquals(left, right);
     if (type.has_value()) {
       newTypes->push_back(type.value());
     }
     break;
   }
-  case AssignmentOperator::DIV_EQUALS:
+  case DIV_EQUALS:
     if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
@@ -399,9 +400,9 @@ void TypeAnalyzer::evalAssignmentTypes(
       newTypes->push_back(this->ns.strType);
     }
     break;
-  case AssignmentOperator::MINUS_EQUALS:
-  case AssignmentOperator::MOD_EQUALS:
-  case AssignmentOperator::MUL_EQUALS:
+  case MINUS_EQUALS:
+  case MOD_EQUALS:
+  case MUL_EQUALS:
     if (sameType(left, right, INT)) {
       newTypes->push_back(this->ns.intType);
     }
@@ -506,7 +507,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         continue;
       }
       switch (op) {
-      [[likely]] case BinaryOperator::PLUS: {
+        using enum BinaryOperator;
+      [[likely]] case PLUS: {
         if (sameType(lType, rType, STR) || sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.types.at(lType->name));
           break;
@@ -534,8 +536,8 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
         ++*numErrors;
         break;
       }
-      [[likely]] case BinaryOperator::EQUALS_EQUALS:
-      case BinaryOperator::NOT_EQUALS:
+      [[likely]] case EQUALS_EQUALS:
+      case NOT_EQUALS:
         if (sameType(lType, rType, STR) || sameType(lType, rType, INT) ||
             sameType(lType, rType, BOOL) || sameType(lType, rType, DICT) ||
             sameType(lType, rType, LIST) ||
@@ -546,15 +548,15 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           ++*numErrors;
         }
         break;
-      case BinaryOperator::AND:
-      case BinaryOperator::OR:
+      case AND:
+      case OR:
         if (sameType(lType, rType, BOOL)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
-      case BinaryOperator::DIV:
+      case DIV:
         if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else if (sameType(lType, rType, STR)) {
@@ -563,23 +565,23 @@ std::vector<std::shared_ptr<Type>> TypeAnalyzer::evalBinaryExpression(
           ++*numErrors;
         }
         break;
-      case BinaryOperator::GE:
-      case BinaryOperator::GT:
-      case BinaryOperator::LE:
-      case BinaryOperator::LT:
+      case GE:
+      case GT:
+      case LE:
+      case LT:
         if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
           newTypes.emplace_back(this->ns.boolType);
         } else {
           ++*numErrors;
         }
         break;
-      case BinaryOperator::IN:
-      case BinaryOperator::NOT_IN:
+      case IN:
+      case NOT_IN:
         newTypes.emplace_back(this->ns.boolType);
         break;
-      case BinaryOperator::MINUS:
-      case BinaryOperator::MODULO:
-      case BinaryOperator::MUL:
+      case MINUS:
+      case MODULO:
+      case MUL:
         if (sameType(lType, rType, INT)) {
           newTypes.emplace_back(this->ns.intType);
         } else {
@@ -2184,11 +2186,12 @@ void TypeAnalyzer::visitSubscriptExpression(SubscriptExpression *node) {
 void TypeAnalyzer::visitUnaryExpression(UnaryExpression *node) {
   node->visitChildren(this);
   switch (node->op) {
-  case UnaryOperator::NOT:
-  case UnaryOperator::EXCLAMATION_MARK:
+    using enum UnaryOperator;
+  case NOT:
+  case EXCLAMATION_MARK:
     node->types.push_back(this->ns.boolType);
     break;
-  case UnaryOperator::UNARY_MINUS:
+  case UNARY_MINUS:
     node->types.push_back(this->ns.intType);
     break;
   default:

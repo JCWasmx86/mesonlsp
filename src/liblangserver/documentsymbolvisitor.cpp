@@ -111,25 +111,26 @@ void DocumentSymbolVisitor::visitContinueNode(ContinueNode *node) {
 }
 
 void DocumentSymbolVisitor::createSymbol(const IdExpression *idExpr) {
+  using enum SymbolKind;
   auto name = idExpr->id;
   const auto &loc = idExpr->location;
   auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
                         LSPPosition(loc.endLine, loc.endColumn));
   auto lspLocation = LSPLocation(pathToUrl(idExpr->file->file), range);
-  auto kind = SymbolKind::VARIABLE_KIND;
+  auto kind = VARIABLE_KIND;
   auto types = idExpr->types;
   if (types.size() == 1) {
     auto *type = types[0].get();
     if (dynamic_cast<AbstractObject *>(type)) {
-      kind = SymbolKind::OBJECT_KIND;
+      kind = OBJECT_KIND;
     } else if (dynamic_cast<Str *>(type)) {
-      kind = SymbolKind::STRING_KIND;
+      kind = STRING_KIND;
     } else if (dynamic_cast<IntType *>(type)) {
-      kind = SymbolKind::NUMBER_KIND;
+      kind = NUMBER_KIND;
     } else if (dynamic_cast<BoolType *>(type)) {
-      kind = SymbolKind::BOOLEAN_KIND;
+      kind = BOOLEAN_KIND;
     } else if (dynamic_cast<List *>(type)) {
-      kind = SymbolKind::LIST_KIND;
+      kind = LIST_KIND;
     }
   }
   this->symbols.emplace_back(name, kind, lspLocation);

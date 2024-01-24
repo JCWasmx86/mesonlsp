@@ -437,26 +437,27 @@ AssignmentStatement::AssignmentStatement(
   this->lhs = makeNode(file, ts_node_named_child(node, 0));
   const auto opNode = ts_node_named_child(node, 1);
   switch (ts_node_symbol(ts_node_child(opNode, 0))) {
+    using enum AssignmentOperator;
   case anon_sym_EQ:
-    this->op = AssignmentOperator::EQUALS;
+    this->op = EQUALS;
     break;
   case anon_sym_STAR_EQ:
-    this->op = AssignmentOperator::MUL_EQUALS;
+    this->op = MUL_EQUALS;
     break;
   case anon_sym_SLASH_EQ:
-    this->op = AssignmentOperator::DIV_EQUALS;
+    this->op = DIV_EQUALS;
     break;
   case anon_sym_PERCENT_EQ:
-    this->op = AssignmentOperator::MOD_EQUALS;
+    this->op = MOD_EQUALS;
     break;
   case anon_sym_PLUS_EQ:
-    this->op = AssignmentOperator::PLUS_EQUALS;
+    this->op = PLUS_EQUALS;
     break;
   case anon_sym_DASH_EQ:
-    this->op = AssignmentOperator::MINUS_EQUALS;
+    this->op = MINUS_EQUALS;
     break;
   default:
-    this->op = AssignmentOperator::ASSIGNMENT_OP_OTHER;
+    this->op = ASSIGNMENT_OP_OTHER;
   }
   this->rhs = makeNode(file, ts_node_named_child(node, 2));
 }
@@ -480,13 +481,14 @@ BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
   auto ncc = ts_node_named_child_count(node);
   const auto opNode = (ncc == 2 ? ts_node_child : ts_node_named_child)(node, 1);
   switch (ts_node_symbol(opNode)) {
+    using enum BinaryOperator;
   case sym_equ_operator:
     switch (ts_node_symbol(ts_node_child(opNode, 0))) {
     case anon_sym_EQ_EQ:
-      this->op = BinaryOperator::EQUALS_EQUALS;
+      this->op = EQUALS_EQUALS;
       break;
     case anon_sym_BANG_EQ:
-      this->op = BinaryOperator::NOT_EQUALS;
+      this->op = NOT_EQUALS;
       break;
     default:
       std::unreachable();
@@ -496,19 +498,19 @@ BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
   case sym_add_operator:
     switch (ts_node_symbol(ts_node_child(opNode, 0))) {
     case anon_sym_PLUS:
-      this->op = BinaryOperator::PLUS;
+      this->op = PLUS;
       break;
     case anon_sym_DASH:
-      this->op = BinaryOperator::MINUS;
+      this->op = MINUS;
       break;
     case anon_sym_STAR:
-      this->op = BinaryOperator::MUL;
+      this->op = MUL;
       break;
     case anon_sym_SLASH:
-      this->op = BinaryOperator::DIV;
+      this->op = DIV;
       break;
     case anon_sym_PERCENT:
-      this->op = BinaryOperator::MODULO;
+      this->op = MODULO;
       break;
     default:
       std::unreachable();
@@ -517,35 +519,35 @@ BinaryExpression::BinaryExpression(const std::shared_ptr<SourceFile> &file,
   case sym_rel_operator:
     switch (ts_node_symbol(ts_node_child(opNode, 0))) {
     case anon_sym_GT:
-      this->op = BinaryOperator::GT;
+      this->op = GT;
       break;
     case anon_sym_LT:
-      this->op = BinaryOperator::LT;
+      this->op = LT;
       break;
     case anon_sym_GT_EQ:
-      this->op = BinaryOperator::GE;
+      this->op = GE;
       break;
     case anon_sym_LT_EQ:
-      this->op = BinaryOperator::LE;
+      this->op = LE;
       break;
     case anon_sym_in:
-      this->op = BinaryOperator::IN;
+      this->op = IN;
       break;
     case anon_sym_not:
-      this->op = BinaryOperator::NOT_IN;
+      this->op = NOT_IN;
       break;
     default:
       std::unreachable();
     }
     break;
   case anon_sym_and:
-    this->op = BinaryOperator::AND;
+    this->op = AND;
     break;
   case anon_sym_or:
-    this->op = BinaryOperator::OR;
+    this->op = OR;
     break;
   default:
-    this->op = BinaryOperator::BIN_OP_OTHER;
+    this->op = BIN_OP_OTHER;
   }
   this->rhs = makeNode(file, ts_node_named_child(node, ncc == 2 ? 1 : 2));
 }
@@ -567,17 +569,18 @@ UnaryExpression::UnaryExpression(const std::shared_ptr<SourceFile> &file,
     : Node(file, node) {
   const auto opNode = ts_node_child(node, 0);
   switch (ts_node_symbol(opNode)) {
+    using enum UnaryOperator;
   case anon_sym_not:
-    this->op = UnaryOperator::NOT;
+    this->op = NOT;
     break;
   case anon_sym_BANG:
-    this->op = UnaryOperator::EXCLAMATION_MARK;
+    this->op = EXCLAMATION_MARK;
     break;
   case anon_sym_DASH:
-    this->op = UnaryOperator::UNARY_MINUS;
+    this->op = UNARY_MINUS;
     break;
   default:
-    this->op = UnaryOperator::UNARY_OTHER;
+    this->op = UNARY_OTHER;
   }
   this->expression = makeNode(file, ts_node_named_child(node, 0));
 }
