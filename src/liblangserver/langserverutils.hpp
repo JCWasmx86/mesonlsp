@@ -5,14 +5,20 @@
 #include "node.hpp"
 
 #include <ada.h>
-#include <cassert>
 #include <filesystem>
+#include <format>
+#include <stdexcept>
 #include <string>
 
 inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   auto url = ada::parse<ada::url>(urlStr);
-  assert(url);
-  assert(url->get_protocol() == "file:");
+  if (!url) {
+    throw std::runtime_error(std::format("Unknown URL: {}", urlStr));
+  }
+  if (url->get_protocol() != "file:") {
+    throw std::runtime_error(
+        std::format("Unknown protocol: {}", url->get_protocol()));
+  }
   auto input = url->get_pathname();
   auto ret = ada::unicode::percent_decode(input, input.find('%'));
   return {ret};
