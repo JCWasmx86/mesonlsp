@@ -421,6 +421,53 @@ void Workspace::dropCache(const std::filesystem::path &path) {
   }
 }
 
+void Workspace::update(
+    MesonTree *subTree,
+    const std::function<void(
+        std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)> &func,
+    const std::set<std::filesystem::path> &oldDiags) {
+  assert(!this->completing);
+  std::exception_ptr exception = nullptr;
+  try {
+    subTree->partialParse(this->options.analysisOptions);
+  } catch (...) {
+    exception = std::current_exception();
+  }
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+
+  if (exception) {
+    for (const auto &oldDiag : oldDiags) {
+      ret[oldDiag] = {};
+    }
+    func(ret);
+    this->tasks.erase(subTree->identifier);
+    this->running = false;
+    this->smph.release();
+    std::rethrow_exception(exception);
+    return;
+  }
+
+  const auto &metadata = subTree->metadata;
+  for (const auto &[diagPath, diags] : metadata.diagnostics) {
+    if (!ret.contains(diagPath)) {
+      ret[diagPath] = {};
+    }
+    for (const auto &diag : diags) {
+      ret[diagPath].push_back(makeLSPDiagnostic(diag));
+    }
+  }
+  for (const auto &oldDiag : oldDiags) {
+    if (!ret.contains(oldDiag)) {
+      ret[oldDiag] = {};
+    }
+  }
+  func(ret);
+  this->tasks.erase(subTree->identifier);
+  this->foundTrees = findTrees(this->tree);
+  this->running = false;
+  this->smph.release();
+}
+
 void Workspace::patchFile(
     const std::filesystem::path &path, const std::string &contents,
     const std::function<void(
@@ -444,46 +491,7 @@ void Workspace::patchFile(
     subTree->overrides[path] = contents;
 
     auto newTask = std::make_shared<Task>([&subTree, func, oldDiags, this]() {
-      assert(!this->completing);
-      std::exception_ptr exception = nullptr;
-      try {
-        subTree->partialParse(this->options.analysisOptions);
-      } catch (...) {
-        exception = std::current_exception();
-      }
-      std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
-
-      if (exception) {
-        for (const auto &oldDiag : oldDiags) {
-          ret[oldDiag] = {};
-        }
-        func(ret);
-        this->tasks.erase(subTree->identifier);
-        this->running = false;
-        this->smph.release();
-        std::rethrow_exception(exception);
-        return;
-      }
-
-      const auto &metadata = subTree->metadata;
-      for (const auto &[diagPath, diags] : metadata.diagnostics) {
-        if (!ret.contains(diagPath)) {
-          ret[diagPath] = {};
-        }
-        for (const auto &diag : diags) {
-          ret[diagPath].push_back(makeLSPDiagnostic(diag));
-        }
-      }
-      for (const auto &oldDiag : oldDiags) {
-        if (!ret.contains(oldDiag)) {
-          ret[oldDiag] = {};
-        }
-      }
-      func(ret);
-      this->tasks.erase(subTree->identifier);
-      this->foundTrees = findTrees(this->tree);
-      this->running = false;
-      this->smph.release();
+      this->update(subTree, func, oldDiags);
     });
 
     this->tasks[identifier] = newTask;
