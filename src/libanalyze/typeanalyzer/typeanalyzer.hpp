@@ -166,4 +166,5 @@ private:
   void setFunctionCallTypesGetVariable(FunctionExpression *node,
                                        const std::shared_ptr<Function> &func);
   void checkUsage(const IdExpression *node);
+  void visitChildren(const std::vector<std::shared_ptr<Node>> &stmts);
 };
