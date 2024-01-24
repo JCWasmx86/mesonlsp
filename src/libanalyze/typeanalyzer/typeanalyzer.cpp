@@ -1866,13 +1866,9 @@ bool TypeAnalyzer::findMethod(
         continue;
       }
       for (const auto &argType : firstArg->types) {
-        if (argType->tag == INT && hasList) {
-          goto cont;
-        }
-        if (argType->tag == STR && hasDict) {
-          goto cont;
-        }
-        if (argType->tag == STR && type->tag == CFG_DATA) {
+        if ((argType->tag == INT && hasList) ||
+            (argType->tag == STR && hasDict) ||
+            (argType->tag == STR && type->tag == CFG_DATA)) {
           goto cont;
         }
       }
