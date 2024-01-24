@@ -24,6 +24,9 @@
 
 const static Logger LOG("Completion"); // NOLINT
 
+const static std::set<std::string> /*NOLINT*/ BUILTINS{
+    "meson", "build_machine", "host_machine", "target_machine"};
+
 static std::optional<std::vector<std::shared_ptr<Type>>>
 afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
                    uint64_t line, uint64_t character, bool recurse);
@@ -39,16 +42,35 @@ static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position);
+static void afterDotCompletion(std::vector<CompletionItem> &ret,
+                               const std::filesystem::path &path,
+                               MesonTree *tree, const LSPPosition &position,
+                               const std::string &prev);
+static void idExpressionCompletion(const IdExpression *idExpr,
+                                   const MesonTree *tree,
+                                   const std::filesystem::path &path,
+                                   const LSPPosition &position,
+                                   std::vector<CompletionItem> &ret);
+static void emptyLineCompletion(const MesonTree *tree,
+                                const LSPPosition &position,
+                                const std::filesystem::path &path,
+                                std::vector<CompletionItem> &ret);
 static std::set<std::string>
 findUnusedKwargs(const ArgumentList *al, const std::shared_ptr<Function> &func);
+static void inCallCompletion(const MesonTree *tree,
+                             const std::filesystem::path &path,
+                             const LSPPosition &position,
+                             std::vector<CompletionItem> &ret);
+static void inCallCompletionFunction(const MesonTree *tree,
+                                     const std::filesystem::path &path,
+                                     const LSPPosition &position,
+                                     std::vector<CompletionItem> &ret);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
                                      const LSPPosition &position) {
   auto lines = split(ast->file->contents(), "\n");
-  const std::set<std::string> builtins{"meson", "build_machine", "host_machine",
-                                       "target_machine"};
   lines.emplace_back("\n");
   std::vector<CompletionItem> ret;
   if (position.line >= lines.size()) {
@@ -61,142 +83,15 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
   auto following = line;
   following.erase(0, prev.length());
   if (!prev.empty()) {
-    auto lastCharSeen = prev.back();
-    if (lastCharSeen != '.' && lastCharSeen != ')') {
-      goto next;
-    }
-    const auto &types =
-        afterDotCompletion(tree, path, position.line, position.character, true);
-    if (types.has_value() && !types.value().empty()) {
-      LOG.info(std::format("Guessed types in afterDotCompletion: {}",
-                           joinTypes(types.value())));
-      const auto *toAdd = lastCharSeen == '.' ? "" : ".";
-      for (const auto &method : fillTypes(tree, types.value())) {
-        ret.emplace_back(toAdd + method->name + "()",
-                         CompletionItemKind::METHOD,
-                         TextEdit({position, position},
-                                  toAdd + createTextForFunction(method)));
-      }
-    } else {
-      auto errorId = extractErrorId(prev);
-      if (!errorId.has_value() || errorId.value().empty()) {
-        goto next;
-      }
-      LOG.info(std::format("ErrorID: '{}'", errorId.value()));
-      std::vector<std::shared_ptr<Type>> errorTypes;
-      for (auto *const identifier : tree->metadata.identifiers[path]) {
-        errorTypes.insert(errorTypes.end(), identifier->types.begin(),
-                          identifier->types.end());
-      }
-      const auto *toAdd = lastCharSeen == '.' ? "" : ".";
-      for (const auto &method : fillTypes(tree, errorTypes)) {
-        ret.emplace_back(toAdd + method->name + "()",
-                         CompletionItemKind::METHOD,
-                         TextEdit({position, position},
-                                  toAdd + createTextForFunction(method)));
-      }
-    }
+    afterDotCompletion(ret, path, tree, position, prev);
   }
-next:
-  auto idExprAtPos = tree->metadata.findIdExpressionAt(path, position.line,
-                                                       position.character);
+  const auto idExprAtPos = tree->metadata.findIdExpressionAt(
+      path, position.line, position.character);
   if (idExprAtPos.has_value()) {
     const auto *idExpr = idExprAtPos.value();
-    LOG.info(std::format("Found idExpr: {} at {}", idExpr->id,
-                         idExpr->location.format()));
-    const auto *parent = idExpr->parent;
-    auto rightParent =
-        (dynamic_cast<const BuildDefinition *>(parent) != nullptr) ||
-        (dynamic_cast<const SelectionStatement *>(parent) != nullptr) ||
-        (dynamic_cast<const IterationStatement *>(parent) != nullptr) ||
-        (dynamic_cast<const ArgumentList *>(parent) != nullptr) ||
-        (dynamic_cast<const BinaryExpression *>(parent) != nullptr) ||
-        (dynamic_cast<const UnaryExpression *>(parent) != nullptr) ||
-        (dynamic_cast<const AssignmentStatement *>(parent) != nullptr);
-    const auto &loweredId = lowercase(idExpr->id);
-    std::set<std::string> toInsert;
-    for (const auto &identifier : tree->metadata.encounteredIds) {
-      if (identifier->file->file == path &&
-          identifier->location.startLine > position.line) {
-        break;
-      }
-      if (lowercase(identifier->id).contains(loweredId) &&
-          loweredId != identifier->id) {
-        toInsert.insert(identifier->id);
-      }
-    }
-    for (const auto &builtin : builtins) {
-      if (builtin.contains(loweredId) && loweredId != builtin) {
-        toInsert.insert(builtin);
-      }
-    }
-    for (const auto &identifier : toInsert) {
-      auto kind = CompletionItemKind::VARIABLE;
-      if (builtins.contains(identifier)) {
-        kind = CompletionItemKind::CONSTANT;
-      }
-      ret.emplace_back(identifier, kind,
-                       TextEdit(nodeToRange(idExpr), identifier));
-    }
-    const ArgumentList *al = nullptr;
-    if (!rightParent) {
-      goto insertFns;
-    }
-    al = dynamic_cast<const ArgumentList *>(parent);
-    if (al) {
-      const auto *parentOfArgs = al->parent;
-      assert(parentOfArgs);
-      std::shared_ptr<Function> func;
-      const auto *fe = dynamic_cast<const FunctionExpression *>(parentOfArgs);
-      if (fe) {
-        func = fe->function;
-      }
-      const auto *me = dynamic_cast<const MethodExpression *>(parentOfArgs);
-      if (me) {
-        func = me->method;
-      }
-      if (!func) {
-        goto insertFns;
-      }
-      for (const auto &toAdd : findUnusedKwargs(al, func)) {
-        ret.emplace_back(toAdd, CompletionItemKind::KEYWORD,
-                         TextEdit(nodeToRange(idExpr),
-                                  std::format("{}: ${{1:{}}}", toAdd, toAdd)));
-      }
-    }
-  insertFns:
-    for (const auto &[funcName, funcRef] : tree->ns.functions) {
-      auto lowerName = lowercase(funcName);
-      if (lowerName.contains(loweredId)) {
-        ret.emplace_back(
-            funcName + "()", CompletionItemKind::FUNCTION,
-            TextEdit(nodeToRange(idExpr), createTextForFunction(funcRef)));
-      }
-    }
+    idExpressionCompletion(idExpr, tree, path, position, ret);
   } else if (prev.empty()) {
-    for (const auto &[funcName, funcRef] : tree->ns.functions) {
-      ret.emplace_back(funcName + "()", CompletionItemKind::FUNCTION,
-                       TextEdit(LSPRange(position, position),
-                                createTextForFunction(funcRef)));
-    }
-    for (const auto &builtin : builtins) {
-      ret.emplace_back(builtin, CompletionItemKind::CONSTANT,
-                       TextEdit(LSPRange(position, position), builtin));
-    }
-    std::set<std::string> inserted;
-    for (const auto &identifier : tree->metadata.encounteredIds) {
-      if (identifier->file->file == path &&
-          identifier->location.startLine > position.line) {
-        break;
-      }
-      if (inserted.contains(identifier->id) ||
-          builtins.contains(identifier->id)) {
-        continue;
-      }
-      inserted.insert(identifier->id);
-      ret.emplace_back(identifier->id, CompletionItemKind::VARIABLE,
-                       TextEdit(LSPRange(position, position), identifier->id));
-    }
+    emptyLineCompletion(tree, position, path, ret);
   }
   auto /*explicit copy*/ trimmedPrev = prev;
   trim(trimmedPrev);
@@ -204,40 +99,198 @@ next:
   const auto inCall = trimmedPrev.empty() || trimmedPrev == ")" ||
                       following.starts_with(",") || following.starts_with(")");
   if (inCall) {
-    const auto callOpt = tree->metadata.findFullMethodExpressionAt(
-        path, position.line, position.character);
-    if (!callOpt.has_value()) {
-      goto attempt2;
-    }
-    const auto &alNode = callOpt.value()->args;
-    if (!alNode || !callOpt.value()->method) {
-      goto attempt2;
-    }
-    const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-    inCallCompletion(al, callOpt.value()->method, ret, position);
+    inCallCompletion(tree, path, position, ret);
   }
-attempt2:
-  if (inCall) {
-    const auto callOpt = tree->metadata.findFullFunctionExpressionAt(
-        path, position.line, position.character);
-    if (!callOpt.has_value()) {
-      goto slSpecial;
-    }
-    const auto &alNode = callOpt.value()->args;
-    if (!alNode || !callOpt.value()->function) {
-      goto slSpecial;
-    }
-    const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-    inCallCompletion(al, callOpt.value()->function, ret, position);
-  }
-slSpecial:
-  auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
-                                                    position.character);
+  const auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
+                                                          position.character);
   if (slAtPos.has_value()) {
     LOG.info("Found string literal");
     specialStringLiteralAutoCompletion(tree, slAtPos.value(), ret);
   }
   return ret;
+}
+
+static void inCallCompletionFunction(const MesonTree *tree,
+                                     const std::filesystem::path &path,
+                                     const LSPPosition &position,
+                                     std::vector<CompletionItem> &ret) {
+  const auto &callOpt = tree->metadata.findFullFunctionExpressionAt(
+      path, position.line, position.character);
+  if (!callOpt.has_value()) {
+    return;
+  }
+  const auto &alNode = callOpt.value()->args;
+  if (!alNode || !callOpt.value()->function) {
+    return;
+  }
+  const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+  inCallCompletion(al, callOpt.value()->function, ret, position);
+}
+
+static void inCallCompletion(const MesonTree *tree,
+                             const std::filesystem::path &path,
+                             const LSPPosition &position,
+                             std::vector<CompletionItem> &ret) {
+  auto callOpt = tree->metadata.findFullMethodExpressionAt(path, position.line,
+                                                           position.character);
+  if (!callOpt.has_value()) {
+    inCallCompletionFunction(tree, path, position, ret);
+    return;
+  }
+  auto &alNode = callOpt.value()->args;
+  if (!alNode || !callOpt.value()->method) {
+    inCallCompletionFunction(tree, path, position, ret);
+    return;
+  }
+  const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+  inCallCompletion(al, callOpt.value()->method, ret, position);
+  inCallCompletionFunction(tree, path, position, ret);
+}
+
+static void emptyLineCompletion(const MesonTree *tree,
+                                const LSPPosition &position,
+                                const std::filesystem::path &path,
+                                std::vector<CompletionItem> &ret) {
+  for (const auto &[funcName, funcRef] : tree->ns.functions) {
+    ret.emplace_back(
+        funcName + "()", CompletionItemKind::FUNCTION,
+        TextEdit(LSPRange(position, position), createTextForFunction(funcRef)));
+  }
+  for (const auto &builtin : BUILTINS) {
+    ret.emplace_back(builtin, CompletionItemKind::CONSTANT,
+                     TextEdit(LSPRange(position, position), builtin));
+  }
+  std::set<std::string> inserted;
+  for (const auto &identifier : tree->metadata.encounteredIds) {
+    if (identifier->file->file == path &&
+        identifier->location.startLine > position.line) {
+      break;
+    }
+    if (inserted.contains(identifier->id) ||
+        BUILTINS.contains(identifier->id)) {
+      continue;
+    }
+    inserted.insert(identifier->id);
+    ret.emplace_back(identifier->id, CompletionItemKind::VARIABLE,
+                     TextEdit(LSPRange(position, position), identifier->id));
+  }
+}
+
+static void idExpressionCompletion(const IdExpression *idExpr,
+                                   const MesonTree *tree,
+                                   const std::filesystem::path &path,
+                                   const LSPPosition &position,
+                                   std::vector<CompletionItem> &ret) {
+  LOG.info(std::format("Found idExpr: {} at {}", idExpr->id,
+                       idExpr->location.format()));
+  const auto *parent = idExpr->parent;
+  auto rightParent =
+      (dynamic_cast<const BuildDefinition *>(parent) != nullptr) ||
+      (dynamic_cast<const SelectionStatement *>(parent) != nullptr) ||
+      (dynamic_cast<const IterationStatement *>(parent) != nullptr) ||
+      (dynamic_cast<const ArgumentList *>(parent) != nullptr) ||
+      (dynamic_cast<const BinaryExpression *>(parent) != nullptr) ||
+      (dynamic_cast<const UnaryExpression *>(parent) != nullptr) ||
+      (dynamic_cast<const AssignmentStatement *>(parent) != nullptr);
+  const auto &loweredId = lowercase(idExpr->id);
+  std::set<std::string> toInsert;
+  for (const auto &identifier : tree->metadata.encounteredIds) {
+    if (identifier->file->file == path &&
+        identifier->location.startLine > position.line) {
+      break;
+    }
+    if (lowercase(identifier->id).contains(loweredId) &&
+        loweredId != identifier->id) {
+      toInsert.insert(identifier->id);
+    }
+  }
+  for (const auto &builtin : BUILTINS) {
+    if (builtin.contains(loweredId) && loweredId != builtin) {
+      toInsert.insert(builtin);
+    }
+  }
+  for (const auto &identifier : toInsert) {
+    auto kind = CompletionItemKind::VARIABLE;
+    if (BUILTINS.contains(identifier)) {
+      kind = CompletionItemKind::CONSTANT;
+    }
+    ret.emplace_back(identifier, kind,
+                     TextEdit(nodeToRange(idExpr), identifier));
+  }
+  const ArgumentList *al = nullptr;
+  if (!rightParent) {
+    goto insertFns;
+  }
+  al = dynamic_cast<const ArgumentList *>(parent);
+  if (al) {
+    const auto *parentOfArgs = al->parent;
+    assert(parentOfArgs);
+    std::shared_ptr<Function> func;
+    const auto *fe = dynamic_cast<const FunctionExpression *>(parentOfArgs);
+    if (fe) {
+      func = fe->function;
+    }
+    const auto *me = dynamic_cast<const MethodExpression *>(parentOfArgs);
+    if (me) {
+      func = me->method;
+    }
+    if (!func) {
+      goto insertFns;
+    }
+    for (const auto &toAdd : findUnusedKwargs(al, func)) {
+      ret.emplace_back(toAdd, CompletionItemKind::KEYWORD,
+                       TextEdit(nodeToRange(idExpr),
+                                std::format("{}: ${{1:{}}}", toAdd, toAdd)));
+    }
+  }
+insertFns:
+  for (const auto &[funcName, funcRef] : tree->ns.functions) {
+    auto lowerName = lowercase(funcName);
+    if (lowerName.contains(loweredId)) {
+      ret.emplace_back(
+          funcName + "()", CompletionItemKind::FUNCTION,
+          TextEdit(nodeToRange(idExpr), createTextForFunction(funcRef)));
+    }
+  }
+}
+
+static void afterDotCompletion(std::vector<CompletionItem> &ret,
+                               const std::filesystem::path &path,
+                               MesonTree *tree, const LSPPosition &position,
+                               const std::string &prev) {
+  auto lastCharSeen = prev.back();
+  if (lastCharSeen != '.' && lastCharSeen != ')') {
+    return;
+  }
+  const auto &types =
+      afterDotCompletion(tree, path, position.line, position.character, true);
+  if (types.has_value() && !types.value().empty()) {
+    LOG.info(std::format("Guessed types in afterDotCompletion: {}",
+                         joinTypes(types.value())));
+    const auto *toAdd = lastCharSeen == '.' ? "" : ".";
+    for (const auto &method : fillTypes(tree, types.value())) {
+      ret.emplace_back(toAdd + method->name + "()", CompletionItemKind::METHOD,
+                       TextEdit({position, position},
+                                toAdd + createTextForFunction(method)));
+    }
+  } else {
+    auto errorId = extractErrorId(prev);
+    if (!errorId.has_value() || errorId.value().empty()) {
+      return;
+    }
+    LOG.info(std::format("ErrorID: '{}'", errorId.value()));
+    std::vector<std::shared_ptr<Type>> errorTypes;
+    for (auto *const identifier : tree->metadata.identifiers[path]) {
+      errorTypes.insert(errorTypes.end(), identifier->types.begin(),
+                        identifier->types.end());
+    }
+    const auto *toAdd = lastCharSeen == '.' ? "" : ".";
+    for (const auto &method : fillTypes(tree, errorTypes)) {
+      ret.emplace_back(toAdd + method->name + "()", CompletionItemKind::METHOD,
+                       TextEdit({position, position},
+                                toAdd + createTextForFunction(method)));
+    }
+  }
 }
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
@@ -286,10 +339,11 @@ fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types) {
   std::set<std::shared_ptr<Method>> ret;
   for (const auto &type : types) {
-    const auto *ao = dynamic_cast<const AbstractObject *>(type.get());
-    if (ao && ao->parent.has_value()) {
+    const auto *abstractObj = dynamic_cast<const AbstractObject *>(type.get());
+    if (abstractObj && abstractObj->parent.has_value()) {
       const auto &parentMethods = fillTypes(
-          tree, std::vector<std::shared_ptr<Type>>{ao->parent.value()});
+          tree,
+          std::vector<std::shared_ptr<Type>>{abstractObj->parent.value()});
       ret.insert(parentMethods.begin(), parentMethods.end());
     }
     if (!tree->ns.vtables.contains(type->name)) {
