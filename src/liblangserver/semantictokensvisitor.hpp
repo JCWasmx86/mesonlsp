@@ -1,4 +1,5 @@
 #pragma once
+#include "location.hpp"
 #include "node.hpp"
 
 #include <array>
@@ -36,4 +37,5 @@ public:
 private:
   std::vector<std::array<uint64_t, 5>> tokens;
   void makeSemanticToken(const Node *node, size_t idx, uint64_t modifiers);
+  void insertTokens(long matchPosition, long matchLength, const Location &loc);
 };

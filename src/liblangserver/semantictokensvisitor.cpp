@@ -134,6 +134,23 @@ void SemanticTokensVisitor::visitSelectionStatement(SelectionStatement *node) {
   node->visitChildren(this);
 }
 
+void SemanticTokensVisitor::insertTokens(long matchPosition, long matchLength,
+                                         const Location &loc) {
+  this->tokens.emplace_back(std::array<uint64_t, 5>(
+      {loc.startLine,
+       static_cast<unsigned long>(loc.startColumn + matchPosition + 2), 1, 1,
+       0}));
+  this->tokens.emplace_back(std::array<uint64_t, 5>(
+      {loc.startLine,
+       static_cast<unsigned long>(loc.startColumn + matchPosition + 3),
+       static_cast<unsigned long>(matchLength - 2), 2, 0}));
+  this->tokens.emplace_back(std::array<uint64_t, 5>(
+      {loc.startLine,
+       static_cast<unsigned long>(loc.startColumn + matchPosition +
+                                  matchLength + 1),
+       1, 1}));
+}
+
 void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
   const auto &loc = node->location;
@@ -144,19 +161,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
 
     while (iter != end) {
       auto match = *iter;
-      this->tokens.emplace_back(std::array<uint64_t, 5>(
-          {loc.startLine,
-           static_cast<unsigned long>(loc.startColumn + match.position() + 2),
-           1, 1, 0}));
-      this->tokens.emplace_back(std::array<uint64_t, 5>(
-          {loc.startLine,
-           static_cast<unsigned long>(loc.startColumn + match.position() + 3),
-           static_cast<unsigned long>(match.length() - 2), 2, 0}));
-      this->tokens.emplace_back(std::array<uint64_t, 5>(
-          {loc.startLine,
-           static_cast<unsigned long>(loc.startColumn + match.position() +
-                                      match.length() + 1),
-           1, 1}));
+      this->insertTokens(match.position(), match.length(), loc);
       ++iter;
     }
   }
@@ -177,19 +182,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
 
   while (iter != end) {
     auto match = *iter;
-    this->tokens.emplace_back(std::array<uint64_t, 5>(
-        {loc.startLine,
-         static_cast<unsigned long>(loc.startColumn + match.position() + 2), 1,
-         1, 0}));
-    this->tokens.emplace_back(std::array<uint64_t, 5>(
-        {loc.startLine,
-         static_cast<unsigned long>(loc.startColumn + match.position() + 3),
-         static_cast<unsigned long>(match.length() - 2), 2, 0}));
-    this->tokens.emplace_back(std::array<uint64_t, 5>(
-        {loc.startLine,
-         static_cast<unsigned long>(loc.startColumn + match.position() +
-                                    match.length() + 1),
-         1, 1}));
+    this->insertTokens(match.position(), match.length(), loc);
     ++iter;
   }
 }
