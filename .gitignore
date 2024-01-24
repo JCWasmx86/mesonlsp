@@ -15,3 +15,4 @@ target/
 .gdb_history
 build
 Package.resolved
+__pycache__
