@@ -1,5 +1,6 @@
 #include "typeanalyzer.hpp"
 
+#include "deprecationstate.hpp"
 #include "function.hpp"
 #include "log.hpp"
 #include "mesonmetadata.hpp"
@@ -1076,6 +1077,28 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
   }
 }
 
+void TypeAnalyzer::createDeprecationWarning(
+    const DeprecationState &deprecationState, const Node *node,
+    const std::string &type) const {
+  const auto &alternatives = deprecationState.replacements;
+  auto sinceWhen = deprecationState.sinceWhen;
+  if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
+    return;
+  }
+  auto versionString =
+      sinceWhen.has_value()
+          ? std::format(" (Since {})", sinceWhen->versionString)
+          : "";
+  auto alternativesStr =
+      alternatives.empty() ? ""
+                           : (" Try one of: " + joinStrings(alternatives, ','));
+  this->metadata->registerDiagnostic(
+      node, Diagnostic(Severity::WARNING, node,
+                       std::format("Deprecated {}{}{}", type, versionString,
+                                   alternativesStr),
+                       true, false));
+}
+
 void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                const std::vector<std::shared_ptr<Node>> &args,
                                Node *node) const {
@@ -1093,25 +1116,8 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
     if (func->kwargs.contains(kId->id)) {
       const auto &kwarg = func->kwargs[kId->id];
       if (kwarg->deprecationState.deprecated) {
-        const auto &alternatives = kwarg->deprecationState.replacements;
-        auto sinceWhen = kwarg->deprecationState.sinceWhen;
-        if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
-          continue;
-        }
-        auto versionString =
-            sinceWhen.has_value()
-                ? std::format(" (Since {})", sinceWhen->versionString)
-                : "";
-        auto alternativesStr =
-            alternatives.empty()
-                ? ""
-                : (" Try one of: " + joinStrings(alternatives, ','));
-        this->metadata->registerDiagnostic(
-            kwi->key.get(),
-            Diagnostic(Severity::WARNING, kwi->key.get(),
-                       std::format("Deprecated keyword argument{}{}",
-                                   versionString, alternativesStr),
-                       true, false));
+        this->createDeprecationWarning(kwarg->deprecationState, kwi->key.get(),
+                                       "keyword argument");
       }
       continue;
     }
@@ -1415,26 +1421,9 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
   this->setFunctionCallTypes(node, func);
   node->function = func;
   if (node->function->deprecationState.deprecated) {
-    const auto &alternatives = node->function->deprecationState.replacements;
-    auto sinceWhen = node->function->deprecationState.sinceWhen;
-    if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
-      goto afterVersionCheck;
-    }
-    auto versionString =
-        sinceWhen.has_value()
-            ? std::format(" (Since {})", sinceWhen->versionString)
-            : "";
-    auto alternativesStr =
-        alternatives.empty()
-            ? ""
-            : (" Try one of: " + joinStrings(alternatives, ','));
-    this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::WARNING, node,
-                         std::format("Deprecated function{}{}", versionString,
-                                     alternativesStr),
-                         true, false));
+    this->createDeprecationWarning(node->function->deprecationState, node,
+                                   "function");
   }
-afterVersionCheck:
   if (func->since.after(this->tree->version)) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::WARNING, node,
@@ -1917,26 +1906,9 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     return;
   }
   if (node->method->deprecationState.deprecated) {
-    const auto &alternatives = node->method->deprecationState.replacements;
-    auto sinceWhen = node->method->deprecationState.sinceWhen;
-    if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
-      goto afterVersionCheck;
-    }
-    auto versionString =
-        sinceWhen.has_value()
-            ? std::format(" (Since {})", sinceWhen->versionString)
-            : "";
-    auto alternativesStr =
-        alternatives.empty()
-            ? ""
-            : (" Try one of: " + joinStrings(alternatives, ','));
-    this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::WARNING, node,
-                         std::format("Deprecated method{}{}", versionString,
-                                     alternativesStr),
-                         true, false));
+    this->createDeprecationWarning(node->method->deprecationState, node,
+                                   "method");
   }
-afterVersionCheck:
   if (node->method->since.after(this->tree->version)) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::WARNING, node,

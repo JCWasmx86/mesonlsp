@@ -148,4 +148,7 @@ private:
       const std::vector<std::shared_ptr<Type>> &givenTypes);
   bool compatible(const std::shared_ptr<Type> &given,
                   const std::shared_ptr<Type> &expected);
+  void createDeprecationWarning(const DeprecationState &deprecationState,
+                                const Node *node,
+                                const std::string &type) const;
 };
