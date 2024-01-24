@@ -151,23 +151,23 @@ void AbstractLanguageServer::handleRequest(std::string method,
       ret = jsonObjects;
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
-      this->server->returnError(callId, jsonrpc::JsonrpcError::MethodNotFound,
+      this->server->returnError(callId, jsonrpc::JsonrpcError::METHOD_NOT_FOUND,
                                 std::format("Unknown request: {}", method));
       return;
     }
     this->server->reply(callId, ret);
   } catch (const std::string &str) {
-    this->server->returnError(callId, jsonrpc::JsonrpcError::InternalError,
+    this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               str);
   } catch (const char *str) {
-    this->server->returnError(callId, jsonrpc::JsonrpcError::InternalError,
+    this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               str);
   } catch (const std::exception &exc) {
-    this->server->returnError(callId, jsonrpc::JsonrpcError::InternalError,
+    this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               exc.what());
   } catch (...) {
     LOG.error("Something else was caught");
-    this->server->returnError(callId, jsonrpc::JsonrpcError::InternalError,
+    this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               "No idea what happened");
   }
 }

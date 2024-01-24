@@ -13,26 +13,27 @@ void jsonrpc::JsonRpcServer::evaluateData(
     const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler,
     nlohmann::json data) {
   if (!data.contains("jsonrpc")) {
-    this->returnError(nullptr, JsonrpcError::ParseError, "Missing jsonrpc key");
+    this->returnError(nullptr, JsonrpcError::PARSE_ERROR,
+                      "Missing jsonrpc key");
     return;
   }
   if (!data["jsonrpc"].is_string()) {
-    this->returnError(nullptr, JsonrpcError::ParseError,
+    this->returnError(nullptr, JsonrpcError::PARSE_ERROR,
                       "jsonrpc key is not a string");
     return;
   }
   std::string const version = data["jsonrpc"];
   if (version != "2.0") {
-    this->returnError(nullptr, JsonrpcError::ParseError,
+    this->returnError(nullptr, JsonrpcError::PARSE_ERROR,
                       "jsonrpc is not \"2.0\"");
     return;
   }
   if (!data.contains("method")) {
-    this->returnError(nullptr, JsonrpcError::ParseError, "Missing method key");
+    this->returnError(nullptr, JsonrpcError::PARSE_ERROR, "Missing method key");
     return;
   }
   if (!data["method"].is_string()) {
-    this->returnError(nullptr, JsonrpcError::ParseError,
+    this->returnError(nullptr, JsonrpcError::PARSE_ERROR,
                       "method key is not a string");
     return;
   }
@@ -98,19 +99,19 @@ void jsonrpc::JsonRpcServer::notification(const std::string &method,
   this->sendToClient(data);
 }
 
-enum JsonrpcState {
-  Initial = 0,
-  FirstR = 1,
-  FirstN = 2,
-  SecondR = 3,
-  Reading = 4
+enum class JsonrpcState {
+  INITIAL = 0,
+  FIRST_R = 1,
+  FIRST_N = 2,
+  SECOND_R = 3,
+  READING = 4
 };
 
 void jsonrpc::JsonRpcServer::loop(
     const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler) {
   std::string const prefix = "Content-Length:";
   while (true) {
-    auto state = Initial;
+    auto state = JsonrpcState::INITIAL;
     auto contentLength = 0;
     auto breakFromLoop = false;
     std::string header;
@@ -122,14 +123,15 @@ void jsonrpc::JsonRpcServer::loop(
       }
       switch (chr) {
       case '\r':
-        state = state == FirstN ? SecondR : FirstR;
+        state = state == JsonrpcState::FIRST_N ? JsonrpcState::SECOND_R
+                                               : JsonrpcState::FIRST_R;
         break;
       case '\n':
-        if (state == SecondR) {
+        if (state == JsonrpcState::SECOND_R) {
           breakFromLoop = true;
           break;
         }
-        state = FirstN;
+        state = JsonrpcState::FIRST_N;
         if (header.starts_with(prefix)) {
           auto numberAsStr = header.substr(prefix.length());
           contentLength = std::stoi(numberAsStr);
@@ -137,7 +139,7 @@ void jsonrpc::JsonRpcServer::loop(
         break;
       default:
         header += (char)chr;
-        state = Reading;
+        state = JsonrpcState::READING;
       }
       if (breakFromLoop) {
         break;
@@ -158,7 +160,7 @@ void jsonrpc::JsonRpcServer::loop(
       auto data = nlohmann::json::parse(messageData);
       this->evaluateData(handler, data);
     } catch (nlohmann::json::parse_error &ex) {
-      this->returnError(nullptr, JsonrpcError::ParseError,
+      this->returnError(nullptr, JsonrpcError::PARSE_ERROR,
                         std::format("Invalid JSON: {}", ex.what()));
     }
   }
