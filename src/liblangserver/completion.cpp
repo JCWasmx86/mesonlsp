@@ -39,6 +39,8 @@ static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position);
+static std::set<std::string>
+findUnusedKwargs(const ArgumentList *al, const std::shared_ptr<Function> &func);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
@@ -156,21 +158,7 @@ next:
       if (!func) {
         goto insertFns;
       }
-      std::set<std::string> unusedKwargs;
-      for (const auto &[kwargName, _] : func->kwargs) {
-        unusedKwargs.insert(kwargName);
-      }
-      for (const auto &arg : al->args) {
-        const auto *kwarg = dynamic_cast<KeywordItem *>(arg.get());
-        if (!kwarg || !kwarg->name.has_value()) {
-          continue;
-        }
-        const auto &val = kwarg->name.value();
-        if (unusedKwargs.contains(val)) {
-          unusedKwargs.erase(val);
-        }
-      }
-      for (const auto &toAdd : unusedKwargs) {
+      for (const auto &toAdd : findUnusedKwargs(al, func)) {
         ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
                          TextEdit(nodeToRange(idExpr),
                                   std::format("{}: ${{1:{}}}", toAdd, toAdd)));
@@ -443,6 +431,16 @@ static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position) {
+  for (const auto &toAdd : findUnusedKwargs(al, func)) {
+    ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
+                     TextEdit(LSPRange(position, position),
+                              std::format("{}: ${{1:{}}}", toAdd, toAdd)));
+  }
+}
+
+static std::set<std::string>
+findUnusedKwargs(const ArgumentList *al,
+                 const std::shared_ptr<Function> &func) {
   std::set<std::string> unusedKwargs;
   for (const auto &[kwargName, _] : func->kwargs) {
     unusedKwargs.insert(kwargName);
@@ -457,9 +455,5 @@ static void inCallCompletion(const ArgumentList *al,
       unusedKwargs.erase(val);
     }
   }
-  for (const auto &toAdd : unusedKwargs) {
-    ret.emplace_back(toAdd, CompletionItemKind::CIKKeyword,
-                     TextEdit(LSPRange(position, position),
-                              std::format("{}: ${{1:{}}}", toAdd, toAdd)));
-  }
+  return unusedKwargs;
 }
