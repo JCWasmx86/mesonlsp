@@ -66,6 +66,9 @@ private:
                                          size_t omitCount);
   std::optional<std::vector<const Node *>>
   extractSortableNodes(const ArgumentList *al, size_t omitCount);
+  void postSorting(const std::string &msg, size_t omitCount,
+                   const ArgumentList *args,
+                   const std::vector<const Node *> &sortedNodes);
 
   static bool createsLibrary(const std::shared_ptr<Function> &func) {
     auto name = func->id();
