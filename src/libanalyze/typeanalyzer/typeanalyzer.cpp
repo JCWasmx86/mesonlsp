@@ -539,26 +539,24 @@ void TypeAnalyzer::evalBinaryExpression(
         ((dynamic_cast<AbstractObject *>(lType.get()) != nullptr) &&
          lType->tag == rType->tag)) {
       newTypes.emplace_back(this->ns.boolType);
-    } else {
-      ++*numErrors;
+      break;
     }
+    ++*numErrors;
     break;
   case AND:
   case OR:
     if (sameType(lType, rType, BOOL)) {
       newTypes.emplace_back(this->ns.boolType);
-    } else {
-      ++*numErrors;
+      break;
     }
+    ++*numErrors;
     break;
   case DIV:
-    if (sameType(lType, rType, INT)) {
-      newTypes.emplace_back(this->ns.intType);
-    } else if (sameType(lType, rType, STR)) {
-      newTypes.emplace_back(this->ns.strType);
-    } else {
-      ++*numErrors;
+    if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
+      newTypes.emplace_back(lType);
+      break;
     }
+    ++*numErrors;
     break;
   case GE:
   case GT:
@@ -566,9 +564,9 @@ void TypeAnalyzer::evalBinaryExpression(
   case LT:
     if (sameType(lType, rType, INT) || sameType(lType, rType, STR)) {
       newTypes.emplace_back(this->ns.boolType);
-    } else {
-      ++*numErrors;
+      break;
     }
+    ++*numErrors;
     break;
   case IN:
   case NOT_IN:
@@ -579,9 +577,9 @@ void TypeAnalyzer::evalBinaryExpression(
   case MUL:
     if (sameType(lType, rType, INT)) {
       newTypes.emplace_back(this->ns.intType);
-    } else {
-      ++*numErrors;
+      break;
     }
+    ++*numErrors;
     break;
   default:
     LOG.error("Whoops???");
@@ -1289,46 +1287,20 @@ void TypeAnalyzer::checkArgTypes(
   }
 }
 
-void TypeAnalyzer::checkCall(Node *node) {
-  std::shared_ptr<Function> func;
-  const auto *fe = dynamic_cast<FunctionExpression *>(node);
+unsigned long long TypeAnalyzer::countPositionalArguments(
+    const std::vector<std::shared_ptr<Node>> &args) {
   auto nPos = 0ULL;
-  if (fe) {
-    func = fe->function;
-    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get()); al && func) {
-      const auto &args = al->args;
-      this->checkKwargsAfterPositionalArguments(args);
-      this->checkKwargs(func, args, node);
-      this->checkArgTypes(func, args);
-      for (const auto &arg : args) {
-        if (!dynamic_cast<KeywordItem *>(arg.get())) {
-          nPos++;
-        }
-      }
+  for (const auto &arg : args) {
+    if (!dynamic_cast<KeywordItem *>(arg.get())) {
+      nPos++;
     }
   }
-  const auto *me = dynamic_cast<MethodExpression *>(node);
-  if (me) {
-    func = me->method;
-    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get()); al && func) {
-      const auto &args = al->args;
-      this->checkKwargsAfterPositionalArguments(args);
-      this->checkKwargs(func, args, node);
-      this->checkArgTypes(func, args);
-      for (const auto &arg : args) {
-        if (!dynamic_cast<KeywordItem *>(arg.get())) {
-          nPos++;
-        }
-      }
-    }
-  }
-  if (!me && !fe) {
-    return;
-  }
-  if (!func) {
-    return;
-  }
+  return nPos;
+}
 
+void TypeAnalyzer::validatePositionalArgumentCount(
+    unsigned long long nPos, const std::shared_ptr<Function> &func,
+    const Node *node) {
   if (nPos < func->minPosArgs) {
     this->metadata->registerDiagnostic(
         node,
@@ -1345,6 +1317,40 @@ void TypeAnalyzer::checkCall(Node *node) {
             std::format("Expected maximum {} positional arguments, but got {}!",
                         func->maxPosArgs, nPos)));
   }
+}
+
+void TypeAnalyzer::checkCall(Node *node) {
+  std::shared_ptr<Function> func;
+  const auto *fe = dynamic_cast<FunctionExpression *>(node);
+  auto nPos = 0ULL;
+  if (fe) {
+    func = fe->function;
+    if (auto *al = dynamic_cast<ArgumentList *>(fe->args.get()); al && func) {
+      const auto &args = al->args;
+      this->checkKwargsAfterPositionalArguments(args);
+      this->checkKwargs(func, args, node);
+      this->checkArgTypes(func, args);
+      nPos = TypeAnalyzer::countPositionalArguments(args);
+    }
+  }
+  const auto *me = dynamic_cast<MethodExpression *>(node);
+  if (me) {
+    func = me->method;
+    if (auto *al = dynamic_cast<ArgumentList *>(me->args.get()); al && func) {
+      const auto &args = al->args;
+      this->checkKwargsAfterPositionalArguments(args);
+      this->checkKwargs(func, args, node);
+      this->checkArgTypes(func, args);
+      nPos = TypeAnalyzer::countPositionalArguments(args);
+    }
+  }
+  if (!me && !fe) {
+    return;
+  }
+  if (!func) {
+    return;
+  }
+  this->validatePositionalArgumentCount(nPos, func, node);
 }
 
 void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
@@ -1891,7 +1897,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   this->metadata->registerMethodCall(node);
   const auto &types = node->obj->types;
   std::vector<std::shared_ptr<Type>> ownResultTypes;
-  auto *methodNameId = dynamic_cast<IdExpression *>(node->id.get());
+  const auto *methodNameId = dynamic_cast<IdExpression *>(node->id.get());
   if (!methodNameId) {
     return;
   }
@@ -1962,36 +1968,38 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
         }
         const auto &variables = subproj->tree->scope;
         for (const auto &varname : asSet) {
-          if (!variables.variables.contains(varname)) {
-            LOG.warn(std::format("Unable to find variable {} in subproject {}",
-                                 varname, subprojName));
-            if (asSet.size() == 1 && subprojType->names.size() == 1) {
-              this->metadata->registerDiagnostic(
-                  node,
-                  Diagnostic(
-                      Severity::ERROR, node,
-                      std::format("Unable to find variable {} in subproject {}",
-                                  varname, subprojName)));
-            }
+          if (variables.variables.contains(varname)) {
+            const auto &varTypes = variables.variables.at(varname);
+            newTypes.insert(newTypes.end(), varTypes.begin(), varTypes.end());
             continue;
           }
-          const auto &varTypes = variables.variables.at(varname);
-          newTypes.insert(newTypes.end(), varTypes.begin(), varTypes.end());
+          LOG.warn(std::format("Unable to find variable {} in subproject {}",
+                               varname, subprojName));
+          if (asSet.size() == 1 && subprojType->names.size() == 1) {
+            this->metadata->registerDiagnostic(
+                node,
+                Diagnostic(
+                    Severity::ERROR, node,
+                    std::format("Unable to find variable {} in subproject {}",
+                                varname, subprojName)));
+          }
         }
       }
     }
     node->types = dedup(this->ns, newTypes);
   }
   this->checkCall(node);
-  auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
-  auto *al = dynamic_cast<ArgumentList *>(node->args.get());
-  if ((sl != nullptr) && node->method->id() == "str.format") {
+  const auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
+  const auto *al = dynamic_cast<ArgumentList *>(node->args.get());
+  if ((sl != nullptr) && (al != nullptr) &&
+      node->method->id() == "str.format") {
     this->checkFormat(sl, al->args);
   }
 }
 
 void TypeAnalyzer::checkFormat(
-    StringLiteral *sl, const std::vector<std::shared_ptr<Node>> &args) const {
+    const StringLiteral *sl,
+    const std::vector<std::shared_ptr<Node>> &args) const {
   auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
   for (size_t i = 0; i < args.size(); i++) {
     if (!foundIntegers.contains(i)) {
