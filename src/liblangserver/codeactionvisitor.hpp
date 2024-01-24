@@ -70,7 +70,8 @@ private:
                    const ArgumentList *args,
                    const std::vector<const Node *> &sortedNodes);
   void makeSortFilenamesAction(
-      const Node *node, std::function<bool(const Node *, const Node *)> &sortFn,
+      const Node *node,
+      const std::function<bool(const Node *, const Node *)> &sortFn,
       const std::string &msg);
 
   static bool createsLibrary(const std::shared_ptr<Function> &func) {

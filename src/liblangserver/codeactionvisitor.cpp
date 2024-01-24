@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstddef>
 #include <format>
+#include <functional>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -584,7 +585,8 @@ void CodeActionVisitor::postSorting(
 }
 
 void CodeActionVisitor::makeSortFilenamesAction(
-    const Node *node, std::function<bool(const Node *, const Node *)>& sortFn,
+    const Node *node,
+    const std::function<bool(const Node *, const Node *)> &sortFn,
     const std::string &msg) {
   const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
   if (!fExpr) {
@@ -617,41 +619,39 @@ void CodeActionVisitor::makeSortFilenamesAction(
 }
 
 void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
+  const std::function func = [](const Node *lhs, const Node *rhs) {
+    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+    if (lhsIdExpr && rhsIdExpr) {
+      return lhsIdExpr->id < rhsIdExpr->id;
+    }
+    if (lhsIdExpr) {
+      return false;
+    }
+    if (rhsIdExpr) {
+      return true;
+    }
+    return sortStrLiterals(lhs, rhs);
+  };
   this->makeSortFilenamesAction(
-      node,
-      [](const Node *lhs, const Node *rhs) {
-        const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-        const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-        if (lhsIdExpr && rhsIdExpr) {
-          return lhsIdExpr->id < rhsIdExpr->id;
-        }
-        if (lhsIdExpr) {
-          return false;
-        }
-        if (rhsIdExpr) {
-          return true;
-        }
-        return sortStrLiterals(lhs, rhs);
-      },
-      "Sort filenames (Identifiers after string literals)");
+      node, func, "Sort filenames (Identifiers after string literals)");
 }
 
 void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
+  const std::function func = [](const Node *lhs, const Node *rhs) {
+    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+    if (lhsIdExpr && rhsIdExpr) {
+      return lhsIdExpr->id < rhsIdExpr->id;
+    }
+    if (lhsIdExpr) {
+      return true;
+    }
+    if (rhsIdExpr) {
+      return false;
+    }
+    return sortStrLiterals(lhs, rhs);
+  };
   this->makeSortFilenamesAction(
-      node,
-      [](const Node *lhs, const Node *rhs) {
-        const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-        const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-        if (lhsIdExpr && rhsIdExpr) {
-          return lhsIdExpr->id < rhsIdExpr->id;
-        }
-        if (lhsIdExpr) {
-          return true;
-        }
-        if (rhsIdExpr) {
-          return false;
-        }
-        return sortStrLiterals(lhs, rhs);
-      },
-      "Sort filenames (String literals after identifiers)");
+      node, func, "Sort filenames (String literals after identifiers)");
 }
