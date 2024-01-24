@@ -815,19 +815,23 @@ void PartialInterpreter::abstractEvalComputeSubscript(
       ret.emplace_back(std::make_shared<StringNode>(atIdxSL));
     }
     const auto *atIdxAL = dynamic_cast<const ArrayLiteral *>(nodeAtIdx.get());
-    if (atIdxAL) {
-      for (auto arrayItem : atIdxAL->args) {
-        const auto *asStr = dynamic_cast<const StringLiteral *>(atIdxAL);
-        if (asStr) {
-          ret.emplace_back(std::make_shared<StringNode>(asStr));
-        }
+    if (!atIdxAL) {
+      return;
+    }
+    for (auto arrayItem : atIdxAL->args) {
+      const auto *asStr = dynamic_cast<const StringLiteral *>(atIdxAL);
+      if (asStr) {
+        ret.emplace_back(std::make_shared<StringNode>(asStr));
       }
     }
     return;
   }
   const auto *dict = dynamic_cast<const DictionaryLiteral *>(outer->node);
   const auto *sl = dynamic_cast<const StringLiteral *>(inner->node);
-  if (dict && sl) {
+  if (!sl) {
+    return;
+  }
+  if (dict) {
     for (const auto &keyValueNode : dict->values) {
       const auto *kvi = dynamic_cast<const KeyValueItem *>(keyValueNode.get());
       if (!kvi) {
@@ -845,9 +849,8 @@ void PartialInterpreter::abstractEvalComputeSubscript(
     }
     return;
   }
-  if (arr && sl) {
-    abstractEvalComputeSubscriptExtractDictArray(arr, sl, ret);
-  }
+  assert(arr);
+  abstractEvalComputeSubscriptExtractDictArray(arr, sl, ret);
 }
 
 std::vector<std::shared_ptr<InterpretNode>>
