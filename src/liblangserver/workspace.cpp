@@ -318,6 +318,34 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
   return {};
 }
 
+WorkspaceEdit Workspace::rename(MesonMetadata &metadata,
+                                const IdExpression *toRename,
+                                const std::string &newName) {
+  WorkspaceEdit ret;
+  auto foundOurself = false;
+  for (const auto &[identifierPath, identifiers] : metadata.identifiers) {
+    auto url = pathToUrl(identifierPath);
+    ret.changes[url] = {};
+    for (const auto *identifier : identifiers) {
+      if (identifier->id != toRename->id) {
+        continue;
+      }
+      if (identifier->equals(toRename)) {
+        if (foundOurself) {
+          continue;
+        }
+        foundOurself = true;
+      }
+      const auto &loc = identifier->location;
+      auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
+                            LSPPosition(loc.endLine, loc.endColumn));
+      // TODO: Rename parent-project `get_variable`
+      ret.changes[url].emplace_back(range, newName);
+    }
+  }
+  return ret;
+}
+
 std::optional<WorkspaceEdit>
 Workspace::rename(const std::filesystem::path &path,
                   const RenameParams &params) {
@@ -333,29 +361,8 @@ Workspace::rename(const std::filesystem::path &path,
       this->smph.release();
       return std::nullopt;
     }
-    const auto *toRename = toRenameOpt.value();
-    WorkspaceEdit ret;
-    auto foundOurself = false;
-    for (const auto &[identifierPath, identifiers] : metadata.identifiers) {
-      auto url = pathToUrl(identifierPath);
-      ret.changes[url] = {};
-      for (const auto *identifier : identifiers) {
-        if (identifier->id != toRename->id) {
-          continue;
-        }
-        if (identifier->equals(toRename)) {
-          if (foundOurself) {
-            continue;
-          }
-          foundOurself = true;
-        }
-        const auto &loc = identifier->location;
-        auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
-                              LSPPosition(loc.endLine, loc.endColumn));
-        // TODO: Rename parent-project `get_variable`
-        ret.changes[url].emplace_back(range, params.newName);
-      }
-    }
+    const auto &ret =
+        Workspace::rename(metadata, toRenameOpt.value(), params.newName);
     this->smph.release();
     return ret;
   }
