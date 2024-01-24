@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -24,10 +25,13 @@
 #include <string>
 #include <vector>
 extern "C" {
+// Dirty hack
+#define ast muon_ast
 #include <lang/fmt.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
+#undef ast
 }
 
 const static Logger LOG("LanguageServer"); // NOLINT
@@ -149,7 +153,8 @@ void LanguageServer::onDidChangeTextDocument(
     if (workspace->owns(path)) {
       LOG.info(std::format("Patching file {} for workspace {}",
                            path.generic_string(), workspace->name));
-      workspace->patchFile(
+      workspace->patchFile<std::function<void(
+          std::map<std::filesystem::path, std::vector<LSPDiagnostic>>)>>(
           path, params.contentChanges[0].text,
           [this](
               const std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
