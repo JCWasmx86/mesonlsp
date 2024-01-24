@@ -17,19 +17,19 @@
     className()                                                                \
         : AbstractObject(internalId, TypeName::tag,                            \
                          std::make_shared<parentClass>()) {}                   \
-  }; // NOLINT(misc-macro-parentheses);
+  }; // NOLINT
 
 #define MAKE_TYPE(className, internalId, tag)                                  \
   class className : public AbstractObject {                                    \
   public:                                                                      \
     className() : AbstractObject(internalId, TypeName::tag) {}                 \
-  }; // NOLINT(misc-macro-parentheses);
+  }; // NOLINT
 
 #define MAKE_BASIC_TYPE(className, internalId, tag)                            \
   class className : public Type {                                              \
   public:                                                                      \
     className() : Type(internalId, TypeName::tag) {}                           \
-  }; // NOLINT(misc-macro-parentheses);
+  }; // NOLINT
 
 enum class TypeName : uint32_t {
   DICT,
