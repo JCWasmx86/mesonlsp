@@ -65,6 +65,10 @@ static void inCallCompletionFunction(const MesonTree *tree,
                                      const std::filesystem::path &path,
                                      const LSPPosition &position,
                                      std::vector<CompletionItem> &ret);
+static void
+specialStringLiteralAutoCompletion(const StringLiteral *literal,
+                                   const ArgumentList *al,
+                                   std::vector<CompletionItem> &ret);
 
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
@@ -408,6 +412,49 @@ static std::optional<std::string> extractErrorId(const std::string &prev) {
 }
 
 static void
+specialStringLiteralAutoCompletion(const StringLiteral *literal,
+                                   const ArgumentList *al,
+                                   std::vector<CompletionItem> &ret) {
+  std::set<std::filesystem::path> alreadyExisting;
+  const auto ppath = literal->file->file.parent_path();
+  for (const auto &arg : al->args) {
+    if (dynamic_cast<const KeywordItem *>(arg.get())) {
+      continue;
+    }
+    const auto *sl = dynamic_cast<const StringLiteral *>(arg.get());
+    if (!sl || sl->equals(literal)) {
+      continue;
+    }
+    const auto &fullPath = std::filesystem::absolute(ppath / sl->id);
+    LOG.info(std::format("Found path: {}", fullPath.generic_string()));
+    alreadyExisting.insert(fullPath);
+  }
+  const auto &toSearch =
+      !literal->id.contains("/")
+          ? ppath
+          : ppath / literal->id.substr(0, literal->id.rfind('/'));
+  if (!std::filesystem::exists(toSearch)) {
+    return;
+  }
+  for (const auto &entry : std::filesystem::directory_iterator{toSearch}) {
+    const auto &fullPath = std::filesystem::absolute(entry.path());
+    if (!std::filesystem::is_regular_file(fullPath)) {
+      continue;
+    }
+    if (alreadyExisting.contains(fullPath)) {
+      LOG.info(std::format("Skipping path: {}", fullPath.generic_string()));
+      continue;
+    }
+    const auto &relative = fullPath.lexically_relative(ppath).generic_string();
+    LOG.info(std::format("Adding path: {}", relative));
+    // TODO: Works in Builder, but not in VSCode
+    ret.emplace_back(
+        relative, CompletionItemKind::CIK_FILE,
+        TextEdit(nodeToRange(literal), std::format("{}", relative)));
+  }
+}
+
+static void
 specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
                                    std::vector<CompletionItem> &ret) {
   auto *parent = literal->parent;
@@ -423,44 +470,7 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
     LOG.info("Found function: " + func->id());
     // dependency
     if (func->name == "files") {
-      std::set<std::filesystem::path> alreadyExisting;
-      const auto ppath = literal->file->file.parent_path();
-      for (const auto &arg : al->args) {
-        if (dynamic_cast<const KeywordItem *>(arg.get())) {
-          continue;
-        }
-        const auto *sl = dynamic_cast<const StringLiteral *>(arg.get());
-        if (!sl || sl->equals(literal)) {
-          continue;
-        }
-        const auto &fullPath = std::filesystem::absolute(ppath / sl->id);
-        LOG.info(std::format("Found path: {}", fullPath.generic_string()));
-        alreadyExisting.insert(fullPath);
-      }
-      const auto &toSearch =
-          !literal->id.contains("/")
-              ? ppath
-              : ppath / literal->id.substr(0, literal->id.rfind('/'));
-      if (!std::filesystem::exists(toSearch)) {
-        return;
-      }
-      for (const auto &entry : std::filesystem::directory_iterator{toSearch}) {
-        const auto &fullPath = std::filesystem::absolute(entry.path());
-        if (!std::filesystem::is_regular_file(fullPath)) {
-          continue;
-        }
-        if (alreadyExisting.contains(fullPath)) {
-          LOG.info(std::format("Skipping path: {}", fullPath.generic_string()));
-          continue;
-        }
-        const auto &relative =
-            fullPath.lexically_relative(ppath).generic_string();
-        LOG.info(std::format("Adding path: {}", relative));
-        // TODO: Works in Builder, but not in VSCode
-        ret.emplace_back(
-            relative, CompletionItemKind::CIK_FILE,
-            TextEdit(nodeToRange(literal), std::format("{}", relative)));
-      }
+      specialStringLiteralAutoCompletion(literal, al, ret);
     }
 
     if (func->name == "get_option") {
