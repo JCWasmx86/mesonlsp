@@ -58,7 +58,7 @@ static inline std::string hash(const unsigned char *data, const size_t len) {
 }
 
 static inline std::string hash(const std::string &key) {
-  return hash(reinterpret_cast<const unsigned char *>(key.c_str()), key.size());
+  return hash(std::bit_cast<const unsigned char *>(key.c_str()), key.size());
 }
 
 static inline std::string hash(const std::filesystem::path &path) {
@@ -67,7 +67,7 @@ static inline std::string hash(const std::filesystem::path &path) {
   file.seekg(0, std::ios::beg);
   assert(fileSize > 0);
   std::vector<uint8_t> buffer(fileSize);
-  file.read(reinterpret_cast<char *>(buffer.data()), fileSize);
+  file.read(std::bit_cast<char *>(buffer.data()), fileSize);
   file.close();
   return hash(buffer.data(), fileSize);
 }
