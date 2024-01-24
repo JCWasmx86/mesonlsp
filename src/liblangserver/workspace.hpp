@@ -71,6 +71,17 @@ public:
   clearDiagnostics();
 
 private:
+  static std::vector<LSPLocation> jumpTo(const MesonMetadata *metadata,
+                                         const std::filesystem::path &path,
+                                         const LSPPosition &position);
+  static std::vector<LSPLocation>
+  jumpToIdentifier(const MesonMetadata *metadata,
+                   const std::filesystem::path &path,
+                   const LSPPosition &position);
+  static std::vector<LSPLocation>
+  jumpToFunctionCall(const MesonMetadata *metadata,
+                     const std::filesystem::path &path,
+                     const LSPPosition &position);
   std::shared_ptr<MesonTree> tree;
   std::binary_semaphore smph{1};
 };
