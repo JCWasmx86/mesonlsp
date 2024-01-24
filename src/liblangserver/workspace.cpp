@@ -17,14 +17,10 @@
 
 #include <algorithm>
 #include <atomic>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <filesystem>
 #include <format>
-#include <functional>
-#include <future>
 #include <map>
 #include <memory>
 #include <optional>
