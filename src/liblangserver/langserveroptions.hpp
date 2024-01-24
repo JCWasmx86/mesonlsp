@@ -101,6 +101,7 @@ private:
         } else {
           this->ignoreDiagnosticsFromSubprojects = std::nullopt;
         }
+        return;
       } else if (!ignore.is_array()) {
         return;
       }
