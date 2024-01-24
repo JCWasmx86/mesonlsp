@@ -115,7 +115,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
   }
   return InitializeResult{
       ServerCapabilities(
-          TextDocumentSyncOptions(true, TextDocumentSyncKind::Full), true, true,
+          TextDocumentSyncOptions(true, TextDocumentSyncKind::FULL), true, true,
           true, true, true, true, true, true, true, true,
           CompletionOptions(false, {".", "_", ")"}),
           SemanticTokensOptions(
