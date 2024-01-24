@@ -61,11 +61,12 @@ enum class Severity {
 
 #define FIND_FULL2(type, variable)                                             \
   std::optional<type *> /*NOLINT*/ findFull##type##At(                         \
-      const std::filesystem::path &path, uint64_t line, uint64_t column) {     \
+      const std::filesystem::path &path, uint64_t line, uint64_t column)       \
+      const {                                                                  \
     if (!this->variable.contains(path)) {                                      \
       return std::nullopt;                                                     \
     }                                                                          \
-    for (auto &var : this->variable[path]) {                                   \
+    for (auto &var : this->variable.at(path)) {                                \
       if (MesonMetadata::contains(var, line, column)) {                        \
         return var;                                                            \
       }                                                                        \
