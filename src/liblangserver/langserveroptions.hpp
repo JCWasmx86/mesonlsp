@@ -102,7 +102,8 @@ private:
           this->ignoreDiagnosticsFromSubprojects = std::nullopt;
         }
         return;
-      } else if (!ignore.is_array()) {
+      }
+      if (!ignore.is_array()) {
         return;
       }
       this->ignoreDiagnosticsFromSubprojects = std::vector<std::string>{};
