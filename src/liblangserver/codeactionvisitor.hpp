@@ -105,4 +105,17 @@ private:
     }
     return idExpr->id;
   }
+
+  static bool sortStrLiterals(const Node *lhs, const Node *rhs) {
+    const auto *lhsSL = dynamic_cast<const StringLiteral *>(lhs);
+    const auto *rhsSL = dynamic_cast<const StringLiteral *>(rhs);
+    assert(lhsSL);
+    assert(rhsSL);
+    auto aC = std::ranges::count(lhsSL->id, '/');
+    auto bC = std::ranges::count(rhsSL->id, '/');
+    if (aC != bC) {
+      return aC < bC; // Sort based on the count of slashes
+    }
+    return lhsSL->id < rhsSL->id; // If counts are equal, sort lexicographically
+  }
 };
