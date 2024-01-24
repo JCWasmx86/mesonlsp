@@ -32,6 +32,9 @@
 #include <string>
 #include <vector>
 
+static std::optional<std::string>
+extractOptionName(const FunctionExpression *fe, const MesonMetadata *metadata);
+
 std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
   std::vector<MesonTree *> ret;
   ret.emplace_back(root.get());
@@ -194,6 +197,19 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
   return {};
 }
 
+static std::optional<std::string>
+extractOptionName(const FunctionExpression *fe, const MesonMetadata *metadata) {
+  const auto *al = dynamic_cast<const ArgumentList *>(fe->args.get());
+  if (!al || al->args.empty()) {
+    return std::nullopt;
+  }
+  const auto *nameSl = dynamic_cast<StringLiteral *>(al->args[0].get());
+  if (!nameSl || !metadata->options.contains(nameSl->id)) {
+    return std::nullopt;
+  }
+  return nameSl->id;
+}
+
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
   this->smph.acquire();
@@ -246,23 +262,13 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
           funcCall->file->file != path) {
         continue;
       }
-      if (funcCall->functionName() == "get_option") {
-        if (!funcCall->args) {
+      if (funcCall->functionName() == "get_option" && funcCall->args) {
+        const auto optionNameOpt = extractOptionName(funcCall, metadata);
+        if (!optionNameOpt.has_value()) {
           goto nextIf;
         }
-        const auto *al =
-            dynamic_cast<const ArgumentList *>(funcCall->args.get());
-        if (!al || al->args.empty()) {
-          goto nextIf;
-        }
-        const auto *nameSl = dynamic_cast<StringLiteral *>(al->args[0].get());
-        if (!nameSl) {
-          goto nextIf;
-        }
-        if (!metadata->options.contains(nameSl->id)) {
-          goto nextIf;
-        }
-        auto &[optionsPath, line, character] = metadata->options[nameSl->id];
+        auto &[optionsPath, line, character] =
+            metadata->options[optionNameOpt.value()];
         LSPPosition const pos{line, character};
         LSPRange const range{pos, pos};
         this->smph.release();
