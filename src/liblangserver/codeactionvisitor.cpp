@@ -558,6 +558,31 @@ CodeActionVisitor::extractNodes(const ArgumentList *al, size_t omitCount) {
   return ret;
 }
 
+void CodeActionVisitor::postSorting(
+    const std::string &msg, size_t omitCount, const ArgumentList *args,
+    const std::vector<const Node *> &sortedNodes) {
+  auto nodes =
+      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
+  auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
+  std::vector<TextEdit> edits;
+  for (size_t i = 0; i < nodes.size(); i++) {
+    const auto &subNode = nodes[(long)i];
+    auto range = nodeToRange(subNode);
+    const auto *asSL =
+        dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
+    if (asSL) {
+      edits.emplace_back(range, std::format("'{}'", asSL->id));
+    } else {
+      edits.emplace_back(
+          range,
+          dynamic_cast<const IdExpression *>(revSortedNodes[(long)i])->id);
+    }
+  }
+  WorkspaceEdit edit;
+  edit.changes[this->uri] = edits;
+  this->actions.emplace_back(msg, edit);
+}
+
 void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
   if (!fExpr) {
@@ -600,27 +625,8 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   if (std::ranges::equal(sortedNodes, toSort)) {
     return;
   }
-  auto nodes =
-      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
-  auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
-  std::vector<TextEdit> edits;
-  for (size_t i = 0; i < nodes.size(); i++) {
-    const auto &subNode = nodes[(long)i];
-    auto range = nodeToRange(subNode);
-    const auto *asSL =
-        dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
-    if (asSL) {
-      edits.emplace_back(range, std::format("'{}'", asSL->id));
-    } else {
-      edits.emplace_back(
-          range,
-          dynamic_cast<const IdExpression *>(revSortedNodes[(long)i])->id);
-    }
-  }
-  WorkspaceEdit edit;
-  edit.changes[this->uri] = edits;
-  this->actions.emplace_back(
-      "Sort filenames (Identifiers after string literals)", edit);
+  postSorting("Sort filenames (Identifiers after string literals)", omitCount,
+              args, sortedNodes);
 }
 
 void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
@@ -665,25 +671,6 @@ void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
   if (std::ranges::equal(sortedNodes, toSort)) {
     return;
   }
-  auto nodes =
-      this->extractNodes(args, omitCount) | std::ranges::views::reverse;
-  auto revSortedNodes = sortedNodes | std::ranges::views::reverse;
-  std::vector<TextEdit> edits;
-  for (size_t i = 0; i < nodes.size(); i++) {
-    const auto &subNode = nodes[(long)i];
-    auto range = nodeToRange(subNode);
-    const auto *asSL =
-        dynamic_cast<const StringLiteral *>(revSortedNodes[(long)i]);
-    if (asSL) {
-      edits.emplace_back(range, std::format("'{}'", asSL->id));
-    } else {
-      edits.emplace_back(
-          range,
-          dynamic_cast<const IdExpression *>(revSortedNodes[(long)i])->id);
-    }
-  }
-  WorkspaceEdit edit;
-  edit.changes[this->uri] = edits;
-  this->actions.emplace_back(
-      "Sort filenames (String literals after identifiers)", edit);
+  postSorting("Sort filenames (String literals after identifiers)", omitCount,
+              args, sortedNodes);
 }
