@@ -176,7 +176,7 @@ static const std::set<std::string> PURE_METHODS /* NOLINT */ = {
     "list.length",
 };
 
-static std::map<std::string, std::string> MODULES /*NOLINT*/ = {
+static const std::map<std::string, std::string> MODULES /*NOLINT*/ = {
     {"cmake", "cmake_module"},
     {"cuda", "cuda_module"},
     {"dlang", "dlang_module"},
