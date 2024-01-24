@@ -126,7 +126,7 @@ private:
                   int *nAny, int *bits,
                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
   void checkNoEffect(Node *node) const;
-  void checkFormat(StringLiteral *sl,
+  void checkFormat(const StringLiteral *sl,
                    const std::vector<std::shared_ptr<Node>> &args) const;
   void checkKwargsAfterPositionalArguments(
       const std::vector<std::shared_ptr<Node>> &args) const;
@@ -167,4 +167,9 @@ private:
                                        const std::shared_ptr<Function> &func);
   void checkUsage(const IdExpression *node);
   void visitChildren(const std::vector<std::shared_ptr<Node>> &stmts);
+  static unsigned long long
+  countPositionalArguments(const std::vector<std::shared_ptr<Node>> &args);
+  void validatePositionalArgumentCount(unsigned long long nPos,
+                                       const std::shared_ptr<Function> &func,
+                                       const Node *node);
 };
