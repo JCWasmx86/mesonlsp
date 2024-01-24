@@ -28,7 +28,7 @@ const static std::set<std::string> /*NOLINT*/ BUILTINS{
     "meson", "build_machine", "host_machine", "target_machine"};
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
-afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
+afterDotCompletion(const MesonTree *tree, const std::filesystem::path &path,
                    uint64_t line, uint64_t character, bool recurse);
 static std::optional<std::string> extractErrorId(const std::string &prev);
 static std::set<std::shared_ptr<Method>>
@@ -36,7 +36,8 @@ fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types);
 static std::string createTextForFunction(const std::shared_ptr<Function> &func);
 static void
-specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
+specialStringLiteralAutoCompletion(const MesonTree *tree,
+                                   StringLiteral *literal,
                                    std::vector<CompletionItem> &ret);
 static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
@@ -141,7 +142,7 @@ static void inCallCompletion(const MesonTree *tree,
     inCallCompletionFunction(tree, path, position, ret);
     return;
   }
-  auto &alNode = callOpt.value()->args;
+  const auto &alNode = callOpt.value()->args;
   if (!alNode || !callOpt.value()->method) {
     inCallCompletionFunction(tree, path, position, ret);
     return;
@@ -298,7 +299,7 @@ static void afterDotCompletion(std::vector<CompletionItem> &ret,
 }
 
 static std::optional<std::vector<std::shared_ptr<Type>>>
-afterDotCompletion(MesonTree *tree, const std::filesystem::path &path,
+afterDotCompletion(const MesonTree *tree, const std::filesystem::path &path,
                    uint64_t line, uint64_t character, bool recurse) {
   auto idExprOpt = tree->metadata.findIdExpressionAt(path, line, character);
   if (idExprOpt.has_value()) {
@@ -455,16 +456,17 @@ specialStringLiteralAutoCompletion(const StringLiteral *literal,
 }
 
 static void
-specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
+specialStringLiteralAutoCompletion(const MesonTree *tree,
+                                   StringLiteral *literal,
                                    std::vector<CompletionItem> &ret) {
-  auto *parent = literal->parent;
-  auto *al = dynamic_cast<ArgumentList *>(parent);
+  const auto *parent = literal->parent;
+  const auto *al = dynamic_cast<const ArgumentList *>(parent);
   // TODO: Maybe check kwargs?
   if (!al) {
     LOG.info("Auto-completion in string literal => No argument list as parent");
     return;
   }
-  auto *fe = dynamic_cast<FunctionExpression *>(al->parent);
+  const auto *fe = dynamic_cast<FunctionExpression *>(al->parent);
   if (fe && fe->function) {
     const auto &func = fe->function;
     LOG.info("Found function: " + func->id());
@@ -482,10 +484,9 @@ specialStringLiteralAutoCompletion(MesonTree *tree, StringLiteral *literal,
             TextEdit(nodeToRange(literal), std::format("{}", opt->name)));
       }
     }
-
     return;
   }
-  auto *me = dynamic_cast<MethodExpression *>(al->parent);
+  const auto *me = dynamic_cast<MethodExpression *>(al->parent);
   if (!me || !me->method) {
     return;
   }
