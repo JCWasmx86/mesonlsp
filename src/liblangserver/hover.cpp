@@ -20,8 +20,8 @@ Hover makeHoverForFunctionExpression(FunctionExpression *fe,
     return Hover{
         MarkupContent("Unable to find information about this function!")};
   }
-  auto fn = fe->function;
-  if (fn->name == "get_option") {
+  auto func = fe->function;
+  if (func->name == "get_option") {
     auto *args = dynamic_cast<ArgumentList *>(fe->args.get());
     if (!args || args->args.empty()) {
       goto cont;
@@ -54,20 +54,20 @@ Hover makeHoverForFunctionExpression(FunctionExpression *fe,
     return Hover{MarkupContent(ret)};
   }
 cont:
-  auto header = std::format("## {}\n\n", fn->name);
-  auto returns = std::format("-> `{}`\n", fn->returnTypes.empty()
+  auto header = std::format("## {}\n\n", func->name);
+  auto returns = std::format("-> `{}`\n", func->returnTypes.empty()
                                               ? "void"
-                                              : joinTypes(fn->returnTypes));
-  auto docs = std::format("{}\n", fn->doc);
+                                              : joinTypes(func->returnTypes));
+  auto docs = std::format("{}\n", func->doc);
   std::string signature;
-  if (fn->args.empty()) {
-    signature = std::format("{}()\n", fn->name);
-  } else if (fn->args.size() == 1) {
-    signature =
-        std::format("{}({})\n", fn->name, formatArgument(fn->args[0].get()));
+  if (func->args.empty()) {
+    signature = std::format("{}()\n", func->name);
+  } else if (func->args.size() == 1) {
+    signature = std::format("{}({})\n", func->name,
+                            formatArgument(func->args[0].get()));
   } else {
-    signature = std::format("{}(\n", fn->name);
-    for (const auto &arg : fn->args) {
+    signature = std::format("{}(\n", func->name);
+    for (const auto &arg : func->args) {
       signature += std::format("  {},\n", formatArgument(arg.get()));
     }
     signature += ")\n";

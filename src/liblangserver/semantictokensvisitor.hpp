@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <vector>
 
+constexpr int TOKEN_LENGTH = 5;
+
 class SemanticTokensVisitor : public CodeVisitor {
 public:
   void visitArgumentList(ArgumentList *node) override;
@@ -35,7 +37,7 @@ public:
   std::vector<uint64_t> finish();
 
 private:
-  std::vector<std::array<uint64_t, 5>> tokens;
+  std::vector<std::array<uint64_t, TOKEN_LENGTH>> tokens;
   void makeSemanticToken(const Node *node, size_t idx, uint64_t modifiers);
   void insertTokens(long matchPosition, long matchLength, const Location &loc);
 };

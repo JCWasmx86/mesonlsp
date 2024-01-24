@@ -1,6 +1,7 @@
 #pragma once
 
 #include "analysisoptions.hpp"
+#include "deprecationstate.hpp"
 #include "function.hpp"
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"

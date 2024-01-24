@@ -4,6 +4,7 @@
 #include "node.hpp"
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
