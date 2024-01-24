@@ -69,6 +69,9 @@ private:
   void postSorting(const std::string &msg, size_t omitCount,
                    const ArgumentList *args,
                    const std::vector<const Node *> &sortedNodes);
+  void makeSortFilenamesAction(const Node *node,
+                               bool (*sortFn)(const Node *, const Node *),
+                               const std::string &msg);
 
   static bool createsLibrary(const std::shared_ptr<Function> &func) {
     auto name = func->id();

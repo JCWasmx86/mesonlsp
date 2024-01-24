@@ -583,7 +583,10 @@ void CodeActionVisitor::postSorting(
   this->actions.emplace_back(msg, edit);
 }
 
-void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
+void CodeActionVisitor::makeSortFilenamesAction(const Node *node,
+                                                bool (*sortFn)(const Node *,
+                                                               const Node *),
+                                                const std::string &msg) {
   const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
   if (!fExpr) {
     return;
@@ -607,70 +610,49 @@ void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
   }
   auto toSort = toSortOpt.value();
   std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) {
-    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-    if (lhsIdExpr && rhsIdExpr) {
-      return lhsIdExpr->id < rhsIdExpr->id;
-    }
-    if (lhsIdExpr) {
-      return false;
-    }
-    if (rhsIdExpr) {
-      return true;
-    }
-    return sortStrLiterals(lhs, rhs);
-  });
-
+  std::ranges::sort(sortedNodes, sortFn);
   if (std::ranges::equal(sortedNodes, toSort)) {
     return;
   }
-  postSorting("Sort filenames (Identifiers after string literals)", omitCount,
-              args, sortedNodes);
+  postSorting(msg, omitCount, args, sortedNodes);
+}
+
+void CodeActionVisitor::makeSortFilenamesIASAction(const Node *node) {
+  this->makeSortFilenamesAction(
+      node,
+      [](const Node *lhs, const Node *rhs) {
+        const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+        const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+        if (lhsIdExpr && rhsIdExpr) {
+          return lhsIdExpr->id < rhsIdExpr->id;
+        }
+        if (lhsIdExpr) {
+          return false;
+        }
+        if (rhsIdExpr) {
+          return true;
+        }
+        return sortStrLiterals(lhs, rhs);
+      },
+      "Sort filenames (Identifiers after string literals)");
 }
 
 void CodeActionVisitor::makeSortFilenamesSAIAction(const Node *node) {
-  const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
-  if (!fExpr) {
-    return;
-  }
-  auto func = fExpr->function;
-  if (!func || !CodeActionVisitor::createsLibrary(func)) {
-    return;
-  }
-  auto omitCountOpt = CodeActionVisitor::isSortableFunction(func);
-  if (!omitCountOpt.has_value()) {
-    return;
-  }
-  const auto omitCount = omitCountOpt.value();
-  const auto *args = dynamic_cast<const ArgumentList *>(fExpr->args.get());
-  if (!args) {
-    return;
-  }
-  auto toSortOpt = this->extractSortableNodes(args, omitCount);
-  if (!toSortOpt.has_value()) {
-    return;
-  }
-  auto toSort = toSortOpt.value();
-  std::vector<const Node *> sortedNodes{toSort.begin(), toSort.end()};
-  std::ranges::sort(sortedNodes, [](const Node *lhs, const Node *rhs) {
-    const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
-    const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
-    if (lhsIdExpr && rhsIdExpr) {
-      return lhsIdExpr->id < rhsIdExpr->id;
-    }
-    if (lhsIdExpr) {
-      return true;
-    }
-    if (rhsIdExpr) {
-      return false;
-    }
-    return sortStrLiterals(lhs, rhs);
-  });
-
-  if (std::ranges::equal(sortedNodes, toSort)) {
-    return;
-  }
-  postSorting("Sort filenames (String literals after identifiers)", omitCount,
-              args, sortedNodes);
+  this->makeSortFilenamesAction(
+      node,
+      [](const Node *lhs, const Node *rhs) {
+        const auto *lhsIdExpr = dynamic_cast<const IdExpression *>(lhs);
+        const auto *rhsIdExpr = dynamic_cast<const IdExpression *>(rhs);
+        if (lhsIdExpr && rhsIdExpr) {
+          return lhsIdExpr->id < rhsIdExpr->id;
+        }
+        if (lhsIdExpr) {
+          return true;
+        }
+        if (rhsIdExpr) {
+          return false;
+        }
+        return sortStrLiterals(lhs, rhs);
+      },
+      "Sort filenames (String literals after identifiers)");
 }
