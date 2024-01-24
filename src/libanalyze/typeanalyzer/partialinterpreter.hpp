@@ -33,23 +33,19 @@ public:
 };
 
 class ArrayNode : public InterpretNode {
-public:
-  explicit ArrayNode(const Node *node) : InterpretNode(node) {}
+  using InterpretNode::InterpretNode;
 };
 
 class StringNode : public InterpretNode {
-public:
-  explicit StringNode(const Node *node) : InterpretNode(node) {}
+  using InterpretNode::InterpretNode;
 };
 
 class DictNode : public InterpretNode {
-public:
-  explicit DictNode(const Node *node) : InterpretNode(node) {}
+  using InterpretNode::InterpretNode;
 };
 
 class IntNode : public InterpretNode {
-public:
-  explicit IntNode(const Node *node) : InterpretNode(node) {}
+  using InterpretNode::InterpretNode;
 };
 
 class ArtificialStringNode : public InterpretNode {

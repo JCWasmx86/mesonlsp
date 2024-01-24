@@ -77,17 +77,17 @@ public:
 };
 
 class HgWrap : public VcsWrap {
-public:
-  explicit HgWrap(ast::ini::Section *node) : VcsWrap(node) {}
+  using VcsWrap::VcsWrap;
 
+public:
   bool setupDirectory(const std::filesystem::path &path,
                       const std::filesystem::path &packageFilesPath) override;
 };
 
 class SvnWrap : public VcsWrap {
-public:
-  explicit SvnWrap(ast::ini::Section *node) : VcsWrap(node) {}
+  using VcsWrap::VcsWrap;
 
+public:
   bool setupDirectory(const std::filesystem::path &path,
                       const std::filesystem::path &packageFilesPath) override;
 };
