@@ -28,6 +28,7 @@
 #include <vector>
 
 constexpr int TYPE_STRING_LENGTH = 12;
+constexpr int ALL_TYPES_FOUND = 0b111;
 const static Logger LOG("analyze::typeanalyzer"); // NOLINT
 
 static const std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
@@ -616,8 +617,9 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
                                              node->rhs->types, &nErrors);
   auto nTimes = node->lhs->types.size() * node->rhs->types.size();
   if (nTimes != 0 && nErrors == nTimes && (!node->lhs->types.empty()) &&
-      (!node->rhs->types.empty()) && !this->isSpecial(node->lhs->types) &&
-      !this->isSpecial(node->rhs->types)) {
+      (!node->rhs->types.empty()) &&
+      !TypeAnalyzer::isSpecial(node->lhs->types) &&
+      !TypeAnalyzer::isSpecial(node->rhs->types)) {
     auto lTypes = joinTypes(node->lhs->types);
     auto rTypes = joinTypes(node->rhs->types);
     auto msg = std::format("Unable to apply operator {} to types {} and {}",
@@ -803,7 +805,7 @@ void TypeAnalyzer::checkDeadNodes(const BuildDefinition *node) {
   for (const auto &stmt : node->stmts) {
     this->checkNoEffect(stmt.get());
     if (!lastAlive) {
-      if (this->isDead(stmt)) {
+      if (TypeAnalyzer::isDead(stmt)) {
         lastAlive = stmt;
       }
     } else {
@@ -1739,7 +1741,7 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
     stmt->visit(this);
     this->checkNoEffect(stmt.get());
     if (!lastAlive) {
-      if (this->isDead(stmt)) {
+      if (TypeAnalyzer::isDead(stmt)) {
         lastAlive = stmt;
       }
     } else {
@@ -1832,7 +1834,7 @@ bool TypeAnalyzer::findMethod(
     node->method = method;
     found = true;
   }
-  if (*nAny == 3 && *bits == 0b111) {
+  if (*nAny == 3 && *bits == ALL_TYPES_FOUND) {
     return found;
   }
   if (!found && methodName == "get") {
@@ -2061,7 +2063,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
       stmt->visit(this);
       this->checkNoEffect(stmt.get());
       if (!lastAlive) {
-        if (this->isDead(stmt)) {
+        if (TypeAnalyzer::isDead(stmt)) {
           lastAlive = stmt;
         }
       } else {
