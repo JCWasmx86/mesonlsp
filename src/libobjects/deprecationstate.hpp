@@ -19,8 +19,8 @@ public:
       : sinceWhen(sinceWhen), replacements(replacements), deprecated(true) {}
 
   DeprecationState(DeprecationState &&other) noexcept = default;
-  DeprecationState &operator=(DeprecationState const &other);
-  DeprecationState &operator=(DeprecationState &&other) noexcept;
+  DeprecationState &operator=(DeprecationState const &other) = delete;
+  DeprecationState &operator=(DeprecationState &&other) noexcept = delete;
 
   ~DeprecationState() = default;
 };
