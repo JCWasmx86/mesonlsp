@@ -583,10 +583,9 @@ void CodeActionVisitor::postSorting(
   this->actions.emplace_back(msg, edit);
 }
 
-void CodeActionVisitor::makeSortFilenamesAction(const Node *node,
-                                                bool (*sortFn)(const Node *,
-                                                               const Node *),
-                                                const std::string &msg) {
+void CodeActionVisitor::makeSortFilenamesAction(
+    const Node *node, std::function<bool(const Node *, const Node *)> sortFn,
+    const std::string &msg) {
   const auto *fExpr = dynamic_cast<const FunctionExpression *>(node);
   if (!fExpr) {
     return;
