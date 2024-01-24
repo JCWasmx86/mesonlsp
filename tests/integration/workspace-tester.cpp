@@ -2,14 +2,12 @@
 #include "langserverutils.hpp"
 #include "log.hpp"
 #include "lsptypes.hpp"
-#include "mesonmetadata.hpp"
 #include "nlohmann/json.hpp"
 #include "typenamespace.hpp"
 #include "workspace.hpp"
 
 #include <cassert>
 #include <filesystem>
-#include <format>
 #include <string>
 
 int main(int argc, char **argv) {
@@ -20,8 +18,8 @@ int main(int argc, char **argv) {
   nlohmann::json json;
   json["uri"] = url;
   json["name"] = "root";
-  TypeNamespace ns;
-  WorkspaceFolder wspf{json};
+  TypeNamespace const ns;
+  WorkspaceFolder const wspf{json};
   Workspace workspace{wspf, options};
   const auto diags = workspace.parse(ns);
   assert(diags.size() == 1);

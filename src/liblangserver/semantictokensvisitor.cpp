@@ -1,5 +1,6 @@
 #include "semantictokensvisitor.hpp"
 
+#include "location.hpp"
 #include "log.hpp"
 #include "node.hpp"
 
@@ -25,7 +26,7 @@ void SemanticTokensVisitor::makeSemanticToken(const Node *node, size_t idx,
   if (idx >= 8) {
     return;
   }
-  tokens.emplace_back(std::array<uint64_t, 5>{
+  tokens.emplace_back(std::array<uint64_t, TOKEN_LENGTH>{
       node->location.startLine, node->location.startColumn,
       node->location.endColumn - node->location.startColumn, idx, modifiers});
 }
@@ -136,15 +137,15 @@ void SemanticTokensVisitor::visitSelectionStatement(SelectionStatement *node) {
 
 void SemanticTokensVisitor::insertTokens(long matchPosition, long matchLength,
                                          const Location &loc) {
-  this->tokens.emplace_back(std::array<uint64_t, 5>(
+  this->tokens.emplace_back(std::array<uint64_t, TOKEN_LENGTH>(
       {loc.startLine,
        static_cast<unsigned long>(loc.startColumn + matchPosition + 2), 1, 1,
        0}));
-  this->tokens.emplace_back(std::array<uint64_t, 5>(
+  this->tokens.emplace_back(std::array<uint64_t, TOKEN_LENGTH>(
       {loc.startLine,
        static_cast<unsigned long>(loc.startColumn + matchPosition + 3),
        static_cast<unsigned long>(matchLength - 2), 2, 0}));
-  this->tokens.emplace_back(std::array<uint64_t, 5>(
+  this->tokens.emplace_back(std::array<uint64_t, TOKEN_LENGTH>(
       {loc.startLine,
        static_cast<unsigned long>(loc.startColumn + matchPosition +
                                   matchLength + 1),

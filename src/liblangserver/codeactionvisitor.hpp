@@ -5,7 +5,10 @@
 #include "mesontree.hpp"
 #include "node.hpp"
 
+#include <algorithm>
+#include <cassert>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>

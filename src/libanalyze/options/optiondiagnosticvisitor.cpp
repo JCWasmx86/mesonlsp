@@ -7,6 +7,7 @@
 
 #include <cctype>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>

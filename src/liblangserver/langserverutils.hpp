@@ -9,6 +9,7 @@
 #include <format>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   auto url = ada::parse<ada::url>(urlStr);
