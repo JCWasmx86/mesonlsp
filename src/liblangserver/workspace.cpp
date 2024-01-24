@@ -210,6 +210,98 @@ extractOptionName(const FunctionExpression *fe, const MesonMetadata *metadata) {
   return nameSl->id;
 }
 
+std::vector<LSPLocation>
+Workspace::jumpToFunctionCall(const MesonMetadata *metadata,
+                              const std::filesystem::path &path,
+                              const LSPPosition &position) {
+  for (const auto &funcCall : metadata->functionCalls.at(path)) {
+    if (!MesonMetadata::contains(funcCall, position.line, position.character) ||
+        funcCall->file->file != path) {
+      continue;
+    }
+    if (funcCall->functionName() == "get_option" && funcCall->args) {
+      const auto optionNameOpt = extractOptionName(funcCall, metadata);
+      if (!optionNameOpt.has_value() ||
+          !metadata->options.contains(optionNameOpt.value())) {
+        continue;
+      }
+      const auto &[optionsPath, line, character] =
+          metadata->options.at(optionNameOpt.value());
+      LSPPosition const pos{line, character};
+      LSPRange const range{pos, pos};
+      return {{pathToUrl(optionsPath), range}};
+    }
+    if (funcCall->functionName() != "subdir") {
+      return {};
+    }
+    const std::filesystem::path &key =
+        std::format("{}-{}", funcCall->file->file.generic_string(),
+                    funcCall->location.format());
+    if (!metadata->subdirCalls.contains(key)) {
+      return {};
+    }
+    const auto &set = metadata->subdirCalls.at(key);
+    std::vector<std::string> sorted{set.begin(), set.end()};
+    std::ranges::sort(sorted);
+    std::vector<LSPLocation> ret;
+    for (const auto &subdir : sorted) {
+      auto subdirMesonPath = path.parent_path() / subdir / "meson.build";
+      auto range = LSPRange(LSPPosition(0, 0), LSPPosition(0, 0));
+      ret.emplace_back(pathToUrl(subdirMesonPath), range);
+    }
+    return ret;
+  }
+  return {};
+}
+
+std::vector<LSPLocation>
+Workspace::jumpToIdentifier(const MesonMetadata *metadata,
+                            const std::filesystem::path &path,
+                            const LSPPosition &position) {
+  auto foundMyself = false;
+  std::string toFind;
+  for (size_t i = metadata->encounteredIds.size() - 1;; i--) {
+    if (i == (size_t)-1) {
+      break;
+    }
+    const auto &idExpr = metadata->encounteredIds[i];
+    if (idExpr->file->file == path &&
+        MesonMetadata::contains(idExpr, position.line, position.character)) {
+      foundMyself = true;
+      toFind = idExpr->id;
+    }
+    if (!foundMyself || idExpr->id != toFind) {
+      continue;
+    }
+    const auto *ass = dynamic_cast<AssignmentStatement *>(idExpr->parent);
+    if (ass && ass->op == AssignmentOperator::EQUALS) {
+      auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
+      if (lhsIdExpr && lhsIdExpr->id == toFind) {
+        return {
+            LSPLocation(pathToUrl(idExpr->file->file), nodeToRange(idExpr))};
+      }
+    }
+    if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
+      return {LSPLocation(pathToUrl(idExpr->file->file), nodeToRange(idExpr))};
+    }
+  }
+  return {};
+}
+
+std::vector<LSPLocation> Workspace::jumpTo(const MesonMetadata *metadata,
+                                           const std::filesystem::path &path,
+                                           const LSPPosition &position) {
+  const auto &toIdentifier =
+      Workspace::jumpToIdentifier(metadata, path, position);
+  if (!toIdentifier.empty()) {
+    return toIdentifier;
+  }
+  if (!metadata->functionCalls.contains(path)) {
+    return {};
+  }
+  return Workspace::jumpToFunctionCall(metadata, path, position);
+}
+
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
   this->smph.acquire();
@@ -218,87 +310,9 @@ std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
       continue;
     }
     const auto &metadata = &subTree->metadata;
-    auto foundMyself = false;
-    std::string toFind;
-    for (size_t i = metadata->encounteredIds.size() - 1;; i--) {
-      if (i == (size_t)-1) {
-        break;
-      }
-      const auto &idExpr = metadata->encounteredIds[i];
-      if (idExpr->file->file == path &&
-          MesonMetadata::contains(idExpr, position.line, position.character)) {
-        foundMyself = true;
-        toFind = idExpr->id;
-      }
-      if (!foundMyself || idExpr->id != toFind) {
-        continue;
-      }
-      const auto *ass = dynamic_cast<AssignmentStatement *>(idExpr->parent);
-      if (ass && ass->op == AssignmentOperator::EQUALS) {
-        auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
-        if (lhsIdExpr && lhsIdExpr->id == toFind) {
-          const auto &loc = idExpr->location;
-          auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
-                                LSPPosition(loc.endLine, loc.endColumn));
-          this->smph.release();
-          return {LSPLocation(pathToUrl(idExpr->file->file), range)};
-        }
-      }
-      if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
-        const auto &loc = idExpr->location;
-        auto range = LSPRange(LSPPosition(loc.startLine, loc.startColumn),
-                              LSPPosition(loc.endLine, loc.endColumn));
-        this->smph.release();
-        return {LSPLocation(pathToUrl(idExpr->file->file), range)};
-      }
-    }
-    if (!metadata->functionCalls.contains(path)) {
-      this->smph.release();
-      return {};
-    }
-    for (const auto &funcCall : metadata->functionCalls.at(path)) {
-      if (!MesonMetadata::contains(funcCall, position.line,
-                                   position.character) ||
-          funcCall->file->file != path) {
-        continue;
-      }
-      if (funcCall->functionName() == "get_option" && funcCall->args) {
-        const auto optionNameOpt = extractOptionName(funcCall, metadata);
-        if (!optionNameOpt.has_value()) {
-          goto nextIf;
-        }
-        auto &[optionsPath, line, character] =
-            metadata->options[optionNameOpt.value()];
-        LSPPosition const pos{line, character};
-        LSPRange const range{pos, pos};
-        this->smph.release();
-        return {{pathToUrl(optionsPath), range}};
-      }
-    nextIf:
-      if (funcCall->functionName() != "subdir") {
-        this->smph.release();
-        return {};
-      }
-      const std::filesystem::path &key =
-          std::format("{}-{}", funcCall->file->file.generic_string(),
-                      funcCall->location.format());
-      if (!metadata->subdirCalls.contains(key)) {
-        this->smph.release();
-        return {};
-      }
-      const auto &set = metadata->subdirCalls.at(key);
-      std::vector<std::string> sorted{set.begin(), set.end()};
-      std::ranges::sort(sorted);
-      std::vector<LSPLocation> ret;
-      for (const auto &subdir : sorted) {
-        auto subdirMesonPath = path.parent_path() / subdir / "meson.build";
-        auto range = LSPRange(LSPPosition(0, 0), LSPPosition(0, 0));
-        ret.emplace_back(pathToUrl(subdirMesonPath), range);
-      }
-      this->smph.release();
-      return ret;
-    }
-    break;
+    const auto &ret = Workspace::jumpTo(metadata, path, position);
+    smph.release();
+    return ret;
   }
   this->smph.release();
   return {};
