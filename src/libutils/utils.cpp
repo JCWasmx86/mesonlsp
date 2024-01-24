@@ -60,7 +60,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
                        httpCode));
   auto goodFTP = url.starts_with("ftp://") && httpCode == FTP_OK;
   auto goodHTTP = httpCode == HTTP_OK;
-  auto successful = res != CURLE_ABORTED_BY_CALLBACK && (goodFTP || goodHTTP);
+  auto successful = res == CURLE_OK && (goodFTP || goodHTTP);
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
