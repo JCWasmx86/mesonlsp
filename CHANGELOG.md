@@ -1,3 +1,19 @@
+# 4.0.0 (XXX XX 2024)
+- Fix binary name (Related to #34, Swift version)
+- Rewrite in C++
+- Add --version switch (C++ version)
+- Drop support for Debian/Ubuntu packages
+- Drop support for AUR packages
+- Improve auto-completion
+- Adding/Changing subprojects requires languagserver restart. This will be addressed in future releases
+- `muon` is now built-in. => `others.muonPath` is obsolete now.
+- Add `linting.disableUnusedVariableCheck` that allows disabling checks for unused variables
+- Add `others.defaultFormattingConfig` that takes a path to the default muon config file.
+- Formatting will now respect muon_cfg.ini
+- Bug fixes to the unused variable check
+- File size decreases
+- Performance improvements
+- Less RAM usage
 # 3.1.4 (Mar 05 2024)
 - Fix binary name (Related to #34)
 - Fix `default_options accepts a dictionary` (#48)
