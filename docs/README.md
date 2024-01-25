@@ -1,6 +1,6 @@
 # Documentation for mesonlsp
 - Installation
-  - [From package repo (Arch Linux, Fedora, Ubuntu, Debian)](PackageInstall.md)
+  - [From package repo (Fedora)](PackageInstall.md)
   - [From Source](SourceInstall.md)
   - [Linux/macOS/Windows](ReleaseInstall.md)
 - Editor integration
