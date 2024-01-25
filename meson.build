@@ -107,8 +107,12 @@ else
         extra_deps += dependency('jemalloc', static: true)
         args += '-DUSE_MIMALLOC'
     elif get_option('use_mimalloc')
-        mimalloc_proj = subproject('mimalloc')
-        extra_deps += mimalloc_proj.get_variable('mimalloc_dep')
+        if get_option('use_mimalloc_wrap')
+            mimalloc_proj = subproject('mimalloc')
+            extra_deps += mimalloc_proj.get_variable('mimalloc_dep')
+        else
+            extra_deps += dependency('mimalloc', static: true)
+        endif
         args += '-DUSE_MIMALLOC'
     endif
 endif
