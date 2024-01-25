@@ -1,4 +1,5 @@
 option('static_build', type: 'boolean', value: false)
 option('use_jemalloc', type: 'boolean', value: false)
 option('use_mimalloc', type: 'boolean', value: false)
+option('use_mimalloc_wrap', type: 'boolean', value: true)
 option('tests', type: 'boolean', value: true)
