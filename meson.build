@@ -111,4 +111,6 @@ endif
 gtest_dep = dependency('gtest', main: true, required: false)
 
 subdir('src')
-subdir('tests')
+if gtest_dep.found() and get_option('tests')
+    subdir('tests')
+endif
