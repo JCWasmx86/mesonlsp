@@ -25,7 +25,7 @@ executable(
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
         '-DLINKER_ID="' + cc.get_linker_id() + '"',
-    ],
+    ] + args,
     dependencies: [
         analyze_dep,
         ast_dep,

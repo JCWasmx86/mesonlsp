@@ -83,6 +83,8 @@ if system_id != 'linux'
     warning(f'Untested OS: @system_id@')
 endif
 
+args = []
+
 if get_option('static_build')
     extra_deps = [
         dependency('libbrotlicommon'),
@@ -103,8 +105,11 @@ else
     extra_link_args = []
     if get_option('use_jemalloc')
         extra_deps += dependency('jemalloc', static: true)
+        args += '-DUSE_MIMALLOC'
     elif get_option('use_mimalloc')
-        extra_deps += dependency('mimalloc', static: true)
+        mimalloc_proj = subproject('mimalloc')
+        extra_deps += mimalloc_proj.get_variable('mimalloc_dep')
+        args += '-DUSE_MIMALLOC'
     endif
 endif
 

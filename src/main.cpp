@@ -51,6 +51,12 @@ void printVersion() {
   std::cout << "Using C compiler:       " << CC_VERSION << std::endl;
   std::cout << "Using C++ compiler:     " << CXX_VERSION << std::endl;
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
+  #ifdef USE_MIMALLOC
+    std::cout << "Using mimalloc" << std::endl;
+  #endif
+  #ifdef USE_JEMALLOC
+    std::cout << "Using jemalloc" << std::endl;
+  #endif
 }
 
 void startLanguageServer() {
