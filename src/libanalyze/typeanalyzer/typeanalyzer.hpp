@@ -172,5 +172,5 @@ private:
   countPositionalArguments(const std::vector<std::shared_ptr<Node>> &args);
   void validatePositionalArgumentCount(unsigned long long nPos,
                                        const std::shared_ptr<Function> &func,
-                                       const Node *node);
+                                       const Node *node) const;
 };
