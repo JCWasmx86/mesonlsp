@@ -183,7 +183,7 @@ void SemanticTokensVisitor::visitStringLiteral(StringLiteral *node) {
 
   while (iter != end) {
     auto match = *iter;
-    this->insertTokens(match.position(), match.length(), loc);
+    this->insertTokens(match.position() - 1, match.length(), loc);
     ++iter;
   }
 }
