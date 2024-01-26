@@ -2183,7 +2183,10 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
       if (match.starts_with("OUTPUT") || match.starts_with("INPUT") ||
           match == "BASENAME" || match.starts_with("OUTDIR") ||
           match == "BUILD_ROOT" || match == "BUILD_DIR" ||
-          match == "PLAINNAME" || match == "EXTRA_ARGS") {
+          match == "PLAINNAME" || match == "EXTRA_ARGS" ||
+          match == "CURRENT_SOURCE_DIR" || match == "DEPFILE" ||
+          match == "SOURCE_ROOT" || match == "PRIVATE_DIR" ||
+          match == "SOURCE_DIR") {
         reallyFound = false;
         break;
       }
