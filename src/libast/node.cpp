@@ -614,7 +614,7 @@ StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
     this->id = file->extractNodeValue(
         ts_node_end_byte(ts_node_child(childNode, 0)),
         ts_node_start_byte(
-            ts_node_child(childNode, ts_node_child_count(typeNode) - 1)));
+            ts_node_child(childNode, ts_node_child_count(childNode) - 1)));
     break;
   }
   default:
