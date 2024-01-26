@@ -16,6 +16,7 @@ public:
       std::nullopt;
   std::optional<std::filesystem::path> defaultFormattingConfig;
   bool disableInlayHints = false;
+  bool removeDefaultTypesInInlayHints = false;
 
   // No need for muon path anymore
 
@@ -76,6 +77,10 @@ private:
     if (others.contains("neverDownloadAutomatically")) {
       this->neverDownloadAutomatically =
           others.value("neverDownloadAutomatically", false);
+    }
+    if (others.contains("removeDefaultTypesInInlayHints")) {
+      this->removeDefaultTypesInInlayHints =
+          others.value("removeDefaultTypesInInlayHints", false);
     }
     if (others.contains("disableInlayHints")) {
       this->disableInlayHints = others.value("disableInlayHints", false);

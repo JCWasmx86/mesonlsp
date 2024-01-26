@@ -66,7 +66,8 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     if (ast.empty()) {
       continue;
     }
-    auto visitor = InlayHintVisitor();
+    auto visitor =
+        InlayHintVisitor(this->options.removeDefaultTypesInInlayHints);
     ast.back()->visit(&visitor);
     this->smph.release();
     return visitor.hints;
