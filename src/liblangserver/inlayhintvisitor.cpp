@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <format>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -144,5 +145,14 @@ InlayHintVisitor::prettify(const std::vector<std::shared_ptr<Type>> &types,
     strs.push_back(type->toString());
   }
   std::ranges::sort(strs);
+  if (this->removeDefaultTypesInInlayHints && depth == 0 && strs.size() > 3) {
+    std::set<std::string> const asSet{strs.begin(), strs.end()};
+    if (asSet.contains("list(any)") && asSet.contains("dict(any)") &&
+        asSet.contains("any")) {
+      strs.erase(std::ranges::find(strs, "any"));
+      strs.erase(std::ranges::find(strs, "list(any)"));
+      strs.erase(std::ranges::find(strs, "dict(any)"));
+    }
+  }
   return joinStrings(strs, '|');
 }
