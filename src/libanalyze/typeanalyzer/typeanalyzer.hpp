@@ -126,6 +126,7 @@ private:
                   int *nAny, int *bits,
                   std::vector<std::shared_ptr<Type>> &ownResultTypes);
   void checkNoEffect(Node *node) const;
+  void checkFormat(const StringLiteral *sl) const;
   void checkFormat(const StringLiteral *sl,
                    const std::vector<std::shared_ptr<Node>> &args) const;
   void checkKwargsAfterPositionalArguments(

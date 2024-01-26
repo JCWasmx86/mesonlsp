@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -131,6 +132,22 @@ inline std::string joinStrings(const Container &cont, const char chr) {
   for (; iter != std::end(cont); ++iter) {
     ret.push_back(chr);
     ret.append(*iter);
+  }
+  return ret;
+}
+
+template <typename Container>
+inline std::string joinContainer(const Container &cont, const char chr) {
+  std::string ret;
+  ret.reserve(100);
+  auto iter = std::begin(cont);
+  if (iter != std::end(cont)) {
+    ret += std::format("{}", *iter);
+    ++iter;
+  }
+  for (; iter != std::end(cont); ++iter) {
+    ret.push_back(chr);
+    ret.append(std::format("{}", *iter));
   }
   return ret;
 }
