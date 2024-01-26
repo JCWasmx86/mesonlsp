@@ -602,17 +602,19 @@ StringLiteral::StringLiteral(const std::shared_ptr<SourceFile> &file,
   case sym_string_multiline:
   case sym_string_simple:
     this->isFormat = false;
-    this->id =
-        file->extractNodeValue(ts_node_end_byte(ts_node_child(typeNode, 0)),
-                               ts_node_start_byte(ts_node_child(typeNode, 1)));
+    this->id = file->extractNodeValue(
+        ts_node_end_byte(ts_node_child(typeNode, 0)),
+        ts_node_start_byte(
+            ts_node_child(typeNode, ts_node_child_count(typeNode) - 1)));
     break;
   case sym_string_format_multiline:
   case sym_string_format: {
     this->isFormat = true;
     auto childNode = ts_node_child(typeNode, 0);
-    this->id =
-        file->extractNodeValue(ts_node_end_byte(ts_node_child(childNode, 0)),
-                               ts_node_start_byte(ts_node_child(childNode, 1)));
+    this->id = file->extractNodeValue(
+        ts_node_end_byte(ts_node_child(childNode, 0)),
+        ts_node_start_byte(
+            ts_node_child(childNode, ts_node_child_count(typeNode) - 1)));
     break;
   }
   default:

@@ -1993,16 +1993,40 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   this->checkCall(node);
   const auto *sl = dynamic_cast<StringLiteral *>(node->obj.get());
   const auto *al = dynamic_cast<ArgumentList *>(node->args.get());
-  if ((sl != nullptr) && (al != nullptr) &&
-      node->method->id() == "str.format") {
-    this->checkFormat(sl, al->args);
+  if (sl && node->method->id() == "str.format") {
+    if (al) {
+      this->checkFormat(sl, al->args);
+    } else {
+      this->checkFormat(sl);
+    }
   }
+}
+
+void TypeAnalyzer::checkFormat(const StringLiteral *sl) const {
+  std::vector<std::string> oobIntegers;
+  auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
+  oobIntegers.reserve(foundIntegers.size());
+  for (auto integer : foundIntegers) {
+    oobIntegers.push_back(std::format("@{}@", integer));
+  }
+  if (oobIntegers.empty()) {
+    this->metadata->registerDiagnostic(
+        sl->parent, Diagnostic(Severity::WARNING, sl->parent,
+                               "Pointless str.format() call"));
+    return;
+  }
+  this->metadata->registerDiagnostic(
+      sl,
+      Diagnostic(Severity::ERROR, sl,
+                 "Parameters out of bounds: " + joinStrings(oobIntegers, ',')));
 }
 
 void TypeAnalyzer::checkFormat(
     const StringLiteral *sl,
     const std::vector<std::shared_ptr<Node>> &args) const {
   auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
+  LOG.info(std::format("checkFormatSLArgs: {} '{}'",
+                       joinContainer(foundIntegers, ','), sl->id));
   for (size_t i = 0; i < args.size(); i++) {
     if (!foundIntegers.contains(i)) {
       this->metadata->registerDiagnostic(
@@ -2010,7 +2034,7 @@ void TypeAnalyzer::checkFormat(
                                     "Unused parameter in format() call"));
     }
   }
-  if (foundIntegers.empty() && args.empty()) {
+  if (foundIntegers.empty()) {
     this->metadata->registerDiagnostic(
         sl->parent, Diagnostic(Severity::WARNING, sl->parent,
                                "Pointless str.format() call"));

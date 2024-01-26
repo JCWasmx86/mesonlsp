@@ -594,6 +594,13 @@ TEST(TestAstOther, extractIntegersBetweenAtSymbols) {
   ASSERT_EQ(inputs, expected);
 }
 
+TEST(TestAstOther, extractIntegersBetweenAtSymbols2) {
+  auto inputs = extractIntegersBetweenAtSymbols(
+      "huh, could not run find_meson.\nerrcode: @0@\nstdout: @1@\nstderr: @2@");
+  std::set<uint64_t> const expected{0, 1, 2};
+  ASSERT_EQ(inputs, expected);
+}
+
 TEST(TestAstOther, dontExtractBetweenStrings) {
   auto inputs = extractIntegersBetweenAtSymbols("@foo@0@bar@");
   // TODO: ASSERT_TRUE(inputs.empty());
