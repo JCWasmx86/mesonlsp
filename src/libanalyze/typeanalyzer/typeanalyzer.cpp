@@ -2186,7 +2186,7 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
           match == "PLAINNAME" || match == "EXTRA_ARGS" ||
           match == "CURRENT_SOURCE_DIR" || match == "DEPFILE" ||
           match == "SOURCE_ROOT" || match == "PRIVATE_DIR" ||
-          match == "SOURCE_DIR") {
+          match == "SOURCE_DIR" || match == "VCS_TAG") {
         reallyFound = false;
         break;
       }
