@@ -2025,8 +2025,6 @@ void TypeAnalyzer::checkFormat(
     const StringLiteral *sl,
     const std::vector<std::shared_ptr<Node>> &args) const {
   auto foundIntegers = extractIntegersBetweenAtSymbols(sl->id);
-  LOG.info(std::format("checkFormatSLArgs: {} '{}'",
-                       joinContainer(foundIntegers, ','), sl->id));
   for (size_t i = 0; i < args.size(); i++) {
     if (!foundIntegers.contains(i)) {
       this->metadata->registerDiagnostic(
