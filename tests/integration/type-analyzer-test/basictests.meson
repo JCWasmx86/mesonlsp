@@ -14,3 +14,8 @@ endforeach
 foreach dictkey, dictvalue : {'foo': [[], {}, 1, '', bool, meson], 'bar': 1}
 
 endforeach
+
+firstmixedbagiter = [[], {}, 1, '', bool, meson][0]
+somedictvalue = somedict['foo']
+somesubstr = somestr[0]
+custom_idx = custom_target()[0]
