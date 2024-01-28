@@ -166,6 +166,10 @@ type_analyzer_tests = [
             ['mixedbagiter', 'dict()|int|list()|meson|str'],
             ['dictkey', 'str'],
             ['dictvalue', 'int|list(dict()|int|list()|meson|str)'],
+            ['firstmixedbagiter', 'dict()|int|list()|meson|str'],
+            ['somedictvalue', 'int|str'],
+            ['somesubstr', 'str'],
+            ['custom_idx', 'custom_idx'],
 
             # Builtins
             ['meson', 'meson'],
@@ -230,6 +234,20 @@ type_analyzer_tests = [
     [
         'selectionstatement',
         [['full', 'bool|dict(int)|host_machine|list()|meson|target_machine']],
+    ],
+    [
+        'assignment',
+        [
+            ['someint', 'int'],
+            ['somestr', 'str'],
+            ['somelist', 'list(int|str)'],
+            ['somelist2', 'list(bool|int|str)'],
+            ['someint2', 'int'],
+            ['somestr2', 'str'],
+            ['somebool', 'bool'],
+            ['somebool2', 'bool'],
+            ['someunaryint', 'int'],
+        ],
     ],
 ]
 
