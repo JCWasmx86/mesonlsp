@@ -46,3 +46,5 @@ install_symlink(
     install_dir: install_dir,
     pointing_to: install_dir / 'mesonlsp',
 )
+
+subdir('benchmarks')
