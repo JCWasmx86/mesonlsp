@@ -10,6 +10,7 @@
 #include "scope.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
+#include "version.hpp"
 
 #include <filesystem>
 #include <map>
@@ -60,6 +61,8 @@ public:
   void visitContinueNode(ContinueNode *node) override;
 
 private:
+  std::vector<Version> versionStack;
+  std::set<std::string> mesonVersionVars;
   std::vector<std::filesystem::path> sourceFileStack;
   std::vector<std::vector<IdExpression *>> variablesNeedingUse;
   std::vector<std::vector<std::string>> foundVariables;
@@ -173,4 +176,7 @@ private:
   void validatePositionalArgumentCount(unsigned long long nPos,
                                        const std::shared_ptr<Function> &func,
                                        const Node *node) const;
+  bool checkConditionForVersionComparison(const Node *condition);
+  void pushVersion(const std::string &version);
+  const Version &matchingVersion() const;
 };

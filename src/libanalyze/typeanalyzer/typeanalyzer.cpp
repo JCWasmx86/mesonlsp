@@ -1112,7 +1112,8 @@ void TypeAnalyzer::createDeprecationWarning(
     const std::string &type) const {
   const auto &alternatives = deprecationState.replacements;
   auto sinceWhen = deprecationState.sinceWhen;
-  if (sinceWhen.has_value() && sinceWhen->after(this->tree->version)) {
+  const auto &currVersion = this->matchingVersion();
+  if (sinceWhen.has_value() && sinceWhen->after(currVersion)) {
     return;
   }
   auto versionString =
@@ -1460,13 +1461,14 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     this->createDeprecationWarning(node->function->deprecationState, node,
                                    "function");
   }
-  if (func->since.after(this->tree->version)) {
+  const auto &version = this->matchingVersion();
+  if (func->since.after(version)) {
     this->metadata->registerDiagnostic(
         node, Diagnostic(Severity::WARNING, node,
                          std::format("Meson version {} is requested, but {}() "
                                      "is only available since {}",
-                                     this->tree->version.versionString,
-                                     func->id(), func->since.versionString)));
+                                     version.versionString, func->id(),
+                                     func->since.versionString)));
   }
   const auto &args = node->args;
   if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
@@ -1929,14 +1931,15 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     this->createDeprecationWarning(node->method->deprecationState, node,
                                    "method");
   }
-  if (node->method->since.after(this->tree->version)) {
+  const auto &currVersion = this->matchingVersion();
+  if (node->method->since.after(currVersion)) {
     this->metadata->registerDiagnostic(
-        node, Diagnostic(Severity::WARNING, node,
-                         std::format("Meson version {} is requested, but {}() "
-                                     "is only available since {}",
-                                     this->tree->version.versionString,
-                                     node->method->id(),
-                                     node->method->since.versionString)));
+        node,
+        Diagnostic(Severity::WARNING, node,
+                   std::format("Meson version {} is requested, but {}() "
+                               "is only available since {}",
+                               currVersion.versionString, node->method->id(),
+                               node->method->since.versionString)));
   }
   if (node->args) {
     if (const auto &asArgumentList =
@@ -2106,6 +2109,62 @@ void TypeAnalyzer::visitChildren(
   this->applyDead(lastAlive, firstDead, lastDead);
 }
 
+void TypeAnalyzer::pushVersion(const std::string &version) {
+  auto subStr = 0;
+  for (const auto chr : version) {
+    if (chr == '>' || chr == '=' || chr == '<' || chr == ' ') {
+      subStr++;
+      continue;
+    }
+    break;
+  }
+  this->versionStack.emplace_back(version.substr(subStr));
+}
+
+bool TypeAnalyzer::checkConditionForVersionComparison(const Node *condition) {
+  const auto *me = dynamic_cast<const MethodExpression *>(condition);
+  if (me && me->method && me->method->id() == "str.version_compare" &&
+      me->args) {
+    const auto *al = dynamic_cast<const ArgumentList *>(me->args.get());
+    if (!al) {
+      return false;
+    }
+    const auto *sl = dynamic_cast<const StringLiteral *>(al->args[0].get());
+    if (!sl) {
+      return false;
+    }
+    const auto *methodObj = me->obj.get();
+    const auto *idExpr = dynamic_cast<const IdExpression *>(methodObj);
+    if (this->mesonVersionVars.contains(idExpr->id)) {
+      this->pushVersion(sl->id);
+      return true;
+    }
+    const auto *me2 = dynamic_cast<const MethodExpression *>(methodObj);
+    if (me2 && me2->method && me2->method->id() == "meson.version") {
+      this->pushVersion(sl->id);
+      return true;
+    }
+  }
+  if (me) {
+    return false;
+  }
+  const auto *be = dynamic_cast<const BinaryExpression *>(condition);
+  if (!be) {
+    return false;
+  }
+  if (this->checkConditionForVersionComparison(be->lhs.get())) {
+    return true;
+  }
+  return this->checkConditionForVersionComparison(be->rhs.get());
+}
+
+const Version &TypeAnalyzer::matchingVersion() const {
+  if (this->versionStack.empty()) [[likely]] {
+    return this->tree->version;
+  }
+  return this->versionStack.back();
+}
+
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
@@ -2114,15 +2173,20 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   std::vector<IdExpression *> allLeft;
   for (const auto &block : node->blocks) {
     auto appended = false;
+    auto appendedVersion = false;
     if (idx < node->conditions.size()) {
       const auto &cond = node->conditions[idx];
       cond->visit(this);
       appended = this->checkCondition(cond.get());
+      appendedVersion = this->checkConditionForVersionComparison(cond.get());
     }
     this->variablesNeedingUse.emplace_back();
     this->visitChildren(block);
     if (appended) {
       this->ignoreUnknownIdentifier.pop_back();
+    }
+    if (appendedVersion) {
+      this->versionStack.pop_back();
     }
     const auto &lastNeedingUse = this->variablesNeedingUse.back();
     allLeft.insert(allLeft.end(), lastNeedingUse.begin(), lastNeedingUse.end());
