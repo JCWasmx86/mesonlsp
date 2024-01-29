@@ -18,7 +18,6 @@ extern "C" {
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
-
 void muonParse(benchmark::State &state) {
   struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
   struct muon_ast ast = {{0, 0, 0, nullptr}, {}, 0, 0};
