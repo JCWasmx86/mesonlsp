@@ -54,6 +54,7 @@ public:
     this->ownedFiles.clear();
     this->asts = {};
     this->metadata.clear();
+    this->version = Version("9999.9999.9999");
   }
 
   std::shared_ptr<Node> parseFile(const std::filesystem::path &path);
