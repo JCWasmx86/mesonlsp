@@ -1851,6 +1851,56 @@ bool TypeAnalyzer::findMethod(
         const auto &defaultTypes = defaultArg.value()->types;
         ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
                               defaultTypes.end());
+        if (defaultTypes.size() == 1) {
+          switch (defaultTypes[0]->tag) {
+          case TypeName::DICT:
+            for (const auto &parentType : node->obj->types) {
+              if (parentType->tag == LIST) {
+                for (const auto &parentType2 :
+                     static_cast<const List *>(parentType.get())->types) {
+                  if (parentType2->tag == DICT) {
+                    ownResultTypes.push_back(parentType2);
+                    break;
+                  }
+                }
+              }
+              if (parentType->tag == DICT) {
+                for (const auto &parentType2 :
+                     static_cast<const Dict *>(parentType.get())->types) {
+                  if (parentType2->tag == DICT) {
+                    ownResultTypes.push_back(parentType2);
+                    break;
+                  }
+                }
+              }
+            }
+            break;
+          case TypeName::LIST:
+            for (const auto &parentType : node->obj->types) {
+              if (parentType->tag == LIST) {
+                for (const auto &parentType2 :
+                     static_cast<const List *>(parentType.get())->types) {
+                  if (parentType2->tag == LIST) {
+                    ownResultTypes.push_back(parentType2);
+                    break;
+                  }
+                }
+              }
+              if (parentType->tag == DICT) {
+                for (const auto &parentType2 :
+                     static_cast<const Dict *>(parentType.get())->types) {
+                  if (parentType2->tag == LIST) {
+                    ownResultTypes.push_back(parentType2);
+                    break;
+                  }
+                }
+              }
+            }
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     node->method = method;
