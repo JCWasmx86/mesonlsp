@@ -1761,6 +1761,10 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   node->expression->visit(this);
   for (const auto &itsId : node->ids) {
     itsId->visit(this);
+    auto *itsIdExpr = dynamic_cast<IdExpression *>(itsId.get());
+    if (itsIdExpr) [[likely]] {
+      this->metadata->registerIdentifier(itsIdExpr);
+    }
   }
   auto count = node->ids.size();
   if (count == 1) {
