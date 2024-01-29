@@ -2,6 +2,7 @@ ignore:
   - "_build"
   - "subprojects"
   - "tests"
+  - "src/benchmarks"
 comment:
   layout: "diff, flags, files"
   behavior: default
