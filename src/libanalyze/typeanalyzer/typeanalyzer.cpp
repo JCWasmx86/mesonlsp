@@ -339,6 +339,10 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
   this->applyToStack(lhsIdExpr->id, arr);
   this->scope.variables[lhsIdExpr->id] = arr;
   this->registerNeedForUse(lhsIdExpr);
+  const auto *me = dynamic_cast<const MethodExpression *>(node->rhs.get());
+  if (me && me->method && me->method->id() == "meson.version") [[unlikely]] {
+    this->mesonVersionVars.insert(lhsIdExpr->id);
+  }
 }
 
 void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
