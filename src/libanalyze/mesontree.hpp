@@ -6,6 +6,7 @@
 #include "optionstate.hpp"
 #include "scope.hpp"
 #include "subprojects/subprojectstate.hpp"
+#include "tree_sitter/api.h"
 #include "typenamespace.hpp"
 #include "version.hpp"
 
@@ -25,6 +26,7 @@ public:
   std::set<std::filesystem::path> ownedFiles;
   std::map<std::filesystem::path, std::vector<std::shared_ptr<Node>>> asts;
   std::map<std::filesystem::path, std::string> overrides;
+  std::map<std::string, TSTree *> savedTrees;
   SubprojectState state;
   Scope scope;
   MesonMetadata metadata;
@@ -64,6 +66,12 @@ public:
     }
     ret.emplace_back(this);
     return ret;
+  }
+
+  ~MesonTree() {
+    for (const auto &[_, tree] : this->savedTrees) {
+      ts_tree_delete(tree);
+    }
   }
 
 private:

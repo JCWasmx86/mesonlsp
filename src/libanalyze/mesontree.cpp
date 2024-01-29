@@ -12,6 +12,7 @@
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
 
+#include <chrono> // IWYU pragma: keep Needed for std::formatting std::filesystem::last_write_time result
 #include <cstdint>
 #include <filesystem>
 #include <format>
@@ -23,17 +24,44 @@ extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 
 const static Logger LOG("analyze::mesontree"); // NOLINT
 
+static std::string createId(const std::filesystem::path &path) {
+  using namespace std::chrono_literals;
+  const std::filesystem::file_time_type &mtime =
+      std::filesystem::last_write_time(path);
+
+  return std::format("{}-{}", path.generic_string(), mtime);
+}
+
 OptionState MesonTree::parseFile(const std::filesystem::path &path,
                                  MesonMetadata *originalMetadata) {
   auto visitor = OptionExtractor();
   auto diagnosticVisitor = OptionDiagnosticVisitor(originalMetadata);
+  const auto overridden = this->overrides.contains(path);
+  if (!overridden) {
+    const auto &fileId = createId(path);
+    if (!this->savedTrees.contains(fileId)) {
+      LOG.info(std::format("Cache miss for {}", fileId));
+      goto slow;
+    }
+    LOG.info(std::format("Cache hit for {}", fileId));
+    const auto *node = this->savedTrees[fileId];
+    auto rootNode =
+        makeNode(std::make_shared<SourceFile>(path), ts_tree_root_node(node));
+    this->asts[rootNode->file->file] = {rootNode};
+    rootNode->setParents();
+    rootNode->visit(&visitor);
+    rootNode->visit(&diagnosticVisitor);
+    return OptionState{visitor.options};
+  }
+  LOG.info(
+      std::format("Using contents from editor for {}", path.generic_string()));
+slow:
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
-  const auto &fileContent =
-      this->overrides.contains(path) ? this->overrides[path] : readFile(path);
+  const auto &fileContent = overridden ? this->overrides[path] : readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         (uint32_t)fileContent.length());
-  auto sourceFile = this->overrides.contains(path)
+  auto sourceFile = overridden
                         ? std::make_shared<MemorySourceFile>(fileContent, path)
                         : std::make_shared<SourceFile>(path);
   auto rootNode = makeNode(sourceFile, ts_tree_root_node(tree));
@@ -41,7 +69,11 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   rootNode->setParents();
   rootNode->visit(&visitor);
   rootNode->visit(&diagnosticVisitor);
-  ts_tree_delete(tree);
+  if (!overridden) {
+    this->savedTrees[createId(path)] = tree;
+  } else {
+    ts_tree_delete(tree);
+  }
   ts_parser_delete(parser);
   return OptionState{visitor.options};
 }
@@ -67,21 +99,39 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   if (this->overrides.contains(path)) {
+    LOG.info(std::format("Using contents from editor for {}",
+                         path.generic_string()));
     const auto &fileContent = this->overrides[path];
     TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                           (uint32_t)fileContent.length());
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
     auto rootNode = makeNode(sourceFile, ts_tree_root_node(tree));
     this->ownedFiles.insert(std::filesystem::absolute(path));
+    if (!this->asts.contains(rootNode->file->file)) {
+      this->asts[rootNode->file->file] = {};
+    }
+    this->asts[rootNode->file->file].push_back(rootNode);
+    rootNode->setParents();
+    ts_tree_delete(tree);
+    ts_parser_delete(parser);
+    return this->asts[rootNode->file->file].back();
+  }
+  const auto &fileId = createId(path);
+  if (this->savedTrees.contains(fileId)) {
+    LOG.info(std::format("Cache hit for {}", fileId));
+    const auto *node = this->savedTrees[fileId];
+    auto rootNode =
+        makeNode(std::make_shared<SourceFile>(path), ts_tree_root_node(node));
+    this->asts[rootNode->file->file] = {rootNode};
     rootNode->setParents();
     if (!this->asts.contains(rootNode->file->file)) {
       this->asts[rootNode->file->file] = {};
     }
     this->asts[rootNode->file->file].push_back(rootNode);
-    ts_tree_delete(tree);
-    ts_parser_delete(parser);
+    this->ownedFiles.insert(std::filesystem::absolute(path));
     return this->asts[rootNode->file->file].back();
   }
+  LOG.info(std::format("Cache miss for {}", fileId));
   const auto &fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         (uint32_t)fileContent.length());
@@ -93,7 +143,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   this->ownedFiles.insert(std::filesystem::absolute(path));
   rootNode->setParents();
   this->asts[rootNode->file->file].push_back(rootNode);
-  ts_tree_delete(tree);
+  this->savedTrees[createId(path)] = tree;
   ts_parser_delete(parser);
   return this->asts[rootNode->file->file].back();
 }
