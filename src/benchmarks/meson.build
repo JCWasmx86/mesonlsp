@@ -1,5 +1,5 @@
 benchmark_dep = dependency('benchmark')
-if not benchmark_dep.found()
+if not benchmark_dep.found() or not get_option('benchmarks')
     subdir_done()
 endif
 executable(
@@ -13,5 +13,5 @@ executable(
         ast_dep,
         muon_dep,
     ],
-    cpp_args: ['-U_GLIBCXX_DEBUG']
+    cpp_args: ['-U_GLIBCXX_DEBUG'],
 )
