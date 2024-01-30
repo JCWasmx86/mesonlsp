@@ -55,6 +55,8 @@ public:
                                          const LSPPosition &position);
 
   bool owns(const std::filesystem::path &path);
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+  fullReparse(const TypeNamespace &ns);
 
   template <typename Func>
   void patchFile(const std::filesystem::path &path, const std::string &contents,
