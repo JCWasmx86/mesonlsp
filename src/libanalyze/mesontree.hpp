@@ -75,6 +75,9 @@ public:
     }
   }
 
+  MesonTree(const MesonTree &) = delete;
+  MesonTree &operator=(const MesonTree &) = delete;
+
 private:
   OptionState parseFile(const std::filesystem::path &path,
                         MesonMetadata *originalMetadata);
