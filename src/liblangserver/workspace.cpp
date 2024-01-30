@@ -447,6 +447,40 @@ Workspace::muonConfigFile(const std::filesystem::path &path) {
 }
 
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
+Workspace::fullReparse(const TypeNamespace &ns) {
+  auto newTree = std::make_shared<MesonTree>(this->root, ns);
+  newTree->fullParse(this->options.analysisOptions,
+                     !this->options.neverDownloadAutomatically);
+  newTree->identifier = this->name;
+  this->tree = newTree;
+  this->foundTrees = findTrees(this->tree);
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+  for (const auto &subTree : this->foundTrees) {
+    const auto &metadata = subTree->metadata;
+    if (subTree->depth > 0 &&
+        this->options.ignoreDiagnosticsFromSubprojects.has_value()) {
+      const auto &toIgnore = this->options.ignoreDiagnosticsFromSubprojects;
+      if (toIgnore->empty()) {
+        continue; // Skip every subproject
+      }
+      if (std::ranges::find(toIgnore.value(), subTree->name) !=
+          toIgnore->end()) {
+        continue;
+      }
+    }
+    for (const auto &[diagPath, diags] : metadata.diagnostics) {
+      if (!ret.contains(diagPath)) {
+        ret[diagPath] = {};
+      }
+      for (const auto &diag : diags) {
+        ret[diagPath].push_back(makeLSPDiagnostic(diag));
+      }
+    }
+  }
+  return ret;
+}
+
+std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
   this->settingUp = true;
   auto newTree = std::make_shared<MesonTree>(this->root, ns);

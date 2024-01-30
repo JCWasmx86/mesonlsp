@@ -8,6 +8,7 @@
 #include "workspace.hpp"
 
 #include <cassert>
+#include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -16,13 +17,16 @@
 #include <format>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <map>
 #include <memory>
 #include <optional>
 #include <ostream>
 #include <pkgconf/libpkgconf/libpkgconf.h>
+#include <poll.h>
 #include <stdexcept>
 #include <string>
+#include <sys/inotify.h>
 #include <vector>
 extern "C" {
 // Dirty hack
@@ -117,6 +121,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
     this->diagnosticsFromInitialisation.emplace_back(diags);
     this->workspaces.push_back(workspace);
   }
+  this->setupInotify();
   return InitializeResult{
       ServerCapabilities(
           TextDocumentSyncOptions(true, TextDocumentSyncKind::FULL), true, true,
@@ -130,7 +135,115 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
       ServerInfo("c++-mesonlsp", VERSION)};
 }
 
-void LanguageServer::shutdown() {}
+void LanguageServer::setupInotify() {
+  this->smph.acquire();
+  this->inotifyFd = inotify_init1(IN_NONBLOCK);
+  if (this->inotifyFd == -1) {
+    LOG.error(std::format("Failed inotify_init1: {}", errno2string()));
+    this->smph.release();
+    return;
+  }
+  std::map<std::filesystem::path, int> fds;
+  for (const auto &subTree : this->workspaces) {
+    const auto subprojectsDir = subTree->root / "subprojects";
+    if (!std::filesystem::exists(subprojectsDir)) {
+      continue;
+    }
+    const auto watchFd = inotify_add_watch(
+        this->inotifyFd, subprojectsDir.generic_string().c_str(),
+        IN_OPEN | IN_CLOSE);
+    if (watchFd == -1) {
+      LOG.error(std::format("Failed inotify_add_watch: {}", errno2string()));
+      continue;
+    }
+    LOG.info(std::format("Watching {} with {}", subprojectsDir.generic_string(),
+                         watchFd));
+    fds[subTree->root] = watchFd;
+  }
+  this->inotifyFuture =
+      std::async(std::launch::async, &LanguageServer::watch, this, fds);
+  this->smph.release();
+}
+
+void LanguageServer::watch(
+    std::map<std::filesystem::path, int> /*NOLINT*/ fds) {
+  int nFds = 1;
+  struct pollfd pollFds[1]; // NOLINT
+  pollFds[0].fd = this->inotifyFd;
+  pollFds[0].events = POLLIN;
+  while (true) {
+    auto pollNum = poll(pollFds, nFds, 1000);
+    if (pollNum == -1) {
+      if (errno == EINTR) {
+        continue;
+      }
+      LOG.error(std::format("Failed to poll(): {}", errno2string()));
+      return;
+    }
+    if (pollNum == 0) {
+      continue;
+    }
+    if ((pollFds[0].revents & POLLIN) == 0) {
+      continue;
+    }
+    char /*NOLINT*/ buf[4096]
+        __attribute__((aligned(__alignof__(struct inotify_event))));
+    const struct inotify_event *event = nullptr;
+    while (true) {
+      auto len = read(this->inotifyFd, buf, sizeof(buf));
+      if (len == -1 && errno != EAGAIN) {
+        LOG.error(std::format("Failed to read(): {}", errno2string()));
+        break;
+      }
+      if (len <= 0) {
+        break;
+      }
+      for (char *ptr = buf; ptr < buf + len;
+           ptr += sizeof(struct inotify_event) + event->len) {
+        event = (const struct inotify_event *)ptr;
+        if ((event->mask & IN_ISDIR) != 0U) {
+          continue;
+        }
+        if ((event->mask & IN_OPEN) != 0U) {
+          continue;
+        }
+        if ((event->mask & IN_CLOSE_WRITE) == 0U) {
+          continue;
+        }
+        LOG.info(std::format("Mask: 0x{:x}", event->mask));
+        for (const auto &[path, fd] : fds) {
+          if (fd != event->wd) {
+            continue;
+          }
+          const auto *name = event->len != 0U ? event->name : "???";
+          LOG.info(std::format("Found modification at: {}/subprojects/{}",
+                               path.generic_string(), name));
+          const std::string asString = name;
+          if (asString.ends_with(".wrap")) {
+            this->fullReparse(path);
+          }
+        }
+      }
+    }
+  }
+}
+
+void LanguageServer::fullReparse(const std::filesystem::path &path) {
+  this->smph.acquire();
+  for (const auto &workspace : this->workspaces) {
+    if (path != workspace->root) {
+      continue;
+    }
+    const auto oldDiags = workspace->clearDiagnostics();
+    const auto &diags = workspace->fullReparse(this->ns);
+    this->publishDiagnostics(oldDiags);
+    this->publishDiagnostics(diags);
+    break;
+  }
+  this->smph.release();
+}
+
+void LanguageServer::shutdown() { this->inotifyFd = -1; }
 
 void LanguageServer::onInitialized(InitializedParams & /*params*/) {
   for (const auto &map : this->diagnosticsFromInitialisation) {

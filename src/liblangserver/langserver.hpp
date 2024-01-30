@@ -20,6 +20,8 @@ class LanguageServer : public AbstractLanguageServer {
 public:
   LanguageServer();
   std::vector<std::shared_ptr<Workspace>> workspaces;
+  int inotifyFd{-1};
+  std::future<void> inotifyFuture;
   std::map<std::filesystem::path, std::string> cachedContents;
   std::vector<std::map<std::filesystem::path, std::vector<LSPDiagnostic>>>
       diagnosticsFromInitialisation;
@@ -40,6 +42,7 @@ public:
   std::vector<CodeAction> codeAction(CodeActionParams &params) override;
   std::vector<CompletionItem> completion(CompletionParams &params) override;
   void shutdown() override;
+  void watch(std::map<std::filesystem::path, int> fds);
 
   void onInitialized(InitializedParams & /*params*/) override;
   void onExit() override;
@@ -48,11 +51,17 @@ public:
   void onDidChangeTextDocument(DidChangeTextDocumentParams &params) override;
   void onDidSaveTextDocument(DidSaveTextDocumentParams &params) override;
   void onDidCloseTextDocument(DidCloseTextDocumentParams &params) override;
+  void fullReparse(const std::filesystem::path &path);
 
   void publishDiagnostics(const std::map<std::filesystem::path,
                                          std::vector<LSPDiagnostic>> &newDiags);
 
-  ~LanguageServer() override = default;
+  ~LanguageServer() override {
+    this->inotifyFd = -1;
+    this->inotifyFuture.wait();
+  }
+
+  void setupInotify();
 
 private:
   TypeNamespace ns;
