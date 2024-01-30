@@ -30,6 +30,7 @@ void muonParse(benchmark::State &state) {
     benchmark::ClobberMemory();
     ast_destroy(&ast);
     source_data_destroy(&sdata);
+    (void)_;
   }
   fs_source_destroy(&src);
 }
@@ -47,6 +48,7 @@ void muonParseAllInLoop(benchmark::State &state) {
     ast_destroy(&ast);
     source_data_destroy(&sdata);
     fs_source_destroy(&src);
+    (void)_;
   }
 }
 
@@ -64,6 +66,7 @@ void treeSitterParse(benchmark::State &state) {
     benchmark::DoNotOptimize(rootNode);
     benchmark::ClobberMemory();
     ts_tree_delete(tree);
+    (void)_;
   }
   ts_parser_delete(parser);
 }
@@ -83,6 +86,7 @@ void treeSitterParseAllInLoop(benchmark::State &state) {
     benchmark::ClobberMemory();
     ts_tree_delete(tree);
     ts_parser_delete(parser);
+    (void)_;
   }
 }
 
@@ -97,6 +101,7 @@ void treeSitterParseWithoutNode(benchmark::State &state) {
     benchmark::DoNotOptimize(tree);
     benchmark::ClobberMemory();
     ts_tree_delete(tree);
+    (void)_;
   }
   ts_parser_delete(parser);
 }
@@ -113,6 +118,7 @@ void treeSitterParseWithoutNodeAllInLoop(benchmark::State &state) {
     benchmark::ClobberMemory();
     ts_tree_delete(tree);
     ts_parser_delete(parser);
+    (void)_;
   }
 }
 
