@@ -249,6 +249,19 @@ type_analyzer_tests = [
             ['someunaryint', 'int'],
         ],
     ],
+    [
+        'get_method_improved',
+        [
+            ['somelist', 'list(bool|dict(bool|int)|list(int))'],
+            ['somelist_sub_no_default', 'any|dict(any)|list(any)'],
+            ['somelist_sub', 'any|dict(any)|list(any|int)'],
+            ['somelist_sub2', 'any|dict(any|bool|int)|list(any)'],
+            ['somedict', 'dict(bool|dict(int)|int|list(int))'],
+            ['somedict_sub_no_default', 'any|dict(any)|list(any)'],
+            ['somedict_sub', 'any|dict(any)|list(any|int)'],
+            ['somedict_sub2', 'any|dict(any|int)|list(any)'],
+        ],
+    ],
 ]
 
 foreach test_data : type_analyzer_tests
