@@ -9,3 +9,4 @@
   - [Neovim](Neovim.md)
   - [VSCode/Codium](VSCode.md)
 - [Configuration](Configuration.md)
+- [Notes for distributers](Distribution.md)
