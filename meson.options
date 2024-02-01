@@ -28,3 +28,8 @@ option(
     type: 'boolean',
     value: true,
 )
+option(
+    'use_own_tree_sitter',
+    type: 'boolean',
+    value: true,
+)
