@@ -46,6 +46,8 @@ int main(int argc, char **argv) {
   assert(gotoDefinition[0].uri.ends_with("subdir/meson.build"));
   assert(gotoDefinition[0].range.start.line == 0);
   assert(gotoDefinition[0].range.start.character == 0);
+  gotoDefinition = workspace.jumpTo(diags.begin()->first, {0, 31});
+  assert(gotoDefinition.empty());
   nlohmann::json renameJsonParams;
   renameJsonParams["textDocument"] = {{"uri", diags.begin()->first}};
   renameJsonParams["newName"] = "foo123";
@@ -63,5 +65,9 @@ int main(int argc, char **argv) {
   assert(renameEdit->changes.size() == 2);
   auto &renameChanges = renameEdit->changes.begin()->second;
   assert(renameChanges.size() == 3);
+  renameJsonParams["position"] = {{"line", 0}, {"character", 31}};
+  renameEdit =
+      workspace.rename(diags.begin()->first, RenameParams(renameJsonParams));
+  assert(!renameEdit.has_value());
   logger.info("Success");
 }

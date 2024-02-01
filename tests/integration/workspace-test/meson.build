@@ -10,3 +10,6 @@ x += [1, 2, 3]
 message(x.length())
 message(get_option('testopt'))
 subdir('subdir')
+
+meson_version = meson.version()
+message(meson_version)
