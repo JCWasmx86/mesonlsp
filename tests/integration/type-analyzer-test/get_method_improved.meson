@@ -1,0 +1,8 @@
+somelist = [[1,2,3], {'a': 1, 'b': 2, 'c': true}, false]
+somelist_sub_no_default = somelist.get(0)
+somelist_sub = somelist.get(0, [])
+somelist_sub2 = somelist.get(1, {})
+somedict = {'a': 1, 'b': true, 'c': [1,2,3], 'd': {'a': 1}}
+somedict_sub_no_default = somedict.get('c')
+somedict_sub = somedict.get('c', [])
+somedict_sub2 = somedict.get('d', {})
