@@ -1,38 +1,57 @@
 %global debug_package %{nil}
+%global __meson_wrap_mode default
 %undefine _auto_set_build_flags
 
-Name:           Swift-MesonLSP
-Version:        3.1.4
+Name:           mesonlsp
+Version:        4.0.0
 Release:        0.1
 Summary:        Meson language server
 ExclusiveArch:  x86_64
 
 License:        GPL-3.0-or-later
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v%{version}.tar.gz
+Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/heads/cpp.zip
 
-Requires:       bash
-BuildRequires:  swift-lang
-BuildRequires:  clang
+Requires:       curl
+Requires:       libarchive
+Requires:       patch
+Requires:       git
+Requires:       mercurial
+Requires:       subversion
+Requires:       libpkgconf
+Requires:       libuuid
+BuildRequires:  meson
+BuildRequires:  ninja-build
+BuildRequires:  gcc
+BuildRequires:  g++
 BuildRequires:  git
+BuildRequires:  python3-pip
+BuildRequires:  libcurl-devel
+BuildRequires:  google-benchmark-devel
+BuildRequires:  libarchive-devel
+BuildRequires:  gtest
+BuildRequires:  gtest-devel
+BuildRequires:  libpkgconf-devel
+BuildRequires:  libuuid-devel
+BuildRequires:  uuid
+BuildRequires:  pkgconf-pkg-config
 
 %description
 A meson language server
 
 %prep
-%setup -q -n Swift-MesonLSP-%{version}
+%autosetup -c
 
 %build
-git clone https://github.com/JCWasmx86/Swift-MesonLSP
-cd Swift-MesonLSP
-git checkout v%{version}
-swift build -c release --static-swift-stdlib -Xswiftc -g
+cd Swift-MesonLSP-cpp
+%meson --buildtype release 
+%meson_build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/%{_bindir}
-cp Swift-MesonLSP/.build/release/Swift-MesonLSP $RPM_BUILD_ROOT/%{_bindir}
+cd Swift-MesonLSP-cpp
+%meson_install
 
 %files
+%{_bindir}/mesonlsp
 %{_bindir}/Swift-MesonLSP
 
 %changelog
