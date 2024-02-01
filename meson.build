@@ -29,13 +29,14 @@ extra_flags = [
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
 
-tree_sitter_dep = dependency(
-    'tree-sitter',
-    required: false,
-    static: true,
-    fallback: [],
-)
-if not tree_sitter_dep.found()
+if not get_option('use_own_tree_sitter')
+    tree_sitter_dep = dependency(
+        'tree-sitter',
+        required: false,
+        static: true,
+        fallback: [],
+    )
+else
     tree_sitter_proj = subproject(
         'tree-sitter',
         default_options: ['default_library=static'],
