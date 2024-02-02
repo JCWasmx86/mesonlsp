@@ -38,6 +38,7 @@ executable(
         langserver_dep,
     ] + extra_deps + extra_libs,
     install: true,
+    pie: true,
 )
 
 install_dir = get_option('prefix') / get_option('bindir')

@@ -21,11 +21,14 @@ endif
 extra_flags = [
     '-fstack-protector-strong',
     '-fstack-clash-protection',
-    '-fcf-protection',
+    '-fcf-protection=full',
     '-g3',
     '-frecord-gcc-switches',
     '-Wshadow=local',
+    '-mshstk',
 ]
+add_global_link_arguments(['-Wl,-z,relro'], language: 'c')
+add_global_link_arguments(['-Wl,-z,relro'], language: 'cpp')
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
 
