@@ -346,7 +346,7 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
 }
 
 void TypeAnalyzer::registerNeedForUse(IdExpression *node) {
-  this->variablesNeedingUse.back().push_back(node);
+  this->variablesNeedingUse.back().insert(node);
 }
 
 std::optional<std::shared_ptr<Type>>
@@ -834,7 +834,7 @@ void TypeAnalyzer::checkUnusedVariables() {
   this->variablesNeedingUse.pop_back();
   if (!this->variablesNeedingUse.empty()) {
     auto &toAppend = this->variablesNeedingUse.back();
-    toAppend.insert(toAppend.end(), needingUse.begin(), needingUse.end());
+    toAppend.insert(needingUse.begin(), needingUse.end());
     this->variablesNeedingUse.back() = toAppend;
     return;
   }
@@ -2258,7 +2258,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
       continue;
     }
     dedupedUnusedAssignments.insert(idExpr->id);
-    toInsert.emplace_back(idExpr);
+    toInsert.insert(idExpr);
   }
   this->variablesNeedingUse.back() = toInsert;
   const auto &types = this->stack.back();

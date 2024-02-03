@@ -64,7 +64,7 @@ private:
   std::vector<Version> versionStack;
   std::set<std::string> mesonVersionVars;
   std::vector<std::filesystem::path> sourceFileStack;
-  std::vector<std::vector<IdExpression *>> variablesNeedingUse;
+  std::vector<std::set<IdExpression *>> variablesNeedingUse;
   std::vector<std::vector<std::string>> foundVariables;
   std::vector<std::string> ignoreUnknownIdentifier;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
