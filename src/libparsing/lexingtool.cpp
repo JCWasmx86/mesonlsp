@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
   auto result = lexer.tokenize();
   LOG.info(std::format("Lexing result: {}, {} tokens, {} errors", result,
                        lexer.tokens.size(), lexer.errors.size()));
-  for (const auto& token : lexer.tokens) {
+  for (const auto &token : lexer.tokens) {
   }
   return 0;
 }
