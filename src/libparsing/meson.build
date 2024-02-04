@@ -12,7 +12,7 @@ parsing_dep = declare_dependency(
     dependencies: parsing_dep,
 )
 
-lexingtool = executable(
+executable(
     'lexingtool',
     'lexingtool.cpp',
     dependencies: [parsing_dep] + extra_deps + extra_libs,

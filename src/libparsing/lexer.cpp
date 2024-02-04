@@ -2,6 +2,10 @@
 
 #include "log.hpp"
 
+#include <cstdint>
+#include <exception>
+#include <utility>
+
 #ifdef NDEBUG
 #undef NDEBUG
 #endif
@@ -114,11 +118,20 @@ Lexer::LexerResult Lexer::lexNumber() {
         break;
       }
       goto end;
+    default:
+      std::unreachable();
     }
     this->advance();
   }
 end:
-  auto asInt = std::stoull(asStr, nullptr, base);
+
+  uint64_t asInt = 0;
+  try {
+    asInt = std::stoull(asStr, nullptr, base);
+  } catch (const std::exception &exc) {
+    LOG.error(std::format("stoull: {}", exc.what()));
+    this->error("Invalid integer literal");
+  }
   this->tokens.back().dat = NumberData{base, asInt, asStr};
   this->finalize();
   return LexerResult::CONTINUE;
@@ -397,6 +410,8 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     break;
   case '\0':
     if (this->idx != this->input.length() - 1) {
+      LOG.info(std::format("{} {}\n{}", this->idx, this->input.length() - 1,
+                           this->input));
       this->error("Unexpected null byte");
       this->finalize();
       return LexerResult::FAIL;
@@ -431,7 +446,7 @@ void Lexer::error(const std::string &msg) {
 bool Lexer::tokenize() {
   auto success = true;
   auto loop = true;
-  while (loop && this->idx <= this->input.length()) {
+  while (loop && this->idx < this->input.length()) {
     auto result = this->tokenizeOne();
     switch (result) {
     case LexerResult::CONTINUE:
