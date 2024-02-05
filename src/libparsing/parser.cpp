@@ -290,9 +290,13 @@ std::vector<std::shared_ptr<Node>> Parser::keyValues() {
       if (!this->accept(TokenType::COMMA)) {
         return ret;
       }
+    } else {
+      this->error("Only key:value pairs are valid in dict construction.");
+      return ret;
     }
     stmt = this->statement();
   }
+  this->accept(TokenType::COMMA);
   return ret;
 }
 

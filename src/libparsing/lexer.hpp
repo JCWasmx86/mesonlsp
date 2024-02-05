@@ -175,7 +175,7 @@ public:
 
 struct LexError final {
 public:
-  std::string msg;
+  std::string message;
   uint32_t line;
   uint32_t column;
 };

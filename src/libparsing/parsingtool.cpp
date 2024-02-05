@@ -29,6 +29,10 @@ int main(int /*argc*/, char **argv) {
   auto lexer = Lexer(contents);
   lexer.tokenize();
   LOG.info(std::format("Finished lexing: {} errors", lexer.errors.size()));
+  for (const auto &errors : lexer.errors) {
+    LOG.error(std::format("[{}:{}]: {}", errors.line + 1, errors.column,
+                          errors.message));
+  }
   auto parser = Parser(lexer.tokens, sourceFile);
   parser.parse();
   LOG.info(std::format("Finished parsing: {} errors", parser.errors.size()));
