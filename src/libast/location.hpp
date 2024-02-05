@@ -21,6 +21,17 @@ public:
       : startLine(0), endLine(0), startColumn(0), endColumn(0), columns(0),
         lines(0) {}
 
+  Location(const std::pair<uint32_t, uint32_t> &start,
+           const std::pair<uint32_t, uint32_t> &end)
+      : Location(start.first, start.second, end.first, end.second) {}
+
+  Location(const Location &start, const Location &end)
+      : Location(start.startLine, start.startColumn, end.endLine,
+                 end.endColumn) {}
+
+  Location(const std::pair<uint32_t, uint32_t> &start, const Location &end)
+      : Location(start.first, start.second, end.endLine, end.endColumn) {}
+
   explicit Location(const TSNode &node)
       : startLine(ts_node_start_point(node).row),
         endLine(node.id ? (ts_node_end_point(node).row) : 0),

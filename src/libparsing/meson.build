@@ -3,6 +3,7 @@ parsing_dep = [ast_dep, utils_dep]
 parsing_lib = static_library(
     'parsing',
     'lexer.cpp',
+    'parser.cpp',
     include_directories: parsing_inc,
     dependencies: parsing_dep,
 )
@@ -15,5 +16,11 @@ parsing_dep = declare_dependency(
 executable(
     'lexingtool',
     'lexingtool.cpp',
+    dependencies: [parsing_dep] + extra_deps + extra_libs,
+)
+
+executable(
+    'parsingtool',
+    'parsingtool.cpp',
     dependencies: [parsing_dep] + extra_deps + extra_libs,
 )
