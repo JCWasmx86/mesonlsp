@@ -20,9 +20,11 @@ int main(int /*argc*/, char **argv) {
     LOG.info(std::format("At iteration {}: {} {} tokens, {} errors", i, result,
                          lexer.tokens.size(), lexer.errors.size()));
   }
-  auto lexer = Lexer(contents);
-  auto result = lexer.tokenize();
-  LOG.info(std::format("Lexing result: {}, {} tokens, {} errors", result,
-                       lexer.tokens.size(), lexer.errors.size()));
+  for (auto i = 0; i < 100; i++) {
+    auto lexer = Lexer(contents);
+    auto result = lexer.tokenize();
+    LOG.info(std::format("Lexing result: {}, {} tokens, {} errors", result,
+                         lexer.tokens.size(), lexer.errors.size()));
+  }
   return 0;
 }

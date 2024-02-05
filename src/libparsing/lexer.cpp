@@ -199,6 +199,7 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
       str.push_back('\'');
       break;
     }
+    [[fallthrough]];
   default:
     str.push_back(this->input[this->idx]);
     break;
@@ -446,7 +447,8 @@ void Lexer::error(const std::string &msg) {
 bool Lexer::tokenize() {
   auto success = true;
   auto loop = true;
-  while (loop && this->idx < this->input.length()) {
+  auto len = this->input.length();
+  while (loop && this->idx < len) {
     auto result = this->tokenizeOne();
     switch (result) {
     case LexerResult::CONTINUE:

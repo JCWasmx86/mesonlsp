@@ -12,6 +12,7 @@ executable(
         utils_dep,
         ast_dep,
         muon_dep,
+        parsing_dep,
     ] + extra_deps + extra_libs,
     cpp_args: ['-U_GLIBCXX_DEBUG'],
 )

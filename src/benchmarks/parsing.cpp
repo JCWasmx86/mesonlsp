@@ -1,4 +1,6 @@
+#include "lexer.hpp"
 #include "node.hpp"
+#include "parser.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
@@ -48,6 +50,37 @@ void muonParseAllInLoop(benchmark::State &state) {
     ast_destroy(&ast);
     source_data_destroy(&sdata);
     fs_source_destroy(&src);
+    (void)_;
+  }
+}
+
+void customParserParse(benchmark::State &state) {
+  const std::filesystem::path path = "meson.build";
+  const auto fileContent = readFile(path);
+  for (auto _ : state) {
+    Lexer lexer(fileContent);
+    lexer.tokenize();
+    auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
+    Parser parser(lexer.tokens, sourceFile);
+    auto rootNode = parser.parse();
+    rootNode->setParents();
+    benchmark::DoNotOptimize(rootNode);
+    benchmark::ClobberMemory();
+    (void)_;
+  }
+}
+
+void customParserParseWithoutSettingParents(benchmark::State &state) {
+  const std::filesystem::path path = "meson.build";
+  const auto fileContent = readFile(path);
+  for (auto _ : state) {
+    Lexer lexer(fileContent);
+    lexer.tokenize();
+    auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
+    Parser parser(lexer.tokens, sourceFile);
+    auto rootNode = parser.parse();
+    benchmark::DoNotOptimize(rootNode);
+    benchmark::ClobberMemory();
     (void)_;
   }
 }
@@ -122,6 +155,8 @@ void treeSitterParseWithoutNodeAllInLoop(benchmark::State &state) {
   }
 }
 
+BENCHMARK(customParserParse);
+BENCHMARK(customParserParseWithoutSettingParents);
 BENCHMARK(muonParse);
 BENCHMARK(treeSitterParse);
 BENCHMARK(treeSitterParseAllInLoop);
