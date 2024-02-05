@@ -1,4 +1,9 @@
-benchmark_dep = dependency('benchmark')
+if not get_option('benchmarks')
+    subdir_done()
+endif
+benchmark_dep = subproject('google-benchmark').get_variable(
+    'google_benchmark_dep',
+)
 if not benchmark_dep.found() or not get_option('benchmarks')
     subdir_done()
 endif
@@ -14,5 +19,4 @@ executable(
         muon_dep,
         parsing_dep,
     ] + extra_deps + extra_libs,
-    cpp_args: ['-U_GLIBCXX_DEBUG'],
 )
