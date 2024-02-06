@@ -12,14 +12,13 @@
 #include <cassert>
 #include <cctype>
 #include <format>
-#include <map>
 #include <string>
 
 // Copied+adapted from muon (GPLv3)
 
 const static Logger LOG("lexer"); // NOLINT
 
-static const std::map<std::string, TokenType> /*NOLINT*/ KEYWORDS{
+static const std::vector<std::pair<std::string, TokenType>> /*NOLINT*/ KEYWORDS{
     {"and", TokenType::AND},
     {"break", TokenType::BREAK},
     {"continue", TokenType::CONTINUE},
@@ -145,20 +144,25 @@ Lexer::LexerResult Lexer::lexIdentifier() {
     this->advance();
   }
   assert(len);
-  auto name = this->input.substr(startIdx, len);
-  if (!this->isKeyword(name)) {
+  if (!this->isKeyword(startIdx, len)) {
+    auto name = this->input.substr(startIdx, len);
     this->tokens.back().type = TokenType::IDENTIFIER;
-    this->tokens.back().dat = name;
+    this->tokens.back().dat = std::move(name);
   }
   this->finalize();
   return LexerResult::CONTINUE;
 }
 
-bool Lexer::isKeyword(const std::string &name) {
-  if (KEYWORDS.contains(name)) {
-    auto type = KEYWORDS.at(name);
-    this->tokens.back().type = type;
-    return true;
+bool Lexer::isKeyword(size_t startIdx, size_t len) {
+  auto varNameLen = len - startIdx;
+  for /*NOLINT*/ (const auto &[asStr, type] : KEYWORDS) {
+    if (varNameLen != asStr.size() || this->input[startIdx] != asStr[0]) {
+      continue;
+    }
+    if (this->input.compare(startIdx, len, asStr) == 0) {
+      this->tokens.back().type = type;
+      return true;
+    }
   }
   return false;
 }
@@ -200,7 +204,7 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
       break;
     }
     [[fallthrough]];
-  default:
+  [[likely]] default:
     str.push_back(this->input[this->idx]);
     break;
   }
@@ -282,14 +286,13 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     this->advance();
     return this->tokenizeOne();
   }
-  auto tok = Token(this->line, this->idx - this->lineStart);
-  this->tokens.push_back(tok);
+  this->tokens.emplace_back(this->line, this->idx - this->lineStart);
+  if (chr == '\'') {
+    return this->lexString(false);
+  }
   if (chr == 'f' && this->input[this->idx + 1] == '\'') {
     this->advance();
     return this->lexString(true);
-  }
-  if (chr == '\'') {
-    return this->lexString(false);
   }
   if (isValidStartOfIdentifier(chr)) {
     return this->lexIdentifier();
