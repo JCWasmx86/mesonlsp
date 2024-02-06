@@ -10,6 +10,7 @@
 
 extern "C" {
 // Dirty hack
+#include <lang/lexer.h>
 #define ast muon_ast
 #include <lang/parser.h>
 #include <log.h>
@@ -19,6 +20,46 @@ extern "C" {
 }
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
+
+void muonLex(benchmark::State &state) {
+  struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
+  fs_read_entire_file("meson.build", &src);
+  for (auto _ : state) {
+    struct tokens toks;
+    struct source_data sdata = {nullptr, 0};
+    lexer_lex(&toks, &sdata, &src, (enum lexer_mode)0);
+    tokens_destroy(&toks);
+    source_data_destroy(&sdata);
+  }
+}
+
+void customParserLex(benchmark::State &state) {
+  const std::filesystem::path path = "meson.build";
+  const auto fileContent = readFile(path);
+  for (auto _ : state) {
+    Lexer lexer(fileContent);
+    lexer.tokenize();
+    benchmark::DoNotOptimize(&lexer.tokens);
+    benchmark::ClobberMemory();
+    (void)_;
+  }
+}
+
+void customParserLexOnce(benchmark::State &state) {
+  const std::filesystem::path path = "meson.build";
+  const auto fileContent = readFile(path);
+  Lexer lexer(fileContent);
+  lexer.tokenize();
+  for (auto _ : state) {
+    auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
+    Parser parser(lexer.tokens, sourceFile);
+    auto rootNode = parser.parse();
+    rootNode->setParents();
+    benchmark::DoNotOptimize(rootNode);
+    benchmark::ClobberMemory();
+    (void)_;
+  }
+}
 
 void muonParse(benchmark::State &state) {
   struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
@@ -155,6 +196,9 @@ void treeSitterParseWithoutNodeAllInLoop(benchmark::State &state) {
   }
 }
 
+BENCHMARK(muonLex);
+BENCHMARK(customParserLex);
+BENCHMARK(customParserLexOnce);
 BENCHMARK(customParserParse);
 BENCHMARK(customParserParseWithoutSettingParents);
 BENCHMARK(muonParse);
