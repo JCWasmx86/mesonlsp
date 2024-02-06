@@ -154,11 +154,7 @@ Lexer::LexerResult Lexer::lexIdentifier() {
 }
 
 bool Lexer::isKeyword(size_t startIdx, size_t len) {
-  auto varNameLen = len - startIdx;
   for /*NOLINT*/ (const auto &[asStr, type] : KEYWORDS) {
-    if (varNameLen != asStr.size() || this->input[startIdx] != asStr[0]) {
-      continue;
-    }
     if (this->input.compare(startIdx, len, asStr) == 0) {
       this->tokens.back().type = type;
       return true;
