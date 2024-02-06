@@ -52,7 +52,7 @@ void Lexer::advance() {
   if (this->idx >= this->input.length()) {
     return;
   }
-  if (this->input[this->idx] == '\n') {
+  if (this->input[this->idx] == '\n') [[unlikely]] {
     this->line++;
     this->lineStart = this->idx + 1;
   }
