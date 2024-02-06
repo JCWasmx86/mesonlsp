@@ -219,7 +219,7 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
 Lexer::LexerResult Lexer::lexString(bool fString) {
   auto multiline = false;
   uint32_t quotes = 0;
-  if (this->input.substr(this->idx, 3) == "'''") {
+  if (this->input.compare(this->idx, 3, "'''") == 0) {
     multiline = true;
     this->advance();
     this->advance();
