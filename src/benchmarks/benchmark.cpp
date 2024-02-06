@@ -10,8 +10,8 @@
 
 extern "C" {
 // Dirty hack
-#include <lang/lexer.h>
 #define ast muon_ast
+#include <lang/lexer.h>
 #include <lang/parser.h>
 #include <log.h>
 #include <platform/filesystem.h>

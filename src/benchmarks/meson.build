@@ -9,13 +9,21 @@ if not benchmark_dep.found() or not get_option('benchmarks')
 endif
 executable(
     'parsingbenchmark',
-    'parsing.cpp',
+    'benchmark.cpp',
     dependencies: [
         benchmark_dep,
         tree_sitter_dep,
         tree_sitter_meson_dep,
         utils_dep,
         ast_dep,
+        muon_dep,
+        parsing_dep,
+    ] + extra_deps + extra_libs,
+)
+executable(
+    'lexing',
+    'lexing.cpp',
+    dependencies: [
         muon_dep,
         parsing_dep,
     ] + extra_deps + extra_libs,

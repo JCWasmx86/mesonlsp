@@ -225,6 +225,7 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
   }
   this->tokens.back().type = TokenType::STRING;
   std::string str;
+  str.reserve(20);
   auto loop = true;
   auto ret = Lexer::LexerResult::CONTINUE;
   while (loop) {
@@ -257,8 +258,8 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
     }
   }
 
-  this->tokens.back().dat =
-      StringData{.format = fString, .multiline = multiline, .str = str};
+  this->tokens.back().dat = StringData{
+      .format = fString, .multiline = multiline, .str = std::move(str)};
   this->finalize();
   return ret;
 }

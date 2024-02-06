@@ -166,7 +166,7 @@ public:
   uint32_t startColumn;
   uint32_t endLine;
   uint32_t endColumn;
-  std::variant<NumberData, std::string, StringData> dat;
+  std::variant<std::monostate, NumberData, std::string, StringData> dat;
   TokenType type = TokenType::INVALID;
 
   Token(uint32_t startLine, uint32_t startColumn)
@@ -199,11 +199,11 @@ public:
   uint32_t brackets = 0;
   uint32_t curls = 0;
 
-  Lexer(std::string input) {
+  Lexer(const std::string &input) {
     this->idx = 0;
     this->input = input;
     this->input.push_back('\0');
-    this->tokens.reserve(4096);
+    this->tokens.reserve(input.size() / 7);
     assert(this->idx == 0);
   }
 
