@@ -203,14 +203,27 @@ public:
     this->idx = 0;
     this->input = input;
     this->input.push_back('\0');
-    this->tokens.reserve(input.size() / 7);
+    this->tokens.reserve(guessTokensCount(this->input.size()));
     assert(this->idx == 0);
   }
 
   bool tokenize();
 
+  static size_t guessTokensCount(size_t inputSize) {
+    return (size_t)((SLOPE * (double)inputSize) + Y_INTERCEPT);
+  }
+
 private:
   void advance();
+
+  // These values were calculated using the lexerstats.cpp
+  // tool. For the input set of 10k files it took pairs of
+  // (fileSize, numTokens) and used linear regression to calculate
+  // a formula. This is the result. This will optimise the number
+  // of allocations needed for e.g. resizing.
+  constexpr static auto SLOPE = 0.122;
+  constexpr static auto Y_INTERCEPT = 31;
+
   LexerResult lexString(bool fString);
   LexerResult tokenizeOne();
   LexerResult lexStringChar(bool multiline, std::string &str);

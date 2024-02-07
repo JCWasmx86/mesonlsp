@@ -20,6 +20,12 @@ executable(
 )
 
 executable(
+    'lexerstats',
+    'lexerstats.cpp',
+    dependencies: [parsing_dep] + extra_deps + extra_libs,
+)
+
+executable(
     'parsingtool',
     'parsingtool.cpp',
     dependencies: [parsing_dep] + extra_deps + extra_libs,

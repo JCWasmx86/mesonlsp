@@ -18,6 +18,12 @@
 
 const static Logger LOG("lexer"); // NOLINT
 
+// This is the average string length calculated using around
+// 10k lines with the lexerstats tool (See the current directory)
+// We can use this to optimise the amount of allocations+resizes needed
+// in the average case.
+constexpr auto AVERAGE_STRING_LENGTH = 16;
+
 static const std::vector<std::pair<std::string, TokenType>> /*NOLINT*/ KEYWORDS{
     {"and", TokenType::AND},
     {"break", TokenType::BREAK},
@@ -225,7 +231,7 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
   }
   this->tokens.back().type = TokenType::STRING;
   std::string str;
-  str.reserve(20);
+  str.reserve(AVERAGE_STRING_LENGTH);
   auto loop = true;
   auto ret = Lexer::LexerResult::CONTINUE;
   while (loop) {
