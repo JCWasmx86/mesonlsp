@@ -251,16 +251,25 @@ public:
   std::string toString() override;
 };
 
+class ParsingError {
+public:
+  Location range;
+  std::string message;
+};
+
 class BuildDefinition final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> stmts;
+  std::vector<ParsingError> parsingErrors;
   BuildDefinition(const std::shared_ptr<SourceFile> &file, const TSNode &node);
 
   BuildDefinition(std::shared_ptr<SourceFile> file,
                   std::vector<std::shared_ptr<Node>> stmts,
                   const std::pair<uint32_t, uint32_t> &start,
-                  const std::pair<uint32_t, uint32_t> &end)
-      : Node(std::move(file), start, end), stmts(std::move(stmts)) {}
+                  const std::pair<uint32_t, uint32_t> &end,
+                  std::vector<ParsingError> parsingErrors)
+      : Node(std::move(file), start, end), stmts(std::move(stmts)),
+        parsingErrors(std::move(parsingErrors)) {}
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
