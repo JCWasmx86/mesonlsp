@@ -4,6 +4,8 @@
 #include "utils.hpp"
 
 #include <filesystem>
+#include <format>
+#include <iostream>
 #include <string>
 
 extern "C" {
@@ -17,9 +19,9 @@ extern "C" {
 #undef ast
 }
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
-constexpr auto COUNT = 10000;
+constexpr auto COUNT = 0;
 
-int main(int /*argc*/, char **argv) {
+int main(int argc, char **argv) {
   std::string mode = argv[1];
   auto *file = argv[2];
   if (mode == "muon") {
@@ -43,6 +45,25 @@ int main(int /*argc*/, char **argv) {
       Parser parser(lexer.tokens, sourceFile);
       auto rootNode = parser.parse();
       rootNode->setParents();
+    }
+    if (argc == 4 && strcmp(argv[3], "--print") == 0) {
+      Lexer lexer(fileContent);
+      lexer.tokenize();
+      auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
+      Parser parser(lexer.tokens, sourceFile);
+      auto rootNode = parser.parse();
+      rootNode->setParents();
+      std::cerr << rootNode->toString() << std::endl;
+      for (const auto &err : lexer.errors) {
+        std::cerr << std::format("[{}:{}] {}", err.line, err.column,
+                                 err.message)
+                  << std::endl;
+      }
+      for (const auto &err : parser.errors) {
+        std::cerr << std::format("[{}:{}] {}", err.line, err.column,
+                                 err.message)
+                  << std::endl;
+      }
     }
   } else if (mode == "tree-sitter") {
     const auto fileContent = readFile(file);

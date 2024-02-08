@@ -56,6 +56,7 @@ private:
   methodCall(const std::optional<std::shared_ptr<Node>> &source);
   std::shared_ptr<Node>
   indexCall(const std::optional<std::shared_ptr<Node>> &source);
+  bool inError = false;
 
   void error(const std::string &error) {
     auto realIdx = std::min(this->idx, this->tokens.size() - 1);
@@ -135,5 +136,41 @@ private:
   std::shared_ptr<Node> errorNode(const std::string &msg) {
     return std::make_shared<ErrorNode>(this->sourceFile, this->currLoc(),
                                        this->currLoc(), msg);
+  }
+
+  std::optional<std::shared_ptr<Node>> seekTo(TokenType type) {
+    auto aLoc = this->currLoc();
+    auto makeError = false;
+    while (this->idx < this->tokens.size()) {
+      if (this->tokens[idx].type != type) {
+        makeError = true;
+        this->idx++;
+        break;
+      }
+      break;
+    }
+    if (makeError) {
+      return std::make_shared<ErrorNode>(this->sourceFile, aLoc,
+                                         this->currLoc(), "Unexpected junk");
+    }
+    return std::nullopt;
+  }
+
+  std::optional<std::shared_ptr<Node>> seekToOverInvalidTokens() {
+    auto aLoc = this->currLoc();
+    auto makeError = false;
+    while (this->idx < this->tokens.size()) {
+      if (this->tokens[idx].type == TokenType::INVALID) {
+        makeError = true;
+        this->idx++;
+        break;
+      }
+      break;
+    }
+    if (makeError) {
+      return std::make_shared<ErrorNode>(this->sourceFile, aLoc,
+                                         this->currLoc(), "Unexpected tokens");
+    }
+    return std::nullopt;
   }
 };

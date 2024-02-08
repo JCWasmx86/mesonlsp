@@ -272,11 +272,19 @@ std::vector<std::shared_ptr<Node>> Parser::arrayArgs() {
       ret.push_back(stmt.value());
     } else {
       ret.push_back(stmt.value());
+      auto seeked = this->seekTo(RBRACK);
+      if (seeked.has_value()) {
+        ret.push_back(seeked.value());
+      }
       return ret;
     }
     stmt = this->statement();
   }
   this->accept(COMMA);
+  auto seeked = this->seekTo(RBRACK);
+  if (seeked.has_value()) {
+    ret.push_back(seeked.value());
+  }
   return ret;
 }
 
@@ -292,11 +300,19 @@ std::vector<std::shared_ptr<Node>> Parser::keyValues() {
       }
     } else {
       this->error("Only key:value pairs are valid in dict construction.");
+      auto seeked = this->seekTo(RCURL);
+      if (seeked.has_value()) {
+        ret.push_back(seeked.value());
+      }
       return ret;
     }
     stmt = this->statement();
   }
   this->accept(COMMA);
+  auto seeked = this->seekTo(RCURL);
+  if (seeked.has_value()) {
+    ret.push_back(seeked.value());
+  }
   return ret;
 }
 
@@ -327,6 +343,10 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
     const auto &strData = std::get<StringData>(curr.dat);
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format);
+  }
+  if (this->accept(INVALID)) {
+    return std::make_shared<ErrorNode>(this->sourceFile, start, end,
+                                       "Invalid or unexpected token.");
   }
   return std::nullopt;
 }
@@ -363,6 +383,10 @@ std::shared_ptr<Node> Parser::args() {
       ret.push_back(std::make_shared<KeywordItem>(
           this->sourceFile, stmt.value(), this->unwrap(this->statement())));
       if (!this->accept(COMMA)) {
+        auto seeked = this->seekTo(RPAREN);
+        if (seeked.has_value()) {
+          ret.push_back(seeked.value());
+        }
         return std::make_shared<ArgumentList>(this->sourceFile, ret, before,
                                               this->currLoc());
       }
@@ -373,10 +397,13 @@ std::shared_ptr<Node> Parser::args() {
     }
     stmt = this->statement();
     if (!stmt.has_value()) {
-      auto tok = tokens[idx];
       break;
     }
     end = this->currLoc();
+  }
+  auto seeked = this->seekTo(RPAREN);
+  if (seeked.has_value()) {
+    ret.push_back(seeked.value());
   }
   return std::make_shared<ArgumentList>(this->sourceFile, ret, before, end);
 }
@@ -412,20 +439,40 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
   auto condition = this->statement();
   conditions.push_back(this->unwrap(condition));
+  auto firstErr = this->seekToOverInvalidTokens();
   this->expect(EOL);
   auto block = this->codeBlock();
   blocks.push_back(block);
+  if (firstErr.has_value()) {
+    blocks.back().push_back(firstErr.value());
+  }
   while (this->accept(ELIF)) {
     condition = this->statement();
     conditions.push_back(this->unwrap(condition));
+    auto err = this->seekToOverInvalidTokens();
     this->expect(EOL);
     blocks.push_back(this->codeBlock());
+    if (err.has_value()) {
+      blocks.back().push_back(err.value());
+    }
   }
   if (this->accept(ELSE)) {
+    auto err = this->seekToOverInvalidTokens();
     this->expect(EOL);
     blocks.push_back(this->codeBlock());
+    if (err.has_value()) {
+      blocks.back().push_back(err.value());
+    }
   }
   auto endLoc = this->endLoc();
+  auto toEndif = this->seekTo(ENDIF);
+  if (toEndif.has_value()) {
+    if (!blocks.empty()) {
+      blocks.back().push_back(toEndif.value());
+    } else {
+      LOG.warn("This code is absolutely messed up");
+    }
+  }
   this->expect(ENDIF);
   return std::make_shared<SelectionStatement>(this->sourceFile, conditions,
                                               blocks, start, endLoc);
@@ -459,11 +506,25 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
           end));
     }
   }
+  std::vector<std::shared_ptr<Node>> errs;
+  auto err = this->seekTo(COLON);
+  if (err.has_value()) {
+    errs.push_back(err.value());
+  }
   this->expect(COLON);
   auto items = this->statement();
+  err = this->seekTo(EOL);
+  if (err.has_value()) {
+    errs.push_back(err.value());
+  }
   this->expect(EOL);
   auto block = this->codeBlock();
   end = this->endLoc();
+  err = this->seekTo(ENDFOREACH);
+  if (err.has_value()) {
+    errs.push_back(err.value());
+  }
+  block.insert(block.end(), errs.begin(), errs.end());
   this->expect(ENDFOREACH);
   return std::make_shared<IterationStatement>(
       this->sourceFile, ids, this->unwrap(items), block, start, end);
@@ -476,6 +537,10 @@ std::vector<std::shared_ptr<Node>> Parser::codeBlock() {
     auto line = this->line();
     if (line.has_value()) {
       ret.push_back(line.value());
+    }
+    auto err = this->seekToOverInvalidTokens();
+    if (err.has_value()) {
+      ret.push_back(err.value());
     }
     cond = this->accept(EOL);
   }
