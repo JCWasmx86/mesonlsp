@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
-#include <set>
 #include <string>
 #include <tree_sitter/api.h>
 #include <type.hpp>
@@ -32,6 +31,7 @@ public:
   virtual void visitChildren(CodeVisitor *visitor) = 0;
   virtual void visit(CodeVisitor *visitor) = 0;
   virtual void setParents() = 0;
+  virtual std::string toString() = 0;
 
   bool equals(const Node *other) const {
     if (this->file->file != other->file->file) {
@@ -87,6 +87,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class ArgumentList final : public Node {
@@ -103,6 +104,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 
   [[nodiscard]] std::optional<std::shared_ptr<Node>>
   getPositionalArg(uint32_t idx) const {
@@ -157,6 +159,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 enum class AssignmentOperator {
@@ -206,6 +209,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 enum class BinaryOperator {
@@ -282,6 +286,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class BooleanLiteral final : public Node {
@@ -297,6 +302,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class BreakNode final : public Node {
@@ -311,6 +317,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class BuildDefinition final : public Node {
@@ -327,6 +334,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class ConditionalExpression final : public Node {
@@ -347,6 +355,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class ContinueNode final : public Node {
@@ -361,6 +370,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class DictionaryLiteral final : public Node {
@@ -378,6 +388,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class ErrorNode final : public Node {
@@ -396,6 +407,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class IdExpression final : public Node {
@@ -411,6 +423,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 constexpr const char *INVALID_FUNCTION_NAME = "<<<Error>>>";
@@ -433,6 +446,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 
   [[nodiscard]] const std::string &functionName() const {
     const auto *idExpr = dynamic_cast<IdExpression *>(this->id.get());
@@ -457,6 +471,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class IterationStatement final : public Node {
@@ -479,6 +494,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class StringLiteral final : public Node {
@@ -497,6 +513,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class KeyValueItem final : public Node {
@@ -513,6 +530,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 
   [[nodiscard]] const std::string &getKeyName() const {
     const auto *sl = dynamic_cast<StringLiteral *>(this->key.get());
@@ -541,6 +559,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class SelectionStatement final : public Node {
@@ -561,6 +580,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 class SubscriptExpression final : public Node {
@@ -579,9 +599,25 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 enum class UnaryOperator { NOT, EXCLAMATION_MARK, UNARY_MINUS, UNARY_OTHER };
+
+inline std::string enum2String(UnaryOperator op) {
+  using enum UnaryOperator;
+  switch (op) {
+  case UnaryOperator::NOT:
+    return "not";
+  case UnaryOperator::EXCLAMATION_MARK:
+    return "!";
+  case UnaryOperator::UNARY_MINUS:
+    return "-";
+  case UnaryOperator::UNARY_OTHER:
+    return "<<Unknown>>";
+  }
+  assert(false);
+}
 
 class UnaryExpression final : public Node {
 public:
@@ -597,6 +633,7 @@ public:
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
+  std::string toString() override;
 };
 
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
