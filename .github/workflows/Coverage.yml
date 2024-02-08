@@ -22,7 +22,7 @@ jobs:
           sudo dnf clean all
           meson _build -Db_coverage=true
           ninja -C _build test
-          echo "ignore_errors=mismatch" > ~/.lcovrc
+          echo "ignore_errors=mismatch,negative" > ~/.lcovrc
           ninja -C _build coverage || true
           cp _build/meson-logs/coverage.info out.lcov
           bash <(curl -s https://codecov.io/bash)
