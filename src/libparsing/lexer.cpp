@@ -200,6 +200,12 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
     break;
   // Ignore
   case '\\':
+    if (this->input[this->idx + 1] == '\\') {
+      str.push_back('\\');
+      this->advance();
+      str.push_back('\\');
+      break;
+    }
     if (this->input[this->idx + 1] == '\'') {
       str.push_back('\\');
       this->advance();
