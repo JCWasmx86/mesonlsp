@@ -134,7 +134,8 @@ end:
   try {
     asInt = std::stoull(asStr, nullptr, base);
   } catch (const std::exception &exc) {
-    LOG.error(std::format("stoull: {}", exc.what()));
+    LOG.error(std::format("Invalid integer literal for base {}: {}", base,
+                          exc.what()));
     this->error("Invalid integer literal");
   }
   this->tokens.back().dat = NumberData{base, asInt, asStr};
