@@ -2,6 +2,7 @@
 
 #include "location.hpp"
 #include "sourcefile.hpp"
+#include "utils.hpp"
 
 #include <cctype>
 #include <cstdint>
@@ -976,4 +977,150 @@ std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text) {
   }
 
   return integers;
+}
+
+std::string KeywordItem::toString() {
+  return std::format("{}: {}", this->key->toString(), this->value->toString());
+}
+
+std::string ArgumentList::toString() {
+  std::vector<std::string> ret;
+  ret.reserve(this->args.size());
+  for (const auto &arg : this->args) {
+    ret.push_back(arg->toString());
+  }
+  return joinStrings(ret, ',');
+}
+
+std::string ArrayLiteral::toString() {
+  std::vector<std::string> ret;
+  ret.reserve(this->args.size());
+  for (const auto &arg : this->args) {
+    ret.push_back(arg->toString());
+  }
+  return joinStrings(ret, ',');
+}
+
+std::string AssignmentStatement::toString() {
+  return std::format("{} {} {}", this->lhs->toString(), enum2String(this->op),
+                     this->rhs->toString());
+}
+
+std::string BinaryExpression::toString() {
+  return std::format("{} {} {}", this->lhs->toString(), enum2String(this->op),
+                     this->rhs->toString());
+}
+
+std::string BooleanLiteral::toString() {
+  return this->value ? "true" : "false";
+}
+
+std::string BreakNode::toString() { return "break"; }
+
+std::string BuildDefinition::toString() {
+  std::vector<std::string> ret;
+  ret.reserve(this->stmts.size());
+  for (const auto &arg : this->stmts) {
+    ret.push_back(arg->toString());
+  }
+  return joinStrings(ret, '\n');
+}
+
+std::string ConditionalExpression::toString() {
+  return std::format("{} ? {} : {}", this->condition->toString(),
+                     this->ifTrue->toString(), this->ifFalse->toString());
+}
+
+std::string ContinueNode::toString() { return "continue"; }
+
+std::string DictionaryLiteral::toString() {
+  std::vector<std::string> ret;
+  ret.reserve(this->values.size());
+  for (const auto &arg : this->values) {
+    ret.push_back(arg->toString());
+  }
+  return "{" + joinStrings(ret, ',') + "}";
+}
+
+std::string ErrorNode::toString() {
+  return std::format("<#Error '{}' #>", this->message);
+}
+
+std::string IdExpression::toString() { return this->id; }
+
+std::string FunctionExpression::toString() {
+  std::string ret = std::format("{}(", this->id->toString());
+  if (this->args) {
+    ret += this->args->toString();
+  }
+  return ret + ")";
+}
+
+std::string IntegerLiteral::toString() { return this->value; }
+
+std::string IterationStatement::toString() {
+  std::vector<std::string> idsAsStr;
+  idsAsStr.reserve(this->ids.size());
+  for (const auto &idExpr : this->ids) {
+    idsAsStr.push_back(idExpr->toString());
+  }
+  std::string ret = std::format("foreach {} : {}\n", joinStrings(idsAsStr, ','),
+                                this->expression->toString());
+  std::vector<std::string> body;
+  body.reserve(this->stmts.size());
+  for (const auto &stmt : this->stmts) {
+    body.push_back(stmt->toString());
+  }
+
+  return ret + joinStrings(body, '\n') + "\nendforeach\n";
+}
+
+std::string StringLiteral::toString() {
+  return std::format("{}'{}'", this->isFormat ? "f" : "", this->id);
+}
+
+std::string KeyValueItem::toString() {
+  return std::format("{}: {}", this->key->toString(), this->value->toString());
+}
+
+std::string MethodExpression::toString() {
+  std::string ret =
+      std::format("{}.{}(", this->obj->toString(), this->id->toString());
+  if (this->args) {
+    ret += this->args->toString();
+  }
+  return ret + ")";
+}
+
+std::string SelectionStatement::toString() {
+  std::string ret;
+  auto idx = 0UL;
+  for (const auto &block : this->blocks) {
+    if (idx < this->conditions.size()) {
+      if (idx == 0) {
+        ret += "if ";
+      } else {
+        ret += "elif ";
+      }
+      ret += this->conditions[idx]->toString();
+      ret += "\n";
+    } else {
+      ret += "else\n";
+    }
+    idx++;
+    for (const auto &bItem : block) {
+      ret += bItem->toString() + "\n";
+    }
+  }
+  return ret + "endif";
+}
+
+std::string SubscriptExpression::toString() {
+  return std::format("{}[{}]", this->outer->toString(),
+                     this->inner->toString());
+}
+
+std::string UnaryExpression::toString() {
+  return std::format("{}{}", enum2String(this->op),
+                     this->expression->toString());
 }
