@@ -1,12 +1,14 @@
 #include "mesontree.hpp"
 
 #include "analysisoptions.hpp"
+#include "lexer.hpp"
 #include "log.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
 #include "optiondiagnosticvisitor.hpp"
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
+#include "parser.hpp"
 #include "scope.hpp"
 #include "sourcefile.hpp"
 #include "typeanalyzer.hpp"
@@ -36,6 +38,26 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
                                  MesonMetadata *originalMetadata) {
   auto visitor = OptionExtractor();
   auto diagnosticVisitor = OptionDiagnosticVisitor(originalMetadata);
+  if (this->useCustomParser) {
+    LOG.info(std::format("Using custom parser for {}", path.generic_string()));
+    const auto overridden = this->overrides.contains(path);
+    const auto &fileContent =
+        overridden ? this->overrides[path] : readFile(path);
+    auto sourceFile =
+        overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
+                   : std::make_shared<SourceFile>(path);
+    Lexer lexer(fileContent);
+    lexer.tokenize();
+    Parser parser(lexer.tokens, sourceFile);
+    LOG.info("FOO");
+    auto rootNode = parser.parse();
+    LOG.info("BAR");
+    this->asts[rootNode->file->file] = {rootNode};
+    rootNode->setParents();
+    rootNode->visit(&visitor);
+    rootNode->visit(&diagnosticVisitor);
+    return OptionState{visitor.options};
+  }
   const auto overridden = this->overrides.contains(path);
   if (!overridden) {
     const auto &fileId = createId(path);
@@ -96,6 +118,25 @@ OptionState MesonTree::parseOptions(const std::filesystem::path &treeRoot,
 }
 
 std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
+  if (this->useCustomParser) {
+    LOG.info(std::format("Using custom parser for {}", path.generic_string()));
+    const auto overridden = this->overrides.contains(path);
+    const auto &fileContent =
+        overridden ? this->overrides[path] : readFile(path);
+    auto sourceFile =
+        overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
+                   : std::make_shared<SourceFile>(path);
+    Lexer lexer(fileContent);
+    lexer.tokenize();
+    Parser parser(lexer.tokens, sourceFile);
+    auto rootNode = parser.parse();
+    if (!this->asts.contains(rootNode->file->file)) {
+      this->asts[rootNode->file->file] = {};
+    }
+    this->asts[rootNode->file->file].push_back(rootNode);
+    rootNode->setParents();
+    return this->asts[rootNode->file->file].back();
+  }
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   if (this->overrides.contains(path)) {

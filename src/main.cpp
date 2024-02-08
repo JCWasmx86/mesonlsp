@@ -229,6 +229,7 @@ int main(int argc, char **argv) {
     const auto &parent = std::filesystem::absolute(path).parent_path();
     TypeNamespace const ns;
     MesonTree tree(parent, ns);
+    tree.useCustomParser = true;
     AnalysisOptions const opts(false, false, false, false, false, false, false);
     if (full) {
       tree.fullParse(opts, true);

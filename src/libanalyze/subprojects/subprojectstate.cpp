@@ -117,10 +117,11 @@ void SubprojectState::parseSubprojects(const AnalysisOptions &options,
                                        int depth,
                                        const std::string &parentIdentifier,
                                        const TypeNamespace &ns,
-                                       bool downloadSubprojects) {
+                                       bool downloadSubprojects,
+                                       bool useCustomParser) {
   for (const auto &subproject : this->subprojects) {
-    subproject->parse(options, depth, parentIdentifier, ns,
-                      downloadSubprojects);
+    subproject->parse(options, depth, parentIdentifier, ns, downloadSubprojects,
+                      useCustomParser);
   }
 }
 
