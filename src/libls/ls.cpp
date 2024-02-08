@@ -157,6 +157,9 @@ void AbstractLanguageServer::handleRequest(std::string method,
         jsonObjects.push_back(result.toJson());
       }
       ret = jsonObjects;
+    } else if (method == "shutdown") {
+      this->shutdown();
+      ret = nullptr;
     } else {
       LOG.warn(std::format("Unknown request: '{}'", method));
       this->server->returnError(callId, jsonrpc::JsonrpcError::METHOD_NOT_FOUND,
@@ -165,12 +168,15 @@ void AbstractLanguageServer::handleRequest(std::string method,
     }
     this->server->reply(callId, ret);
   } catch (const std::string &str) {
+    LOG.error(std::format("Got error {}", str));
     this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               str);
   } catch (const char *str) {
+    LOG.error(std::format("Got error {}", str));
     this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               str);
   } catch (const std::exception &exc) {
+    LOG.error(std::format("Got error {}", exc.what()));
     this->server->returnError(callId, jsonrpc::JsonrpcError::INTERNAL_ERROR,
                               exc.what());
   } catch (...) {

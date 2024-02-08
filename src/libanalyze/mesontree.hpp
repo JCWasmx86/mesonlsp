@@ -35,6 +35,7 @@ public:
   int depth = 0;
   std::string name = "root";
   Version version = Version("9999.9999.9999");
+  bool useCustomParser = false;
 
   MesonTree(const std::filesystem::path &root, const TypeNamespace &ns)
       : root(root), state(SubprojectState(root)), ns(ns) {}
@@ -45,7 +46,8 @@ public:
     if (this->depth < MAX_TREE_DEPTH) {
       this->state.used = true;
       this->state.fullSetup(analysisOptions, depth + 1, this->identifier,
-                            this->ns, downloadSubprojects);
+                            this->ns, downloadSubprojects,
+                            this->useCustomParser);
     }
     this->partialParse(analysisOptions);
   }

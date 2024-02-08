@@ -17,6 +17,7 @@ public:
   std::optional<std::filesystem::path> defaultFormattingConfig;
   bool disableInlayHints = false;
   bool removeDefaultTypesInInlayHints = false;
+  bool useCustomParser = true;
 
   // No need for muon path anymore
 
@@ -84,6 +85,9 @@ private:
     }
     if (others.contains("disableInlayHints")) {
       this->disableInlayHints = others.value("disableInlayHints", false);
+    }
+    if (others.contains("useCustomParser")) {
+      this->useCustomParser = others.value("useCustomParser", false);
     }
     if (others.contains("defaultFormattingConfig")) {
       const auto &config = others["defaultFormattingConfig"];

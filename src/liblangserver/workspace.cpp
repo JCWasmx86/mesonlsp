@@ -449,6 +449,7 @@ Workspace::muonConfigFile(const std::filesystem::path &path) {
 std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::fullReparse(const TypeNamespace &ns) {
   auto newTree = std::make_shared<MesonTree>(this->root, ns);
+  newTree->useCustomParser = this->options.useCustomParser;
   newTree->fullParse(this->options.analysisOptions,
                      !this->options.neverDownloadAutomatically);
   newTree->identifier = this->name;
@@ -484,6 +485,7 @@ std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
 Workspace::parse(const TypeNamespace &ns) {
   this->settingUp = true;
   auto newTree = std::make_shared<MesonTree>(this->root, ns);
+  newTree->useCustomParser = this->options.useCustomParser;
   newTree->fullParse(this->options.analysisOptions,
                      !this->options.neverDownloadAutomatically);
   newTree->identifier = this->name;

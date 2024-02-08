@@ -25,7 +25,8 @@ public:
   void updateSubprojects();
   void parseSubprojects(const AnalysisOptions &options, int depth,
                         const std::string &parentIdentifier,
-                        const TypeNamespace &ns, bool downloadSubprojects);
+                        const TypeNamespace &ns, bool downloadSubprojects,
+                        bool useCustomParser);
 
   [[nodiscard]] bool hasSubproject(const std::string &name) const {
     if (!this->used) {
@@ -51,12 +52,12 @@ public:
 
   void fullSetup(const AnalysisOptions &options, int depth,
                  const std::string &parentIdentifier, const TypeNamespace &ns,
-                 bool downloadSubprojects) {
+                 bool downloadSubprojects, bool useCustomParser) {
     this->findSubprojects(downloadSubprojects);
     this->initSubprojects();
     this->updateSubprojects();
     this->parseSubprojects(options, depth, parentIdentifier, ns,
-                           downloadSubprojects);
+                           downloadSubprojects, useCustomParser);
   }
 };
 

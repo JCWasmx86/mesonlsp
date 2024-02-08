@@ -72,75 +72,6 @@ protected:
                  end.first, end.second) {}
 };
 
-class KeywordItem final : public Node {
-public:
-  std::shared_ptr<Node> key;
-  std::shared_ptr<Node> value;
-  std::optional<std::string> name;
-  KeywordItem(const std::shared_ptr<SourceFile> &file, const TSNode &node);
-
-  KeywordItem(const std::shared_ptr<SourceFile> &file,
-              const std::shared_ptr<Node> &key,
-              const std::shared_ptr<Node> &value)
-      : Node(file, key, value), key(key), value(value) {}
-
-  void visitChildren(CodeVisitor *visitor) override;
-  void visit(CodeVisitor *visitor) override;
-  void setParents() override;
-  std::string toString() override;
-};
-
-class ArgumentList final : public Node {
-public:
-  std::vector<std::shared_ptr<Node>> args;
-  ArgumentList(const std::shared_ptr<SourceFile> &file, const TSNode &node);
-
-  ArgumentList(std::shared_ptr<SourceFile> file,
-               std::vector<std::shared_ptr<Node>> args,
-               const std::pair<uint32_t, uint32_t> &start,
-               const std::pair<uint32_t, uint32_t> &end)
-      : Node(std::move(file), start, end), args(std::move(args)) {}
-
-  void visitChildren(CodeVisitor *visitor) override;
-  void visit(CodeVisitor *visitor) override;
-  void setParents() override;
-  std::string toString() override;
-
-  [[nodiscard]] std::optional<std::shared_ptr<Node>>
-  getPositionalArg(uint32_t idx) const {
-    if (idx >= this->args.size()) {
-      return std::nullopt;
-    }
-    uint32_t posIdx = 0;
-    for (const auto &arg : this->args) {
-      const auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
-      if (keywordItem != nullptr) {
-        continue;
-      }
-      if (idx == posIdx) {
-        return this->args[idx];
-      }
-      posIdx++;
-    }
-    return std::nullopt;
-  }
-
-  [[nodiscard]] std::optional<std::shared_ptr<Node>>
-  getKwarg(const std::string &name) const {
-    for (const auto &arg : this->args) {
-      auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
-      if (keywordItem == nullptr) {
-        continue;
-      }
-      const auto &kwname = keywordItem->name;
-      if (kwname.has_value() && kwname == name) {
-        return keywordItem->value;
-      }
-    }
-    return std::nullopt;
-  }
-};
-
 class ArrayLiteral final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> args;
@@ -634,6 +565,82 @@ public:
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
   std::string toString() override;
+};
+
+class KeywordItem final : public Node {
+public:
+  std::shared_ptr<Node> key;
+  std::shared_ptr<Node> value;
+  std::optional<std::string> name;
+  KeywordItem(const std::shared_ptr<SourceFile> &file, const TSNode &node);
+
+  KeywordItem(const std::shared_ptr<SourceFile> &file,
+              const std::shared_ptr<Node> &key,
+              const std::shared_ptr<Node> &value)
+      : Node(file, key, value), key(key), value(value) {
+    auto *casted = dynamic_cast<IdExpression *>(this->key.get());
+    if (casted == nullptr) {
+      this->name = std::nullopt;
+      return;
+    }
+    this->name = casted->id;
+  }
+
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
+  void setParents() override;
+  std::string toString() override;
+};
+
+class ArgumentList final : public Node {
+public:
+  std::vector<std::shared_ptr<Node>> args;
+  ArgumentList(const std::shared_ptr<SourceFile> &file, const TSNode &node);
+
+  ArgumentList(std::shared_ptr<SourceFile> file,
+               std::vector<std::shared_ptr<Node>> args,
+               const std::pair<uint32_t, uint32_t> &start,
+               const std::pair<uint32_t, uint32_t> &end)
+      : Node(std::move(file), start, end), args(std::move(args)) {}
+
+  void visitChildren(CodeVisitor *visitor) override;
+  void visit(CodeVisitor *visitor) override;
+  void setParents() override;
+  std::string toString() override;
+
+  [[nodiscard]] std::optional<std::shared_ptr<Node>>
+  getPositionalArg(uint32_t idx) const {
+    if (idx >= this->args.size()) {
+      return std::nullopt;
+    }
+    uint32_t posIdx = 0;
+    for (const auto &arg : this->args) {
+      const auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
+      if (keywordItem != nullptr) {
+        continue;
+      }
+      if (idx == posIdx) {
+        return this->args[idx];
+      }
+      posIdx++;
+    }
+    return std::nullopt;
+  }
+
+  [[nodiscard]] std::optional<std::shared_ptr<Node>>
+  getKwarg(const std::string &name) const {
+    for (const auto &arg : this->args) {
+      auto *keywordItem = dynamic_cast<KeywordItem *>(arg.get());
+      if (keywordItem == nullptr) {
+        continue;
+      }
+      const auto &kwname = keywordItem->name;
+      if (kwname.has_value() && kwname == name) {
+        return keywordItem->value;
+      }
+    }
+    return std::nullopt;
+  }
 };
 
 std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
