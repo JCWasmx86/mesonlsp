@@ -248,6 +248,7 @@ int main(int argc, char **argv) {
     const auto &parent = std::filesystem::absolute(toParse).parent_path();
     for (int i = 0; i < count; i++) {
       MesonTree tree(parent, ns);
+      tree.useCustomParser = true;
       if (full) {
         tree.fullParse(opts, true);
       } else {
