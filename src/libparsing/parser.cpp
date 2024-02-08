@@ -1,6 +1,7 @@
 #include "parser.hpp"
 
 #include "lexer.hpp"
+#include "location.hpp"
 #include "log.hpp"
 #include "node.hpp"
 
@@ -11,13 +12,23 @@ const static Logger LOG("parser"); // NOLINT
 
 using enum TokenType;
 
-std::shared_ptr<Node> Parser::parse() {
+std::shared_ptr<Node> Parser::parse(const std::vector<LexError> &lexErrs) {
   auto before = this->currLoc();
   auto block = this->codeBlock();
   auto after = this->currLoc();
   this->expect(TOKEOF);
+  std::vector<ParsingError> errs;
+  errs.reserve(this->errors.size() + lexErrs.size());
+  for (const auto &err : this->errors) {
+    errs.emplace_back(Location(err.line, err.line, err.column, err.column),
+                      err.message);
+  }
+  for (const auto &err : lexErrs) {
+    errs.emplace_back(Location(err.line, err.line, err.column, err.column),
+                      err.message);
+  }
   return std::make_shared<BuildDefinition>(this->sourceFile, block, before,
-                                           after);
+                                           after, errs);
 }
 
 std::optional<std::shared_ptr<Node>> Parser::statement() { return this->e1(); }

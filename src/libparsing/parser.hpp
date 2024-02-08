@@ -29,7 +29,7 @@ public:
          const std::shared_ptr<SourceFile> &sourceFile)
       : tokens(tokens), sourceFile(sourceFile) {}
 
-  std::shared_ptr<Node> parse();
+  std::shared_ptr<Node> parse(const std::vector<LexError> &lexErrs);
 
 private:
   std::vector<std::shared_ptr<Node>> codeBlock();
@@ -61,7 +61,7 @@ private:
   void error(const std::string &error) {
     auto realIdx = std::min(this->idx, this->tokens.size() - 1);
     this->errors.emplace_back(error, this->tokens[realIdx].endLine,
-                              this->tokens[realIdx].endLine);
+                              this->tokens[realIdx].endColumn);
   }
 
   std::shared_ptr<Node>

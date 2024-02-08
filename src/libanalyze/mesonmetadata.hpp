@@ -1,6 +1,7 @@
 #pragma once
 
 #include "function.hpp"
+#include "location.hpp"
 #include "node.hpp"
 
 #include <cassert>
@@ -83,8 +84,8 @@ public:
   uint32_t endLine;
   uint32_t startColumn;
   uint32_t endColumn;
-  bool deprecated;
-  bool unnecessary;
+  bool deprecated = false;
+  bool unnecessary = false;
 
   Diagnostic(Severity sev, const Node *begin, const Node *end,
              std::string message, bool deprecated = false,
@@ -99,6 +100,14 @@ public:
     loc = &end->location;
     this->endLine = loc->endLine;
     this->endColumn = loc->endColumn;
+  }
+
+  Diagnostic(Severity sev, std::string message, const Location &location)
+      : message(std::move(message)), severity(sev) {
+    this->startLine = location.startLine;
+    this->startColumn = location.startColumn;
+    this->endLine = location.endLine;
+    this->endColumn = location.endColumn;
   }
 
   Diagnostic(Severity sev, const Node *node, std::string message)
@@ -137,6 +146,16 @@ public:
   std::vector<std::vector<MethodExpression *>> tempMethodCalls;
 
   MesonMetadata() { this->encounteredIds.reserve(1024); }
+
+  void registerDiagnostic(const std::filesystem::path &key,
+                          const ParsingError &err) {
+    auto diag = Diagnostic(Severity::ERROR, err.message, err.range);
+    if (this->diagnostics.contains(key)) {
+      this->diagnostics[key].push_back(diag);
+    } else {
+      this->diagnostics[key] = {diag};
+    }
+  }
 
   void registerDiagnostic(const Node *node, const Diagnostic &diag) {
     const auto &key = node->file->file;

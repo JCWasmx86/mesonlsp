@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
       lexer.tokenize();
       auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
       Parser parser(lexer.tokens, sourceFile);
-      auto rootNode = parser.parse();
+      auto rootNode = parser.parse(lexer.errors);
       rootNode->setParents();
     }
     if (argc == 4 && strcmp(argv[3], "--print") == 0) {
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
       lexer.tokenize();
       auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
       Parser parser(lexer.tokens, sourceFile);
-      auto rootNode = parser.parse();
+      auto rootNode = parser.parse(lexer.errors);
       rootNode->setParents();
       std::cerr << rootNode->toString() << std::endl;
       for (const auto &err : lexer.errors) {

@@ -869,6 +869,9 @@ void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
   this->checkUnusedVariables();
   this->sourceFileStack.pop_back();
   this->metadata->endFile(node->file->file);
+  for (const auto &err : node->parsingErrors) {
+    this->metadata->registerDiagnostic(node->file->file, err);
+  }
 }
 
 void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {

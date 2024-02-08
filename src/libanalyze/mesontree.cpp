@@ -49,9 +49,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
     Lexer lexer(fileContent);
     lexer.tokenize();
     Parser parser(lexer.tokens, sourceFile);
-    LOG.info("FOO");
-    auto rootNode = parser.parse();
-    LOG.info("BAR");
+    auto rootNode = parser.parse(lexer.errors);
     this->asts[rootNode->file->file] = {rootNode};
     rootNode->setParents();
     rootNode->visit(&visitor);
@@ -129,7 +127,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     Lexer lexer(fileContent);
     lexer.tokenize();
     Parser parser(lexer.tokens, sourceFile);
-    auto rootNode = parser.parse();
+    auto rootNode = parser.parse(lexer.errors);
     if (!this->asts.contains(rootNode->file->file)) {
       this->asts[rootNode->file->file] = {};
     }
