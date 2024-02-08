@@ -23,14 +23,14 @@ public:
 
   Location(const std::pair<uint32_t, uint32_t> &start,
            const std::pair<uint32_t, uint32_t> &end)
-      : Location(start.first, start.second, end.first, end.second) {}
+      : Location(start.first, end.first, start.second, end.second) {}
 
   Location(const Location &start, const Location &end)
-      : Location(start.startLine, start.startColumn, end.endLine,
+      : Location(start.startLine, end.endLine, start.startColumn,
                  end.endColumn) {}
 
   Location(const std::pair<uint32_t, uint32_t> &start, const Location &end)
-      : Location(start.first, start.second, end.endLine, end.endColumn) {}
+      : Location(start.first, end.endLine, start.second, end.endColumn) {}
 
   explicit Location(const TSNode &node)
       : startLine(ts_node_start_point(node).row),
