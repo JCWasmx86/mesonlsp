@@ -18,11 +18,11 @@ computeLinearEquation(const std::vector<std::pair<size_t, size_t>> &points) {
   size_t sumXSquare = 0;
   size_t nPoints = points.size();
 
-  for (const auto &point : points) {
-    sumX += point.first;
-    sumY += point.second;
-    sumXY += point.first * point.second;
-    sumXSquare += point.first * point.first;
+  for (const auto &[pX, pY] : points) {
+    sumX += pX;
+    sumY += pY;
+    sumXY += pX * pY;
+    sumXSquare += pX * pX;
   }
 
   double slope = (double)(nPoints * sumXY - sumX * sumY) /

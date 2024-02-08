@@ -9,11 +9,13 @@
 
 const static Logger LOG("parser"); // NOLINT
 
+using enum TokenType;
+
 std::shared_ptr<Node> Parser::parse() {
   auto before = this->currLoc();
   auto block = this->codeBlock();
   auto after = this->currLoc();
-  this->expect(TokenType::TOKEOF);
+  this->expect(TOKEOF);
   return std::make_shared<BuildDefinition>(this->sourceFile, block, before,
                                            after);
 }
@@ -25,22 +27,22 @@ std::optional<std::shared_ptr<Node>> Parser::e1() {
   if (!left.has_value()) {
     return left;
   }
-  if (this->accept(TokenType::PLUS_ASSIGN)) {
+  if (this->accept(PLUS_ASSIGN)) {
     auto value = this->e1();
     return std::make_shared<AssignmentStatement>(
         this->sourceFile, this->unwrap(left), this->unwrap(value),
         AssignmentOperator::PLUS_EQUALS);
   }
-  if (this->accept(TokenType::ASSIGN)) {
+  if (this->accept(ASSIGN)) {
     auto value = this->e1();
     return std::make_shared<AssignmentStatement>(
         this->sourceFile, this->unwrap(left), this->unwrap(value),
         AssignmentOperator::EQUALS);
   }
 
-  if (this->accept(TokenType::QUESTION_MARK)) {
+  if (this->accept(QUESTION_MARK)) {
     auto trueBlock = this->e1();
-    this->expect(TokenType::COLON);
+    this->expect(COLON);
     auto falseBlock = this->e1();
     return std::make_shared<ConditionalExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(trueBlock),
@@ -55,7 +57,7 @@ std::optional<std::shared_ptr<Node>> Parser::e2() {
   if (!left.has_value()) {
     return left;
   }
-  while (this->accept(TokenType::OR)) {
+  while (this->accept(OR)) {
     left = std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e3()),
         BinaryOperator::OR);
@@ -65,7 +67,7 @@ std::optional<std::shared_ptr<Node>> Parser::e2() {
 
 std::optional<std::shared_ptr<Node>> Parser::e3() {
   auto left = this->e4();
-  while (this->accept(TokenType::AND)) {
+  while (this->accept(AND)) {
     left = std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e3()),
         BinaryOperator::AND);
@@ -77,47 +79,45 @@ std::optional<std::shared_ptr<Node>> Parser::e3() {
 
 std::optional<std::shared_ptr<Node>> Parser::e4() {
   auto left = this->e5();
-  if (this->accept(TokenType::EQ)) {
+  if (this->accept(EQ)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::EQUALS_EQUALS);
   }
-  if (this->accept(TokenType::NEQ)) {
+  if (this->accept(NEQ)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::NOT_EQUALS);
   }
-  if (this->accept(TokenType::LT)) {
+  if (this->accept(LT)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::LT);
   }
-  if (this->accept(TokenType::LEQ)) {
+  if (this->accept(LEQ)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::LE);
   }
-  if (this->accept(TokenType::GT)) {
+  if (this->accept(GT)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::GT);
   }
-  if (this->accept(TokenType::GEQ)) {
+  if (this->accept(GEQ)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::GE);
   }
-  if (this->accept(TokenType::IN)) {
+  if (this->accept(IN)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::IN);
   }
-  if (this->accept(TokenType::NOT)) {
-    if (this->accept(TokenType::IN)) {
-      return std::make_shared<BinaryExpression>(
-          this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
-          BinaryOperator::NOT_IN);
-    }
+  if (this->accept(NOT) && this->accept(IN)) {
+    return std::make_shared<BinaryExpression>(
+        this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
+        BinaryOperator::NOT_IN);
   }
   return left;
 }
@@ -137,12 +137,12 @@ std::optional<std::shared_ptr<Node>> Parser::e5AddSub() {
     }
     auto current = this->tokens[idx].type;
     // HACKY
-    if (current == TokenType::PLUS) {
+    if (current == PLUS) {
       this->accept(current);
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e5MulDiv()),
           BinaryOperator::PLUS);
-    } else if (current == TokenType::MINUS) {
+    } else if (current == MINUS) {
       this->accept(current);
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e5MulDiv()),
@@ -167,17 +167,17 @@ std::optional<std::shared_ptr<Node>> Parser::e5MulDiv() {
     }
     auto current = this->tokens[idx].type;
     // HACKY
-    if (current == TokenType::MODULO) {
+    if (current == MODULO) {
       this->accept(current);
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e6()),
           BinaryOperator::MODULO);
-    } else if (current == TokenType::STAR) {
+    } else if (current == STAR) {
       this->accept(current);
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e6()),
           BinaryOperator::MUL);
-    } else if (current == TokenType::SLASH) {
+    } else if (current == SLASH) {
       this->accept(current);
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e6()),
@@ -191,12 +191,12 @@ std::optional<std::shared_ptr<Node>> Parser::e5MulDiv() {
 
 std::optional<std::shared_ptr<Node>> Parser::e6() {
   auto currLoc = this->currLoc();
-  if (this->accept(TokenType::NOT)) {
+  if (this->accept(NOT)) {
     return std::make_shared<UnaryExpression>(this->sourceFile, currLoc,
                                              UnaryOperator::NOT,
                                              this->unwrap(this->e7()));
   }
-  if (this->accept(TokenType::MINUS)) {
+  if (this->accept(MINUS)) {
     return std::make_shared<UnaryExpression>(this->sourceFile, currLoc,
                                              UnaryOperator::UNARY_MINUS,
                                              this->unwrap(this->e7()));
@@ -209,21 +209,21 @@ std::optional<std::shared_ptr<Node>> Parser::e7() {
   if (!left.has_value()) {
     return left;
   }
-  if (this->accept(TokenType::LPAREN)) {
+  if (this->accept(LPAREN)) {
     auto args = this->args();
     auto end = this->endLoc();
-    this->expect(TokenType::RPAREN);
+    this->expect(RPAREN);
     left = std::make_shared<FunctionExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(args), end);
   }
   auto goAgain = true;
   while (goAgain) {
     goAgain = false;
-    if (this->accept(TokenType::DOT)) {
+    if (this->accept(DOT)) {
       goAgain = true;
       left = this->methodCall(left);
     }
-    if (this->accept(TokenType::LBRACK)) {
+    if (this->accept(LBRACK)) {
       goAgain = true;
       left = this->indexCall(left);
     }
@@ -235,29 +235,29 @@ std::shared_ptr<Node>
 Parser::indexCall(const std::optional<std::shared_ptr<Node>> &source) {
   auto index = this->statement();
   auto end = this->endLoc();
-  this->expect(TokenType::RBRACK);
+  this->expect(RBRACK);
   return std::make_shared<SubscriptExpression>(
       this->sourceFile, this->unwrap(source), this->unwrap(index), end);
 }
 
 std::optional<std::shared_ptr<Node>> Parser::e8() {
-  if (this->accept(TokenType::LPAREN)) {
+  if (this->accept(LPAREN)) {
     // TODO: We should update the location here to include the ()
     auto inner = this->statement();
-    this->expect(TokenType::RPAREN);
+    this->expect(RPAREN);
     return inner;
   }
   auto start = this->currLoc();
-  if (this->accept(TokenType::LBRACK)) {
+  if (this->accept(LBRACK)) {
     auto args = this->arrayArgs();
     auto end = this->currLoc();
-    this->expect(TokenType::RBRACK);
+    this->expect(RBRACK);
     return std::make_shared<ArrayLiteral>(this->sourceFile, args, start, end);
   }
-  if (this->accept(TokenType::LCURL)) {
+  if (this->accept(LCURL)) {
     auto args = this->keyValues();
     auto end = this->currLoc();
-    this->expect(TokenType::RCURL);
+    this->expect(RCURL);
     return std::make_shared<DictionaryLiteral>(this->sourceFile, args, start,
                                                end);
   }
@@ -268,7 +268,7 @@ std::vector<std::shared_ptr<Node>> Parser::arrayArgs() {
   std::vector<std::shared_ptr<Node>> ret;
   auto stmt = this->statement();
   while (stmt.has_value()) {
-    if (this->accept(TokenType::COMMA)) {
+    if (this->accept(COMMA)) {
       ret.push_back(stmt.value());
     } else {
       ret.push_back(stmt.value());
@@ -276,7 +276,7 @@ std::vector<std::shared_ptr<Node>> Parser::arrayArgs() {
     }
     stmt = this->statement();
   }
-  this->accept(TokenType::COMMA);
+  this->accept(COMMA);
   return ret;
 }
 
@@ -284,10 +284,10 @@ std::vector<std::shared_ptr<Node>> Parser::keyValues() {
   std::vector<std::shared_ptr<Node>> ret;
   auto stmt = this->statement();
   while (stmt.has_value()) {
-    if (this->accept(TokenType::COLON)) {
+    if (this->accept(COLON)) {
       ret.push_back(std::make_shared<KeyValueItem>(
           this->sourceFile, stmt.value(), this->unwrap(this->statement())));
-      if (!this->accept(TokenType::COMMA)) {
+      if (!this->accept(COMMA)) {
         return ret;
       }
     } else {
@@ -296,17 +296,17 @@ std::vector<std::shared_ptr<Node>> Parser::keyValues() {
     }
     stmt = this->statement();
   }
-  this->accept(TokenType::COMMA);
+  this->accept(COMMA);
   return ret;
 }
 
 std::optional<std::shared_ptr<Node>> Parser::e9() {
   auto start = this->currLoc();
   auto end = this->endLoc();
-  if (this->accept(TokenType::TRUE)) {
+  if (this->accept(TRUE)) {
     return std::make_shared<BooleanLiteral>(this->sourceFile, start, end, true);
   }
-  if (this->accept(TokenType::FALSE)) {
+  if (this->accept(FALSE)) {
     return std::make_shared<BooleanLiteral>(this->sourceFile, start, end,
                                             false);
   }
@@ -314,16 +314,16 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
     return this->errorNode("Premature EOF");
   }
   const auto &curr = this->tokens[idx];
-  if (this->accept(TokenType::IDENTIFIER)) {
+  if (this->accept(IDENTIFIER)) {
     return std::make_shared<IdExpression>(
         this->sourceFile, std::get<std::string>(curr.dat), start, end);
   }
-  if (this->accept(TokenType::NUMBER)) {
+  if (this->accept(NUMBER)) {
     const auto &intData = std::get<NumberData>(curr.dat);
     return std::make_shared<IntegerLiteral>(this->sourceFile, intData.asInt,
                                             intData.asString, start, end);
   }
-  if (this->accept(TokenType::STRING)) {
+  if (this->accept(STRING)) {
     const auto &strData = std::get<StringData>(curr.dat);
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format);
@@ -334,13 +334,13 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
 std::shared_ptr<Node>
 Parser::methodCall(const std::optional<std::shared_ptr<Node>> &source) {
   auto name = this->e9();
-  this->expect(TokenType::LPAREN);
+  this->expect(LPAREN);
   auto args = this->args();
   auto end = this->endLoc();
-  this->expect(TokenType::RPAREN);
+  this->expect(RPAREN);
   auto node = std::make_shared<MethodExpression>(
       this->sourceFile, this->unwrap(source), this->unwrap(name), args, end);
-  if (this->accept(TokenType::DOT)) {
+  if (this->accept(DOT)) {
     return this->methodCall(node);
   }
   return node;
@@ -355,14 +355,14 @@ std::shared_ptr<Node> Parser::args() {
   }
   std::vector<std::shared_ptr<Node>> ret;
   while (stmt.has_value()) {
-    if (this->accept(TokenType::COMMA)) {
+    if (this->accept(COMMA)) {
       auto tok = tokens[idx];
       ret.push_back(stmt.value());
-    } else if (this->accept(TokenType::COLON)) {
+    } else if (this->accept(COLON)) {
       auto tok = tokens[idx];
       ret.push_back(std::make_shared<KeywordItem>(
           this->sourceFile, stmt.value(), this->unwrap(this->statement())));
-      if (!this->accept(TokenType::COMMA)) {
+      if (!this->accept(COMMA)) {
         return std::make_shared<ArgumentList>(this->sourceFile, ret, before,
                                               this->currLoc());
       }
@@ -386,21 +386,21 @@ std::optional<std::shared_ptr<Node>> Parser::line() {
     return this->errorNode("Unexpected EOF");
   }
   auto currentType = this->tokens[this->idx].type;
-  if (currentType == TokenType::EOL) {
+  if (currentType == EOL) {
     return std::nullopt;
   }
   auto start = this->currLoc();
-  if (this->accept(TokenType::IF)) {
+  if (this->accept(IF)) {
     return this->ifBlock(start);
   }
-  if (this->accept(TokenType::FOREACH)) {
+  if (this->accept(FOREACH)) {
     return this->foreachBlock(start);
   }
   auto end = this->endLoc();
-  if (this->accept(TokenType::CONTINUE)) {
+  if (this->accept(CONTINUE)) {
     return std::make_shared<ContinueNode>(this->sourceFile, start, end);
   }
-  if (this->accept(TokenType::BREAK)) {
+  if (this->accept(BREAK)) {
     return std::make_shared<BreakNode>(this->sourceFile, start, end);
   }
   return this->statement();
@@ -412,21 +412,21 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
   std::vector<std::vector<std::shared_ptr<Node>>> blocks;
   auto condition = this->statement();
   conditions.push_back(this->unwrap(condition));
-  this->expect(TokenType::EOL);
+  this->expect(EOL);
   auto block = this->codeBlock();
   blocks.push_back(block);
-  while (this->accept(TokenType::ELIF)) {
+  while (this->accept(ELIF)) {
     condition = this->statement();
     conditions.push_back(this->unwrap(condition));
-    this->expect(TokenType::EOL);
+    this->expect(EOL);
     blocks.push_back(this->codeBlock());
   }
-  if (this->accept(TokenType::ELSE)) {
-    this->expect(TokenType::EOL);
+  if (this->accept(ELSE)) {
+    this->expect(EOL);
     blocks.push_back(this->codeBlock());
   }
   auto endLoc = this->endLoc();
-  this->expect(TokenType::ENDIF);
+  this->expect(ENDIF);
   return std::make_shared<SelectionStatement>(this->sourceFile, conditions,
                                               blocks, start, endLoc);
 }
@@ -440,31 +440,31 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   auto curr = this->tokens[idx];
   auto startOfIdExpr = this->currLoc();
   auto end = this->endLoc();
-  this->expect(TokenType::IDENTIFIER);
-  if (curr.type == TokenType::IDENTIFIER) {
+  this->expect(IDENTIFIER);
+  if (curr.type == IDENTIFIER) {
     ids.push_back(std::make_shared<IdExpression>(
         this->sourceFile, std::get<std::string>(curr.dat), startOfIdExpr, end));
   }
-  if (this->accept(TokenType::COMMA)) {
+  if (this->accept(COMMA)) {
     startOfIdExpr = this->currLoc();
     end = this->endLoc();
     if (idx >= this->tokens.size()) {
       return this->errorNode("Premature EOF");
     }
     curr = this->tokens[idx];
-    this->expect(TokenType::IDENTIFIER);
-    if (curr.type == TokenType::IDENTIFIER) {
+    this->expect(IDENTIFIER);
+    if (curr.type == IDENTIFIER) {
       ids.push_back(std::make_shared<IdExpression>(
           this->sourceFile, std::get<std::string>(curr.dat), startOfIdExpr,
           end));
     }
   }
-  this->expect(TokenType::COLON);
+  this->expect(COLON);
   auto items = this->statement();
-  this->expect(TokenType::EOL);
+  this->expect(EOL);
   auto block = this->codeBlock();
   end = this->endLoc();
-  this->expect(TokenType::ENDFOREACH);
+  this->expect(ENDFOREACH);
   return std::make_shared<IterationStatement>(
       this->sourceFile, ids, this->unwrap(items), block, start, end);
 }
@@ -477,7 +477,7 @@ std::vector<std::shared_ptr<Node>> Parser::codeBlock() {
     if (line.has_value()) {
       ret.push_back(line.value());
     }
-    cond = this->accept(TokenType::EOL);
+    cond = this->accept(EOL);
   }
   return ret;
 }
