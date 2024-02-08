@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -190,7 +191,7 @@ public:
   std::vector<Token> tokens;
   std::vector<LexError> errors;
   std::string input;
-  uint32_t idx{0};
+  uint32_t idx = 0;
   uint32_t dataIdx = 0;
   uint32_t line = 0;
   uint32_t lineStart = 0;
@@ -198,9 +199,7 @@ public:
   uint32_t brackets = 0;
   uint32_t curls = 0;
 
-  Lexer(const std::string &input) {
-    this->idx = 0;
-    this->input = input;
+  explicit Lexer(std::string input) : input(std::move(input)) {
     this->input.push_back('\0');
     this->tokens.reserve(guessTokensCount(this->input.size()));
     assert(this->idx == 0);

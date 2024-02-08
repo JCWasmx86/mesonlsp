@@ -30,6 +30,7 @@ void muonLex(benchmark::State &state) {
     lexer_lex(&toks, &sdata, &src, (enum lexer_mode)0);
     tokens_destroy(&toks);
     source_data_destroy(&sdata);
+    (void)_;
   }
 }
 
