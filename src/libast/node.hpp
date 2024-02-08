@@ -68,8 +68,8 @@ protected:
   Node(std::shared_ptr<SourceFile> file, const std::shared_ptr<Node> &start,
        const std::pair<uint32_t, uint32_t> &end)
       : file(std::move(file)),
-        location(start->location.startLine, start->location.startColumn,
-                 end.first, end.second) {}
+        location(start->location.startLine, end.first,
+                 start->location.startColumn, end.second) {}
 };
 
 class ArrayLiteral final : public Node {
