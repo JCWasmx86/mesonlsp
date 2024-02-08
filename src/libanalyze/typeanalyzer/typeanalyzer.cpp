@@ -1404,7 +1404,13 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
     return;
   }
   const auto &guessed = ::guessSetVariable(node, this->options);
-  std::set<std::string> const asSet{guessed.begin(), guessed.end()};
+  std::vector<std::string> asSet;
+  for (const auto &dir : guessed) {
+    if (std::ranges::find(asSet, dir) != asSet.end()) {
+      continue;
+    }
+    asSet.emplace_back(dir);
+  }
   if (asSet.empty()) {
     const auto &msg =
         std::format("Found no dirs at subdircall at {}:{}",
