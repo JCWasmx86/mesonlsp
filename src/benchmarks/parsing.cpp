@@ -19,7 +19,7 @@ extern "C" {
 #undef ast
 }
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
-constexpr auto COUNT = 0;
+constexpr auto COUNT = 100000;
 
 int main(int argc, char **argv) {
   std::string mode = argv[1];
