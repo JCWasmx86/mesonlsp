@@ -998,7 +998,7 @@ std::string ArrayLiteral::toString() {
   for (const auto &arg : this->args) {
     ret.push_back(arg->toString());
   }
-  return joinStrings(ret, ',');
+  return "[" + joinStrings(ret, ',') + "]";
 }
 
 std::string AssignmentStatement::toString() {
