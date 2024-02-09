@@ -56,7 +56,6 @@ private:
   methodCall(const std::optional<std::shared_ptr<Node>> &source);
   std::shared_ptr<Node>
   indexCall(const std::optional<std::shared_ptr<Node>> &source);
-  bool inError = false;
 
   void error(const std::string &error) {
     auto realIdx = std::min(this->idx, this->tokens.size() - 1);
@@ -145,7 +144,7 @@ private:
       if (this->tokens[idx].type != type) {
         makeError = true;
         this->idx++;
-        break;
+        continue;
       }
       break;
     }
@@ -163,7 +162,7 @@ private:
       if (this->tokens[idx].type == TokenType::INVALID) {
         makeError = true;
         this->idx++;
-        break;
+        continue;
       }
       break;
     }
