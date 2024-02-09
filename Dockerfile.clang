@@ -5,7 +5,7 @@ RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
     acl-static zlib-static libidn2-static c-ares-static nghttp2-static brotli-static \
     expat-static xz-static zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
-    git benchmark-dev clang17 llvm17
+    git benchmark-dev clang17 llvm17 clang17-dev
 
 WORKDIR /app
 
@@ -15,8 +15,8 @@ COPY tests /app/tests
 COPY subprojects /app/subprojects
 
 RUN CC=clang-17 CXX=clang++-17 meson setup _static --default-library=static --prefer-static \
-    -Dc_link_args='-static-libgcc -static-libstdc++' \
-    -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
+    -Dc_link_args='-static-libgcc -static-libstdc++ --plugin /usr/lib/bfd-plugins/liblto_plugin.so' \
+    -Dcpp_link_args='-static-libgcc -static-libstdc++ --plugin /usr/lib/bfd-plugins/liblto_plugin.so' -Dstatic_build=true \
     --buildtype=release -Db_lto=true
 RUN ninja -C _static
 RUN ninja -C _static test
