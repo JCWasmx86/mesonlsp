@@ -20,7 +20,7 @@ struct ParseError {
 
 class Parser {
 public:
-  const std::vector<Token> tokens;
+  const std::vector<Token> &tokens;
   size_t idx = 0;
   std::vector<ParseError> errors;
   std::shared_ptr<SourceFile> sourceFile;
