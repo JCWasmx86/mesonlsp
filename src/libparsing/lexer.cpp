@@ -47,7 +47,7 @@ static bool isValidInsideOfIdentifier(const char chr) {
   return isValidStartOfIdentifier(chr) || isDigit(chr);
 }
 
-void Lexer::advance() {
+void Lexer::advance() noexcept {
   if (this->idx >= this->input.length()) {
     return;
   }
