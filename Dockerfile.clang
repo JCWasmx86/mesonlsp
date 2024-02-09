@@ -14,7 +14,7 @@ COPY src /app/src
 COPY tests /app/tests
 COPY subprojects /app/subprojects
 
-RUN CC=clang CXX=clang++ meson setup _static --default-library=static --prefer-static \
+RUN CC=clang16 CXX=clang16++ meson setup _static --default-library=static --prefer-static \
     -Dc_link_args='-static-libgcc -static-libstdc++' \
     -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
     --buildtype=release -Db_lto=true
