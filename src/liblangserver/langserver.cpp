@@ -305,9 +305,9 @@ LanguageServer::documentSymbols(DocumentSymbolParams &params) {
 
 TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   const auto &path = extractPathFromUrl(params.textDocument.uri);
-  const auto &toFormat = this->cachedContents.contains(path)
-                             ? this->cachedContents[path]
-                             : readFile(path);
+  const auto toFormat = this->cachedContents.contains(path)
+                            ? this->cachedContents[path]
+                            : readFile(path);
   std::filesystem::path configFile;
   for (const auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {

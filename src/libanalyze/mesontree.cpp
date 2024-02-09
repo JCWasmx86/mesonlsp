@@ -41,7 +41,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   if (this->useCustomParser) {
     LOG.info(std::format("Using custom parser for {}", path.generic_string()));
     const auto overridden = this->overrides.contains(path);
-    const auto &fileContent =
+    const auto fileContent =
         overridden ? this->overrides[path] : readFile(path);
     auto sourceFile =
         overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
@@ -78,7 +78,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
 slow:
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
-  const auto &fileContent = overridden ? this->overrides[path] : readFile(path);
+  const auto fileContent = overridden ? this->overrides[path] : readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         (uint32_t)fileContent.length());
   auto sourceFile = overridden
@@ -119,7 +119,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   if (this->useCustomParser) {
     LOG.info(std::format("Using custom parser for {}", path.generic_string()));
     const auto overridden = this->overrides.contains(path);
-    const auto &fileContent =
+    const auto fileContent =
         overridden ? this->overrides[path] : readFile(path);
     auto sourceFile =
         overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
@@ -140,7 +140,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   if (this->overrides.contains(path)) {
     LOG.info(std::format("Using contents from editor for {}",
                          path.generic_string()));
-    const auto &fileContent = this->overrides[path];
+    const auto fileContent = this->overrides[path];
     TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                           (uint32_t)fileContent.length());
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
@@ -171,7 +171,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     return this->asts[rootNode->file->file].back();
   }
   LOG.info(std::format("Cache miss for {}", fileId));
-  const auto &fileContent = readFile(path);
+  const auto fileContent = readFile(path);
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                         (uint32_t)fileContent.length());
   auto sourceFile = std::make_shared<SourceFile>(path);
