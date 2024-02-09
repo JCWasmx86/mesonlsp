@@ -14,6 +14,8 @@
 #include <format>
 #include <string>
 
+using enum TokenType;
+
 // Copied+adapted from muon (GPLv3)
 
 const static Logger LOG("lexer"); // NOLINT
@@ -25,20 +27,11 @@ const static Logger LOG("lexer"); // NOLINT
 constexpr auto AVERAGE_STRING_LENGTH = 16;
 
 static const std::vector<std::pair<std::string, TokenType>> /*NOLINT*/ KEYWORDS{
-    {"and", TokenType::AND},
-    {"break", TokenType::BREAK},
-    {"continue", TokenType::CONTINUE},
-    {"elif", TokenType::ELIF},
-    {"else", TokenType::ELSE},
-    {"endforeach", TokenType::ENDFOREACH},
-    {"endif", TokenType::ENDIF},
-    {"false", TokenType::FALSE},
-    {"foreach", TokenType::FOREACH},
-    {"if", TokenType::IF},
-    {"in", TokenType::IN},
-    {"not", TokenType::NOT},
-    {"or", TokenType::OR},
-    {"true", TokenType::TRUE}};
+    {"and", AND},     {"break", BREAK}, {"continue", CONTINUE},
+    {"elif", ELIF},   {"else", ELSE},   {"endforeach", ENDFOREACH},
+    {"endif", ENDIF}, {"false", FALSE}, {"foreach", FOREACH},
+    {"if", IF},       {"in", IN},       {"not", NOT},
+    {"or", OR},       {"true", TRUE}};
 
 static bool isSkipchar(const char chr) {
   return chr == '\r' || chr == ' ' || chr == '\t' || chr == '#';
@@ -66,7 +59,7 @@ void Lexer::advance() {
 }
 
 Lexer::LexerResult Lexer::lexNumber() {
-  this->tokens.back().type = TokenType::NUMBER;
+  this->tokens.back().type = NUMBER;
   auto base = 10;
   if (this->input[this->idx] == '0') {
     switch (this->input[this->idx + 1]) {
@@ -153,7 +146,7 @@ Lexer::LexerResult Lexer::lexIdentifier() {
   assert(len);
   if (!this->isKeyword(startIdx, len)) {
     auto name = this->input.substr(startIdx, len);
-    this->tokens.back().type = TokenType::IDENTIFIER;
+    this->tokens.back().type = IDENTIFIER;
     this->tokens.back().dat = std::move(name);
   }
   this->finalize();
@@ -236,7 +229,7 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
   } else {
     this->advance();
   }
-  this->tokens.back().type = TokenType::STRING;
+  this->tokens.back().type = STRING;
   std::string str;
   str.reserve(AVERAGE_STRING_LENGTH);
   auto loop = true;
@@ -314,11 +307,11 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     if ((this->parens != 0U) || (this->brackets != 0U) || (this->curls != 0U)) {
       goto skip;
     }
-    this->tokens.back().type = TokenType::EOL;
+    this->tokens.back().type = EOL;
     break;
   case '(':
     this->parens++;
-    this->tokens.back().type = TokenType::LPAREN;
+    this->tokens.back().type = LPAREN;
     break;
   case ')':
     if (this->parens == 0) {
@@ -327,11 +320,11 @@ Lexer::LexerResult Lexer::tokenizeOne() {
       return LexerResult::FAIL;
     }
     this->parens--;
-    this->tokens.back().type = TokenType::RPAREN;
+    this->tokens.back().type = RPAREN;
     break;
   case '[':
     this->brackets++;
-    this->tokens.back().type = TokenType::LBRACK;
+    this->tokens.back().type = LBRACK;
     break;
   case ']':
     if (this->brackets == 0) {
@@ -340,11 +333,11 @@ Lexer::LexerResult Lexer::tokenizeOne() {
       return LexerResult::FAIL;
     }
     this->brackets--;
-    this->tokens.back().type = TokenType::RBRACK;
+    this->tokens.back().type = RBRACK;
     break;
   case '{':
     this->curls++;
-    this->tokens.back().type = TokenType::LCURL;
+    this->tokens.back().type = LCURL;
     break;
   case '}':
     if (this->curls == 0) {
@@ -353,55 +346,55 @@ Lexer::LexerResult Lexer::tokenizeOne() {
       return LexerResult::FAIL;
     }
     this->curls--;
-    this->tokens.back().type = TokenType::RCURL;
+    this->tokens.back().type = RCURL;
     break;
   case '.':
-    this->tokens.back().type = TokenType::DOT;
+    this->tokens.back().type = DOT;
     break;
   case ',':
-    this->tokens.back().type = TokenType::COMMA;
+    this->tokens.back().type = COMMA;
     break;
   case ':':
-    this->tokens.back().type = TokenType::COLON;
+    this->tokens.back().type = COLON;
     break;
   case '?':
-    this->tokens.back().type = TokenType::QUESTION_MARK;
+    this->tokens.back().type = QUESTION_MARK;
     break;
   case '+':
     if (this->input[this->idx + 1] == '=') {
       this->advance();
-      this->tokens.back().type = TokenType::PLUS_ASSIGN;
+      this->tokens.back().type = PLUS_ASSIGN;
     } else {
-      this->tokens.back().type = TokenType::PLUS;
+      this->tokens.back().type = PLUS;
     }
     break;
   case '-':
-    this->tokens.back().type = TokenType::MINUS;
+    this->tokens.back().type = MINUS;
     break;
   case '*':
-    this->tokens.back().type = TokenType::STAR;
+    this->tokens.back().type = STAR;
     break;
   case '/':
-    this->tokens.back().type = TokenType::SLASH;
+    this->tokens.back().type = SLASH;
     break;
   case '%':
-    this->tokens.back().type = TokenType::MODULO;
+    this->tokens.back().type = MODULO;
     break;
   case '=':
     if (this->input[this->idx + 1] == '=') {
       this->advance();
-      this->tokens.back().type = TokenType::EQ;
+      this->tokens.back().type = EQ;
     } else {
-      this->tokens.back().type = TokenType::ASSIGN;
+      this->tokens.back().type = ASSIGN;
     }
     break;
   case '!':
     if (this->input[this->idx + 1] == '=') {
       this->advance();
-      this->tokens.back().type = TokenType::NEQ;
+      this->tokens.back().type = NEQ;
     } else {
       this->error(
-          std::format("Unexpected character: '%c'", this->input[this->idx]));
+          std::format("Unexpected character: '{}'", this->input[this->idx]));
       this->finalize();
       return LexerResult::FAIL;
     }
@@ -409,17 +402,17 @@ Lexer::LexerResult Lexer::tokenizeOne() {
   case '>':
     if (this->input[this->idx + 1] == '=') {
       this->advance();
-      this->tokens.back().type = TokenType::GEQ;
+      this->tokens.back().type = GEQ;
     } else {
-      this->tokens.back().type = TokenType::GT;
+      this->tokens.back().type = GT;
     }
     break;
   case '<':
     if (this->input[this->idx + 1] == '=') {
       this->advance();
-      this->tokens.back().type = TokenType::LEQ;
+      this->tokens.back().type = LEQ;
     } else {
-      this->tokens.back().type = TokenType::LT;
+      this->tokens.back().type = LT;
     }
     break;
   case '\0':
@@ -430,12 +423,12 @@ Lexer::LexerResult Lexer::tokenizeOne() {
       this->finalize();
       return LexerResult::FAIL;
     }
-    this->tokens.back().type = TokenType::TOKEOF;
+    this->tokens.back().type = TOKEOF;
     this->advance();
     this->finalize();
     return LexerResult::DONE;
   default:
-    this->error(std::format("Unexpected character: '%c'", chr));
+    this->error(std::format("Unexpected character: '{}'", chr));
     return LexerResult::FAIL;
   }
   this->advance();
@@ -476,7 +469,7 @@ bool Lexer::tokenize() {
     }
   }
   if (success) {
-    assert(this->tokens.back().type == TokenType::TOKEOF);
+    assert(this->tokens.back().type == TOKEOF);
   }
   return success;
 }
