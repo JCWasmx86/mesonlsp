@@ -212,7 +212,7 @@ public:
   }
 
 private:
-  void advance();
+  void advance() noexcept;
 
   // These values were calculated using the lexerstats.cpp
   // tool. For the input set of 10k files it took pairs of
