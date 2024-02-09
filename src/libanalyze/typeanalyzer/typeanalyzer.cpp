@@ -2202,7 +2202,7 @@ bool TypeAnalyzer::checkConditionForVersionComparison(const Node *condition) {
     }
     const auto *methodObj = me->obj.get();
     const auto *idExpr = dynamic_cast<const IdExpression *>(methodObj);
-    if (this->mesonVersionVars.contains(idExpr->id)) {
+    if (idExpr && this->mesonVersionVars.contains(idExpr->id)) {
       this->pushVersion(sl->id);
       return true;
     }
