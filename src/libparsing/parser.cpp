@@ -387,10 +387,8 @@ std::shared_ptr<Node> Parser::args() {
   std::vector<std::shared_ptr<Node>> ret;
   while (stmt.has_value()) {
     if (this->accept(COMMA)) {
-      auto tok = tokens[idx];
       ret.push_back(stmt.value());
     } else if (this->accept(COLON)) {
-      auto tok = tokens[idx];
       ret.push_back(std::make_shared<KeywordItem>(
           this->sourceFile, stmt.value(), this->unwrap(this->statement())));
       if (!this->accept(COMMA)) {
