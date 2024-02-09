@@ -103,12 +103,9 @@ public:
   }
 
   Diagnostic(Severity sev, std::string message, const Location &location)
-      : message(std::move(message)), severity(sev) {
-    this->startLine = location.startLine;
-    this->startColumn = location.startColumn;
-    this->endLine = location.endLine;
-    this->endColumn = location.endColumn;
-  }
+      : message(std::move(message)), severity(sev),
+        startLine(location.startLine), endLine(location.endLine),
+        startColumn(location.startColumn), endColumn(location.endColumn) {}
 
   Diagnostic(Severity sev, const Node *node, std::string message)
       : Diagnostic(sev, node, node, std::move(message)) {}
