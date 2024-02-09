@@ -15,8 +15,8 @@ COPY tests /app/tests
 COPY subprojects /app/subprojects
 
 RUN CC=clang-17 CXX=clang++-17 meson setup _static --default-library=static --prefer-static \
-    -Dc_link_args='-static-libgcc -static-libstdc++ --plugin /usr/lib/bfd-plugins/liblto_plugin.so' \
-    -Dcpp_link_args='-static-libgcc -static-libstdc++ --plugin /usr/lib/bfd-plugins/liblto_plugin.so' -Dstatic_build=true \
+    -Dc_link_args='-static-libgcc -static-libstdc++ -Wl,--plugin,/usr/lib/bfd-plugins/liblto_plugin.so' \
+    -Dcpp_link_args='-static-libgcc -static-libstdc++ -Wl,--plugin /usr/lib/bfd-plugins/liblto_plugin.so' -Dstatic_build=true \
     --buildtype=release -Db_lto=true
 RUN ninja -C _static
 RUN ninja -C _static test
