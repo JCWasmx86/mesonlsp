@@ -27,11 +27,20 @@ const static Logger LOG("lexer"); // NOLINT
 constexpr auto AVERAGE_STRING_LENGTH = 16;
 
 static const std::vector<std::pair<std::string, TokenType>> /*NOLINT*/ KEYWORDS{
-    {"and", AND},     {"break", BREAK}, {"continue", CONTINUE},
-    {"elif", ELIF},   {"else", ELSE},   {"endforeach", ENDFOREACH},
-    {"endif", ENDIF}, {"false", FALSE}, {"foreach", FOREACH},
-    {"if", IF},       {"in", IN},       {"not", NOT},
-    {"or", OR},       {"true", TRUE}};
+    {"if", IF},
+    {"endif", ENDIF},
+    {"and", AND},
+    {"break", BREAK},
+    {"continue", CONTINUE},
+    {"elif", ELIF},
+    {"else", ELSE},
+    {"endforeach", ENDFOREACH},
+    {"false", FALSE},
+    {"foreach", FOREACH},
+    {"in", IN},
+    {"not", NOT},
+    {"or", OR},
+    {"true", TRUE}};
 
 static bool isSkipchar(const char chr) {
   return chr == '\r' || chr == ' ' || chr == '\t' || chr == '#';
@@ -83,7 +92,7 @@ Lexer::LexerResult Lexer::lexNumber() {
       break;
     default:
       this->advance();
-      this->tokens.back().dat = NumberData{10, 0, "0"};
+      this->tokens.back().dat = NumberData{0, "0"};
       this->finalize();
       return LexerResult::CONTINUE;
     }
@@ -131,7 +140,7 @@ end:
                           exc.what()));
     this->error("Invalid integer literal");
   }
-  this->tokens.back().dat = NumberData{base, asInt, asStr};
+  this->tokens.back().dat = NumberData{asInt, asStr};
   this->finalize();
   return LexerResult::CONTINUE;
 }

@@ -45,6 +45,10 @@ int main(int /*argc*/, char **argv) {
   size_t totalLessThanExpected = 0;
   size_t totalMoreThanExpected = 0;
   size_t exact = 0;
+  size_t nIdentifiers = 0;
+  size_t identifierLengthTotal = 0;
+  size_t nNumbers = 0;
+  size_t numberLengthTotal = 0;
   while (std::getline(inputFile, line)) {
     auto contents = readFile(line);
     Lexer lexer(contents);
@@ -64,6 +68,15 @@ int main(int /*argc*/, char **argv) {
     auto percentage = ((double)total) / (double)guessed - 1.0;
     deviationsInPercent.push_back(percentage);
     for (const auto &tok : lexer.tokens) {
+      if (tok.type == TokenType::IDENTIFIER) {
+        nIdentifiers++;
+        identifierLengthTotal += std::get<std::string>(tok.dat).size();
+        continue;
+      }
+      if (tok.type == TokenType::NUMBER) {
+        nNumbers++;
+        numberLengthTotal += std::get<NumberData>(tok.dat).asString.size();
+      }
       if (tok.type != TokenType::STRING) {
         continue;
       }
@@ -100,4 +113,11 @@ int main(int /*argc*/, char **argv) {
   std::cerr << std::format("More than expected: {}", totalMoreThanExpected)
             << std::endl;
   std::cerr << std::format("Exact: {}", exact) << std::endl;
+  std::cerr << std::format("Total chars/identifier: {}",
+                           ((double)identifierLengthTotal) /
+                               ((double)nIdentifiers))
+            << std::endl;
+  std::cerr << std::format("Total chars/number: {}",
+                           ((double)numberLengthTotal) / ((double)nNumbers))
+            << std::endl;
 }

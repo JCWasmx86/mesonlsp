@@ -155,21 +155,20 @@ public:
 
 struct NumberData {
 public:
-  int base;
   uint64_t asInt;
   std::string asString;
 };
 
 struct Token final {
 public:
-  uint32_t startLine;
-  uint32_t startColumn;
-  uint32_t endLine;
-  uint32_t endColumn;
   std::variant<std::monostate, NumberData, std::string, StringData> dat;
+  uint32_t startLine;
+  uint32_t endLine;
+  uint16_t startColumn;
+  uint16_t endColumn;
   TokenType type = TokenType::INVALID;
 
-  Token(uint32_t startLine, uint32_t startColumn)
+  Token(uint32_t startLine, uint16_t startColumn)
       : startLine(startLine), startColumn(startColumn) {}
 };
 
