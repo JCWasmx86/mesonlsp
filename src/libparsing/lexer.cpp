@@ -75,7 +75,7 @@ Lexer::LexerResult Lexer::lexNumber() {
       this->advance();
       this->advance();
       break;
-    case '0':
+    case 'O':
     case 'o':
       base = 8;
       this->advance();
