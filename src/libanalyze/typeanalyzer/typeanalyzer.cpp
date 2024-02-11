@@ -1671,7 +1671,7 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
 }
 
 void TypeAnalyzer::registerUsed(const std::string &varname) {
-  for (auto &arr : this->variablesNeedingUse | std::ranges::views::reverse) {
+  for (auto &arr : this->variablesNeedingUse) {
     std::erase_if(
         arr, [&varname](const auto &idExpr) { return idExpr->id == varname; });
   }
