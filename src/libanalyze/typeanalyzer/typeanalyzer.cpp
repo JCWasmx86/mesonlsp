@@ -278,7 +278,7 @@ void TypeAnalyzer::visitArrayLiteral(ArrayLiteral *node) {
     types.insert(types.end(), arg->types.begin(), arg->types.end());
   }
   node->types = std::vector<std::shared_ptr<Type>>{
-      std::make_shared<List>(dedup(this->ns, types))};
+      std::make_shared<List>(dedup(this->ns, std::move(types)))};
 }
 
 void TypeAnalyzer::extractVoidAssignment(
@@ -337,7 +337,7 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
   this->checkIdentifier(lhsIdExpr);
   this->modifiedVariableType(lhsIdExpr->id, arr);
   this->applyToStack(lhsIdExpr->id, arr);
-  this->scope.variables[lhsIdExpr->id] = arr;
+  this->scope.variables[lhsIdExpr->id] = std::move(arr);
   this->registerNeedForUse(lhsIdExpr);
   const auto *me = dynamic_cast<const MethodExpression *>(node->rhs.get());
   if (me && me->method && me->method->id() == "meson.version") [[unlikely]] {
@@ -362,7 +362,7 @@ TypeAnalyzer::evalPlusEquals(const std::shared_ptr<Type> &left,
     } else {
       newTypes.emplace_back(right);
     }
-    return std::make_shared<List>(dedup(this->ns, newTypes));
+    return std::make_shared<List>(dedup(this->ns, std::move(newTypes)));
   }
   if (left->tag == DICT) {
     const auto *dictL = static_cast<Dict *>(left.get());
@@ -437,13 +437,13 @@ void TypeAnalyzer::evaluateFullAssignment(const AssignmentStatement *node,
     this->evaluatePureAssignment(node, lhsIdExpr);
     return;
   }
-  const auto &newTypes =
+  auto newTypes =
       dedup(this->ns,
             this->evalAssignment(node->op, node->lhs->types, node->rhs->types));
   lhsIdExpr->types = newTypes;
   this->modifiedVariableType(lhsIdExpr->id, newTypes);
   this->applyToStack(lhsIdExpr->id, newTypes);
-  this->scope.variables[lhsIdExpr->id] = newTypes;
+  this->scope.variables[lhsIdExpr->id] = std::move(newTypes);
 }
 
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
@@ -521,7 +521,7 @@ void TypeAnalyzer::evalBinaryExpression(
       } else {
         types.push_back(rType);
       }
-      newTypes.emplace_back(std::make_shared<List>(types));
+      newTypes.emplace_back(std::make_shared<List>(std::move(types)));
       break;
     }
     if (lType->tag == rType->tag && lType->tag == DICT) {

@@ -343,15 +343,15 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   const auto &curr = this->tokens[idx];
   if (this->accept(IDENTIFIER)) {
     return std::make_shared<IdExpression>(
-        this->sourceFile, std::get<std::string>(curr.dat), start, end);
+        this->sourceFile, *std::get_if<std::string>(&curr.dat), start, end);
   }
   if (this->accept(NUMBER)) {
-    const auto &intData = std::get<NumberData>(curr.dat);
+    const auto &intData = *std::get_if<NumberData>(&curr.dat);
     return std::make_shared<IntegerLiteral>(this->sourceFile, intData.asInt,
                                             intData.asString, start, end);
   }
   if (this->accept(STRING)) {
-    const auto &strData = std::get<StringData>(curr.dat);
+    const auto &strData = *std::get_if<StringData>(&curr.dat);
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format);
   }
@@ -499,7 +499,8 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   this->expect(IDENTIFIER);
   if (curr.type == IDENTIFIER) {
     ids.push_back(std::make_shared<IdExpression>(
-        this->sourceFile, std::get<std::string>(curr.dat), startOfIdExpr, end));
+        this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
+        end));
   }
   if (this->accept(COMMA)) {
     startOfIdExpr = this->currLoc();
@@ -511,7 +512,7 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     this->expect(IDENTIFIER);
     if (curr.type == IDENTIFIER) {
       ids.push_back(std::make_shared<IdExpression>(
-          this->sourceFile, std::get<std::string>(curr.dat), startOfIdExpr,
+          this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
           end));
     }
   }
