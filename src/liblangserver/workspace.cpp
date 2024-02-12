@@ -142,7 +142,7 @@ Workspace::highlight(const std::filesystem::path &path,
       continue;
     }
     auto metadata = subTree->metadata;
-    if (!metadata.identifiers.contains(path)) {
+    if (!metadata.fileMetadata.contains(path)) {
       continue;
     }
     auto idExpr =
@@ -151,7 +151,7 @@ Workspace::highlight(const std::filesystem::path &path,
       this->smph.release();
       return {};
     }
-    auto identifiers = metadata.identifiers[path];
+    const auto &identifiers = metadata.fileMetadata[path].identifiers;
     std::vector<DocumentHighlight> ret;
     for (const auto &toCheck : identifiers) {
       if (idExpr.value()->id != toCheck->id) {
@@ -211,7 +211,7 @@ std::vector<LSPLocation>
 Workspace::jumpToFunctionCall(const MesonMetadata *metadata,
                               const std::filesystem::path &path,
                               const LSPPosition &position) {
-  for (const auto &funcCall : metadata->functionCalls.at(path)) {
+  for (const auto &funcCall : metadata->fileMetadata.at(path).functionCalls) {
     if (!MesonMetadata::contains(funcCall, position.line, position.character) ||
         funcCall->file->file != path) {
       continue;
@@ -293,7 +293,7 @@ std::vector<LSPLocation> Workspace::jumpTo(const MesonMetadata *metadata,
   if (!toIdentifier.empty()) {
     return toIdentifier;
   }
-  if (!metadata->functionCalls.contains(path)) {
+  if (!metadata->fileMetadata.contains(path)) {
     return {};
   }
   return Workspace::jumpToFunctionCall(metadata, path, position);
@@ -320,10 +320,10 @@ WorkspaceEdit Workspace::rename(const MesonMetadata &metadata,
                                 const std::string &newName) {
   WorkspaceEdit ret;
   auto foundOurself = false;
-  for (const auto &[identifierPath, identifiers] : metadata.identifiers) {
+  for (const auto &[identifierPath, fileMetadata] : metadata.fileMetadata) {
     auto url = pathToUrl(identifierPath);
     ret.changes[url] = {};
-    for (const auto *identifier : identifiers) {
+    for (const auto *identifier : fileMetadata.identifiers) {
       auto equals = identifier->equals(toRename);
       if (identifier->id != toRename->id || (equals && foundOurself)) {
         continue;
