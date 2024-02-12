@@ -16,6 +16,16 @@
 #include <string>
 
 using enum TokenType;
+using BoolFunction = bool (*)(char);
+
+template <size_t N>
+constexpr std::array<bool, N> generateBoolArray(BoolFunction func) {
+  std::array<bool, N> result{};
+  for (size_t i = 0; i < N; ++i) {
+    result[i] = func(static_cast<char>(i));
+  }
+  return result;
+}
 
 // Copied+adapted from muon (GPLv3)
 
@@ -48,15 +58,20 @@ static bool isSkipchar(const char chr) {
   return chr == '\r' || chr == ' ' || chr == '\t' || chr == '#';
 }
 
-static bool isValidStartOfIdentifier(const char chr) {
+static constexpr bool isValidStartOfIdentifier(const char chr) {
   return chr == '_' || ('a' <= chr && chr <= 'z') || ('A' <= chr && chr <= 'Z');
 }
 
-static bool isDigit(const char chr) { return '0' <= chr && chr <= '9'; }
+static constexpr bool isDigit(const char chr) {
+  return '0' <= chr && chr <= '9';
+}
 
-static bool isValidInsideOfIdentifier(const char chr) {
+static constexpr bool isValidInsideOfIdentifier(const char chr) {
   return isValidStartOfIdentifier(chr) || isDigit(chr);
 }
+
+constexpr auto VALID_INSIDE_IDENTIFIER =
+    generateBoolArray<256>(isValidInsideOfIdentifier);
 
 void Lexer::advance() noexcept {
   if (this->idx >= this->input.length()) {
@@ -150,7 +165,7 @@ end:
 Lexer::LexerResult Lexer::lexIdentifier() {
   auto startIdx = this->idx;
   auto len = 0;
-  while (isValidInsideOfIdentifier(this->input[this->idx])) {
+  while (VALID_INSIDE_IDENTIFIER[this->input[this->idx]]) {
     len++;
     this->advance();
   }
