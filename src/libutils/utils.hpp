@@ -170,3 +170,14 @@ std::basic_string<T> uppercase(const std::basic_string<T> &str) {
   });
   return copy;
 }
+
+static constexpr auto DJB2_SEED = 5381;
+static constexpr auto DJB2_SHIFT = 5;
+
+static inline uint32_t djb2(const std::string &str) {
+  uint32_t hash = DJB2_SEED;
+  for (auto chr : str) {
+    hash = (hash << DJB2_SHIFT) + hash + chr;
+  }
+  return hash;
+}

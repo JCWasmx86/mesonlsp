@@ -35,10 +35,10 @@ enum class Severity {
 #define FIND(type, variable)                                                   \
   std::optional<type *> /*NOLINT*/ find##type##At(                             \
       const std::filesystem::path &path, uint64_t line, uint64_t column) {     \
-    if (!this->variable.contains(path)) {                                      \
+    if (!this->fileMetadata.contains(path)) {                                  \
       return std::nullopt;                                                     \
     }                                                                          \
-    for (auto &var : this->variable[path]) {                                   \
+    for (auto &var : this->fileMetadata[path].variable) {                      \
       if (MesonMetadata::contains(var->id.get(), line, column)) {              \
         return var;                                                            \
       }                                                                        \
@@ -65,10 +65,25 @@ enum class Severity {
   std::optional<type *> /*NOLINT*/ findFull##type##At(                         \
       const std::filesystem::path &path, uint64_t line, uint64_t column)       \
       const {                                                                  \
-    if (!this->variable.contains(path)) {                                      \
+    if (!this->fileMetadata.contains(path)) {                                  \
       return std::nullopt;                                                     \
     }                                                                          \
-    for (auto &var : this->variable.at(path)) {                                \
+    for (auto &var : this->fileMetadata.at(path).variable) {                   \
+      if (MesonMetadata::contains(var, line, column)) {                        \
+        return var;                                                            \
+      }                                                                        \
+    }                                                                          \
+    return std::nullopt;                                                       \
+  }
+
+#define FIND_FULL3(type, variable)                                             \
+  std::optional<type *> /*NOLINT*/ find##type##At(                             \
+      const std::filesystem::path &path, uint64_t line, uint64_t column)       \
+      const {                                                                  \
+    if (!this->fileMetadata.contains(path)) {                                  \
+      return std::nullopt;                                                     \
+    }                                                                          \
+    for (auto &var : this->fileMetadata.at(path).variable) {                   \
       if (MesonMetadata::contains(var, line, column)) {                        \
         return var;                                                            \
       }                                                                        \
@@ -116,21 +131,35 @@ public:
                    unnecessary) {}
 };
 
+struct FileMetadata {
+  std::vector<IdExpression *> identifiers;
+  std::vector<StringLiteral *> stringLiterals;
+  std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>> kwargs;
+  std::vector<FunctionExpression *> functionCalls;
+  std::vector<MethodExpression *> methodCalls;
+
+  FileMetadata() = default;
+
+  FileMetadata(
+      std::vector<IdExpression *> identifiers,
+      std::vector<StringLiteral *> stringLiterals,
+      std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>> kwargs,
+      std::vector<FunctionExpression *> functionCalls,
+      std::vector<MethodExpression *> methodCalls)
+      : identifiers(std::move(identifiers)),
+        stringLiterals(std::move(stringLiterals)), kwargs(std::move(kwargs)),
+        functionCalls(std::move(functionCalls)),
+        methodCalls(std::move(methodCalls)) {}
+};
+
 class MesonMetadata {
 public:
   // Sadly raw pointers due to only getting raw pointers to the
   // code visitor.
   std::map<std::filesystem::path, std::vector<std::string>> subdirCalls;
-  std::map<std::filesystem::path, std::vector<MethodExpression *>> methodCalls;
+  std::map<std::filesystem::path, FileMetadata> fileMetadata;
   std::map<std::filesystem::path, std::vector<SubscriptExpression *>>
       arrayAccess;
-  std::map<std::filesystem::path, std::vector<FunctionExpression *>>
-      functionCalls;
-  std::map<std::filesystem::path, std::vector<IdExpression *>> identifiers;
-  std::map<std::filesystem::path, std::vector<StringLiteral *>> stringLiterals;
-  std::map<std::filesystem::path,
-           std::vector<std::tuple<KeywordItem *, std::shared_ptr<Function>>>>
-      kwargs;
   std::map<std::filesystem::path, std::vector<Diagnostic>> diagnostics;
   std::vector<IdExpression *> encounteredIds;
   std::map<std::string, std::tuple<std::filesystem::path, uint32_t, uint32_t>>
@@ -204,15 +233,14 @@ public:
   }
 
   void endFile(const std::filesystem::path &path) {
-    this->identifiers[path] = this->idExprs.back();
+    this->fileMetadata[path] =
+        FileMetadata(this->idExprs.back(), this->tempStringLiterals.back(),
+                     this->tempKwargs.back(), this->tempFuncCalls.back(),
+                     this->tempMethodCalls.back());
     this->idExprs.pop_back();
-    this->stringLiterals[path] = this->tempStringLiterals.back();
     this->tempStringLiterals.pop_back();
-    this->kwargs[path] = this->tempKwargs.back();
     this->tempKwargs.pop_back();
-    this->functionCalls[path] = this->tempFuncCalls.back();
     this->tempFuncCalls.pop_back();
-    this->methodCalls[path] = this->tempMethodCalls.back();
     this->tempMethodCalls.pop_back();
   }
 
@@ -222,21 +250,17 @@ public:
 
   FIND(MethodExpression, methodCalls)
   FIND(FunctionExpression, functionCalls)
-  FIND_FULL(IdExpression, identifiers)
+  FIND_FULL3(IdExpression, identifiers)
   FIND_FULL(SubscriptExpression, arrayAccess)
-  FIND_FULL(StringLiteral, stringLiterals)
+  FIND_FULL3(StringLiteral, stringLiterals)
 
   FIND_FULL2(MethodExpression, methodCalls)
   FIND_FULL2(FunctionExpression, functionCalls)
 
   void clear() {
+    this->fileMetadata = {};
     this->subdirCalls = {};
-    this->methodCalls = {};
     this->arrayAccess = {};
-    this->functionCalls = {};
-    this->identifiers = {};
-    this->stringLiterals = {};
-    this->kwargs = {};
     this->diagnostics = {};
     this->encounteredIds = {};
   }

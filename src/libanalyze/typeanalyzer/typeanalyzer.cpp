@@ -749,15 +749,16 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
 
 void TypeAnalyzer::checkNoEffect(Node *node) const {
   auto noEffect = false;
-  if (dynamic_cast<IntegerLiteral *>(node) ||
-      dynamic_cast<StringLiteral *>(node) ||
-      dynamic_cast<BooleanLiteral *>(node) ||
-      dynamic_cast<ArrayLiteral *>(node) ||
-      dynamic_cast<DictionaryLiteral *>(node)) {
+  if (node->type == NodeType::INTEGER_LITERAL ||
+      node->type == NodeType::STRING_LITERAL ||
+      node->type == NodeType::BOOLEAN_LITERAL ||
+      node->type == NodeType::ARRAY_LITERAL ||
+      node->type == NodeType::DICTIONARY_LITERAL) {
     noEffect = true;
     goto end;
   }
-  if (const auto *fe = dynamic_cast<FunctionExpression *>(node)) {
+  if (node->type == NodeType::FUNCTION_EXPRESSION) {
+    const auto *fe = static_cast<FunctionExpression *>(node);
     auto fnid = fe->function;
     if (fnid && PURE_FUNCTIONS.contains(fnid->name)) {
       noEffect = true;
@@ -765,7 +766,8 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     }
     return;
   }
-  if (const auto *me = dynamic_cast<MethodExpression *>(node)) {
+  if (node->type == NodeType::METHOD_EXPRESSION) {
+    const auto *me = static_cast<MethodExpression *>(node);
     auto method = me->method;
     if (method && PURE_METHODS.contains(method->id())) {
       noEffect = true;
@@ -1100,7 +1102,7 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) const {
   auto kwargsOnly = false;
   for (const auto &arg : args) {
-    if (dynamic_cast<KeywordItem *>(arg.get())) {
+    if (arg->type == NodeType::KEYWORD_ITEM) {
       kwargsOnly = true;
       continue;
     }
@@ -1142,14 +1144,14 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                Node *node) const {
   std::set<std::string> usedKwargs;
   for (const auto &arg : args) {
-    auto *kwi = dynamic_cast<KeywordItem *>(arg.get());
-    if (!kwi) {
+    if (arg->type != NodeType::KEYWORD_ITEM) {
       continue;
     }
-    auto *kId = dynamic_cast<IdExpression *>(kwi->key.get());
-    if (!kId) {
+    auto *kwi = static_cast<KeywordItem *>(arg.get());
+    if (kwi->key->type != NodeType::ID_EXPRESSION) {
       continue;
     }
+    auto *kId = static_cast<IdExpression *>(kwi->key.get());
     usedKwargs.insert(kId->id);
     if (func->kwargs.contains(kId->id)) {
       const auto &kwarg = func->kwargs[kId->id];
@@ -1189,8 +1191,8 @@ bool TypeAnalyzer::compatible(const std::shared_ptr<Type> &given,
   if (given->toString() == expected->toString()) {
     return true;
   }
-  auto *gAO = dynamic_cast<AbstractObject *>(given.get());
-  if (gAO) {
+  if (given->complexObject) {
+    auto *gAO = static_cast<AbstractObject *>(given.get());
     auto parent = gAO->parent;
     if (parent.has_value() && this->compatible(parent.value(), expected)) {
       return true;
@@ -1277,7 +1279,8 @@ void TypeAnalyzer::checkArgTypes(
     const std::vector<std::shared_ptr<Node>> &args) {
   auto posArgsIdx = 0;
   for (const auto &arg : args) {
-    if (auto *kwi = dynamic_cast<KeywordItem *>(arg.get())) {
+    if (arg->type == NodeType::KEYWORD_ITEM) {
+      auto *kwi = static_cast<KeywordItem *>(arg.get());
       const auto &givenTypes = kwi->value->types;
       const auto &kwargName = /*NOLINT*/ kwi->name.value();
       if (!func->kwargs.contains(kwargName)) {
@@ -1299,7 +1302,7 @@ unsigned long long TypeAnalyzer::countPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) {
   auto nPos = 0ULL;
   for (const auto &arg : args) {
-    if (!dynamic_cast<const KeywordItem *>(arg.get())) {
+    if (arg->type != NodeType::KEYWORD_ITEM) {
       nPos++;
     }
   }
@@ -1484,7 +1487,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
                                      func->since.versionString)));
   }
   const auto &args = node->args;
-  if (!args || !dynamic_cast<ArgumentList *>(args.get())) {
+  if (!args || args->type != NodeType::ARGUMENT_LIST) {
     if (func->minPosArgs > 0) {
       this->metadata->registerDiagnostic(
           node,
@@ -1495,15 +1498,15 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     }
   } else {
     this->checkCall(node);
-    auto *asArgumentList = dynamic_cast<ArgumentList *>(args.get());
-    if (!asArgumentList) {
+    if (args->type != NodeType::ARGUMENT_LIST) {
       goto cont;
     }
+    auto *asArgumentList = static_cast<ArgumentList *>(args.get());
     for (const auto &arg : asArgumentList->args) {
-      auto *asKwi = dynamic_cast<KeywordItem *>(arg.get());
-      if (!asKwi) {
+      if (arg->type != NodeType::KEYWORD_ITEM) {
         continue;
       }
+      auto *asKwi = static_cast<KeywordItem *>(arg.get());
       this->metadata->registerKwarg(asKwi, node->function);
     }
     if (func->name == "set_variable") {
@@ -1535,34 +1538,34 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
   if (!parent) [[unlikely]] {
     return false;
   }
-  const auto *me = dynamic_cast<MethodExpression *>(parent);
-  if (me) {
+
+  if (parent->type == NodeType::METHOD_EXPRESSION) {
+    const auto *me = static_cast<MethodExpression *>(parent);
     if (me->id->equals(node)) {
       return true;
     }
     goto end;
   }
   {
-    const auto *kwi = dynamic_cast<KeywordItem *>(parent);
-    if (kwi) {
+    if (parent->type == NodeType::KEYWORD_ITEM) {
+      const auto *kwi = static_cast<KeywordItem *>(parent);
       if (kwi->key->equals(node)) {
         return true;
       }
       goto end;
     }
-    const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
-    if (ass) {
+    if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+      const auto *ass = static_cast<AssignmentStatement *>(parent);
       if (ass->lhs->equals(node)) {
         return true;
       }
       goto end;
     }
-    const auto *fe = dynamic_cast<FunctionExpression *>(parent);
     // The only children of FunctionExpression are <ID>(<ARGS>)
-    if (fe) {
+    if (parent->type == NodeType::FUNCTION_EXPRESSION) {
       return true;
     }
-    if (dynamic_cast<IterationStatement *>(parent)) {
+    if (parent->type == NodeType::ITERATION_STATEMENT) {
       return true;
     }
   }
@@ -1576,28 +1579,39 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
   if (!parent) {
     return true;
   }
-  const auto *me = dynamic_cast<MethodExpression *>(parent);
-  if (me) {
-    const auto *idexpr = dynamic_cast<IdExpression *>(me->id.get());
-    if (idexpr && idexpr->id == idExpr->id) {
+  if (parent->type == NodeType::METHOD_EXPRESSION) {
+    const auto *me = static_cast<MethodExpression *>(parent);
+    if (me->id->type != NodeType::ID_EXPRESSION) {
+      goto err;
+    }
+    const auto *idexpr = static_cast<IdExpression *>(me->id.get());
+    if (idexpr->id == idExpr->id) {
       return true;
     }
   }
-  const auto *kwi = dynamic_cast<KeywordItem *>(parent);
-  if (kwi) {
-    const auto *key = dynamic_cast<IdExpression *>(kwi->key.get());
-    if (key && key->id == idExpr->id) {
+err:
+  if (parent->type == NodeType::KEYWORD_ITEM) {
+    const auto *kwi = static_cast<KeywordItem *>(parent);
+    if (kwi->key->type != NodeType::ID_EXPRESSION) {
+      goto err2;
+    }
+    const auto *key = static_cast<IdExpression *>(kwi->key.get());
+    if (key->id == idExpr->id) {
       return true;
     }
   }
-  const auto *ass = dynamic_cast<AssignmentStatement *>(parent);
-  if (ass) {
-    const auto *lhsIdExpr = dynamic_cast<IdExpression *>(ass->lhs.get());
-    if (lhsIdExpr && lhsIdExpr->id == idExpr->id &&
-        ass->op == AssignmentOperator::EQUALS) {
+err2:
+  if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+    const auto *ass = static_cast<AssignmentStatement *>(parent);
+    if (ass->lhs->type != NodeType::ID_EXPRESSION) {
+      goto err3;
+    }
+    const auto *lhsIdExpr = static_cast<IdExpression *>(ass->lhs.get());
+    if (lhsIdExpr->id == idExpr->id && ass->op == AssignmentOperator::EQUALS) {
       return true;
     }
   }
+err3:
   return this->scope.variables.contains(idExpr->id);
 }
 
@@ -1607,45 +1621,45 @@ void TypeAnalyzer::checkUsage(const IdExpression *node) {
     this->registerUsed(node->id);
     return;
   }
-  const auto *ass = dynamic_cast<const AssignmentStatement *>(parent);
-  if (ass) {
+  if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+    const auto *ass = static_cast<const AssignmentStatement *>(parent);
     if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
       this->registerUsed(node->id);
     }
     return;
   }
-  const auto *kwi = dynamic_cast<const KeywordItem *>(parent);
-  if (kwi && kwi->value->equals(node)) {
+
+  if (parent->type == NodeType::KEYWORD_ITEM &&
+      static_cast<const KeywordItem *>(parent)->value->equals(node)) {
     this->registerUsed(node->id);
     return;
   }
-  const auto *kvi = dynamic_cast<const KeyValueItem *>(parent);
-  if (kvi && kvi->value->equals(node)) {
+  if (parent->type == NodeType::KEY_VALUE_ITEM &&
+      static_cast<const KeyValueItem *>(parent)->value->equals(node)) {
     this->registerUsed(node->id);
     return;
   }
-  if (dynamic_cast<const FunctionExpression *>(parent)) {
+  if (parent->type == NodeType::FUNCTION_EXPRESSION) {
     return; // Do nothing
   }
-
-  const auto *its = dynamic_cast<const IterationStatement *>(parent);
-  if (its && its->expression->equals(node)) {
+  if (parent->type == NodeType::ITERATION_STATEMENT &&
+      static_cast<const IterationStatement *>(parent)->expression->equals(
+          node)) {
     this->registerUsed(node->id);
     return;
   }
-  const auto *me = dynamic_cast<const MethodExpression *>(parent);
-  if (me && me->obj->equals(node)) {
+  if (parent->type == NodeType::METHOD_EXPRESSION &&
+      static_cast<const MethodExpression *>(parent)->obj->equals(node)) {
     this->registerUsed(node->id);
     return;
   }
-
-  if (dynamic_cast<const BinaryExpression *>(parent) ||
-      dynamic_cast<const UnaryExpression *>(parent) ||
-      dynamic_cast<const ArgumentList *>(parent) ||
-      dynamic_cast<const ArrayLiteral *>(parent) ||
-      dynamic_cast<const ConditionalExpression *>(parent) ||
-      dynamic_cast<const SubscriptExpression *>(parent) ||
-      dynamic_cast<const SelectionStatement *>(parent)) {
+  if (parent->type == NodeType::BINARY_EXPRESSION ||
+      parent->type == NodeType::UNARY_EXPRESSION ||
+      parent->type == NodeType::ARGUMENT_LIST ||
+      parent->type == NodeType::ARRAY_LITERAL ||
+      parent->type == NodeType::CONDITIONAL_EXPRESSION ||
+      parent->type == NodeType::SUBSCRIPT_EXPRESSION ||
+      parent->type == NodeType::SELECTION_STATEMENT) {
     this->registerUsed(node->id);
   }
 }
@@ -1671,9 +1685,11 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
 }
 
 void TypeAnalyzer::registerUsed(const std::string &varname) {
+  const auto hashed = djb2(varname);
   for (auto &arr : this->variablesNeedingUse) {
-    std::erase_if(
-        arr, [&varname](const auto &idExpr) { return idExpr->id == varname; });
+    std::erase_if(arr, [&varname, hashed](const auto &idExpr) {
+      return idExpr->hash == hashed && idExpr->id == varname;
+    });
   }
 }
 

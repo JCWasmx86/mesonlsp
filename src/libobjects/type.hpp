@@ -105,6 +105,7 @@ class Type {
 public:
   const TypeName tag;
   bool simple = true;
+  bool complexObject = false;
   const std::string name;
 
   virtual const std::string &toString() { return this->name; }
@@ -128,7 +129,9 @@ protected:
   explicit AbstractObject(
       std::string name, TypeName tag,
       std::optional<std::shared_ptr<AbstractObject>> parent = std::nullopt)
-      : Type(std::move(name), tag), parent(std::move(parent)) {}
+      : Type(std::move(name), tag), parent(std::move(parent)) {
+    this->complexObject = true;
+  }
 };
 
 class Dict : public Type {

@@ -285,7 +285,8 @@ static void afterDotCompletion(std::vector<CompletionItem> &ret,
     }
     LOG.info(std::format("ErrorID: '{}'", errorId.value()));
     std::vector<std::shared_ptr<Type>> errorTypes;
-    for (auto *const identifier : tree->metadata.identifiers[path]) {
+    for (auto *const identifier :
+         tree->metadata.fileMetadata[path].identifiers) {
       errorTypes.insert(errorTypes.end(), identifier->types.begin(),
                         identifier->types.end());
     }
