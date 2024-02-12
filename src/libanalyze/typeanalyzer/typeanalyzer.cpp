@@ -315,13 +315,16 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   auto arr = node->rhs->types;
   if (arr.empty()) {
-    const auto *arrLit = dynamic_cast<ArrayLiteral *>(node->rhs.get());
-    if (arrLit && arrLit->args.empty()) {
-      arr.push_back(std::make_shared<List>());
-    }
-    const auto *dictLit = dynamic_cast<DictionaryLiteral *>(node->rhs.get());
-    if (dictLit && dictLit->values.empty()) {
-      arr.push_back(std::make_shared<Dict>());
+    if (node->rhs->type == NodeType::ARRAY_LITERAL) {
+      const auto *arrLit = static_cast<ArrayLiteral *>(node->rhs.get());
+      if (arrLit->args.empty()) {
+        arr.push_back(std::make_shared<List>());
+      }
+    } else if (node->rhs->type == NodeType::DICTIONARY_LITERAL) {
+      const auto *dictLit = static_cast<DictionaryLiteral *>(node->rhs.get());
+      if (dictLit->values.empty()) {
+        arr.push_back(std::make_shared<Dict>());
+      }
     }
   }
   const auto &assignmentName = lhsIdExpr->id;
@@ -1332,9 +1335,9 @@ void TypeAnalyzer::validatePositionalArgumentCount(
 
 void TypeAnalyzer::checkCall(Node *node) {
   std::shared_ptr<Function> func;
-  const auto *fe = dynamic_cast<FunctionExpression *>(node);
   auto nPos = 0ULL;
-  if (fe) {
+  if (node->type == NodeType::FUNCTION_EXPRESSION) {
+    const auto *fe = dynamic_cast<FunctionExpression *>(node);
     func = fe->function;
     if (const auto *al = dynamic_cast<ArgumentList *>(fe->args.get());
         al && func) {
@@ -1345,8 +1348,9 @@ void TypeAnalyzer::checkCall(Node *node) {
       nPos = TypeAnalyzer::countPositionalArguments(args);
     }
   }
-  const auto *me = dynamic_cast<MethodExpression *>(node);
-  if (me) {
+
+  if (node->type == NodeType::METHOD_EXPRESSION) {
+    const auto *me = dynamic_cast<MethodExpression *>(node);
     func = me->method;
     if (const auto *al = dynamic_cast<ArgumentList *>(me->args.get());
         al && func) {
@@ -1357,7 +1361,8 @@ void TypeAnalyzer::checkCall(Node *node) {
       nPos = TypeAnalyzer::countPositionalArguments(args);
     }
   }
-  if (!me && !fe) {
+  if (node->type != NodeType::FUNCTION_EXPRESSION &&
+      node->type != NodeType::METHOD_EXPRESSION) {
     return;
   }
   if (!func) {

@@ -228,5 +228,5 @@ private:
   LexerResult lexNumber();
   void finalize();
   void error(const std::string &msg);
-  bool isKeyword(size_t startIdx, size_t len);
+  bool checkKeyword(size_t startIdx, size_t len);
 };
