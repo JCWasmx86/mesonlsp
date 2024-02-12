@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 
 #include "log.hpp"
+#include "utils.hpp"
 
 #include <cstdint>
 #include <exception>
@@ -26,21 +27,22 @@ const static Logger LOG("lexer"); // NOLINT
 // in the average case.
 constexpr auto AVERAGE_STRING_LENGTH = 16;
 
-static const std::vector<std::pair<std::string, TokenType>> /*NOLINT*/ KEYWORDS{
-    {"if", IF},
-    {"endif", ENDIF},
-    {"and", AND},
-    {"break", BREAK},
-    {"continue", CONTINUE},
-    {"elif", ELIF},
-    {"else", ELSE},
-    {"endforeach", ENDFOREACH},
-    {"false", FALSE},
-    {"foreach", FOREACH},
-    {"in", IN},
-    {"not", NOT},
-    {"or", OR},
-    {"true", TRUE}};
+static const std::vector<
+    std::tuple<std::string, TokenType, uint32_t>> /*NOLINT*/ KEYWORDS{
+    {"if", IF, djb2("if")},
+    {"endif", ENDIF, djb2("endif")},
+    {"and", AND, djb2("and")},
+    {"break", BREAK, djb2("break")},
+    {"continue", CONTINUE, djb2("continue")},
+    {"elif", ELIF, djb2("elif")},
+    {"else", ELSE, djb2("else")},
+    {"endforeach", ENDFOREACH, djb2("endforeach")},
+    {"false", FALSE, djb2("false")},
+    {"foreach", FOREACH, djb2("foreach")},
+    {"in", IN, djb2("in")},
+    {"not", NOT, djb2("not")},
+    {"or", OR, djb2("or")},
+    {"true", TRUE, djb2("true")}};
 
 static bool isSkipchar(const char chr) {
   return chr == '\r' || chr == ' ' || chr == '\t' || chr == '#';
@@ -153,22 +155,25 @@ Lexer::LexerResult Lexer::lexIdentifier() {
     this->advance();
   }
   assert(len);
-  if (!this->isKeyword(startIdx, len)) {
-    auto name = this->input.substr(startIdx, len);
-    this->tokens.back().type = IDENTIFIER;
-    this->tokens.back().dat = std::move(name);
-  }
+  this->checkKeyword(startIdx, len);
   this->finalize();
   return LexerResult::CONTINUE;
 }
 
-bool Lexer::isKeyword(size_t startIdx, size_t len) {
-  for /*NOLINT*/ (const auto &[asStr, type] : KEYWORDS) {
+bool Lexer::checkKeyword(size_t startIdx, size_t len) {
+  auto name = this->input.substr(startIdx, len);
+  auto hashed = djb2(name);
+  for /*NOLINT*/ (const auto &[asStr, type, asHash] : KEYWORDS) {
+    if (hashed != asHash) {
+      continue;
+    }
     if (this->input.compare(startIdx, len, asStr) == 0) {
       this->tokens.back().type = type;
       return true;
     }
   }
+  this->tokens.back().type = IDENTIFIER;
+  this->tokens.back().dat = std::move(name);
   return false;
 }
 
