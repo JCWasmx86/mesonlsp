@@ -26,7 +26,7 @@ public:
   void parseSubprojects(const AnalysisOptions &options, int depth,
                         const std::string &parentIdentifier,
                         const TypeNamespace &ns, bool downloadSubprojects,
-                        bool useCustomParser);
+                        bool useCustomParser, MesonTree *tree);
 
   [[nodiscard]] bool hasSubproject(const std::string &name) const {
     if (!this->used) {
@@ -52,12 +52,13 @@ public:
 
   void fullSetup(const AnalysisOptions &options, int depth,
                  const std::string &parentIdentifier, const TypeNamespace &ns,
-                 bool downloadSubprojects, bool useCustomParser) {
+                 bool downloadSubprojects, bool useCustomParser,
+                 MesonTree *tree) {
     this->findSubprojects(downloadSubprojects);
     this->initSubprojects();
     this->updateSubprojects();
     this->parseSubprojects(options, depth, parentIdentifier, ns,
-                           downloadSubprojects, useCustomParser);
+                           downloadSubprojects, useCustomParser, tree);
   }
 };
 

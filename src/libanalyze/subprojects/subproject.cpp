@@ -10,8 +10,9 @@
 void MesonSubproject::parse(const AnalysisOptions &options, int depth,
                             const std::string &parentIdentifier,
                             const TypeNamespace &ns, bool downloadSubprojects,
-                            bool useCustomParser) {
+                            bool useCustomParser, MesonTree *parent) {
   this->tree = std::make_shared<MesonTree>(this->realpath, ns);
+  this->tree->parent = parent;
   this->tree->useCustomParser = useCustomParser;
   this->tree->depth = depth;
   this->tree->name = this->name;

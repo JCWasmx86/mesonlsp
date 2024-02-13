@@ -1013,6 +1013,10 @@ void TypeAnalyzer::setFunctionCallTypesSubproject(FunctionExpression *node) {
   if (subprojState.hasSubproject(*asSet.begin())) {
     return;
   }
+  if ((this->tree->parent != nullptr) &&
+      this->tree->parent->state.hasSubproject(*asSet.begin())) {
+    return;
+  }
   this->metadata->registerDiagnostic(
       node, Diagnostic(Severity::ERROR, node,
                        std::format("Unknown subproject `{}`", *asSet.begin())));
@@ -1040,7 +1044,9 @@ void TypeAnalyzer::setFunctionCallTypesBuildTarget(
   if (!types.empty()) {
     node->types = dedup(this->ns, types);
   } else {
-    node->types = func->returnTypes;
+    node->types = {this->ns.types.at("exe"), this->ns.types.at("lib"),
+                   this->ns.types.at("build_tgt"),
+                   this->ns.types.at("both_libs"), this->ns.types.at("jar")};
   }
 }
 
@@ -1859,10 +1865,11 @@ bool TypeAnalyzer::findMethod(
       if (firstArg->types.empty()) {
         continue;
       }
+      auto hasAny = type->tag == ANY;
       for (const auto &argType : firstArg->types) {
-        if ((argType->tag == INT && hasList) ||
-            (argType->tag == STR && hasDict) ||
-            (argType->tag == STR && type->tag == CFG_DATA)) {
+        if ((argType->tag == INT && (hasList || hasAny)) ||
+            (argType->tag == STR && (hasDict || hasAny)) ||
+            (argType->tag == STR && (hasAny || type->tag == CFG_DATA))) {
           goto cont;
         }
       }
@@ -1879,7 +1886,8 @@ bool TypeAnalyzer::findMethod(
     ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
                           method->returnTypes.end());
     auto *al = dynamic_cast<ArgumentList *>(node->args.get());
-    if (al && al->args.size() == 2 && methodName == "get") {
+    if (al && (al->args.size() == 1 || al->args.size() == 2) &&
+        methodName == "get") {
       auto defaultArg = al->getPositionalArg(1);
       if (defaultArg.has_value()) {
         const auto &defaultTypes = defaultArg.value()->types;
@@ -1944,6 +1952,45 @@ bool TypeAnalyzer::findMethod(
     return found;
   }
   if (!found && methodName == "get") {
+    auto al = node->args;
+    if (al && al->type == NodeType::ARGUMENT_LIST) {
+      auto *asAL = static_cast<ArgumentList *>(al.get());
+      auto resultType = asAL->types;
+      if (resultType.empty()) {
+        goto cc2;
+      }
+      if (resultType[0]->tag == INT) {
+        auto method = this->ns.lookupMethod("get", this->ns.types.at("list"));
+        node->method = method.value();
+        ownResultTypes.insert(ownResultTypes.end(),
+                              method.value()->returnTypes.begin(),
+                              method.value()->returnTypes.end());
+        auto defaultArg = asAL->getPositionalArg(1);
+        if (defaultArg.has_value()) {
+          const auto &defaultTypes = defaultArg.value()->types;
+          ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
+                                defaultTypes.end());
+        }
+        found = true;
+        return found;
+      }
+      if (resultType[0]->tag == STR) {
+        auto method = this->ns.lookupMethod("get", this->ns.types.at("dict"));
+        node->method = method.value();
+        ownResultTypes.insert(ownResultTypes.end(),
+                              method.value()->returnTypes.begin(),
+                              method.value()->returnTypes.end());
+        auto defaultArg = asAL->getPositionalArg(1);
+        if (defaultArg.has_value()) {
+          const auto &defaultTypes = defaultArg.value()->types;
+          ownResultTypes.insert(ownResultTypes.end(), defaultTypes.begin(),
+                                defaultTypes.end());
+        }
+        found = true;
+        return found;
+      }
+    }
+  cc2:
     for (const auto &type : types) {
       if (type->tag == DICT || type->tag == LIST || type->tag == CFG_DATA) {
         auto method = this->ns.lookupMethod("get", type);
@@ -1972,8 +2019,44 @@ bool TypeAnalyzer::findMethod(
 bool TypeAnalyzer::guessMethod(
     MethodExpression *node, const std::string &methodName,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
+  if (methodName == "get") {
+    if (node->args->type != NodeType::ARGUMENT_LIST) {
+      goto regular;
+    }
+    const auto *al = static_cast<ArgumentList *>(node->args.get());
+    auto firstArg = al->getPositionalArg(0);
+    if (!firstArg.has_value()) {
+      goto regular;
+    }
+    auto firstArgTypes = firstArg.value()->types;
+    if (firstArgTypes.empty()) {
+      goto regular;
+    }
+    if (firstArgTypes[0]->tag == INT) {
+      auto guessedMethod =
+          this->ns.lookupMethod("get", this->ns.types.at("list"));
+      auto method = guessedMethod.value();
+      ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
+                            method->returnTypes.end());
+      node->method = method;
+      node->types = dedup(this->ns, ownResultTypes);
+      return true;
+    }
+    if (firstArgTypes[0]->tag == STR) {
+      auto guessedMethod =
+          this->ns.lookupMethod("get", this->ns.types.at("list"));
+      auto method = guessedMethod.value();
+      ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
+                            method->returnTypes.end());
+      node->method = method;
+      node->types = dedup(this->ns, ownResultTypes);
+      return true;
+    }
+  }
+
+regular:
   auto guessedMethod = this->ns.lookupMethod(methodName);
-  if (!guessedMethod) {
+  if (!guessedMethod.has_value()) {
     return false;
   }
   auto method = guessedMethod.value();
@@ -2054,12 +2137,23 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
         continue;
       }
       for (const auto &subprojName : subprojType->names) {
-        const auto &subproj = this->tree->state.findSubproject(subprojName);
+        const auto &subproj =
+            this->tree->state.hasSubproject(subprojName)
+                ? this->tree->state.findSubproject(subprojName)
+                : (this->tree->parent
+                       ? this->tree->parent->state.findSubproject(subprojName)
+                       : nullptr);
         if (!subproj) {
           LOG.warn(std::format("Unable to find subproject {}", subprojName));
           continue;
         }
         const auto &variables = subproj->tree->scope;
+        if (!subproj->tree) {
+          LOG.warn(std::format(
+              "Subproject {} wasn't parsed yet... (Known limitation)",
+              subprojName));
+          continue;
+        }
         for (const auto &varname : asSet) {
           if (variables.variables.contains(varname)) {
             const auto &varTypes = variables.variables.at(varname);

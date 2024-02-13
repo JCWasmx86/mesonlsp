@@ -2,6 +2,7 @@
 
 #include "analysisoptions.hpp"
 #include "log.hpp"
+#include "mesontree.hpp"
 #include "subproject.hpp"
 #include "typenamespace.hpp"
 #include "utils.hpp"
@@ -102,7 +103,7 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
 }
 
 void SubprojectState::initSubprojects() {
-  for (const auto &subproject : this->subprojects) {
+  for (auto &subproject : this->subprojects) {
     subproject->init();
   }
 }
@@ -118,10 +119,10 @@ void SubprojectState::parseSubprojects(const AnalysisOptions &options,
                                        const std::string &parentIdentifier,
                                        const TypeNamespace &ns,
                                        bool downloadSubprojects,
-                                       bool useCustomParser) {
+                                       bool useCustomParser, MesonTree *tree) {
   for (const auto &subproject : this->subprojects) {
     subproject->parse(options, depth, parentIdentifier, ns, downloadSubprojects,
-                      useCustomParser);
+                      useCustomParser, tree);
   }
 }
 
