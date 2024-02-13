@@ -182,6 +182,7 @@ static const std::map<std::string, std::string> MODULES /*NOLINT*/ = {
     {"cuda", "cuda_module"},
     {"dlang", "dlang_module"},
     {"external_project", "external_project_module"},
+    {"unstable_external_project", "external_project_module"},
     {"fs", "fs_module"},
     {"gnome", "gnome_module"},
     {"hotdoc", "hotdoc_module"},
@@ -1577,7 +1578,8 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
       return true;
     }
     if (parent->type == NodeType::ITERATION_STATEMENT) {
-      return true;
+      return !static_cast<const IterationStatement *>(parent)
+                  ->expression->equals(node);
     }
   }
 end:

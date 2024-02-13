@@ -278,7 +278,8 @@ Workspace::jumpToIdentifier(const MesonMetadata *metadata,
             LSPLocation(pathToUrl(idExpr->file->file), nodeToRange(idExpr))};
       }
     }
-    if (dynamic_cast<IterationStatement *>(idExpr->parent)) {
+    const auto *its = dynamic_cast<IterationStatement *>(idExpr->parent);
+    if (its && !its->expression->equals(idExpr)) {
       return {LSPLocation(pathToUrl(idExpr->file->file), nodeToRange(idExpr))};
     }
   }
