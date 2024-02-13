@@ -1,8 +1,9 @@
 #!/usr/bin/env sh
 rm -rf __wrap_target
 mkdir __wrap_target
-swift build -c release --static-swift-stdlib || exit
-export LSPPATH="$PWD/.build/release/Swift-MesonLSP"
+mkdir build && cd build && cmake .. && make || exit
+cd ..
+export LSPPATH="$PWD/build/meson_lsp"
 $LSPPATH --wrap Wraps/rustc-demangle.wrap --wrap Wraps/libswiftdemangle.wrap \
 	--wrap Wraps/libswiftdemangle2.wrap --wrap Wraps/miniz.wrap \
 	--wrap Wraps/turtle.wrap --wrap Wraps/sqlite.wrap \
