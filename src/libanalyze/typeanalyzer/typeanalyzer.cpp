@@ -1872,6 +1872,7 @@ bool TypeAnalyzer::findMethod(
         if ((argType->tag == INT && (hasList || hasAny)) ||
             (argType->tag == STR && (hasDict || hasAny)) ||
             (argType->tag == STR && (hasAny || type->tag == CFG_DATA))) {
+          LOG.info("Found cont " + node->location.format());
           goto cont;
         }
       }
@@ -1957,7 +1958,10 @@ bool TypeAnalyzer::findMethod(
     auto al = node->args;
     if (al && al->type == NodeType::ARGUMENT_LIST) {
       auto *asAL = static_cast<ArgumentList *>(al.get());
-      auto resultType = asAL->types;
+      if (asAL->args.empty()) {
+        goto cc2;
+      }
+      auto resultType = asAL->args[0]->types;
       if (resultType.empty()) {
         goto cc2;
       }
@@ -2046,7 +2050,7 @@ bool TypeAnalyzer::guessMethod(
     }
     if (firstArgTypes[0]->tag == STR) {
       auto guessedMethod =
-          this->ns.lookupMethod("get", this->ns.types.at("list"));
+          this->ns.lookupMethod("get", this->ns.types.at("dict"));
       auto method = guessedMethod.value();
       ownResultTypes.insert(ownResultTypes.end(), method->returnTypes.begin(),
                             method->returnTypes.end());
