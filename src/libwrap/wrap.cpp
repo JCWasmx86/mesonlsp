@@ -49,6 +49,7 @@ Wrap::Wrap(ast::ini::Section *section) {
     std::string segment;
     std::stringstream strm(val.value());
     while (std::getline(strm, segment, ',')) {
+      trim(segment);
       this->diffFiles.push_back(segment);
     }
   }

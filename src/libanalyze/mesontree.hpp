@@ -31,6 +31,7 @@ public:
   Scope scope;
   MesonMetadata metadata;
   OptionState options;
+  MesonTree *parent;
   const TypeNamespace &ns;
   int depth = 0;
   std::string name = "root";
@@ -47,7 +48,7 @@ public:
       this->state.used = true;
       this->state.fullSetup(analysisOptions, depth + 1, this->identifier,
                             this->ns, downloadSubprojects,
-                            this->useCustomParser);
+                            this->useCustomParser, this);
     }
     this->partialParse(analysisOptions);
   }
