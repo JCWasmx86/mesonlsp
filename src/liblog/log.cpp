@@ -1,5 +1,6 @@
 #include "log.hpp"
 
+#include <cstdlib>
 #include <exception>
 #include <format>
 #include <iostream>
@@ -9,6 +10,7 @@
 #include <utility>
 
 Logger::Logger(std::string logmodule) : logmodule(std::move(logmodule)) {
+  this->noOutput = getenv("MESONLSP_NO_LOG") != nullptr;
   if (isatty(STDERR_FILENO) != 0) {
     this->blue = "\033[96m";
     this->red = "\033[91m";
@@ -42,6 +44,9 @@ void Logger::error(const std::string &msg,
 
 void Logger::info(const std::string &msg,
                   const std::source_location location) const {
+  if (this->noOutput) {
+    return;
+  }
   auto fullMsg =
       std::format("{}[ INFO ] {} - {}:{}: {} {}", this->blue, this->logmodule,
                   location.file_name(), location.line(), msg, this->reset);
