@@ -31,17 +31,20 @@ std::vector<std::string> splitString(const std::string &str);
 
 std::vector<std::string> guessSetVariable(FunctionExpression *fe,
                                           OptionState &opts) {
-  const auto *al = dynamic_cast<const ArgumentList *>(fe->args.get());
-  if (!al || al->args.empty()) {
+  if (!fe->args || fe->args->type != NodeType::ARGUMENT_LIST) {
+    return {};
+  }
+  const auto *al = static_cast<const ArgumentList *>(fe->args.get());
+  if (al->args.empty()) {
     return {};
   }
   auto toCalculate = al->args[0];
   Node *parent = fe;
   while (true) {
     const auto *probableParent = parent->parent;
-    if (dynamic_cast<const IterationStatement *>(probableParent) ||
-        dynamic_cast<const SelectionStatement *>(probableParent) ||
-        dynamic_cast<const BuildDefinition *>(probableParent)) {
+    if (probableParent->type == NodeType::ITERATION_STATEMENT ||
+        probableParent->type == NodeType::SELECTION_STATEMENT ||
+        probableParent->type == NodeType::BUILD_DEFINITION) {
       break;
     }
     parent = parent->parent;

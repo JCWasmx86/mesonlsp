@@ -150,6 +150,7 @@ struct StringData {
 public:
   bool format;
   bool multiline;
+  bool hasEnoughAts;
   std::string str;
 };
 
@@ -223,7 +224,7 @@ private:
 
   LexerResult lexString(bool fString);
   LexerResult tokenizeOne();
-  LexerResult lexStringChar(bool multiline, std::string &str);
+  LexerResult lexStringChar(bool multiline, std::string &str, uint32_t &nAts);
   LexerResult lexIdentifier();
   LexerResult lexNumber();
   void finalize();

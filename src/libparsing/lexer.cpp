@@ -192,7 +192,8 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
   return false;
 }
 
-Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
+Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str,
+                                        uint32_t &nAts) {
   auto done = false;
   if (this->idx >= this->input.length()) {
     return LexerResult::FAIL;
@@ -236,7 +237,11 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str) {
     }
     [[fallthrough]];
   [[likely]] default:
-    str.push_back(this->input[this->idx]);
+    auto chr = this->input[this->idx];
+    if (chr == '@') [[unlikely]] {
+      nAts++;
+    }
+    str.push_back(chr);
     break;
   }
   this->advance();
@@ -264,8 +269,9 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
   str.reserve(AVERAGE_STRING_LENGTH);
   auto loop = true;
   auto ret = Lexer::LexerResult::CONTINUE;
+  uint32_t nAts = 0;
   while (loop) {
-    switch (this->lexStringChar(multiline, str)) {
+    switch (this->lexStringChar(multiline, str, nAts)) {
     case Lexer::LexerResult::CONTINUE:
       break;
     case Lexer::LexerResult::DONE:
@@ -294,8 +300,10 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
     }
   }
 
-  this->tokens.back().dat = StringData{
-      .format = fString, .multiline = multiline, .str = std::move(str)};
+  this->tokens.back().dat = StringData{.format = fString,
+                                       .multiline = multiline,
+                                       .hasEnoughAts = nAts >= 2,
+                                       .str = std::move(str)};
   this->finalize();
   return ret;
 }

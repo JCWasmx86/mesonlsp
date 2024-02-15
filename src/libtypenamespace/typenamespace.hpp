@@ -23,8 +23,9 @@ public:
 
   [[nodiscard]] std::optional<const std::shared_ptr<Function>>
   lookupFunction(const std::string &name) const {
-    if (this->functions.contains(name)) {
-      return this->functions.at(name);
+    auto iter = this->functions.find(name);
+    if (iter != this->functions.end()) [[likely]] {
+      return iter->second;
     }
     return std::nullopt;
   }
@@ -32,7 +33,8 @@ public:
   [[nodiscard]] std::optional<const std::shared_ptr<Method>>
   lookupMethod(const std::string &name,
                const std::shared_ptr<Type> &type) const {
-    if (this->vtables.contains(type->name)) {
+    auto iter = this->vtables.find(type->name);
+    if (iter != this->vtables.end()) [[likely]] {
       for (const auto &method : this->vtables.at(type->name)) {
         if (method->name == name) {
           return method;
