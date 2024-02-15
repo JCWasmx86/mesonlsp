@@ -10,6 +10,7 @@ private:
   std::string yellow;
   std::string blue;
   std::string reset;
+  bool noOutput = false;
 
 public:
   explicit Logger(std::string logmodule);
