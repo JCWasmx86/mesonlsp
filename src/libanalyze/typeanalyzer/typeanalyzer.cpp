@@ -1955,9 +1955,9 @@ bool TypeAnalyzer::findMethod(
     return found;
   }
   if (!found && methodName == "get") {
-    auto al = node->args;
-    if (al && al->type == NodeType::ARGUMENT_LIST) {
-      auto *asAL = static_cast<ArgumentList *>(al.get());
+    auto al2 = node->args;
+    if (al2 && al2->type == NodeType::ARGUMENT_LIST) {
+      auto *asAL = static_cast<ArgumentList *>(al2.get());
       if (asAL->args.empty()) {
         goto cc2;
       }
