@@ -485,13 +485,15 @@ class StringLiteral final : public Node {
 public:
   std::string id;
   bool isFormat = false;
+  bool hasEnoughAts = false;
   StringLiteral(const std::shared_ptr<SourceFile> &file, const TSNode &node);
 
   StringLiteral(const std::shared_ptr<SourceFile> &file, std::string str,
                 const std::pair<uint32_t, uint32_t> &start,
-                const std::pair<uint32_t, uint32_t> &end, bool format)
+                const std::pair<uint32_t, uint32_t> &end, bool format,
+                bool hasEnoughAts)
       : Node(NodeType::STRING_LITERAL, file, start, end), id(std::move(str)),
-        isFormat(format) {}
+        isFormat(format), hasEnoughAts(hasEnoughAts) {}
 
   explicit StringLiteral(std::string str) : Node(NodeType::STRING_LITERAL) {
     this->id = std::move(str);

@@ -133,7 +133,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     }
     this->asts[rootNode->file->file].push_back(rootNode);
     rootNode->setParents();
-    return this->asts[rootNode->file->file].back();
+    return rootNode;
   }
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
@@ -153,7 +153,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     rootNode->setParents();
     ts_tree_delete(tree);
     ts_parser_delete(parser);
-    return this->asts[rootNode->file->file].back();
+    return rootNode;
   }
   const auto &fileId = createId(path);
   if (this->savedTrees.contains(fileId)) {
@@ -168,7 +168,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     }
     this->asts[rootNode->file->file].push_back(rootNode);
     this->ownedFiles.insert(std::filesystem::absolute(path));
-    return this->asts[rootNode->file->file].back();
+    return rootNode;
   }
   LOG.info(std::format("Cache miss for {}", fileId));
   const auto fileContent = readFile(path);
@@ -184,7 +184,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   this->asts[rootNode->file->file].push_back(rootNode);
   this->savedTrees[createId(path)] = tree;
   ts_parser_delete(parser);
-  return this->asts[rootNode->file->file].back();
+  return rootNode;
 }
 
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {

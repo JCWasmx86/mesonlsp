@@ -353,7 +353,8 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   if (this->accept(STRING)) {
     const auto &strData = *std::get_if<StringData>(&curr.dat);
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
-                                           end, strData.format);
+                                           end, strData.format,
+                                           strData.hasEnoughAts);
   }
   if (this->accept(INVALID)) {
     return std::make_shared<ErrorNode>(this->sourceFile, start, end,
