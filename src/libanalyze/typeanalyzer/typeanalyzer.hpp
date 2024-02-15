@@ -106,7 +106,7 @@ private:
   evalPlusEquals(const std::shared_ptr<Type> &left,
                  const std::shared_ptr<Type> &right);
   void applyToStack(const std::string &name,
-                    std::vector<std::shared_ptr<Type>> types);
+                    const std::vector<std::shared_ptr<Type>> &types);
   void checkIdentifier(const IdExpression *node) const;
   void registerNeedForUse(IdExpression *node);
   void analyseIterationStatementSingleIdentifier(IterationStatement *node);
@@ -165,8 +165,7 @@ private:
                                      const std::shared_ptr<Function> &func);
   void setFunctionCallTypesImport(FunctionExpression *node);
   void setFunctionCallTypesSubproject(FunctionExpression *node);
-  void setFunctionCallTypesBuildTarget(FunctionExpression *node,
-                                       const std::shared_ptr<Function> &func);
+  void setFunctionCallTypesBuildTarget(FunctionExpression *node);
   void setFunctionCallTypesGetVariable(FunctionExpression *node,
                                        const std::shared_ptr<Function> &func);
   void checkUsage(const IdExpression *node);

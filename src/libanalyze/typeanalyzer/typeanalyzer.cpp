@@ -244,8 +244,8 @@ void TypeAnalyzer::modifiedVariableType(
   this->selectionStatementStack.back() = currStackItem;
 }
 
-void TypeAnalyzer::applyToStack(const std::string &name,
-                                std::vector<std::shared_ptr<Type>> types) {
+void TypeAnalyzer::applyToStack(
+    const std::string &name, const std::vector<std::shared_ptr<Type>> &types) {
   if (this->stack.empty()) {
     return;
   }
@@ -1023,8 +1023,7 @@ void TypeAnalyzer::setFunctionCallTypesSubproject(FunctionExpression *node) {
                        std::format("Unknown subproject `{}`", *asSet.begin())));
 }
 
-void TypeAnalyzer::setFunctionCallTypesBuildTarget(
-    FunctionExpression *node, const std::shared_ptr<Function> &func) {
+void TypeAnalyzer::setFunctionCallTypesBuildTarget(FunctionExpression *node) {
   const auto &values = ::guessSetVariable(node, "target_type", this->options);
   std::set<std::string> const asSet{values.begin(), values.end()};
   std::vector<std::shared_ptr<Type>> types;
@@ -1099,7 +1098,7 @@ void TypeAnalyzer::setFunctionCallTypes(FunctionExpression *node,
     return;
   }
   if (name == "build_target") {
-    this->setFunctionCallTypesBuildTarget(node, func);
+    this->setFunctionCallTypesBuildTarget(node);
     return;
   }
   if (name == "get_variable") {
