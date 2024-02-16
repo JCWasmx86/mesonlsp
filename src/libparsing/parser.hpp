@@ -23,11 +23,14 @@ public:
   const std::vector<Token> &tokens;
   const Lexer &lexer;
   size_t idx = 0;
+  size_t inputLen = 0;
   std::vector<ParseError> errors;
   std::shared_ptr<SourceFile> sourceFile;
 
   Parser(const Lexer &lexer, const std::shared_ptr<SourceFile> &sourceFile)
-      : tokens(lexer.tokens), lexer(lexer), sourceFile(sourceFile) {}
+      : tokens(lexer.tokens), lexer(lexer), sourceFile(sourceFile) {
+    this->inputLen = this->tokens.size();
+  }
 
   std::shared_ptr<Node> parse(const std::vector<LexError> &lexErrs);
 
@@ -58,7 +61,7 @@ private:
   indexCall(const std::optional<std::shared_ptr<Node>> &source);
 
   void error(const std::string &error) {
-    auto realIdx = std::min(this->idx, this->tokens.size() - 1);
+    auto realIdx = std::min(this->idx, this->inputLen - 1);
     this->errors.emplace_back(error, this->tokens[realIdx].endLine,
                               this->tokens[realIdx].endColumn);
   }
@@ -74,7 +77,7 @@ private:
   }
 
   std::pair<uint32_t, uint32_t> currLoc() {
-    if (idx >= this->tokens.size()) {
+    if (idx >= this->inputLen) {
       return std::make_pair(this->tokens.back().startLine,
                             this->tokens.back().startColumn);
     }
@@ -83,7 +86,7 @@ private:
   }
 
   std::pair<uint32_t, uint32_t> endLoc() {
-    if (idx >= this->tokens.size()) {
+    if (idx >= this->inputLen) {
       return std::make_pair(this->tokens.back().endLine,
                             this->tokens.back().endColumn);
     }
@@ -92,14 +95,14 @@ private:
   }
 
   void getsym() {
-    if (this->idx >= this->tokens.size()) {
+    if (this->idx >= this->inputLen) {
       return;
     }
     this->idx++;
   }
 
   bool accept(const TokenType type) {
-    if (this->idx >= this->tokens.size()) {
+    if (this->idx >= this->inputLen) {
       return false;
     }
     if (this->tokens[this->idx].type == type) {
@@ -110,8 +113,7 @@ private:
   }
 
   void dumpContext() {
-    for (size_t i = idx - 3; i < std::min(idx + 5, this->tokens.size() - 1);
-         i++) {
+    for (size_t i = idx - 3; i < std::min(idx + 5, this->inputLen - 1); i++) {
       std::cerr << std::format("[{}{}] TOKEN: {} [{}:{}]", i,
                                idx == i ? "*" : "", enum2String(tokens[i].type),
                                tokens[i].startLine, tokens[i].startColumn)
@@ -123,7 +125,7 @@ private:
     if (this->accept(type)) {
       return;
     }
-    if (this->idx >= this->tokens.size()) {
+    if (this->idx >= this->inputLen) {
       this->error(std::format("Expected {}, but got {}", enum2String(type),
                               enum2String(this->tokens.back().type)));
       return;
@@ -140,7 +142,7 @@ private:
   std::optional<std::shared_ptr<Node>> seekTo(TokenType type) {
     auto aLoc = this->currLoc();
     auto makeError = false;
-    while (this->idx < this->tokens.size()) {
+    while (this->idx < this->inputLen) {
       if (this->tokens[idx].type != type) {
         makeError = true;
         this->idx++;
@@ -158,7 +160,7 @@ private:
   std::optional<std::shared_ptr<Node>> seekToOverInvalidTokens() {
     auto aLoc = this->currLoc();
     auto makeError = false;
-    while (this->idx < this->tokens.size()) {
+    while (this->idx < this->inputLen) {
       if (this->tokens[idx].type == TokenType::INVALID) {
         makeError = true;
         this->idx++;

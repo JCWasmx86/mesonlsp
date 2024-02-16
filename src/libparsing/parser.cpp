@@ -141,7 +141,7 @@ std::optional<std::shared_ptr<Node>> Parser::e5AddSub() {
     return left;
   }
   while (true) {
-    if (idx >= this->tokens.size()) {
+    if (idx >= this->inputLen) {
       return std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left),
           this->errorNode("Unexpected EOF"), BinaryOperator::BIN_OP_OTHER);
@@ -171,7 +171,7 @@ std::optional<std::shared_ptr<Node>> Parser::e5MulDiv() {
     return left;
   }
   while (true) {
-    if (idx >= this->tokens.size()) {
+    if (idx >= this->inputLen) {
       return std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left),
           this->errorNode("Unexpected EOF"), BinaryOperator::BIN_OP_OTHER);
@@ -337,7 +337,7 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
     return std::make_shared<BooleanLiteral>(this->sourceFile, start, end,
                                             false);
   }
-  if (idx >= this->tokens.size()) {
+  if (idx >= this->inputLen) {
     return this->errorNode("Premature EOF");
   }
   const auto &curr = this->tokens[idx];
@@ -420,7 +420,7 @@ std::shared_ptr<Node> Parser::args() {
 }
 
 std::optional<std::shared_ptr<Node>> Parser::line() {
-  if (idx >= this->tokens.size()) {
+  if (idx >= this->inputLen) {
     return this->errorNode("Unexpected EOF");
   }
   auto currentType = this->tokens[this->idx].type;
@@ -492,7 +492,7 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
 std::shared_ptr<Node>
 Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   std::vector<std::shared_ptr<Node>> ids;
-  if (idx >= this->tokens.size()) {
+  if (idx >= this->inputLen) {
     return this->errorNode("Premature EOF");
   }
   auto curr = this->tokens[idx];
@@ -507,7 +507,7 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   if (this->accept(COMMA)) {
     startOfIdExpr = this->currLoc();
     end = this->endLoc();
-    if (idx >= this->tokens.size()) {
+    if (idx >= this->inputLen) {
       return this->errorNode("Premature EOF");
     }
     curr = this->tokens[idx];

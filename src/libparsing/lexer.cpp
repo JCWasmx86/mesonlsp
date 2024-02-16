@@ -74,7 +74,7 @@ constexpr auto VALID_INSIDE_IDENTIFIER =
     generateBoolArray<256>(isValidInsideOfIdentifier);
 
 void Lexer::advance() noexcept {
-  if (this->idx >= this->input.length()) {
+  if (this->idx >= this->inputSize) {
     return;
   }
   if (this->input[this->idx] == '\n') [[unlikely]] {
@@ -179,8 +179,7 @@ Lexer::LexerResult Lexer::lexIdentifier() {
 }
 
 bool Lexer::checkKeyword(size_t startIdx, size_t len) {
-  auto name = this->input.substr(startIdx, len);
-  auto hashed = djb2(name);
+  auto hashed = djb2(&this->input[startIdx], len);
   for /*NOLINT*/ (const auto &[asStr, type, asHash] : KEYWORDS) {
     if (hashed != asHash) {
       continue;
@@ -191,7 +190,9 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
     }
   }
   this->tokens.back().type = IDENTIFIER;
-  this->identifierDatas.emplace_back(std::move(name), hashed);
+  this->identifierDatas.emplace_back(
+      std::string(static_cast<const char *>(&this->input[startIdx]), len),
+      hashed);
   this->tokens.back().idx = this->identifierDatas.size() - 1;
   return false;
 }
@@ -199,7 +200,7 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
 Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str,
                                         uint32_t &nAts) {
   auto done = false;
-  if (this->idx >= this->input.length()) {
+  if (this->idx >= this->inputSize) {
     return LexerResult::FAIL;
   }
   switch (this->input[this->idx]) {
@@ -259,7 +260,7 @@ Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str,
 Lexer::LexerResult Lexer::lexString(bool fString) {
   auto multiline = false;
   uint32_t quotes = 0;
-  if (this->idx + 3 < this->input.size() &&
+  if (this->idx + 3 < this->inputSize &&
       this->input.compare(this->idx, 3, "'''") == 0) {
     multiline = true;
     this->advance();
@@ -283,7 +284,7 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
       break;
     case Lexer::LexerResult::FAIL:
       auto terminated = false;
-      while (this->idx < this->input.size() && (this->input[this->idx] != 0) &&
+      while (this->idx < this->inputSize && (this->input[this->idx] != 0) &&
              (multiline || (!multiline && this->input[this->idx] != '\n'))) {
         if (this->input[this->idx] == '\'') {
           quotes++;
@@ -455,8 +456,8 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     }
     break;
   case '\0':
-    if (this->idx != this->input.length() - 1) {
-      LOG.info(std::format("{} {}\n{}", this->idx, this->input.length() - 1,
+    if (this->idx != this->inputSize - 1) {
+      LOG.info(std::format("{} {}\n{}", this->idx, this->inputSize - 1,
                            this->input));
       this->error("Unexpected null byte");
       this->finalize();
@@ -492,7 +493,7 @@ void Lexer::error(const std::string &msg) {
 bool Lexer::tokenize() {
   auto success = true;
   auto loop = true;
-  auto len = this->input.length();
+  auto len = this->inputSize;
   while (loop && this->idx < len) {
     auto result = this->tokenizeOne();
     switch (result) {
