@@ -53,7 +53,7 @@ void customParserLexOnce(benchmark::State &state) {
   lexer.tokenize();
   for (auto _ : state) {
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
-    Parser parser(lexer.tokens, sourceFile);
+    Parser parser(lexer, sourceFile);
     auto rootNode = parser.parse(lexer.errors);
     rootNode->setParents();
     benchmark::DoNotOptimize(rootNode);
@@ -103,7 +103,7 @@ void customParserParse(benchmark::State &state) {
     Lexer lexer(fileContent);
     lexer.tokenize();
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
-    Parser parser(lexer.tokens, sourceFile);
+    Parser parser(lexer, sourceFile);
     auto rootNode = parser.parse(lexer.errors);
     rootNode->setParents();
     benchmark::DoNotOptimize(rootNode);
@@ -119,7 +119,7 @@ void customParserParseWithoutSettingParents(benchmark::State &state) {
     Lexer lexer(fileContent);
     lexer.tokenize();
     auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
-    Parser parser(lexer.tokens, sourceFile);
+    Parser parser(lexer, sourceFile);
     auto rootNode = parser.parse(lexer.errors);
     benchmark::DoNotOptimize(rootNode);
     benchmark::ClobberMemory();

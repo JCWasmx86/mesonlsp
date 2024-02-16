@@ -21,13 +21,13 @@ struct ParseError {
 class Parser {
 public:
   const std::vector<Token> &tokens;
+  const Lexer &lexer;
   size_t idx = 0;
   std::vector<ParseError> errors;
   std::shared_ptr<SourceFile> sourceFile;
 
-  Parser(const std::vector<Token> &tokens,
-         const std::shared_ptr<SourceFile> &sourceFile)
-      : tokens(tokens), sourceFile(sourceFile) {}
+  Parser(const Lexer &lexer, const std::shared_ptr<SourceFile> &sourceFile)
+      : tokens(lexer.tokens), lexer(lexer), sourceFile(sourceFile) {}
 
   std::shared_ptr<Node> parse(const std::vector<LexError> &lexErrs);
 

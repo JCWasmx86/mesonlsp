@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
       Lexer lexer(fileContent);
       lexer.tokenize();
       auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
-      Parser parser(lexer.tokens, sourceFile);
+      Parser parser(lexer, sourceFile);
       auto rootNode = parser.parse(lexer.errors);
       rootNode->setParents();
     }
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
       Lexer lexer(fileContent);
       lexer.tokenize();
       auto sourceFile = std::make_shared<MemorySourceFile>(fileContent, path);
-      Parser parser(lexer.tokens, sourceFile);
+      Parser parser(lexer, sourceFile);
       auto rootNode = parser.parse(lexer.errors);
       rootNode->setParents();
       std::cerr << rootNode->toString() << std::endl;

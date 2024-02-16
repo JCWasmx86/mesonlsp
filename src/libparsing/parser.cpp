@@ -342,16 +342,17 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   }
   const auto &curr = this->tokens[idx];
   if (this->accept(IDENTIFIER)) {
-    return std::make_shared<IdExpression>(
-        this->sourceFile, *std::get_if<std::string>(&curr.dat), start, end);
+    const auto &idData = this->lexer.identifierDatas[curr.idx];
+    return std::make_shared<IdExpression>(this->sourceFile, idData.name,
+                                          idData.hash, start, end);
   }
   if (this->accept(NUMBER)) {
-    const auto &intData = *std::get_if<NumberData>(&curr.dat);
+    const auto &intData = this->lexer.numberDatas[curr.idx];
     return std::make_shared<IntegerLiteral>(this->sourceFile, intData.asInt,
                                             intData.asString, start, end);
   }
   if (this->accept(STRING)) {
-    const auto &strData = *std::get_if<StringData>(&curr.dat);
+    const auto &strData = this->lexer.stringDatas[curr.idx];
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format,
                                            strData.hasEnoughAts);
@@ -499,9 +500,9 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   auto end = this->endLoc();
   this->expect(IDENTIFIER);
   if (curr.type == IDENTIFIER) {
+    const auto &idData = this->lexer.identifierDatas[curr.idx];
     ids.push_back(std::make_shared<IdExpression>(
-        this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
-        end));
+        this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
   }
   if (this->accept(COMMA)) {
     startOfIdExpr = this->currLoc();
@@ -511,10 +512,10 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     }
     curr = this->tokens[idx];
     this->expect(IDENTIFIER);
+    const auto &idData = this->lexer.identifierDatas[curr.idx];
     if (curr.type == IDENTIFIER) {
       ids.push_back(std::make_shared<IdExpression>(
-          this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
-          end));
+          this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
     }
   }
   std::vector<std::shared_ptr<Node>> errs;
