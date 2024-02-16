@@ -1,5 +1,6 @@
 #pragma once
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -212,6 +213,9 @@ public:
   explicit Lexer(std::string input) : input(std::move(input)) {
     this->input.push_back('\0');
     this->tokens.reserve(guessTokensCount(this->input.size()));
+    this->numberDatas.reserve(guessNumbersCount(this->input.size()));
+    this->identifierDatas.reserve(guessIdentifiersCount(this->input.size()));
+    this->stringDatas.reserve(guessStringsCount(this->input.size()));
     assert(this->idx == 0);
   }
 
@@ -219,6 +223,19 @@ public:
 
   static size_t guessTokensCount(size_t inputSize) {
     return (size_t)((SLOPE * (double)inputSize) + Y_INTERCEPT);
+  }
+
+  static size_t guessNumbersCount(size_t inputSize) {
+    return (size_t)((NUMBERS_SLOPE * (double)inputSize) + NUMBERS_Y_INTERCEPT);
+  }
+
+  static size_t guessIdentifiersCount(size_t inputSize) {
+    return (size_t)((IDENTIFIERS_SLOPE * (double)inputSize) +
+                    IDENTIFIERS_Y_INTERCEPT);
+  }
+
+  static size_t guessStringsCount(size_t inputSize) {
+    return (size_t)((STRINGS_SLOPE * (double)inputSize) + STRINGS_Y_INTERCEPT);
   }
 
 private:
@@ -231,6 +248,12 @@ private:
   // of allocations needed for e.g. resizing.
   constexpr static auto SLOPE = 0.122;
   constexpr static auto Y_INTERCEPT = 31;
+  constexpr static auto NUMBERS_SLOPE = 0.001247;
+  constexpr static auto NUMBERS_Y_INTERCEPT = -1;
+  constexpr static auto IDENTIFIERS_SLOPE = 0.026391;
+  constexpr static auto IDENTIFIERS_Y_INTERCEPT = 6.8;
+  constexpr static auto STRINGS_SLOPE = 0.01955;
+  constexpr static auto STRINGS_Y_INTERCEPT = 3.65;
 
   LexerResult lexString(bool fString);
   LexerResult tokenizeOne();
