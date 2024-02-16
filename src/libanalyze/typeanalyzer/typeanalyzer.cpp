@@ -1609,7 +1609,7 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
       goto err;
     }
     const auto *idexpr = static_cast<IdExpression *>(me->id.get());
-    if (idexpr->id == idExpr->id) {
+    if (idexpr->hash == idExpr->hash && idexpr->id == idExpr->id) {
       return true;
     }
   }
@@ -1620,7 +1620,7 @@ err:
       goto err2;
     }
     const auto *key = static_cast<IdExpression *>(kwi->key.get());
-    if (key->id == idExpr->id) {
+    if (key->hash == idExpr->hash && key->id == idExpr->id) {
       return true;
     }
   }
@@ -1631,7 +1631,8 @@ err2:
       goto err3;
     }
     const auto *lhsIdExpr = static_cast<IdExpression *>(ass->lhs.get());
-    if (lhsIdExpr->id == idExpr->id && ass->op == AssignmentOperator::EQUALS) {
+    if (lhsIdExpr->hash == idExpr->hash && lhsIdExpr->id == idExpr->id &&
+        ass->op == AssignmentOperator::EQUALS) {
       return true;
     }
   }
@@ -1642,25 +1643,25 @@ err3:
 void TypeAnalyzer::checkUsage(const IdExpression *node) {
   const auto *parent = node->parent;
   if (!parent) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
     return;
   }
   if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
     const auto *ass = static_cast<const AssignmentStatement *>(parent);
     if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
-      this->registerUsed(node->id);
+      this->registerUsed(node);
     }
     return;
   }
 
   if (parent->type == NodeType::KEYWORD_ITEM &&
       static_cast<const KeywordItem *>(parent)->value->equals(node)) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
     return;
   }
   if (parent->type == NodeType::KEY_VALUE_ITEM &&
       static_cast<const KeyValueItem *>(parent)->value->equals(node)) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
     return;
   }
   if (parent->type == NodeType::FUNCTION_EXPRESSION) {
@@ -1669,12 +1670,12 @@ void TypeAnalyzer::checkUsage(const IdExpression *node) {
   if (parent->type == NodeType::ITERATION_STATEMENT &&
       static_cast<const IterationStatement *>(parent)->expression->equals(
           node)) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
     return;
   }
   if (parent->type == NodeType::METHOD_EXPRESSION &&
       static_cast<const MethodExpression *>(parent)->obj->equals(node)) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
     return;
   }
   if (parent->type == NodeType::BINARY_EXPRESSION ||
@@ -1684,7 +1685,7 @@ void TypeAnalyzer::checkUsage(const IdExpression *node) {
       parent->type == NodeType::CONDITIONAL_EXPRESSION ||
       parent->type == NodeType::SUBSCRIPT_EXPRESSION ||
       parent->type == NodeType::SELECTION_STATEMENT) {
-    this->registerUsed(node->id);
+    this->registerUsed(node);
   }
 }
 
@@ -1710,7 +1711,14 @@ void TypeAnalyzer::visitIdExpression(IdExpression *node) {
 }
 
 void TypeAnalyzer::registerUsed(const std::string &varname) {
-  const auto hashed = djb2(varname);
+  this->registerUsed(varname, djb2(varname));
+}
+
+void TypeAnalyzer::registerUsed(const IdExpression *idExpr) {
+  this->registerUsed(idExpr->id, idExpr->hash);
+}
+
+void TypeAnalyzer::registerUsed(const std::string &varname, uint32_t hashed) {
   for (auto &arr : this->variablesNeedingUse) {
     std::erase_if(arr, [&varname, hashed](const auto &idExpr) {
       return idExpr->hash == hashed && idExpr->id == varname;
