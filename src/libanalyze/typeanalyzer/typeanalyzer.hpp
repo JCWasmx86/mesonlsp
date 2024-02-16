@@ -12,6 +12,7 @@
 #include "typenamespace.hpp"
 #include "version.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -119,7 +120,9 @@ private:
       BinaryOperator op, std::vector<std::shared_ptr<Type>> lhs,
       const std::vector<std::shared_ptr<Type>> &rhs, unsigned int *numErrors);
   void enterSubdir(FunctionExpression *node);
+  void registerUsed(const IdExpression *idExpr);
   void registerUsed(const std::string &varname);
+  void registerUsed(const std::string &varname, uint32_t hashed);
   std::vector<std::shared_ptr<Type>> evalStack(const std::string &name);
   bool ignoreIdExpression(IdExpression *node);
   bool isKnownId(IdExpression *idExpr) const;
