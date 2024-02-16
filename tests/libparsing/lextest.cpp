@@ -81,7 +81,7 @@ TEST(LexerTest, testIdentifier) {
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(TokenType::IDENTIFIER, tokens[0].type);
-  ASSERT_EQ(std::get<std::string>(tokens[0].dat), "fooA_123a");
+  ASSERT_EQ(std::get<IdentifierData>(tokens[0].dat).name, "fooA_123a");
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
