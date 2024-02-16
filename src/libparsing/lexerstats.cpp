@@ -70,19 +70,17 @@ int main(int /*argc*/, char **argv) {
     for (const auto &tok : lexer.tokens) {
       if (tok.type == TokenType::IDENTIFIER) {
         nIdentifiers++;
-        const auto &identifierData = lexer.identifierDatas[tok.idx];
-        identifierLengthTotal += identifierData.name.size();
+        identifierLengthTotal += std::get<std::string>(tok.dat).size();
         continue;
       }
       if (tok.type == TokenType::NUMBER) {
         nNumbers++;
-        const auto &numberData = lexer.numberDatas[tok.idx];
-        numberLengthTotal += numberData.asString.size();
+        numberLengthTotal += std::get<NumberData>(tok.dat).asString.size();
       }
       if (tok.type != TokenType::STRING) {
         continue;
       }
-      const auto &data = lexer.stringDatas[tok.idx];
+      const auto &data = std::get<StringData>(tok.dat);
       stringLengths.push_back(data.str.size());
     }
     pairs.emplace_back(contents.size(), lexer.tokens.size());

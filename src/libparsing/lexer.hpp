@@ -146,12 +146,6 @@ inline std::string enum2String(TokenType type) {
   assert(false);
 }
 
-struct IdentifierData {
-public:
-  std::string name;
-  uint32_t hash;
-};
-
 struct StringData {
 public:
   bool format;
@@ -168,11 +162,11 @@ public:
 
 struct Token final {
 public:
+  std::variant<std::monostate, NumberData, std::string, StringData> dat;
   uint32_t startLine;
   uint32_t endLine;
   uint16_t startColumn;
   uint16_t endColumn;
-  uint32_t idx;
   TokenType type = TokenType::INVALID;
 
   Token(uint32_t startLine, uint16_t startColumn)
@@ -197,10 +191,6 @@ public:
   std::vector<Token> tokens;
   std::vector<LexError> errors;
   std::string input;
-  std::vector<NumberData> numberDatas;
-  std::vector<StringData> stringDatas;
-  std::vector<IdentifierData> identifierDatas;
-
   uint32_t idx = 0;
   uint32_t dataIdx = 0;
   uint32_t line = 0;

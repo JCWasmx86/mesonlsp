@@ -109,8 +109,7 @@ Lexer::LexerResult Lexer::lexNumber() {
       break;
     default:
       this->advance();
-      this->numberDatas.emplace_back(0, "0");
-      this->tokens.back().idx = this->numberDatas.size() - 1;
+      this->tokens.back().dat = NumberData{0, "0"};
       this->finalize();
       return LexerResult::CONTINUE;
     }
@@ -158,8 +157,7 @@ end:
                           exc.what()));
     this->error("Invalid integer literal");
   }
-  this->numberDatas.emplace_back(asInt, std::move(asStr));
-  this->tokens.back().idx = this->numberDatas.size() - 1;
+  this->tokens.back().dat = NumberData{asInt, asStr};
   this->finalize();
   return LexerResult::CONTINUE;
 }
@@ -190,8 +188,7 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
     }
   }
   this->tokens.back().type = IDENTIFIER;
-  this->identifierDatas.emplace_back(std::move(name), hashed);
-  this->tokens.back().idx = this->identifierDatas.size() - 1;
+  this->tokens.back().dat = std::move(name);
   return false;
 }
 
@@ -302,8 +299,11 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
       break;
     }
   }
-  this->stringDatas.push_back({fString, multiline, nAts >= 2, std::move(str)});
-  this->tokens.back().idx = this->stringDatas.size() - 1;
+
+  this->tokens.back().dat = StringData{.format = fString,
+                                       .multiline = multiline,
+                                       .hasEnoughAts = nAts >= 2,
+                                       .str = std::move(str)};
   this->finalize();
   return ret;
 }
