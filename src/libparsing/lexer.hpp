@@ -249,7 +249,8 @@ private:
   constexpr static auto SLOPE = 0.122;
   constexpr static auto Y_INTERCEPT = 31;
   constexpr static auto NUMBERS_SLOPE = 0.001247;
-  constexpr static auto NUMBERS_Y_INTERCEPT = -1;
+  constexpr static auto NUMBERS_Y_INTERCEPT =
+      0; // Should be -1, but that makes no sense
   constexpr static auto IDENTIFIERS_SLOPE = 0.026391;
   constexpr static auto IDENTIFIERS_Y_INTERCEPT = 6.8;
   constexpr static auto STRINGS_SLOPE = 0.01955;
