@@ -395,10 +395,11 @@ public:
   IdExpression(const std::shared_ptr<SourceFile> &file, const TSNode &node);
 
   IdExpression(const std::shared_ptr<SourceFile> &file, std::string str,
-               uint32_t hash, const std::pair<uint32_t, uint32_t> &start,
+               const std::pair<uint32_t, uint32_t> &start,
                const std::pair<uint32_t, uint32_t> &end)
-      : Node(NodeType::ID_EXPRESSION, file, start, end), id(std::move(str)),
-        hash(hash) {}
+      : Node(NodeType::ID_EXPRESSION, file, start, end), id(std::move(str)) {
+    this->hash = djb2(this->id);
+  }
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
