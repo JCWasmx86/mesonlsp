@@ -342,8 +342,9 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   }
   const auto &curr = this->tokens[idx];
   if (this->accept(IDENTIFIER)) {
-    return std::make_shared<IdExpression>(
-        this->sourceFile, *std::get_if<std::string>(&curr.dat), start, end);
+    const auto &idData = *std::get_if<IdentifierData>(&curr.dat);
+    return std::make_shared<IdExpression>(this->sourceFile, idData.name,
+                                          idData.hash, start, end);
   }
   if (this->accept(NUMBER)) {
     const auto &intData = *std::get_if<NumberData>(&curr.dat);
@@ -499,9 +500,9 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   auto end = this->endLoc();
   this->expect(IDENTIFIER);
   if (curr.type == IDENTIFIER) {
+    const auto &idData = *std::get_if<IdentifierData>(&curr.dat);
     ids.push_back(std::make_shared<IdExpression>(
-        this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
-        end));
+        this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
   }
   if (this->accept(COMMA)) {
     startOfIdExpr = this->currLoc();
@@ -512,9 +513,9 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     curr = this->tokens[idx];
     this->expect(IDENTIFIER);
     if (curr.type == IDENTIFIER) {
+      const auto &idData = *std::get_if<IdentifierData>(&curr.dat);
       ids.push_back(std::make_shared<IdExpression>(
-          this->sourceFile, *std::get_if<std::string>(&curr.dat), startOfIdExpr,
-          end));
+          this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
     }
   }
   std::vector<std::shared_ptr<Node>> errs;
