@@ -154,12 +154,6 @@ public:
   std::string str;
 };
 
-struct IdentifierData {
-public:
-  std::string name;
-  uint32_t hash;
-};
-
 struct NumberData {
 public:
   uint64_t asInt;
@@ -168,7 +162,7 @@ public:
 
 struct Token final {
 public:
-  std::variant<std::monostate, NumberData, IdentifierData, StringData> dat;
+  std::variant<std::monostate, NumberData, std::string, StringData> dat;
   uint32_t startLine;
   uint32_t endLine;
   uint16_t startColumn;
