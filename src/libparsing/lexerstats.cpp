@@ -70,7 +70,7 @@ int main(int /*argc*/, char **argv) {
     for (const auto &tok : lexer.tokens) {
       if (tok.type == TokenType::IDENTIFIER) {
         nIdentifiers++;
-        identifierLengthTotal += std::get<IdentifierData>(tok.dat).name.size();
+        identifierLengthTotal += std::get<std::string>(tok.dat).size();
         continue;
       }
       if (tok.type == TokenType::NUMBER) {

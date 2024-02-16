@@ -188,7 +188,7 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
     }
   }
   this->tokens.back().type = IDENTIFIER;
-  this->tokens.back().dat = IdentifierData{std::move(name), hashed};
+  this->tokens.back().dat = std::move(name);
   return false;
 }
 
