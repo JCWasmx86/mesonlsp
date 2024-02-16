@@ -4,29 +4,29 @@
 #include <string>
 #include <utility>
 
-std::pair<std::vector<LexError>, std::vector<Token>>
+std::tuple<std::vector<LexError>, std::vector<Token>, Lexer>
 lex(const std::string &input) {
   Lexer lexer(input);
   lexer.tokenize();
-  return std::make_pair(lexer.errors, lexer.tokens);
+  return {lexer.errors, lexer.tokens, lexer};
 }
 
 TEST(LexerTest, testEmpty) {
-  const auto &[errs, tokens] = lex("");
+  const auto &[errs, tokens, lexer] = lex("");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(1, tokens.size());
   ASSERT_EQ(TokenType::TOKEOF, tokens[0].type);
 }
 
 TEST(LexerTest, testOnlyComment) {
-  const auto &[errs, tokens] = lex("#foo");
+  const auto &[errs, tokens, lexer] = lex("#foo");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(1, tokens.size());
   ASSERT_EQ(TokenType::TOKEOF, tokens[0].type);
 }
 
 TEST(LexerTest, testCommentNewLine) {
-  const auto &[errs, tokens] = lex("#foo\n#foo\r\n      \t");
+  const auto &[errs, tokens, lexer] = lex("#foo\n#foo\r\n      \t");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(TokenType::EOL, tokens[0].type);
@@ -35,59 +35,59 @@ TEST(LexerTest, testCommentNewLine) {
 }
 
 TEST(LexerTest, testString) {
-  const auto &[errs, tokens] = lex("'foo'\n");
+  const auto &[errs, tokens, lexer] = lex("'foo'\n");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(TokenType::STRING, tokens[0].type);
-  ASSERT_EQ(std::get<StringData>(tokens[0].dat).str, "foo");
+  ASSERT_EQ(lexer.stringDatas[tokens[0].idx].str, "foo");
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
 
 TEST(LexerTest, testStringWithEscape) {
-  const auto &[errs, tokens] = lex("'fo\\'o'\n");
+  const auto &[errs, tokens, lexer] = lex("'fo\\'o'\n");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(TokenType::STRING, tokens[0].type);
-  ASSERT_EQ(std::get<StringData>(tokens[0].dat).str, "fo\\'o");
+  ASSERT_EQ(lexer.stringDatas[tokens[0].idx].str, "fo\\'o");
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
 
 TEST(LexerTest, testFString) {
-  const auto &[errs, tokens] = lex("f'foo'\n");
+  const auto &[errs, tokens, lexer] = lex("f'foo'\n");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(TokenType::STRING, tokens[0].type);
-  ASSERT_EQ(std::get<StringData>(tokens[0].dat).str, "foo");
-  ASSERT_TRUE(std::get<StringData>(tokens[0].dat).format);
+  ASSERT_EQ(lexer.stringDatas[tokens[0].idx].str, "foo");
+  ASSERT_TRUE(lexer.stringDatas[tokens[0].idx].format);
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
 
 TEST(LexerTest, testMultilineString) {
-  const auto &[errs, tokens] = lex("'''\nfoo\n'''\n");
+  const auto &[errs, tokens, lexer] = lex("'''\nfoo\n'''\n");
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(TokenType::STRING, tokens[0].type);
-  ASSERT_EQ(std::get<StringData>(tokens[0].dat).str, "\nfoo\n");
-  ASSERT_TRUE(std::get<StringData>(tokens[0].dat).multiline);
+  ASSERT_EQ(lexer.stringDatas[tokens[0].idx].str, "\nfoo\n");
+  ASSERT_TRUE(lexer.stringDatas[tokens[0].idx].multiline);
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
 
 TEST(LexerTest, testIdentifier) {
-  const auto &[errs, tokens] = lex("fooA_123a\n");
+  const auto &[errs, tokens, lexer] = lex("fooA_123a\n");
   ASSERT_EQ(3, tokens.size());
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(TokenType::IDENTIFIER, tokens[0].type);
-  ASSERT_EQ(std::get<std::string>(tokens[0].dat), "fooA_123a");
+  ASSERT_EQ(lexer.identifierDatas[tokens[0].idx].name, "fooA_123a");
   ASSERT_EQ(TokenType::EOL, tokens[1].type);
   ASSERT_EQ(TokenType::TOKEOF, tokens[2].type);
 }
 
 TEST(LexerTest, testKeyword) {
-  const auto &[errs, tokens] =
+  const auto &[errs, tokens, lexer] =
       lex("and\nbreak\ncontinue\nelif\nelse\nendforeach\nendif\nfalse\nforeach"
           "\nif\nin\nnot\nor\ntrue\n");
   ASSERT_EQ(0, errs.size());
@@ -124,7 +124,7 @@ TEST(LexerTest, testKeyword) {
 }
 
 TEST(LexerTest, testSpecialOps) {
-  const auto &[errs, tokens] = lex("x + 1\nx += 2\n");
+  const auto &[errs, tokens, lexer] = lex("x + 1\nx += 2\n");
   ASSERT_EQ(9, tokens.size());
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(TokenType::PLUS, tokens[1].type);
@@ -132,7 +132,7 @@ TEST(LexerTest, testSpecialOps) {
 }
 
 TEST(LexerTest, testSpecialOps2) {
-  const auto &[errs, tokens] = lex("x = 1\nx == 2\n");
+  const auto &[errs, tokens, lexer] = lex("x = 1\nx == 2\n");
   ASSERT_EQ(9, tokens.size());
   ASSERT_EQ(0, errs.size());
   ASSERT_EQ(TokenType::ASSIGN, tokens[1].type);
@@ -140,15 +140,15 @@ TEST(LexerTest, testSpecialOps2) {
 }
 
 TEST(LexerTest, testNumbers) {
-  const auto &[errs, tokens] = lex("0\n0b\n0b10\n0x10\n0o12\n100\n");
+  const auto &[errs, tokens, lexer] = lex("0\n0b\n0b10\n0x10\n0o12\n100\n");
   ASSERT_EQ(13, tokens.size());
   ASSERT_EQ(1, errs.size());
-  ASSERT_EQ(std::get<NumberData>(tokens[0].dat).asInt, 0);
-  ASSERT_EQ(std::get<NumberData>(tokens[2].dat).asInt, 0b0);
-  ASSERT_EQ(std::get<NumberData>(tokens[4].dat).asInt, 0b10);
-  ASSERT_EQ(std::get<NumberData>(tokens[6].dat).asInt, 0x10);
-  ASSERT_EQ(std::get<NumberData>(tokens[8].dat).asInt, 012);
-  ASSERT_EQ(std::get<NumberData>(tokens[10].dat).asInt, 100);
+  ASSERT_EQ(lexer.numberDatas[tokens[0].idx].asInt, 0);
+  ASSERT_EQ(lexer.numberDatas[tokens[2].idx].asInt, 0b0);
+  ASSERT_EQ(lexer.numberDatas[tokens[4].idx].asInt, 0b10);
+  ASSERT_EQ(lexer.numberDatas[tokens[6].idx].asInt, 0x10);
+  ASSERT_EQ(lexer.numberDatas[tokens[8].idx].asInt, 012);
+  ASSERT_EQ(lexer.numberDatas[tokens[10].idx].asInt, 100);
 }
 
 int main(int argc, char **argv) {
