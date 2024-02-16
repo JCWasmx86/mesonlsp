@@ -181,3 +181,11 @@ static inline uint32_t djb2(const std::string &str) {
   }
   return hash;
 }
+
+static inline uint32_t djb2(const char *str, const size_t len) {
+  uint32_t hash = DJB2_SEED;
+  for (size_t i = 0; i < len; i++) {
+    hash = (hash << DJB2_SHIFT) + hash + str[i];
+  }
+  return hash;
+}

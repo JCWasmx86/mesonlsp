@@ -201,6 +201,7 @@ public:
   std::vector<NumberData> numberDatas;
   std::vector<StringData> stringDatas;
   std::vector<IdentifierData> identifierDatas;
+  size_t inputSize;
 
   uint32_t idx = 0;
   uint32_t dataIdx = 0;
@@ -212,10 +213,11 @@ public:
 
   explicit Lexer(std::string input) : input(std::move(input)) {
     this->input.push_back('\0');
-    this->tokens.reserve(guessTokensCount(this->input.size()));
-    this->numberDatas.reserve(guessNumbersCount(this->input.size()));
-    this->identifierDatas.reserve(guessIdentifiersCount(this->input.size()));
-    this->stringDatas.reserve(guessStringsCount(this->input.size()));
+    this->inputSize = this->input.size();
+    this->tokens.reserve(guessTokensCount(this->inputSize));
+    this->numberDatas.reserve(guessNumbersCount(this->inputSize));
+    this->identifierDatas.reserve(guessIdentifiersCount(this->inputSize));
+    this->stringDatas.reserve(guessStringsCount(this->inputSize));
     assert(this->idx == 0);
   }
 

@@ -34,7 +34,7 @@ public:
   lookupMethod(const std::string &name,
                const std::shared_ptr<Type> &type) const {
     auto iter = this->vtables.find(type->name);
-    if (iter != this->vtables.end()) [[likely]] {
+    if (iter != this->vtables.end()) {
       for (const auto &method : this->vtables.at(type->name)) {
         if (method->name == name) {
           return method;
