@@ -37,6 +37,9 @@ int main(int /*argc*/, char **argv) {
   std::string line;
   std::ifstream inputFile(listingsFile);
   std::vector<std::pair<size_t, size_t>> pairs;
+  std::vector<std::pair<size_t, size_t>> numbers;
+  std::vector<std::pair<size_t, size_t>> strings;
+  std::vector<std::pair<size_t, size_t>> identifiers;
   std::vector<size_t> stringLengths;
   std::vector<double> deviationsInPercent;
   size_t totalExpectedTokens = 0;
@@ -50,6 +53,9 @@ int main(int /*argc*/, char **argv) {
   size_t nNumbers = 0;
   size_t numberLengthTotal = 0;
   while (std::getline(inputFile, line)) {
+    size_t measureIdentifiers = 0;
+    size_t measureStrings = 0;
+    size_t measureNumbers = 0;
     auto contents = readFile(line);
     Lexer lexer(contents);
     auto guessed = Lexer::guessTokensCount(contents.size());
@@ -70,22 +76,28 @@ int main(int /*argc*/, char **argv) {
     for (const auto &tok : lexer.tokens) {
       if (tok.type == TokenType::IDENTIFIER) {
         nIdentifiers++;
+        measureIdentifiers++;
         const auto &identifierData = lexer.identifierDatas[tok.idx];
         identifierLengthTotal += identifierData.name.size();
         continue;
       }
       if (tok.type == TokenType::NUMBER) {
         nNumbers++;
+        measureNumbers++;
         const auto &numberData = lexer.numberDatas[tok.idx];
         numberLengthTotal += numberData.asString.size();
       }
       if (tok.type != TokenType::STRING) {
         continue;
       }
+      measureStrings++;
       const auto &data = lexer.stringDatas[tok.idx];
       stringLengths.push_back(data.str.size());
     }
     pairs.emplace_back(contents.size(), lexer.tokens.size());
+    numbers.emplace_back(contents.size(), measureNumbers);
+    identifiers.emplace_back(contents.size(), measureIdentifiers);
+    strings.emplace_back(contents.size(), measureStrings);
   }
   auto [slope, yIntercept] = computeLinearEquation(pairs);
   std::cerr << std::format("f(fileSize)={}x + {}", slope, yIntercept)
@@ -121,5 +133,17 @@ int main(int /*argc*/, char **argv) {
             << std::endl;
   std::cerr << std::format("Total chars/number: {}",
                            ((double)numberLengthTotal) / ((double)nNumbers))
+            << std::endl;
+  auto measure = computeLinearEquation(numbers);
+  std::cerr << std::format("Numbers: f(x) = {}x + {}", measure.first,
+                           measure.second)
+            << std::endl;
+  measure = computeLinearEquation(identifiers);
+  std::cerr << std::format("Identifiers: f(x) = {}x + {}", measure.first,
+                           measure.second)
+            << std::endl;
+  measure = computeLinearEquation(strings);
+  std::cerr << std::format("Strings: f(x) = {}x + {}", measure.first,
+                           measure.second)
             << std::endl;
 }

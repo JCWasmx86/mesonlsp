@@ -167,7 +167,8 @@ end:
 Lexer::LexerResult Lexer::lexIdentifier() {
   auto startIdx = this->idx;
   auto len = 0;
-  while (VALID_INSIDE_IDENTIFIER[this->input[this->idx]]) {
+  while (
+      VALID_INSIDE_IDENTIFIER[static_cast<uint8_t>(this->input[this->idx])]) {
     len++;
     this->advance();
   }
