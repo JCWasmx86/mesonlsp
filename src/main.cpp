@@ -30,6 +30,7 @@
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 const static Logger LOG("main");            // NOLINT
 
+#ifndef STATIC_BUILD
 #ifdef __GNUC__
 typedef void
     __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(void *, void *,
@@ -94,6 +95,7 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
 #endif
 }
 };
+#endif
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
