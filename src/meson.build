@@ -64,7 +64,7 @@ executable(
         langserver_dep,
     ] + extra_deps + extra_libs + backtrace_lib,
     install: true,
-    pie: true,
+    pie: host_machine.system() == 'linux',
 )
 
 install_dir = get_option('prefix') / get_option('bindir')
