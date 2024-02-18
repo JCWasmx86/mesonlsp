@@ -58,6 +58,9 @@ jobs:
         run: |
           brew install zip google-benchmark libarchive googletest pkg-config curl
           python3 -m pip install meson ninja
+          export LDFLAGS="-L/opt/homebrew/opt/libarchive/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include"
+          export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig"
           meson _build
           ninja -C _build
   fedora_in_container:
