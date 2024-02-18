@@ -60,7 +60,8 @@ jobs:
           brew install zip google-benchmark libarchive googletest pkg-config curl pkgconf gcc
           python3 -m pip install meson ninja
           export LDFLAGS="-L/opt/homebrew/opt/libarchive/lib -L/usr/local/opt/libarchive/lib"
-          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include -Wl,-ld_classic"
+          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include"
+          if [ 12 != ${{ matrix.version }} ]; then export CPPFLAGS="$CPPFLAGS -Wl,-ld_classic"; fi
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig"
           brew link --overwrite pkg-config
           find /opt /usr|grep libarchive.pc
