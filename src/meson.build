@@ -17,6 +17,12 @@ cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
 
+if cxx.get_id() == 'gcc'
+    backtrace_lib = [cxx.find_library('stdc++_libbacktrace')]
+else
+    backtrace_lib = []
+endif
+
 executable(
     'mesonlsp',
     'main.cpp',
@@ -37,7 +43,7 @@ executable(
         tree_sitter_meson_dep,
         wrap_dep,
         langserver_dep,
-    ] + extra_deps + extra_libs,
+    ] + extra_deps + extra_libs + backtrace_lib,
     install: true,
     pie: true,
 )

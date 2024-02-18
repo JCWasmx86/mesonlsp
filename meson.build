@@ -27,8 +27,8 @@ extra_flags = [
     '-Wshadow=local',
     '-mshstk',
 ]
-add_global_link_arguments(['-Wl,-z,relro,-z,now'], language: 'c')
-add_global_link_arguments(['-Wl,-z,relro,-z,now'], language: 'cpp')
+add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'c')
+add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'cpp')
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
 
