@@ -37,10 +37,9 @@ typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
     void *, std::type_info *, void(_GLIBCXX_CDTOR_CALLABI *)(void *));
 #endif
 CxaThrowType origCxaThrow = nullptr;
-
+constexpr auto BACKTRACE_LENGTH = 100;
 extern "C" {
 #ifdef __clang__
-constexpr auto BACKTRACE_LENGTH = 100;
 
 void __cxa_throw /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
                              void(_GLIBCXX_CDTOR_CALLABI *dest)(void *))
