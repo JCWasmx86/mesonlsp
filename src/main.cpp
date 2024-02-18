@@ -73,7 +73,7 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
   }
   free(btSyms);
 #else
-  LOG.info("No backtrace possible....");
+  LOG.debug("No backtrace possible....");
 #endif
 #elifdef __GNUC__
   auto stacktrace = std::stacktrace::current();
