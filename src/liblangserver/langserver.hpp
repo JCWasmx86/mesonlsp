@@ -16,12 +16,18 @@
 #include <string>
 #include <vector>
 
+#if __has_include(<sys/inotify.h>)
+#define HAS_INOTIFY
+#endif
+
 class LanguageServer : public AbstractLanguageServer {
 public:
   LanguageServer();
   std::vector<std::shared_ptr<Workspace>> workspaces;
+#ifdef HAS_INOTIFY
   int inotifyFd{-1};
   std::future<void> inotifyFuture;
+#endif
   std::map<std::filesystem::path, std::string> cachedContents;
   std::vector<std::map<std::filesystem::path, std::vector<LSPDiagnostic>>>
       diagnosticsFromInitialisation;
@@ -57,11 +63,14 @@ public:
                                          std::vector<LSPDiagnostic>> &newDiags);
 
   ~LanguageServer() override {
+    #ifdef HAS_INOTIFY
     this->inotifyFd = -1;
     this->inotifyFuture.wait();
+    #endif
   }
-
+  #ifdef HAS_INOTIFY
   void setupInotify();
+  #endif
 
 private:
   TypeNamespace ns;
