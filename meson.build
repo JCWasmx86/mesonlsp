@@ -21,11 +21,14 @@ endif
 extra_flags = [
     '-fstack-protector-strong',
     '-fstack-clash-protection',
-    '-fcf-protection=full',
     '-g3',
     '-Wshadow=local',
     '-mshstk',
 ]
+
+if host_machine.system() == 'linux'
+    extra_flags += ['-fcf-protection=full']
+endif
 
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
