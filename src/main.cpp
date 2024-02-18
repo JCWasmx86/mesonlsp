@@ -57,8 +57,8 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
 #endif
   auto *demangled =
       abi::__cxa_demangle(typeinfo->name(), nullptr, nullptr, nullptr);
-  LOG.info(std::format("Exception of type {}",
-                       demangled ? demangled : typeinfo->name()));
+  LOG.debug(std::format("Exception of type {}",
+                        demangled ? demangled : typeinfo->name()));
   if (demangled) {
     free(demangled);
   }
@@ -68,15 +68,15 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
   auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
   auto *btSyms = backtrace_symbols(backtraces, btSize);
   for (auto i = 0; i < btSize; i++) {
-    LOG.info(std::format("#{}: {}", i, btSyms[i]));
+    LOG.debug(std::format("#{}: {}", i, btSyms[i]));
   }
   free(btSyms);
 #elifdef __GNUC__
   auto stacktrace = std::stacktrace::current();
   auto idx = 0;
   for (const auto &element : stacktrace) {
-    LOG.info(std::format("#{}: {} ({}:{})", idx, element.description(),
-                         element.source_file(), element.source_line()));
+    LOG.debug(std::format("#{}: {} ({}:{})", idx, element.description(),
+                          element.source_file(), element.source_line()));
     idx++;
   }
 #endif
