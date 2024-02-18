@@ -32,8 +32,13 @@ endif
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
 
-add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'c')
-add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'cpp')
+global_link_args = ['-rdynamic']
+if host_machine.system() == 'linux'
+    global_link_args += ['-Wl,-z,relro,-z,now']
+endif
+
+add_global_link_arguments(global_link_args, language: 'c')
+add_global_link_arguments(global_link_args, language: 'cpp')
 add_global_arguments(extra_flags, language: 'c')
 add_global_arguments(extra_flags, language: 'cpp')
 
