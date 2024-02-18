@@ -38,8 +38,6 @@ if not cxx.has_header('execinfo.h')
     extra_defines += ['-DNO_EXECINFO']
 endif
 
-static_link_args = []
-
 if get_option('static_build')
     extra_defines += ['-DSTATIC_BUILD']
 endif
