@@ -66,7 +66,7 @@ jobs:
           brew link --overwrite pkg-config
           find /opt /usr|grep libarchive.pc
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          CC=$(which gcc-13) CXX=$(which g++-13) meson _build -Db_sanitize=address,undefined || cat /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/meson-logs/meson-log.txt
+          CC=$(which gcc-13) CXX=$(which g++-13) meson _build
           ninja -C _build
           ninja -C _build test
   fedora_in_container:
