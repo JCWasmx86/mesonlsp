@@ -75,7 +75,7 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
 #else
   LOG.debug("No backtrace possible....");
 #endif
-#elifdef __GNUC__
+#elif defined(__GNUC__) && !defined(NO_BACKTRACE)
   auto stacktrace = std::stacktrace::current();
   auto idx = 0;
   for (const auto &element : stacktrace) {
@@ -83,6 +83,8 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
                           element.source_file(), element.source_line()));
     idx++;
   }
+#else
+  LOG.debug("No backtrace possible....");
 #endif
 
 #ifdef __clang__
