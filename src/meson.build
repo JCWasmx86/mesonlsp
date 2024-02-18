@@ -20,6 +20,9 @@ extra_defines = []
 
 if cxx.get_id() == 'gcc'
     backtrace_dep = cxx.find_library('stdc++_libbacktrace', required: false)
+    if not backtrace_dep.found()
+        backtrace_dep = cxx.find_library('libstdc++exp', required: false)
+    endif
     if backtrace_dep.found()
         backtrace_lib = [backtrace_dep]
     else
