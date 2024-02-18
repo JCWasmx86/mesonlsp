@@ -18,15 +18,17 @@
 #include <fstream>
 #include <functional>
 #include <future>
+#include <libpkgconf/libpkgconf.h>
 #include <map>
 #include <memory>
 #include <optional>
 #include <ostream>
-#include <libpkgconf/libpkgconf.h>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
+#ifdef HAS_INOTIFY
 #include <sys/inotify.h>
+#endif
 #include <vector>
 extern "C" {
 // Dirty hack
@@ -121,7 +123,9 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
     this->diagnosticsFromInitialisation.emplace_back(diags);
     this->workspaces.push_back(workspace);
   }
+#ifdef HAS_INOTIFY
   this->setupInotify();
+#endif
   return InitializeResult{
       ServerCapabilities(
           TextDocumentSyncOptions(true, TextDocumentSyncKind::FULL), true, true,
@@ -135,6 +139,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
       ServerInfo("c++-mesonlsp", VERSION)};
 }
 
+#ifdef HAS_INOTIFY
 void LanguageServer::setupInotify() {
   this->smph.acquire();
   this->inotifyFd = inotify_init1(IN_NONBLOCK);
@@ -227,6 +232,9 @@ void LanguageServer::watch(
     }
   }
 }
+#else
+#warning "No inotify support on this platform. (Contributions welcome)"
+#endif
 
 void LanguageServer::fullReparse(const std::filesystem::path &path) {
   this->smph.acquire();
@@ -243,7 +251,11 @@ void LanguageServer::fullReparse(const std::filesystem::path &path) {
   this->smph.release();
 }
 
-void LanguageServer::shutdown() { this->inotifyFd = -1; }
+void LanguageServer::shutdown() {
+#ifdef HAS_INOTIFY
+  this->inotifyFd = -1;
+#endif
+}
 
 void LanguageServer::onInitialized(InitializedParams & /*params*/) {
   for (const auto &map : this->diagnosticsFromInitialisation) {
