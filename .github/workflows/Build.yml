@@ -68,7 +68,7 @@ jobs:
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           CC=$(which gcc-13) CXX=$(which g++-13) meson _build || cat /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/meson-logs/meson-log.txt
           ninja -C _build
-          /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/tests/integration/workspace-tester /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/../tests/integration/workspace-test/meson.build
+          lldb -b -o run -o bt -- /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/tests/integration/workspace-tester /Users/runner/work/Swift-MesonLSP/Swift-MesonLSP/_build/../tests/integration/workspace-test/meson.build
           ninja -C _build test
   fedora_in_container:
     strategy:
