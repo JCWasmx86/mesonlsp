@@ -11,7 +11,9 @@
 #include <cstring>
 #include <cxxabi.h>
 #include <dlfcn.h>
+#ifndef NO_EXECINFO
 #include <execinfo.h>
+#endif
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -62,6 +64,7 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
   }
 
 #if defined(__clang__) || defined(NO_BACKTRACE)
+#ifndef NO_EXECINFO
   void *backtraces[BACKTRACE_LENGTH];
   auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
   auto *btSyms = backtrace_symbols(backtraces, btSize);
@@ -69,6 +72,9 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
     LOG.debug(std::format("#{}: {}", i, btSyms[i]));
   }
   free(btSyms);
+#else
+  LOG.info("No backtrace possible....");
+#endif
 #elifdef __GNUC__
   auto stacktrace = std::stacktrace::current();
   auto idx = 0;
