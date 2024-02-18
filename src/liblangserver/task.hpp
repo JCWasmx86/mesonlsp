@@ -7,6 +7,11 @@
 #include <utility>
 #include <uuid/uuid.h>
 
+// See https://github.com/netdata/netdata/pull/10313
+#ifndef UUID_STR_LEN
+#define UUID_STR_LEN 37
+#endif
+
 enum class TaskState {
   PENDING,
   RUNNING,
