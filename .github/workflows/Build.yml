@@ -62,7 +62,7 @@ jobs:
           export LDFLAGS="-L/opt/homebrew/opt/libarchive/lib"
           export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include"
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig"
-          brew link pkg-config
+          brew link --overwrite pkg-config
           meson _build
           ninja -C _build
   fedora_in_container:
