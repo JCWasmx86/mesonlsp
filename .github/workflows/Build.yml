@@ -57,7 +57,7 @@ jobs:
       - name: Build on macOS ${{ matrix.version }}
         run: |
           brew unlink pkg-config
-          brew install zip google-benchmark libarchive googletest pkgconf pkg-config
+          brew install zip google-benchmark libarchive googletest pkg-config curl
           python3 -m pip install meson ninja
           meson _build
           ninja -C _build
