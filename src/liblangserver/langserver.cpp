@@ -22,7 +22,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
-#include <pkgconf/libpkgconf/libpkgconf.h>
+#include <libpkgconf/libpkgconf.h>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
