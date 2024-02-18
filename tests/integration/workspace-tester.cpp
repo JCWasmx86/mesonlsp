@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "langserveroptions.hpp"
 #include "langserverutils.hpp"
 #include "log.hpp"
