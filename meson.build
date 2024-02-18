@@ -26,12 +26,11 @@ extra_flags = [
 ]
 
 if host_machine.system() == 'linux'
-    extra_flags += ['-fcf-protection=full', '-mshstk']
+    extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
 endif
 
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
-extra_flags += cc.get_supported_arguments(['-frecord-gcc-switches'])
 
 add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'c')
 add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'cpp')
