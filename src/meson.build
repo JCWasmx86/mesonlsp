@@ -16,9 +16,17 @@ version = meson.project_version()
 cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
+extra_defines = []
 
 if cxx.get_id() == 'gcc'
-    backtrace_lib = [cxx.find_library('stdc++_libbacktrace')]
+    backtrace_dep = cxx.find_library('stdc++_libbacktrace', required: false)
+    if backtrace_dep.found()
+        backtrace_lib = [backtrace_dep]
+    else
+        backtrace_lib = []
+        # Should only happen in crappy distributions....
+        extra_defines += ['-DNO_BACKTRACE']
+    endif
 else
     backtrace_lib = []
 endif
@@ -32,7 +40,7 @@ executable(
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
         '-DLINKER_ID="' + cc.get_linker_id() + '"',
-    ] + args,
+    ] + args + extra_defines,
     dependencies: [
         analyze_dep,
         ast_dep,

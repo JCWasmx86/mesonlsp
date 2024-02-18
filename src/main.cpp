@@ -4,7 +4,6 @@
 #include "libwrap/wrap.hpp"
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
-#include "type.hpp"
 #include "typenamespace.hpp"
 
 #include <algorithm>
@@ -22,7 +21,7 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && !defined(NO_BACKTRACE)
 #include <stacktrace>
 #endif
 
@@ -63,7 +62,7 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
     free(demangled);
   }
 
-#ifdef __clang__
+#if defined(__clang__) || defined(NO_BACKTRACE)
   void *backtraces[BACKTRACE_LENGTH];
   auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
   auto *btSyms = backtrace_symbols(backtraces, btSize);
