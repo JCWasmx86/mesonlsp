@@ -10,6 +10,11 @@
 #include <uuid/uuid.h>
 #include <vector>
 
+// See https://github.com/netdata/netdata/pull/10313
+#ifndef UUID_STR_LEN
+#define UUID_STR_LEN 37
+#endif
+
 std::string randomFile() {
   auto *tmpdir = getenv("TMPDIR"); // NOLINT
   if (tmpdir == nullptr) {
