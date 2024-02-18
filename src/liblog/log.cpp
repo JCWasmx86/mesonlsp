@@ -16,6 +16,7 @@ Logger::Logger(std::string logmodule) : logmodule(std::move(logmodule)) {
     this->red = "\033[91m";
     this->yellow = "\033[93m";
     this->reset = "\033[0m";
+    this->green = "\033[1;92m";
   } else {
     this->blue = "";
     this->red = "";
@@ -49,6 +50,14 @@ void Logger::info(const std::string &msg,
   }
   auto fullMsg =
       std::format("{}[ INFO ] {} - {}:{}: {} {}", this->blue, this->logmodule,
+                  location.file_name(), location.line(), msg, this->reset);
+  std::clog << fullMsg << std::endl;
+}
+
+void Logger::debug(const std::string &msg,
+                   const std::source_location location) const {
+  auto fullMsg =
+      std::format("{}[ DEBUG ] {} - {}:{}: {} {}", this->green, this->logmodule,
                   location.file_name(), location.line(), msg, this->reset);
   std::clog << fullMsg << std::endl;
 }
