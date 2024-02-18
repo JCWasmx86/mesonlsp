@@ -50,7 +50,7 @@ jobs:
   fedora_in_container:
     strategy:
       matrix:
-        version: [38, 39]
+        version: [39, 40]
     runs-on: ubuntu-latest
     container:
       image: fedora:${{ matrix.version }}
