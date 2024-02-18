@@ -47,6 +47,19 @@ jobs:
         with:
           name: mesonlsp-alpine-static.zip
           path: /mesonlsp-alpine-static.zip
+  macos:
+    strategy:
+      matrix:
+        version: [12, 13, 14]
+    runs-on: macos-${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build on macOS ${{ matrix.version }}
+        run: |
+          brew install zip google-benchmark libarchive googletest pkgconf pkg-config
+          python3 -m pip install meson ninja
+          meson _build
+          ninja -C _build
   fedora_in_container:
     strategy:
       matrix:
