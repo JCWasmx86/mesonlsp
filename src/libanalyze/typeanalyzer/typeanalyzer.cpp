@@ -878,9 +878,6 @@ void TypeAnalyzer::checkUnusedVariables() {
 void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
   this->metadata->beginFile();
   this->variablesNeedingUse.emplace_back();
-  if (this->sourceFileStack.size() == 4) {
-    throw 1;
-  }
   this->sourceFileStack.push_back(node->file->file);
   this->tree->ownedFiles.insert(node->file->file);
   this->checkProjectCall(node);
