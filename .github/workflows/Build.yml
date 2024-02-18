@@ -63,7 +63,6 @@ jobs:
           export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include"
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig"
           brew link --overwrite pkg-config
-          find /usr /opt |grep gcc
           CC=/opt/homebrew/bin/gcc-13 CXX=/opt/homebrew/bin/g++-13 meson _build
           ninja -C _build
   fedora_in_container:
