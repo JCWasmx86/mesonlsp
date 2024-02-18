@@ -63,14 +63,14 @@ public:
                                          std::vector<LSPDiagnostic>> &newDiags);
 
   ~LanguageServer() override {
-    #ifdef HAS_INOTIFY
+#ifdef HAS_INOTIFY
     this->inotifyFd = -1;
     this->inotifyFuture.wait();
-    #endif
+#endif
   }
-  #ifdef HAS_INOTIFY
+#ifdef HAS_INOTIFY
   void setupInotify();
-  #endif
+#endif
 
 private:
   TypeNamespace ns;
