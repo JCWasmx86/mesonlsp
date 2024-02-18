@@ -4,12 +4,17 @@
 #include "libwrap/wrap.hpp"
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
+#include "type.hpp"
 #include "typenamespace.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <execinfo.h>
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <locale>
 #include <memory>
@@ -17,8 +22,72 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
+#if defined(__GNUC__) && !defined(__clang__)
+#include <stacktrace>
+#endif
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
+const static Logger LOG("main");            // NOLINT
+
+#ifdef __GNUC__
+typedef void
+    __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(void *, void *,
+                                                             void (*)(void *));
+#elif defined(__clang__)
+typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
+    void *, std::type_info *, void(_GLIBCXX_CDTOR_CALLABI *)(void *));
+#endif
+CxaThrowType origCxaThrow = nullptr;
+
+extern "C" {
+#ifdef __clang__
+constexpr auto BACKTRACE_LENGTH = 100;
+
+void __cxa_throw /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
+                             void(_GLIBCXX_CDTOR_CALLABI *dest)(void *))
+#elif defined(__GNUC__)
+void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
+#endif
+{
+  if (origCxaThrow == nullptr) {
+    origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
+  }
+#if defined(__GNUC__) && !defined(__clang__)
+  auto *typeinfo = (const std::type_info *)pvtinfo;
+#endif
+  auto *demangled =
+      abi::__cxa_demangle(typeinfo->name(), nullptr, nullptr, nullptr);
+  LOG.info(std::format("Exception of type {}",
+                       demangled ? demangled : typeinfo->name()));
+  if (demangled) {
+    free(demangled);
+  }
+
+#ifdef __clang__
+  void *backtraces[BACKTRACE_LENGTH];
+  auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
+  auto *btSyms = backtrace_symbols(backtraces, btSize);
+  for (auto i = 0; i < btSize; i++) {
+    LOG.info(std::format("#{}: {}", i, btSyms[i]));
+  }
+  free(btSyms);
+#elifdef __GNUC__
+  auto stacktrace = std::stacktrace::current();
+  auto idx = 0;
+  for (const auto &element : stacktrace) {
+    LOG.info(std::format("#{}: {} ({}:{})", idx, element.description(),
+                         element.source_file(), element.source_line()));
+    idx++;
+  }
+#endif
+
+#ifdef __clang__
+  origCxaThrow(thrown_exception, typeinfo, dest);
+#elif defined(__GNUC__)
+  origCxaThrow(thrown_exception, pvtinfo, dest);
+#endif
+}
+};
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
