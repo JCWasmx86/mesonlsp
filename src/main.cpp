@@ -30,7 +30,6 @@
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 const static Logger LOG("main");            // NOLINT
 
-#ifndef STATIC_BUILD
 #ifdef __GNUC__
 typedef void
     __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(void *, void *,
@@ -39,20 +38,34 @@ typedef void
 typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
     void *, std::type_info *, void(_GLIBCXX_CDTOR_CALLABI *)(void *));
 #endif
+#ifndef STATIC_BUILD
 CxaThrowType origCxaThrow = nullptr;
+#endif
 constexpr auto BACKTRACE_LENGTH = 100;
 extern "C" {
+#ifndef STATIC_BUILD
+void __cxa_throw
+#else
+#ifdef __clang__
+void __real___cxa_throw(void *, std::type_info *, void (*)(void *));
+#elif defined(__GNUC__)
+void __real___cxa_throw(void *, void *, void (*)(void *));
+#endif
+void __wrap___cxa_throw
+#endif
 #ifdef __clang__
 
-void __cxa_throw /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
-                             void(_GLIBCXX_CDTOR_CALLABI *dest)(void *))
+    /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
+                void(_GLIBCXX_CDTOR_CALLABI *dest)(void *))
 #elif defined(__GNUC__)
-void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
+    (void *thrown_exception, void *pvtinfo, void (*dest)(void *))
 #endif
 {
+#ifndef STATIC_BUILD
   if (origCxaThrow == nullptr) {
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }
+#endif
 #if defined(__GNUC__) && !defined(__clang__)
   auto *typeinfo = (const std::type_info *)pvtinfo;
 #endif
@@ -88,14 +101,21 @@ void __cxa_throw(void *thrown_exception, void *pvtinfo, void (*dest)(void *))
   LOG.debug("No backtrace possible....");
 #endif
 
+#ifndef STATIC_BUILD
 #ifdef __clang__
   origCxaThrow(thrown_exception, typeinfo, dest);
 #elif defined(__GNUC__)
   origCxaThrow(thrown_exception, pvtinfo, dest);
 #endif
+#else
+#ifdef __clang__
+  __real___cxa_throw(thrown_exception, typeinfo, dest);
+#elif defined(__GNUC__)
+  __real___cxa_throw(thrown_exception, pvtinfo, dest);
+#endif
+#endif
 }
 };
-#endif
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl

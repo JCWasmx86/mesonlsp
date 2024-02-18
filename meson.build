@@ -102,7 +102,7 @@ if get_option('static_build')
         warning('jemalloc wasn\'t found')
     endif
     extra_libs = [cxx.find_library('c'), cxx.find_library('unistring')]
-    extra_link_args = ['-static']
+    extra_link_args = ['-static', '-wrap=__cxa_throw']
 else
     extra_deps = []
     extra_libs = []
