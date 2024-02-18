@@ -23,10 +23,14 @@ extra_flags = [
     '-fstack-clash-protection',
     '-fcf-protection=full',
     '-g3',
-    '-frecord-gcc-switches',
     '-Wshadow=local',
     '-mshstk',
 ]
+
+cc = meson.get_compiler('c')
+cxx = meson.get_compiler('cpp')
+extra_flags += cc.get_supported_arguments(['-frecord-gcc-switches'])
+
 add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'c')
 add_global_link_arguments(['-Wl,-z,relro,-z,now', '-rdynamic'], language: 'cpp')
 add_global_arguments(extra_flags, language: 'c')
@@ -76,8 +80,6 @@ archive_dep = dependency('libarchive')
 uuid_dep = dependency('uuid')
 pkgconf_dep = dependency('libpkgconf')
 
-cc = meson.get_compiler('c')
-cxx = meson.get_compiler('cpp')
 cc_id = cc.get_id()
 if cc_id != 'gcc' and cc_id != 'clang'
     warning(f'Unknown compiler: @cc_id@')
