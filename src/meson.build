@@ -31,6 +31,10 @@ else
     backtrace_lib = []
 endif
 
+if not cxx.has_header('execinfo.h')
+    extra_defines += ['-DNO_EXECINFO']
+endif
+
 executable(
     'mesonlsp',
     'main.cpp',
