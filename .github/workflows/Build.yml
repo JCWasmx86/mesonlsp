@@ -66,7 +66,7 @@ jobs:
           brew link --overwrite pkg-config
           find /opt /usr|grep libarchive.pc
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          meson setup _build --buildtype release -Ddebug=true
+          meson setup _build --buildtype release -Ddebug=true -Db_lto=true
           ninja -C _build
           ninja -C _build test
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
