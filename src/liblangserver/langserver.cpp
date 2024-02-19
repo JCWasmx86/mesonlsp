@@ -30,7 +30,6 @@
 #include <sys/inotify.h>
 #endif
 #include <vector>
-namespace myfmt = fmt;
 extern "C" {
 // Dirty hack
 #define ast muon_ast
