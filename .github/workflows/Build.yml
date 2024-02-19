@@ -66,7 +66,7 @@ jobs:
           brew link --overwrite pkg-config
           find /opt /usr|grep libarchive.pc
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          meson setup _build --buildtype release -Db_lto=true
+          meson setup _build --buildtype release -Db_lto=true -Ddebug=true
           ninja -C _build
           ninja -C _build test
   fedora_in_container:
