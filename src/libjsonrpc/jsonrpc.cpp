@@ -1,7 +1,8 @@
 #include "jsonrpc.hpp"
 
+#include "polyfill.hpp"
+
 #include <cstdio>
-#include <format>
 #include <future>
 #include <memory>
 #include <mutex>

@@ -4,6 +4,7 @@
 #include "libpkgconf/iter.h"
 #include "log.hpp"
 #include "lsptypes.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 #include "workspace.hpp"
 
@@ -14,7 +15,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <functional>
 #include <future>
@@ -30,14 +30,17 @@
 #include <sys/inotify.h>
 #endif
 #include <vector>
+namespace myfmt = fmt;
 extern "C" {
 // Dirty hack
 #define ast muon_ast
+#define fmt muon_fmt
 #include <lang/fmt.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
 #undef ast
+#undef fmt
 }
 
 const static Logger LOG("LanguageServer"); // NOLINT
@@ -341,7 +344,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   char *formattedStr;
   size_t formattedSize;
   auto *output = open_memstream(&formattedStr, &formattedSize);
-  auto fmtRet = fmt(&src, output, configFile.c_str(), false, true);
+  auto fmtRet = muon_fmt(&src, output, configFile.c_str(), false, true);
   if (!fmtRet) {
     (void)fclose(output);
     free((void *)src.src);

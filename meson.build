@@ -129,6 +129,8 @@ else
     endif
 endif
 
+
+extra_deps += [dependency('fmt')]
 gtest_dep = dependency('gtest', main: true, required: false)
 
 subdir('src')

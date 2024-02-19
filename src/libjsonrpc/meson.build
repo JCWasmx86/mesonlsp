@@ -3,7 +3,7 @@ jsonrpc_deps = [nlohmann_json_dep]
 jsonrpc_lib = static_library(
     'jsonrpc',
     'jsonrpc.cpp',
-    include_directories: jsonrpc_inc,
+    include_directories: [polyfill_inc, jsonrpc_inc],
     dependencies: jsonrpc_deps,
 )
 jsonrpc_dep = declare_dependency(

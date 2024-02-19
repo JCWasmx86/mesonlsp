@@ -3,11 +3,11 @@
 #include "function.hpp"
 #include "location.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 
 #include <cassert>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <map>
 #include <memory>
 #include <optional>

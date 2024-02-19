@@ -7,6 +7,7 @@
 #include "lsptypes.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 #include "type.hpp"
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
@@ -15,7 +16,6 @@
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <memory>
 #include <optional>
 #include <set>

@@ -7,6 +7,7 @@
 #include "mesonoption.hpp"
 #include "node.hpp"
 #include "partialinterpreter.hpp"
+#include "polyfill.hpp"
 #include "type.hpp"
 #include "typenamespace.hpp"
 #include "utils.hpp"
@@ -18,7 +19,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <map>
 #include <memory>
 #include <optional>

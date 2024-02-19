@@ -1,5 +1,6 @@
 #include "ini.hpp"
 #include "log.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 #include "wrap.hpp"
 
@@ -7,7 +8,6 @@
 #include <cctype>
 #include <charconv>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <string>
 #include <system_error>

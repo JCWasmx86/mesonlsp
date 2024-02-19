@@ -1,5 +1,6 @@
+#include "polyfill.hpp"
+
 #include <cstring>
-#include <format>
 #include <iostream>
 #include <jsonrpc.hpp>
 #include <log.hpp>

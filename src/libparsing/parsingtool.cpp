@@ -1,10 +1,10 @@
 #include "lexer.hpp"
 #include "log.hpp"
 #include "parser.hpp"
+#include "polyfill.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
-#include <format>
 #include <memory>
 
 const static Logger LOG("parsingtool") /*NOLINT*/;

@@ -3,7 +3,7 @@ ls_deps = [jsonrpc_dep, lsptypes_dep, log_dep]
 ls_lib = static_library(
     'ls',
     'ls.cpp',
-    include_directories: ls_inc,
+    include_directories: [ls_inc, polyfill_inc],
     dependencies: ls_deps,
 )
 

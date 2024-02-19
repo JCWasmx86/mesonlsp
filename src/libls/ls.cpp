@@ -4,9 +4,9 @@
 #include "log.hpp"
 #include "lsptypes.hpp"
 #include "nlohmann/json.hpp"
+#include "polyfill.hpp"
 
 #include <exception>
-#include <format>
 #include <string>
 #include <vector>
 

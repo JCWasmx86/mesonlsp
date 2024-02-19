@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "log.hpp"
 #include "mesontree.hpp"
+#include "polyfill.hpp"
 #include "subproject.hpp"
 #include "typenamespace.hpp"
 #include "utils.hpp"
@@ -12,7 +13,6 @@
 #include <chrono>
 #include <cstddef>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <memory>
 #include <optional>
@@ -188,11 +188,29 @@ createIdentifierForWrap(const std::filesystem::path &path) {
     return hash(url + "//" + revision);
   }
 makeDefault:
+#if 0
   auto ftime = std::filesystem::last_write_time(path);
   const auto systemTime =
       std::chrono::clock_cast<std::chrono::system_clock>(ftime);
   const auto time = std::chrono::system_clock::to_time_t(systemTime);
   return std::format("{}-{}", hash(path), time);
+
+#else
+  // auto ftime = std::filesystem::last_write_time(path);
+  // auto time =
+  // std::chrono::system_clock::to_time_t(std::chrono::system_clock::from_time_t(std::filesystem::last_write_time(path)));
+  // auto ftime = std::filesystem::last_write_time(path);
+  // std::chrono::system_clock::time_point epoch;
+  // auto duration = ftime.time_since_epoch();
+  // auto time = std::chrono::system_clock::to_time_t(epoch + duration);
+  auto ftime = std::filesystem::last_write_time(path);
+  auto duration =
+      std::chrono::duration_cast<std::chrono::system_clock::duration>(
+          ftime.time_since_epoch());
+  std::chrono::system_clock::time_point epoch;
+  auto time = std::chrono::system_clock::to_time_t(epoch + duration);
+  return std::format("{}-{}", hash(path), time);
+#endif
 };
 
 static std::string normalizeURLToFilePath(const std::string &url) {

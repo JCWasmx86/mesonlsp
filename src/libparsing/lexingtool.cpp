@@ -1,8 +1,7 @@
 #include "lexer.hpp"
 #include "log.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
-
-#include <format>
 
 const static Logger LOG("lexingtool") /*NOLINT*/;
 

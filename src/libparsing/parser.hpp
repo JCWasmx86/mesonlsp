@@ -1,12 +1,12 @@
 #pragma once
 #include "lexer.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 #include "sourcefile.hpp"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <format>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -16,6 +16,9 @@ struct ParseError {
   std::string message;
   uint32_t line;
   uint32_t column;
+
+  ParseError(const std::string &message, uint32_t line, uint32_t column)
+      : message(message), line(line), column(column) {}
 };
 
 class Parser {

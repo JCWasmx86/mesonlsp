@@ -1,7 +1,8 @@
 #pragma once
 
+#include "polyfill.hpp"
+
 #include <cstdint>
-#include <format>
 #include <string>
 #include <tree_sitter/api.h>
 

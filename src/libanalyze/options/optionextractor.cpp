@@ -3,8 +3,8 @@
 #include "log.hpp"
 #include "mesonoption.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 
-#include <format>
 #include <memory>
 #include <optional>
 #include <ranges>

@@ -1,9 +1,9 @@
 #include "lexer.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 
 #include <cstddef>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <iostream>
 #include <numeric>

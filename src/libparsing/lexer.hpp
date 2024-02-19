@@ -151,6 +151,9 @@ struct IdentifierData {
 public:
   std::string name;
   uint32_t hash;
+
+  IdentifierData(const std::string &name, uint32_t hash)
+      : name(name), hash(hash) {}
 };
 
 struct StringData {
@@ -159,12 +162,20 @@ public:
   bool multiline;
   bool hasEnoughAts;
   std::string str;
+
+  StringData(bool format, bool multiline, bool hasEnoughAts,
+             const std::string &str)
+      : format(format), multiline(multiline), hasEnoughAts(hasEnoughAts),
+        str(str) {}
 };
 
 struct NumberData {
 public:
   uint64_t asInt;
   std::string asString;
+
+  NumberData(uint64_t asInt, const std::string asString)
+      : asInt(asInt), asString(asString) {}
 };
 
 struct Token final {
@@ -185,6 +196,9 @@ public:
   std::string message;
   uint32_t line;
   uint32_t column;
+
+  LexError(const std::string &message, uint32_t line, uint32_t column)
+      : message(message), line(line), column(column) {}
 };
 
 class Lexer final {

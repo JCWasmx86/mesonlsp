@@ -1,6 +1,7 @@
 #include "utils.hpp"
 
 #include "log.hpp"
+#include "polyfill.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -15,7 +16,6 @@
 #include <curl/easy.h>
 #include <exception>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <iostream>
 #include <optional>

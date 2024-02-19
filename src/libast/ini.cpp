@@ -1,12 +1,12 @@
 #include "ini.hpp"
 
 #include "location.hpp"
+#include "polyfill.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
 #include <cstdint>
 #include <cstring>
-#include <format>
 #include <memory>
 #include <optional>
 #include <string>
