@@ -110,7 +110,7 @@ Lexer::LexerResult Lexer::lexNumber() {
       break;
     default:
       this->advance();
-      this->numberDatas.emplace_back(0ull, "0");
+      this->numberDatas.emplace_back(0, "0");
       this->tokens.back().idx = this->numberDatas.size() - 1;
       this->finalize();
       return LexerResult::CONTINUE;
