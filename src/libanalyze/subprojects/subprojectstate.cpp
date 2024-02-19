@@ -188,7 +188,7 @@ createIdentifierForWrap(const std::filesystem::path &path) {
     return hash(url + "//" + revision);
   }
 makeDefault:
-#if 0
+#ifdef __linux__
   auto ftime = std::filesystem::last_write_time(path);
   const auto systemTime =
       std::chrono::clock_cast<std::chrono::system_clock>(ftime);
@@ -196,13 +196,6 @@ makeDefault:
   return std::format("{}-{}", hash(path), time);
 
 #else
-  // auto ftime = std::filesystem::last_write_time(path);
-  // auto time =
-  // std::chrono::system_clock::to_time_t(std::chrono::system_clock::from_time_t(std::filesystem::last_write_time(path)));
-  // auto ftime = std::filesystem::last_write_time(path);
-  // std::chrono::system_clock::time_point epoch;
-  // auto duration = ftime.time_since_epoch();
-  // auto time = std::chrono::system_clock::to_time_t(epoch + duration);
   auto ftime = std::filesystem::last_write_time(path);
   auto duration =
       std::chrono::duration_cast<std::chrono::system_clock::duration>(
