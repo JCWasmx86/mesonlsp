@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
 
 enum class TokenType {
@@ -152,8 +151,8 @@ public:
   std::string name;
   uint32_t hash;
 
-  IdentifierData(const std::string &name, uint32_t hash)
-      : name(name), hash(hash) {}
+  IdentifierData(std::string name, uint32_t hash)
+      : name(std::move(name)), hash(hash) {}
 };
 
 struct StringData {
@@ -163,10 +162,9 @@ public:
   bool hasEnoughAts;
   std::string str;
 
-  StringData(bool format, bool multiline, bool hasEnoughAts,
-             const std::string &str)
+  StringData(bool format, bool multiline, bool hasEnoughAts, std::string str)
       : format(format), multiline(multiline), hasEnoughAts(hasEnoughAts),
-        str(str) {}
+        str(std::move(str)) {}
 };
 
 struct NumberData {
@@ -174,8 +172,8 @@ public:
   uint64_t asInt;
   std::string asString;
 
-  NumberData(uint64_t asInt, const std::string asString)
-      : asInt(asInt), asString(asString) {}
+  NumberData(uint64_t asInt, std::string asString)
+      : asInt(asInt), asString(std::move(asString)) {}
 };
 
 struct Token final {
@@ -197,8 +195,8 @@ public:
   uint32_t line;
   uint32_t column;
 
-  LexError(const std::string &message, uint32_t line, uint32_t column)
-      : message(message), line(line), column(column) {}
+  LexError(std::string message, uint32_t line, uint32_t column)
+      : message(std::move(message)), line(line), column(column) {}
 };
 
 class Lexer final {

@@ -17,8 +17,8 @@ struct ParseError {
   uint32_t line;
   uint32_t column;
 
-  ParseError(const std::string &message, uint32_t line, uint32_t column)
-      : message(message), line(line), column(column) {}
+  ParseError(std::string message, uint32_t line, uint32_t column)
+      : message(std::move(message)), line(line), column(column) {}
 };
 
 class Parser {

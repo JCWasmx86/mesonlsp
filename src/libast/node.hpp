@@ -292,7 +292,7 @@ public:
   std::string message;
 
   ParsingError(Location range, std::string message)
-      : range(range), message(message) {}
+      : range(range), message(std::move(message)) {}
 };
 
 class BuildDefinition final : public Node {
