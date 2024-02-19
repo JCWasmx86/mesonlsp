@@ -69,6 +69,11 @@ jobs:
           meson setup _build --buildtype release -Db_lto=true -Ddebug=true
           ninja -C _build
           ninja -C _build test
+          sudo cp _build/src/mesonlsp /mesonlsp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Macos${{ matrix.version }}.zip
+          path: /mesonlsp
   fedora_in_container:
     strategy:
       matrix:
