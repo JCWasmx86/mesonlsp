@@ -68,7 +68,7 @@ jobs:
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true
           ninja -C _build
-          ninja -C _build test
+          for i in {0..100}; do ninja -C _build test; done
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
       - uses: actions/upload-artifact@v3
         with:
