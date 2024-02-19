@@ -7,6 +7,7 @@ analyze_deps = [
     parsing_dep,
     typenamespace_dep,
     wrap_dep,
+    polyfill_dep,
 ]
 analyze_lib = static_library(
     'analyze',
@@ -18,7 +19,7 @@ analyze_lib = static_library(
     'typeanalyzer/partialinterpreter.cpp',
     'subprojects/subproject.cpp',
     'mesontree.cpp',
-    include_directories: [analyze_inc, polyfill_inc],
+    include_directories: analyze_inc,
     dependencies: analyze_deps,
 )
 analyze_dep = declare_dependency(

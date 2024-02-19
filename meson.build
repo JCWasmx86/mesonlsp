@@ -129,8 +129,10 @@ else
     endif
 endif
 
+fmt_dep = []
 if system_id == 'darwin'
-    extra_deps += [dependency('fmt')]
+    fmt_dep = [dependency('fmt')]
+    extra_deps += fmt_dep
 endif
 
 gtest_dep = dependency('gtest', main: true, required: false)
