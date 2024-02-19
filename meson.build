@@ -129,8 +129,10 @@ else
     endif
 endif
 
+if system_id == 'darwin'
+    extra_deps += [dependency('fmt')]
+endif
 
-extra_deps += [dependency('fmt')]
 gtest_dep = dependency('gtest', main: true, required: false)
 
 subdir('src')
