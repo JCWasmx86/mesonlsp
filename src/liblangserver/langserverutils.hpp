@@ -3,10 +3,10 @@
 #include "lsptypes.hpp"
 #include "mesonmetadata.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 
 #include <ada.h>
 #include <filesystem>
-#include <format>
 #include <stdexcept>
 #include <string>
 #include <vector>

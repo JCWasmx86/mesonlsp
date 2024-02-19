@@ -2,12 +2,12 @@
 
 #include "ini.hpp"
 #include "log.hpp"
+#include "polyfill.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <ios>
 #include <memory>

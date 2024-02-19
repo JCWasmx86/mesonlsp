@@ -1,12 +1,12 @@
 #pragma once
 
 #include "location.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>

@@ -1,13 +1,13 @@
 #include "node.hpp"
 
 #include "location.hpp"
+#include "polyfill.hpp"
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
 #include <cctype>
 #include <cstdint>
 #include <cstring>
-#include <format>
 #include <memory>
 #include <optional>
 #include <regex>

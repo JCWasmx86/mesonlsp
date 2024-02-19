@@ -1,3 +1,4 @@
+subdir('polyfill')
 subdir('liblog')
 subdir('libutils')
 subdir('libobjects')

@@ -1,8 +1,9 @@
 #include "log.hpp"
 
+#include "polyfill.hpp"
+
 #include <cstdlib>
 #include <exception>
-#include <format>
 #include <iostream>
 #include <source_location>
 #include <string>

@@ -9,6 +9,7 @@
 #include "optionextractor.hpp"
 #include "optionstate.hpp"
 #include "parser.hpp"
+#include "polyfill.hpp"
 #include "scope.hpp"
 #include "sourcefile.hpp"
 #include "typeanalyzer.hpp"
@@ -17,7 +18,6 @@
 #include <chrono> // IWYU pragma: keep Needed for std::formatting std::filesystem::last_write_time result
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <memory>
 #include <string>
 #include <tree_sitter/api.h>

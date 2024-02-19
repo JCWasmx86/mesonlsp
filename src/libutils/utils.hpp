@@ -1,5 +1,6 @@
 #pragma once
 
+#include "polyfill.hpp"
 #include "sha-256.h"
 
 #include <algorithm>
@@ -10,7 +11,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>

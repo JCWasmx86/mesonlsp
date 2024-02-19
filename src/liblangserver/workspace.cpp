@@ -12,6 +12,7 @@
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 #include "semantictokensvisitor.hpp"
 #include "typenamespace.hpp"
 
@@ -20,7 +21,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <format>
 #include <map>
 #include <memory>
 #include <optional>

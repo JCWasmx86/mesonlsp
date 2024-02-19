@@ -5,13 +5,13 @@
 #include "mesonoption.hpp"
 #include "node.hpp"
 #include "optionstate.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdint>
-#include <format>
 #include <iterator>
 #include <memory>
 #include <ranges>

@@ -4,11 +4,11 @@
 #include "log.hpp"
 #include "lsptypes.hpp"
 #include "node.hpp"
+#include "polyfill.hpp"
 #include "utils.hpp"
 
 #include <algorithm>
 #include <cstddef>
-#include <format>
 #include <functional>
 #include <optional>
 #include <ranges>

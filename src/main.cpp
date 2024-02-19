@@ -14,8 +14,9 @@
 #ifndef NO_EXECINFO
 #include <execinfo.h>
 #endif
+#include "polyfill.hpp"
+
 #include <filesystem>
-#include <format>
 #include <iostream>
 #include <locale>
 #include <memory>
@@ -30,6 +31,7 @@
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 const static Logger LOG("main");            // NOLINT
 
+#ifdef __linux__
 #ifdef __GNUC__
 typedef void
     __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(void *, void *,
@@ -116,6 +118,7 @@ void __wrap___cxa_throw
 #endif
 }
 };
+#endif
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl

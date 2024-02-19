@@ -1,13 +1,13 @@
 #include "analysisoptions.hpp"
 #include "log.hpp"
 #include "mesontree.hpp"
+#include "polyfill.hpp"
 #include "typenamespace.hpp"
 
 #include <cassert>
 #include <chrono>
 #include <cstring>
 #include <filesystem>
-#include <format>
 #include <optional>
 #include <string>
 #include <system_error>
