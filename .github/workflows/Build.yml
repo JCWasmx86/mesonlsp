@@ -60,6 +60,8 @@ jobs:
           brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd bzip2 libiconv expat xz lz4 zlib
           python3 -m pip install meson ninja
           mkdir libs
+          sudo cp $(brew --prefix)/opt/{libarchive,zstd,bzip2,expat,zlib,bzip2,expat,zlib}/lib/*.a libs
+          ls libs
           export LDFLAGS="-L$PWD/libs"
           export CPPFLAGS="-I$(brew --prefix)/opt/libarchive/include -I$(brew --prefix)/opt/zstd/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include"
           export PKG_CONFIG_PATH="$(brew --prefix)/opt/zstd/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig"
