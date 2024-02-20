@@ -63,7 +63,6 @@ jobs:
           export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include -Wl,-ld_classic"
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig"
           brew link --overwrite pkg-config
-          find /opt /usr|grep libarchive.pc
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true
           ninja -C _build
