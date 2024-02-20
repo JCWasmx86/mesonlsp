@@ -88,7 +88,7 @@ muon_dep = muon_proj.get_variable('muon_dep')
 nlohmann_json_dep = dependency('nlohmann_json')
 curl_dep = dependency('libcurl')
 archive_dep = dependency('libarchive')
-uuid_dep = dependency('uuid')
+uuid_dep = dependency('uuid', required: target_machine.system() != 'windows')
 pkgconf_dep = dependency('libpkgconf')
 
 cc_id = cc.get_id()
