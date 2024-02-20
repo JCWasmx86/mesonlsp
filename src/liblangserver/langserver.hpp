@@ -25,7 +25,7 @@ public:
   LanguageServer();
   std::vector<std::shared_ptr<Workspace>> workspaces;
 #ifdef HAS_INOTIFY
-  int inotifyFd{-1};
+  volatile int inotifyFd{-1};
   std::future<void> inotifyFuture;
 #endif
   std::map<std::filesystem::path, std::string> cachedContents;

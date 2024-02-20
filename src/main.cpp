@@ -7,6 +7,7 @@
 #include "typenamespace.hpp"
 
 #include <algorithm>
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <cxxabi.h>
@@ -230,6 +231,7 @@ void printDiagnostics(const MesonTree &tree) {
 }
 
 int main(int argc, char **argv) {
+  (void)signal(SIGPIPE, [](int _) { _exit(0); });
   std::locale::global(std::locale(""));
   std::string path = "./meson.build";
   std::vector<std::string> paths;
