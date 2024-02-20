@@ -291,7 +291,7 @@ public:
   Location range;
   std::string message;
 
-  ParsingError(Location range, std::string message)
+  ParsingError(const Location &range, std::string message)
       : range(range), message(std::move(message)) {}
 };
 
