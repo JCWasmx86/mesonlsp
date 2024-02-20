@@ -7,7 +7,12 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <string>
+#ifndef _WIN32
 #include <uuid/uuid.h>
+#else
+#include <chrono>
+#include <format>
+#endif
 #include <vector>
 
 // See https://github.com/netdata/netdata/pull/10313
@@ -20,11 +25,16 @@ std::string randomFile() {
   if (tmpdir == nullptr) {
     tmpdir = (char *)"/tmp";
   }
+#ifndef _WIN32
   uuid_t filename;
   uuid_generate(filename);
   std::array<char, UUID_STR_LEN + 1> out;
   uuid_unparse(filename, out.data());
   return std::format("{}/{}", tmpdir, out.data());
+#else
+  const auto now = std::chrono::system_clock::now();
+  return std::format("{}/{}", tmpdir, now);
+#endif
 }
 
 TEST(UtilsTest, testUpperCase) {

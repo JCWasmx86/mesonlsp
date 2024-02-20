@@ -6,11 +6,16 @@
 #include <mutex>
 #include <string>
 #include <utility>
+#ifndef _WIN32
 #include <uuid/uuid.h>
 
 // See https://github.com/netdata/netdata/pull/10313
 #ifndef UUID_STR_LEN
 #define UUID_STR_LEN 37
+#endif
+#else
+#include <chrono>
+#include <format>
 #endif
 
 enum class TaskState {
@@ -31,11 +36,16 @@ public:
   std::atomic<TaskState> state;
 
   explicit Task(std::function<void()> func) : taskFunction(std::move(func)) {
+#ifndef _WIN32
     uuid_t filename;
     uuid_generate(filename);
     std::array<char, UUID_STR_LEN + 1> out;
     uuid_unparse(filename, out.data());
     this->uuid = std::format("{}", out.data());
+#else
+    const auto now = std::chrono::system_clock::now();
+    this->uuid = std::format("{:%d-%m-%Y %H:%M:%OS}", now);
+#endif
     this->state = TaskState::PENDING;
   }
 
