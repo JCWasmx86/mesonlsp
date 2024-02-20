@@ -68,6 +68,11 @@ jobs:
             crt:p
       - name: Build on Windows
         run: |
+          git clone https://github.com/util-linux/util-linux
+          cd util-linux
+          meson _b -Dauto_features=disabled -Dbuild-libuuid=enabled --buildtype release
+          ninja -C _b install
+          cd ..
           meson setup _build
           ninja -C _build
           ninja -C _build test
