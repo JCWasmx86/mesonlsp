@@ -47,6 +47,25 @@ jobs:
         with:
           name: mesonlsp-alpine-static.zip
           path: /mesonlsp-alpine-static.zip
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          pacboy: >-
+            gcc:p
+            curl:p
+            libarchive:p
+            meson:p
+            ninja:p
+      - name: Build on Windows
+        run: |
+          pacman --noconfirm -S git
+          meson setup _build
+          ninja -C _build
+          ninja -C _build test
   macos:
     strategy:
       matrix:
