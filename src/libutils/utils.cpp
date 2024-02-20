@@ -20,7 +20,11 @@
 #include <iostream>
 #include <optional>
 #include <ostream>
+#ifndef _WIN32
 #include <pwd.h>
+#else
+#include <shlobj.h>
+#endif
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -259,6 +263,7 @@ std::filesystem::path cacheDir() {
     return full;
   }
 
+#ifndef _WIN32
   std::array<char, 1024 /*NOLINT*/> homeBuffer;
   struct passwd pwd;
   auto home = getenv("HOME"); // NOLINT
@@ -270,6 +275,12 @@ std::filesystem::path cacheDir() {
       home = pwd.pw_dir;
     }
   }
+#else
+  char home[MAX_PATH];
+  auto result = SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home);
+  // TODO...
+  assert(SUCCEEDED(result));
+#endif
 
   auto full = std::filesystem::path{home} / ".cache" / suffix;
   std::filesystem::create_directories(full);
