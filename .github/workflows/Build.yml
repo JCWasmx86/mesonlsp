@@ -62,7 +62,6 @@ jobs:
             ninja:p
       - name: Build on Windows
         run: |
-          pacman --noconfirm -S git
           meson setup _build
           ninja -C _build
           ninja -C _build test
