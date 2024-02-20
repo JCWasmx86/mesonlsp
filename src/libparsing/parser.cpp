@@ -402,7 +402,7 @@ std::shared_ptr<Node> Parser::args() {
                                               this->currLoc());
       }
     } else {
-      ret.emplace_back(stmt.value());
+      ret.push_back(stmt.value());
       return std::make_shared<ArgumentList>(this->sourceFile, ret, before,
                                             this->endLoc());
     }
