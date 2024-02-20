@@ -57,11 +57,14 @@ jobs:
       - name: Build on macOS ${{ matrix.version }}
         run: |
           brew unlink pkg-config
-          brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd
+          brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd bzip2 libiconv expat xz lz4 zlib
           python3 -m pip install meson ninja
-          export LDFLAGS="-L/opt/homebrew/opt/libarchive/lib -L/usr/local/opt/libarchive/lib"
-          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include"
-          export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig"
+          mkdir libs
+          export LDFLAGS="-L$PWD/libs"
+          export CPPFLAGS="-I/usr/local/opt/libarchive/include -I/usr/local/opt/zstd/include -I/usr/local/opt/bzip2/include -I/usr/local/opt/expat/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -I/usr/local/opt/expat/include -I/usr/local/opt/zlib/include"
+          export PKG_CONFIG_PATH="/usr/local/opt/zstd/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/expat/lib/pkgconfig:/usr/local/opt/zlib/lib/pkgconfig:/usr/local/opt/expat/lib/pkgconfig:/usr/local/opt/zlib/lib/pkgconfig"
+          sudo rm /usr/local/opt/{libarchive,zstd,expat,zlib,expat,zlib}/lib/*.dylib
+          sudo rm /usr/local/opt/{xz,lz4,libb2}/lib/*.dylib
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true --default-library=static --prefer-static
