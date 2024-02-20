@@ -3,7 +3,6 @@
 #include "function.hpp"
 #include "location.hpp"
 #include "sourcefile.hpp"
-#include "utils.hpp"
 
 #include <cassert>
 #include <cstdint>
