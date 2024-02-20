@@ -33,7 +33,7 @@ std::string randomFile() {
   return std::format("{}/{}", tmpdir, out.data());
 #else
   const auto now = std::chrono::system_clock::now();
-  return std::format("{}/{}", tmpdir, now);
+  return std::format("{}/{%H%I%M}", tmpdir, now);
 #endif
 }
 
