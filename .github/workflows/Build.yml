@@ -70,7 +70,7 @@ jobs:
         run: |
           git clone https://github.com/util-linux/util-linux
           cd util-linux
-          sed s/error..Prefix/info\(\'/g meson.build
+          sed -i s/error..Prefix/info\(\'/g meson.build
           meson _b -Dauto_features=disabled -Dbuild-libuuid=enabled --buildtype release --prefix=/d/a/_temp/msys64/mingw64
           ninja -C _b install
           cd ..
