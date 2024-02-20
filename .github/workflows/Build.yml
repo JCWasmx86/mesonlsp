@@ -66,7 +66,7 @@ jobs:
           sudo rm $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          meson setup _build --buildtype release -Ddebug=true -Db_lto=true --default-library=static --prefer-static
+          meson setup _build --buildtype release -Db_lto=true --default-library=static --prefer-static
           ninja -C _build
           for i in {0..10}; do ninja -C _build test; done
           otool -L _build/src/mesonlsp
