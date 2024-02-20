@@ -18,23 +18,28 @@ else
         language: 'cpp',
     )
 endif
+
+cc = meson.get_compiler('c')
+cxx = meson.get_compiler('cpp')
+
 extra_flags = [
     '-fstack-protector-strong',
-    '-fstack-clash-protection',
     '-g3',
-    '-Wshadow=local',
 ]
+
+if cc.get_id() == 'gcc'
+    extra_flags += ['-Wshadow=local', '-fstack-clash-protection']
+endif
 
 if host_machine.system() == 'linux'
     extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
 endif
 
-cc = meson.get_compiler('c')
-cxx = meson.get_compiler('cpp')
-
 global_link_args = ['-rdynamic']
 if host_machine.system() == 'linux'
     global_link_args += ['-Wl,-z,relro,-z,now']
+elif host_machine.system() == 'darwin'
+    global_link_args += ['-Wl,-ld_classic']
 endif
 
 add_global_link_arguments(global_link_args, language: 'c')
