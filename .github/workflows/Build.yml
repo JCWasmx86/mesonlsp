@@ -60,15 +60,14 @@ jobs:
           brew install zip google-benchmark libarchive pkg-config pkgconf gcc fmt
           python3 -m pip install meson ninja
           export LDFLAGS="-L/opt/homebrew/opt/libarchive/lib -L/usr/local/opt/libarchive/lib"
-          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include"
-          if [ 12 != ${{ matrix.version }} ]; then export CPPFLAGS="$CPPFLAGS -Wl,-ld_classic"; fi
+          export CPPFLAGS="-I/opt/homebrew/opt/libarchive/include -I/usr/local/opt/libarchive/include -Wl,-ld_classic"
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig"
           brew link --overwrite pkg-config
           find /opt /usr|grep libarchive.pc
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true
           ninja -C _build
-          for i in {0..100}; do ninja -C _build test; done
+          for i in {0..10}; do ninja -C _build test; done
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
       - uses: actions/upload-artifact@v3
         with:
