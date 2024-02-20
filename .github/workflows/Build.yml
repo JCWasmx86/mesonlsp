@@ -58,7 +58,7 @@ jobs:
         with:
           cache: true
           path-type: inherit
-          msystem: MSYS2
+          msystem: MINGW64
           pacboy: >-
             gcc:p
             curl:p
