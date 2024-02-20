@@ -180,6 +180,9 @@ void LanguageServer::watch(
   pollFds[0].events = POLLIN;
   while (true) {
     auto pollNum = poll(pollFds, nFds, 1000);
+    if (this->inotifyFd == -1) {
+      return;
+    }
     if (pollNum == -1) {
       if (errno == EINTR) {
         continue;
