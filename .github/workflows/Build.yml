@@ -68,6 +68,7 @@ jobs:
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true
           ninja -C _build
           for i in {0..10}; do ninja -C _build test; done
+          otool -L _build/src/mesonlsp
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
       - uses: actions/upload-artifact@v3
         with:
