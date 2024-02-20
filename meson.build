@@ -131,7 +131,7 @@ endif
 
 fmt_dep = []
 if system_id == 'darwin'
-    fmt_dep = [dependency('fmt')]
+    fmt_dep = [dependency('fmt', static: true)]
     extra_deps += fmt_dep
 endif
 
