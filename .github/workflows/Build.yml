@@ -72,6 +72,7 @@ jobs:
           cd util-linux
           sed -i s/error..Prefix/warning\(\'/g meson.build
           sed -i s/crypt\'\)/crypt\',required:false\)/g meson.build
+          sed -i if.not.*socket|sed s/not.cc.has_function.*socket.*/false/g meson.build
           meson _b -Dauto_features=disabled -Dbuild-libuuid=enabled --buildtype release --prefix=/d/a/_temp/msys64/mingw64
           ninja -C _b install
           cd ..
