@@ -64,7 +64,7 @@ jobs:
           export PKG_CONFIG_PATH="/opt/homebrew/opt/libarchive/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig"
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          meson setup _build --buildtype release -Ddebug=true -Db_lto=true
+          meson setup _build --buildtype release -Ddebug=true -Db_lto=true --default-library=static --prefer-static
           ninja -C _build
           for i in {0..10}; do ninja -C _build test; done
           otool -L _build/src/mesonlsp
