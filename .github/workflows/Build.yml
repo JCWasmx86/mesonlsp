@@ -65,7 +65,6 @@ jobs:
             libarchive:p
             meson:p
             ninja:p
-            util-linux:p
             crt:p
       - name: Build on Windows
         run: |
