@@ -100,6 +100,11 @@ std::optional<std::shared_ptr<Node>> Parser::e4() {
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::NOT_EQUALS);
   }
+  if (this->accept(IN)) {
+    return std::make_shared<BinaryExpression>(
+        this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
+        BinaryOperator::IN);
+  }
   if (this->accept(LT)) {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
@@ -119,11 +124,6 @@ std::optional<std::shared_ptr<Node>> Parser::e4() {
     return std::make_shared<BinaryExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
         BinaryOperator::GE);
-  }
-  if (this->accept(IN)) {
-    return std::make_shared<BinaryExpression>(
-        this->sourceFile, this->unwrap(left), this->unwrap(this->e5()),
-        BinaryOperator::IN);
   }
   if (this->accept(NOT) && this->accept(IN)) {
     return std::make_shared<BinaryExpression>(
@@ -158,7 +158,7 @@ std::optional<std::shared_ptr<Node>> Parser::e5AddSub() {
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e5MulDiv()),
           BinaryOperator::MINUS);
-    } else {
+    } else [[likely]] {
       break;
     }
   }
@@ -193,7 +193,7 @@ std::optional<std::shared_ptr<Node>> Parser::e5MulDiv() {
       left = std::make_shared<BinaryExpression>(
           this->sourceFile, this->unwrap(left), this->unwrap(this->e6()),
           BinaryOperator::DIV);
-    } else {
+    } else [[likely]] {
       break;
     }
   }
@@ -330,13 +330,6 @@ std::vector<std::shared_ptr<Node>> Parser::keyValues() {
 std::optional<std::shared_ptr<Node>> Parser::e9() {
   auto start = this->currLoc();
   auto end = this->endLoc();
-  if (this->accept(TRUE)) {
-    return std::make_shared<BooleanLiteral>(this->sourceFile, start, end, true);
-  }
-  if (this->accept(FALSE)) {
-    return std::make_shared<BooleanLiteral>(this->sourceFile, start, end,
-                                            false);
-  }
   if (idx >= this->inputLen) {
     return this->errorNode("Premature EOF");
   }
@@ -346,16 +339,23 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
     return std::make_shared<IdExpression>(this->sourceFile, idData.name,
                                           idData.hash, start, end);
   }
-  if (this->accept(NUMBER)) {
-    const auto &intData = this->lexer.numberDatas[curr.idx];
-    return std::make_shared<IntegerLiteral>(this->sourceFile, intData.asInt,
-                                            intData.asString, start, end);
-  }
   if (this->accept(STRING)) {
     const auto &strData = this->lexer.stringDatas[curr.idx];
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format,
                                            strData.hasEnoughAts);
+  }
+  if (this->accept(NUMBER)) {
+    const auto &intData = this->lexer.numberDatas[curr.idx];
+    return std::make_shared<IntegerLiteral>(this->sourceFile, intData.asInt,
+                                            intData.asString, start, end);
+  }
+  if (this->accept(TRUE)) {
+    return std::make_shared<BooleanLiteral>(this->sourceFile, start, end, true);
+  }
+  if (this->accept(FALSE)) {
+    return std::make_shared<BooleanLiteral>(this->sourceFile, start, end,
+                                            false);
   }
   if (this->accept(INVALID)) {
     return std::make_shared<ErrorNode>(this->sourceFile, start, end,
