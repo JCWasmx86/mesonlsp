@@ -61,9 +61,9 @@ jobs:
           python3 -m pip install meson ninja
           mkdir libs
           export LDFLAGS="-L$PWD/libs"
-          export CPPFLAGS="-I/usr/local/opt/libarchive/include -I/usr/local/opt/zstd/include -I/usr/local/opt/bzip2/include -I/usr/local/opt/expat/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -I/usr/local/opt/expat/include -I/usr/local/opt/zlib/include"
-          export PKG_CONFIG_PATH="/usr/local/opt/zstd/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/expat/lib/pkgconfig:/usr/local/opt/zlib/lib/pkgconfig:/usr/local/opt/expat/lib/pkgconfig:/usr/local/opt/zlib/lib/pkgconfig"
-          sudo rm /usr/local/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
+          export CPPFLAGS="-I$(brew --prefix)/opt/libarchive/include -I$(brew --prefix)/opt/zstd/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include"
+          export PKG_CONFIG_PATH="$(brew --prefix)/opt/zstd/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig"
+          sudo rm $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Ddebug=true -Db_lto=true --default-library=static --prefer-static
