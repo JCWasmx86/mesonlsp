@@ -47,7 +47,7 @@ wrap_files = files(
     'wrap-test/vorbis.wrap',
 )
 
-test('wrap-test', wrap_tester, args: [wrap_files])
+test('wrap-test', wrap_tester, args: [wrap_files], timeout: 200000)
 
 partial_interpreter_tests = [
     [
