@@ -26,6 +26,29 @@ workspace_tester = executable(
     dependencies: [log_dep, langserver_dep] + extra_deps + extra_libs,
 )
 
+wrap_tester = executable(
+    'wrap-tester',
+    'wrap-tester.cpp',
+    dependencies: [wrap_dep] + extra_deps + extra_libs,
+)
+
+wrap_files = files(
+    'wrap-test/libswiftdemangle.wrap',
+    'wrap-test/libswiftdemangle2.wrap',
+    'wrap-test/miniz.wrap',
+    'wrap-test/pango.wrap',
+    'wrap-test/pidgin.wrap',
+    'wrap-test/rubberband.wrap',
+    'wrap-test/rustc-demangle.wrap',
+    'wrap-test/sqlite.wrap',
+    'wrap-test/turtle.wrap',
+    'wrap-test/turtle2.wrap',
+    'wrap-test/turtle3.wrap',
+    'wrap-test/vorbis.wrap',
+)
+
+test('wrap-test', wrap_tester, args: [wrap_files])
+
 partial_interpreter_tests = [
     [
         'foreach',
