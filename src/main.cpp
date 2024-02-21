@@ -231,7 +231,7 @@ void printDiagnostics(const MesonTree &tree) {
 }
 
 int main(int argc, char **argv) {
-  (void)signal(SIGPIPE, [](int _) { _exit(0); });
+  (void)signal(SIGPIPE, [](int _) { _Exit(0); });
   std::locale::global(std::locale(""));
   std::string path = "./meson.build";
   std::vector<std::string> paths;
