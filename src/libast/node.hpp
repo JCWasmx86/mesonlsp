@@ -545,9 +545,7 @@ public:
                    const std::shared_ptr<Node> &args,
                    const std::pair<uint32_t, uint32_t> &pair)
       : Node(NodeType::METHOD_EXPRESSION, file, object, pair), obj(object),
-        id(name), args(args){
-
-                  };
+        id(name), args(args){};
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;
   void setParents() override;
