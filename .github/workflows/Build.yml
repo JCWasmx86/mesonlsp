@@ -83,6 +83,7 @@ jobs:
       - name: Build on macOS ${{ matrix.version }}
         run: |
           brew unlink pkg-config
+          brew link --overwrite python@3.12 || true
           brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd bzip2 libiconv expat xz lz4 zlib subversion mercurial
           python3 -m pip install meson ninja
           mkdir libs
