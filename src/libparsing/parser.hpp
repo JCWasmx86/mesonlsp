@@ -38,7 +38,7 @@ public:
   std::shared_ptr<Node> parse(const std::vector<LexError> &lexErrs);
 
 private:
-  std::vector<std::shared_ptr<Node>> codeBlock();
+  std::vector<std::shared_ptr<Node>> codeBlock(size_t estimatedSize);
   std::optional<std::shared_ptr<Node>> line();
   std::shared_ptr<Node> ifBlock(const std::pair<uint32_t, uint32_t> &start);
   std::shared_ptr<Node>

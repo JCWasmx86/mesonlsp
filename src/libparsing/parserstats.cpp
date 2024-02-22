@@ -4,6 +4,7 @@
 #include "polyfill.hpp"
 #include "utils.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <format>
@@ -56,7 +57,30 @@ private:
   uint64_t totalNumBlocks = 0;
   uint64_t totalNumConditions = 0;
   uint64_t totalNumStmtsInBlocks = 0;
+  std::vector<std::pair<size_t, size_t>> buildDefinitionSizes;
 };
+
+std::pair<double, double>
+computeLinearEquation(const std::vector<std::pair<size_t, size_t>> &points) {
+  size_t sumX = 0;
+  size_t sumY = 0;
+  size_t sumXY = 0;
+  size_t sumXSquare = 0;
+  size_t nPoints = points.size();
+
+  for (const auto &[pX, pY] : points) {
+    sumX += pX;
+    sumY += pY;
+    sumXY += pX * pY;
+    sumXSquare += pX * pX;
+  }
+
+  double slope = (double)(nPoints * sumXY - sumX * sumY) /
+                 (double)(nPoints * sumXSquare - sumX * sumX);
+  double yIntercept = ((double)sumY - slope * (double)sumX) / (double)nPoints;
+
+  return std::make_pair(slope, yIntercept);
+}
 
 static void print(const std::string &label, uint64_t number, uint64_t total,
                   const std::string &unit) {
@@ -84,6 +108,10 @@ void StatsExtractor::print() const {
   ::print("SST (blocks)", numSelectionStatements, totalNumBlocks, "blocks/SST");
   ::print("SST (stmts/block)", totalNumBlocks, totalNumStmtsInBlocks,
           "stmts/SST block");
+  const auto &[slope, yIntercept] =
+      computeLinearEquation(this->buildDefinitionSizes);
+  std::cerr << std::format("f(fileSize) = {}x + {}", slope, yIntercept)
+            << std::endl;
 }
 
 void StatsExtractor::visitArgumentList(ArgumentList *node) {
@@ -118,6 +146,8 @@ void StatsExtractor::visitBooleanLiteral(BooleanLiteral *node) {
 
 void StatsExtractor::visitBuildDefinition(BuildDefinition *node) {
   node->visitChildren(this);
+  buildDefinitionSizes.emplace_back(node->file->contents().size(),
+                                    node->stmts.size());
   numBuildDefinitions++;
   totalBuildDefinitionLength += node->stmts.size();
 }

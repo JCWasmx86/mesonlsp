@@ -12,9 +12,16 @@ const static Logger LOG("parser"); // NOLINT
 
 using enum TokenType;
 
+// Found using parserstats tool.
+constexpr static auto SLOPE = 0.0042;
+constexpr static auto Y_INTERCEPT = 3;
+constexpr static auto AVG_ARRAY_LITERAL_ITEMS = 5;
+
 std::shared_ptr<Node> Parser::parse(const std::vector<LexError> &lexErrs) {
   auto before = this->currLoc();
-  auto block = this->codeBlock();
+  const auto expectedStmts =
+      (size_t)(((double)lexer.inputSize) * SLOPE + Y_INTERCEPT);
+  auto block = this->codeBlock(expectedStmts);
   auto after = this->currLoc();
   this->expect(TOKEOF);
   std::vector<ParsingError> errs;
@@ -277,6 +284,7 @@ std::optional<std::shared_ptr<Node>> Parser::e8() {
 
 std::vector<std::shared_ptr<Node>> Parser::arrayArgs() {
   std::vector<std::shared_ptr<Node>> ret;
+  ret.reserve(AVG_ARRAY_LITERAL_ITEMS);
   auto stmt = this->statement();
   while (stmt.has_value()) {
     if (this->accept(COMMA)) {
@@ -452,7 +460,7 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
   conditions.push_back(this->unwrap(condition));
   auto firstErr = this->seekToOverInvalidTokens();
   this->expect(EOL);
-  auto block = this->codeBlock();
+  auto block = this->codeBlock(3);
   blocks.push_back(block);
   if (firstErr.has_value()) {
     blocks.back().push_back(firstErr.value());
@@ -462,7 +470,7 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
     conditions.push_back(this->unwrap(condition));
     auto err = this->seekToOverInvalidTokens();
     this->expect(EOL);
-    blocks.push_back(this->codeBlock());
+    blocks.push_back(this->codeBlock(3));
     if (err.has_value()) {
       blocks.back().push_back(err.value());
     }
@@ -470,7 +478,7 @@ Parser::ifBlock(const std::pair<uint32_t, uint32_t> &start) {
   if (this->accept(ELSE)) {
     auto err = this->seekToOverInvalidTokens();
     this->expect(EOL);
-    blocks.push_back(this->codeBlock());
+    blocks.push_back(this->codeBlock(3));
     if (err.has_value()) {
       blocks.back().push_back(err.value());
     }
@@ -530,7 +538,7 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     errs.push_back(err.value());
   }
   this->expect(EOL);
-  auto block = this->codeBlock();
+  auto block = this->codeBlock(3);
   end = this->endLoc();
   err = this->seekTo(ENDFOREACH);
   if (err.has_value()) {
@@ -542,8 +550,10 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
       this->sourceFile, ids, this->unwrap(items), block, start, end);
 }
 
-std::vector<std::shared_ptr<Node>> Parser::codeBlock() {
+std::vector<std::shared_ptr<Node>>
+Parser::codeBlock(const size_t estimatedSize) {
   std::vector<std::shared_ptr<Node>> ret;
+  ret.reserve(estimatedSize);
   auto cond = true;
   while (cond) {
     auto line = this->line();
