@@ -26,7 +26,7 @@
 #include <shlobj.h>
 #include <windows.h>
 // https://stackoverflow.com/a/11719555
-#define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
+#define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
 #endif
 #include <string>
 #include <sys/types.h>
@@ -41,10 +41,12 @@ constexpr auto ERRNO_BUF_SIZE = 256;
 const static Logger LOG("utils"); // NOLINT
 
 bool downloadFile(std::string url, const std::filesystem::path &output) {
-  auto temporaryPath = std::filesystem::temp_directory_path() /
-                       hash(std::format("{}-{}", url, output.c_str()));
+  const auto temporaryPath =
+      std::filesystem::temp_directory_path() /
+      hash(std::format("{}-{}", url, output.generic_string()));
   LOG.info(std::format("Downloading URL {} to {} (Temp: {})", url,
-                       output.c_str(), temporaryPath.c_str()));
+                       output.generic_string(),
+                       temporaryPath.generic_string()));
   auto *curl = curl_easy_init();
   if (curl == nullptr) {
     LOG.error("Unable to create CURL* using curl_easy_init");
@@ -70,7 +72,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
-    (void)std::remove(temporaryPath.c_str());
+    (void)std::remove(temporaryPath.generic_string().data());
   } else {
     try {
       std::filesystem::copy_file(
@@ -141,12 +143,12 @@ bool extractFile(const std::filesystem::path &archivePath,
     }
     auto entryPath =
         outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
-    archive_entry_set_pathname_utf8(entry, entryPath.string().c_str());
+    archive_entry_set_pathname_utf8(entry, entryPath.generic_string().data());
 
     const auto *originalHardlink = archive_entry_hardlink(entry);
     if (originalHardlink != nullptr) {
       auto newHardlink = outputDirectory / originalHardlink;
-      archive_entry_set_hardlink(entry, newHardlink.c_str());
+      archive_entry_set_hardlink(entry, newHardlink.generic_string().data());
     }
 
     if (res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
