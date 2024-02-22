@@ -1102,6 +1102,10 @@ compiler::preprocess:
       - Optional: true
       - Types:
         - list(str)
+    - @depends:
+      - Optional: true
+      - Types:
+        - list(build_tgt|custom_tgt)
     - @dependencies:
       - Optional: true
       - Types:
@@ -4042,6 +4046,10 @@ qt4_module::compile_ui:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt4_module::compile_moc:
@@ -4078,6 +4086,10 @@ qt4_module::compile_moc:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt4_module::preprocess:
@@ -4131,6 +4143,10 @@ qt4_module::preprocess:
       - Optional: true
       - Types:
         - list(str)
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt4_module::compile_translations:
@@ -4224,6 +4240,10 @@ qt5_module::compile_ui:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt5_module::compile_moc:
@@ -4260,6 +4280,10 @@ qt5_module::compile_moc:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt5_module::preprocess:
@@ -4313,6 +4337,10 @@ qt5_module::preprocess:
       - Optional: true
       - Types:
         - list(str)
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt5_module::compile_translations:
@@ -4406,6 +4434,10 @@ qt6_module::compile_ui:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt6_module::compile_moc:
@@ -4442,6 +4474,10 @@ qt6_module::compile_moc:
         - custom_tgt
         - custom_idx
         - generated_list
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt6_module::preprocess:
@@ -4495,6 +4531,10 @@ qt6_module::preprocess:
       - Optional: true
       - Types:
         - list(str)
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
 qt6_module::compile_translations:

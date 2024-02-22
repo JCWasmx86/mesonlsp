@@ -206,6 +206,8 @@ static const std::map<std::string, std::string> MODULES /*NOLINT*/ = {
     {"unstable-keyval", "keyval_module"},
     {"unstable-rust", "rust_module"},
     {"unstable-simd", "simd_module"},
+    {"wayland", "wayland_module"},
+    {"unstable-wayland", "wayland_module"},
     {"windows", "windows_module"},
 };
 
