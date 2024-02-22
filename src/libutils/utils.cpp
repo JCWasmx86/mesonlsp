@@ -16,14 +16,15 @@
 #include <curl/easy.h>
 #include <exception>
 #include <filesystem>
+#include <format>
 #include <fstream>
-#include <iostream>
 #include <optional>
 #include <ostream>
 #ifndef _WIN32
 #include <pwd.h>
 #else
 #include <shlobj.h>
+#include <windows.h>
 #endif
 #include <string>
 #include <sys/types.h>
@@ -181,7 +182,7 @@ cleanup:
   archive_write_free(ext);
   return false;
 }
-
+#ifndef _WIN32
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args) {
   std::vector<const char *> cArgs;
@@ -226,6 +227,52 @@ bool launchProcess(const std::string &executable,
   LOG.info("Child process terminated abnormally");
   return false;
 }
+#else
+// No idea what I'm doing here. This is the result
+// of ChatGPT+MS docs. It's a wonder that it works.
+bool launchProcess(const std::string &executable,
+                   const std::vector<std::string> &args) {
+  auto commandLine = "\"" + executable + "\"";
+  for (const auto &arg : args) {
+    commandLine += " " + arg;
+  }
+
+  LOG.info(std::format("Command Line: {}", commandLine));
+
+  STARTUPINFOA startupInfo;
+  PROCESS_INFORMATION processInfo;
+
+  ZeroMemory(&startupInfo, sizeof(startupInfo));
+  startupInfo.cb = sizeof(startupInfo);
+  startupInfo.dwFlags |= STARTF_USESTDHANDLES;
+  // We redirect the child's stdout to our stderr so we
+  // don't interfere with the JSON-RPC communication.
+  startupInfo.hStdOutput = GetStdHandle(STD_ERROR_HANDLE);
+  startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+  ZeroMemory(&processInfo, sizeof(processInfo));
+  auto *lpCommandLine = const_cast<char *>(commandLine.c_str());
+
+  if (!CreateProcessA(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL,
+                      &startupInfo, &processInfo)) {
+    LPSTR messageBuffer = nullptr;
+    size_t size = FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)&messageBuffer, 0, NULL);
+    LOG.info(std::format("Failed to create process. Error code: 0x{:x}: {}",
+                         GetLastError(), messageBuffer));
+    LocalFree(messageBuffer);
+    return false;
+  }
+  WaitForSingleObject(processInfo.hProcess, INFINITE);
+  CloseHandle(processInfo.hProcess);
+  CloseHandle(processInfo.hThread);
+
+  return true;
+}
+#endif
 
 std::string errno2string() {
   std::array<char, ERRNO_BUF_SIZE> buf = {0};
@@ -250,7 +297,7 @@ void mergeDirectories(const std::filesystem::path &sourcePath,
       }
     }
   } catch (const std::exception &ex) {
-    std::cerr << "Error: " << ex.what() << std::endl;
+    LOG.error(std::format("Error: {}", ex.what()));
   }
 }
 
