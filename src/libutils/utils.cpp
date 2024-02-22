@@ -255,13 +255,13 @@ bool launchProcess(const std::string &executable,
   if (!CreateProcessA(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL,
                       &startupInfo, &processInfo)) {
     LPSTR messageBuffer = nullptr;
-    size_t size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR)&messageBuffer, 0, NULL);
+    auto lastError = GetLastError();
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   (LPSTR)&messageBuffer, 0, NULL);
     LOG.info(std::format("Failed to create process. Error code: 0x{:x}: {}",
-                         GetLastError(), messageBuffer));
+                         lastError, messageBuffer));
     LocalFree(messageBuffer);
     return false;
   }
