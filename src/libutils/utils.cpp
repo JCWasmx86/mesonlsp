@@ -26,7 +26,7 @@
 #include <shlobj.h>
 #include <windows.h>
 // https://stackoverflow.com/a/11719555
-#define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
+#define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
 #endif
 #include <string>
 #include <sys/types.h>

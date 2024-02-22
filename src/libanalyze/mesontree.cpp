@@ -31,7 +31,7 @@ static std::string createId(const std::filesystem::path &path) {
   const std::filesystem::file_time_type &mtime =
       std::filesystem::last_write_time(path);
 
-  return std::format("{}-{}", path.generic_string(), mtime);
+  return std::format("{}-{}", path.native(), mtime);
 }
 
 OptionState MesonTree::parseFile(const std::filesystem::path &path,
@@ -39,10 +39,11 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
   auto visitor = OptionExtractor();
   auto diagnosticVisitor = OptionDiagnosticVisitor(originalMetadata);
   if (this->useCustomParser) {
-    LOG.info(std::format("Using custom parser for {}", path.generic_string()));
-    const auto overridden = this->overrides.contains(path);
+    LOG.info(std::format("Using custom parser for {}", path.native()));
+    const auto overriddenIter = this->overrides.find(path);
+    const auto overridden = overriddenIter != this->overrides.end();
     const auto fileContent =
-        overridden ? this->overrides[path] : readFile(path);
+        overridden ? overriddenIter->second : readFile(path);
     auto sourceFile =
         overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
                    : std::make_shared<SourceFile>(path);
@@ -73,8 +74,7 @@ OptionState MesonTree::parseFile(const std::filesystem::path &path,
     rootNode->visit(&diagnosticVisitor);
     return OptionState{visitor.options};
   }
-  LOG.info(
-      std::format("Using contents from editor for {}", path.generic_string()));
+  LOG.info(std::format("Using contents from editor for {}", path.native()));
 slow:
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
@@ -117,10 +117,11 @@ OptionState MesonTree::parseOptions(const std::filesystem::path &treeRoot,
 
 std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   if (this->useCustomParser) {
-    LOG.info(std::format("Using custom parser for {}", path.generic_string()));
-    const auto overridden = this->overrides.contains(path);
+    LOG.info(std::format("Using custom parser for {}", path.native()));
+    const auto overriddenIter = this->overrides.find(path);
+    const auto overridden = overriddenIter != this->overrides.end();
     const auto fileContent =
-        overridden ? this->overrides[path] : readFile(path);
+        overridden ? overriddenIter->second : readFile(path);
     auto sourceFile =
         overridden ? std::make_shared<MemorySourceFile>(fileContent, path)
                    : std::make_shared<SourceFile>(path);
@@ -128,9 +129,6 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
     lexer.tokenize();
     Parser parser(lexer, sourceFile);
     auto rootNode = parser.parse(lexer.errors);
-    if (!this->asts.contains(rootNode->file->file)) {
-      this->asts[rootNode->file->file] = {};
-    }
     this->asts[rootNode->file->file].push_back(rootNode);
     rootNode->setParents();
     return rootNode;
@@ -138,8 +136,7 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_meson());
   if (this->overrides.contains(path)) {
-    LOG.info(std::format("Using contents from editor for {}",
-                         path.generic_string()));
+    LOG.info(std::format("Using contents from editor for {}", path.native()));
     const auto fileContent = this->overrides[path];
     TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
                                           (uint32_t)fileContent.length());
@@ -188,15 +185,15 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
 }
 
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {
-  LOG.info(std::format("Parsing {} ({})", this->identifier,
-                       this->root.generic_string()));
+  LOG.info(
+      std::format("Parsing {} ({})", this->identifier, this->root.native()));
   // First fetch all the options
   const auto &optState = parseOptions(this->root, &this->metadata);
   // Then fetch diagnostics for the options
   // Then parse the root meson.build file
   const auto &rootFile = this->root / "meson.build";
   if (!std::filesystem::exists(rootFile)) {
-    LOG.warn(std::format("No meson.build file in {}", this->root.c_str()));
+    LOG.warn(std::format("No meson.build file in {}", this->root.native()));
     return;
   }
   auto rootNode = this->parseFile(rootFile);
