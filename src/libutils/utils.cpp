@@ -19,7 +19,6 @@
 #include <format>
 #include <fstream>
 #include <optional>
-#include <ostream>
 #ifndef _WIN32
 #include <pwd.h>
 #include <sys/wait.h>
