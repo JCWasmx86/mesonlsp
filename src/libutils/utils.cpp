@@ -323,7 +323,7 @@ std::filesystem::path cacheDir() {
   }
 #else
   char home[MAX_PATH];
-  auto result = SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home);
+  auto result = SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, home);
   // TODO...
   assert(SUCCEEDED(result));
 #endif
