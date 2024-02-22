@@ -22,13 +22,13 @@
 #include <ostream>
 #ifndef _WIN32
 #include <pwd.h>
+#include <sys/wait.h>
 #else
 #include <shlobj.h>
 #include <windows.h>
 #endif
 #include <string>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
 
