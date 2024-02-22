@@ -23,12 +23,12 @@
 # frameworks/4 qt: Bad search for the missing method, if it couldn't be inferred due to having no string literal as argument
 # unit/21 exit status: Expected failure
 # unit/25 non-permitted kwargs: Expected failure
-export LSPPATH=$PWD/_clang/src/Swift-MesonLSP
+export LSPPATH=$PWD/_clang/src/mesonlsp
 export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
 git clone https://github.com/mesonbuild/meson.git || exit
 cd "meson/test cases" || exit
-git checkout 0e1cba6d8b8a3594664451534338fda5e2ae7d75
+git checkout 39e1bf19fb653ac4f040e48b9a33aaa59dea1196
 for i in *; do
 	echo "Entering testdir \"$i\""
 	cd "$i" || exit
