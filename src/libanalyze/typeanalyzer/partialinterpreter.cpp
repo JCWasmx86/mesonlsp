@@ -18,6 +18,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 const static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
@@ -1395,7 +1396,7 @@ std::string applyMethod(const std::string &deduced, const std::string &name) {
     trim(data);
     return data;
   }
-  assert(false);
+  std::unreachable();
 }
 
 std::vector<std::string> splitString(const std::string &str) {

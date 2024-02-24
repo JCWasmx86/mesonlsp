@@ -152,7 +152,7 @@ inline std::string enum2String(AssignmentOperator op) {
   case ASSIGNMENT_OP_OTHER:
     return "<<Unknown>>";
   }
-  assert(false);
+  std::unreachable();
 }
 
 class AssignmentStatement final : public Node {
@@ -230,7 +230,7 @@ inline std::string enum2String(BinaryOperator op) {
   case BIN_OP_OTHER:
     return "<<Unknown>>";
   }
-  assert(false);
+  std::unreachable();
 }
 
 class BinaryExpression final : public Node {
@@ -607,7 +607,7 @@ inline std::string enum2String(UnaryOperator op) {
   case UnaryOperator::UNARY_OTHER:
     return "<<Unknown>>";
   }
-  assert(false);
+  std::unreachable();
 }
 
 class UnaryExpression final : public Node {
