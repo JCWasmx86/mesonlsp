@@ -2,6 +2,7 @@ src_files = [
     'shared.cpp',
 ]
 is_static = get_option('static_build')
+cxathrow_deps = [log_dep]
 
 if cxx.get_id() == 'gcc'
     backtrace_dep = cxx.find_library('stdc++_libbacktrace', required: false)
@@ -10,6 +11,7 @@ if cxx.get_id() == 'gcc'
     endif
     if backtrace_dep.found()
         src_files += 'backtrace_stacktrace.cpp'
+        cxathrow_deps += backtrace_dep
     else
         if is_static
             # Should only happen in crappy distributions....
@@ -29,12 +31,20 @@ elif cxx.get_id() == 'clang'
     else
         src_files += 'backtrace_execinfo.cpp'
     endif
-    src_files += 'handle_linux_static_clang.cpp'
+
+    if target_machine.system() == 'linux'
+        if is_static
+            src_files += 'handle_linux_static_clang.cpp'
+        else
+            src_files += 'handle_linux_clang.cpp'
+        endif
+    else
+        src_files = 'handle_null.cpp'
+    endif
 else
     src_files += ['backtrace_null.cpp', 'handle_null.cpp']
 endif
 
-cxathrow_deps = [log_dep]
 cxathrow_lib = static_library(
     'cxathrow',
     src_files,
