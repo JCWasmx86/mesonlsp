@@ -1,5 +1,6 @@
 subdir('polyfill')
 subdir('liblog')
+subdir('libcxathrow')
 subdir('libutils')
 subdir('libobjects')
 subdir('libast')
@@ -17,31 +18,6 @@ version = meson.project_version()
 cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
-extra_defines = []
-
-if cxx.get_id() == 'gcc'
-    backtrace_dep = cxx.find_library('stdc++_libbacktrace', required: false)
-    if not backtrace_dep.found() and cxx.version().version_compare('>=14.0.0')
-        backtrace_dep = cxx.find_library('libstdc++exp', required: false)
-    endif
-    if backtrace_dep.found()
-        backtrace_lib = [backtrace_dep]
-    else
-        backtrace_lib = []
-        # Should only happen in crappy distributions....
-        extra_defines += ['-DNO_BACKTRACE']
-    endif
-else
-    backtrace_lib = []
-endif
-
-if not cxx.has_header('execinfo.h')
-    extra_defines += ['-DNO_EXECINFO']
-endif
-
-if get_option('static_build')
-    extra_defines += ['-DSTATIC_BUILD']
-endif
 
 executable(
     'mesonlsp',
@@ -52,7 +28,7 @@ executable(
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
         '-DLINKER_ID="' + cc.get_linker_id() + '"',
-    ] + args + extra_defines,
+    ] + args,
     dependencies: [
         analyze_dep,
         ast_dep,
@@ -63,7 +39,8 @@ executable(
         tree_sitter_meson_dep,
         wrap_dep,
         langserver_dep,
-    ] + extra_deps + extra_libs + backtrace_lib,
+        cxathrow_dep,
+    ] + extra_deps + extra_libs,
     install: true,
     pie: host_machine.system() == 'linux',
 )

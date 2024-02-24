@@ -4,6 +4,7 @@
 #include "libwrap/wrap.hpp"
 #include "mesonmetadata.hpp"
 #include "mesontree.hpp"
+#include "polyfill.hpp"
 #include "typenamespace.hpp"
 
 #include <algorithm>
@@ -12,11 +13,6 @@
 #include <cstring>
 #include <cxxabi.h>
 #include <dlfcn.h>
-#ifndef NO_EXECINFO
-#include <execinfo.h>
-#endif
-#include "polyfill.hpp"
-
 #include <filesystem>
 #include <iostream>
 #include <locale>
@@ -25,101 +21,6 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
-#if defined(__GNUC__) && !defined(__clang__) && !defined(NO_BACKTRACE)
-#include <stacktrace>
-#endif
-
-extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
-const static Logger LOG("main");            // NOLINT
-
-#ifdef __linux__
-#ifdef __GNUC__
-typedef void
-    __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(void *, void *,
-                                                             void (*)(void *));
-#elif defined(__clang__)
-typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
-    void *, std::type_info *, void(_GLIBCXX_CDTOR_CALLABI *)(void *));
-#endif
-#ifndef STATIC_BUILD
-CxaThrowType origCxaThrow = nullptr;
-#endif
-constexpr auto BACKTRACE_LENGTH = 100;
-extern "C" {
-#ifndef STATIC_BUILD
-void __cxa_throw
-#else
-#ifdef __clang__
-void __real___cxa_throw(void *, std::type_info *, void (*)(void *));
-#elif defined(__GNUC__)
-void __real___cxa_throw(void *, void *, void (*)(void *));
-#endif
-void __wrap___cxa_throw
-#endif
-#ifdef __clang__
-
-    /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
-                void(_GLIBCXX_CDTOR_CALLABI *dest)(void *))
-#elif defined(__GNUC__)
-    (void *thrown_exception, void *pvtinfo, void (*dest)(void *))
-#endif
-{
-#ifndef STATIC_BUILD
-  if (origCxaThrow == nullptr) {
-    origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
-  }
-#endif
-#if defined(__GNUC__) && !defined(__clang__)
-  auto *typeinfo = (const std::type_info *)pvtinfo;
-#endif
-  auto *demangled =
-      abi::__cxa_demangle(typeinfo->name(), nullptr, nullptr, nullptr);
-  LOG.debug(std::format("Exception of type {}",
-                        demangled ? demangled : typeinfo->name()));
-  if (demangled) {
-    free(demangled);
-  }
-
-#if defined(__clang__) || defined(NO_BACKTRACE)
-#ifndef NO_EXECINFO
-  void *backtraces[BACKTRACE_LENGTH];
-  auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
-  auto *btSyms = backtrace_symbols(backtraces, btSize);
-  for (auto i = 0; i < btSize; i++) {
-    LOG.debug(std::format("#{}: {}", i, btSyms[i]));
-  }
-  free(btSyms);
-#else
-  LOG.debug("No backtrace possible....");
-#endif
-#elif defined(__GNUC__) && !defined(NO_BACKTRACE)
-  auto stacktrace = std::stacktrace::current();
-  auto idx = 0;
-  for (const auto &element : stacktrace) {
-    LOG.debug(std::format("#{}: {} ({}:{})", idx, element.description(),
-                          element.source_file(), element.source_line()));
-    idx++;
-  }
-#else
-  LOG.debug("No backtrace possible....");
-#endif
-
-#ifndef STATIC_BUILD
-#ifdef __clang__
-  origCxaThrow(thrown_exception, typeinfo, dest);
-#elif defined(__GNUC__)
-  origCxaThrow(thrown_exception, pvtinfo, dest);
-#endif
-#else
-#ifdef __clang__
-  __real___cxa_throw(thrown_exception, typeinfo, dest);
-#elif defined(__GNUC__)
-  __real___cxa_throw(thrown_exception, pvtinfo, dest);
-#endif
-#endif
-}
-};
-#endif
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
