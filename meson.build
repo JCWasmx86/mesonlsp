@@ -122,7 +122,7 @@ else
     extra_link_args = []
     if get_option('use_jemalloc')
         extra_deps += dependency('jemalloc', static: true)
-        args += '-DUSE_MIMALLOC'
+        args += '-DUSE_JEMALLOC'
     elif get_option('use_mimalloc')
         if get_option('use_mimalloc_wrap')
             mimalloc_proj = subproject('mimalloc')
