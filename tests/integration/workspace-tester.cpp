@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <string>
 
-int main(int argc, char **argv) {
+int main(int /*argc*/, char **argv) {
   Logger const logger("workspace-tester");
   std::filesystem::path const toParse = argv[1];
   const auto url = pathToUrl(toParse.parent_path());
