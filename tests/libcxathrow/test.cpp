@@ -22,7 +22,7 @@ __attribute__((noinline)) void g2() { g3(); }
 
 __attribute__((noinline)) void g1() { g2(); }
 
-int main(int /*unused*/, char ** /*unused*/) noexcept {
+int main(int /*unused*/, char ** /*unused*/) {
   try {
     f1();
   } catch (...) {
