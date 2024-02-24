@@ -9,5 +9,6 @@ void
                                    std::type_info *typeinfo,
                                    void(_GLIBCXX_CDTOR_CALLABI *dest)(void *)) {
   logExceptionType(typeinfo);
+  doBacktrace();
   __real___cxa_throw(thrown_exception, typeinfo, dest);
 }

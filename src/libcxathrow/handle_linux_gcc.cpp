@@ -11,5 +11,6 @@ void __cxa_throw /*NOLINT*/ (void *thrown_exception, void *pvtinfo,
   }
   const auto *typeinfo = (const std::type_info *)pvtinfo;
   logExceptionType(typeinfo);
+  doBacktrace();
   origCxaThrow(thrown_exception, pvtinfo, dest);
 }

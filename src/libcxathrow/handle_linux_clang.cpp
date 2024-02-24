@@ -10,5 +10,6 @@ void __cxa_throw /*NOLINT*/ (void *thrown_exception, std::type_info *typeinfo,
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }
   logExceptionType(typeinfo);
+  doBacktrace();
   origCxaThrow(thrown_exception, typeinfo, dest);
 }
