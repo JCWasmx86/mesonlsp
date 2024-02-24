@@ -102,6 +102,7 @@ jobs:
           for i in {0..10}; do ninja -C _build test; done
           otool -L _build/src/mesonlsp
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
+          _build/tests/libcxathrow/cxathrowtest
       - uses: actions/upload-artifact@v3
         with:
           name: Macos${{ matrix.version }}.zip
@@ -125,3 +126,24 @@ jobs:
         with:
           name: Fedora${{ matrix.version }}.zip
           path: /Fedora${{ matrix.version }}.zip
+  fedora_in_container_clang:
+    strategy:
+      matrix:
+        version: [39, 40]
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build on Fedora ${{ matrix.version }}
+        run: |
+          sudo dnf install zip ninja-build clang gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
+          pip install meson
+          sudo dnf clean all
+          export CC=clang
+          export CXX=clang++
+          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Fedora${{ matrix.version }}-clang.zip
+          path: /Fedora${{ matrix.version }}-clang.zip

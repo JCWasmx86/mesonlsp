@@ -20,6 +20,7 @@ RUN meson setup _static --default-library=static --prefer-static \
     --buildtype=release -Db_lto=true
 RUN ninja -C _static
 RUN ninja -C _static test
+RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
 WORKDIR /app/exportDir
