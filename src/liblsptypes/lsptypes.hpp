@@ -328,7 +328,7 @@ public:
   TextDocumentItem textDocument;
 
   explicit DidOpenTextDocumentParams(nlohmann::json &jsonObj)
-      : textDocument(jsonObj) {}
+      : textDocument(jsonObj["textDocument"]) {}
 };
 
 class TextDocumentIdentifier : public BaseObject {
