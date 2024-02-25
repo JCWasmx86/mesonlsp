@@ -10,6 +10,8 @@ typedef /*NOLINT*/ void
 typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
     void *, std::type_info *, void(_GLIBCXX_CDTOR_CALLABI *)(void *));
 #endif
+#elif defined(__APPLE__)
+typedef void (*CxaThrowType)(void *, std::type_info *, void (*)(void *));
 #endif
 
 void logExceptionType(const void *thrownException,

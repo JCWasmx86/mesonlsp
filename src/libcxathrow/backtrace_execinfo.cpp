@@ -2,6 +2,7 @@
 #include "polyfill.hpp"
 #include "shared.hpp"
 
+#include <array>
 #include <cstdint>
 #include <cxxabi.h>
 #include <dlfcn.h>
