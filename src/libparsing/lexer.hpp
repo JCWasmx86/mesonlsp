@@ -143,7 +143,7 @@ inline std::string enum2String(TokenType type) {
     return "<<error>>";
     break;
   }
-  assert(false);
+  std::unreachable();
 }
 
 struct IdentifierData {
