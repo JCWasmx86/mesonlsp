@@ -12,8 +12,8 @@ const static Logger LOG("cxathrow"); // NOLINT
 constexpr auto BACKTRACE_LENGTH = 100;
 
 void doBacktrace() {
-  void *backtraces[BACKTRACE_LENGTH];
-  auto btSize = backtrace(backtraces, BACKTRACE_LENGTH);
+  std::array<void *, BACKTRACE_LENGTH> backtraces;
+  auto btSize = backtrace(backtraces.data(), BACKTRACE_LENGTH);
   for (auto i = 0; i < btSize; i++) {
     Dl_info info;
     if (dladdr(backtraces[i], &info) != 0) {
