@@ -160,11 +160,13 @@ public:
   bool format;
   bool multiline;
   bool hasEnoughAts;
+  bool doubleQuote;
   std::string str;
 
-  StringData(bool format, bool multiline, bool hasEnoughAts, std::string str)
+  StringData(bool format, bool multiline, bool hasEnoughAts, bool doubleQuote,
+             std::string str)
       : format(format), multiline(multiline), hasEnoughAts(hasEnoughAts),
-        str(std::move(str)) {}
+        doubleQuote(doubleQuote), str(std::move(str)) {}
 };
 
 struct NumberData {
@@ -271,6 +273,9 @@ private:
   constexpr static auto STRINGS_Y_INTERCEPT = 3.65;
 
   LexerResult lexString(bool fString);
+  LexerResult lexStringBad(bool fString);
+  LexerResult lexStringCharBad(bool multiline, std::string &str,
+                               uint32_t &nAts);
   LexerResult tokenizeOne();
   LexerResult lexStringChar(bool multiline, std::string &str, uint32_t &nAts);
   LexerResult lexIdentifier();

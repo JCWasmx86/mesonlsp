@@ -198,6 +198,120 @@ bool Lexer::checkKeyword(size_t startIdx, size_t len) {
   return false;
 }
 
+Lexer::LexerResult Lexer::lexStringCharBad(bool multiline, std::string &str,
+                                           uint32_t &nAts) {
+  auto done = false;
+  if (this->idx >= this->inputSize) {
+    return LexerResult::FAIL;
+  }
+  switch (this->input[this->idx]) {
+  case '\n':
+    if (multiline) {
+      str.push_back(this->input[this->idx]);
+      break;
+    }
+    return LexerResult::FAIL;
+  case 0:
+    return LexerResult::FAIL;
+  case '\"':
+    if (!multiline) {
+      done = true;
+      break;
+    }
+    if (this->input[this->idx + 1] == '\"' &&
+        this->input[this->idx + 2] == '\"') {
+      this->advance();
+      this->advance();
+      done = true;
+    } else {
+      str.push_back(this->input[this->idx]);
+    }
+    break;
+  // Ignore
+  case '\\':
+    if (this->input[this->idx + 1] == '\\') {
+      str.push_back('\\');
+      this->advance();
+      str.push_back('\\');
+      break;
+    }
+    if (this->input[this->idx + 1] == '\"') {
+      str.push_back('\\');
+      this->advance();
+      str.push_back('\"');
+      break;
+    }
+    [[fallthrough]];
+  [[likely]] default:
+    auto chr = this->input[this->idx];
+    if (chr == '@') [[unlikely]] {
+      nAts++;
+    }
+    str.push_back(chr);
+    break;
+  }
+  this->advance();
+
+  if (done) {
+    return LexerResult::DONE;
+  }
+  return LexerResult::CONTINUE;
+}
+
+Lexer::LexerResult Lexer::lexStringBad(bool fString) {
+  auto multiline = false;
+  uint32_t quotes = 0;
+  if (this->idx + 3 < this->inputSize &&
+      this->input.compare(this->idx, 3, R"(""")") == 0) {
+    multiline = true;
+    this->advance();
+    this->advance();
+    this->advance();
+  } else {
+    this->advance();
+  }
+  this->tokens.back().type = STRING;
+  std::string str;
+  str.reserve(AVERAGE_STRING_LENGTH);
+  auto loop = true;
+  auto ret = Lexer::LexerResult::CONTINUE;
+  uint32_t nAts = 0;
+  while (loop) {
+    switch (this->lexStringCharBad(multiline, str, nAts)) {
+    case Lexer::LexerResult::CONTINUE:
+      break;
+    case Lexer::LexerResult::DONE:
+      loop = false;
+      break;
+    case Lexer::LexerResult::FAIL:
+      auto terminated = false;
+      while (this->idx < this->inputSize && (this->input[this->idx] != 0) &&
+             (multiline || (!multiline && this->input[this->idx] != '\n'))) {
+        if (this->input[this->idx] == '\"') {
+          quotes++;
+          if ((multiline && quotes == 3) || (!multiline && quotes == 1)) {
+            this->advance();
+            terminated = true;
+            break;
+          }
+          this->advance();
+        }
+      }
+      if (!terminated) {
+        this->error("Unterminated string");
+      }
+      loop = false;
+      ret = LexerResult::FAIL;
+      break;
+    }
+  }
+  this->stringDatas.emplace_back(fString, multiline, nAts >= 2, true,
+                                 std::move(str));
+  this->tokens.back().idx = this->stringDatas.size() - 1;
+  this->finalize();
+  return ret;
+}
+
 Lexer::LexerResult Lexer::lexStringChar(bool multiline, std::string &str,
                                         uint32_t &nAts) {
   auto done = false;
@@ -305,7 +419,8 @@ Lexer::LexerResult Lexer::lexString(bool fString) {
       break;
     }
   }
-  this->stringDatas.push_back({fString, multiline, nAts >= 2, std::move(str)});
+  this->stringDatas.emplace_back(fString, multiline, nAts >= 2, false,
+                                 std::move(str));
   this->tokens.back().idx = this->stringDatas.size() - 1;
   this->finalize();
   return ret;
@@ -333,9 +448,16 @@ Lexer::LexerResult Lexer::tokenizeOne() {
   if (chr == '\'') {
     return this->lexString(false);
   }
+  if (chr == '\"') [[unlikely]] {
+    return this->lexStringBad(false);
+  }
   if (chr == 'f' && this->input[this->idx + 1] == '\'') {
     this->advance();
     return this->lexString(true);
+  }
+  if (chr == 'f' && this->input[this->idx + 1] == '\"') [[unlikely]] {
+    this->advance();
+    return this->lexStringBad(true);
   }
   if (isValidStartOfIdentifier(chr)) {
     return this->lexIdentifier();
