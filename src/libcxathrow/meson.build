@@ -45,8 +45,10 @@ elif cxx.get_id() == 'clang'
         else
             src_files += 'handle_linux_clang.cpp'
         endif
+    elif target_machine.system() == 'darwin'
+        src_files += 'handle_darwin_clang.cpp'
     else
-        src_files = 'handle_null.cpp'
+        src_files += 'handle_null.cpp'
     endif
 else
     src_files += [null_backtrace, 'handle_null.cpp']

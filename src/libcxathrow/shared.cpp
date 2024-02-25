@@ -18,6 +18,7 @@ void logExceptionType(const void *thrownException,
   if (demangled) {
     free(demangled);
   }
+#ifndef __APPLE__
   const auto *exc =
       dynamic_cast<const abi::__class_type_info *>(&typeid(std::exception));
   const auto *cti = dynamic_cast<const abi::__class_type_info *>(typeinfo);
@@ -29,4 +30,5 @@ void logExceptionType(const void *thrownException,
       LOG.debug(std::format("  what(): {}", casted->what()));
     }
   }
+#endif
 }
