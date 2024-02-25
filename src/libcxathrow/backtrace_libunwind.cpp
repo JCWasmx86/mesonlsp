@@ -1,12 +1,8 @@
-#include <cstdint>
-#include <libunwind-x86_64.h>
 #define UNW_LOCAL_ONLY
 #include "polyfill.hpp"
 #include "shared.hpp"
 
-#include <cxxabi.h>
-#include <dlfcn.h>
-#include <execinfo.h>
+#include <cstdint>
 #include <libunwind.h>
 
 void doBacktrace() {
