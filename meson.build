@@ -108,6 +108,7 @@ if get_option('static_build')
         dependency('libbrotlidec'),
         dependency('libbrotlienc'),
         dependency('liblzma'),
+        dependency('zlib'),
     ]
     jemalloc_dep = dependency('jemalloc', static: true, required: false)
     if jemalloc_dep.found()
