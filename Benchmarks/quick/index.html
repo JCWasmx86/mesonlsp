@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON File Uploader</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.2.8/build/index.umd.min.js" integrity="sha256-9WfFAeyATtQYAvkPnvuQM9060pZsn2E8qJvPMrsgGfU=" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>JSON File Uploader</h1>
+        <input type="file" id="fileInput" accept=".json" multiple>
+        <div id="fileContent"></div>
+    </div>
+</body>
+<script>
+    document
+        .getElementById("fileInput")
+        .addEventListener("change", handleFileSelect, false);
+</script>
+
+</html>
