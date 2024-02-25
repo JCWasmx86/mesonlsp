@@ -25,7 +25,8 @@ void doBacktrace() {
     unw_word_t offset;
     unw_get_reg(&cursor, UNW_REG_IP, &pc);
     std::array<char, SYMBOL_LENGTH> symbolName;
-    if (!unw_get_proc_name(&cursor, symbolName, sizeof(symbolName), &offset)) {
+    if (!unw_get_proc_name(&cursor, symbolName.data(), symbolName.size(),
+                           &offset)) {
       auto *demangled =
           abi::__cxa_demangle(symbolName.data(), nullptr, nullptr, nullptr);
       const auto *symName = demangled ? demangled : symbolName.data();
