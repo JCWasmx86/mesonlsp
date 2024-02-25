@@ -10,7 +10,7 @@ extern "C" void
   if (origCxaThrow == nullptr) {
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }
-  logExceptionType(typeinfo);
+  logExceptionType(thrown_exception, typeinfo);
   doBacktrace();
   origCxaThrow(thrown_exception, typeinfo, dest);
 }

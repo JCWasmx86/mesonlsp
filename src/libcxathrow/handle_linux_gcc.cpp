@@ -10,7 +10,7 @@ extern "C" void __cxa_throw /*NOLINT*/ (void *thrown_exception, void *pvtinfo,
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }
   const auto *typeinfo = (const std::type_info *)pvtinfo;
-  logExceptionType(typeinfo);
+  logExceptionType(thrown_exception, typeinfo);
   doBacktrace();
   origCxaThrow(thrown_exception, pvtinfo, dest);
 }

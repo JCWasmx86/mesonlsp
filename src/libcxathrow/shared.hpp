@@ -12,5 +12,6 @@ typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
 #endif
 #endif
 
-void logExceptionType(const std::type_info *typeinfo);
+void logExceptionType(const void *thrownException,
+                      const std::type_info *typeinfo);
 void doBacktrace();
