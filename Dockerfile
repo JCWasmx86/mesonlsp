@@ -5,7 +5,7 @@ RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
     acl-static zlib-static libidn2-static c-ares-static nghttp2-static brotli-static \
     expat-static xz-static xz-dev zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
-    git benchmark-dev mercurial subversion libunwind-static libunwind-dev
+    git benchmark-dev mercurial subversion autoconf automake libtool make
 
 WORKDIR /app
 
@@ -13,7 +13,12 @@ COPY meson.build meson.options /app/
 COPY src /app/src
 COPY tests /app/tests
 COPY subprojects /app/subprojects
-
+RUN git clone https://github.com/libunwind/libunwind
+WORKDIR /app/libunwind
+RUN autoreconf -i
+RUN ./configure --prefix=/usr --disable-tests --disable-cxx-exceptions --enable-shared=no --enable-static=yes --enable-minidebuginfo --enable-zlibdebuginfo  --enable-debug-frame
+RUN make -j4 install
+WORKDIR /app
 RUN meson setup _static --default-library=static --prefer-static \
     -Dc_link_args='-static-libgcc -static-libstdc++' \
     -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
