@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <typeinfo>
 #ifdef __linux__
 #ifdef __GNUC__
@@ -15,4 +14,3 @@ typedef void __attribute__((__noreturn__)) /*NOLINT*/ (*CxaThrowType)(
 
 void logExceptionType(const std::type_info *typeinfo);
 void doBacktrace();
-void printAddr(uint32_t idx, void *addr);
