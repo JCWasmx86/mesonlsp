@@ -4,7 +4,7 @@ RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     util-linux-static curl-dev libunistring-dev libunistring-static \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
     acl-static zlib-static libidn2-static c-ares-static nghttp2-static brotli-static \
-    expat-static xz-static zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
+    expat-static xz-static xz-dev zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
     git benchmark-dev mercurial subversion libunwind-static libunwind-dev
 
 WORKDIR /app
