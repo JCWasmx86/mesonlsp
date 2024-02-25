@@ -9,7 +9,7 @@ extern "C" void
     __wrap___cxa_throw /*NOLINT*/ (void *thrown_exception,
                                    std::type_info *typeinfo,
                                    void(_GLIBCXX_CDTOR_CALLABI *dest)(void *)) {
-  logExceptionType(typeinfo);
+  logExceptionType(thrown_exception, typeinfo);
   doBacktrace();
   __real___cxa_throw(thrown_exception, typeinfo, dest);
 }
