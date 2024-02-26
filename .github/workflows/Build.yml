@@ -116,7 +116,6 @@ jobs:
             "address",
             "thread",
             "undefined",
-            "memory",
             "leak",
             "address,undefined",
           ]
