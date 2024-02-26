@@ -112,13 +112,7 @@ jobs:
       matrix:
         buildtype: [debug, plain, release]
         sanitizer:
-          [
-            "address",
-            "thread",
-            "undefined",
-            "leak",
-            "address,undefined",
-          ]
+          ["address", "thread", "undefined", "leak", "address,undefined"]
     runs-on: ubuntu-latest
     container:
       image: fedora:39
@@ -130,6 +124,9 @@ jobs:
           pip install meson
           sudo dnf clean all
           meson setup _build --buildtype ${{ matrix.buildtype }} -Db_sanitize=${{ matrix.sanitizer }}
+          cd _build
+          ninja
+          meson test "mesonlsp:"
           ninja -C _build test
   fedora_in_container:
     strategy:
