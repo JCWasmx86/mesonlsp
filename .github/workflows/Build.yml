@@ -127,7 +127,6 @@ jobs:
           cd _build
           ninja
           meson test "mesonlsp:"
-          ninja -C _build test
   fedora_in_container:
     strategy:
       matrix:
