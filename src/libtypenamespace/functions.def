@@ -1062,6 +1062,7 @@ dependency:
     - @default_options:
       - Optional: true
       - Types:
+        - dict(str)
         - list(str)
     - @disabler:
       - Optional: true
@@ -1452,8 +1453,8 @@ find_program:
     - @default_options:
       - Optional: true
       - Types:
-        - list(str)
         - dict(str)
+        - list(str)
     - @dirs:
       - Optional: true
       - Types:
@@ -3270,6 +3271,7 @@ subproject:
     - @default_options:
       - Optional: true
       - Types:
+        - dict(str)
         - list(str)
     - @required:
       - Optional: true
