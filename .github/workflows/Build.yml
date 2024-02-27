@@ -129,8 +129,8 @@ jobs:
           meson test "mesonlsp:"
           cd ..
           ./scripts/run_regression_tests.sh
-          find __regressions/|grep meson.build|xargs -L1 ./_clang/src/libparsing/lexingtool
-          find __regressions/|grep meson.build|xargs -L1 ./_clang/src/libparsing/parsingtool
+          for i in $(find __regressions|grep meson.build$); do echo $i; ./_clang/src/libparsing/lexingtool $i 2>/dev/null || exit 1; done
+          for i in $(find __regressions|grep meson.build$); do echo $i; ./_clang/src/libparsing/parsingtool $i 2>/dev/null || exit 1; done
   fedora_in_container:
     strategy:
       matrix:
