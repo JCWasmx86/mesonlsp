@@ -68,7 +68,7 @@ public:
     return this->file->file == other->file->file;
   }
 
-  Node(NodeType type) : type(type) {}
+  explicit Node(NodeType type) : type(type) {}
 
   Node(Node const &) = delete;
   Node &operator=(Node const &) = delete;

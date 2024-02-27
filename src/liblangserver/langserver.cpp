@@ -175,11 +175,11 @@ void LanguageServer::setupInotify() {
 void LanguageServer::watch(
     std::map<std::filesystem::path, int> /*NOLINT*/ fds) {
   int nFds = 1;
-  struct pollfd pollFds[1]; // NOLINT
-  pollFds[0].fd = this->inotifyFd;
-  pollFds[0].events = POLLIN;
+  struct pollfd pollFd; // NOLINT
+  pollFd.fd = this->inotifyFd;
+  pollFd.events = POLLIN;
   while (true) {
-    auto pollNum = poll(pollFds, nFds, 1000);
+    auto pollNum = poll(&pollFd, nFds, 1000);
     if (this->inotifyFd == -1) {
       return;
     }
@@ -193,7 +193,7 @@ void LanguageServer::watch(
     if (pollNum == 0) {
       continue;
     }
-    if ((pollFds[0].revents & POLLIN) == 0) {
+    if ((pollFd.revents & POLLIN) == 0) {
       continue;
     }
     char /*NOLINT*/ buf[4096]
