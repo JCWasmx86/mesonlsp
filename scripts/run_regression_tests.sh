@@ -67,4 +67,3 @@ cd .. || exit
 
 echo No errors
 cd ..
-rm -rf ../__regressions
