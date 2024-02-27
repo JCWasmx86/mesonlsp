@@ -23,12 +23,12 @@ Status: Done
 ### libwrap
 Provides capabilities to download/extract wraps
 
-Status: Mostly done
+Status: Done
 ### libanalyze
 Provides capabilities to analyse meson code.
 
 Depends on: libtypenamespace, libwrap, libast
-Status: Mostly done
+Status: Done
 ### libjsonrpc
 Implements the JSON-RPC protocol.
 
@@ -36,17 +36,29 @@ Status: Done
 ### liblsptypes
 Provides the types needed for a language server.
 
-Status: Mostly done.
+Status: Done.
 ### libls
 Combines libjsonrpc and liblsptypes to an abstract class
 
 Depends on: libjsonrpc, liblsptypes
-Status: Mostly done
+Status: Done
 ### liblangserver
 Implements the language server.
 
 Depends on: libwrap, libanalyze
-Status: Mostly done
+Status: Done
+### libcxathrow
+Wraps `__cxa_throw` and prints the backtrace, the type of the thrown data
+and the `what()`, if it is an exception.
+
+### libparsing
+Is the ported muon lexer and the meson parser.
+
+Depends on: libanalyze
+
+### polyfill
+A polyfill header for platforms that don't support `<format>` (E.g. macOS). The replacement is fmtlib.
+
 ## Design Aspects
 - No dynamically linked dependencies
 - Minimal number of dependencies
@@ -75,7 +87,7 @@ Status: Mostly done
 - Each project will claim the ownership over its meson files.
 - This will either work directly (`subdir` calls) or indirectly (Using subprojects)
 - If there's a LSP request/notification that is not owned by any project, just stub information gatherers are executed. This may be the case for e.g. files of
-  newly created subdirectories that weren't included by the parent directory yet.
+  newly created subdirectories that weren't included by the parent directory yet. (UNIMPLEMENTED)
 
 ## Before merging
 - Fix all compiler warnings
@@ -86,7 +98,4 @@ Status: Mostly done
 
 
 ## TODO
-- Improve auto-completion
-- Create namespaces
 - Better analysis of conditions, whether they trigger
-- OpenSSL backend for SHA256
