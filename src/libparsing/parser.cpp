@@ -349,9 +349,12 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   }
   if (this->accept(STRING)) {
     const auto &strData = this->lexer.stringDatas[curr.idx];
+    // HACKY
+    this->idx--;
     if (strData.doubleQuote) {
       this->error("Double quotes are not supported. Use single quotes.");
     }
+    this->idx++;
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format,
                                            strData.hasEnoughAts);
