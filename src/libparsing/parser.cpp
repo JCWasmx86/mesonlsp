@@ -526,8 +526,8 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     }
     curr = this->tokens[idx];
     this->expect(IDENTIFIER);
-    const auto &idData = this->lexer.identifierDatas[curr.idx];
     if (curr.type == IDENTIFIER) {
+      const auto &idData = this->lexer.identifierDatas[curr.idx];
       ids.push_back(std::make_shared<IdExpression>(
           this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
     }
