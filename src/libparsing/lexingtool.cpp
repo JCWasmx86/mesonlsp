@@ -14,7 +14,7 @@ int main(int /*argc*/, char **argv) {
                          lexer.tokens.size(), lexer.errors.size()));
   }
   for (size_t i = 0; i < contents.size(); i++) {
-    auto lexer = Lexer(contents.substr(i, 0));
+    auto lexer = Lexer(contents.substr(i));
     auto result = lexer.tokenize();
     LOG.info(std::format("At iteration {}: {} {} tokens, {} errors", i, result,
                          lexer.tokens.size(), lexer.errors.size()));
