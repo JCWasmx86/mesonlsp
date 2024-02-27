@@ -103,7 +103,7 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
 }
 
 void SubprojectState::initSubprojects() {
-  for (auto &subproject : this->subprojects) {
+  for (const auto &subproject : this->subprojects) {
     subproject->init();
   }
 }

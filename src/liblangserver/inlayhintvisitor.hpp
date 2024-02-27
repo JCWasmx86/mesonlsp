@@ -9,7 +9,7 @@
 
 class InlayHintVisitor : public CodeVisitor {
 public:
-  InlayHintVisitor(bool removeDefaultTypesInInlayHints)
+  explicit InlayHintVisitor(bool removeDefaultTypesInInlayHints)
       : removeDefaultTypesInInlayHints(removeDefaultTypesInInlayHints) {}
 
   std::vector<InlayHint> hints;

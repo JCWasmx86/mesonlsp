@@ -212,6 +212,7 @@ static const std::map<std::string, std::string> MODULES /*NOLINT*/ = {
 };
 
 using enum TypeName;
+using enum NodeType;
 
 static std::vector<std::shared_ptr<Type>>
 dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
@@ -323,12 +324,12 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
                                           IdExpression *lhsIdExpr) {
   auto arr = node->rhs->types;
   if (arr.empty()) {
-    if (node->rhs->type == NodeType::ARRAY_LITERAL) {
+    if (node->rhs->type == ARRAY_LITERAL) {
       const auto *arrLit = static_cast<ArrayLiteral *>(node->rhs.get());
       if (arrLit->args.empty()) {
         arr.push_back(std::make_shared<List>());
       }
-    } else if (node->rhs->type == NodeType::DICTIONARY_LITERAL) {
+    } else if (node->rhs->type == DICTIONARY_LITERAL) {
       const auto *dictLit = static_cast<DictionaryLiteral *>(node->rhs.get());
       if (dictLit->values.empty()) {
         arr.push_back(std::make_shared<Dict>());
@@ -350,7 +351,7 @@ void TypeAnalyzer::evaluatePureAssignment(const AssignmentStatement *node,
   this->applyToStack(lhsIdExpr->id, arr);
   this->scope.variables[lhsIdExpr->id] = std::move(arr);
   this->registerNeedForUse(lhsIdExpr);
-  if (node->rhs->type != NodeType::METHOD_EXPRESSION) {
+  if (node->rhs->type != METHOD_EXPRESSION) {
     return;
   }
   const auto *me = static_cast<const MethodExpression *>(node->rhs.get());
@@ -462,7 +463,7 @@ void TypeAnalyzer::evaluateFullAssignment(const AssignmentStatement *node,
 
 void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
   node->visitChildren(this);
-  if (node->lhs->type != NodeType::ID_EXPRESSION) [[unlikely]] {
+  if (node->lhs->type != ID_EXPRESSION) [[unlikely]] {
     this->metadata->registerDiagnostic(
         node->lhs.get(), Diagnostic(Severity::ERROR, node->lhs.get(),
                                     "Can only assign to variables"));
@@ -652,15 +653,15 @@ void TypeAnalyzer::visitBinaryExpression(BinaryExpression *node) {
   }
   node->types = dedup(this->ns, newTypes);
   auto *parent = node->parent;
-  if (parent->type == NodeType::ASSIGNMENT_STATEMENT ||
-      parent->type == NodeType::SELECTION_STATEMENT) {
-    if (node->lhs->type == NodeType::METHOD_EXPRESSION &&
-        node->rhs->type == NodeType::STRING_LITERAL) {
+  if (parent->type == ASSIGNMENT_STATEMENT ||
+      parent->type == SELECTION_STATEMENT) {
+    if (node->lhs->type == METHOD_EXPRESSION &&
+        node->rhs->type == STRING_LITERAL) {
       auto *me = static_cast<MethodExpression *>(node->lhs.get());
       auto *sl = static_cast<StringLiteral *>(node->rhs.get());
       this->checkIfSpecialComparison(me, sl);
-    } else if (node->rhs->type == NodeType::METHOD_EXPRESSION &&
-               node->lhs->type == NodeType::STRING_LITERAL) {
+    } else if (node->rhs->type == METHOD_EXPRESSION &&
+               node->lhs->type == STRING_LITERAL) {
       auto *me = static_cast<MethodExpression *>(node->rhs.get());
       auto *sl = static_cast<StringLiteral *>(node->lhs.get());
       this->checkIfSpecialComparison(me, sl);
@@ -762,15 +763,13 @@ void TypeAnalyzer::checkProjectCall(BuildDefinition *node) {
 
 void TypeAnalyzer::checkNoEffect(Node *node) const {
   auto noEffect = false;
-  if (node->type == NodeType::INTEGER_LITERAL ||
-      node->type == NodeType::STRING_LITERAL ||
-      node->type == NodeType::BOOLEAN_LITERAL ||
-      node->type == NodeType::ARRAY_LITERAL ||
-      node->type == NodeType::DICTIONARY_LITERAL) {
+  if (node->type == INTEGER_LITERAL || node->type == STRING_LITERAL ||
+      node->type == BOOLEAN_LITERAL || node->type == ARRAY_LITERAL ||
+      node->type == DICTIONARY_LITERAL) {
     noEffect = true;
     goto end;
   }
-  if (node->type == NodeType::FUNCTION_EXPRESSION) {
+  if (node->type == FUNCTION_EXPRESSION) {
     const auto *fe = static_cast<FunctionExpression *>(node);
     auto fnid = fe->function;
     if (fnid && PURE_FUNCTIONS.contains(fnid->name)) {
@@ -779,7 +778,7 @@ void TypeAnalyzer::checkNoEffect(Node *node) const {
     }
     return;
   }
-  if (node->type == NodeType::METHOD_EXPRESSION) {
+  if (node->type == METHOD_EXPRESSION) {
     const auto *me = static_cast<MethodExpression *>(node);
     auto method = me->method;
     if (method && PURE_METHODS.contains(method->id())) {
@@ -800,7 +799,7 @@ end:
 }
 
 bool TypeAnalyzer::isDead(const std::shared_ptr<Node> &node) {
-  if (node->type != NodeType::FUNCTION_EXPRESSION) {
+  if (node->type != FUNCTION_EXPRESSION) {
     return false;
   }
   const auto *asFuncExpr = static_cast<FunctionExpression *>(node.get());
@@ -857,11 +856,11 @@ void TypeAnalyzer::checkUnusedVariables() {
     return;
   }
   for (const auto *needed : needingUse) {
-    if (needed->parent->type != NodeType::ASSIGNMENT_STATEMENT) {
+    if (needed->parent->type != ASSIGNMENT_STATEMENT) {
       continue;
     }
     const auto *ass = static_cast<AssignmentStatement *>(needed->parent);
-    if (ass->rhs->type != NodeType::FUNCTION_EXPRESSION) {
+    if (ass->rhs->type != FUNCTION_EXPRESSION) {
       continue;
     }
     const auto *rhs = static_cast<FunctionExpression *>(ass->rhs.get());
@@ -1122,7 +1121,7 @@ void TypeAnalyzer::checkKwargsAfterPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) const {
   auto kwargsOnly = false;
   for (const auto &arg : args) {
-    if (arg->type == NodeType::KEYWORD_ITEM) {
+    if (arg->type == KEYWORD_ITEM) {
       kwargsOnly = true;
       continue;
     }
@@ -1164,11 +1163,11 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                Node *node) const {
   std::set<std::string> usedKwargs;
   for (const auto &arg : args) {
-    if (arg->type != NodeType::KEYWORD_ITEM) {
+    if (arg->type != KEYWORD_ITEM) {
       continue;
     }
     auto *kwi = static_cast<KeywordItem *>(arg.get());
-    if (kwi->key->type != NodeType::ID_EXPRESSION) {
+    if (kwi->key->type != ID_EXPRESSION) {
       continue;
     }
     auto *kId = static_cast<IdExpression *>(kwi->key.get());
@@ -1300,7 +1299,7 @@ void TypeAnalyzer::checkArgTypes(
     const std::vector<std::shared_ptr<Node>> &args) {
   auto posArgsIdx = 0;
   for (const auto &arg : args) {
-    if (arg->type == NodeType::KEYWORD_ITEM) {
+    if (arg->type == KEYWORD_ITEM) {
       auto *kwi = static_cast<KeywordItem *>(arg.get());
       const auto &givenTypes = kwi->value->types;
       const auto &kwargName = /*NOLINT*/ kwi->name.value();
@@ -1324,7 +1323,7 @@ unsigned long long TypeAnalyzer::countPositionalArguments(
     const std::vector<std::shared_ptr<Node>> &args) {
   auto nPos = 0ULL;
   for (const auto &arg : args) {
-    if (arg->type != NodeType::KEYWORD_ITEM) {
+    if (arg->type != KEYWORD_ITEM) {
       nPos++;
     }
   }
@@ -1355,10 +1354,10 @@ void TypeAnalyzer::validatePositionalArgumentCount(
 void TypeAnalyzer::checkCall(Node *node) {
   std::shared_ptr<Function> func;
   auto nPos = 0ULL;
-  if (node->type == NodeType::FUNCTION_EXPRESSION) {
+  if (node->type == FUNCTION_EXPRESSION) {
     const auto *fe = static_cast<FunctionExpression *>(node);
     func = fe->function;
-    if (fe->args && fe->args->type == NodeType::ARGUMENT_LIST && func) {
+    if (fe->args && fe->args->type == ARGUMENT_LIST && func) {
       const auto *al = static_cast<ArgumentList *>(fe->args.get());
       const auto &args = al->args;
       this->checkKwargsAfterPositionalArguments(args);
@@ -1368,10 +1367,10 @@ void TypeAnalyzer::checkCall(Node *node) {
     }
   }
 
-  if (node->type == NodeType::METHOD_EXPRESSION) {
+  if (node->type == METHOD_EXPRESSION) {
     const auto *me = static_cast<MethodExpression *>(node);
     func = me->method;
-    if (me->args && me->args->type == NodeType::ARGUMENT_LIST && func) {
+    if (me->args && me->args->type == ARGUMENT_LIST && func) {
       const auto *al = static_cast<ArgumentList *>(me->args.get());
       const auto &args = al->args;
       this->checkKwargsAfterPositionalArguments(args);
@@ -1380,8 +1379,7 @@ void TypeAnalyzer::checkCall(Node *node) {
       nPos = TypeAnalyzer::countPositionalArguments(args);
     }
   }
-  if (node->type != NodeType::FUNCTION_EXPRESSION &&
-      node->type != NodeType::METHOD_EXPRESSION) {
+  if (node->type != FUNCTION_EXPRESSION && node->type != METHOD_EXPRESSION) {
     return;
   }
   if (!func) {
@@ -1511,7 +1509,7 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
                                      func->since.versionString)));
   }
   const auto &args = node->args;
-  if (!args || args->type != NodeType::ARGUMENT_LIST) {
+  if (!args || args->type != ARGUMENT_LIST) {
     if (func->minPosArgs > 0) {
       this->metadata->registerDiagnostic(
           node,
@@ -1522,12 +1520,12 @@ void TypeAnalyzer::visitFunctionExpression(FunctionExpression *node) {
     }
   } else {
     this->checkCall(node);
-    if (args->type != NodeType::ARGUMENT_LIST) {
+    if (args->type != ARGUMENT_LIST) {
       goto cont;
     }
     auto *asArgumentList = static_cast<ArgumentList *>(args.get());
     for (const auto &arg : asArgumentList->args) {
-      if (arg->type != NodeType::KEYWORD_ITEM) {
+      if (arg->type != KEYWORD_ITEM) {
         continue;
       }
       auto *asKwi = static_cast<KeywordItem *>(arg.get());
@@ -1563,7 +1561,7 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
     return false;
   }
 
-  if (parent->type == NodeType::METHOD_EXPRESSION) {
+  if (parent->type == METHOD_EXPRESSION) {
     const auto *me = static_cast<MethodExpression *>(parent);
     if (me->id->equals(node)) {
       return true;
@@ -1571,14 +1569,14 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
     goto end;
   }
   {
-    if (parent->type == NodeType::KEYWORD_ITEM) {
+    if (parent->type == KEYWORD_ITEM) {
       const auto *kwi = static_cast<KeywordItem *>(parent);
       if (kwi->key->equals(node)) {
         return true;
       }
       goto end;
     }
-    if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+    if (parent->type == ASSIGNMENT_STATEMENT) {
       const auto *ass = static_cast<AssignmentStatement *>(parent);
       if (ass->lhs->equals(node)) {
         return true;
@@ -1586,10 +1584,10 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
       goto end;
     }
     // The only children of FunctionExpression are <ID>(<ARGS>)
-    if (parent->type == NodeType::FUNCTION_EXPRESSION) {
+    if (parent->type == FUNCTION_EXPRESSION) {
       return true;
     }
-    if (parent->type == NodeType::ITERATION_STATEMENT) {
+    if (parent->type == ITERATION_STATEMENT) {
       return !static_cast<const IterationStatement *>(parent)
                   ->expression->equals(node);
     }
@@ -1604,9 +1602,9 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
   if (!parent) {
     return true;
   }
-  if (parent->type == NodeType::METHOD_EXPRESSION) {
+  if (parent->type == METHOD_EXPRESSION) {
     const auto *me = static_cast<MethodExpression *>(parent);
-    if (me->id->type != NodeType::ID_EXPRESSION) {
+    if (me->id->type != ID_EXPRESSION) {
       goto err;
     }
     const auto *idexpr = static_cast<IdExpression *>(me->id.get());
@@ -1615,9 +1613,9 @@ bool TypeAnalyzer::isKnownId(IdExpression *idExpr) const {
     }
   }
 err:
-  if (parent->type == NodeType::KEYWORD_ITEM) {
+  if (parent->type == KEYWORD_ITEM) {
     const auto *kwi = static_cast<KeywordItem *>(parent);
-    if (kwi->key->type != NodeType::ID_EXPRESSION) {
+    if (kwi->key->type != ID_EXPRESSION) {
       goto err2;
     }
     const auto *key = static_cast<IdExpression *>(kwi->key.get());
@@ -1626,9 +1624,9 @@ err:
     }
   }
 err2:
-  if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+  if (parent->type == ASSIGNMENT_STATEMENT) {
     const auto *ass = static_cast<AssignmentStatement *>(parent);
-    if (ass->lhs->type != NodeType::ID_EXPRESSION) {
+    if (ass->lhs->type != ID_EXPRESSION) {
       goto err3;
     }
     const auto *lhsIdExpr = static_cast<IdExpression *>(ass->lhs.get());
@@ -1647,7 +1645,7 @@ void TypeAnalyzer::checkUsage(const IdExpression *node) {
     this->registerUsed(node);
     return;
   }
-  if (parent->type == NodeType::ASSIGNMENT_STATEMENT) {
+  if (parent->type == ASSIGNMENT_STATEMENT) {
     const auto *ass = static_cast<const AssignmentStatement *>(parent);
     if (ass->op != AssignmentOperator::EQUALS || ass->rhs->equals(node)) {
       this->registerUsed(node);
@@ -1655,37 +1653,35 @@ void TypeAnalyzer::checkUsage(const IdExpression *node) {
     return;
   }
 
-  if (parent->type == NodeType::KEYWORD_ITEM &&
+  if (parent->type == KEYWORD_ITEM &&
       static_cast<const KeywordItem *>(parent)->value->equals(node)) {
     this->registerUsed(node);
     return;
   }
-  if (parent->type == NodeType::KEY_VALUE_ITEM &&
+  if (parent->type == KEY_VALUE_ITEM &&
       static_cast<const KeyValueItem *>(parent)->value->equals(node)) {
     this->registerUsed(node);
     return;
   }
-  if (parent->type == NodeType::FUNCTION_EXPRESSION) {
+  if (parent->type == FUNCTION_EXPRESSION) {
     return; // Do nothing
   }
-  if (parent->type == NodeType::ITERATION_STATEMENT &&
+  if (parent->type == ITERATION_STATEMENT &&
       static_cast<const IterationStatement *>(parent)->expression->equals(
           node)) {
     this->registerUsed(node);
     return;
   }
-  if (parent->type == NodeType::METHOD_EXPRESSION &&
+  if (parent->type == METHOD_EXPRESSION &&
       static_cast<const MethodExpression *>(parent)->obj->equals(node)) {
     this->registerUsed(node);
     return;
   }
-  if (parent->type == NodeType::BINARY_EXPRESSION ||
-      parent->type == NodeType::UNARY_EXPRESSION ||
-      parent->type == NodeType::ARGUMENT_LIST ||
-      parent->type == NodeType::ARRAY_LITERAL ||
-      parent->type == NodeType::CONDITIONAL_EXPRESSION ||
-      parent->type == NodeType::SUBSCRIPT_EXPRESSION ||
-      parent->type == NodeType::SELECTION_STATEMENT) {
+  if (parent->type == BINARY_EXPRESSION || parent->type == UNARY_EXPRESSION ||
+      parent->type == ARGUMENT_LIST || parent->type == ARRAY_LITERAL ||
+      parent->type == CONDITIONAL_EXPRESSION ||
+      parent->type == SUBSCRIPT_EXPRESSION ||
+      parent->type == SELECTION_STATEMENT) {
     this->registerUsed(node);
   }
 }
@@ -1977,7 +1973,7 @@ bool TypeAnalyzer::findMethod(
   }
   if (!found && methodName == "get") {
     auto al2 = node->args;
-    if (al2 && al2->type == NodeType::ARGUMENT_LIST) {
+    if (al2 && al2->type == ARGUMENT_LIST) {
       auto *asAL = static_cast<ArgumentList *>(al2.get());
       if (asAL->args.empty()) {
         goto cc2;
@@ -2047,7 +2043,7 @@ bool TypeAnalyzer::guessMethod(
     MethodExpression *node, const std::string &methodName,
     std::vector<std::shared_ptr<Type>> &ownResultTypes) {
   if (methodName == "get") {
-    if (node->args->type != NodeType::ARGUMENT_LIST) {
+    if (node->args->type != ARGUMENT_LIST) {
       goto regular;
     }
     const auto *al = static_cast<ArgumentList *>(node->args.get());
@@ -2099,7 +2095,7 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
   this->metadata->registerMethodCall(node);
   const auto &types = node->obj->types;
   std::vector<std::shared_ptr<Type>> ownResultTypes;
-  if (node->id->type != NodeType::ID_EXPRESSION) {
+  if (node->id->type != ID_EXPRESSION) {
     return;
   }
   const auto *methodNameId = static_cast<IdExpression *>(node->id.get());
@@ -2142,10 +2138,10 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
                                currVersion.versionString, node->method->id(),
                                node->method->since.versionString)));
   }
-  if (node->args && node->args->type == NodeType::ARGUMENT_LIST) {
+  if (node->args && node->args->type == ARGUMENT_LIST) {
     const auto &asArgumentList = static_cast<ArgumentList *>(node->args.get());
     for (const auto &arg : asArgumentList->args) {
-      if (arg->type != NodeType::KEYWORD_ITEM) {
+      if (arg->type != KEYWORD_ITEM) {
         continue;
       }
       auto *asKwi = static_cast<KeywordItem *>(arg.get());
@@ -2204,8 +2200,8 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
     node->types = dedup(this->ns, newTypes);
   }
   this->checkCall(node);
-  if (node->obj->type != NodeType::STRING_LITERAL || !node->args ||
-      node->args->type != NodeType::ARGUMENT_LIST) {
+  if (node->obj->type != STRING_LITERAL || !node->args ||
+      node->args->type != ARGUMENT_LIST) {
     return;
   }
   const auto *sl = static_cast<StringLiteral *>(node->obj.get());
@@ -2276,12 +2272,12 @@ void TypeAnalyzer::checkFormat(
 
 bool TypeAnalyzer::checkCondition(Node *condition) {
   auto appended = false;
-  if (condition->type == NodeType::FUNCTION_EXPRESSION) {
+  if (condition->type == FUNCTION_EXPRESSION) {
     const auto *fe = static_cast<FunctionExpression *>(condition);
     if (fe->functionName() == "is_variable" && fe->args &&
-        fe->args->type == NodeType::ARGUMENT_LIST) {
+        fe->args->type == ARGUMENT_LIST) {
       const auto *al = static_cast<ArgumentList *>(fe->args.get());
-      if (!al->args.empty() && al->args[0]->type == NodeType::STRING_LITERAL) {
+      if (!al->args.empty() && al->args[0]->type == STRING_LITERAL) {
         auto *testedIdentifier =
             static_cast<StringLiteral *>(al->args[0].get());
         if (testedIdentifier) {
@@ -2344,26 +2340,26 @@ void TypeAnalyzer::pushVersion(const std::string &version) {
 }
 
 bool TypeAnalyzer::checkConditionForVersionComparison(const Node *condition) {
-  if (condition->type == NodeType::METHOD_EXPRESSION) {
+  if (condition->type == METHOD_EXPRESSION) {
     const auto *me = static_cast<const MethodExpression *>(condition);
     if (me->method && me->method->id() == "str.version_compare" && me->args) {
-      if (me->args->type != NodeType::ARGUMENT_LIST) {
+      if (me->args->type != ARGUMENT_LIST) {
         return false;
       }
       const auto *al = static_cast<const ArgumentList *>(me->args.get());
-      if (al->args.empty() || al->args[0]->type != NodeType::STRING_LITERAL) {
+      if (al->args.empty() || al->args[0]->type != STRING_LITERAL) {
         return false;
       }
       const auto *sl = static_cast<const StringLiteral *>(al->args[0].get());
       const auto *methodObj = me->obj.get();
-      if (methodObj->type == NodeType::ID_EXPRESSION) {
+      if (methodObj->type == ID_EXPRESSION) {
         const auto *idExpr = static_cast<const IdExpression *>(methodObj);
         if (this->mesonVersionVars.contains(idExpr->id)) {
           this->pushVersion(sl->id);
           return true;
         }
       }
-      if (methodObj->type != NodeType::METHOD_EXPRESSION) {
+      if (methodObj->type != METHOD_EXPRESSION) {
         return false;
       }
       const auto *me2 = static_cast<const MethodExpression *>(methodObj);
@@ -2374,7 +2370,7 @@ bool TypeAnalyzer::checkConditionForVersionComparison(const Node *condition) {
     }
     return false;
   }
-  if (condition->type != NodeType::BINARY_EXPRESSION) {
+  if (condition->type != BINARY_EXPRESSION) {
     return false;
   }
   const auto *be = static_cast<const BinaryExpression *>(condition);
