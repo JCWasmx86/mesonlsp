@@ -21,7 +21,7 @@ int main(int /*argc*/, char **argv) {
   }
   for (size_t i = 0; i < contents.size(); i++) {
     LOG.info(std::format("Iteration ({}/{})", i, contents.size()));
-    auto lexer = Lexer(contents.substr(i, 0));
+    auto lexer = Lexer(contents.substr(i));
     lexer.tokenize();
     auto parser = Parser(lexer, sourceFile);
     parser.parse(lexer.errors);
