@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <format>
 #include <map>
 #include <optional>
 #include <string>
@@ -68,6 +69,10 @@ int main(int argc, char **argv) {
   }
   if (errors != 0) {
     logger.error(std::format("{} errors", errors));
+    logger.error(" === SCOPE === ");
+    for (const auto &[varname, types] : metadata) {
+      logger.error(std::format("{} = {}", varname, joinTypes(types)));
+    }
   }
   return static_cast<int>(errors != 0);
 }
