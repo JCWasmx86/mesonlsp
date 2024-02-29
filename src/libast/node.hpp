@@ -65,7 +65,7 @@ public:
         this->location.lines != otherLoc.lines) {
       return false;
     }
-    return this->file->file == other->file->file;
+    return this->file->hashed == other->file->hashed;
   }
 
   explicit Node(NodeType type) : type(type) {}

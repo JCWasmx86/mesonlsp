@@ -14,9 +14,11 @@
 class SourceFile {
 public:
   const std::filesystem::path file;
+  const uint32_t hashed;
 
   explicit SourceFile(const std::filesystem::path &file)
-      : file(std::filesystem::absolute(file)) {}
+      : file(std::filesystem::absolute(file)),
+        hashed(djb2(this->file.native())) {}
 
   virtual const std::string &contents();
   virtual ~SourceFile() = default;
