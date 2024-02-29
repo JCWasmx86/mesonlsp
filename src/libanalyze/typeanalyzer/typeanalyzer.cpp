@@ -876,7 +876,7 @@ void TypeAnalyzer::checkUnusedVariables() {
 }
 
 void TypeAnalyzer::visitBuildDefinition(BuildDefinition *node) {
-  this->metadata->beginFile();
+  this->metadata->beginFile(node);
   this->variablesNeedingUse.emplace_back();
   this->sourceFileStack.push_back(node->file->file);
   this->tree->ownedFiles.insert(node->file->file);
@@ -1161,7 +1161,9 @@ void TypeAnalyzer::createDeprecationWarning(
 void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                const std::vector<std::shared_ptr<Node>> &args,
                                Node *node) const {
-  std::set<std::string> usedKwargs;
+  std::vector<std::string> usedKwargs; // Should be flat_set
+  usedKwargs.reserve(args.size());
+  bool hasKwargArgument = false;
   for (const auto &arg : args) {
     if (arg->type != KEYWORD_ITEM) {
       continue;
@@ -1171,7 +1173,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
       continue;
     }
     auto *kId = static_cast<IdExpression *>(kwi->key.get());
-    usedKwargs.insert(kId->id);
+    usedKwargs.push_back(kId->id);
     auto iter = func->kwargs.find(kId->id);
     if (iter != func->kwargs.end()) {
       const auto &kwarg = iter->second;
@@ -1182,6 +1184,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
       continue;
     }
     if (kId->id == "kwargs") {
+      hasKwargArgument = true;
       continue;
     }
     this->metadata->registerDiagnostic(
@@ -1189,11 +1192,11 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
         Diagnostic(Severity::ERROR, arg.get(),
                    std::format("Unknown key word argument '{}'", kId->id)));
   }
-  if (usedKwargs.contains("kwargs")) {
+  if (hasKwargArgument) {
     return;
   }
   for (const auto &requiredKwarg : func->requiredKwargs) {
-    if (usedKwargs.contains(requiredKwarg)) {
+    if (std::ranges::find(usedKwargs, requiredKwarg) != usedKwargs.end()) {
       continue;
     }
     this->metadata->registerDiagnostic(
@@ -2459,7 +2462,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
 
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
-  node->types.emplace_back(this->ns.strType);
+  node->types = {this->ns.strType};
   this->metadata->registerStringLiteral(node);
   if (!node->hasEnoughAts) {
     return;

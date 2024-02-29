@@ -298,15 +298,25 @@ class BuildDefinition final : public Node {
 public:
   std::vector<std::shared_ptr<Node>> stmts;
   std::vector<ParsingError> parsingErrors;
+  uint32_t numStringLiterals = 0;
+  uint32_t numIdentifiers = 0;
+  uint32_t numArrayAccesses = 0;
+  uint32_t numFunctionCalls = 0;
+  uint32_t numKwargs = 0;
+
   BuildDefinition(const std::shared_ptr<SourceFile> &file, const TSNode &node);
 
   BuildDefinition(const std::shared_ptr<SourceFile> &file,
                   std::vector<std::shared_ptr<Node>> stmts,
                   const std::pair<uint32_t, uint32_t> &start,
                   const std::pair<uint32_t, uint32_t> &end,
-                  std::vector<ParsingError> parsingErrors)
+                  std::vector<ParsingError> parsingErrors,
+                  std::array<uint32_t, 5> &metadata)
       : Node(NodeType::BUILD_DEFINITION, file, start, end),
-        stmts(std::move(stmts)), parsingErrors(std::move(parsingErrors)) {}
+        stmts(std::move(stmts)), parsingErrors(std::move(parsingErrors)),
+        numStringLiterals(metadata[0]), numIdentifiers(metadata[1]),
+        numArrayAccesses(metadata[2]), numFunctionCalls(metadata[3]),
+        numKwargs(metadata[4]) {}
 
   void visitChildren(CodeVisitor *visitor) override;
   void visit(CodeVisitor *visitor) override;

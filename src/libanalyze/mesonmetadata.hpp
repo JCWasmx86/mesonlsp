@@ -210,11 +210,15 @@ public:
 
   REGISTER(registerArrayAccess, arrayAccess, SubscriptExpression)
 
-  void beginFile() {
+  void beginFile(const BuildDefinition *node) {
     this->idExprs.emplace_back();
+    this->idExprs.back().reserve(node->numIdentifiers);
     this->tempStringLiterals.emplace_back();
+    this->tempStringLiterals.back().reserve(node->numStringLiterals);
     this->tempKwargs.emplace_back();
+    this->tempKwargs.back().reserve(node->numKwargs);
     this->tempFuncCalls.emplace_back();
+    this->tempFuncCalls.back().reserve(node->numFunctionCalls);
     this->tempMethodCalls.emplace_back();
   }
 

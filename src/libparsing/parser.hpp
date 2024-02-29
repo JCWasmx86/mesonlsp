@@ -20,6 +20,13 @@ struct ParseError {
   ParseError(std::string message, uint32_t line, uint32_t column)
       : message(std::move(message)), line(line), column(column) {}
 };
+enum class ParserMetadata {
+  STRING_LITERAL = 0,
+  IDENTIFIER = 1,
+  ARRAY_ACCESS = 2,
+  FUNCTION_CALL = 3,
+  KWARG = 4,
+};
 
 class Parser {
 public:
@@ -27,6 +34,7 @@ public:
   const Lexer &lexer;
   size_t idx = 0;
   size_t inputLen = 0;
+  std::array<uint32_t, 5 /*ParserMetadata*/> metadata;
   std::vector<ParseError> errors;
   std::shared_ptr<SourceFile> sourceFile;
 

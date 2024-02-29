@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <optional>
+#include <utility>
 
 const static Logger LOG("parser"); // NOLINT
 
@@ -18,6 +19,7 @@ constexpr static auto Y_INTERCEPT = 3;
 constexpr static auto AVG_ARRAY_LITERAL_ITEMS = 5;
 
 std::shared_ptr<Node> Parser::parse(const std::vector<LexError> &lexErrs) {
+  this->metadata.fill(0);
   auto before = this->currLoc();
   const auto expectedStmts =
       (size_t)(((double)lexer.inputSize) * SLOPE + Y_INTERCEPT);
@@ -35,7 +37,7 @@ std::shared_ptr<Node> Parser::parse(const std::vector<LexError> &lexErrs) {
                       err.message);
   }
   return std::make_shared<BuildDefinition>(this->sourceFile, block, before,
-                                           after, errs);
+                                           after, errs, this->metadata);
 }
 
 std::optional<std::shared_ptr<Node>> Parser::statement() { return this->e1(); }
@@ -231,6 +233,7 @@ std::optional<std::shared_ptr<Node>> Parser::e7() {
     auto args = this->args();
     auto end = this->endLoc();
     this->expect(RPAREN);
+    this->metadata[std::to_underlying(ParserMetadata::FUNCTION_CALL)]++;
     left = std::make_shared<FunctionExpression>(
         this->sourceFile, this->unwrap(left), this->unwrap(args), end);
   }
@@ -254,6 +257,7 @@ Parser::indexCall(const std::optional<std::shared_ptr<Node>> &source) {
   auto index = this->statement();
   auto end = this->endLoc();
   this->expect(RBRACK);
+  this->metadata[std::to_underlying(ParserMetadata::ARRAY_ACCESS)]++;
   return std::make_shared<SubscriptExpression>(
       this->sourceFile, this->unwrap(source), this->unwrap(index), end);
 }
@@ -344,6 +348,7 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
   const auto &curr = this->tokens[idx];
   if (this->accept(IDENTIFIER)) {
     const auto &idData = this->lexer.identifierDatas[curr.idx];
+    this->metadata[std::to_underlying(ParserMetadata::IDENTIFIER)]++;
     return std::make_shared<IdExpression>(this->sourceFile, idData.name,
                                           idData.hash, start, end);
   }
@@ -355,6 +360,7 @@ std::optional<std::shared_ptr<Node>> Parser::e9() {
       this->error("Double quotes are not supported. Use single quotes.");
     }
     this->idx++;
+    this->metadata[std::to_underlying(ParserMetadata::STRING_LITERAL)]++;
     return std::make_shared<StringLiteral>(this->sourceFile, strData.str, start,
                                            end, strData.format,
                                            strData.hasEnoughAts);
@@ -405,6 +411,7 @@ std::shared_ptr<Node> Parser::args() {
     if (this->accept(COMMA)) {
       ret.push_back(stmt.value());
     } else if (this->accept(COLON)) {
+      this->metadata[std::to_underlying(ParserMetadata::KWARG)]++;
       ret.push_back(std::make_shared<KeywordItem>(
           this->sourceFile, stmt.value(), this->unwrap(this->statement())));
       if (!this->accept(COMMA)) {
@@ -515,6 +522,7 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
   this->expect(IDENTIFIER);
   if (curr.type == IDENTIFIER) {
     const auto &idData = this->lexer.identifierDatas[curr.idx];
+    this->metadata[std::to_underlying(ParserMetadata::IDENTIFIER)]++;
     ids.push_back(std::make_shared<IdExpression>(
         this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
   }
@@ -527,6 +535,7 @@ Parser::foreachBlock(const std::pair<uint32_t, uint32_t> &start) {
     curr = this->tokens[idx];
     this->expect(IDENTIFIER);
     if (curr.type == IDENTIFIER) {
+      this->metadata[std::to_underlying(ParserMetadata::IDENTIFIER)]++;
       const auto &idData = this->lexer.identifierDatas[curr.idx];
       ids.push_back(std::make_shared<IdExpression>(
           this->sourceFile, idData.name, idData.hash, startOfIdExpr, end));
