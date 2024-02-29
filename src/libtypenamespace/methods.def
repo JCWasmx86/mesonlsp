@@ -2660,6 +2660,7 @@ hotdoc_module::generate_doc:
     - @html_extra_theme:
       - Optional: true
       - Types:
+        - str
     - @html_list_plugins_page:
       - Optional: true
       - Types:
