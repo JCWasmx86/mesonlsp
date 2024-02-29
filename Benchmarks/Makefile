@@ -56,6 +56,8 @@ serve: FORCE
 	cat c++-5.json >> generated.js
 	echo "," >> generated.js
 	cat c++-6.json >> generated.js
+	echo "," >> generated.js
+	cat c++-7.json >> generated.js
 	echo "];" >> generated.js
 	./extract_git_data.sh >> generated.js
 	echo "COMMIT_STATS = " >> generated.js
