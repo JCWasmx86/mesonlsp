@@ -54,7 +54,7 @@ OptionState::OptionState() {
       "c_std",
       std::vector<std::string>{"none", "c89", "c99", "c11", "c17", "c18", "c2x",
                                "gnu89", "gnu99", "gnu11", "gnu17", "gnu18",
-                               "gnu2x"},
+                               "gnu2x", "gnu23"},
       "C language standard to use", false));
   this->options.push_back(std::make_shared<ComboOption>(
       "b_lto_mode", std::vector<std::string>{},
@@ -168,9 +168,10 @@ OptionState::OptionState() {
   this->options.push_back(std::make_shared<ComboOption>(
       "cpp_std",
       std::vector<std::string>{
-          "none", "c++98", "c++03", "c++11", "c++14", "c++17", "c++20", "c++2a",
-          "c++1z", "gnu++03", "gnu++11", "gnu++14", "gnu++17", "gnu++1z",
-          "gnu++2a", "gnu++20", "vc++14", "vc++17", "vc++latest"},
+          "none",    "c++98",   "c++03",   "c++11",     "c++14",   "c++17",
+          "c++20",   "c++2a",   "c++1z",   "gnu++03",   "gnu++11", "gnu++14",
+          "gnu++17", "gnu++1z", "gnu++2a", "gnu++20",   "gnu++23", "c++26",
+          "gnu++26", "vc++14",  "vc++17",  "vc++latest"},
       "C++ language standard to use", false));
   this->options.push_back(std::make_shared<ComboOption>(
       "b_ndebug", std::vector<std::string>{"true", "false", "if-release"},
