@@ -2602,7 +2602,7 @@ hotdoc_module::generate_doc:
     - @gi_c_sources:
       - Optional: true
       - Types:
-        - list(str)
+        - list(file|str)
     - @gi_index:
       - Optional: true
       - Types:
