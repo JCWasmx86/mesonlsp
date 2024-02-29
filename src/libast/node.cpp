@@ -7,19 +7,14 @@
 
 #include <cctype>
 #include <cstdint>
-#include <cstring>
 #include <memory>
 #include <optional>
-#include <regex>
 #include <set>
 #include <string>
 #include <tree_sitter/api.h>
 #include <utility>
 #include <vector>
 
-const static std::regex
-    FORMAT_STRING_REGEX("@([a-zA-Z_][a-zA-Z_\\d]*)@");               // NOLINT
-const static std::regex STR_FORMAT_REGEX("@(\\d+)@");                // NOLINT
 const std::string INVALID_FUNCTION_NAME_STR = INVALID_FUNCTION_NAME; // NOLINT
 const std::string INVALID_KEY_NAME_STR = INVALID_KEY_NAME;           // NOLINT
 
@@ -943,43 +938,71 @@ std::shared_ptr<Node> makeNode(const std::shared_ptr<SourceFile> &file,
 
 std::vector<std::string> extractTextBetweenAtSymbols(const std::string &text) {
   std::vector<std::string> matches;
-
-  std::smatch match;
-  std::string tempText = text;
-
-  while (std::regex_search(tempText, match, FORMAT_STRING_REGEX)) {
-    const std::string &matchedStr = match.str(1);
-    size_t const startPos = match.position();
-    size_t const endPos = startPos + matchedStr.length() +
-                          2; // Including the surrounding @ symbols
-
-    if ((startPos != 0 && (std::isdigit(tempText[startPos - 1]) != 0)) ||
-        (endPos != tempText.length() &&
-         (std::isdigit(tempText[endPos]) != 0))) {
-      tempText = match.suffix().str();
+  std::string tmp;
+  bool inAt = false;
+  bool inError = false;
+  for (const auto chr : text) {
+    if (inAt) {
+      if (chr == '@') {
+        if (!tmp.empty() && !inError) {
+          matches.push_back(tmp);
+        }
+        tmp = "";
+        inAt = false;
+        inError = false;
+        continue;
+      }
+      if (tmp.empty()) {
+        if ((isalpha(chr) != 0) || chr == '_') {
+          tmp.push_back(chr);
+        } else {
+          inError = true;
+        }
+        continue;
+      }
+      if ((isalnum(chr) != 0) || chr == '_') {
+        tmp.push_back(chr);
+      } else {
+        inError = true;
+      }
       continue;
     }
-
-    matches.emplace_back(matchedStr);
-    tempText = match.suffix().str();
+    if (chr == '@') {
+      inAt = true;
+    }
   }
 
   return matches;
 }
 
 std::set<uint64_t> extractIntegersBetweenAtSymbols(const std::string &text) {
-  std::set<uint64_t> integers;
-
-  std::sregex_iterator iter(text.begin(), text.end(), STR_FORMAT_REGEX);
-  std::sregex_iterator const end;
-
-  while (iter != end) {
-    const std::string &match = iter->str(1);
-    integers.insert(std::stoull(match));
-    ++iter;
+  std::set<uint64_t> matches;
+  std::string tmp;
+  bool inAt = false;
+  bool inError = false;
+  for (const auto chr : text) {
+    if (inAt) {
+      if (chr == '@') {
+        if (!tmp.empty() && !inError) {
+          matches.insert(std::stoull(tmp));
+        }
+        tmp = "";
+        inAt = false;
+        inError = false;
+        continue;
+      }
+      if (isdigit(chr) != 0) {
+        tmp.push_back(chr);
+      } else {
+        inError = true;
+      }
+      continue;
+    }
+    if (chr == '@') {
+      inAt = true;
+    }
   }
-
-  return integers;
+  return matches;
 }
 
 std::string KeywordItem::toString() {

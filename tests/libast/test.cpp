@@ -603,7 +603,7 @@ TEST(TestAstOther, extractIntegersBetweenAtSymbols2) {
 
 TEST(TestAstOther, dontExtractBetweenStrings) {
   auto inputs = extractIntegersBetweenAtSymbols("@foo@0@bar@");
-  // TODO: ASSERT_TRUE(inputs.empty());
+  ASSERT_TRUE(inputs.empty());
 }
 
 int main(int argc, char **argv) {

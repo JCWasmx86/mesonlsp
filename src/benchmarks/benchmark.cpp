@@ -5,6 +5,7 @@
 #include "utils.hpp"
 
 #include <benchmark/benchmark.h>
+#include <cctype>
 #include <filesystem>
 #include <tree_sitter/api.h>
 
@@ -28,6 +29,8 @@ void muonLex(benchmark::State &state) {
     struct tokens toks;
     struct source_data sdata = {nullptr, 0};
     lexer_lex(&toks, &sdata, &src, (enum lexer_mode)0);
+    benchmark::DoNotOptimize(&toks);
+    benchmark::ClobberMemory();
     tokens_destroy(&toks);
     source_data_destroy(&sdata);
     (void)_;
