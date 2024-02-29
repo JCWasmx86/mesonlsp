@@ -173,7 +173,6 @@ Lexer::LexerResult Lexer::lexIdentifier() {
     len++;
     this->advance();
   }
-  assert(len);
   this->checkKeyword(startIdx, len);
   this->finalize();
   return LexerResult::CONTINUE;
