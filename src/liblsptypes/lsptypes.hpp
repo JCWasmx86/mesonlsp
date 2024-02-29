@@ -233,6 +233,16 @@ public:
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"line", line}, {"character", character}};
   }
+
+  bool operator<(const LSPPosition &right) const {
+    if (this->line < right.line) {
+      return true;
+    }
+    if (this->line > right.line) {
+      return false;
+    }
+    return this->character < right.character;
+  }
 };
 
 class LSPRange : public BaseObject {
@@ -266,6 +276,10 @@ public:
     }
     return false;
   }
+
+  bool operator<(const LSPRange &right) const {
+    return this->start < right.start;
+  }
 };
 
 class LSPDiagnostic : public BaseObject {
@@ -285,6 +299,10 @@ public:
             {"severity", severity},
             {"message", message},
             {"tags", tags}};
+  }
+
+  bool operator<(const LSPDiagnostic &right) const {
+    return this->range < right.range;
   }
 };
 

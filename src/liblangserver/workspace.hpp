@@ -129,9 +129,9 @@ private:
     } catch (...) {
       exception = std::current_exception();
     }
-    std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
 
     if (exception) {
+      std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
       for (const auto &oldDiag : oldDiags) {
         ret[oldDiag] = {};
       }
@@ -143,19 +143,25 @@ private:
       return;
     }
 
+    std::map<std::filesystem::path, std::set<LSPDiagnostic>> tmp;
+
     const auto &metadata = subTree->metadata;
     for (const auto &[diagPath, diags] : metadata.diagnostics) {
-      if (!ret.contains(diagPath)) {
-        ret[diagPath] = {};
+      if (!tmp.contains(diagPath)) {
+        tmp[diagPath] = {};
       }
       for (const auto &diag : diags) {
-        ret[diagPath].push_back(makeLSPDiagnostic(diag));
+        tmp[diagPath].insert(makeLSPDiagnostic(diag));
       }
     }
     for (const auto &oldDiag : oldDiags) {
-      if (!ret.contains(oldDiag)) {
-        ret[oldDiag] = {};
+      if (!tmp.contains(oldDiag)) {
+        tmp[oldDiag] = {};
       }
+    }
+    std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+    for (const auto &[path, diags] : tmp) {
+      ret[path] = std::vector<LSPDiagnostic>{diags.begin(), diags.end()};
     }
     func(ret);
     this->tasks.erase(subTree->identifier);

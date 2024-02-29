@@ -456,7 +456,7 @@ Workspace::fullReparse(const TypeNamespace &ns) {
   newTree->identifier = this->name;
   this->tree = newTree;
   this->foundTrees = findTrees(this->tree);
-  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+  std::map<std::filesystem::path, std::set<LSPDiagnostic>> tmp;
   for (const auto &subTree : this->foundTrees) {
     const auto &metadata = subTree->metadata;
     if (subTree->depth > 0 &&
@@ -471,13 +471,17 @@ Workspace::fullReparse(const TypeNamespace &ns) {
       }
     }
     for (const auto &[diagPath, diags] : metadata.diagnostics) {
-      if (!ret.contains(diagPath)) {
-        ret[diagPath] = {};
+      if (!tmp.contains(diagPath)) {
+        tmp[diagPath] = {};
       }
       for (const auto &diag : diags) {
-        ret[diagPath].push_back(makeLSPDiagnostic(diag));
+        tmp[diagPath].insert(makeLSPDiagnostic(diag));
       }
     }
+  }
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+  for (const auto &[path, diags] : tmp) {
+    ret[path] = std::vector<LSPDiagnostic>{diags.begin(), diags.end()};
   }
   return ret;
 }
@@ -492,7 +496,7 @@ Workspace::parse(const TypeNamespace &ns) {
   newTree->identifier = this->name;
   this->tree = newTree;
   this->foundTrees = findTrees(this->tree);
-  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+  std::map<std::filesystem::path, std::set<LSPDiagnostic>> tmp;
   for (const auto &subTree : this->foundTrees) {
     const auto &metadata = subTree->metadata;
     if (subTree->depth > 0 &&
@@ -507,15 +511,19 @@ Workspace::parse(const TypeNamespace &ns) {
       }
     }
     for (const auto &[diagPath, diags] : metadata.diagnostics) {
-      if (!ret.contains(diagPath)) {
-        ret[diagPath] = {};
+      if (!tmp.contains(diagPath)) {
+        tmp[diagPath] = {};
       }
       for (const auto &diag : diags) {
-        ret[diagPath].push_back(makeLSPDiagnostic(diag));
+        tmp[diagPath].insert(makeLSPDiagnostic(diag));
       }
     }
   }
   this->settingUp = false;
+  std::map<std::filesystem::path, std::vector<LSPDiagnostic>> ret;
+  for (const auto &[path, diags] : tmp) {
+    ret[path] = std::vector<LSPDiagnostic>{diags.begin(), diags.end()};
+  }
   return ret;
 }
 
