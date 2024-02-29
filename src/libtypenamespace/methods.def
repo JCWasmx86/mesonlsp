@@ -395,14 +395,13 @@ cmake_subprojectoptions::append_compile_args:
   - returns:
 cmake_subprojectoptions::append_link_args:
   - args:
-    - language:
-      - Optional: false
-      - Varargs: false
-      - Types:
-        - str
     - arg:
       - Optional: false
       - Varargs: true
+      - Types:
+        - str
+    - @language:
+      - Optional: false
       - Types:
         - str
     - @target:
