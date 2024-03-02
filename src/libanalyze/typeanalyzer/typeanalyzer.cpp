@@ -236,6 +236,7 @@ void TypeAnalyzer::modifiedVariableType(
                     ? iter->second
                     : std::vector<std::shared_ptr<Type>>{};
     curr.insert(curr.end(), newTypes.begin(), newTypes.end());
+    currStackItem[varname] = std::move(curr);
   } else {
     auto &curr = currStackItemIter->second;
     auto iter = this->scope.variables.find(varname);
@@ -245,6 +246,7 @@ void TypeAnalyzer::modifiedVariableType(
     }
     curr.insert(curr.end(), newTypes.begin(), newTypes.end());
   }
+  this->selectionStatementStack.back() = currStackItem;
 }
 
 void TypeAnalyzer::applyToStack(
@@ -259,7 +261,7 @@ void TypeAnalyzer::applyToStack(
     const auto &vars = scopeIter->second;
     const auto iter = atIdx.find(name);
     if (iter != atIdx.end()) {
-      iter->second.insert(iter->second.begin(), vars.begin(), vars.end());
+      iter->second.insert(atIdx[name].begin(), vars.begin(), vars.end());
     } else {
       atIdx[name] = vars;
     }
@@ -1074,11 +1076,10 @@ void TypeAnalyzer::setFunctionCallTypesGetVariable(
   const auto &values = ::guessSetVariable(node, this->options);
   std::set<std::string> const asSet{values.begin(), values.end()};
   for (const auto &varname : asSet) {
-    auto iter = this->scope.variables.find(varname);
-    if (iter == this->scope.variables.end()) {
+    if (!this->scope.variables.contains(varname)) {
       continue;
     }
-    const auto &vTypes = iter->second;
+    const auto &vTypes = this->scope.variables[varname];
     types.insert(types.end(), vTypes.begin(), vTypes.end());
   }
   if (asSet.empty()) {
@@ -2447,9 +2448,8 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
                    ? this->scope.variables[key]
                    : std::vector<std::shared_ptr<Type>>{};
     arr.insert(arr.end(), keyTypes.begin(), keyTypes.end());
-    auto iter = changed.find(key);
-    if (iter != changed.end()) {
-      const auto &oldTypes = iter->second;
+    if (changed.contains(key)) {
+      const auto &oldTypes = changed.at(key);
       arr.insert(arr.end(), oldTypes.begin(), oldTypes.end());
     }
     const auto &deduped = dedup(this->ns, arr);
