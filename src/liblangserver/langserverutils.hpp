@@ -23,13 +23,19 @@ inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   }
   auto input = url->get_pathname();
   auto ret = ada::unicode::percent_decode(input, input.find('%'));
+  // For Windows: We get e.g. /D:/a/...
+  // We will transform it to D:/a/...
+  if (ret.size() > 3 && ret[0] == '/' && ret[2] == ':') {
+    ret = ret.substr(1);
+  }
   std::cerr << "URL: " << urlStr << " PATH: " << ret << std::endl;
   return {ret};
 }
 
 inline std::string pathToUrl(const std::filesystem::path &path) {
   auto ret = ada::href_from_file(path.generic_string());
-  std::cerr << "PATH: " << path.generic_string() << " URL: " << ret << std::endl;
+  std::cerr << "PATH: " << path.generic_string() << " URL: " << ret
+            << std::endl;
   return ret;
 }
 
