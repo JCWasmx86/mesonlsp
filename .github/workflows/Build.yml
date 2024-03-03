@@ -68,6 +68,7 @@ jobs:
             crt:p
             pkgconf:p
             dlfcn:p
+            libunwind:p
       - name: Build on Windows
         run: |
           meson setup _build
