@@ -29,6 +29,7 @@
 #define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
 #define archive_read_open_filename archive_read_open_filename_w
 #define archive_entry_hardlink archive_entry_hardlink_w
+#define fopen _wfopen
 #endif
 #include <string>
 #include <sys/types.h>
@@ -46,7 +47,8 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
   auto temporaryPath = std::filesystem::temp_directory_path() /
                        hash(std::format("{}-{}", url, output.generic_string()));
   LOG.info(std::format("Downloading URL {} to {} (Temp: {})", url,
-                       output.c_str(), temporaryPath.c_str()));
+                       output.generic_string(),
+                       temporaryPath.generic_string()));
   auto *curl = curl_easy_init();
   if (curl == nullptr) {
     LOG.error("Unable to create CURL* using curl_easy_init");
@@ -72,7 +74,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
   curl_easy_cleanup(curl);
   (void)fclose(filep);
   if (!successful) {
-    (void)std::remove(temporaryPath.c_str());
+    (void)std::filesystem::remove(temporaryPath);
   } else {
     try {
       std::filesystem::copy_file(
@@ -148,7 +150,16 @@ bool extractFile(const std::filesystem::path &archivePath,
     const auto *originalHardlink = archive_entry_hardlink(entry);
     if (originalHardlink != nullptr) {
       auto newHardlink = outputDirectory / originalHardlink;
+#ifdef _WIN32
+      const wchar_t *newHardLinkW = newHardlink.c_str();
+      char *data = calloc(newHardlink.generic_string().size() * 2, 1);
+      // Should be use wcstombs_s?
+      wcstombs(data, newHardLinkW, newHardlink.generic_string().size() * 2);
+      archive_entry_set_hardlink(entry, data);
+      free(data);
+#else
       archive_entry_set_hardlink(entry, newHardlink.c_str());
+#endif
     }
 
     if (res = archive_write_header(ext, entry); res < ARCHIVE_OK) {
