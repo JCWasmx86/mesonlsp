@@ -75,6 +75,7 @@ jobs:
         run: |
           svn --version || echo "No SVN"
           hg --version || echo "No mercurial"
+          svn checkout -r HEAD https://svn.xiph.org/trunk/vorbis/ ./out
           meson setup _build
           du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
