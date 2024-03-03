@@ -29,8 +29,10 @@ int main(int argc, char **argv) {
     haveToExist[argv[i]] = argv[i + 1];
   }
 #ifndef __APPLE__
-  std::filesystem::path const parent(std::format(
-      "/tmp/type-analyzer{:%F%H%I%M}", std::chrono::system_clock::now()));
+  std::filesystem::path const parent(
+      std::format("{}/type-analyzer{:%F%H%I%M}",
+                  std::filesystem::temp_directory_path().generic_string(),
+                  std::chrono::system_clock::now()));
 #else
   std::filesystem::path const parent(
       std::format("/tmp/type-analyzer{}", std::chrono::system_clock::now()));

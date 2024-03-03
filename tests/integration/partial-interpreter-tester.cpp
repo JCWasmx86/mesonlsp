@@ -28,8 +28,10 @@ int main(int argc, char **argv) {
     haveToExist.emplace_back(argv[i]);
   }
 #ifndef __APPLE__
-  std::filesystem::path const parent(std::format(
-      "/tmp/partial-interpreter{:%F%H%I%M}", std::chrono::system_clock::now()));
+  std::filesystem::path const parent(
+      std::format("{}/partial-interpreter{:%F%H%I%M}",
+                  std::filesystem::temp_directory_path().generic_string(),
+                  std::chrono::system_clock::now()));
 #else
   std::filesystem::path const parent(std::format(
       "/tmp/partial-interpreter{}", std::chrono::system_clock::now()));
