@@ -79,6 +79,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
     (void)std::filesystem::remove(temporaryPath);
   } else {
     try {
+      std::filesystem::create_directories(output.parent_path());
       std::filesystem::copy_file(
           temporaryPath, output,
           std::filesystem::copy_options::overwrite_existing);
