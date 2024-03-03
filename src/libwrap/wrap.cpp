@@ -26,8 +26,9 @@ Wrap::Wrap(ast::ini::Section *section) {
     LOG.info(
         std::format("Directory according to the wrap file: {}", val.value()));
   } else {
-    LOG.info(std::format("Guessed: {}->{}", section->file->file.c_str(),
-                         section->file->file.stem().c_str()));
+    LOG.info(std::format("Guessed: {}->{}",
+                         section->file->file.generic_string(),
+                         section->file->file.stem().generic_string()));
     this->directory = section->file->file.stem();
   }
   if (auto val = section->findStringValue("patch_url")) {
@@ -63,12 +64,12 @@ bool Wrap::applyPatch(const std::filesystem::path &path,
   if (this->patchDirectory.has_value()) {
     auto packagePath = packageFilesPath / this->patchDirectory.value();
     if (!std::filesystem::exists(packagePath)) {
-      LOG.warn(
-          std::format("Patchdirectory {} does not exist", packagePath.c_str()));
+      LOG.warn(std::format("Patchdirectory {} does not exist",
+                           packagePath.generic_string()));
       return false;
     }
-    LOG.info(
-        std::format("Merging {} into {}", packagePath.c_str(), path.c_str()));
+    LOG.info(std::format("Merging {} into {}", packagePath.generic_string(),
+                         path.generic_string()));
     mergeDirectories(packagePath, path);
     return true;
   }
