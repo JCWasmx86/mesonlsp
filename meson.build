@@ -35,7 +35,7 @@ if host_machine.system() == 'linux'
     extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
 endif
 
-global_link_args = ['-rdynamic']
+global_link_args = host_machine.system() == 'windows' ? [] : ['-rdynamic']
 if host_machine.system() == 'linux'
     global_link_args += ['-Wl,-z,relro,-z,now']
 elif host_machine.system() == 'darwin'
