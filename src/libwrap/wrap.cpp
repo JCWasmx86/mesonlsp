@@ -29,7 +29,7 @@ Wrap::Wrap(ast::ini::Section *section) {
     LOG.info(std::format("Guessed: {}->{}",
                          section->file->file.generic_string(),
                          section->file->file.stem().generic_string()));
-    this->directory = section->file->file.stem();
+    this->directory = section->file->file.stem().generic_string();
   }
   if (auto val = section->findStringValue("patch_url")) {
     this->patchUrl = val.value();
@@ -100,13 +100,14 @@ bool Wrap::applyDiffFiles(const std::filesystem::path &path,
     LOG.info(std::format("Applying diff: {}", diff));
     auto absoluteDiffPath = std::filesystem::absolute(packageFilesPath / diff);
     auto result = launchProcess(
-        "git",
-        std::vector<std::string>{"-C", path, "--work-tree", ".", "apply", "-p1",
-                                 absoluteDiffPath.generic_string()});
+        "git", std::vector<std::string>{"-C", path.generic_string(),
+                                        "--work-tree", ".", "apply", "-p1",
+                                        absoluteDiffPath.generic_string()});
     if (!result) {
       LOG.info(std::format("Retrying with `patch`"));
       result = launchProcess("patch", std::vector<std::string>{
-                                          "-d", path, "-f", "-p1", "-i", path});
+                                          "-d", path.generic_string(), "-f",
+                                          "-p1", "-i", path.generic_string()});
       if (!result) {
         LOG.warn("Won't continue setting up this wrap...");
         return false;
