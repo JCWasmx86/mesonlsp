@@ -580,8 +580,6 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     break;
   case '\0':
     if (this->idx != this->inputSize - 1) {
-      LOG.info(std::format("{} {}\n{}", this->idx, this->inputSize - 1,
-                           this->input));
 #ifdef _WIN32
       // FIXME: For some reason there are null bytes at the end of files...
       // This should be fixed.
@@ -594,8 +592,14 @@ Lexer::LexerResult Lexer::tokenizeOne() {
       }
       if (!onlyNulls) {
         this->error("Unexpected null byte");
+      } else {
+        this->advance();
+        this->tokens.pop_back();
+        return LexerResult::CONTINUE;
       }
 #else
+      LOG.info(std::format("{} {}\n{}", this->idx, this->inputSize - 1,
+                           this->input));
       this->error("Unexpected null byte");
 #endif
       this->finalize();
