@@ -1,3 +1,4 @@
+#include <format>
 #ifdef NDEBUG
 #undef NDEBUG
 #endif
@@ -25,6 +26,12 @@ int main(int /*argc*/, char **argv) {
   WorkspaceFolder const wspf{json};
   Workspace workspace{wspf, options};
   const auto diags = workspace.parse(ns);
+  for (const auto &[filePath, diags] : diags) {
+    for (const auto &msg : diags) {
+      logger.info(
+          std::format("{}: {}", filePath.generic_string(), msg.message));
+    }
+  }
   assert(diags.size() == 1);
   const auto &firstDiags = diags.begin()->second;
   assert(firstDiags.size() == 1);
