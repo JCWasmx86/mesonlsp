@@ -21,18 +21,22 @@
 
 std::string randomFile() {
   auto *tmpdir = getenv("TMPDIR"); // NOLINT
+  std::filesystem::path realTempDir;
   if (tmpdir == nullptr) {
-    tmpdir = (char *)"/tmp";
+    realTempDir =
+        (char *)std::filesystem::temp_directory_path().generic_string().c_str();
+  } else {
+    realTempDir = tmpdir;
   }
 #ifndef _WIN32
   uuid_t filename;
   uuid_generate(filename);
   std::array<char, UUID_STR_LEN + 1> out;
   uuid_unparse(filename, out.data());
-  return std::format("{}/{}", tmpdir, out.data());
+  return std::format("{}/{}", realTempDir.generic_string(), out.data());
 #else
   const auto now = std::chrono::system_clock::now();
-  return std::format("{}/{:%F%H%I%M}", tmpdir, now);
+  return std::format("{}/{:%F%H%I%M}", realTempDir, now);
 #endif
 }
 
