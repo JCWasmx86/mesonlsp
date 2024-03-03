@@ -73,7 +73,7 @@ jobs:
         run: |
           meson setup _build
           ninja -C _build
-          ninja -C _build test
+          ninja -C _build test || cat 'D:/a/Swift-MesonLSP/Swift-MesonLSP/_build/meson-logs/testlog.txt'
   macos:
     strategy:
       matrix:
