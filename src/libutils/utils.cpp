@@ -114,7 +114,7 @@ static int copyData(struct archive *archive, struct archive *writer) {
 
 bool extractFile(const std::filesystem::path &archivePath,
                  const std::filesystem::path &outputDirectory) {
-  LOG.info(std::format("Extracting {} to {}", archivePath.c_str(),
+  LOG.info(std::format("Extracting {} to {}", archivePath.generic_string(),
                        outputDirectory.generic_string()));
   auto *archive = archive_read_new();
   archive_read_support_format_all(archive);
