@@ -45,6 +45,9 @@ int main(int argc, char **argv) {
   std::filesystem::copy_file(toParse, parent / "meson.build",
                              std::filesystem::copy_options::overwrite_existing,
                              err);
+  if (err != std::errc{}) {
+    logger.error(err.message());
+  }
   assert(err == std::errc{});
   if (optionsFile.has_value()) {
     logger.info(std::format("Copying {} -> {}", optionsFile->generic_string(),
