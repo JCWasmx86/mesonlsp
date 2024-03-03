@@ -246,7 +246,7 @@ bool launchProcess(const std::string &executable,
 }
 #else
 // No idea what I'm doing here. This is the result
-// of ChatGPT+MS docs. It's a wonder that it works.
+// of ChatGPT+MS docs. It's a wonder that it workss
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args) {
   auto commandLine = "\"" + executable + "\"";
@@ -262,10 +262,17 @@ bool launchProcess(const std::string &executable,
   ZeroMemory(&startupInfo, sizeof(startupInfo));
   startupInfo.cb = sizeof(startupInfo);
   startupInfo.dwFlags |= STARTF_USESTDHANDLES;
-  // We redirect the child's stdout to our stderr so we
-  // don't interfere with the JSON-RPC communication.
-  startupInfo.hStdOutput = GetStdHandle(STD_ERROR_HANDLE);
-  startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+  // Create pipes for redirecting child process output
+  HANDLE hChildStdoutRd, hChildStdoutWr;
+  SECURITY_ATTRIBUTES saAttr;
+  ZeroMemory(&saAttr, sizeof(saAttr));
+  saAttr.nLength = sizeof(saAttr);
+  saAttr.bInheritHandle = TRUE;
+  CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0);
+  SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0);
+  startupInfo.hStdOutput = hChildStdoutWr;
+  startupInfo.hStdError = hChildStdoutWr;
 
   ZeroMemory(&processInfo, sizeof(processInfo));
   auto *lpCommandLine = const_cast<char *>(commandLine.c_str());
@@ -283,12 +290,23 @@ bool launchProcess(const std::string &executable,
     LocalFree(messageBuffer);
     return false;
   }
+
+  CloseHandle(hChildStdoutWr);
+  char buffer[4096];
+  DWORD bytesRead;
+  while (ReadFile(hChildStdoutRd, buffer, sizeof(buffer), &bytesRead, NULL) &&
+         bytesRead != 0) {
+    std::cerr.write(buffer, bytesRead);
+  }
   WaitForSingleObject(processInfo.hProcess, INFINITE);
+
   CloseHandle(processInfo.hProcess);
   CloseHandle(processInfo.hThread);
+  CloseHandle(hChildStdoutRd);
 
   return true;
 }
+
 #endif
 
 std::string errno2string() {
