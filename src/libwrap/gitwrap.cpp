@@ -121,8 +121,8 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
             return false;
           }
           result = launchProcess(
-              "git", std::vector<std::string>{"-C", fullPath, "-c",
-                                              "advice.detachedHead=false",
+              "git", std::vector<std::string>{"-C", fullPath.generic_string(),
+                                              "-c", "advice.detachedHead=false",
                                               "checkout", rev, "--"});
           if (!result) {
             return false;
