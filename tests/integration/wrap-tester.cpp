@@ -92,7 +92,8 @@ int main(int /*argc*/, char **argv) {
   std::filesystem::path first{argv[1]};
   auto wrapDir = first.parent_path();
   auto packagefilesPath = wrapDir / "packagefiles";
-  std::filesystem::path outputPath = "wrap-tester-out/";
+  std::filesystem::path outputPath =
+      std::filesystem::current_path() / "wrap-tester-out/";
   if (std::filesystem::exists(outputPath)) {
     std::filesystem::remove_all(outputPath);
   }
