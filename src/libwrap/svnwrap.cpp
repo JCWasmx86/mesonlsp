@@ -23,7 +23,7 @@ bool SvnWrap::setupDirectory(const std::filesystem::path &path,
   }
   auto targetDirectory = this->directory.value();
   std::string const fullPath =
-      std::format("{}/{}", path.c_str(), targetDirectory);
+      std::format("{}/{}", path.generic_string(), targetDirectory);
   auto result = launchProcess(
       "svn", std::vector<std::string>{"checkout", "-r", rev, url, fullPath});
   if (!result) {

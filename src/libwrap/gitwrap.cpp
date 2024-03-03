@@ -63,7 +63,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
   auto rev = this->revision;
   auto targetDirectory = this->directory.value();
   std::filesystem::path const fullPath =
-      std::format("{}/{}", path.c_str(), targetDirectory);
+      std::format("{}/{}", path.generic_string(), targetDirectory);
   auto isShallow = this->depth != 0;
   auto depthOptions =
       isShallow
