@@ -307,6 +307,10 @@ void mergeDirectories(const std::filesystem::path &sourcePath,
       if (std::filesystem::is_directory(entry.status())) {
         std::filesystem::create_directories(destination);
       } else if (std::filesystem::is_regular_file(entry.status())) {
+#ifdef _WIN32
+        // https://sourceforge.net/p/mingw-w64/bugs/852/
+        std::filesystem::remove(destination);
+#endif
         std::filesystem::copy_file(
             entry.path(), destination,
             std::filesystem::copy_options::overwrite_existing);
