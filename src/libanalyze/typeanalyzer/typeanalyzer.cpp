@@ -1088,7 +1088,8 @@ void TypeAnalyzer::setFunctionCallTypesGetVariable(
   }
   node->types = dedup(this->ns, types);
   LOG.info(std::format("get_variable: {} = {} ({}:{})", joinStrings(asSet, '|'),
-                       joinTypes(node->types), node->file->file.native(),
+                       joinTypes(node->types),
+                       node->file->file.generic_string(),
                        node->location.format()));
 }
 
@@ -1395,9 +1396,9 @@ void TypeAnalyzer::guessSetVariable(std::vector<std::shared_ptr<Node>> args,
                                     FunctionExpression *node) {
   auto guessed = ::guessSetVariable(node, this->options);
   std::set<std::string> const asSet(guessed.begin(), guessed.end());
-  LOG.info(std::format("Guessed values for set_variable: {} at {}:{}",
-                       joinStrings(asSet, '|'), node->file->file.native(),
-                       node->location.format()));
+  LOG.info(std::format(
+      "Guessed values for set_variable: {} at {}:{}", joinStrings(asSet, '|'),
+      node->file->file.generic_string(), node->location.format()));
   for (const auto &varname : asSet) {
     const auto &types = args[1]->types;
     this->modifiedVariableType(varname, types);
@@ -1442,7 +1443,7 @@ void TypeAnalyzer::enterSubdir(FunctionExpression *node) {
   if (asSet.empty()) {
     const auto &msg =
         std::format("Found no dirs at subdircall at {}:{}",
-                    node->file->file.native(), node->location.format());
+                    node->file->file.generic_string(), node->location.format());
     LOG.warn(msg);
   }
   this->metadata->registerSubdirCall(node, asSet);
