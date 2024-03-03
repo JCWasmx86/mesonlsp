@@ -115,7 +115,7 @@ TEST(UtilsTest, testHash) {
 }
 
 TEST(UtilsTest, testMergingDirectories) {
-  auto workDir = std::filesystem::path{randomFile()};
+  auto workDir = std::filesystem::path{randomFile() + "-4"};
   auto inputDir = workDir / "input";
   auto outputDir = workDir / "output";
   std::filesystem::create_directories(inputDir);
@@ -131,19 +131,19 @@ TEST(UtilsTest, testMergingDirectories) {
 }
 
 TEST(UtilsTest, testDownloadAndExtraction) {
-  auto zipFileName = std::filesystem::path{randomFile()};
+  auto zipFileName = std::filesystem::path{randomFile() + "-1"};
   auto result = downloadFile(
       "https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/heads/main.zip",
       zipFileName);
   ASSERT_TRUE(result);
-  auto directoryName = std::filesystem::path{randomFile()};
+  auto directoryName = std::filesystem::path{randomFile() + "-2"};
   std::filesystem::create_directory(directoryName);
   result = extractFile(zipFileName, directoryName);
   ASSERT_TRUE(result);
   auto mustExist =
       directoryName / "Swift-MesonLSP-main/Benchmarks/extract_git_data.sh";
   ASSERT_TRUE(std::filesystem::exists(mustExist));
-  auto mustFailFilename = std::filesystem::path{randomFile()};
+  auto mustFailFilename = std::filesystem::path{randomFile() + "-3"};
   result =
       downloadFile("lnfvwoefvnwefvwvipwnefv2efvpov2nvov", mustFailFilename);
   ASSERT_FALSE(result);

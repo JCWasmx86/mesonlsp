@@ -80,6 +80,10 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
   } else {
     try {
       std::filesystem::create_directories(output.parent_path());
+      if (std::filesystem::exists(output)) {
+        LOG.error(std::format("{} already exists: {}", output.generic_string(),
+                              std::filesystem::is_directory(output)));
+      }
       std::filesystem::copy_file(
           temporaryPath, output,
           std::filesystem::copy_options::overwrite_existing);
