@@ -11,7 +11,6 @@
 #include <uuid/uuid.h>
 #else
 #include <chrono>
-#include <format>
 #endif
 #include <vector>
 
@@ -33,7 +32,7 @@ std::string randomFile() {
   return std::format("{}/{}", tmpdir, out.data());
 #else
   const auto now = std::chrono::system_clock::now();
-  return std::format("{}/{%H%I%M}", tmpdir, now);
+  return std::format("{}/{:%d-%m-%Y %H:%M:%OS}", tmpdir, now);
 #endif
 }
 
