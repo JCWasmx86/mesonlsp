@@ -137,6 +137,11 @@ std::shared_ptr<WrapFile> parseWrap(const std::filesystem::path &path) {
   std::string fileContent;
   fileContent.resize(fileSize, '\0');
   file.read(fileContent.data(), (std::streamsize)fileSize);
+#ifndef _WIN32
+  fileContent.push_back('\n');
+#else
+  fileContent += "\r\n";
+#endif
   TSParser *parser = ts_parser_new();
   ts_parser_set_language(parser, tree_sitter_ini());
   TSTree *tree = ts_parser_parse_string(parser, nullptr, fileContent.data(),
