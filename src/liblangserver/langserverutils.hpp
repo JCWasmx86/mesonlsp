@@ -7,7 +7,6 @@
 
 #include <ada.h>
 #include <filesystem>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -23,19 +22,18 @@ inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   }
   auto input = url->get_pathname();
   auto ret = ada::unicode::percent_decode(input, input.find('%'));
+#ifdef _WIN32
   // For Windows: We get e.g. /D:/a/...
   // We will transform it to D:/a/...
   if (ret.size() > 3 && ret[0] == '/' && ret[2] == ':') {
     ret = ret.substr(1);
   }
-  std::cerr << "URL: " << urlStr << " PATH: " << ret << std::endl;
+#endif
   return {ret};
 }
 
 inline std::string pathToUrl(const std::filesystem::path &path) {
   auto ret = ada::href_from_file(path.generic_string());
-  std::cerr << "PATH: " << path.generic_string() << " URL: " << ret
-            << std::endl;
   return ret;
 }
 
