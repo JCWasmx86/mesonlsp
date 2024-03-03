@@ -18,7 +18,7 @@ if cxx.get_id() == 'gcc'
         src_files += 'backtrace_stacktrace.cpp'
         cxathrow_deps += backtrace_dep
     else
-        if is_static
+        if is_static or host_machine.system() == 'windows'
             # Should only happen in crappy distributions....
             src_files += null_backtrace
             used_libunwind = true
