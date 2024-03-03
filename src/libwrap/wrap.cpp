@@ -100,14 +100,16 @@ bool Wrap::applyDiffFiles(const std::filesystem::path &path,
     LOG.info(std::format("Applying diff: {}", diff));
     auto absoluteDiffPath = std::filesystem::absolute(packageFilesPath / diff);
     auto result = launchProcess(
-        "git", std::vector<std::string>{"-C", path.generic_string(),
-                                        "--work-tree", ".", "apply", "-p1",
-                                        absoluteDiffPath.generic_string()});
+        "git",
+        std::vector<std::string>{"-C", path.generic_string(), "--work-tree",
+                                 ".", "apply", "--ignore-whitespace", "-p1",
+                                 absoluteDiffPath.generic_string()});
     if (!result) {
       LOG.info(std::format("Retrying with `patch`"));
-      result = launchProcess("patch", std::vector<std::string>{
-                                          "-d", path.generic_string(), "-f",
-                                          "-p1", "-i", path.generic_string()});
+      result = launchProcess(
+          "patch",
+          std::vector<std::string>{"-d", path.generic_string(), "-l", "-f",
+                                   "-p1", "-i", path.generic_string()});
       if (!result) {
         LOG.warn("Won't continue setting up this wrap...");
         return false;
