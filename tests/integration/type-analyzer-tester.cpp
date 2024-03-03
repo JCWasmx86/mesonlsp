@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <system_error>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
   Logger const logger("type-analyzer-tester");
@@ -30,12 +31,12 @@ int main(int argc, char **argv) {
   }
 #ifndef __APPLE__
   std::filesystem::path const parent(
-      std::format("{}/type-analyzer{:%F%H%I%M}",
+      std::format("{}/type-analyzer{:%F%H%I%M}-{}",
                   std::filesystem::temp_directory_path().generic_string(),
-                  std::chrono::system_clock::now()));
+                  std::chrono::system_clock::now(), getpid()));
 #else
-  std::filesystem::path const parent(
-      std::format("/tmp/type-analyzer{}", std::chrono::system_clock::now()));
+  std::filesystem::path const parent(std::format(
+      "/tmp/type-analyzer{}-{}", std::chrono::system_clock::now(), getpid()));
 #endif
   std::filesystem::create_directories(parent);
   TypeNamespace const ns;
