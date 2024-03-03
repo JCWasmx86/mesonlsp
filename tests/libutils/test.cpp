@@ -36,7 +36,7 @@ std::string randomFile() {
   return std::format("{}/{}", realTempDir.generic_string(), out.data());
 #else
   const auto now = std::chrono::system_clock::now();
-  return std::format("{}/{:%F%H%I%M}", realTempDir, now);
+  return std::format("{}/{:%F%H%I%M}", realTempDir.generic_string(), now);
 #endif
 }
 
