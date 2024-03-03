@@ -7,6 +7,7 @@
 
 #include <ada.h>
 #include <filesystem>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   }
   auto input = url->get_pathname();
   auto ret = ada::unicode::percent_decode(input, input.find('%'));
+  std::cerr << "URL: " << input << "PATH: " << ret << std::endl;
   return {ret};
 }
 
