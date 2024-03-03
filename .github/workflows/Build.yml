@@ -72,7 +72,7 @@ jobs:
       - name: Build on Windows
         run: |
           meson setup _build
-          ninja -C _build -j1
+          ninja -C _build
           ninja -C _build test
   macos:
     strategy:
