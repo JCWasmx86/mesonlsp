@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
@@ -51,6 +52,7 @@ ast::ini::StringValue::StringValue(const std::shared_ptr<SourceFile> &file,
     : ast::ini::Node(file, node) {
   this->value = file->extractNodeValue(node);
   trim(this->value);
+  std::cerr << "Created str value: " << this->value << std::endl;
 }
 
 ast::ini::KeyValuePair::KeyValuePair(const std::shared_ptr<SourceFile> &file,
