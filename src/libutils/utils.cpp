@@ -119,7 +119,7 @@ bool extractFile(const std::filesystem::path &archivePath,
                ARCHIVE_EXTRACT_FFLAGS);
   archive_write_disk_set_standard_lookup(ext);
 
-  const char *filename = archivePath.c_str();
+  const auto *filename = archivePath.c_str();
 
   if (auto res =
           archive_read_open_filename(archive, filename, LIBARCHIVE_BLOCKSIZE)) {
