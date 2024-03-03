@@ -74,7 +74,7 @@ jobs:
           meson setup _build
           du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
-          ninja -C _build test || cat 'D:/a/Swift-MesonLSP/Swift-MesonLSP/_build/meson-logs/testlog.txt'
+          ninja -C _build test || find _build/wrap-tester-out
   macos:
     strategy:
       matrix:
