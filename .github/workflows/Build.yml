@@ -67,6 +67,7 @@ jobs:
             ninja:p
             crt:p
             pkgconf:p
+            dlfcn:p
       - name: Build on Windows
         run: |
           meson setup _build
