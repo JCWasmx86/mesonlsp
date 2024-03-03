@@ -27,6 +27,8 @@
 #include <windows.h>
 // https://stackoverflow.com/a/11719555
 #define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
+#define archive_read_open_filename archive_read_open_filename_w
+#define archive_entry_hardlink archive_entry_hardlink_w
 #endif
 #include <string>
 #include <sys/types.h>
@@ -42,7 +44,7 @@ const static Logger LOG("utils"); // NOLINT
 
 bool downloadFile(std::string url, const std::filesystem::path &output) {
   auto temporaryPath = std::filesystem::temp_directory_path() /
-                       hash(std::format("{}-{}", url, output.c_str()));
+                       hash(std::format("{}-{}", url, output.generic_string()));
   LOG.info(std::format("Downloading URL {} to {} (Temp: {})", url,
                        output.c_str(), temporaryPath.c_str()));
   auto *curl = curl_easy_init();
@@ -109,7 +111,7 @@ static int copyData(struct archive *archive, struct archive *writer) {
 bool extractFile(const std::filesystem::path &archivePath,
                  const std::filesystem::path &outputDirectory) {
   LOG.info(std::format("Extracting {} to {}", archivePath.c_str(),
-                       outputDirectory.c_str()));
+                       outputDirectory.generic_string()));
   auto *archive = archive_read_new();
   archive_read_support_format_all(archive);
   archive_read_support_filter_all(archive);
@@ -365,7 +367,7 @@ bool validateHash(const std::filesystem::path &path, std::string expected) {
       return false;
     }
   }
-  LOG.info(std::format("{} matches the expected hash", path.c_str()));
+  LOG.info(std::format("{} matches the expected hash", path.generic_string()));
   return true;
 }
 
