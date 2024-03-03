@@ -69,9 +69,8 @@ jobs:
             pkgconf:p
       - name: Build on Windows
         run: |
-          exit 0
           meson setup _build
-          ninja -C _build
+          ninja -C _build -j1
           ninja -C _build test
   macos:
     strategy:
