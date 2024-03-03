@@ -1,7 +1,7 @@
 #pragma once
 
 #include <typeinfo>
-#ifdef __linux__
+#if defined(__linux__) || defined(_WIN32)
 #ifdef __GNUC__
 typedef /*NOLINT*/ void
     __attribute__((__noreturn__)) (*CxaThrowType)(void *, void *,
