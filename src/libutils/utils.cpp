@@ -22,6 +22,7 @@
 #ifndef _WIN32
 #include <pwd.h>
 #include <sys/wait.h>
+#define MODE "wb"
 #else
 #include <shlobj.h>
 #include <windows.h>
@@ -30,6 +31,7 @@
 #define archive_read_open_filename archive_read_open_filename_w
 #define archive_entry_hardlink archive_entry_hardlink_w
 #define fopen _wfopen
+#define MODE L"wb"
 #endif
 #include <string>
 #include <sys/types.h>
@@ -54,7 +56,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
     LOG.error("Unable to create CURL* using curl_easy_init");
     return false;
   }
-  FILE *filep = fopen(temporaryPath.c_str(), "wb");
+  FILE *filep = fopen(temporaryPath.c_str(), MODE);
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
@@ -152,7 +154,7 @@ bool extractFile(const std::filesystem::path &archivePath,
       auto newHardlink = outputDirectory / originalHardlink;
 #ifdef _WIN32
       const wchar_t *newHardLinkW = newHardlink.c_str();
-      char *data = calloc(newHardlink.generic_string().size() * 2, 1);
+      char *data = (char *)calloc(newHardlink.generic_string().size() * 2, 1);
       // Should be use wcstombs_s?
       wcstombs(data, newHardLinkW, newHardlink.generic_string().size() * 2);
       archive_entry_set_hardlink(entry, data);
