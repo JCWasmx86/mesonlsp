@@ -292,11 +292,20 @@ bool launchProcess(const std::string &executable,
   }
 
   CloseHandle(hChildStdoutWr);
-  char buffer[4096];
+  char buffer[128];
   DWORD bytesRead;
   while (ReadFile(hChildStdoutRd, buffer, sizeof(buffer), &bytesRead, NULL) &&
          bytesRead != 0) {
     std::cerr.write(buffer, bytesRead);
+
+    DWORD bytesAvail = 0;
+    if (!PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &bytesAvail, NULL)) {
+      LOG.error("Failed to call PeekNamedPipe");
+    }
+    LOG.info(">>>");
+    if (!bytesAvail) {
+      break;
+    }
   }
   WaitForSingleObject(processInfo.hProcess, INFINITE);
 
