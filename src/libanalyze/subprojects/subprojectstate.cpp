@@ -48,10 +48,11 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
       continue;
     }
     const auto &identifier = identifierOpt.value();
-    LOG.info(std::format("{}: Identifier is: {}", child.filename().c_str(),
-                         identifier));
+    LOG.info(std::format("{}: Identifier is: {}",
+                         child.filename().generic_string(), identifier));
     const auto &wrapBaseDir = extractionDir / child.filename() / identifier;
-    LOG.info(std::format("Extracting wrap to {}", wrapBaseDir.c_str()));
+    LOG.info(
+        std::format("Extracting wrap to {}", wrapBaseDir.generic_string()));
     const auto &checkFile = wrapBaseDir / ".fullysetup";
     const auto &subprojectName = child.stem().string();
     if (std::filesystem::exists(checkFile)) {
@@ -64,7 +65,7 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
       if (std::filesystem::exists(wrapBaseDir)) {
         LOG.warn(
             std::format("{} exists, but is not fully setup => Reattempting",
-                        wrapBaseDir.c_str()));
+                        wrapBaseDir.generic_string()));
         std::filesystem::remove_all(wrapBaseDir);
       }
       LOG.info(std::format("Installing {} into {}", child.filename().string(),
@@ -96,9 +97,10 @@ void SubprojectState::findSubprojects(bool downloadSubprojects) {
         continue;
       }
     }
-    LOG.info(std::format("Found folder based subproject {}", filename.c_str()));
+    LOG.info(std::format("Found folder based subproject {}",
+                         filename.generic_string()));
     this->subprojects.emplace_back(
-        std::make_shared<FolderSubproject>(filename, child));
+        std::make_shared<FolderSubproject>(filename.generic_string(), child));
   }
 }
 
