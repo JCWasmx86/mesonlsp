@@ -11,6 +11,7 @@
 #include <optional>
 #include <string>
 #include <system_error>
+#include <unistd.h>
 #include <vector>
 
 int main(int argc, char **argv) {
@@ -29,12 +30,13 @@ int main(int argc, char **argv) {
   }
 #ifndef __APPLE__
   std::filesystem::path const parent(
-      std::format("{}/partial-interpreter{:%F%H%I%M}",
+      std::format("{}/partial-interpreter{:%F%H%I%M}-{}",
                   std::filesystem::temp_directory_path().generic_string(),
-                  std::chrono::system_clock::now()));
+                  std::chrono::system_clock::now(), getpid()));
 #else
-  std::filesystem::path const parent(std::format(
-      "/tmp/partial-interpreter{}", std::chrono::system_clock::now()));
+  std::filesystem::path const parent(
+      std::format("/tmp/partial-interpreter{}-{}",
+                  std::chrono::system_clock::now(), getpid()));
 
 #endif
   std::filesystem::create_directories(parent);
