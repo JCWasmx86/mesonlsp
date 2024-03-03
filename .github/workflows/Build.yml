@@ -72,6 +72,7 @@ jobs:
       - name: Build on Windows
         run: |
           meson setup _build
+          du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
           ninja -C _build test || cat 'D:/a/Swift-MesonLSP/Swift-MesonLSP/_build/meson-logs/testlog.txt'
   macos:
@@ -112,8 +113,7 @@ jobs:
     strategy:
       matrix:
         buildtype: [debug, plain, release]
-        sanitizer:
-          ["address", "undefined", "leak", "address,undefined"]
+        sanitizer: ["address", "undefined", "leak", "address,undefined"]
     runs-on: ubuntu-latest
     container:
       image: fedora:39
