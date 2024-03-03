@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
     }
     haveToExist[argv[i]] = argv[i + 1];
   }
-  std::filesystem::path const parent(
-      std::format("/tmp/type-analyzer{}", std::chrono::system_clock::now()));
+  std::filesystem::path const parent(std::format(
+      "/tmp/type-analyzer{:%F%H%I%M}", std::chrono::system_clock::now()));
   std::filesystem::create_directories(parent);
   TypeNamespace const ns;
   std::error_code err;

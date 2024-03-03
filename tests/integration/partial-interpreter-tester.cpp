@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     haveToExist.emplace_back(argv[i]);
   }
   std::filesystem::path const parent(std::format(
-      "/tmp/partial-interpreter{}", std::chrono::system_clock::now()));
+      "/tmp/partial-interpreter{:%F%H%I%M}", std::chrono::system_clock::now()));
   std::filesystem::create_directories(parent);
   TypeNamespace const ns;
   std::error_code err;
