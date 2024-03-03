@@ -1,3 +1,4 @@
+#include <iostream>
 #ifdef NDEBUG
 #undef NDEBUG
 #endif
@@ -17,6 +18,8 @@ std::shared_ptr<WrapFile> parseWrapWrapper(const std::filesystem::path &path) {
 
 void checkLibswiftDemangle(const std::filesystem::path &path) {
   const auto gitRefPath = path / "libswiftdemangle/.git/refs/heads/main";
+  std::cerr << "Checking if " << gitRefPath.generic_string() << " exists "
+            << std::endl;
   assert(!std::filesystem::exists(gitRefPath));
   assert(std::filesystem::exists(gitRefPath.parent_path()));
 }
