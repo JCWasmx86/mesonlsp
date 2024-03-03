@@ -73,17 +73,18 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
     auto result = launchProcess(
         "git", std::vector<std::string>{
                    "-c", "init.defaultBranch=mesonlsp-dummy-branch", "init",
-                   fullPath});
+                   fullPath.generic_string()});
     if (!result) {
       return false;
     }
     result = launchProcess(
-        "git", std::vector<std::string>{"-C", fullPath, "remote", "add",
-                                        "origin", this->url});
+        "git", std::vector<std::string>{"-C", fullPath.generic_string(),
+                                        "remote", "add", "origin", this->url});
     if (!result) {
       return false;
     }
-    auto fetchOptions = std::vector<std::string>{"-C", fullPath, "fetch"};
+    auto fetchOptions =
+        std::vector<std::string>{"-C", fullPath.generic_string(), "fetch"};
     fetchOptions.insert(fetchOptions.end(), depthOptions.begin(),
                         depthOptions.end());
     fetchOptions.emplace_back("origin");
@@ -92,29 +93,30 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
     if (!result) {
       return false;
     }
-    result = launchProcess("git",
-                           std::vector<std::string>{"-C", fullPath, "-c",
-                                                    "advice.detachedHead=false",
-                                                    "checkout", rev, "--"});
+    result = launchProcess(
+        "git", std::vector<std::string>{"-C", fullPath.generic_string(), "-c",
+                                        "advice.detachedHead=false", "checkout",
+                                        rev, "--"});
     if (!result) {
       return false;
     }
   } else {
     if (!isShallow) {
       auto result = launchProcess(
-          "git", std::vector<std::string>{"clone", this->url, fullPath});
+          "git", std::vector<std::string>{"clone", this->url,
+                                          fullPath.generic_string()});
       if (!result) {
         return false;
       }
       if (!isHead(rev)) {
         result = launchProcess(
-            "git", std::vector<std::string>{"-C", fullPath, "-c",
-                                            "advice.detachedHead=false",
+            "git", std::vector<std::string>{"-C", fullPath.generic_string(),
+                                            "-c", "advice.detachedHead=false",
                                             "checkout", rev, "--"});
         if (!result) {
           result = launchProcess(
-              "git", std::vector<std::string>{"-C", fullPath, "fetch",
-                                              this->url, rev});
+              "git", std::vector<std::string>{"-C", fullPath.generic_string(),
+                                              "fetch", this->url, rev});
           if (!result) {
             return false;
           }
@@ -135,7 +137,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
         args.push_back(rev);
       }
       args.push_back(this->url);
-      args.push_back(fullPath);
+      args.push_back(fullPath.generic_string());
       auto result = launchProcess("git", args);
       if (!result) {
         return false;
@@ -144,8 +146,10 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
   }
   if (this->cloneRecursive) {
     auto cloneOptions =
-        std::vector<std::string>{"-C",     fullPath,     "submodule",  "update",
-                                 "--init", "--checkout", "--recursive"};
+        std::vector<std::string>{"-C",         fullPath.generic_string(),
+                                 "submodule",  "update",
+                                 "--init",     "--checkout",
+                                 "--recursive"};
     cloneOptions.insert(cloneOptions.end(), depthOptions.begin(),
                         depthOptions.end());
     auto result = launchProcess("git", cloneOptions);
@@ -155,9 +159,9 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
   }
   if (auto optPushUrl = this->pushUrl) {
     auto result = launchProcess(
-        "git",
-        std::vector<std::string>{"-C", fullPath, "remote", "set-url", "--push",
-                                 "origin", optPushUrl.value()});
+        "git", std::vector<std::string>{"-C", fullPath.generic_string(),
+                                        "remote", "set-url", "--push", "origin",
+                                        optPushUrl.value()});
     if (!result) {
       return false;
     }
@@ -169,7 +173,8 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
     return true;
   }
   auto result = launchProcess(
-      "git", std::vector<std::string>{"-C", fullPath, "pull", "origin"});
+      "git", std::vector<std::string>{"-C", fullPath.generic_string(), "pull",
+                                      "origin"});
   if (result) {
     auto pullableFile = fullPath / ".git_pullable";
     std::ofstream{pullableFile}.put('\n');
