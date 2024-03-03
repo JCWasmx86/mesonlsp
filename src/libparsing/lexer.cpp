@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <utility>
 
@@ -581,7 +582,22 @@ Lexer::LexerResult Lexer::tokenizeOne() {
     if (this->idx != this->inputSize - 1) {
       LOG.info(std::format("{} {}\n{}", this->idx, this->inputSize - 1,
                            this->input));
+#ifdef _WIN32
+      // FIXME: For some reason there are null bytes at the end of files...
+      // This should be fixed.
+      auto onlyNulls = true;
+      for (size_t i = this->idx; i < this->inputSize; i++) {
+        if (this->input[i] != '\0') {
+          onlyNulls = false;
+          break;
+        }
+      }
+      if (!onlyNulls) {
+        this->error("Unexpected null byte");
+      }
+#else
       this->error("Unexpected null byte");
+#endif
       this->finalize();
       return LexerResult::FAIL;
     }
