@@ -23,10 +23,10 @@
 #include <memory>
 #include <optional>
 #include <ostream>
-#include <poll.h>
 #include <stdexcept>
 #include <string>
 #ifdef HAS_INOTIFY
+#include <poll.h>
 #include <sys/inotify.h>
 #endif
 #include <vector>
@@ -339,7 +339,16 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   if (configFile.empty()) {
     configFile = writeMuonConfigFile(params.options);
   }
-  struct source src = {.label = path.c_str(),
+#ifndef _WIN32
+#ifndef _WIN32
+  const auto *labelPath = path.c_str();
+#else
+  const wchar_t *labelPathW = path.c_str();
+  char *labelPath = (char *)calloc(path.generic_string().size() * 2, 1);
+  // Should be use wcstombs_s?
+  wcstombs(labelPath, labelPathW, path.generic_string().size() * 2);
+#endif
+  struct source src = {.label = labelPath,
                        .src = strdup(toFormat.data()),
                        .len = toFormat.size(),
                        .reopen_type = source_reopen_type_none};
@@ -351,6 +360,9 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
     (void)fclose(output);
     free((void *)src.src);
     free(formattedStr);
+#ifdef _WIN32
+    free(labelPath);
+#endif
     LOG.error("Failed to format");
     throw std::runtime_error("Failed to format");
   }
@@ -367,7 +379,14 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
       LSPRange(LSPPosition(0, 0), LSPPosition(guesstimatedLines, 2000)),
       std::string(asString));
   free(formattedStr);
+#ifdef _WIN32
+  free(labelPath);
+#endif
   return edit;
+#else
+  throw std::runtime_error(
+      "Please contribute (open_memstream has to be replaced...):)");
+#endif
 }
 
 std::vector<uint64_t>
