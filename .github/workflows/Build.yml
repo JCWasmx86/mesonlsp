@@ -73,10 +73,12 @@ jobs:
             python-pip:p
       - name: Build on Windows
         run: |
+          svn --version || echo "No SVN"
+          hg --version || echo "No mercurial"
           meson setup _build
           du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
-          meson test -C _build -v
+          meson test -C _build -v -j 1
   macos:
     strategy:
       matrix:
