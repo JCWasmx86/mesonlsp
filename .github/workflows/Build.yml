@@ -69,12 +69,14 @@ jobs:
             pkgconf:p
             dlfcn:p
             libunwind:p
+            python:p
+            python-pip:p
       - name: Build on Windows
         run: |
           meson setup _build
           du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
-          ninja -C _build test || find _build/wrap-tester-out
+          ninja -C _build test
   macos:
     strategy:
       matrix:
