@@ -23,12 +23,14 @@ inline std::filesystem::path extractPathFromUrl(const std::string &urlStr) {
   }
   auto input = url->get_pathname();
   auto ret = ada::unicode::percent_decode(input, input.find('%'));
-  std::cerr << "URL: " << input << "PATH: " << ret << std::endl;
+  std::cerr << "URL: " << urlStr << " PATH: " << ret << std::endl;
   return {ret};
 }
 
 inline std::string pathToUrl(const std::filesystem::path &path) {
-  return ada::href_from_file(path.generic_string());
+  auto ret = ada::href_from_file(path.generic_string());
+  std::cerr << "PATH: " << path.generic_string() << " URL: " << ret << std::endl;
+  return ret;
 }
 
 inline LSPDiagnostic makeLSPDiagnostic(const Diagnostic &diag) {
