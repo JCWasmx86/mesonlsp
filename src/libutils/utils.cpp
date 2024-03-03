@@ -302,7 +302,6 @@ bool launchProcess(const std::string &executable,
     if (!PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &bytesAvail, NULL)) {
       LOG.error("Failed to call PeekNamedPipe");
     }
-    LOG.info(">>>");
     if (!bytesAvail) {
       break;
     }
