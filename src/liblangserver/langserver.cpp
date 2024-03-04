@@ -385,8 +385,8 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   return edit;
 #else
 #warning "Please contribute (open_memstream has to be replaced...) :)"
-  throw std::runtime_error(
-      "Please contribute (open_memstream has to be replaced...) :)");
+  throw std::runtime_error("Please contribute formatting support for windows "
+                           "(open_memstream has to be replaced...) :)");
 #endif
 }
 
