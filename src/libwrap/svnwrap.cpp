@@ -25,8 +25,10 @@ bool SvnWrap::setupDirectory(const std::filesystem::path &path,
   std::string const fullPath =
       std::format("{}/{}", path.generic_string(), targetDirectory);
   auto result = launchProcess(
-      "svn", std::vector<std::string>{"checkout", "--non-interactive", "-r",
-                                      rev, url, fullPath});
+      "svn", std::vector<std::string>{"checkout", "--non-interactive",
+                                      "--trust-server-cert-failures=unknown-ca,"
+                                      "cn-mismatch,expired,not-yet-valid,other",
+                                      "-r", rev, url, fullPath});
   if (!result) {
     return false;
   }
