@@ -75,6 +75,7 @@ jobs:
           meson setup _build --buildtype release -Db_lto=true
           ninja -C _build
           ninja -C _build test
+          _build/tests/libcxathrow/cxathrowtest.exe
   macos:
     strategy:
       matrix:
