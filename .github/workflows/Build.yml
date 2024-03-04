@@ -72,9 +72,9 @@ jobs:
             python-pip:p
       - name: Build on Windows
         run: |
-          meson setup _build --default-library=static --prefer-static -Dc_link_args='-static-libgcc -static-libstdc++ -DCURL_STATICLIB' -Dcpp_link_args='-static-libgcc -static-libstdc++ -DCURL_STATICLIB'
+          meson setup _build --buildtype release -Db_lto=true
           ninja -C _build
-          meson test -C _build -v -j 1
+          ninja -C _build test
   macos:
     strategy:
       matrix:
