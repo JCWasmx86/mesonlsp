@@ -76,6 +76,7 @@ jobs:
           ninja -C _build
           ninja -C _build test
           _build/tests/libcxathrow/cxathrowtest.exe
+          strings _build/src/mesonlsp.exe|grep \\.dll$
   macos:
     strategy:
       matrix:
