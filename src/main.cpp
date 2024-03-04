@@ -135,7 +135,20 @@ int main(int argc, char **argv) {
 #ifdef SIGPIPE
   (void)signal(SIGPIPE, [](int /*_*/) { _Exit(0); });
 #endif
+#ifndef _WIN32
   std::locale::global(std::locale(""));
+#else
+  try {
+    std::locale::global(std::locale(""));
+  } catch (...) {
+    // Hack to avoid:
+    // terminate called after throwing an instance of 'std::runtime_error'
+    //   what():  locale::facet::_S_create_c_locale name not valid
+    putenv("LANG=C");
+    putenv("LC_ALL=C");
+    std::locale::global(std::locale(""));
+  }
+#endif
   std::string path = "./meson.build";
   std::vector<std::string> paths;
   std::vector<std::string> wraps;
