@@ -87,10 +87,11 @@ jobs:
           echo ${{ github.workspace }}/Artifacts
           ls ${{ github.workspace }}
           ls ${{ github.workspace }}/Artifacts
+          find /d/|grep mesonlsp.exe
       - uses: actions/upload-artifact@v4
         with:
           name: Windows
-          path: D:aSwift-MesonLSPSwift-MesonLSP/Artifacts
+          path: D:/aSwift-MesonLSPSwift-MesonLSP/Artifacts
   macos:
     strategy:
       matrix:
