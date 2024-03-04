@@ -70,6 +70,7 @@ jobs:
             libunwind:p
             python:p
             python-pip:p
+            python-mingw-ldd:p
       - name: Build on Windows
         run: |
           meson setup _build --buildtype release -Db_lto=true
@@ -78,6 +79,7 @@ jobs:
           _build/tests/libcxathrow/cxathrowtest.exe
           strings _build/src/mesonlsp.exe|grep \\.dll$
           find /d/ | grep libarchive-13.dll
+          mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/
   macos:
     strategy:
       matrix:
