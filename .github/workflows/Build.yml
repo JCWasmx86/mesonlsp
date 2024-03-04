@@ -83,10 +83,12 @@ jobs:
           mkdir -p ${{ github.workspace }}/Artifacts
           cp _build/src/mesonlsp.exe ${{ github.workspace }}/Artifacts
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) ${{ github.workspace }}/Artifacts
-      - uses: actions/upload-artifact@v3
+          ls ${{ github.workspace }}
+          ls ${{ github.workspace }}/Artifacts
+      - uses: actions/upload-artifact@v4
         with:
           name: Windows
-          path: ${{ github.workspace }}/Artifacts
+          path: ${{ github.workspace }}/Artifacts/
   macos:
     strategy:
       matrix:
