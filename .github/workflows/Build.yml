@@ -75,7 +75,7 @@ jobs:
         run: |
           svn --version || echo "No SVN"
           hg --version || echo "No mercurial"
-          meson setup _build
+          meson setup _build --default-library=static --prefer-static -Dc_link_args='-static-libgcc -static-libstdc++' -Dcpp_link_args='-static-libgcc -static-libstdc++'
           du -b ./tests/integration/workspace-test/meson.build ./tests/integration/workspace-test/subdir/meson.build
           ninja -C _build
           meson test -C _build -v -j 1
