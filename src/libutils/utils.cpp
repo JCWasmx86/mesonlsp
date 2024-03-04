@@ -285,8 +285,8 @@ bool launchProcess(const std::string &executable,
                        FORMAT_MESSAGE_IGNORE_INSERTS,
                    NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                    (LPSTR)&messageBuffer, 0, NULL);
-    LOG.info(std::format("Failed to create process. Error code: 0x{:x}: {}",
-                         lastError, messageBuffer));
+    LOG.error(std::format("Failed to create process. Error code: 0x{:x}: {}",
+                          lastError, messageBuffer));
     LocalFree(messageBuffer);
     return false;
   }
@@ -296,20 +296,15 @@ bool launchProcess(const std::string &executable,
   DWORD bytesRead;
   while (ReadFile(hChildStdoutRd, buffer, sizeof(buffer), &bytesRead, NULL) &&
          bytesRead != 0) {
-    LOG.info(std::format("Read {}", bytesRead));
     std::cerr.write(buffer, bytesRead);
 
     DWORD bytesAvail = 0;
     if (!PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &bytesAvail, NULL)) {
       LOG.error("Failed to call PeekNamedPipe");
     }
-    LOG.info(std::format("Bytes avail: {}", bytesAvail));
     if (!bytesAvail) {
-      LOG.info("Waiting...");
       auto ret = WaitForSingleObject(processInfo.hProcess, 1000);
-      LOG.info("Waited...");
       if (ret == WAIT_OBJECT_0) {
-        LOG.info("Finished...");
         break;
       }
     }
