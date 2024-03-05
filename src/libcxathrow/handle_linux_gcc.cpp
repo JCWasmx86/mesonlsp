@@ -4,8 +4,14 @@
 
 CxaThrowType origCxaThrow = nullptr;
 
-extern "C" void __cxa_throw /*NOLINT*/ (void *thrown_exception, void *pvtinfo,
-                                        void (*dest)(void *)) {
+#ifdef _WIN32
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+extern "C" EXPORT void __cxa_throw /*NOLINT*/ (void *thrown_exception,
+                                               void *pvtinfo,
+                                               void (*dest)(void *)) {
   if (origCxaThrow == nullptr) {
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }
