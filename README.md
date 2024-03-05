@@ -5,6 +5,8 @@
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/swift-mesonlsp.svg)](https://repology.org/project/swift-mesonlsp/versions)
 
+**Note: If you run into timeouts during initialisation please run `mesonlsp --full` in the project directory**
+
 A reimplementation of my Meson language server in Swift.
 
 ## Current feature set
