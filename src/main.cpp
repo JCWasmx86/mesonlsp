@@ -21,6 +21,11 @@
 #include <string>
 #include <tree_sitter/api.h>
 #include <vector>
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#include <stdio.h>
+#endif
 
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
@@ -134,6 +139,17 @@ void printDiagnostics(const MesonTree &tree) {
 int main(int argc, char **argv) {
 #ifdef SIGPIPE
   (void)signal(SIGPIPE, [](int /*_*/) { _Exit(0); });
+#endif
+#ifdef _WIN32
+  // From
+  // https://github.com/Galarius/opencl-language-server/blob/main/src/main.cpp#L148
+  // to handle CRLF
+  if (_setmode(_fileno(stdin), _O_BINARY) == -1) {
+    throw std::runtime_error("Cannot set stdin mode to _O_BINARY");
+  }
+  if (_setmode(_fileno(stdout), _O_BINARY) == -1) {
+    throw std::runtime_error("Cannot set stdout mode to _O_BINARY");
+  }
 #endif
 #ifndef _WIN32
   std::locale::global(std::locale(""));
