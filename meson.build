@@ -155,6 +155,9 @@ if gtest_dep.found() and get_option('tests')
     subdir('tests')
 endif
 
-if get_option('tests')
+py_mod = import('python')
+py_installation = py_mod.find_installation(modules: ['pygls', 'lsprotocol'])
+
+if get_option('tests') and py_installation.found()
     subdir('LSPTests')
 endif
