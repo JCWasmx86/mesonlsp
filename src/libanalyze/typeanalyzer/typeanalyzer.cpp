@@ -1288,6 +1288,9 @@ void TypeAnalyzer::checkTypes(
     const std::shared_ptr<Node> &arg,
     const std::vector<std::shared_ptr<Type>> &expectedTypes,
     const std::vector<std::shared_ptr<Type>> &givenTypes) {
+  if (this->analysisOptions.disableArgTypeChecking) [[unlikely]] {
+    return;
+  }
   if (this->atleastPartiallyCompatible(expectedTypes, givenTypes)) {
     return;
   }
