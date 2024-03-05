@@ -20,7 +20,7 @@ jobs:
       - name: Install deps
         run: |
           dnf install -y unzip zip ninja-build gcc google-benchmark-devel g++ git python3-pip libcurl-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel pkgconf-pkg-config
-          pip install meson
+          pip install meson pygls lsprotocol
           dnf clean all
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v2
