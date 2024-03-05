@@ -11,6 +11,7 @@ WORKDIR /app
 
 COPY meson.build meson.options /app/
 COPY src /app/src
+COPY LSPTests /app/LSPTests
 COPY tests /app/tests
 COPY subprojects /app/subprojects
 RUN git clone https://github.com/libunwind/libunwind
