@@ -167,7 +167,10 @@ void jsonrpc::JsonRpcServer::loop(
   }
 }
 
-void jsonrpc::JsonRpcServer::exit() { this->shouldExit = true; }
+void jsonrpc::JsonRpcServer::exit() {
+  this->shouldExit = true;
+  this->input.putback(EOF);
+}
 
 jsonrpc::JsonRpcHandler::JsonRpcHandler() = default;
 
