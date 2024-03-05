@@ -52,7 +52,8 @@ public:
   std::vector<CodeAction> codeAction(const std::filesystem::path &path,
                                      const LSPRange &range);
   std::vector<CompletionItem> completion(const std::filesystem::path &path,
-                                         const LSPPosition &position);
+                                         const LSPPosition &position,
+                                         const std::set<std::string> &pkgNames);
 
   bool owns(const std::filesystem::path &path);
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>>

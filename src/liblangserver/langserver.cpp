@@ -497,7 +497,7 @@ LanguageServer::completion(CompletionParams &params) {
   const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (const auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
-      return workspace->completion(path, params.position);
+      return workspace->completion(path, params.position, this->pkgNames);
     }
   }
   return {};

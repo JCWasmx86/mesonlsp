@@ -529,7 +529,8 @@ Workspace::parse(const TypeNamespace &ns) {
 
 std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
-                      const LSPPosition &position) {
+                      const LSPPosition &position,
+                      const std::set<std::string> &pkgNames) {
   this->smph.acquire();
   this->completing = true;
 
@@ -537,7 +538,8 @@ Workspace::completion(const std::filesystem::path &path,
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
-    auto ret = complete(path, subTree, subTree->asts[path].back(), position);
+    auto ret =
+        complete(path, subTree, subTree->asts[path].back(), position, pkgNames);
     this->completing = false;
     this->smph.release();
     this->logger.info(std::format("Created {} completions", ret.size()));

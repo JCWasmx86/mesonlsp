@@ -35,10 +35,9 @@ static std::set<std::shared_ptr<Method>>
 fillTypes(const MesonTree *tree,
           const std::vector<std::shared_ptr<Type>> &types);
 static std::string createTextForFunction(const std::shared_ptr<Function> &func);
-static void
-specialStringLiteralAutoCompletion(const MesonTree *tree,
-                                   const StringLiteral *literal,
-                                   std::vector<CompletionItem> &ret);
+static void specialStringLiteralAutoCompletion(
+    const MesonTree *tree, const StringLiteral *literal,
+    const std::set<std::string> &pkgNames, std::vector<CompletionItem> &ret);
 static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
                              std::vector<CompletionItem> &ret,
@@ -74,7 +73,8 @@ specialStringLiteralAutoCompletion(const StringLiteral *literal,
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
-                                     const LSPPosition &position) {
+                                     const LSPPosition &position,
+                                     const std::set<std::string> &pkgNames) {
   auto lines = split(ast->file->contents(), "\n");
   lines.emplace_back("\n");
   std::vector<CompletionItem> ret;
@@ -110,7 +110,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                                           position.character);
   if (slAtPos.has_value()) {
     LOG.info("Found string literal");
-    specialStringLiteralAutoCompletion(tree, slAtPos.value(), ret);
+    specialStringLiteralAutoCompletion(tree, slAtPos.value(), pkgNames, ret);
   }
   return ret;
 }
@@ -456,10 +456,9 @@ specialStringLiteralAutoCompletion(const StringLiteral *literal,
   }
 }
 
-static void
-specialStringLiteralAutoCompletion(const MesonTree *tree,
-                                   const StringLiteral *literal,
-                                   std::vector<CompletionItem> &ret) {
+static void specialStringLiteralAutoCompletion(
+    const MesonTree *tree, const StringLiteral *literal,
+    const std::set<std::string> &pkgNames, std::vector<CompletionItem> &ret) {
   const auto *parent = literal->parent;
   const auto *al = dynamic_cast<const ArgumentList *>(parent);
   // TODO: Maybe check kwargs?
@@ -483,6 +482,16 @@ specialStringLiteralAutoCompletion(const MesonTree *tree,
         ret.emplace_back(
             opt->name, CompletionItemKind::CIK_FILE,
             TextEdit(nodeToRange(literal), std::format("{}", opt->name)));
+      }
+    }
+
+    if (func->name == "dependency") {
+      LOG.info(std::format("Inserting {} dependencies", pkgNames.size()));
+      for (const auto &pkgName : pkgNames) {
+        // TODO: Works in Builder, but not in VSCode
+        ret.emplace_back(
+            pkgName, CompletionItemKind::CIK_FILE,
+            TextEdit(nodeToRange(literal), std::format("{}", pkgName)));
       }
     }
     return;
