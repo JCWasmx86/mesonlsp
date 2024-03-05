@@ -154,3 +154,7 @@ endif
 if gtest_dep.found() and get_option('tests')
     subdir('tests')
 endif
+
+if get_option('tests')
+    subdir('LSPTests')
+endif
