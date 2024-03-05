@@ -47,6 +47,7 @@ void AbstractLanguageServer::handleNotification(std::string method,
   }
   if (method == "exit") {
     this->onExit();
+    this->server->exit();
     return;
   }
   LOG.warn(std::format("Unknown notification: '{}'", method));
