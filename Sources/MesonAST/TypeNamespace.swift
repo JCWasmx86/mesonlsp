@@ -568,7 +568,7 @@ public final class TypeNamespace {
         args: [
           PositionalArgument(name: "names", varargs: true, types: strL),
           Kwarg(name: "allow_fallback", opt: true, types: boolL),
-          Kwarg(name: "default_options", opt: true, types: strlistL),
+          Kwarg(name: "default_options", opt: true, types: [strlist, strdict]),
           Kwarg(name: "components", opt: true, types: strlistL),
           Kwarg(name: "main", opt: true, types: boolL),
           Kwarg(name: "private_headers", opt: true, types: boolL),
@@ -1610,7 +1610,7 @@ public final class TypeNamespace {
         returnTypes: [self.types["subproject"]!],
         args: [
           PositionalArgument(name: "subproject_name", types: strL),
-          Kwarg(name: "default_options", opt: true, types: strlistL),
+          Kwarg(name: "default_options", opt: true, types: [strlist, strdict]),
           Kwarg(name: "required", opt: true, types: [boolt, self.types["feature"]!]),
           Kwarg(name: "version", opt: true, types: strL),
         ]
@@ -3201,8 +3201,11 @@ public final class TypeNamespace {
             opt: true,
             types: [ListType(types: [self.types["dep"]!, self.types["build_tgt"]!])]
           ), Kwarg(name: "extra_args", opt: true, types: [ListType(types: strL)]),
-          Kwarg(name: "env", opt: true, types: [ListType(types: strL), Dict(types: strL)]),
-          Kwarg(name: "export_packages", opt: true, types: [ListType(types: strL)]),
+          Kwarg(
+            name: "env",
+            opt: true,
+            types: [ListType(types: strL), Dict(types: strL), self.types["env"]!]
+          ), Kwarg(name: "export_packages", opt: true, types: [ListType(types: strL)]),
           Kwarg(
             name: "sources",
             opt: true,

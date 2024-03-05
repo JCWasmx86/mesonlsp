@@ -1,5 +1,7 @@
-# X.X.X (XXX XX 2023)
+# 3.1.4 (Mar 05 2024)
 - Fix binary name (Related to #34)
+- Fix `default_options accepts a dictionary` (#48)
+- Fix gnome::generate_gir@env
 # 3.1.3 (Nov 19 2023)
 - Fix race condition (#31)
 # 3.1.2 (Nov 19 2023)
