@@ -23,11 +23,12 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file docker/Dockerfile.debian${{ matrix.version }} --output out .
-          sudo cp out/mesonlsp-debian-static.zip /mesonlsp-debian-${{ matrix.version }}.zip
+          unzip out/mesonlsp-debian-static.zip
+          sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
           name: mesonlsp-debian-${{ matrix.version }}.zip
-          path: /mesonlsp-debian-${{ matrix.version }}.zip
+          path: /mesonlsp
   alpine:
     runs-on: ubuntu-22.04
     steps:
@@ -42,11 +43,12 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
-          sudo cp out/mesonlsp-alpine-static.zip /mesonlsp-alpine-static.zip
+          unzip out/mesonlsp-debian-static.zip
+          sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
           name: mesonlsp-alpine-static.zip
-          path: /mesonlsp-alpine-static.zip
+          path: /mesonlsp
   windows:
     runs-on: windows-latest
     defaults:
@@ -162,10 +164,12 @@ jobs:
           pip install meson pygls lsprotocol
           sudo dnf clean all
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
+          unzip /Fedora${{ matrix.version }}.zip
+          sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
           name: Fedora${{ matrix.version }}.zip
-          path: /Fedora${{ matrix.version }}.zip
+          path: /mesonlsp
   fedora_in_container_clang:
     strategy:
       matrix:
@@ -183,7 +187,9 @@ jobs:
           export CC=clang
           export CXX=clang++
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
+          unzip /Fedora${{ matrix.version }}-clang.zip
+          sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
           name: Fedora${{ matrix.version }}-clang.zip
-          path: /Fedora${{ matrix.version }}-clang.zip
+          path: /mesonlsp
