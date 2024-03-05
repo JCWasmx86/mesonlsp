@@ -137,7 +137,7 @@ jobs:
       - name: Build on Fedora 39
         run: |
           sudo dnf install libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
-          pip install meson
+          pip install meson pygls lsprotocol
           sudo dnf clean all
           meson setup _clang --buildtype ${{ matrix.buildtype }} -Db_sanitize=${{ matrix.sanitizer }}
           cd _clang
@@ -159,7 +159,7 @@ jobs:
       - name: Build on Fedora ${{ matrix.version }}
         run: |
           sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
-          pip install meson
+          pip install meson pygls lsprotocol
           sudo dnf clean all
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
       - uses: actions/upload-artifact@v3
@@ -178,7 +178,7 @@ jobs:
       - name: Build on Fedora ${{ matrix.version }}
         run: |
           sudo dnf install zip ninja-build clang gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
-          pip install meson
+          pip install meson pygls lsprotocol
           sudo dnf clean all
           export CC=clang
           export CXX=clang++
