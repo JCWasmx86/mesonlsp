@@ -15,7 +15,7 @@ COPY LSPTests /app/LSPTests
 COPY tests /app/tests
 COPY subprojects /app/subprojects
 RUN git clone https://github.com/libunwind/libunwind
-RUN pip install pygls lsprotocol
+RUN pip install --break-system-packages pygls lsprotocol
 WORKDIR /app/libunwind
 RUN autoreconf -i
 RUN ./configure --prefix=/usr --disable-tests --disable-cxx-exceptions --enable-shared=no --enable-static=yes --enable-minidebuginfo --enable-zlibdebuginfo  --enable-debug-frame
