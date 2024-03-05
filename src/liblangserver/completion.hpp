@@ -11,4 +11,5 @@
 std::vector<CompletionItem> complete(const std::filesystem::path &path,
                                      MesonTree *tree,
                                      const std::shared_ptr<Node> &ast,
-                                     const LSPPosition &position);
+                                     const LSPPosition &position,
+                                     const std::set<std::string> &pkgNames);
