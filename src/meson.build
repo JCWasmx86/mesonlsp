@@ -19,7 +19,7 @@ cxx_version = cxx.get_id() + ' ' + cxx.version()
 cc_version = cc.get_id() + ' ' + cc.version()
 assert(cc.get_linker_id() == cxx.get_linker_id())
 
-executable(
+mesonlsp = executable(
     'mesonlsp',
     'main.cpp',
     link_args: extra_link_args,
