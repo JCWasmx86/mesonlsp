@@ -39,6 +39,10 @@ let package = Package(
     .package(
       url: "https://github.com/apple/sourcekit-lsp",
       revision: "6e632129aa1b1b9f39f5b25d3b861fe71e0bfde9"
+    ),
+    .package(
+      url: "https://github.com/apple/swift-package-manager",
+      revision: "8387798811c6cc43761c5e1b48df2d3412dc5de4"
     ), .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0"),
     .package(url: "https://github.com/JCWasmx86/swift-log.git", branch: "main"),
