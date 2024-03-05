@@ -76,7 +76,7 @@ jobs:
           meson setup _build --buildtype release -Db_lto=true
           pip install pygls lsprotocol
           ninja -C _build
-          ninja -C _build test
+          ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           _build/tests/libcxathrow/cxathrowtest.exe
           strings _build/src/mesonlsp.exe|grep \\.dll$
           find /d/ | grep libarchive-13.dll
