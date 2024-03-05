@@ -72,6 +72,10 @@ private:
       this->analysisOptions.disableOsFamilyLinting =
           linting.value("disableOsFamilyLinting", false);
     }
+    if (linting.contains("disableArgTypeChecking")) {
+      this->analysisOptions.disableArgTypeChecking =
+          linting.value("disableArgTypeChecking", false);
+    }
   }
 
   void updateOthers(const nlohmann::json &others) {
