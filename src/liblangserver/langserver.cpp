@@ -269,7 +269,7 @@ void LanguageServer::onInitialized(InitializedParams & /*params*/) {
   this->diagnosticsFromInitialisation.clear();
 }
 
-void LanguageServer::onExit() {}
+void LanguageServer::onExit() { exit(0); }
 
 void LanguageServer::onDidOpenTextDocument(
     DidOpenTextDocumentParams & /*params*/) {}
