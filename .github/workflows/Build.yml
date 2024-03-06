@@ -166,7 +166,7 @@ jobs:
           pip install meson pygls lsprotocol
           sudo dnf clean all
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
-          unzip /Fedora${{ matrix.version }}.zip
+          unzip -o /Fedora${{ matrix.version }}.zip
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
