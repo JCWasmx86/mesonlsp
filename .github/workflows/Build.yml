@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         version: ["trixie", "sid"]
+      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -153,6 +154,7 @@ jobs:
     strategy:
       matrix:
         version: [39, 40]
+      fail-fast: false
     runs-on: ubuntu-latest
     container:
       image: fedora:${{ matrix.version }}
@@ -174,6 +176,7 @@ jobs:
     strategy:
       matrix:
         version: [39, 40]
+      fail-fast: false
     runs-on: ubuntu-latest
     container:
       image: fedora:${{ matrix.version }}
