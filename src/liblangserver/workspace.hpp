@@ -62,7 +62,8 @@ public:
   template <typename Func>
   void patchFile(const std::filesystem::path &path, const std::string &contents,
                  const Func &func) {
-    this->smph.acquire();
+    this->writing.acquire();
+    this->reading.acquire();
     this->settingUp = true;
 
     for (const auto &subTree : this->foundTrees) {
@@ -139,7 +140,8 @@ private:
       func(ret);
       this->tasks.erase(subTree->identifier);
       this->running = false;
-      this->smph.release();
+      this->writing.release();
+      this->reading.release();
       std::rethrow_exception(exception);
       return;
     }
@@ -168,9 +170,11 @@ private:
     this->tasks.erase(subTree->identifier);
     this->foundTrees = findTrees(this->tree);
     this->running = false;
-    this->smph.release();
+    this->reading.release();
+    this->writing.release();
   }
 
   std::shared_ptr<MesonTree> tree;
-  std::binary_semaphore smph{1};
+  std::binary_semaphore writing{1};
+  std::binary_semaphore reading{1};
 };
