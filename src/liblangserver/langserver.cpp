@@ -130,7 +130,9 @@ void LanguageServer::onDidChangeConfiguration(
 }
 
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
+#ifndef _WIN32
   platform_init();
+#endif
   log_init();
 
   this->options.update(params.initializationOptions);
