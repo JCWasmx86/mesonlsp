@@ -44,20 +44,20 @@ std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
 }
 
 bool Workspace::owns(const std::filesystem::path &path) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (subTree->ownedFiles.contains(path)) {
-      this->smph.release();
+      this->reading.release();
       return true;
     }
   }
-  this->smph.release();
+  this->reading.release();
   return false;
 }
 
 std::vector<InlayHint>
 Workspace::inlayHints(const std::filesystem::path &path) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -69,16 +69,16 @@ Workspace::inlayHints(const std::filesystem::path &path) {
     auto visitor =
         InlayHintVisitor(this->options.removeDefaultTypesInInlayHints);
     ast.back()->visit(&visitor);
-    this->smph.release();
+    this->reading.release();
     return visitor.hints;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
 std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
                                       const LSPPosition &position) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -89,33 +89,33 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     if (feOpt.has_value()) {
       auto val =
           makeHoverForFunctionExpression(feOpt.value(), subTree->options);
-      this->smph.release();
+      this->reading.release();
       return val;
     }
     auto meOpt = metadata.findMethodExpressionAt(path, position.line,
                                                  position.character);
     if (meOpt.has_value()) {
       auto val = makeHoverForMethodExpression(meOpt.value());
-      this->smph.release();
+      this->reading.release();
       return val;
     }
     auto idExprOpt =
         metadata.findIdExpressionAt(path, position.line, position.character);
     if (idExprOpt.has_value()) {
       auto val = makeHoverForId(tree->ns, idExprOpt.value());
-      this->smph.release();
+      this->reading.release();
       return val;
     }
-    this->smph.release();
+    this->reading.release();
     return {};
   }
-  this->smph.release();
+  this->reading.release();
   return std::nullopt;
 }
 
 std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
                                               const LSPRange &range) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -126,17 +126,17 @@ std::vector<CodeAction> Workspace::codeAction(const std::filesystem::path &path,
     }
     auto visitor = CodeActionVisitor(range, pathToUrl(path), subTree);
     ast.back()->visit(&visitor);
-    this->smph.release();
+    this->reading.release();
     return visitor.actions;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
 std::vector<DocumentHighlight>
 Workspace::highlight(const std::filesystem::path &path,
                      const LSPPosition &position) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -148,7 +148,7 @@ Workspace::highlight(const std::filesystem::path &path,
     auto idExpr =
         metadata.findIdExpressionAt(path, position.line, position.character);
     if (!idExpr) {
-      this->smph.release();
+      this->reading.release();
       return {};
     }
     const auto &identifiers = metadata.fileMetadata[path].identifiers;
@@ -167,16 +167,16 @@ Workspace::highlight(const std::filesystem::path &path,
                             LSPPosition(loc.endLine, loc.endColumn));
       ret.emplace_back(range, kind);
     }
-    this->smph.release();
+    this->reading.release();
     return ret;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
 std::vector<uint64_t>
 Workspace::semanticTokens(const std::filesystem::path &path) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -187,10 +187,10 @@ Workspace::semanticTokens(const std::filesystem::path &path) {
     }
     auto visitor = SemanticTokensVisitor();
     ast.back()->visit(&visitor);
-    this->smph.release();
+    this->reading.release();
     return visitor.finish();
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
@@ -302,17 +302,17 @@ std::vector<LSPLocation> Workspace::jumpTo(const MesonMetadata *metadata,
 
 std::vector<LSPLocation> Workspace::jumpTo(const std::filesystem::path &path,
                                            const LSPPosition &position) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
     }
     const auto &metadata = &subTree->metadata;
     const auto &ret = Workspace::jumpTo(metadata, path, position);
-    smph.release();
+    reading.release();
     return ret;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
@@ -342,7 +342,7 @@ WorkspaceEdit Workspace::rename(const MesonMetadata &metadata,
 std::optional<WorkspaceEdit>
 Workspace::rename(const std::filesystem::path &path,
                   const RenameParams &params) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -351,21 +351,21 @@ Workspace::rename(const std::filesystem::path &path,
     auto toRenameOpt = metadata.findIdExpressionAt(path, params.position.line,
                                                    params.position.character);
     if (!toRenameOpt.has_value()) {
-      this->smph.release();
+      this->reading.release();
       return std::nullopt;
     }
     const auto &ret =
         Workspace::rename(metadata, toRenameOpt.value(), params.newName);
-    this->smph.release();
+    this->reading.release();
     return ret;
   }
-  this->smph.release();
+  this->reading.release();
   return std::nullopt;
 }
 
 std::vector<FoldingRange>
 Workspace::foldingRanges(const std::filesystem::path &path) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -376,16 +376,16 @@ Workspace::foldingRanges(const std::filesystem::path &path) {
     }
     auto visitor = FoldingRangeVisitor();
     ast.back()->visit(&visitor);
-    this->smph.release();
+    this->reading.release();
     return visitor.ranges;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
 std::vector<SymbolInformation>
 Workspace::documentSymbols(const std::filesystem::path &path) {
-  this->smph.acquire();
+  this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
       continue;
@@ -396,10 +396,10 @@ Workspace::documentSymbols(const std::filesystem::path &path) {
     }
     auto visitor = DocumentSymbolVisitor();
     ast.back()->visit(&visitor);
-    this->smph.release();
+    this->reading.release();
     return visitor.symbols;
   }
-  this->smph.release();
+  this->reading.release();
   return {};
 }
 
@@ -531,7 +531,7 @@ std::vector<CompletionItem>
 Workspace::completion(const std::filesystem::path &path,
                       const LSPPosition &position,
                       const std::set<std::string> &pkgNames) {
-  this->smph.acquire();
+  this->reading.acquire();
   this->completing = true;
 
   for (const auto &subTree : this->foundTrees) {
@@ -541,12 +541,12 @@ Workspace::completion(const std::filesystem::path &path,
     auto ret =
         complete(path, subTree, subTree->asts[path].back(), position, pkgNames);
     this->completing = false;
-    this->smph.release();
+    this->reading.release();
     this->logger.info(std::format("Created {} completions", ret.size()));
     return ret;
   }
 
   this->completing = false;
-  this->smph.release();
+  this->reading.release();
   return {};
 }
