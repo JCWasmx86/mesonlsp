@@ -161,6 +161,10 @@ py_installation = py_mod.find_installation(
     required: false,
 )
 
-if get_option('tests') and py_installation.found()
+if (
+    get_option('tests')
+    and (py_installation.found()
+    or target_machine.system() == 'windows')
+)
     subdir('LSPTests')
 endif
