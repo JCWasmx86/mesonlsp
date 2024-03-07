@@ -90,12 +90,6 @@ void LanguageServer::initPkgNames() {
       &pkgClient, (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr);
   pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
   pkgconf_client_dir_list_build(&pkgClient, personality);
-  pkgconf_path_add("/usr/local/lib64/pkgconfig", &pkgClient.dir_list, false);
-  pkgconf_path_add("/usr/lib64/pkgconfig", &pkgClient.dir_list, false);
-  pkgconf_path_add("/usr/local/lib/pkgconfig", &pkgClient.dir_list, false);
-  pkgconf_path_add("/usr/lib/pkgconfig", &pkgClient.dir_list, false);
-  pkgconf_path_add("/usr/local/share/pkgconfig", &pkgClient.dir_list, false);
-  pkgconf_path_add("/usr/share/pkgconfig", &pkgClient.dir_list, false);
   for (const auto &path : this->options.pkgConfigDirectories) {
     // LEAK: It's better to leak memory than have e.g. double frees
     pkgconf_path_add(strdup(path.c_str()), &pkgClient.dir_list, false);
