@@ -46,7 +46,7 @@ async def main():
         )
     )
     client.initialized(types.InitializedParams())
-    main_meson = "file://" + fixture_dir + "/meson.build"
+    main_meson = pathlib.Path((pathlib.Path(fixture_dir) / "meson.build").resolve()).as_uri()
     await asyncio.sleep(1)
     response = await client.text_document_document_symbol_async(
         types.DocumentSymbolParams(types.TextDocumentIdentifier(main_meson))

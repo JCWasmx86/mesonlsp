@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
@@ -46,6 +47,11 @@ std::vector<MesonTree *> findTrees(const std::shared_ptr<MesonTree> &root) {
 bool Workspace::owns(const std::filesystem::path &path) {
   this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
+#ifdef _WIN32
+    for (const auto &f : subTree->ownedFiles) {
+      std::cerr << path << " || " << f << std::endl;
+    }
+#endif
     if (subTree->ownedFiles.contains(path)) {
       this->reading.release();
       return true;
