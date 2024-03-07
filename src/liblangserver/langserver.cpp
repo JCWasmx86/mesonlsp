@@ -287,7 +287,11 @@ void LanguageServer::onInitialized(InitializedParams & /*params*/) {
 }
 
 void LanguageServer::onExit() {
+#ifdef __APPLE__
+  _Exit(0);
+#else
   _exit(0);
+#endif
   std::terminate();
 }
 
