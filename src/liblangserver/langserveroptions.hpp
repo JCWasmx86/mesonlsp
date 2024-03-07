@@ -15,6 +15,7 @@ public:
   std::optional<std::vector<std::string>> ignoreDiagnosticsFromSubprojects =
       std::nullopt;
   std::optional<std::filesystem::path> defaultFormattingConfig;
+  std::vector<std::string> pkgConfigDirectories;
   bool disableInlayHints = false;
   bool removeDefaultTypesInInlayHints = false;
   bool useCustomParser = true;
@@ -106,6 +107,19 @@ private:
         this->defaultFormattingConfig = std::nullopt;
       }
     }
+    if (others.contains("pkgConfigDirectories")) {
+      const auto &dirs = others.at("pkgConfigDirectories");
+      if (!dirs.is_array()) {
+        goto next;
+      }
+      this->pkgConfigDirectories.clear();
+      for (const auto &element : dirs.get<std::vector<nlohmann::json>>()) {
+        if (element.is_string()) {
+          this->pkgConfigDirectories.push_back(element.get<std::string>());
+        }
+      }
+    }
+  next:
     if (others.contains("ignoreDiagnosticsFromSubprojects")) {
       const auto &ignore = others.at("ignoreDiagnosticsFromSubprojects");
       if (ignore.is_boolean()) {

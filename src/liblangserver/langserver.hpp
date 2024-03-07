@@ -22,7 +22,8 @@
 
 class LanguageServer : public AbstractLanguageServer {
 public:
-  LanguageServer();
+  LanguageServer() = default;
+  void initPkgNames();
   std::vector<std::shared_ptr<Workspace>> workspaces;
 #ifdef HAS_INOTIFY
   volatile int inotifyFd{-1};
