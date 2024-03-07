@@ -71,7 +71,8 @@ static bool pkgconfLogHandler(const char *msg, const pkgconf_client_t *client,
 }
 }
 
-LanguageServer::LanguageServer() {
+void LanguageServer::initPkgNames() {
+  this->pkgNames.clear();
   auto *personality = pkgconf_cross_personality_default();
   pkgconf_list_t dirList = PKGCONF_LIST_INITIALIZER;
   pkgconf_path_copy_list(&personality->dir_list, &dirList);
@@ -93,6 +94,10 @@ LanguageServer::LanguageServer() {
   pkgconf_path_add("/usr/lib/pkgconfig", &pkgClient.dir_list, false);
   pkgconf_path_add("/usr/local/share/pkgconfig", &pkgClient.dir_list, false);
   pkgconf_path_add("/usr/share/pkgconfig", &pkgClient.dir_list, false);
+  for (const auto &path : this->options.pkgConfigDirectories) {
+    // LEAK: It's better to leak memory than have e.g. double frees
+    pkgconf_path_add(strdup(path.c_str()), &pkgClient.dir_list, false);
+  }
   pkgconf_scan_all(
       &pkgClient, this, [](const pkgconf_pkg_t *entry, auto *data) {
         if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
@@ -112,6 +117,7 @@ LanguageServer::LanguageServer() {
 void LanguageServer::onDidChangeConfiguration(
     DidChangeConfigurationParams &params) {
   this->options.update(params.settings);
+  this->initPkgNames();
   for (const auto &workspace : this->workspaces) {
     const auto &oldDiags = workspace->clearDiagnostics();
     workspace->options = this->options;
@@ -126,6 +132,7 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
   log_init();
 
   this->options.update(params.initializationOptions);
+  this->initPkgNames();
 
   for (const auto &wspf : params.workspaceFolders) {
     auto workspace = std::make_shared<Workspace>(wspf, this->options);
