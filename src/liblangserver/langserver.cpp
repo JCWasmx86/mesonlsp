@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -285,7 +286,10 @@ void LanguageServer::onInitialized(InitializedParams & /*params*/) {
   this->diagnosticsFromInitialisation.clear();
 }
 
-void LanguageServer::onExit() { exit(0); }
+void LanguageServer::onExit() {
+  _exit(0);
+  std::terminate();
+}
 
 void LanguageServer::onDidOpenTextDocument(
     DidOpenTextDocumentParams & /*params*/) {}
