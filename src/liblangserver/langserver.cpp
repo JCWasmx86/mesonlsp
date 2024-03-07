@@ -87,16 +87,24 @@ LanguageServer::LanguageServer() {
       &pkgClient, (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr);
   pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
   pkgconf_client_dir_list_build(&pkgClient, personality);
-  pkgconf_scan_all(&pkgClient, this,
-                   [](const pkgconf_pkg_t *entry, auto *data) {
-                     if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
-                       return false;
-                     }
-                     std::string const pkgName{entry->id};
-                     LOG.info("Found package: " + pkgName);
-                     ((LanguageServer *)data)->pkgNames.insert(pkgName);
-                     return false;
-                   });
+  pkgconf_path_add("/usr/local/lib64/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_path_add("/usr/lib64/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_path_add("/usr/local/lib/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_path_add("/usr/lib/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_path_add("/usr/local/share/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_path_add("/usr/share/pkgconfig", &pkgClient.dir_list, false);
+  pkgconf_scan_all(
+      &pkgClient, this, [](const pkgconf_pkg_t *entry, auto *data) {
+        if ((entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED) != 0U) {
+          return false;
+        }
+        std::string const pkgName{entry->id};
+
+        if (((LanguageServer *)data)->pkgNames.insert(pkgName).second) {
+          LOG.info("Found package: " + pkgName);
+        }
+        return false;
+      });
   pkgconf_cross_personality_deinit(personality);
   pkgconf_client_deinit(&pkgClient);
 }
