@@ -76,8 +76,8 @@ jobs:
             python-mingw-ldd:p
       - name: Build on Windows
         run: |
-          meson setup _build --buildtype release -Db_lto=true
           pip install pygls lsprotocol
+          meson setup _build --buildtype release -Db_lto=true
           ninja -C _build
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           _build/tests/libcxathrow/cxathrowtest.exe
