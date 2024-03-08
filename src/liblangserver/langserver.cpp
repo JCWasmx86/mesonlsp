@@ -285,12 +285,10 @@ void LanguageServer::onInitialized(InitializedParams & /*params*/) {
 void LanguageServer::onExit() {
 #ifdef __APPLE__
   _Exit(0);
-#else
+#elif !defined(_WIN32)
   _exit(0);
 #endif
-#ifndef _WIN32
   std::terminate();
-#endif
 }
 
 void LanguageServer::onDidOpenTextDocument(
