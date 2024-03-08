@@ -288,7 +288,9 @@ void LanguageServer::onExit() {
 #else
   _exit(0);
 #endif
+#ifndef _WIN32
   std::terminate();
+#endif
 }
 
 void LanguageServer::onDidOpenTextDocument(
