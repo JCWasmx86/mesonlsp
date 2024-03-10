@@ -75,6 +75,44 @@ static bool pkgconfLogHandler(const char *msg, const pkgconf_client_t *client,
 
 void LanguageServer::initPkgNames() {
   this->pkgNames.clear();
+  auto soutOpt = captureProcessOutput("pkg-config", {"--list-all"});
+  if (soutOpt.has_value()) {
+    auto sout = soutOpt.value();
+    std::string pkgName;
+    std::string pkgDescription;
+    auto state = 0;
+    for (const auto chr : sout) {
+      if (chr == '\n') {
+        LOG.info("Found package: " + pkgName + "(" + pkgDescription + ")");
+        pkgNames.insert(pkgName);
+        pkgName = "";
+        pkgDescription = "";
+        state = 0;
+        continue;
+      }
+      if (state == 0) {
+        if (chr == ' ') {
+          state = 1;
+        } else {
+          pkgName.push_back(chr);
+        }
+        continue;
+      }
+      if (state == 1) {
+        if (chr != ' ') {
+          pkgDescription.push_back(chr);
+          state = 2;
+        }
+        continue;
+      }
+      if (state == 2) {
+        if (chr != '\r') {
+          pkgDescription.push_back(chr);
+        }
+      }
+    }
+    return;
+  }
   auto *personality = pkgconf_cross_personality_default();
   pkgconf_list_t dirList = PKGCONF_LIST_INITIALIZER;
   pkgconf_path_copy_list(&personality->dir_list, &dirList);
