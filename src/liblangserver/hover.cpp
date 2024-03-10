@@ -10,12 +10,14 @@
 #include "typenamespace.hpp"
 #include "utils.hpp"
 
+#include <format>
 #include <string>
 
 static std::string formatArgument(const Argument *arg);
 
-Hover makeHoverForFunctionExpression(FunctionExpression *fe,
-                                     const OptionState &options) {
+Hover makeHoverForFunctionExpression(
+    FunctionExpression *fe, const OptionState &options,
+    const std::map<std::string, std::string> &descriptions) {
   if (!fe->function) {
     return Hover{
         MarkupContent("Unable to find information about this function!")};
@@ -71,6 +73,19 @@ cont:
       signature += std::format("  {},\n", formatArgument(arg.get()));
     }
     signature += ")\n";
+  }
+
+  if (func->name == "dependency" && fe->args &&
+      fe->args->type == NodeType::ARGUMENT_LIST) {
+    const auto *firstArg = static_cast<const ArgumentList *>(fe->args.get());
+    if (!firstArg->args.empty() &&
+        firstArg->args[0]->type == NodeType::STRING_LITERAL) {
+      const auto *asSL =
+          static_cast<const StringLiteral *>(firstArg->args[0].get());
+      if (descriptions.contains(asSL->id)) {
+        docs = std::format("{}\n\n{}", descriptions.at(asSL->id), docs);
+      }
+    }
   }
 
   return Hover{MarkupContent(std::format("{}{}\n{}\n\n```meson\n{}```\n",

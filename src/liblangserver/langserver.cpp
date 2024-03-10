@@ -83,7 +83,8 @@ void LanguageServer::initPkgNames() {
     auto state = 0;
     for (const auto chr : sout) {
       if (chr == '\n') {
-        LOG.info("Found package: " + pkgName + "(" + pkgDescription + ")");
+        LOG.info("Found package: " + pkgName);
+        this->descriptions[pkgName] = pkgDescription;
         pkgNames.insert(pkgName);
         pkgName = "";
         pkgDescription = "";
@@ -141,6 +142,10 @@ void LanguageServer::initPkgNames() {
 
         if (((LanguageServer *)data)->pkgNames.insert(pkgName).second) {
           LOG.info("Found package: " + pkgName);
+        }
+        if (entry->description) {
+          std::string const pkgDescription{entry->description};
+          ((LanguageServer *)data)->descriptions[pkgName] = pkgDescription;
         }
         return false;
       });
@@ -527,7 +532,7 @@ std::optional<Hover> LanguageServer::hover(HoverParams &params) {
   const auto &path = extractPathFromUrl(params.textDocument.uri);
   for (const auto &workspace : this->workspaces) {
     if (workspace->owns(path)) {
-      return workspace->hover(path, params.position);
+      return workspace->hover(path, params.position, this->descriptions);
     }
   }
   return std::nullopt;

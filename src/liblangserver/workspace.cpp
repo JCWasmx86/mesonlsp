@@ -76,8 +76,9 @@ Workspace::inlayHints(const std::filesystem::path &path) {
   return {};
 }
 
-std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
-                                      const LSPPosition &position) {
+std::optional<Hover>
+Workspace::hover(const std::filesystem::path &path, const LSPPosition &position,
+                 const std::map<std::string, std::string> &descriptions) {
   this->reading.acquire();
   for (const auto &subTree : this->foundTrees) {
     if (!subTree->ownedFiles.contains(path)) {
@@ -87,8 +88,8 @@ std::optional<Hover> Workspace::hover(const std::filesystem::path &path,
     auto feOpt = metadata.findFunctionExpressionAt(path, position.line,
                                                    position.character);
     if (feOpt.has_value()) {
-      auto val =
-          makeHoverForFunctionExpression(feOpt.value(), subTree->options);
+      auto val = makeHoverForFunctionExpression(feOpt.value(), subTree->options,
+                                                descriptions);
       this->reading.release();
       return val;
     }
