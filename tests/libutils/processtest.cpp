@@ -7,7 +7,7 @@
 #include <cassert>
 
 int main(int /*argc*/, char ** /*argv*/) {
-  auto sout = captureProcessOutput("pkg-config", {"--list-package-names"});
+  auto sout = captureProcessOutput("pkg-config", {"--list-all"});
   assert(sout.has_value());
   assert(sout.value().contains("curl"));
   auto sout2 = captureProcessOutput("does-not-exist-executable", {});
