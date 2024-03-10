@@ -1,5 +1,5 @@
 #ifdef NDEBUG
-#define NDEBUG
+#undef NDEBUG
 #endif
 
 #include "utils.hpp"
