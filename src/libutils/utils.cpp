@@ -18,7 +18,9 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <mutex>
 #include <optional>
+#include <thread>
 #ifndef _WIN32
 #include <pwd.h>
 #include <sys/wait.h>
@@ -200,6 +202,85 @@ cleanup:
   return false;
 }
 #ifndef _WIN32
+std::optional<std::string>
+captureProcessOutput(const std::string &executable,
+                     const std::vector<std::string> &args) {
+  std::vector<const char *> cArgs;
+  LOG.info(std::format("Launching {} with args {}", executable,
+                       vectorToString(args)));
+  cArgs.push_back(executable.c_str());
+
+  for (const auto &arg : args) {
+    cArgs.push_back(arg.c_str());
+  }
+  cArgs.push_back(nullptr);
+
+  std::array<int, 2> pipefd;
+  pipefd[0] = 0;
+  pipefd[1] = 0;
+  if (pipe(pipefd.data()) == -1) {
+    LOG.error(std::format("Failed to create pipe: {}", errno2string()));
+    return std::nullopt;
+  }
+
+  pid_t const pid = fork();
+  if (pid == -1) {
+    LOG.error(std::format("Failed to fork(): {}", errno2string()));
+    return std::nullopt;
+  }
+  if (pid == 0) {     // Child process
+    close(pipefd[0]); // Close the read end of the pipe
+    if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+      LOG.error(
+          std::format("Failed to redirect stdout to pipe: {}", errno2string()));
+      close(pipefd[1]);
+      exit(errno);
+    }
+    if (execvp(executable.c_str(), const_cast<char *const *>(cArgs.data())) ==
+        -1) {
+      LOG.error(
+          std::format("Failed to execvp(): {} ({})", errno2string(), errno));
+      close(pipefd[1]);
+      exit(errno);
+    }
+    return std::nullopt;
+  }
+  // Parent process
+  close(pipefd[1]); // Close the write end of the pipe
+
+  std::string output;
+  std::array<char, 1024> buffer;
+  std::mutex mtx;
+
+  auto readFromPipe = [&]() {
+    ssize_t bytesRead;
+    while ((bytesRead = read(pipefd[0], buffer.data(), buffer.size())) > 0) {
+      std::unique_lock<std::mutex> lock(mtx);
+      output += std::string(buffer.data(), bytesRead);
+      lock.unlock();
+    }
+  };
+
+  std::thread readThread(readFromPipe);
+
+  int status;
+  waitpid(pid, &status, 0);
+  readThread.join();
+
+  close(pipefd[0]);
+
+  if (WIFEXITED(status)) {          // NOLINT
+    if (WEXITSTATUS(status) == 0) { // NOLINT
+      return output;
+    }
+    LOG.warn(std::format("Child process exited with status: {}",
+                         WEXITSTATUS(status))); // NOLINT
+    return std::nullopt;
+  }
+  LOG.info("Child process terminated abnormally");
+  return std::nullopt;
+}
+
 bool launchProcess(const std::string &executable,
                    const std::vector<std::string> &args) {
   std::vector<const char *> cArgs;
@@ -245,6 +326,80 @@ bool launchProcess(const std::string &executable,
   return false;
 }
 #else
+
+std::optional<std::string>
+captureProcessOutput(const std::string &executable,
+                     const std::vector<std::string> &args) {
+  auto commandLine = "\"" + executable + "\"";
+  for (const auto &arg : args) {
+    commandLine += " " + arg;
+  }
+
+  LOG.info(std::format("Command Line: {}", commandLine));
+
+  STARTUPINFOA startupInfo;
+  PROCESS_INFORMATION processInfo;
+
+  ZeroMemory(&startupInfo, sizeof(startupInfo));
+  startupInfo.cb = sizeof(startupInfo);
+  startupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+  // Create pipes for redirecting child process output
+  HANDLE hChildStdoutRd, hChildStdoutWr;
+  SECURITY_ATTRIBUTES saAttr;
+  ZeroMemory(&saAttr, sizeof(saAttr));
+  saAttr.nLength = sizeof(saAttr);
+  saAttr.bInheritHandle = TRUE;
+  CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0);
+  SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0);
+  startupInfo.hStdOutput = hChildStdoutWr;
+  startupInfo.hStdError = hChildStdoutWr;
+
+  ZeroMemory(&processInfo, sizeof(processInfo));
+  auto *lpCommandLine = const_cast<char *>(commandLine.c_str());
+
+  if (!CreateProcessA(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL,
+                      &startupInfo, &processInfo)) {
+    LPSTR messageBuffer = nullptr;
+    auto lastError = GetLastError();
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   (LPSTR)&messageBuffer, 0, NULL);
+    LOG.error(std::format("Failed to create process. Error code: 0x{:x}: {}",
+                          lastError, messageBuffer));
+    LocalFree(messageBuffer);
+    return std::nullopt;
+  }
+
+  CloseHandle(hChildStdoutWr);
+  char buffer[128];
+  DWORD bytesRead;
+  std::string output;
+  while (ReadFile(hChildStdoutRd, buffer, sizeof(buffer), &bytesRead, NULL) &&
+         bytesRead != 0) {
+    output.append(buffer, bytesRead);
+
+    DWORD bytesAvail = 0;
+    if (!PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &bytesAvail, NULL)) {
+      LOG.error("Failed to call PeekNamedPipe");
+    }
+    if (!bytesAvail) {
+      auto ret = WaitForSingleObject(processInfo.hProcess, 1000);
+      if (ret == WAIT_OBJECT_0) {
+        break;
+      }
+    }
+  }
+  WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+  CloseHandle(processInfo.hProcess);
+  CloseHandle(processInfo.hThread);
+  CloseHandle(hChildStdoutRd);
+
+  return output;
+}
+
 // No idea what I'm doing here. This is the result
 // of ChatGPT+MS docs. It's a wonder that it workss
 bool launchProcess(const std::string &executable,
@@ -322,7 +477,7 @@ bool launchProcess(const std::string &executable,
 
 std::string errno2string() {
   std::array<char, ERRNO_BUF_SIZE> buf = {0};
-  strerror_r(errno, buf.data(), buf.max_size()); // NOLINT
+  strerror_r(errno, buf.data(), buf.size()); // NOLINT
   return {buf.data()};
 }
 

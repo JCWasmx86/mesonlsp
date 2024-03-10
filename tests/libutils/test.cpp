@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <string>
 #ifndef _WIN32
 #include <uuid/uuid.h>
