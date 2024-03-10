@@ -28,6 +28,9 @@ std::optional<std::filesystem::path> cachedDownload(const std::string &url);
 std::optional<std::filesystem::path>
 downloadWithFallback(std::string url, const std::string &hash,
                      std::optional<std::string> fallbackUrl);
+std::optional<std::string>
+captureProcessOutput(const std::string &executable,
+                     const std::vector<std::string> &args);
 std::string errno2string();
 void mergeDirectories(const std::filesystem::path &sourcePath,
                       const std::filesystem::path &destinationPath);
