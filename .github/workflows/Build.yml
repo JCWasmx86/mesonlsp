@@ -60,7 +60,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           cache: true
-          path-type: strict
+          path-type: inherit
           msystem: MINGW64
           pacboy: >-
             gcc:p
@@ -76,7 +76,7 @@ jobs:
             python-mingw-ldd:p
       - name: Build on Windows
         run: |
-          pip install pygls lsprotocol mercurial
+          pip install pygls lsprotocol
           meson setup _build --buildtype release -Db_lto=true
           ninja -C _build
           sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
