@@ -61,10 +61,10 @@ async def main():
     assert len(response) == 1
     await client.shutdown_async(None)
     client.exit(None)
+    await asyncio.sleep(1)
+    logging.info("We are finished")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
     asyncio.run(main())
