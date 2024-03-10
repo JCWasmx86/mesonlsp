@@ -77,6 +77,7 @@ public:
 private:
   TypeNamespace ns;
   std::set<std::string> pkgNames;
+  std::map<std::string, std::string> descriptions;
   LanguageServerOptions options;
   std::binary_semaphore smph{1};
 };

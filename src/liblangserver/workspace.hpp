@@ -41,8 +41,9 @@ public:
 
   std::map<std::filesystem::path, std::vector<LSPDiagnostic>>
   parse(const TypeNamespace &ns);
-  std::optional<Hover> hover(const std::filesystem::path &path,
-                             const LSPPosition &position);
+  std::optional<Hover>
+  hover(const std::filesystem::path &path, const LSPPosition &position,
+        const std::map<std::string, std::string> &descriptions);
   std::vector<DocumentHighlight> highlight(const std::filesystem::path &path,
                                            const LSPPosition &position);
   std::optional<WorkspaceEdit> rename(const std::filesystem::path &path,
