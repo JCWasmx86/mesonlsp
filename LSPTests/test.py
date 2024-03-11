@@ -13,6 +13,7 @@ class LanguageClient(BaseLanguageClient):
     def __init__(self):
         super().__init__("test-client", "1.0.0", converter_factory=default_converter)
 
+
 async def main():
     client = LanguageClient()
 
@@ -46,7 +47,9 @@ async def main():
         )
     )
     client.initialized(types.InitializedParams())
-    main_meson = pathlib.Path((pathlib.Path(fixture_dir) / "meson.build").resolve()).as_uri()
+    main_meson = pathlib.Path(
+        (pathlib.Path(fixture_dir) / "meson.build").resolve()
+    ).as_uri()
     await asyncio.sleep(1)
     response = await client.text_document_document_symbol_async(
         types.DocumentSymbolParams(types.TextDocumentIdentifier(main_meson))
@@ -62,6 +65,7 @@ async def main():
     await client.shutdown_async(None)
     client.exit(None)
     await asyncio.sleep(1)
+    assert client._server.returncode == 0
     logging.info("We are finished")
 
 
