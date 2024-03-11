@@ -7,6 +7,8 @@
 I use clang-format and clang-tidy for formatting and linting. Please run `ninja clang-format` before
 submitting patches.
 
+Please write your code so it fits in with the surrounding code.
+
 
 ## Policies to keep in mind
 Changes *must* work in GNOME Builder and *should* work in VSCode. If your patch only works in VSCode it will be rejected,
