@@ -6,6 +6,7 @@
 [![Packaging status](https://repology.org/badge/vertical-allrepos/swift-mesonlsp.svg)](https://repology.org/project/swift-mesonlsp/versions)
 
 A reimplementation of my Meson language server in C++ (Formerly Swift).
+It's there for providing code intelligence in editors using the language server protocol.
 
 ## Current feature set
 - Hovering
