@@ -1,16 +1,14 @@
-# Swift-MesonLSP
+# MesonLSP
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/Swift-MesonLSP/)
 [![CodeFactor](https://www.codefactor.io/repository/github/jcwasmx86/swift-mesonlsp/badge)](https://www.codefactor.io/repository/github/jcwasmx86/swift-mesonlsp)
 [![codecov](https://codecov.io/github/JCWasmx86/Swift-MesonLSP/branch/main/graph/badge.svg?token=5OV4WH5DL1)](https://codecov.io/github/JCWasmx86/Swift-MesonLSP)
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/swift-mesonlsp.svg)](https://repology.org/project/swift-mesonlsp/versions)
 
-**Note: If you run into timeouts during initialisation please run `mesonlsp --full` in the project directory**
-
-A reimplementation of my Meson language server in Swift.
+A reimplementation of my Meson language server in C++ (Formerly Swift).
 
 ## Current feature set
-- Hovering (Documentation often copied verbatim/minimally modified from mesonbuild, CC BY-SA 4.0, same for the entire `Sources/MesonDocs` directory due to ShareAlike)
+- Hovering
 - Symbol resolving
 - Jump-To-Definition
 - Jump-To-Subdir
@@ -33,8 +31,8 @@ A reimplementation of my Meson language server in Swift.
 ![Inlay Hints](Docs/img/inlay.png)
 ![Special integration for pkg-config](Docs/img/pkgconfig.png)
 ## Limitations
-- `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSetVariable/meson.build)
-- `subdir` with non-constant subdir name will fail in more complex cases. [See here for working patterns](https://github.com/JCWasmx86/Swift-MesonLSP/blob/main/TestCases/ComputeSubdirs/meson.build)
+- `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases.
+- `subdir` with non-constant subdir name will fail in more complex cases.
 - Type deduction is not 100% correct yet
 - Type definitions may have minor errors regarding:
   - Is this argument optional?
@@ -45,42 +43,32 @@ The first version, written in Vala, had some code maintenance problems because b
 I had the choice between untangling that mess or rewriting it as cleanly as possible.
 I have chosen the latter because I wanted to learn Swift.
 
+And now rewrote it in C++ for more performance, a better buildsystem and to address technical debt.
+
 ## Installation
 ### Install the language server
 #### Easy way
 - For Fedora, a COPR is provided: https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/
-- For Arch, you can use the repo from [AUR](https://aur.archlinux.org/packages/swift-mesonlsp)
-- For Ubuntu 18.04,20.04,22.04 and Debian Bullseye, Bookworm, Sid you can use: https://github.com/JCWasmx86/swift-mesonlsp-apt-repo
+- For Arch, you can use the repo from [AUR](https://aur.archlinux.org/packages/swift-mesonlsp) **NOTE: It's only for the Swift versions, not the C++-Versions, Maintainers needed**
+- For Ubuntu 18.04,20.04,22.04 and Debian Bullseye, Bookworm, Sid you can use: https://github.com/JCWasmx86/swift-mesonlsp-apt-repo **NOTE: It's only for the Swift versions, not the C++-Versions, Maintainers needed**
 - For Ubuntu 22.04, MacOS 12, MacOS 13 and Windows, you can download binaries from the release section: https://github.com/JCWasmx86/Swift-MesonLSP/releases/latest
+
 #### Compile from source
 ```
-git clone https://github.com/JCWasmx86/Swift-MesonLSP
-cd Swift-MesonLSP
-swift build -c release --static-swift-stdlib
-sudo cp .build/release/Swift-MesonLSP /usr/local/bin
+# Install the dependencies...
+git clone https://github.com/JCWasmx86/MesonLSP
+cd MesonLSP
+meson setup _build --buildtype release -Db_lto=true
+ninja -C _build
+sudo ninja -C _build install
 ```
-Or you can use podman (Maybe even docker, but only podman is tested):
-```
-DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile --output out --no-cache .
-# If you want to use Ubuntu 22.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu --output out --no-cache .
-# If you want to use Ubuntu 18.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu1804 --output out --no-cache .
-# If you want to use Ubuntu 20.04 as docker image
-DOCKER_BUILDKIT=1 podman build --file docker/Dockerfile.ubuntu2004 --output out --no-cache .
-```
-This will place a file "Fedora37.zip" (Or Ubuntu22.04.zip) in the directory `out`. It contains
-two statically linked binaries. Copy `Swift-MesonLSP` to `/usr/local/bin`.
-
-A debug build is provided, too. Just rename it from `Swift-MesonLSP.debug`
-to `Swift-MesonLSP` and copy it to the right destination.
 
 ### Connect with your editor
 #### VSCode (Official support)
-Install the official meson extension. If you don't have Swift-MesonLSP in the PATH,
+Install the official meson extension. If you don't have MesonLSP in the PATH,
 it will ask you whether it should download the language server.
 #### GNOME Builder 45 and GNOME Builder Nightly (Official support)
-You have to do nothing. The editor already has the support code for Swift-MesonLSP. All you have to do is
+You have to do nothing. The editor already has the support code for MesonLSP. All you have to do is
 installing the language server.
 #### Kate (No official support)
 Add this JSON to `~/.config/kate/lspclient/settings.json`:
@@ -89,14 +77,14 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
   "servers": {
     "meson": {
       "command": [
-        "Swift-MesonLSP",
+        "mesonlsp",
         "--lsp"
       ],
       "rootIndicationFileNames": [
         "meson.build",
         "meson_options.txt"
       ],
-      "url": "https://github.com/JCWasmx86/Swift-MesonLSP",
+      "url": "https://github.com/JCWasmx86/MesonLSP",
       "highlightingModeRegex": "^Meson$"
     }
   }
@@ -110,7 +98,7 @@ Add this JSON to `:CocConfig`:
 {
     "languageserver": {
         "meson": {
-            "command": "Swift-MesonLSP",
+            "command": "MesonLSP",
             "args": ["--lsp"],
             "rootPatterns": ["meson.build"],
             "filetypes": ["meson"]
