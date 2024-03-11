@@ -331,7 +331,7 @@ jobs:
         run: |
           wmic pagefile
       - name: Configure pagefile
-        uses: al-cheb/configure-pagefile-action@v1.3
+        uses: al-cheb/configure-pagefile-action@v1.4
         with:
           minimum-size: 3GB
           maximum-size: 8GB
