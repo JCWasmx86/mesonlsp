@@ -491,7 +491,7 @@ static void specialStringLiteralAutoCompletion(
         // TODO: Works in Builder, but not in VSCode
         ret.emplace_back(
             pkgName, CompletionItemKind::CIK_FILE,
-            TextEdit(nodeToRange(literal), std::format("{}", pkgName)));
+            TextEdit(nodeToRange(literal), std::format("'{}'", pkgName)));
       }
     }
     return;
