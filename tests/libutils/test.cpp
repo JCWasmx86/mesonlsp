@@ -134,7 +134,7 @@ TEST(UtilsTest, testMergingDirectories) {
 TEST(UtilsTest, testDownloadAndExtraction) {
   auto zipFileName = std::filesystem::path{randomFile() + "-1"};
   auto result = downloadFile(
-      "https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/heads/main.zip",
+      "https://github.com/JCWasmx86/mesonlsp/archive/refs/heads/main.zip",
       zipFileName);
   ASSERT_TRUE(result);
   auto directoryName = std::filesystem::path{randomFile() + "-2"};
@@ -142,7 +142,7 @@ TEST(UtilsTest, testDownloadAndExtraction) {
   result = extractFile(zipFileName, directoryName);
   ASSERT_TRUE(result);
   auto mustExist =
-      directoryName / "Swift-MesonLSP-main/Benchmarks/extract_git_data.sh";
+      directoryName / "mesonlsp-main/Benchmarks/extract_git_data.sh";
   ASSERT_TRUE(std::filesystem::exists(mustExist));
   auto mustFailFilename = std::filesystem::path{randomFile() + "-3"};
   result =
