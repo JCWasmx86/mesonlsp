@@ -25,12 +25,12 @@ It's there for providing code intelligence in editors using the language server 
 - Semantic Highlighting
 - Folding
 
-![Auto Completion](Docs/img/auto-completion.png)
-![Diagnostics](Docs/img/diags.png)
-![Hover](Docs/img/hover.png)
-![Hover](Docs/img/hover2.png)
-![Inlay Hints](Docs/img/inlay.png)
-![Special integration for pkg-config](Docs/img/pkgconfig.png)
+![Auto Completion](docs/img/auto-completion.png)
+![Diagnostics](docs/img/diags.png)
+![Hover](docs/img/hover.png)
+![Hover](docs/img/hover2.png)
+![Inlay Hints](docs/img/inlay.png)
+![Special integration for pkg-config](docs/img/pkgconfig.png)
 ## Limitations
 - `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases.
 - `subdir` with non-constant subdir name will fail in more complex cases.
