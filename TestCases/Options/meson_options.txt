@@ -1,7 +1,0 @@
-option('intopt', type: 'integer', value: 0)
-option('stringopt', type: 'string')
-option('comboopt', type: 'combo', choices: [''])
-option('arrayopt', type: 'array', value: [])
-option('booleanopt', type: 'boolean')
-option('featureopt', type: 'feature')
-option('deprecated', type: 'feature', deprecated: true)

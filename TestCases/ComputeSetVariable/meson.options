@@ -1,4 +1,0 @@
-option('bindings', type: 'array', choices: ['cpp', 'human', 'python'],
-  description: 'Generate language bindings')
-option('shims', type: 'array', choices: ['lua'],
-  description: 'Generate backward compatibility shims')
