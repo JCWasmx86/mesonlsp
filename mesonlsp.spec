@@ -9,7 +9,7 @@ Summary:        Meson language server
 ExclusiveArch:  x86_64
 
 License:        GPL-3.0-or-later
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/heads/cpp.zip
+Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v%{version}.tar.gz
 
 Requires:       curl
 Requires:       libarchive
