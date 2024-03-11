@@ -31,6 +31,7 @@ It's there for providing code intelligence in editors using the language server 
 ![Hover](docs/img/hover2.png)
 ![Inlay Hints](docs/img/inlay.png)
 ![Special integration for pkg-config](docs/img/pkgconfig.png)
+
 ## Limitations
 - `set_variable`/`get_variable` with non-constant variable name will fail in more complex cases.
 - `subdir` with non-constant subdir name will fail in more complex cases.
