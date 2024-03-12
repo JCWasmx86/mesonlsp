@@ -133,7 +133,7 @@ else
 endif
 
 fmt_dep = []
-if system_id == 'darwin'
+if target_machine.system() == 'darwin'
     fmt_dep = [dependency('fmt', static: true)]
     extra_deps += fmt_dep
 endif
