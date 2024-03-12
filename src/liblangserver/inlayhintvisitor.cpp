@@ -7,6 +7,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <memory>
 #include <set>
 #include <string>
@@ -47,6 +48,27 @@ void InlayHintVisitor::visitDictionaryLiteral(DictionaryLiteral *node) {
 
 void InlayHintVisitor::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
+  if (!node->function || !node->args ||
+      node->args->type != NodeType::ARGUMENT_LIST) {
+    return;
+  }
+  auto args = node->function->args;
+  const auto *al = static_cast<const ArgumentList *>(node->args.get());
+  auto posIdx = 0;
+  for (const auto &arg : al->args) {
+    if (arg->type == NodeType::KEYWORD_ITEM ||
+        arg->type == NodeType::ERROR_NODE) {
+      continue;
+    }
+    const auto *posArg = node->function->posArg(posIdx);
+    if (!posArg) {
+      break;
+    }
+    auto pos = LSPPosition(arg->location.startLine, arg->location.startColumn);
+
+    this->hints.emplace_back(pos, posArg->name + ":");
+    posIdx++;
+  }
 }
 
 void InlayHintVisitor::visitIdExpression(IdExpression *node) {
@@ -74,6 +96,27 @@ void InlayHintVisitor::visitKeywordItem(KeywordItem *node) {
 
 void InlayHintVisitor::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
+  if (!node->method || !node->args ||
+      node->args->type != NodeType::ARGUMENT_LIST) {
+    return;
+  }
+  auto args = node->method->args;
+  const auto *al = static_cast<const ArgumentList *>(node->args.get());
+  auto posIdx = 0;
+  for (const auto &arg : al->args) {
+    if (arg->type == NodeType::KEYWORD_ITEM ||
+        arg->type == NodeType::ERROR_NODE) {
+      continue;
+    }
+    const auto *posArg = node->method->posArg(posIdx);
+    if (!posArg) {
+      break;
+    }
+    auto pos = LSPPosition(arg->location.startLine, arg->location.startColumn);
+
+    this->hints.emplace_back(pos, posArg->name + ":");
+    posIdx++;
+  }
 }
 
 void InlayHintVisitor::visitSelectionStatement(SelectionStatement *node) {
