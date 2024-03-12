@@ -896,7 +896,7 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   std::vector<std::shared_ptr<Type>> types(node->ifTrue->types);
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
-  node->types = types;
+  node->types = dedup(this->ns, types);
   for (const auto &type : node->condition->types) {
     if (type->tag == ANY || type->tag == BOOL || type->tag == DISABLER) {
       return;

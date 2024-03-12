@@ -61,7 +61,7 @@ async def main():
             types.Range(types.Position(0, 0), types.Position(200, 200)),
         )
     )
-    assert len(response) == 1
+    assert len(response) == 3
     await client.shutdown_async(None)
     client.exit(None)
     await asyncio.sleep(1)
