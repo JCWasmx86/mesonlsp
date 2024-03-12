@@ -19,6 +19,7 @@ public:
   bool disableInlayHints = false;
   bool removeDefaultTypesInInlayHints = false;
   bool useCustomParser = true;
+  bool disablePosargInlayHints = false;
 
   // No need for muon path anymore
 
@@ -93,6 +94,10 @@ private:
     }
     if (others.contains("useCustomParser")) {
       this->useCustomParser = others.value("useCustomParser", false);
+    }
+    if (others.contains("disablePosargInlayHints")) {
+      this->disablePosargInlayHints =
+          others.value("disablePosargInlayHints", false);
     }
     if (others.contains("defaultFormattingConfig")) {
       const auto &config = others["defaultFormattingConfig"];

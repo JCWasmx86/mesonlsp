@@ -7,7 +7,6 @@
 #include "utils.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <memory>
 #include <set>
 #include <string>
@@ -49,7 +48,8 @@ void InlayHintVisitor::visitDictionaryLiteral(DictionaryLiteral *node) {
 void InlayHintVisitor::visitFunctionExpression(FunctionExpression *node) {
   node->visitChildren(this);
   if (!node->function || !node->args ||
-      node->args->type != NodeType::ARGUMENT_LIST) {
+      node->args->type != NodeType::ARGUMENT_LIST ||
+      this->disablePosargInlayHints) {
     return;
   }
   auto args = node->function->args;
@@ -97,7 +97,8 @@ void InlayHintVisitor::visitKeywordItem(KeywordItem *node) {
 void InlayHintVisitor::visitMethodExpression(MethodExpression *node) {
   node->visitChildren(this);
   if (!node->method || !node->args ||
-      node->args->type != NodeType::ARGUMENT_LIST) {
+      node->args->type != NodeType::ARGUMENT_LIST ||
+      this->disablePosargInlayHints) {
     return;
   }
   auto args = node->method->args;

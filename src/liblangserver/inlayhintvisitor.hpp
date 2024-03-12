@@ -9,8 +9,10 @@
 
 class InlayHintVisitor : public CodeVisitor {
 public:
-  explicit InlayHintVisitor(bool removeDefaultTypesInInlayHints)
-      : removeDefaultTypesInInlayHints(removeDefaultTypesInInlayHints) {}
+  InlayHintVisitor(bool removeDefaultTypesInInlayHints,
+                   bool disablePosargInlayHints)
+      : removeDefaultTypesInInlayHints(removeDefaultTypesInInlayHints),
+        disablePosargInlayHints(disablePosargInlayHints) {}
 
   std::vector<InlayHint> hints;
   void visitArgumentList(ArgumentList *node) override;
@@ -38,6 +40,7 @@ public:
 
 private:
   bool removeDefaultTypesInInlayHints;
+  bool disablePosargInlayHints;
   void makeHint(const Node *node);
   std::string prettify(const std::vector<std::shared_ptr<Type>> &types,
                        int depth);
