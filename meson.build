@@ -95,10 +95,6 @@ cc_id = cc.get_id()
 if cc_id != 'gcc' and cc_id != 'clang'
     warning(f'Unknown compiler: @cc_id@')
 endif
-system_id = target_machine.system()
-if system_id != 'linux'
-    warning(f'Untested OS: @system_id@')
-endif
 
 args = []
 
