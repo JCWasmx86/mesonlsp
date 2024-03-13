@@ -100,7 +100,7 @@ jobs:
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: mesonlsp-macos-${{ matrix.version }}.zip
+          file: mesonlsp-windows.zip
           verbose: true
           update_latest_release: true
         env:
