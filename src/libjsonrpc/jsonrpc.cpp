@@ -111,6 +111,7 @@ enum class JsonrpcState {
 void jsonrpc::JsonRpcServer::loop(
     const std::shared_ptr<jsonrpc::JsonRpcHandler> &handler) {
   std::string const prefix = "Content-Length:";
+  auto numMessages = 0;
   while (true) {
     auto state = JsonrpcState::INITIAL;
     auto contentLength = 0;
@@ -159,6 +160,14 @@ void jsonrpc::JsonRpcServer::loop(
     }
     try {
       auto data = nlohmann::json::parse(messageData);
+      numMessages++;
+      if (numMessages == 100) {
+        for (auto &future : this->futures) {
+          future.get();
+        }
+        this->futures.clear();
+        numMessages = 0;
+      }
       this->evaluateData(handler, data);
     } catch (nlohmann::json::parse_error &ex) {
       this->returnError(nullptr, JsonrpcError::PARSE_ERROR,

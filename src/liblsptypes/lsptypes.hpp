@@ -381,10 +381,9 @@ public:
 class DidSaveTextDocumentParams : public BaseObject {
 public:
   TextDocumentIdentifier textDocument;
-  std::string text;
 
   explicit DidSaveTextDocumentParams(nlohmann::json &jsonObj)
-      : textDocument(jsonObj["textDocument"]), text(jsonObj["text"]) {}
+      : textDocument(jsonObj["textDocument"]) {}
 };
 
 class DidCloseTextDocumentParams : public BaseObject {

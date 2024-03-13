@@ -14,43 +14,54 @@ const static Logger LOG("AbstractLanguageServer"); // NOLINT
 
 void AbstractLanguageServer::handleNotification(std::string method,
                                                 nlohmann::json params) {
-  LOG.info(std::format("Received notification {}", method));
-  if (method == "initialized") {
-    InitializedParams serializedParams;
-    this->onInitialized(serializedParams);
-    return;
+  try {
+    LOG.info(std::format("Received notification {}", method));
+    if (method == "initialized") {
+      InitializedParams serializedParams;
+      this->onInitialized(serializedParams);
+      return;
+    }
+    if (method == "textDocument/didOpen") {
+      DidOpenTextDocumentParams serializedParams(params);
+      this->onDidOpenTextDocument(serializedParams);
+      return;
+    }
+    if (method == "textDocument/didClose") {
+      DidCloseTextDocumentParams serializedParams(params);
+      this->onDidCloseTextDocument(serializedParams);
+      return;
+    }
+    if (method == "textDocument/didChange") {
+      DidChangeTextDocumentParams serializedParams(params);
+      this->onDidChangeTextDocument(serializedParams);
+      return;
+    }
+    if (method == "textDocument/didSave") {
+      DidSaveTextDocumentParams serializedParams(params);
+      this->onDidSaveTextDocument(serializedParams);
+      return;
+    }
+    if (method == "workspace/didChangeConfiguration") {
+      DidChangeConfigurationParams serializedParams(params);
+      this->onDidChangeConfiguration(serializedParams);
+      return;
+    }
+    if (method == "exit") {
+      this->onExit();
+      this->server->exit();
+      return;
+    }
+    LOG.warn(std::format("Unknown notification: '{}'", method));
+  } catch (const char *str) {
+    LOG.error(
+        std::format("Got error {} in {}: {}", str, method, params.dump()));
+  } catch (const std::exception &exc) {
+    LOG.error(std::format("Got error {} in {}: {}", exc.what(), method,
+                          params.dump()));
+  } catch (...) {
+    LOG.error(std::format("Something else was caught in {}: {}", method,
+                          params.dump()));
   }
-  if (method == "textDocument/didOpen") {
-    DidOpenTextDocumentParams serializedParams(params);
-    this->onDidOpenTextDocument(serializedParams);
-    return;
-  }
-  if (method == "textDocument/didClose") {
-    DidCloseTextDocumentParams serializedParams(params);
-    this->onDidCloseTextDocument(serializedParams);
-    return;
-  }
-  if (method == "textDocument/didChange") {
-    DidChangeTextDocumentParams serializedParams(params);
-    this->onDidChangeTextDocument(serializedParams);
-    return;
-  }
-  if (method == "textDocument/didSave") {
-    DidSaveTextDocumentParams serializedParams(params);
-    this->onDidSaveTextDocument(serializedParams);
-    return;
-  }
-  if (method == "workspace/didChangeConfiguration") {
-    DidChangeConfigurationParams serializedParams(params);
-    this->onDidChangeConfiguration(serializedParams);
-    return;
-  }
-  if (method == "exit") {
-    this->onExit();
-    this->server->exit();
-    return;
-  }
-  LOG.warn(std::format("Unknown notification: '{}'", method));
 }
 
 void AbstractLanguageServer::handleRequest(std::string method,
