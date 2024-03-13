@@ -147,7 +147,7 @@ jobs:
           meson setup _clang --buildtype ${{ matrix.buildtype }} -Db_sanitize=${{ matrix.sanitizer }}
           cd _clang
           ninja
-          meson test "mesonlsp:" || cat /__w/MesonLSP/MesonLSP/_clang/meson-logs/testlog.txt
+          meson test "mesonlsp:" || cat /__w/mesonlsp/mesonlsp/_clang/meson-logs/testlog.txt
           cd ..
           ./scripts/run_regression_tests.sh
           for i in $(find __regressions|grep meson.build$|shuf|head -n 90); do echo $i; ./_clang/src/libparsing/lexingtool $i 2>/dev/null || ./_clang/src/libparsing/lexingtool $i; done
