@@ -3,7 +3,7 @@
 %undefine _auto_set_build_flags
 
 Name:           mesonlsp
-Version:        4.0.3
+Version:        4.0.4
 Release:        0.1
 Summary:        Meson language server
 ExclusiveArch:  x86_64
@@ -55,6 +55,8 @@ cd mesonlsp-%{version}
 %{_bindir}/Swift-MesonLSP
 
 %changelog
+* Wed Mar 13 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.0.4-0.1
+- Bump to v4.0.4
 * Wed Mar 13 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.0.3-0.1
 - Bump to v4.0.3
 * Wed Mar 13 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.0.2-0.1

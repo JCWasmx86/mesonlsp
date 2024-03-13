@@ -80,6 +80,7 @@ jobs:
             python-mingw-ldd:p
       - name: Build on Windows
         run: |
+          pacman -S zip --noconfirm
           pip install pygls lsprotocol
           meson setup _build --buildtype release -Db_lto=true
           ninja -C _build
