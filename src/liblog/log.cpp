@@ -12,6 +12,7 @@
 
 Logger::Logger(std::string logmodule) : logmodule(std::move(logmodule)) {
   this->noOutput = getenv("MESONLSP_NO_LOG") != nullptr;
+#ifndef _WIN32
   if (isatty(STDERR_FILENO) != 0) {
     this->blue = "\033[96m";
     this->red = "\033[91m";
@@ -23,7 +24,15 @@ Logger::Logger(std::string logmodule) : logmodule(std::move(logmodule)) {
     this->red = "";
     this->yellow = "";
     this->reset = "";
+    this->green = "";
   }
+#else
+  this->blue = "";
+  this->red = "";
+  this->yellow = "";
+  this->reset = "";
+  this->green = "";
+#endif
 }
 
 void Logger::error(const std::string &msg,
