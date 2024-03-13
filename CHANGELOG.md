@@ -1,4 +1,4 @@
-# 4.0.0 (XXX XX 2024)
+# 4.0.0 (Mar 13 2024)
 - Rewrite in C++
 - Rename binary to `mesonlsp`
 - Add --version switch (C++ version)
