@@ -9,7 +9,7 @@ RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
 
 WORKDIR /app
 
-COPY meson.build meson.options /app/
+COPY COPYING meson.build meson.options /app/
 COPY src /app/src
 COPY LSPTests /app/LSPTests
 COPY tests /app/tests
