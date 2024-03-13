@@ -18,7 +18,7 @@ RUN git clone https://github.com/libunwind/libunwind
 RUN pip install --break-system-packages pygls lsprotocol
 WORKDIR /app/libunwind
 RUN autoreconf -i
-RUN ./configure --prefix=/usr --disable-tests --disable-cxx-exceptions --enable-shared=no --enable-static=yes --enable-minidebuginfo --enable-zlibdebuginfo  --enable-debug-frame
+RUN ./configure --prefix=/usr --disable-tests --disable-cxx-exceptions --enable-shared=no --enable-static=yes --enable-minidebuginfo --enable-zlibdebuginfo --enable-debug-frame
 RUN make -j4 install
 WORKDIR /app
 RUN meson setup _static --default-library=static --prefer-static \
@@ -30,8 +30,10 @@ RUN ninja -C _static test
 RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
+RUN cp COPYING /app/exportDir
+RUN sh -c 'apk list | tee /app/exportDir/env.txt'
 WORKDIR /app/exportDir
-RUN zip -9 mesonlsp-alpine-static.zip mesonlsp
+RUN zip -9 mesonlsp-alpine-static.zip mesonlsp env.txt COPYING
 
 FROM scratch AS export-stage
 COPY --from=stage1 /app/exportDir/mesonlsp-alpine-static.zip .

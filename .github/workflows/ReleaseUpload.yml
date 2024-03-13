@@ -5,63 +5,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ubuntu:
-    name: Build and upload
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: |
-          swift build -c release --static-swift-stdlib
-          ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP.zip .build/release/Swift-MesonLSP 3rdparty.txt COPYING
-      - name: Upload to release
-        uses: xresloader/upload-to-github-release@main
-        with:
-          file: Swift-MesonLSP.zip
-          verbose: true
-          update_latest_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP.zip
-          path: Swift-MesonLSP.zip
-  build-macos:
-    strategy:
-      matrix:
-        version: [12, 13]
-    name: Build and upload macOS ${{ matrix.version }}
-    runs-on: macos-${{ matrix.version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: |
-          swift build -c release --arch x86_64 --arch arm64
-          ./scripts/create_license_bundle.sh
-          zip -9jpr Swift-MesonLSP-macos${{ matrix.version }}.zip .build/apple/Products/Release/Swift-MesonLSP 3rdparty.txt COPYING
-      - name: Upload to release
-        uses: xresloader/upload-to-github-release@main
-        with:
-          file: Swift-MesonLSP-macos${{ matrix.version }}.zip
-          verbose: true
-          update_latest_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-macos${{ matrix.version }}.zip
-          path: Swift-MesonLSP-macos${{ matrix.version }}.zip
-  aur-publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Update AUR package
-        uses: JCWasmx86/update-aur-package@master
-        with:
-          package_name: swift-mesonlsp
-          commit_username: "JCWasmx86"
-          commit_email: JCWasmx86@t-online.de
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
   trigger-copr:
     name: Submit a COPR
     container: fedora:latest
@@ -81,314 +24,123 @@ jobs:
         run: |
           dnf -y install @development-tools @rpm-development-tools
           dnf -y install copr-cli make
-          wget https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz
+          wget https://github.com/JCWasmx86/mesonlsp/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz
 
       - name: Build the source RPM
-        run: rpmbuild -bs Swift-MesonLSP.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
+        run: rpmbuild -bs mespnlsp.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
 
       - name: Submit the build by uploading the source RPM
         run: copr build jcwasmx86/Swift-MesonLSP *.src.rpm
-  matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v2
-      - id: set-matrix
-        run: |
-          TASKS=$(echo $(cat .github/workflows/debian_matrix.json) | sed 's/ //g' )
-          echo "::set-output name=matrix::$TASKS"
-  debian:
-    needs: [matrix]
-    strategy:
-      matrix:
-        cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
-    runs-on: ubuntu-22.04
-    container:
-      image: debian:${{ matrix.cfg.image }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Debian ${{ matrix.cfg.name }}
-        shell: bash
-        run: |
-          apt-get update -y
-          apt-get install -y zip git sqlite3 libncurses6 libxml2 libcurl4-openssl-dev sudo gcc g++ binutils wget
-          pushd /
-          wget https://download.swift.org/swift-5.9-release/ubuntu2004/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          tar xvf swift-5.9-RELEASE-ubuntu20.04.tar.gz
-          popd
-          /swift-5.9-RELEASE-ubuntu20.04/usr/bin/swift build -c release --static-swift-stdlib
-          cp .build/release/Swift-MesonLSP .
-          zip -9 Debian-${{ matrix.cfg.name }}.zip Swift-MesonLSP
-          sudo cp Debian-${{ matrix.cfg.name }}.zip /
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Debian-${{ matrix.cfg.name }}.zip
-          path: /Debian-${{ matrix.cfg.name }}.zip
-  ubuntu_in_container:
-    strategy:
-      matrix:
-        version: ["18.04", "20.04", "22.04"]
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:${{ matrix.version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build on Ubuntu ${{ matrix.version }}
-        shell: bash
-        run: |
-          apt install lsb-release -y|| true
-          apt install lsb-core -y || true
-          ./scripts/ci_ubuntu_install.sh
-          pushd /
-          wget --progress=dot:giga https://download.swift.org/swift-5.9-release/ubuntu$(echo ${{ matrix.version }}|sed s/\\.//g)/swift-5.9-RELEASE/swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
-          tar xzvf swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
-          rm -f swift-5.9-RELEASE-ubuntu${{ matrix.version }}.tar.gz
-          export PATH=$PATH:/swift-5.9-RELEASE-ubuntu${{ matrix.version }}/usr/bin
-          popd
-          swift --version
-          ./scripts/ci_create_zip.sh Ubuntu${{ matrix.version }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Ubuntu${{ matrix.version }}.zip
-          path: /Ubuntu${{ matrix.version }}.zip
-  build-debs-ubuntu:
-    needs: ubuntu_in_container
+  alpine:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: Ubuntu18.04.zip
-          path: out
-      - uses: actions/download-artifact@v3
-        with:
-          name: Ubuntu20.04.zip
-          path: out1
-      - uses: actions/download-artifact@v3
-        with:
-          name: Ubuntu22.04.zip
-          path: out2
-      - name: Build deb files
+      - name: Build on Alpine
         run: |
-          sudo apt-get -y install dpkg
-          find out out1 out2
-          cd out
-          unzip Ubuntu18.04.zip
-          cd ../out1
-          unzip Ubuntu20.04.zip
-          cd ../out2
-          unzip Ubuntu22.04.zip
-          cd ..
-          sudo ./.debian/build_debs_ubuntu.sh
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-18.04.deb
-          path: /Swift-MesonLSP-ubuntu-18.04.deb
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-20.04.deb
-          path: /Swift-MesonLSP-ubuntu-20.04.deb
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-22.04.deb
-          path: /Swift-MesonLSP-ubuntu-22.04.deb
-  build-debs-debian:
-    needs: ["debian"]
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: Debian-Stable.zip
-          path: out
-      - uses: actions/download-artifact@v3
-        with:
-          name: Debian-Testing.zip
-          path: out1
-      - uses: actions/download-artifact@v3
-        with:
-          name: Debian-Unstable.zip
-          path: out2
-      - name: Build deb files
-        run: |
-          sudo apt-get -y install dpkg
-          find out out1 out2
-          cd out
-          unzip Debian-Stable.zip
-          cd ../out1
-          unzip Debian-Testing.zip
-          cd ../out2
-          unzip Debian-Unstable.zip
-          cd ..
-          sudo ./.debian/build_debs_debian.sh
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-stable.deb
-          path: /Swift-MesonLSP-debian-stable.deb
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-testing.deb
-          path: /Swift-MesonLSP-debian-testing.deb
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-unstable.deb
-          path: /Swift-MesonLSP-debian-unstable.deb
-  update-apt-repo:
-    name: Update APT repo
-    needs: ["build-debs-debian", "build-debs-ubuntu"]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out proper version of sources
-        uses: actions/checkout@v1
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-stable.deb
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-testing.deb
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-debian-unstable.deb
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-18.04.deb
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-20.04.deb
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-ubuntu-22.04.deb
-          path: .
-      - name: Build and upload deb files
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        shell: bash
-        run: |
-          sudo apt-get update -y
-          sudo apt-get -y install podman dpkg reprepro unzip sudo || sudo apt-get -y install podman dpkg reprepro unzip
-          ls
-          sudo cp -v *.deb /
-          git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/swift-mesonlsp-apt-repo target
-          cd target
-          git config --global user.email "JCWasmx86@t-online.de"
-          git config --global user.name "JCWasmx86"
-          cd apt
-          cp /*.deb .
-          . update.sh
-  update-vscode-meson:
-    runs-on: ubuntu-latest
-    needs: ["build-ubuntu", "build-macos", "windows-59"]
-    steps:
-      - name: Check out proper version of sources
-        uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-win64.zip
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP-macos12.zip
-          path: .
-      - uses: actions/download-artifact@v3
-        with:
-          name: Swift-MesonLSP.zip
-          path: .
-      - name: Create JCWasmx86/vscode-meson branch
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-        shell: bash
-        run: |
-          git clone https://.:${{ secrets.API_TOKEN_GITHUB }}@github.com/JCWasmx86/vscode-meson
-          cd vscode-meson
-          git remote add upstream https://github.com/mesonbuild/vscode-meson
-          git fetch upstream
-          git checkout -b bump-${{ github.ref_name }} upstream/main
-          WIN64_HASH=$(sha256sum ../Swift-MesonLSP-win64.zip|awk '{print $1}')
-          MACOS12_HASH=$(sha256sum ../Swift-MesonLSP-macos12.zip|awk '{print $1}')
-          LINUX_HASH=$(sha256sum ../Swift-MesonLSP.zip|awk '{print $1}')
-          ../scripts/release_update_vscode.py ./src/lsp/swift-mesonlsp.ts $WIN64_HASH $MACOS12_HASH $LINUX_HASH ${{ github.ref_name }} ./CHANGELOG.md
-          git config --global user.email "JCWasmx86@t-online.de"
-          git config --global user.name "JCWasmx86"
-          git commit -a -m "Swift-MesonLSP: Bump to ${{ github.ref_name }}"
-          git push --set-upstream origin bump-${{ github.ref_name }}
-          gh pr create --title "Swift-MesonLSP: Bump to ${{ github.ref_name }}" --body "Automated PR created due to a release upstream!" --repo mesonbuild/vscode-meson
-  windows-59:
-    runs-on: windows-2019
-    steps:
-      - name: Enable long paths on Windows
-        shell: powershell
-        run: |
-          Set-ItemProperty -Path "HKLM:\\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
-      - name: Get page file information
-        shell: powershell
-        run: |
-          wmic pagefile
-      - name: Configure pagefile
-        uses: al-cheb/configure-pagefile-action@v1.3
-        with:
-          minimum-size: 3GB
-          maximum-size: 8GB
-          disk-root: "D:"
-      - name: Get page file information again
-        shell: powershell
-        run: |
-          wmic pagefile
-      - uses: compnerd/gha-setup-swift@main
-        with:
-          branch: swift-5.9-release
-          tag: 5.9-RELEASE
-      - uses: actions/checkout@v3
-      - name: Build and test
-        shell: powershell
-        run: |
-          cd ..\..
-          git clone https://github.com/JCWasmx86/Swift-MesonLSP b
-          cd b
-          swift build -c release -v
-          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts"
-          mkdir $destinationFilePath
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\BlocksRuntime.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\dispatch.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\Foundation.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swift_Concurrency.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCore.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftCRT.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftDispatch.dll" -Destination $destinationFilePath -Force
-          Copy-Item "C:\\Program Files\\swift\\runtime-development\\usr\\bin\\swiftWinSDK.dll" -Destination $destinationFilePath -Force
-          $sourceFilePath = ".build\release\Swift-MesonLSP.exe"
-          $destinationFilePath = "$env:GITHUB_WORKSPACE\Artifacts\Swift-MesonLSP.exe"
-          Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force
-      - name: Create license bundle
-        shell: bash
-        run: |
-          ./scripts/create_license_bundle.sh || true
-          cp 3rdparty.txt Artifacts || true
-          cp 3rdparty.txt ${{ github.workspace }}/Artifacts || true
-      - name: Zip it up
-        shell: powershell
-        run: |
-          cd ${{ github.workspace }}/Artifacts
-          $sourcePath = "${{ github.workspace }}/Artifacts"
-          $zipFilePath = "${{ github.workspace }}/Swift-MesonLSP-win64.zip"
-          $files = @("*.dll", "*.exe", "COPYING", "3rdparty.txt") | %{ Get-ChildItem -File $sourcePath -Filter $_ }
-          Compress-Archive -Path $files.FullName -DestinationPath $zipFilePath
-          cp $zipFilePath ../..
+          sudo apt purge -y podman
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null
+          sudo apt-get update
+          sudo apt-get -y install podman
+          podman --version
+          DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
+          sudo cp out/mesonlsp-alpine-static.zip .
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: Swift-MesonLSP-win64.zip
+          file: mesonlsp-alpine-static.zip
           verbose: true
           update_latest_release: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v3
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: msys2/setup-msys2@v2
         with:
-          name: Swift-MesonLSP-win64.zip
-          path: Swift-MesonLSP-win64.zip
+          cache: true
+          path-type: inherit
+          msystem: MINGW64
+          pacboy: >-
+            gcc:p
+            curl:p
+            libarchive:p
+            meson:p
+            ninja:p
+            crt:p
+            dlfcn:p
+            libunwind:p
+            python:p
+            python-pip:p
+            python-mingw-ldd:p
+      - name: Build on Windows
+        run: |
+          pip install pygls lsprotocol
+          meson setup _build --buildtype release -Db_lto=true
+          ninja -C _build
+          sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
+          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=sys.stderr/g" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
+          ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
+          _build/tests/libcxathrow/cxathrowtest.exe
+          strings _build/src/mesonlsp.exe|grep \\.dll$
+          find /d/ | grep libarchive-13.dll
+          mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/
+          mkdir -p /d/Artifacts
+          cp _build/src/mesonlsp.exe /d/Artifacts
+          cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
+          pacman -Q > /d/Artifacts/env.txt
+          cp COPYING /d/Artifacts/COPYING
+          zip -9jpr mesonlsp-windows.zip /d/Artifacts/*
+      - name: Upload to release
+        uses: xresloader/upload-to-github-release@main
+        with:
+          file: mesonlsp-macos-${{ matrix.version }}.zip
+          verbose: true
+          update_latest_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  macos:
+    strategy:
+      matrix:
+        version: [13, 14]
+    runs-on: macos-${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build on macOS ${{ matrix.version }}
+        run: |
+          brew unlink pkg-config
+          brew link --overwrite python@3.12 || true
+          brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd bzip2 libiconv expat xz lz4 zlib subversion mercurial || true
+          svn --version
+          hg --version
+          python3 -m pip install meson ninja pygls lsprotocol
+          mkdir libs
+          sudo cp $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.a libs
+          ls libs
+          export LDFLAGS="-L$PWD/libs"
+          export CPPFLAGS="-I$(brew --prefix)/opt/libarchive/include -I$(brew --prefix)/opt/zstd/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include"
+          export PKG_CONFIG_PATH="$(brew --prefix)/opt/zstd/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig"
+          sudo rm $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
+          brew link --overwrite pkg-config
+          export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
+          meson setup _build --buildtype release -Db_lto=true --default-library=static --prefer-static
+          ninja -C _build
+          ninja -C _build test
+          mkdir -p ${{ github.workspace }}/Artifacts
+          cp _build/src/mesonlsp ${{ github.workspace }}/Artifacts/mesonlsp
+          brew list --versions -d >> ${{ github.workspace }}/Artifacts/env.txt
+          cp COPYING ${{ github.workspace }}/Artifacts/COPYING
+          zip -9jpr mesonlsp-macos-${{ matrix.version }}.zip ${{ github.workspace }}/Artifacts/*
+      - name: Upload to release
+        uses: xresloader/upload-to-github-release@main
+        with:
+          file: mesonlsp-macos-${{ matrix.version }}.zip
+          verbose: true
+          update_latest_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
