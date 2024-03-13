@@ -44,7 +44,7 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
-          unzip out/mesonlsp-alpine-static.zip
+          yes | unzip out/mesonlsp-alpine-static.zip
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
