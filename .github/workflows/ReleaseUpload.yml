@@ -27,7 +27,7 @@ jobs:
           wget https://github.com/JCWasmx86/mesonlsp/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz
 
       - name: Build the source RPM
-        run: rpmbuild -bs mespnlsp.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
+        run: rpmbuild -bs mesonlsp.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
 
       - name: Submit the build by uploading the source RPM
         run: copr build jcwasmx86/Swift-MesonLSP *.src.rpm
