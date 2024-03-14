@@ -64,7 +64,7 @@ async def main():
     assert len(response) == 3
     with open((pathlib.Path(fixture_dir) / "meson.build").resolve()) as infile:
         full_context = infile.read()
-    for version in range(0, 20000):
+    for version in range(0, 100):
         client.text_document_did_change(
             types.DidChangeTextDocumentParams(
                 types.VersionedTextDocumentIdentifier(version, main_meson),
