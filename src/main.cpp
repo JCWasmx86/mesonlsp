@@ -27,6 +27,13 @@
 #include <stdio.h>
 #endif
 
+#ifdef USE_MIMALLOC
+#include <mimalloc.h>
+#endif
+#ifdef USE_JEMALLOC
+#include <jemalloc/jemalloc.h>
+#endif
+
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
             << std::endl;
@@ -59,10 +66,10 @@ void printVersion() {
   std::cout << "Using C++ compiler:     " << CXX_VERSION << std::endl;
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
 #ifdef USE_MIMALLOC
-  std::cout << "Using mimalloc" << std::endl;
+  std::cout << "Using mimalloc: " << MI_MALLOC_VERSION << std::endl;
 #endif
 #ifdef USE_JEMALLOC
-  std::cout << "Using jemalloc" << std::endl;
+  std::cout << "Using jemalloc: " << JEMALLOC_VERSION << std::endl;
 #endif
 }
 

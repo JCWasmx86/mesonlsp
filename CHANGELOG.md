@@ -1,3 +1,6 @@
+# 4.1.0 (Mar 14 2024)
+- Reduce memory usage
+- Improved error handling.
 # 4.0.0 (Mar 13 2024)
 - Rewrite in C++
 - Rename binary to `mesonlsp`
