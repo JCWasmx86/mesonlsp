@@ -65,8 +65,8 @@ void InlayHintVisitor::visitFunctionExpression(FunctionExpression *node) {
       break;
     }
     auto pos = LSPPosition(arg->location.startLine, arg->location.startColumn);
-
-    this->hints.emplace_back(pos, posArg->name + ":");
+    const auto *suffix = posArg->varargs ? "…:" : ":";
+    this->hints.emplace_back(pos, posArg->name + suffix);
     posIdx++;
   }
 }
@@ -114,8 +114,8 @@ void InlayHintVisitor::visitMethodExpression(MethodExpression *node) {
       break;
     }
     auto pos = LSPPosition(arg->location.startLine, arg->location.startColumn);
-
-    this->hints.emplace_back(pos, posArg->name + ":");
+    const auto *suffix = posArg->varargs ? "…:" : ":";
+    this->hints.emplace_back(pos, posArg->name + suffix);
     posIdx++;
   }
 }
