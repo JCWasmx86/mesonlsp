@@ -1,6 +1,6 @@
 str::splitlines,1.2.0
 str::substring,0.56.0
-meson::add_devenv,0.58.0,
+meson::add_devenv,0.58.0
 meson::add_dist_script,0.48.0
 meson::backend,0.37.0
 meson::build_options,1.1.0
