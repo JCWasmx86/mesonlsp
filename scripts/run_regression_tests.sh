@@ -12,6 +12,7 @@ cd mesa || exit
 cd .. || exit
 git clone --depth=1 https://github.com/systemd/systemd
 cd systemd || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
@@ -26,42 +27,52 @@ cd glib || exit
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gnome-builder
 cd gnome-builder || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://gitlab.gnome.org/World/fractal.git
 cd fractal || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gitg
 cd gitg || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/JCWasmx86/GNOME-Builder-Plugins
 cd GNOME-Builder-Plugins || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://gitlab.com/qemu-project/qemu
 cd qemu || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/harfbuzz/harfbuzz
 cd harfbuzz || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gdk-pixbuf
 cd gdk-pixbuf || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/cisco/libsrtp
 cd libsrtp || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://gitlab.freedesktop.org/wayland/wayland
 cd wayland || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://gitlab.freedesktop.org/xorg/xserver
 cd xserver || exit
+$LSPPATH
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 
