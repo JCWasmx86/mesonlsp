@@ -49,7 +49,7 @@ jobs:
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: mesonlsp-alpine-static.zip
+          file: mesonlsp-x86_64-unknown-linux-musl.zip
           verbose: true
           update_latest_release: true
         env:
@@ -100,7 +100,7 @@ jobs:
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: mesonlsp-windows.zip
+          file: mesonlsp-x86_64-pc-windows-gnu.zip
           verbose: true
           update_latest_release: true
         env:
@@ -108,11 +108,15 @@ jobs:
   macos:
     strategy:
       matrix:
-        version: [13, 14]
-    runs-on: macos-${{ matrix.version }}
+        id:
+          [
+            { version: 13, triple: "x86_64-apple-darwin" },
+            { version: 14, triple: "aarch64-apple-darwin" },
+          ]
+    runs-on: macos-${{ matrix.id.version }}
     steps:
       - uses: actions/checkout@v1
-      - name: Build on macOS ${{ matrix.version }}
+      - name: Build on macOS ${{ matrix.id.version }}
         run: |
           brew unlink pkg-config
           brew link --overwrite python@3.12 || true
@@ -136,11 +140,11 @@ jobs:
           cp _build/src/mesonlsp ${{ github.workspace }}/Artifacts/mesonlsp
           brew list --versions -d >> ${{ github.workspace }}/Artifacts/env.txt
           cp COPYING ${{ github.workspace }}/Artifacts/COPYING
-          zip -9jpr mesonlsp-macos-${{ matrix.version }}.zip ${{ github.workspace }}/Artifacts/*
+          zip -9jpr mesonlsp-${{ matrix.id.triple }}.zip ${{ github.workspace }}/Artifacts/*
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
-          file: mesonlsp-macos-${{ matrix.version }}.zip
+          file: mesonlsp-${{ matrix.id.triple }}.zip
           verbose: true
           update_latest_release: true
         env:

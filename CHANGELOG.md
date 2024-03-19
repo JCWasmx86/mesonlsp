@@ -1,3 +1,6 @@
+# 4.1.1 (Mar 19 2024)
+- Adjust artifact names
+- New AUR package by @polyzen
 # 4.1.0 (Mar 14 2024)
 - Reduce memory usage
 - Improved error handling.
