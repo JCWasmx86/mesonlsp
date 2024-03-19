@@ -132,7 +132,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.id.triple }}.zip
-          path: github.workspace }}/mesonlsp
+          path: ${{ github.workspace }}/mesonlsp
   sanitizers:
     strategy:
       matrix:
