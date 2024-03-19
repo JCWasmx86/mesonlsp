@@ -28,7 +28,7 @@ jobs:
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
-          name: mesonlsp-debian-${{ matrix.version }}-x86_64-unknown-linux-gnu.zip
+          name: mesonlsp-debian-${{ matrix.version }}-x86_64-unknown-linux-gnu
           path: /mesonlsp
   alpine:
     runs-on: ubuntu-22.04
@@ -48,7 +48,7 @@ jobs:
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
-          name: x86_64-unknown-linux-musl.zip
+          name: x86_64-unknown-linux-musl
           path: /mesonlsp
   windows:
     runs-on: windows-latest
@@ -131,7 +131,7 @@ jobs:
           _build/tests/libcxathrow/cxathrowtest
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.id.triple }}.zip
+          name: ${{ matrix.id.triple }}
           path: ${{ github.workspace }}/mesonlsp
   sanitizers:
     strategy:
@@ -176,7 +176,7 @@ jobs:
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
-          name: Fedora${{ matrix.version }}.zip
+          name: Fedora${{ matrix.version }}
           path: /mesonlsp
   fedora_in_container_clang:
     strategy:
@@ -200,5 +200,5 @@ jobs:
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@v3
         with:
-          name: Fedora${{ matrix.version }}-clang.zip
+          name: Fedora${{ matrix.version }}-clang
           path: /mesonlsp
