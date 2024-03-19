@@ -71,7 +71,7 @@ Install the official meson extension. If you don't have MesonLSP in the PATH,
 it will ask you whether it should download the language server.
 #### GNOME Builder 45 and GNOME Builder Nightly (Official support)
 You have to do nothing. The editor already has the support code for MesonLSP. All you have to do is
-installing the language server.
+install the language server.
 #### Kate (No official support)
 Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
@@ -94,8 +94,10 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
 ```
 After that, a dialog should be shown asking you to confirm that the language server may be started.
 
-#### neovim (No official support)
-Add this JSON to `:CocConfig`:
+#### Neovim
+nvim-lspconfig has the [mesonlsp server configuration](https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/mesonlsp.lua) you can use.
+
+For coc.nvim, add this JSON to `:CocConfig`:
 ```
 {
     "languageserver": {
