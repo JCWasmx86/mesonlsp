@@ -45,7 +45,7 @@ jobs:
           sudo apt-get -y install podman
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
-          sudo cp out/mesonlsp-alpine-static.zip .
+          sudo cp out/mesonlsp-alpine-static.zip mesonlsp-x86_64-unknown-linux-musl.zip
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
@@ -96,7 +96,7 @@ jobs:
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
           pacman -Q > /d/Artifacts/env.txt
           cp COPYING /d/Artifacts/COPYING
-          zip -9jpr mesonlsp-windows.zip /d/Artifacts/*
+          zip -9jpr mesonlsp-x86_64-pc-windows-gnu.zip /d/Artifacts/*
       - name: Upload to release
         uses: xresloader/upload-to-github-release@main
         with:
