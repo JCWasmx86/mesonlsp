@@ -49,7 +49,9 @@ install_dir = get_option('prefix') / get_option('bindir')
 install_symlink(
     'Swift-MesonLSP',
     install_dir: install_dir,
-    pointing_to: install_dir / 'mesonlsp',
+    pointing_to: install_dir / (
+        host_machine.system() == 'windows' ? 'mesonlsp.exe' : 'mesonlsp'
+    ),
 )
 
 subdir('benchmarks')
