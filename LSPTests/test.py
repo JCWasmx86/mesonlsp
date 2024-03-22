@@ -72,6 +72,15 @@ async def main():
             )
         )
         full_context += "\n"
+    await asyncio.sleep(2)
+    response = await client.text_document_formatting_async(
+        types.DocumentFormattingParams(
+            types.TextDocumentIdentifier(main_meson),
+            types.FormattingOptions(4, True, True, True, True),
+        )
+    )
+    assert response is not None and len(response) == 1
+    logging.info(f"Returned from formatting: {repr(response[0].new_text)}")
     await client.shutdown_async(None)
     client.exit(None)
     await asyncio.sleep(1)
