@@ -1,3 +1,5 @@
+# 4.x.yz (XXX XX 2024)
+- Add formatting support for windows
 # 4.1.1 (Mar 19 2024)
 - Adjust artifact names
 - New AUR package by @polyzen
