@@ -7,6 +7,7 @@ mkdir __regressions
 cd __regressions || exit
 git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa
 cd mesa || exit
+$LSPPATH
 # Two undefined variables, I assume it's an error on mesa side
 [ "$($LSPPATH |& grep 🔴 -c)" -le "2" ] || exit 1
 cd .. || exit
@@ -17,11 +18,13 @@ $LSPPATH
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
 cd gtk || exit
+$LSPPATH
 # Undefined variables in dead code
 [ "$($LSPPATH |& grep 🔴 -c)" -eq "6" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
+$LSPPATH
 # Type error in rarely used codepath (Solaris) (Probably) and parameter OOB
 [ "$($LSPPATH |& grep 🔴 -c)" -le "2" ] || exit 1
 cd .. || exit
