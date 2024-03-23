@@ -77,7 +77,7 @@ jobs:
       - name: Build on Windows
         run: |
           pip install pygls lsprotocol
-          meson setup _build --buildtype release -Db_lto=true --debug
+          meson setup _build -Doptimization=3 -Ddebug=true -Db_lto=true
           ninja -C _build
           sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
           sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=sys.stderr/g" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
@@ -124,7 +124,7 @@ jobs:
           sudo rm $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
-          meson setup _build --buildtype release -Db_lto=true --default-library=static --prefer-static --debug
+          meson setup _build -Doptimization=3 -Ddebug=true -Db_lto=true --default-library=static --prefer-static
           ninja -C _build
           for i in {0..10}; do ninja -C _build test; done
           otool -L _build/src/mesonlsp
