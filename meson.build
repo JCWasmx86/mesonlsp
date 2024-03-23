@@ -6,7 +6,7 @@ project(
         'cpp_std=gnu++23',
         'warning_level=3',
     ],
-    version: 'v4.1.2',
+    version: 'v4.1.3',
 )
 
 if get_option('buildtype') == 'release'
