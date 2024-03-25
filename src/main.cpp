@@ -34,6 +34,28 @@
 #include <jemalloc/jemalloc.h>
 #endif
 
+__attribute__((noinline)) void f4() { throw std::runtime_error("test"); }
+
+__attribute__((noinline)) void f3() { f4(); }
+
+__attribute__((noinline)) void f2() { f3(); }
+
+__attribute__((noinline)) void f1() { f2(); }
+
+__attribute__((noinline)) void g7() { f1(); }
+
+__attribute__((noinline)) void g6() { g7(); }
+
+__attribute__((noinline)) void g5() { g6(); }
+
+__attribute__((noinline)) void g4() { g5(); }
+
+__attribute__((noinline)) void g3() { g4(); }
+
+__attribute__((noinline)) void g2() { g3(); }
+
+__attribute__((noinline)) void g1() { g2(); }
+
 void printHelp() {
   std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
             << std::endl;
@@ -183,6 +205,10 @@ int main(int argc, char **argv) {
   bool error = false;
   bool full = false;
   for (int i = 1; i < argc; i++) {
+    if (strcmp("--crash-test", argv[i]) == 0) {
+      g1();
+      return 0;
+    }
     if (strcmp("--lsp", argv[i]) == 0) {
       lsp = true;
       continue;
