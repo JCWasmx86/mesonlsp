@@ -9,9 +9,9 @@ CxaThrowType origCxaThrow = nullptr;
 #else
 #define EXPORT
 #endif
-extern "C" EXPORT void __cxa_throw /*NOLINT*/ (void *thrown_exception,
-                                               void *pvtinfo,
-                                               void (*dest)(void *)) {
+extern "C" EXPORT __attribute__((noreturn)) void
+    __cxa_throw /*NOLINT*/ (void *thrown_exception, void *pvtinfo,
+                            void (*dest)(void *)) {
   if (origCxaThrow == nullptr) {
     origCxaThrow = (CxaThrowType)dlsym(RTLD_NEXT, "__cxa_throw");
   }

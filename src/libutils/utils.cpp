@@ -24,7 +24,7 @@
 #ifndef _WIN32
 #include <pwd.h>
 #include <sys/wait.h>
-#define MODE "wb"
+constexpr auto MODE = "wb";
 #else
 #include <shlobj.h>
 #include <windows.h>
@@ -33,7 +33,7 @@
 #define archive_read_open_filename archive_read_open_filename_w
 #define archive_entry_hardlink archive_entry_hardlink_w
 #define fopen _wfopen
-#define MODE L"wb"
+constexpr auto MODE = L"wb";
 #endif
 #include <string>
 #include <sys/types.h>
@@ -249,13 +249,13 @@ captureProcessOutput(const std::string &executable,
   close(pipefd[1]); // Close the write end of the pipe
 
   std::string output;
-  std::array<char, 1024> buffer;
-  std::mutex mtx;
 
-  auto readFromPipe = [&]() {
+  auto readFromPipe = [pipefd, &output]() {
+    std::array<char, 1024> buffer;
     ssize_t bytesRead;
+    std::mutex mtx;
     while ((bytesRead = read(pipefd[0], buffer.data(), buffer.size())) > 0) {
-      std::unique_lock<std::mutex> lock(mtx);
+      std::unique_lock lock(mtx);
       output += std::string(buffer.data(), bytesRead);
       lock.unlock();
     }

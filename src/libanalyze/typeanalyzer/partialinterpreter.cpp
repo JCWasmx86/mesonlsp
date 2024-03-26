@@ -32,7 +32,8 @@ std::vector<std::string> splitString(const std::string &str);
 
 std::vector<std::string> guessSetVariable(FunctionExpression *fe,
                                           OptionState &opts) {
-  if (!fe->args || fe->args->type != NodeType::ARGUMENT_LIST) {
+  using enum NodeType;
+  if (!fe->args || fe->args->type != ARGUMENT_LIST) {
     return {};
   }
   const auto *al = static_cast<const ArgumentList *>(fe->args.get());
@@ -43,9 +44,9 @@ std::vector<std::string> guessSetVariable(FunctionExpression *fe,
   Node *parent = fe;
   while (true) {
     const auto *probableParent = parent->parent;
-    if (probableParent->type == NodeType::ITERATION_STATEMENT ||
-        probableParent->type == NodeType::SELECTION_STATEMENT ||
-        probableParent->type == NodeType::BUILD_DEFINITION) {
+    if (probableParent->type == ITERATION_STATEMENT ||
+        probableParent->type == SELECTION_STATEMENT ||
+        probableParent->type == BUILD_DEFINITION) {
       break;
     }
     parent = parent->parent;

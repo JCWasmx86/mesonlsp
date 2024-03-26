@@ -27,7 +27,7 @@ public:
   void initPkgNames();
   std::vector<std::shared_ptr<Workspace>> workspaces;
 #ifdef HAS_INOTIFY
-  volatile int inotifyFd{-1};
+  std::atomic<int> inotifyFd{-1};
   std::future<void> inotifyFuture;
 #endif
   std::map<std::filesystem::path, std::string> cachedContents;

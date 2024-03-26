@@ -34,7 +34,9 @@
 #include <jemalloc/jemalloc.h>
 #endif
 
-__attribute__((noinline)) void f4() { throw std::runtime_error("test"); }
+__attribute__((noinline, noreturn)) void f4() {
+  throw std::runtime_error("test");
+}
 
 __attribute__((noinline)) void f3() { f4(); }
 

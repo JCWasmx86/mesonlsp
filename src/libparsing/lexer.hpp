@@ -184,7 +184,7 @@ public:
   uint32_t endLine;
   uint16_t startColumn;
   uint16_t endColumn;
-  uint32_t idx;
+  size_t idx;
   TokenType type = TokenType::INVALID;
 
   Token(uint32_t startLine, uint16_t startColumn)

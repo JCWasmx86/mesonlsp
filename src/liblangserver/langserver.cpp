@@ -78,7 +78,7 @@ void LanguageServer::initPkgNames() {
   this->pkgNames.clear();
   auto soutOpt = captureProcessOutput("pkg-config", {"--list-all"});
   if (soutOpt.has_value()) {
-    auto sout = soutOpt.value();
+    const auto &sout = soutOpt.value();
     std::string pkgName;
     std::string pkgDescription;
     auto state = 0;
@@ -107,10 +107,8 @@ void LanguageServer::initPkgNames() {
         }
         continue;
       }
-      if (state == 2) {
-        if (chr != '\r') {
-          pkgDescription.push_back(chr);
-        }
+      if (state == 2 && chr != '\r') {
+        pkgDescription.push_back(chr);
       }
     }
     return;

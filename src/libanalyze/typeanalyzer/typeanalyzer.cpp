@@ -1575,29 +1575,28 @@ bool TypeAnalyzer::ignoreIdExpression(IdExpression *node) {
     }
     goto end;
   }
-  {
-    if (parent->type == KEYWORD_ITEM) {
-      const auto *kwi = static_cast<KeywordItem *>(parent);
-      if (kwi->key->equals(node)) {
-        return true;
-      }
-      goto end;
-    }
-    if (parent->type == ASSIGNMENT_STATEMENT) {
-      const auto *ass = static_cast<AssignmentStatement *>(parent);
-      if (ass->lhs->equals(node)) {
-        return true;
-      }
-      goto end;
-    }
-    // The only children of FunctionExpression are <ID>(<ARGS>)
-    if (parent->type == FUNCTION_EXPRESSION) {
+
+  if (parent->type == KEYWORD_ITEM) {
+    const auto *kwi = static_cast<KeywordItem *>(parent);
+    if (kwi->key->equals(node)) {
       return true;
     }
-    if (parent->type == ITERATION_STATEMENT) {
-      return !static_cast<const IterationStatement *>(parent)
-                  ->expression->equals(node);
+    goto end;
+  }
+  if (parent->type == ASSIGNMENT_STATEMENT) {
+    const auto *ass = static_cast<AssignmentStatement *>(parent);
+    if (ass->lhs->equals(node)) {
+      return true;
     }
+    goto end;
+  }
+  // The only children of FunctionExpression are <ID>(<ARGS>)
+  if (parent->type == FUNCTION_EXPRESSION) {
+    return true;
+  }
+  if (parent->type == ITERATION_STATEMENT) {
+    return !static_cast<const IterationStatement *>(parent)->expression->equals(
+        node);
   }
 end:
   return std::ranges::find(this->ignoreUnknownIdentifier, node->id) !=
@@ -2168,12 +2167,14 @@ void TypeAnalyzer::visitMethodExpression(MethodExpression *node) {
         continue;
       }
       for (const auto &subprojName : subprojType->names) {
+        auto ifFalse =
+            this->tree->parent
+                ? this->tree->parent->state.findSubproject(subprojName)
+                : nullptr;
         const auto &subproj =
             this->tree->state.hasSubproject(subprojName)
                 ? this->tree->state.findSubproject(subprojName)
-                : (this->tree->parent
-                       ? this->tree->parent->state.findSubproject(subprojName)
-                       : nullptr);
+                : ifFalse;
         if (!subproj) {
           LOG.warn(std::format("Unable to find subproject {}", subprojName));
           continue;
