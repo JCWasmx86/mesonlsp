@@ -1,10 +1,8 @@
 if not get_option('benchmarks')
     subdir_done()
 endif
-benchmark_dep = subproject('google-benchmark').get_variable(
-    'google_benchmark_dep',
-)
-if not benchmark_dep.found() or not get_option('benchmarks')
+benchmark_dep = dependency('benchmark', version: '>= 1.7.1', allow_fallback: true, required: false)
+if not benchmark_dep.found()
     subdir_done()
 endif
 executable(
