@@ -1,6 +1,4 @@
-%global debug_package %{nil}
 %global __meson_wrap_mode default
-%undefine _auto_set_build_flags
 
 Name:           mesonlsp
 Version:        4.1.3
@@ -42,7 +40,7 @@ A meson language server
 %autosetup
 
 %build
-%meson --buildtype release 
+%meson
 %meson_build
 
 %install
