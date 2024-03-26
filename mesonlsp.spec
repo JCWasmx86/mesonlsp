@@ -9,29 +9,24 @@ ExclusiveArch:  x86_64
 License:        GPL-3.0-or-later
 Source0:        https://github.com/JCWasmx86/mesonlsp/archive/v%{version}/%{name}-%{version}.tar.gz
 
-Requires:       curl
-Requires:       libarchive
 Requires:       patch
 Requires:       git
 Requires:       mercurial
 Requires:       subversion
-Requires:       libpkgconf
-Requires:       libuuid
 BuildRequires:  meson
 BuildRequires:  ninja-build
 BuildRequires:  gcc
 BuildRequires:  g++
 BuildRequires:  git
-BuildRequires:  python3-pip
-BuildRequires:  libcurl-devel
-BuildRequires:  google-benchmark-devel
-BuildRequires:  libarchive-devel
-BuildRequires:  gtest
-BuildRequires:  gtest-devel
-BuildRequires:  libpkgconf-devel
-BuildRequires:  libuuid-devel
-BuildRequires:  uuid
-BuildRequires:  pkgconf-pkg-config
+BuildRequires:  pkgconfig(benchmark)
+BuildRequires:  pkgconfig(gtest)
+BuildRequires:  pkgconfig(libarchive)
+BuildRequires:  pkgconfig(libcurl)
+BuildRequires:  pkgconfig(libpkgconf)
+BuildRequires:  pkgconfig(nlohmann_json)
+BuildRequires:  pkgconfig(uuid)
+BuildRequires:  python3dist(lsprotocol)
+BuildRequires:  python3dist(pygls)
 
 %description
 A meson language server
