@@ -3,49 +3,51 @@ project(
     'c',
     'cpp',
     default_options: [
+        'b_ndebug=if-release',
         'cpp_std=gnu++23',
         'warning_level=3',
     ],
     version: 'v4.1.3',
 )
 
-if get_option('buildtype') == 'release'
-    add_global_arguments(['-D_FORTIFY_SOURCE=3', '-DNDEBUG'], language: 'c')
-    add_global_arguments(['-D_FORTIFY_SOURCE=3', '-DNDEBUG'], language: 'cpp')
-else
-    add_global_arguments(
-        ['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'],
-        language: 'cpp',
-    )
-endif
-
 cc = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
 
-extra_flags = [
-    '-fstack-protector-strong',
-    '-g3',
-]
+buildtype = get_option('buildtype')
+if buildtype != 'plain'
+    if buildtype == 'release'
+        extra_flags = ['-D_FORTIFY_SOURCE=3']
+    else
+        extra_flags = []
+        add_global_arguments(
+            ['-D_GLIBCXX_ASSERTIONS=1', '-D_GLIBCXX_DEBUG=1'],
+            language: 'cpp',
+        )
+    endif
 
-if cc.get_id() == 'gcc'
-    extra_flags += ['-Wshadow=local', '-fstack-clash-protection']
+    extra_flags += [
+        '-fstack-protector-strong',
+        '-g3',
+    ]
+
+    if cc.get_id() == 'gcc'
+        extra_flags += ['-Wshadow=local', '-fstack-clash-protection']
+    endif
+
+    if host_machine.system() == 'linux'
+        extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
+    endif
+
+    global_link_args = host_machine.system() == 'windows' ? [] : ['-rdynamic']
+    if host_machine.system() == 'linux'
+        global_link_args += ['-Wl,-z,relro,-z,now']
+    elif host_machine.system() == 'darwin'
+        global_link_args += ['-Wl,-ld_classic']
+    endif
+
+    add_global_arguments(extra_flags, language: ['c', 'cpp'])
+    add_global_link_arguments(global_link_args, language: ['c', 'cpp'])
 endif
-
-if host_machine.system() == 'linux'
-    extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
-endif
-
-global_link_args = host_machine.system() == 'windows' ? [] : ['-rdynamic']
-if host_machine.system() == 'linux'
-    global_link_args += ['-Wl,-z,relro,-z,now']
-elif host_machine.system() == 'darwin'
-    global_link_args += ['-Wl,-ld_classic']
-endif
-
-add_global_link_arguments(global_link_args, language: 'c')
-add_global_link_arguments(global_link_args, language: 'cpp')
-add_global_arguments(extra_flags, language: 'c')
-add_global_arguments(extra_flags, language: 'cpp')
 
 if not get_option('use_own_tree_sitter')
     tree_sitter_dep = dependency(
