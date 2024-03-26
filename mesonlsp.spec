@@ -9,7 +9,7 @@ Summary:        Meson language server
 ExclusiveArch:  x86_64
 
 License:        GPL-3.0-or-later
-Source0:        https://github.com/JCWasmx86/Swift-MesonLSP/archive/refs/tags/v%{version}.tar.gz
+Source0:        https://github.com/JCWasmx86/mesonlsp/archive/v%{version}/%{name}-%{version}.tar.gz
 
 Requires:       curl
 Requires:       libarchive
@@ -39,15 +39,13 @@ BuildRequires:  pkgconf-pkg-config
 A meson language server
 
 %prep
-%autosetup -c
+%autosetup
 
 %build
-cd mesonlsp-%{version}
 %meson --buildtype release 
 %meson_build
 
 %install
-cd mesonlsp-%{version}
 %meson_install
 
 %files
