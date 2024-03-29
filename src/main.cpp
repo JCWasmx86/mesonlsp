@@ -78,7 +78,7 @@ void printHelp() {
                "files containing auxiliary files"
             << std::endl;
   std::cerr
-      << "--full \t\t\tFully setup and check a project (Includes subprojects)"
+      << "--full \t\t\t\tFully setup and check a project (Includes subprojects)"
       << std::endl;
   std::cerr << "--version    \t\t\tPrint version" << std::endl;
   std::cerr << "--help       \t\t\tPrint this help" << std::endl;
