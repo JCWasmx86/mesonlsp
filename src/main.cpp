@@ -59,7 +59,7 @@ __attribute__((noinline)) void g2() { g3(); }
 __attribute__((noinline)) void g1() { g2(); }
 
 void printHelp() {
-  std::cerr << "Usage: Swift-MesonLSP [<options>] [<paths> ...]" << std::endl
+  std::cerr << "Usage: mesonlsp [<options>] [<paths> ...]" << std::endl
             << std::endl;
   std::cerr << "ARGUMENTS:" << std::endl;
   std::cerr << "  <paths>\tPath to parse" << std::endl << std::endl;
