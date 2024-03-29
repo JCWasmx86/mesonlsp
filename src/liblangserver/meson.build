@@ -22,7 +22,7 @@ langserver_lib = static_library(
     'documentsymbolvisitor.cpp',
     'codeactionvisitor.cpp',
     'hover.cpp',
-    'muon_fmt_hack.c',
+    'formatting.cpp',
     cpp_args: [
         '-DVERSION="' + meson.project_version() + '"',
     ],

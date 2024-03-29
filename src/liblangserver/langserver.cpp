@@ -1,5 +1,6 @@
 #include "langserver.hpp"
 
+#include "formatting.hpp"
 #include "langserverutils.hpp"
 #include "libpkgconf/iter.h"
 #include "log.hpp"
@@ -11,10 +12,7 @@
 #include <cassert>
 #include <cerrno>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <exception>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -25,8 +23,6 @@
 #include <memory>
 #include <optional>
 #include <ostream>
-#include <random>
-#include <stdexcept>
 #include <string>
 #ifdef HAS_INOTIFY
 #include <poll.h>
@@ -35,11 +31,7 @@
 #include <vector>
 extern "C" {
 // Dirty hack
-#define ast muon_ast
-#define fmt muon_fmt
-#include <lang/fmt.h>
 #include <log.h>
-#include <platform/filesystem.h>
 #include <platform/init.h>
 #undef ast
 #undef fmt
@@ -402,53 +394,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   if (configFile.empty()) {
     configFile = writeMuonConfigFile(params.options);
   }
-#ifndef _WIN32
-  const auto *labelPath = path.c_str();
-#else
-  const wchar_t *labelPathW = path.c_str();
-  char *labelPath = (char *)calloc(path.generic_string().size() * 2, 1);
-  // Should be use wcstombs_s?
-  wcstombs(labelPath, labelPathW, path.generic_string().size() * 2);
-#endif
-  struct source src = {.label = labelPath,
-                       .src = strdup(toFormat.data()),
-                       .len = toFormat.size(),
-                       .reopen_type = source_reopen_type_none};
-#ifndef _WIN32
-  char *formattedStr;
-  size_t formattedSize;
-  auto *output = open_memstream(&formattedStr, &formattedSize);
-#else
-  static std::random_device device;
-  static std::mt19937 gen(device());
-  std::uniform_real_distribution<double> dist(0, UINT32_MAX);
-
-  auto tmpPath = std::filesystem::temp_directory_path() /
-                 std::format("mesonlsp-muon-format-{}", dist(gen));
-  auto *output = ::fopen(tmpPath.generic_string().data(), "wb");
-#endif
-  auto fmtRet =
-      muon_fmt(&src, output, configFile.generic_string().c_str(), false, true);
-  if (!fmtRet) {
-    (void)fclose(output);
-    free((void *)src.src);
-#ifndef _WIN32
-    free(formattedStr);
-#else
-    free(labelPath);
-#endif
-    LOG.error("Failed to format");
-    throw std::runtime_error("Failed to format");
-  }
-  (void)fflush(output);
-  (void)fclose(output);
-#ifndef _WIN32
-  std::string const asString(static_cast<const char *>(formattedStr),
-                             formattedSize);
-#else
-  const auto asString = readFile(tmpPath);
-#endif
-
+  auto asString = formatFile(path, toFormat, configFile);
   // Editors don't care, if we tell them, that the file is
   // a lot longer than it really is, so we just guess some
   // number of lines.
@@ -456,11 +402,6 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   auto edit = TextEdit(
       LSPRange(LSPPosition(0, 0), LSPPosition(guesstimatedLines, 2000)),
       std::string(asString));
-#ifndef _WIN32
-  free(formattedStr);
-#else
-  free(labelPath);
-#endif
   return edit;
 }
 
