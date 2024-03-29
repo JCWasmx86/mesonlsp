@@ -55,3 +55,4 @@ install_symlink(
 )
 
 subdir('benchmarks')
+subdir('lint')
