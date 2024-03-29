@@ -85,7 +85,7 @@ void printHelp() {
 }
 
 void printVersion() {
-  std::cout << "Swift-MesonLSP version: " << VERSION << std::endl;
+  std::cout << "mesonlint version: " << VERSION << std::endl;
   std::cout << "Using C compiler:       " << CC_VERSION << std::endl;
   std::cout << "Using C++ compiler:     " << CXX_VERSION << std::endl;
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
