@@ -1,11 +1,14 @@
 #include "lintingconfig.hpp"
 
-#include "toml++/impl/forward_declarations.hpp"
-
+#include <filesystem>
 #include <toml++/toml.hpp>
 
 void MesonLintConfig::load(const std::filesystem::path &path) {
-  auto result = toml::parse_file(path.generic_string());
+  const auto &configFile = path / ".mesonlint.toml";
+  if (!std::filesystem::exists(configFile)) {
+    return;
+  }
+  auto result = toml::parse_file(configFile.generic_string());
   if (result.contains("formatting") &&
       result.get("formatting")->type() == toml::v3::node_type::table) {
     const auto *formatting = result["formatting"].as_table();
