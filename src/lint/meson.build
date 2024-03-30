@@ -1,6 +1,11 @@
+tomlplusplus_dep = dependency(
+    'tomlplusplus',
+    default_options: ['compile_library=false', 'build_lib=false'],
+)
 executable(
     'mesonlint',
     'main.cpp',
+    'lintingconfig.cpp',
     link_args: extra_link_args,
     cpp_args: [
         '-DVERSION="' + version + '"',
@@ -14,6 +19,7 @@ executable(
         log_dep,
         objects_dep,
         cxathrow_dep,
+        tomlplusplus_dep,
     ] + extra_deps + extra_libs,
     install: true,
     pie: host_machine.system() == 'linux',

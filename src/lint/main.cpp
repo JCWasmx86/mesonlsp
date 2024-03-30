@@ -1,7 +1,9 @@
+#include "lintingconfig.hpp"
 #include "polyfill.hpp"
 
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <iostream>
 #include <sys/types.h>
@@ -93,6 +95,14 @@ int main(int argc, char **argv) {
   if (!std::filesystem::exists(root / "meson.build")) {
     std::cerr << std::format("Failed to find meson.build file in {}",
                              root.generic_string())
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  MesonLintConfig config;
+  try {
+    config.load(root);
+  } catch (const std::exception &exc) {
+    std::cerr << std::format("Failed to load config: {}", exc.what())
               << std::endl;
     return EXIT_FAILURE;
   }

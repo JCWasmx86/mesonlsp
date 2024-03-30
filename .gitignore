@@ -14,3 +14,4 @@ subprojects/tinyjson.wrap
 subprojects/tree-sitter-0.20.8/
 subprojects/tree-sitter-ini/
 subprojects/tree-sitter-meson/
+subprojects/tomlplusplus-3.4.0/
