@@ -63,7 +63,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup dependencies
       run: |
-        sudo dnf install libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
+        sudo dnf install which libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
         pip install meson pygls lsprotocol
 
     # Initializes the CodeQL tools for scanning.
