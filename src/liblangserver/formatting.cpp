@@ -11,6 +11,12 @@ extern "C" {
 #undef ast
 #undef fmt
 }
+#ifdef _WIN32
+#include "polyfill.hpp"
+#include "utils.hpp"
+
+#include <random>
+#endif
 const static Logger LOG("formatting"); // NOLINT
 
 std::string formatFile(const std::filesystem::path &path,
