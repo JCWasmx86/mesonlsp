@@ -86,6 +86,9 @@ int main(int argc, char **argv) {
     std::cerr << "Too many paths given." << std::endl;
     return EXIT_FAILURE;
   }
+  if (numPaths == 0) {
+    path = ".";
+  }
   std::filesystem::path root = path;
   if (!std::filesystem::exists(root)) {
     std::cerr << std::format("{} does not exist", root.generic_string())
