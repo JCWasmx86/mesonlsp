@@ -148,8 +148,14 @@ bool extractFile(const std::filesystem::path &archivePath,
                             archive_error_string(archive)));
       goto cleanup;
     }
-    auto entryPath =
-        outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
+    std::string entryPathname = archive_entry_pathname(entry);
+    if (entryPathname.contains("..")) {
+      LOG.warn(std::format(
+          "Attempted directory traversal with this entry: {}, ignoring it",
+          entryPathname));
+      continue;
+    }
+    auto entryPath = outputDirectory / entryPathname;
     archive_entry_set_pathname_utf8(entry, entryPath.string().c_str());
 
     const auto *originalHardlink = archive_entry_hardlink(entry);
