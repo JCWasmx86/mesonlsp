@@ -28,8 +28,10 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners
     # Consider using larger runners for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:39
+    timeout-minutes: 360
     permissions:
       # required for all workflows
       security-events: write
@@ -59,6 +61,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+    - name: Setup dependencies
+      run: |
+        sudo dnf install libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
+        pip install meson pygls lsprotocol
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
