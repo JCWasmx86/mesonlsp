@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   bool version = false;
   bool error = false;
   std::string path;
-  uint numPaths = 0;
+  unsigned int numPaths = 0;
   for (int i = 1; i < argc; i++) {
     if (strcmp("--help", argv[i]) == 0) {
       help = true;
