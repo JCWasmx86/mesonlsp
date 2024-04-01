@@ -25,6 +25,7 @@ jobs:
           dnf -y install @development-tools @rpm-development-tools
           dnf -y install copr-cli make
           wget https://github.com/JCWasmx86/mesonlsp/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz
+          mv ${GITHUB_REF_NAME}.tar.gz mesonlsp-v$(echo ${GITHUB_REF_NAME}|sed s/^v//g).tar.gz
 
       - name: Build the source RPM
         run: rpmbuild -bs mesonlsp.spec --define "_sourcedir $PWD" --define "_srcrpmdir $PWD"
