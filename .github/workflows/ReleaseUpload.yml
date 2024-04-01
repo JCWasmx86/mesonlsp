@@ -123,7 +123,7 @@ jobs:
           brew install zip google-benchmark libarchive pkg-config pkgconf fmt zstd bzip2 libiconv expat xz lz4 zlib subversion mercurial || true
           svn --version
           hg --version
-          python3 -m pip install meson ninja pygls lsprotocol
+          python3 -m pip install --break-system-packages meson ninja pygls lsprotocol
           mkdir libs
           sudo cp $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.a libs
           ls libs
