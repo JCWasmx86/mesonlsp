@@ -1,3 +1,6 @@
+# 4.1.4 (Apr 01 2024)
+- Misc improvements to .spec file and buildsystem
+- Minor fixes
 # 4.1.3 (Mar 23 2024)
 - Add formatting support for windows
 # 4.1.1 (Mar 19 2024)
