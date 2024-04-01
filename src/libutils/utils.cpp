@@ -125,8 +125,7 @@ bool extractFile(const std::filesystem::path &archivePath,
   auto *ext = archive_write_disk_new();
   archive_write_disk_set_options(
       ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
-               ARCHIVE_EXTRACT_FFLAGS | ARCHIVE_EXTRACT_SECURE_NODOTDOT |
-               ARCHIVE_EXTRACT_SECURE_SYMLINKS);
+               ARCHIVE_EXTRACT_FFLAGS | ARCHIVE_EXTRACT_SECURE_NODOTDOT);
   archive_write_disk_set_standard_lookup(ext);
 
   const auto *filename = archivePath.c_str();
