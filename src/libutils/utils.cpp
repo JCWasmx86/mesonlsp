@@ -125,7 +125,8 @@ bool extractFile(const std::filesystem::path &archivePath,
   auto *ext = archive_write_disk_new();
   archive_write_disk_set_options(
       ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
-               ARCHIVE_EXTRACT_FFLAGS);
+               ARCHIVE_EXTRACT_FFLAGS | ARCHIVE_EXTRACT_SECURE_NODOTDOT |
+               ARCHIVE_EXTRACT_SECURE_SYMLINKS);
   archive_write_disk_set_standard_lookup(ext);
 
   const auto *filename = archivePath.c_str();
@@ -148,8 +149,14 @@ bool extractFile(const std::filesystem::path &archivePath,
                             archive_error_string(archive)));
       goto cleanup;
     }
-    auto entryPath =
-        outputDirectory / std::filesystem::path(archive_entry_pathname(entry));
+    std::string entryPathname = archive_entry_pathname(entry);
+    if (entryPathname.contains("..")) {
+      LOG.warn(std::format(
+          "Attempted directory traversal with this entry: {}, ignoring it",
+          entryPathname));
+      continue;
+    }
+    auto entryPath = outputDirectory / entryPathname;
     archive_entry_set_pathname_utf8(entry, entryPath.string().c_str());
 
     const auto *originalHardlink = archive_entry_hardlink(entry);
