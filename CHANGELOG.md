@@ -1,4 +1,6 @@
-# 4.1.4 (Apr 01 2024)
+# 4.1.6 (Apr 01 2024)
+- Minor fix
+# 4.1.5 (Apr 01 2024)
 - Build fix
 # 4.1.4 (Apr 01 2024)
 - Misc improvements to .spec file and buildsystem
