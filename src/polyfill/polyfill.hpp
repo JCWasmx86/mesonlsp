@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(__APPLE__)
-#if __has_include(<format>) or !defined(__x86_64__)
+#if __has_include(<format>) and !defined(__x86_64__)
 #include <format>
 #else
 #include <chrono>
