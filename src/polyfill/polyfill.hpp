@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(__APPLE__) && !__has_include(<format>)
+#if defined(__APPLE__)
+#if __has_include(<format>)
+#include <format>
+#else
 #include <chrono>
 #include <fmt/core.h>
 
@@ -20,6 +23,7 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
     return fmt::format_to(ctx.out(), "{}", tp.time_since_epoch().count());
   }
 };
+#endif
 #else
 #include <format>
 #ifdef _WIN32
