@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !__has_include(<format>)
 #include <chrono>
 #include <fmt/core.h>
 
