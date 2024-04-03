@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: ["main"]
   workflow_dispatch:
+permissions:
+  contents: read
+
 jobs:
   debian:
     strategy:
@@ -13,7 +16,12 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Build on Debian ${{ matrix.version }}
         run: |
           sudo apt purge -y podman
@@ -26,14 +34,19 @@ jobs:
           DOCKER_BUILDKIT=1 docker build --network=host --file docker/Dockerfile.debian${{ matrix.version }} --output out .
           unzip out/mesonlsp-debian-static.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: mesonlsp-debian-${{ matrix.version }}-x86_64-unknown-linux-gnu
           path: /mesonlsp
   alpine:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Build on Alpine
         run: |
           sudo apt purge -y podman
@@ -46,7 +59,7 @@ jobs:
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
           yes | unzip out/mesonlsp-alpine-static.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: mesonlsp-x86_64-unknown-linux-musl
           path: /mesonlsp
@@ -56,8 +69,13 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v1
-      - uses: msys2/setup-msys2@v2
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: msys2/setup-msys2@cc11e9188b693c2b100158c3322424c4cc1dadea # v2.22.0
         with:
           cache: true
           path-type: inherit
@@ -92,7 +110,7 @@ jobs:
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
           ls /d/Artifacts
           find /d/|grep mesonlsp.exe
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: mesonlsp-x86_64-pc-windows-gnu
           path: D:/Artifacts
@@ -106,7 +124,12 @@ jobs:
           ]
     runs-on: macos-${{ matrix.id.version }}
     steps:
-      - uses: actions/checkout@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Build on macOS ${{ matrix.id.version }}
         run: |
           brew unlink pkg-config
@@ -130,7 +153,7 @@ jobs:
           otool -L _build/src/mesonlsp
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
           _build/tests/libcxathrow/cxathrowtest
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: mesonlsp-${{ matrix.id.triple }}
           path: ${{ github.workspace }}/mesonlsp
@@ -143,7 +166,12 @@ jobs:
     container:
       image: fedora:39
     steps:
-      - uses: actions/checkout@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Build on Fedora 39
         run: |
           sudo dnf install libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
@@ -166,7 +194,12 @@ jobs:
     container:
       image: fedora:${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Build on Fedora ${{ matrix.version }}
         run: |
           sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
@@ -175,7 +208,7 @@ jobs:
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
           unzip -o /Fedora${{ matrix.version }}.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: mesonlsp-fedora-${{ matrix.version }}
           path: /mesonlsp
@@ -188,7 +221,12 @@ jobs:
     container:
       image: fedora:${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Build on Fedora ${{ matrix.version }}
         run: |
           sudo dnf install zip ninja-build clang gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
@@ -199,7 +237,7 @@ jobs:
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
           unzip /Fedora${{ matrix.version }}-clang.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: mesonlsp-fedora-${{ matrix.version }}-clang
           path: /mesonlsp
