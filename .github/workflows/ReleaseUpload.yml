@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out proper version of sources
-        uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: Install API token for copr-cli
         env:
@@ -35,7 +35,7 @@ jobs:
   alpine:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - name: Build on Alpine
         run: |
           sudo apt purge -y podman
@@ -61,7 +61,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - uses: msys2/setup-msys2@cc11e9188b693c2b100158c3322424c4cc1dadea # v2.22.0
         with:
           cache: true
@@ -116,7 +116,7 @@ jobs:
           ]
     runs-on: macos-${{ matrix.id.version }}
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - name: Build on macOS ${{ matrix.id.version }}
         run: |
           brew unlink pkg-config

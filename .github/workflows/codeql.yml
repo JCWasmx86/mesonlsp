@@ -68,7 +68,7 @@ jobs:
         egress-policy: audit
 
     - name: Checkout repository
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
     - name: Setup dependencies
       run: |
         sudo dnf install which libasan* libhwasan* liblsan* libtsan* libubsan* zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
