@@ -14,4 +14,3 @@ Add this JSON to `:CocConfig`:
     }
 }
 ```
-

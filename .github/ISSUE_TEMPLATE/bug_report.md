@@ -25,7 +25,7 @@ If applicable, add screenshots/screencasts to help explain your problem.
 
 **System info**
  - OS: For Linux please add your distribution and how you installed Swift-MesonLSP
- - Editor: 
+ - Editor:
  - Version:
 
 **Additional context**

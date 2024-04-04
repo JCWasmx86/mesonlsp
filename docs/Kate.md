@@ -22,4 +22,3 @@ Add this JSON to `~/.config/kate/lspclient/settings.json`:
 }
 ```
 After that, a dialog should be shown asking you to confirm that the language server may be started.
-

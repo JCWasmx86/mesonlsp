@@ -295,7 +295,7 @@ The `fs.hash(filename, hash_algorithm)` method returns a string containing the h
 @fs_module::size:
 The `fs.size(filename)` method returns the size of the file in integer bytes.
 @fs_module::is_samepath:
-The `fs.is_samepath(path1, path2)` returns a boolean `true` if both paths resolve to the same path. 
+The `fs.is_samepath(path1, path2)` returns a boolean `true` if both paths resolve to the same path.
 
 For example, suppose `path1` is a symlink and `path2` is a relative path. If `path1` can be resolved to `path2`, then `true` is returned. If `path1` is not resolved to `path2`, `false` is returned. If `path1` or `path2` do not exist, `false` is returned.
 @fs_module::expanduser:
@@ -315,7 +315,7 @@ Returns the last component of the path, dropping the last part of the suffix
 
 The provided paths should be relative to the current `meson.current_source_dir()` or an absolute path outside the build directory is accepted.
 
-If the file specified by `path` changes, this will trigger Meson to reconfigure the project. 
+If the file specified by `path` changes, this will trigger Meson to reconfigure the project.
 
 If the file specified by `path` is a `files()` object, it cannot refer to a built file.
 @fs_module::copyfile:
@@ -323,10 +323,10 @@ Copy a file from the source directory to the build directory at build time
 @generator::process:
 Takes a list of files, causes them to be processed and returns an object containing the result which can then, for example, be passed into a build target definition.
 @gnome_module::compile_resources:
-This function compiles resources specified in an XML file into code that can be embedded inside the main binary. Similar to a build target, it takes two positional arguments. 
+This function compiles resources specified in an XML file into code that can be embedded inside the main binary. Similar to a build target, it takes two positional arguments.
 
-- The first one is the name of the resource, and 
-- the second is the XML file containing the resource definitions. 
+- The first one is the name of the resource, and
+- the second is the XML file containing the resource definitions.
 
 If the name is `foobar`, Meson will generate a header file called `foobar.h`, which you can then include in your sources. The resources specified are automatically added as dependencies of the generated target.
 @gnome_module::generate_gir:
@@ -441,7 +441,7 @@ Runs the given command after all project files have been generated. This script 
 @meson::backend:
 Returns a string representing the current backend
 @meson::build_root:
-Returns a string with the absolute path to the build root directory. 
+Returns a string with the absolute path to the build root directory.
 
 However, note that this function will return the build root of the parent project if called from a subproject, which might not be the desired behavior in most cases.
 
