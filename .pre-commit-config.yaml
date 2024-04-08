@@ -12,3 +12,10 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
+- repo: https://github.com/pecigonzalo/pre-commit-shfmt
+  rev: v2.1.0
+  hooks:
+    - id: shell-fmt
+      args:
+        - -i
+        - "0"
