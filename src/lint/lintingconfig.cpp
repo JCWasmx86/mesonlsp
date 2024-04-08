@@ -18,6 +18,13 @@ void MesonLintConfig::load(const std::filesystem::path &path) {
       this->formatting.max_line_len =
           (int)formatting->get("max_line_len")->as_integer()->get();
     }
+    if (formatting->contains("mode") &&
+        formatting->get("mode")->type() == toml::v3::node_type::string) {
+      this->formatting.mode =
+          formatting->get("mode")->as_string()->get() == "tracked"
+              ? FileFinderMode::TRACKED
+              : FileFinderMode::ALL;
+    }
     if (formatting->contains("indent_by") &&
         formatting->get("indent_by")->type() == toml::v3::node_type::string) {
       this->formatting.indent_by =

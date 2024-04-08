@@ -3,7 +3,10 @@
 #include <filesystem>
 #include <string>
 
+enum class FileFinderMode { TRACKED, ALL };
+
 struct MuonConfig {
+  FileFinderMode mode = FileFinderMode::TRACKED;
   int max_line_len = 80;
   std::string indent_by = "    ";
   bool space_array = false;
