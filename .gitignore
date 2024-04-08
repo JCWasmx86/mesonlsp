@@ -1,7 +1,8 @@
-failures.txt
-.vscode/
-.gdb_history
 __pycache__
+.gdb_history
+.vscode/
+3rdparty.txt
+failures.txt
 subprojects/ada/
 subprojects/benchmark-1.7.1/
 subprojects/googletest-1.14.0/
@@ -11,7 +12,7 @@ subprojects/nlohmann_json-3.11.2/
 subprojects/pkgconf-2.1.1/
 subprojects/sha256/
 subprojects/tinyjson.wrap
+subprojects/tomlplusplus-3.4.0/
 subprojects/tree-sitter-0.20.8/
 subprojects/tree-sitter-ini/
 subprojects/tree-sitter-meson/
-subprojects/tomlplusplus-3.4.0/

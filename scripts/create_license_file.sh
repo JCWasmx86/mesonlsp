@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+{
+	echo "tree-sitter"
+	curl https://raw.githubusercontent.com/tree-sitter/tree-sitter/master/LICENSE
+	echo "tree-sitter-meson"
+	echo "MIT license"
+	echo "tree-sitter-ini"
+	curl https://raw.githubusercontent.com/JCWasmx86/tree-sitter-ini/master/LICENSE
+	echo "sha256"
+	curl https://raw.githubusercontent.com/amosnier/sha-2/master/LICENSE.md
+	echo "ada-url"
+	curl https://raw.githubusercontent.com/ada-url/ada/main/LICENSE-APACHE
+	curl https://raw.githubusercontent.com/ada-url/ada/main/LICENSE-MIT
+	echo "muon"
+	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/Apache-2.0.txt
+	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/GPL-3.0-only.txt
+	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/MIT.txt
+	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/Unlicense.txt
+	echo "nlohmann-json"
+	curl https://github.com/nlohmann/json/raw/develop/LICENSE.MIT
+	echo "curl"
+	curl https://raw.githubusercontent.com/curl/curl/master/COPYING
+	echo "libarchive"
+	curl https://raw.githubusercontent.com/libarchive/libarchive/master/COPYING
+	echo "util-linux/libuuid"
+	curl https://raw.githubusercontent.com/util-linux/util-linux/master/COPYING
+	echo "libpkgconf"
+	curl https://raw.githubusercontent.com/pkgconf/pkgconf/master/COPYING
+	echo "brotli"
+	curl https://raw.githubusercontent.com/google/brotli/master/LICENSE
+	echo "liblzma"
+	curl https://raw.githubusercontent.com/kobolabs/liblzma/master/COPYING.GPLv2
+	curl https://raw.githubusercontent.com/kobolabs/liblzma/master/COPYING
+	curl https://raw.githubusercontent.com/kobolabs/liblzma/master/COPYING.GPLv3
+	curl https://raw.githubusercontent.com/kobolabs/liblzma/master/COPYING.LGPLv2.1
+	echo "zlib"
+	curl https://raw.githubusercontent.com/madler/zlib/develop/LICENSE
+	echo "jemalloc"
+	curl https://raw.githubusercontent.com/jemalloc/jemalloc/dev/COPYING
+	echo "mimalloc"
+	curl https://raw.githubusercontent.com/microsoft/mimalloc/dev/LICENSE
+	echo "fmt"
+	curl https://raw.githubusercontent.com/fmtlib/fmt/master/LICENSE
+	echo "tomlplusplus"
+	curl https://raw.githubusercontent.com/marzer/tomlplusplus/master/LICENSE
+} >3rdparty.txt
