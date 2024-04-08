@@ -30,7 +30,9 @@ RUN ninja -C _static test
 RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
+RUN ./scripts/create_license_file.sh
 RUN cp COPYING /app/exportDir
+RUN cp 3rdparty.txt /app/exportDir
 RUN sh -c 'apk list | tee /app/exportDir/env.txt'
 WORKDIR /app/exportDir
 RUN zip -9 mesonlsp-alpine-static.zip mesonlsp env.txt COPYING

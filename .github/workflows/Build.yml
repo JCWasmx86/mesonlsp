@@ -110,6 +110,8 @@ jobs:
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
           ls /d/Artifacts
           find /d/|grep mesonlsp.exe
+          ./scripts/create_license_file.sh
+          cp 3rdparty.txt /d/Artifacts
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: mesonlsp-x86_64-pc-windows-gnu

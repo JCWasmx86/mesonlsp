@@ -97,6 +97,8 @@ jobs:
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
           pacman -Q > /d/Artifacts/env.txt
           cp COPYING /d/Artifacts/COPYING
+          ./scripts/create_license_file.sh
+          cp 3rdparty.txt /d/Artifacts/COPYING
           zip -9jpr mesonlsp-x86_64-pc-windows-gnu.zip /d/Artifacts/*
       - name: Upload to release
         uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
@@ -141,6 +143,8 @@ jobs:
           cp _build/src/mesonlsp ${{ github.workspace }}/Artifacts/mesonlsp
           brew list --versions -d >> ${{ github.workspace }}/Artifacts/env.txt
           cp COPYING ${{ github.workspace }}/Artifacts/COPYING
+          ./scripts/create_license_file.sh
+          cp 3rdparty.txt ${{ github.workspace }}/Artifacts/COPYING
           zip -9jpr mesonlsp-${{ matrix.id.triple }}.zip ${{ github.workspace }}/Artifacts/*
       - name: Upload to release
         uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
