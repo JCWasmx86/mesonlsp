@@ -14,6 +14,7 @@ COPY src /app/src
 COPY LSPTests /app/LSPTests
 COPY tests /app/tests
 COPY subprojects /app/subprojects
+COPY scripts /app/scripts
 RUN git clone https://github.com/libunwind/libunwind
 RUN pip install --break-system-packages pygls lsprotocol
 WORKDIR /app/libunwind
