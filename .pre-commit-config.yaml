@@ -1,21 +1,22 @@
 repos:
-- repo: https://github.com/gitleaks/gitleaks
-  rev: v8.16.3
-  hooks:
-  - id: gitleaks
-- repo: https://github.com/jumanjihouse/pre-commit-hooks
-  rev: 3.0.0
-  hooks:
-  - id: shellcheck
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
-  hooks:
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
-- repo: https://github.com/pecigonzalo/pre-commit-shfmt
-  rev: v2.1.0
-  hooks:
-    - id: shell-fmt
-      args:
-        - -i
-        - "0"
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.3
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/pecigonzalo/pre-commit-shfmt
+    rev: v2.1.0
+    hooks:
+      - id: shell-fmt
+        args:
+          - -i
+          - "0"
+exclude: "tests/integration/wrap-test/packagefiles/pango-1.50.12/*"
