@@ -19,4 +19,4 @@ repos:
         args:
           - -i
           - "0"
-exclude: "tests/integration/wrap-test/packagefiles/pango-1.50.12/*"
+exclude: "tests/integration/wrap-test/packagefiles/pango-1.50.12/.*"
