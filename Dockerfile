@@ -5,7 +5,7 @@ RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
     acl-static zlib-static libidn2-static c-ares-static nghttp2-static brotli-static \
     expat-static xz-static xz-dev zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
-    git benchmark-dev mercurial subversion autoconf automake libtool make py3-pip
+    git benchmark-dev mercurial subversion autoconf automake libtool make py3-pip bash
 
 WORKDIR /app
 
