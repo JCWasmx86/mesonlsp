@@ -29,7 +29,7 @@ if buildtype != 'plain'
         '-fstack-protector-strong',
         '-g3',
         '-ftrivial-auto-var-init=zero',
-        '-Wuninitialized'
+        '-Wuninitialized',
     ]
 
     if cc.get_id() == 'gcc'
@@ -37,7 +37,11 @@ if buildtype != 'plain'
     endif
 
     if host_machine.system() == 'linux'
-        extra_flags += ['-fcf-protection=full', '-mshstk', '-frecord-gcc-switches']
+        extra_flags += [
+            '-fcf-protection=full',
+            '-mshstk',
+            '-frecord-gcc-switches',
+        ]
     endif
 
     global_link_args = host_machine.system() == 'windows' ? [] : ['-rdynamic']
