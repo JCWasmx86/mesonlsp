@@ -184,6 +184,7 @@ jobs:
           ninja
           meson test "mesonlsp:" || cat /__w/mesonlsp/mesonlsp/_clang/meson-logs/testlog.txt
           cd ..
+          ./_clang/src/mesonlsp --full
           ./scripts/run_regression_tests.sh
           for i in $(find __regressions|grep meson.build$|shuf|head -n 90); do echo $i; ./_clang/src/libparsing/lexingtool $i 2>/dev/null || ./_clang/src/libparsing/lexingtool $i; done
           for i in $(find __regressions|grep meson.build$|shuf|head -n 90); do echo $i; ./_clang/src/libparsing/parsingtool $i 2>/dev/null || ./_clang/src/libparsing/parsingtool $i; done
