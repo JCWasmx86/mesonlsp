@@ -28,6 +28,7 @@ if buildtype != 'plain'
     extra_flags += [
         '-fstack-protector-strong',
         '-g3',
+        '-ftrivial-auto-var-init=zero',
     ]
 
     if cc.get_id() == 'gcc'

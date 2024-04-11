@@ -31,7 +31,7 @@ public:
   Scope scope;
   MesonMetadata metadata;
   OptionState options;
-  MesonTree *parent;
+  MesonTree *parent{nullptr};
   const TypeNamespace &ns;
   int depth = 0;
   std::string name = "root";
