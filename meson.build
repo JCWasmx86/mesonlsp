@@ -29,6 +29,7 @@ if buildtype != 'plain'
         '-fstack-protector-strong',
         '-g3',
         '-ftrivial-auto-var-init=zero',
+        '-Wuninitialized'
     ]
 
     if cc.get_id() == 'gcc'
