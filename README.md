@@ -3,7 +3,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/jcwasmx86/mesonlsp/badge)](https://www.codefactor.io/repository/github/jcwasmx86/mesonlsp)
 [![codecov](https://codecov.io/github/JCWasmx86/Swift-MesonLSP/branch/main/graph/badge.svg?token=5OV4WH5DL1)](https://codecov.io/github/JCWasmx86/Swift-MesonLSP)
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/swift-mesonlsp.svg)](https://repology.org/project/swift-mesonlsp/versions)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/mesonlsp.svg)](https://repology.org/project/mesonlsp/versions)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8319/badge)](https://www.bestpractices.dev/projects/8319)
 
 A reimplementation of my Meson language server in C++ (Formerly Swift).
 It's there for providing code intelligence in editors using the language server protocol.
