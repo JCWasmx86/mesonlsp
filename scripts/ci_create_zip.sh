@@ -5,8 +5,8 @@ ninja -C _release || exit 1
 cp _release/src/mesonlsp mesonlsp
 rm -rf _release
 meson setup _build --buildtype debug
-ninja -C _build || ninja -C _build -j1 || exit 1
-ninja -C _build test || ninja -C _build test -j1 || exit 1
+ninja -C _build "$2" || exit 1
+ninja -C _build test "$2" || exit 1
 ./_build/tests/libcxathrow/cxathrowtest
 cp _build/src/mesonlsp mesonlsp.debug
 zip -9 "$1".zip mesonlsp.debug mesonlsp
