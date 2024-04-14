@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 meson setup _release --buildtype release -Db_lto=true
-ninja -C _release || exit 1
+ninja -C _release "$2" || exit 1
 ./_release/tests/libcxathrow/cxathrowtest
 cp _release/src/mesonlsp mesonlsp
 rm -rf _release
