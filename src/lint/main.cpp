@@ -25,8 +25,10 @@ void printHelp() {
   std::cerr << "ARGUMENTS:" << std::endl;
   std::cerr << "  <path>\tPath to parse" << std::endl << std::endl;
   std::cerr << "OPTIONS:" << std::endl;
-  std::cerr << "--version    \t\t\tPrint version" << std::endl;
-  std::cerr << "--help       \t\t\tPrint this help" << std::endl;
+  std::cerr << "--fix        \tFix errors automatically (If possible)"
+            << std::endl;
+  std::cerr << "--version    \tPrint version" << std::endl;
+  std::cerr << "--help       \tPrint this help" << std::endl;
 }
 
 void printVersion() {
@@ -65,6 +67,7 @@ int main(int argc, char **argv) {
   bool help = false;
   bool version = false;
   bool error = false;
+  bool fix = false;
   std::string path;
   unsigned int numPaths = 0;
   for (int i = 1; i < argc; i++) {
@@ -74,6 +77,10 @@ int main(int argc, char **argv) {
     }
     if (strcmp("--version", argv[i]) == 0) {
       version = true;
+      continue;
+    }
+    if (strcmp("--fix", argv[i]) == 0) {
+      fix = true;
       continue;
     }
     if (strncmp(argv[i], "--", 2) == 0) {
@@ -120,5 +127,9 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   Linter linter{config, root};
-  return linter.lint() ? EXIT_SUCCESS : EXIT_FAILURE;
+  auto result = linter.lint() ? EXIT_SUCCESS : EXIT_FAILURE;
+  if (fix) {
+    linter.fix();
+  }
+  return result;
 }

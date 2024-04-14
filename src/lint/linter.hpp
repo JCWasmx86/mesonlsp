@@ -31,6 +31,8 @@ public:
     return false;
   }
 
+  void fix();
+
 private:
   bool lintCode();
   bool lintFormatting();

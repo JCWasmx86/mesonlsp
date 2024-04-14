@@ -10,10 +10,22 @@
 #include <cstdint>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <ranges>
 #include <stdexcept>
 
 const static Logger LOG("linter"); // NOLINT
+
+void Linter::fix() {
+  for (const auto &[path, contents] : this->unformattedFiles) {
+    const auto &relative = std::filesystem::relative(path, this->root);
+    std::cerr << std::format("Fixed formatting of {}", path.generic_string())
+              << std::endl;
+    std::ofstream fileStream{path};
+    fileStream << contents;
+    fileStream.close();
+  }
+}
 
 void Linter::writeMuonConfigFile() {
   const auto &name =
@@ -79,7 +91,7 @@ void Linter::printDiagnostics() const {
               << std::endl;
   }
   if (this->unformattedFiles.empty()) {
-    std::cout << "Everything is formatted ✨ 🍰 ✨" << std::endl;
+    std::cout << "Everything is formatted correctly ✨ 🍰 ✨" << std::endl;
   }
 }
 
