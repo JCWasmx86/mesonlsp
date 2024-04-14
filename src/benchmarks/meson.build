@@ -1,7 +1,12 @@
 if not get_option('benchmarks')
     subdir_done()
 endif
-benchmark_dep = dependency('benchmark', version: '>= 1.7.1', allow_fallback: true, required: false)
+benchmark_dep = dependency(
+    'benchmark',
+    version: '>= 1.7.1',
+    allow_fallback: true,
+    required: false,
+)
 if not benchmark_dep.found()
     subdir_done()
 endif
