@@ -31,6 +31,7 @@ RUN ninja -C _static test
 RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir
 RUN cp _static/src/mesonlsp /app/exportDir
+RUN cp _static/src/lint/mesonlint /app/exportDir
 RUN ./scripts/create_license_file.sh
 RUN cp COPYING /app/exportDir
 RUN cp 3rdparty.txt /app/exportDir
