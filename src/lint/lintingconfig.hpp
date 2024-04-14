@@ -1,3 +1,4 @@
+#pragma once
 #include "analysisoptions.hpp"
 
 #include <filesystem>

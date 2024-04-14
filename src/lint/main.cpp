@@ -1,3 +1,4 @@
+#include "linter.hpp"
 #include "lintingconfig.hpp"
 #include "polyfill.hpp"
 
@@ -13,6 +14,10 @@
 #ifdef USE_JEMALLOC
 #include <jemalloc/jemalloc.h>
 #endif
+extern "C" {
+#include <log.h>
+#include <platform/init.h>
+}
 
 void printHelp() {
   std::cerr << "Usage: mesonlint [<options>] [<path>]" << std::endl
@@ -38,6 +43,11 @@ void printVersion() {
 }
 
 int main(int argc, char **argv) {
+#ifndef _WIN32
+  platform_init();
+#endif
+  log_init();
+
 #ifndef _WIN32
   std::locale::global(std::locale(""));
 #else
@@ -109,4 +119,6 @@ int main(int argc, char **argv) {
               << std::endl;
     return EXIT_FAILURE;
   }
+  Linter linter{config, root};
+  return linter.lint() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

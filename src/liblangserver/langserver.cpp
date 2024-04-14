@@ -30,11 +30,8 @@
 #endif
 #include <vector>
 extern "C" {
-// Dirty hack
 #include <log.h>
 #include <platform/init.h>
-#undef ast
-#undef fmt
 }
 
 const static Logger LOG("LanguageServer"); // NOLINT

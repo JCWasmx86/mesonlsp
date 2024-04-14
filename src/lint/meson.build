@@ -6,6 +6,7 @@ executable(
     'mesonlint',
     'main.cpp',
     'lintingconfig.cpp',
+    'linter.cpp',
     link_args: extra_link_args,
     cpp_args: [
         '-DVERSION="' + version + '"',
@@ -20,6 +21,8 @@ executable(
         objects_dep,
         cxathrow_dep,
         tomlplusplus_dep,
+        langserver_dep,
+        muon_dep,
     ] + extra_deps + extra_libs,
     install: true,
     pie: host_machine.system() == 'linux',
