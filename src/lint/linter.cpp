@@ -44,6 +44,7 @@ void Linter::printDiagnostics() const {
   const auto &keyview = std::views::keys(metadata.diagnostics);
   std::vector<std::filesystem::path> keys{keyview.begin(), keyview.end()};
   std::ranges::sort(keys);
+  uint32_t numErrors = 0;
   for (const auto &file : keys) {
     const auto &relative =
         std::filesystem::relative(file, tree.root).generic_string();
@@ -59,15 +60,26 @@ void Linter::printDiagnostics() const {
     for (const auto &diag : diagsSorted) {
       const auto isError =
           diag.severity == Severity::ERROR || this->config.linting.werror;
+      if (isError) {
+        numErrors++;
+      }
       const auto *icon = isError ? "🔴" : "⚠️";
       std::cerr << relative << "[" << diag.startLine + 1 << ":"
                 << diag.startColumn << "] " << icon << "  " << diag.message
                 << std::endl;
     }
   }
+  if (numErrors == 0) {
+    std::cout << "No linting errors found ✨ 🍰 ✨" << std::endl;
+  }
   for (const auto &path : std::views::keys(this->unformattedFiles)) {
-    std::cerr << std::format("File {} is unformatted", path.generic_string())
+    const auto &relative = std::filesystem::relative(path, this->root);
+    std::cerr << std::format("File {} is unformatted",
+                             relative.generic_string())
               << std::endl;
+  }
+  if (this->unformattedFiles.empty()) {
+    std::cout << "Everything is formatted ✨ 🍰 ✨" << std::endl;
   }
 }
 
@@ -121,8 +133,7 @@ bool Linter::lintCode() {
   for (const auto &file : keyview) {
     const auto &relative =
         std::filesystem::relative(file, tree.root).generic_string();
-    const auto &diags = metadata.diagnostics.at(file);
-    for (const auto &diag : diags) {
+    for (const auto &diag : metadata.diagnostics.at(file)) {
       const auto isError =
           diag.severity == Severity::ERROR || this->config.linting.werror;
       if (isError) {

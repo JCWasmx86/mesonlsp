@@ -23,8 +23,12 @@ public:
   bool lint() {
     const auto passedCodeLinting = this->lintCode();
     const auto passedFormattingLinting = this->lintFormatting();
+    if (passedCodeLinting && passedFormattingLinting) {
+      std::cout << "Your project passes all tests ✨ 🍰 ✨" << std::endl;
+      return true;
+    }
     this->printDiagnostics();
-    return passedCodeLinting && passedFormattingLinting;
+    return false;
   }
 
 private:
