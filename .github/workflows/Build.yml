@@ -214,7 +214,7 @@ jobs:
           sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
           pip install meson pygls lsprotocol
           sudo dnf clean all
-          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}
+          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }} -j$(nproc)
           unzip -o /Fedora${{ matrix.version }}.zip
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
@@ -243,7 +243,7 @@ jobs:
           sudo dnf clean all
           export CC=clang
           export CXX=clang++
-          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }} -j2
+          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }} -j1
           unzip /Fedora${{ matrix.version }}-clang.zip
           sudo cp mesonlsp /
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
