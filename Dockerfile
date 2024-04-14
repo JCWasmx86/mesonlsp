@@ -37,7 +37,7 @@ RUN cp COPYING /app/exportDir
 RUN cp 3rdparty.txt /app/exportDir
 RUN sh -c 'apk list | tee /app/exportDir/env.txt'
 WORKDIR /app/exportDir
-RUN zip -9 mesonlsp-alpine-static.zip mesonlsp env.txt COPYING
+RUN zip -9 mesonlsp-alpine-static.zip mesonlsp mesonlint env.txt COPYING
 
 FROM scratch AS export-stage
 COPY --from=stage1 /app/exportDir/mesonlsp-alpine-static.zip .
