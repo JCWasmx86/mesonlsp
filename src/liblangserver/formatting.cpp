@@ -70,5 +70,6 @@ std::string formatFile(const std::filesystem::path &path,
   const auto asString = readFile(tmpPath);
   free(labelPath);
 #endif
+  fs_source_destroy(&src);
   return asString;
 }
