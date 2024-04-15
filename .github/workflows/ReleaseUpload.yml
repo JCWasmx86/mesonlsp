@@ -47,10 +47,21 @@ jobs:
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
           sudo cp out/mesonlsp-alpine-static.zip mesonlsp-x86_64-unknown-linux-musl.zip
+          unzip -o mesonlsp-x86_64-unknown-linux-musl.zip
+          zip -9 mesonlint-x86_64-unknown-linux-musl.zip mesonlint env.txt COPYING
+          rm mesonlsp mesonlint env.txt
       - name: Upload to release
         uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
         with:
           file: mesonlsp-x86_64-unknown-linux-musl.zip
+          verbose: true
+          update_latest_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+      - name: Upload to release
+        uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
+        with:
+          file: mesonlint-x86_64-unknown-linux-musl.zip
           verbose: true
           update_latest_release: true
         env:
