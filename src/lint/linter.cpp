@@ -29,7 +29,7 @@ void Linter::fix() {
 
 void Linter::writeMuonConfigFile() {
   const auto &name =
-      std::format("muonlint-fmt-{}", hash(this->root.generic_string()));
+      std::format("mesonlint-muon-fmt-{}", hash(this->root.generic_string()));
   const auto &fullPath = cacheDir() / name;
   if (std::filesystem::exists(fullPath)) {
     std::filesystem::remove(fullPath);
