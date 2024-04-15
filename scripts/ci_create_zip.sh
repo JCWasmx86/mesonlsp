@@ -9,7 +9,7 @@ meson setup _build --buildtype debug
 # shellcheck disable=SC2086
 ninja -C _build $2 || exit 1
 # shellcheck disable=SC2086
-inja -C _build test $2 || exit 1
+ninja -C _build test $2 || exit 1
 ./_build/tests/libcxathrow/cxathrowtest
 cp _build/src/mesonlsp mesonlsp.debug
 zip -9 "$1".zip mesonlsp.debug mesonlsp
