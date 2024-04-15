@@ -1,4 +1,4 @@
-# 4.Y.Z (Apr XX 2024)
+# 4.2.0 (Apr 15 2024)
 - Add `mesonlint` tool that allows to lint a project and to check+fix the formatting. It's currently not integrated with the language server.
 # 4.1.8 (Apr 01 2024)
 - Minor fix
