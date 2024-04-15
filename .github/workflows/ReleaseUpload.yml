@@ -50,6 +50,7 @@ jobs:
           unzip -o mesonlsp-x86_64-unknown-linux-musl.zip
           zip -9 mesonlint-x86_64-unknown-linux-musl.zip mesonlint env.txt COPYING
           rm mesonlsp mesonlint env.txt
+          zip -d mesonlsp-x86_64-unknown-linux-musl.zip mesonlint
       - name: Upload to release
         uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
         with:
