@@ -21,7 +21,9 @@ executable(
         ast_dep,
         muon_dep,
         parsing_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
 )
 executable(
     'lexing',
@@ -29,7 +31,9 @@ executable(
     dependencies: [
         muon_dep,
         parsing_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
 )
 
 executable(
@@ -40,5 +44,7 @@ executable(
         tree_sitter_dep,
         tree_sitter_meson_dep,
         parsing_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
 )

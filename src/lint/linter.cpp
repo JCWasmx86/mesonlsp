@@ -39,14 +39,29 @@ void Linter::writeMuonConfigFile() {
   const auto &cfg = this->config.formatting;
   fileStream << std::boolalpha << "max_line_len = " << cfg.max_line_len
              << std::endl;
-  fileStream << "indent_by = "
-             << "'" << cfg.indent_by << "'" << std::endl;
+  if (cfg.indent_by.has_value()) {
+    fileStream << "indent_by = "
+               << "'" << cfg.indent_by.value() << "'" << std::endl;
+  }
   fileStream << "space_array = " << cfg.space_array << std::endl;
   fileStream << "kwargs_force_multiline = " << cfg.kwargs_force_multiline
              << std::endl;
   fileStream << "wide_colon = " << cfg.wide_colon << std::endl;
   fileStream << "no_single_comma_function = " << cfg.no_single_comma_function
              << std::endl;
+  fileStream << "indent_style = " << cfg.indent_style << std::endl;
+  fileStream << "indent_size = " << cfg.indent_size << std::endl;
+  fileStream << "insert_final_newline = " << cfg.insert_final_newline
+             << std::endl;
+  fileStream << "sort_files = " << cfg.sort_files << std::endl;
+  fileStream << "group_arg_value = " << cfg.group_arg_value << std::endl;
+  fileStream << "simplify_string_literals = " << cfg.simplify_string_literals
+             << std::endl;
+  fileStream << "indent_before_comments = "
+             << "'" << cfg.indent_before_comments << "'" << std::endl;
+  if (cfg.end_of_line.has_value()) {
+    fileStream << "end_of_line = " << cfg.end_of_line.value() << std::endl;
+  }
   fileStream.close();
   this->muonConfigFile = fullPath;
 }

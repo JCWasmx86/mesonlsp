@@ -13,7 +13,8 @@ executable(
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
         '-DLINKER_ID="' + cc.get_linker_id() + '"',
-    ] + args,
+    ]
+    + args,
     dependencies: [
         analyze_dep,
         ast_dep,
@@ -23,7 +24,9 @@ executable(
         tomlplusplus_dep,
         langserver_dep,
         muon_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
     install: true,
     pie: host_machine.system() == 'linux',
 )

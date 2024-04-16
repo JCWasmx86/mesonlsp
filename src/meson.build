@@ -28,7 +28,8 @@ mesonlsp = executable(
         '-DCC_VERSION="' + cc_version + '"',
         '-DCXX_VERSION="' + cxx_version + '"',
         '-DLINKER_ID="' + cc.get_linker_id() + '"',
-    ] + args,
+    ]
+    + args,
     dependencies: [
         analyze_dep,
         ast_dep,
@@ -40,7 +41,9 @@ mesonlsp = executable(
         wrap_dep,
         langserver_dep,
         cxathrow_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
     install: true,
     pie: host_machine.system() == 'linux',
 )
@@ -49,9 +52,7 @@ install_dir = get_option('prefix') / get_option('bindir')
 install_symlink(
     'Swift-MesonLSP',
     install_dir: install_dir,
-    pointing_to: install_dir / (
-        host_machine.system() == 'windows' ? 'mesonlsp.exe' : 'mesonlsp'
-    ),
+    pointing_to: install_dir / (host_machine.system() == 'windows' ? 'mesonlsp.exe' : 'mesonlsp'),
 )
 
 subdir('benchmarks')

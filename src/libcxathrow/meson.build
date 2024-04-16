@@ -5,9 +5,7 @@ is_static = get_option('static_build')
 dl_dep = dependency('dl', required: host_machine.system() == 'windows')
 cxathrow_deps = [log_dep, dl_dep]
 libunwind_dep = cxx.find_library('unwind', static: true, required: false)
-null_backtrace = (
-    libunwind_dep.found() ? 'backtrace_libunwind.cpp' : 'backtrace_null.cpp'
-)
+null_backtrace = (libunwind_dep.found() ? 'backtrace_libunwind.cpp' : 'backtrace_null.cpp')
 used_libunwind = false
 
 if cxx.get_id() == 'gcc'

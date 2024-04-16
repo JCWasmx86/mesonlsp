@@ -6,7 +6,9 @@ test(
         dependencies: [
             analyze_dep,
             gtest_dep,
-        ] + extra_deps + extra_libs,
+        ]
+        + extra_deps
+        + extra_libs,
     ),
     protocol: 'gtest',
 )

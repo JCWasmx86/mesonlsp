@@ -6,7 +6,9 @@ partial_interpreter_tester = executable(
         ast_dep,
         log_dep,
         objects_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
 )
 
 type_analyzer_tester = executable(
@@ -17,7 +19,9 @@ type_analyzer_tester = executable(
         ast_dep,
         log_dep,
         objects_dep,
-    ] + extra_deps + extra_libs,
+    ]
+    + extra_deps
+    + extra_libs,
 )
 
 workspace_tester = executable(
@@ -87,7 +91,11 @@ partial_interpreter_tests = [
     ],
     [
         'gdkpixbuf',
-        ['gdk_pixbuf_csource', 'gdk_pixbuf_query_loaders', 'gdk_pixbuf_pixdata'],
+        [
+            'gdk_pixbuf_csource',
+            'gdk_pixbuf_query_loaders',
+            'gdk_pixbuf_pixdata',
+        ],
     ],
     [
         'vpx8',
@@ -160,7 +168,8 @@ foreach test_data : partial_interpreter_tests
     file = files('partial-interpreter-test' / (test_data[0] + '.meson'))[0]
     options_file = (
         test_data.length() == 2 ? [] : (
-            ['--'] + files(
+            ['--']
+            + files(
                 'partial-interpreter-test' / (test_data[2] + '.meson'),
             )
         )
@@ -172,7 +181,6 @@ foreach test_data : partial_interpreter_tests
         args: [file] + test_data[1] + options_file,
     )
 endforeach
-
 
 type_analyzer_tests = [
     [
@@ -256,7 +264,12 @@ type_analyzer_tests = [
     ],
     [
         'selectionstatement',
-        [['full', 'bool|dict(int)|host_machine|list()|meson|target_machine']],
+        [
+            [
+                'full',
+                'bool|dict(int)|host_machine|list()|meson|target_machine',
+            ],
+        ],
     ],
     [
         'assignment',
@@ -291,7 +304,8 @@ foreach test_data : type_analyzer_tests
     file = files('type-analyzer-test' / (test_data[0] + '.meson'))[0]
     options_file = (
         test_data.length() == 2 ? [] : (
-            ['--'] + files(
+            ['--']
+            + files(
                 'type-analyzer-test' / (test_data[2] + '.meson'),
             )
         )
@@ -303,7 +317,6 @@ foreach test_data : type_analyzer_tests
         args: [file] + test_data[1] + options_file,
     )
 endforeach
-
 
 test(
     'workspace-tester',

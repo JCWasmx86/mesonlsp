@@ -9,7 +9,9 @@ test(
             tree_sitter_meson_dep,
             tree_sitter_ini_dep,
             gtest_dep,
-        ] + extra_deps + extra_libs,
+        ]
+        + extra_deps
+        + extra_libs,
     ),
     protocol: 'gtest',
 )

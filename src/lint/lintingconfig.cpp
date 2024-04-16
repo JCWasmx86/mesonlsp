@@ -53,6 +53,52 @@ void MesonLintConfig::load(const std::filesystem::path &path) {
       this->formatting.no_single_comma_function =
           formatting->get("no_single_comma_function")->as_boolean()->get();
     }
+    if (formatting->contains("indent_style") &&
+        formatting->get("indent_style")->type() ==
+            toml::v3::node_type::string) {
+      this->formatting.indent_style =
+          formatting->get("indent_style")->as_string()->get();
+    }
+    if (formatting->contains("indent_size") &&
+        formatting->get("indent_size")->type() ==
+            toml::v3::node_type::integer) {
+      this->formatting.indent_size =
+          (int)formatting->get("indent_size")->as_integer()->get();
+    }
+    if (formatting->contains("insert_final_newline") &&
+        formatting->get("insert_final_newline")->type() ==
+            toml::v3::node_type::boolean) {
+      this->formatting.insert_final_newline =
+          formatting->get("insert_final_newline")->as_boolean()->get();
+    }
+    if (formatting->contains("sort_files") &&
+        formatting->get("sort_files")->type() == toml::v3::node_type::boolean) {
+      this->formatting.sort_files =
+          formatting->get("sort_files")->as_boolean()->get();
+    }
+    if (formatting->contains("group_arg_value") &&
+        formatting->get("group_arg_value")->type() ==
+            toml::v3::node_type::boolean) {
+      this->formatting.group_arg_value =
+          formatting->get("group_arg_value")->as_boolean()->get();
+    }
+    if (formatting->contains("simplify_string_literals") &&
+        formatting->get("simplify_string_literals")->type() ==
+            toml::v3::node_type::boolean) {
+      this->formatting.simplify_string_literals =
+          formatting->get("simplify_string_literals")->as_boolean()->get();
+    }
+    if (formatting->contains("indent_before_comments") &&
+        formatting->get("indent_before_comments")->type() ==
+            toml::v3::node_type::string) {
+      this->formatting.indent_before_comments =
+          formatting->get("indent_before_comments")->as_string()->get();
+    }
+    if (formatting->contains("end_of_line") &&
+        formatting->get("end_of_line")->type() == toml::v3::node_type::string) {
+      this->formatting.end_of_line =
+          formatting->get("end_of_line")->as_string()->get();
+    }
   }
   if (result.contains("linting") &&
       result.get("linting")->type() == toml::v3::node_type::table) {
