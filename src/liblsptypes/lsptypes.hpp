@@ -449,10 +449,12 @@ class FormattingOptions : public BaseObject {
 public:
   uint8_t tabSize;
   bool insertSpaces;
+  bool insertFinalNewline;
 
   explicit FormattingOptions(nlohmann::json &jsonObj) {
     this->tabSize = jsonObj["tabSize"];
     this->insertSpaces = jsonObj["insertSpaces"];
+    this->insertFinalNewline = jsonObj.value("insertFinalNewline", false);
   }
 };
 

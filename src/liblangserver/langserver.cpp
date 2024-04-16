@@ -38,17 +38,21 @@ const static Logger LOG("LanguageServer"); // NOLINT
 
 std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
   const auto &name =
-      std::format("muon-fmt-{}-{}", options.insertSpaces, options.tabSize);
+      std::format("muon-2-fmt-{}-{}", options.insertSpaces, options.tabSize);
   const auto &fullPath = cacheDir() / name;
   if (std::filesystem::exists(fullPath)) {
     return fullPath;
   }
-  const auto &indent =
-      options.insertSpaces ? std::string(options.tabSize, ' ') : "\t";
-  const auto &contents = std::format("indent_by = '{}'\n", indent);
+  const auto &indent = options.insertSpaces ? "space" : "tab";
+  const auto indentSize = options.insertSpaces ? options.tabSize : 1;
+  const auto &contents =
+      std::format("indent_style = {}\nindent_size = {}\n", indent, indentSize);
   std::ofstream fileStream(fullPath);
   assert(fileStream.is_open());
   fileStream << contents << std::endl;
+  if (!options.insertFinalNewline) {
+    fileStream << "insert_final_newline = false" << std::endl;
+  }
   fileStream.close();
   return fullPath;
 }
