@@ -12,30 +12,17 @@
 extern "C" {
 // Dirty hack
 #define ast muon_ast
+#define new fnew
 #include <lang/lexer.h>
 #include <lang/parser.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
 #undef ast
+#undef new
 }
 
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
-
-void muonLex(benchmark::State &state) {
-  struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
-  fs_read_entire_file("meson.build", &src);
-  for (auto _ : state) {
-    struct tokens toks;
-    struct source_data sdata = {nullptr, 0};
-    lexer_lex(&toks, &sdata, &src, (enum lexer_mode)0);
-    benchmark::DoNotOptimize(&toks);
-    benchmark::ClobberMemory();
-    tokens_destroy(&toks);
-    source_data_destroy(&sdata);
-    (void)_;
-  }
-}
 
 void customParserLex(benchmark::State &state) {
   const std::filesystem::path path = "meson.build";
@@ -61,40 +48,6 @@ void customParserLexOnce(benchmark::State &state) {
     rootNode->setParents();
     benchmark::DoNotOptimize(rootNode);
     benchmark::ClobberMemory();
-    (void)_;
-  }
-}
-
-void muonParse(benchmark::State &state) {
-  struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
-  struct muon_ast ast = {{0, 0, 0, nullptr}, {}, 0, 0};
-  fs_read_entire_file("meson.build", &src);
-  for (auto _ : state) {
-    struct source_data sdata = {nullptr, 0};
-    parser_parse(nullptr, &ast, &sdata, &src,
-                 pm_ignore_statement_with_no_effect);
-    benchmark::DoNotOptimize(&ast);
-    benchmark::ClobberMemory();
-    ast_destroy(&ast);
-    source_data_destroy(&sdata);
-    (void)_;
-  }
-  fs_source_destroy(&src);
-}
-
-void muonParseAllInLoop(benchmark::State &state) {
-  for (auto _ : state) {
-    struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
-    struct muon_ast ast = {{0, 0, 0, nullptr}, {}, 0, 0};
-    fs_read_entire_file("meson.build", &src);
-    struct source_data sdata = {nullptr, 0};
-    parser_parse(nullptr, &ast, &sdata, &src,
-                 pm_ignore_statement_with_no_effect);
-    benchmark::DoNotOptimize(&ast);
-    benchmark::ClobberMemory();
-    ast_destroy(&ast);
-    source_data_destroy(&sdata);
-    fs_source_destroy(&src);
     (void)_;
   }
 }
@@ -200,15 +153,12 @@ void treeSitterParseWithoutNodeAllInLoop(benchmark::State &state) {
   }
 }
 
-BENCHMARK(muonLex);
 BENCHMARK(customParserLex);
 BENCHMARK(customParserLexOnce);
 BENCHMARK(customParserParse);
 BENCHMARK(customParserParseWithoutSettingParents);
-BENCHMARK(muonParse);
 BENCHMARK(treeSitterParse);
 BENCHMARK(treeSitterParseAllInLoop);
-BENCHMARK(muonParseAllInLoop);
 BENCHMARK(treeSitterParseWithoutNode);
 BENCHMARK(treeSitterParseWithoutNodeAllInLoop);
 

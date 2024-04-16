@@ -11,12 +11,14 @@
 extern "C" {
 // Dirty hack
 #define ast muon_ast
+#define new fnew
 #include <lang/lexer.h>
 #include <lang/parser.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
 #undef ast
+#undef new
 }
 extern "C" TSLanguage *tree_sitter_meson(); // NOLINT
 constexpr auto COUNT = 100000;
@@ -25,16 +27,7 @@ int main(int argc, char **argv) {
   std::string mode = argv[1];
   auto *file = argv[2];
   if (mode == "muon") {
-    struct source src = {nullptr, nullptr, 0, source_reopen_type_none};
-    fs_read_entire_file(file, &src);
-    for (int i = 0; i < COUNT; i++) {
-      struct muon_ast ast = {{0, 0, 0, nullptr}, {}, 0, 0};
-      struct source_data sdata = {nullptr, 0};
-      parser_parse(nullptr, &ast, &sdata, &src,
-                   pm_ignore_statement_with_no_effect);
-      ast_destroy(&ast);
-      source_data_destroy(&sdata);
-    }
+    std::cerr << "UNIMPLEMENTED" << std::endl;
   } else if (mode == "custom") {
     const auto fileContent = readFile(file);
     std::filesystem::path path = file;

@@ -4,12 +4,14 @@
 #include <filesystem>
 #include <string>
 extern "C" {
+#define new fnew
 #include <lang/fmt.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
 #undef ast
 #undef fmt
+#undef new
 }
 #ifdef _WIN32
 #include "polyfill.hpp"
