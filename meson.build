@@ -34,7 +34,11 @@ if buildtype != 'plain'
     ]
 
     if cc.get_id() == 'gcc'
-        extra_flags += ['-Wshadow=local', '-fstack-clash-protection']
+        extra_flags += [
+            '-Wshadow=local',
+            '-fstack-clash-protection',
+            '-Wno-changes-meaning',
+        ]
     endif
 
     if host_machine.system() == 'linux'
