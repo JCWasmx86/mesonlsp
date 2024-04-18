@@ -37,7 +37,6 @@ if buildtype != 'plain'
         extra_flags += [
             '-Wshadow=local',
             '-fstack-clash-protection',
-            '-Wno-changes-meaning',
         ]
     endif
 
