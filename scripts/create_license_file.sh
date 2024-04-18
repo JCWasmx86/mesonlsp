@@ -16,6 +16,7 @@
 	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/GPL-3.0-only.txt
 	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/MIT.txt
 	curl https://raw.githubusercontent.com/annacrombie/muon/master/LICENSES/Unlicense.txt
+	echo "custom patches here: https://github.com/JCWasmx86/muon"
 	echo "nlohmann-json"
 	curl https://github.com/nlohmann/json/raw/develop/LICENSE.MIT
 	echo "curl"
