@@ -1501,6 +1501,14 @@ env::set:
       - Types:
         - str
   - returns:
+env::unset:
+  - args:
+    - variable:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+  - returns:
 external_program::found:
   - args:
   - returns:
@@ -1773,6 +1781,9 @@ fs_module::replace_suffix:
       - Types:
         - str
         - file
+        - build_tgt
+        - custom_tgt
+        - custom_idx
     - suffix:
       - Optional: false
       - Varargs: false
@@ -1788,6 +1799,9 @@ fs_module::parent:
       - Types:
         - file
         - str
+        - build_tgt
+        - custom_tgt
+        - custom_idx
   - returns:
     - str
 fs_module::name:
@@ -1798,6 +1812,9 @@ fs_module::name:
       - Types:
         - file
         - str
+        - build_tgt
+        - custom_tgt
+        - custom_idx
   - returns:
     - str
 fs_module::stem:
@@ -1808,6 +1825,9 @@ fs_module::stem:
       - Types:
         - file
         - str
+        - build_tgt
+        - custom_tgt
+        - custom_idx
   - returns:
     - str
 fs_module::read:
@@ -2049,7 +2069,7 @@ gnome_module::genmarshal:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @extra_args:
       - Optional: true
       - Types:
@@ -2111,7 +2131,7 @@ gnome_module::mkenums:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @eprod:
       - Optional: true
       - Types:
@@ -2556,7 +2576,7 @@ hotdoc_module::generate_doc:
     - @depends:
       - Optional: true
       - Types:
-        - list(custom_idx|custom_tgt)
+        - list(custom_idx|custom_tgt|custom_idx)
     - @devhelp_activate:
       - Optional: true
       - Types:
@@ -4693,7 +4713,7 @@ rust_module::test:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @env:
       - Optional: true
       - Types:
@@ -5135,7 +5155,7 @@ windows_module::compile_resources:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @include_directories:
       - Optional: true
       - Types:

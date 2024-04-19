@@ -179,7 +179,7 @@ benchmark:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @env:
       - Optional: true
       - Types:
@@ -919,7 +919,7 @@ custom_target:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @depfile:
       - Optional: true
       - Types:
@@ -1497,7 +1497,7 @@ generator:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @depfile:
       - Optional: true
       - Types:
@@ -2413,7 +2413,7 @@ run_target:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @env:
       - Optional: true
       - Types:
@@ -3331,6 +3331,8 @@ test:
         - external_program
         - file
         - tgt
+        - custom_idx
+        - custom_tgt
     - @args:
       - Optional: true
       - Types:
@@ -3338,7 +3340,7 @@ test:
     - @depends:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt)
+        - list(build_tgt|custom_tgt|custom_idx)
     - @env:
       - Optional: true
       - Types:

@@ -118,3 +118,4 @@ simd_module::check,0.42.0
 sourceset_module::source_set,0.51.0
 wayland_module::find_protocol,0.62.0
 wayland_module::scan_xml,0.62.0
+env::unset,1.4.0

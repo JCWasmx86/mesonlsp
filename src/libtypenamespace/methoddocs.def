@@ -238,6 +238,8 @@ Appends the given values to the old value of the environment variable. For examp
 Same as `append` except that it writes to the beginning of the variable.
 @env::set:
 Sets the environment variable specified in the first argument to the values in the varargs joined by the separator. For instance, `env.set('FOO', 'BAR')` sets environment variable `FOO` to value `BAR`.
+@env::unset:
+Unset the specified environment variable. If this variable does not exist, nothing happens.
 @external_program::found:
 Returns whether the executable was found.
 @external_program::full_path:
