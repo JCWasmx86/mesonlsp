@@ -63,6 +63,8 @@ partial_interpreter_tests = [
             'foohave_',
             'barhave_',
             'bazhave_',
+            'have___int8',
+            'have_uint8_t',
         ],
     ],
     [

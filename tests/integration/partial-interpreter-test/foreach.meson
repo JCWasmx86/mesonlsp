@@ -5,3 +5,8 @@ endforeach
 foreach x : funcs
     set_variable(x + 'have_', true)
 endforeach
+types = ['int8_t', 'uint8_t', 'int16_t', 'uint16_t', 'int32_t', 'uint32_t', 'int64_t', 'uint64_t']
+underscore_types = ['__int8', '__int16', '__int32', '__int64']
+foreach t : types + underscore_types
+  set_variable('have_@0@'.format(t), true)
+endforeach

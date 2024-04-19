@@ -759,6 +759,10 @@ void PartialInterpreter::abstractEvalComputeBinaryExpr(
     }
     return;
   }
+  if (arrL && arrR) {
+    ret.push_back(std::make_shared<ArrayNode>(arrL));
+    ret.push_back(std::make_shared<ArrayNode>(arrR));
+  }
   const auto *ldict = dynamic_cast<const DictionaryLiteral *>(lnode);
   const auto *rdict = dynamic_cast<const DictionaryLiteral *>(rnode);
   if (ldict && rdict) {
