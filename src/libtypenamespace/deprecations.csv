@@ -9,8 +9,6 @@ build_tgt::path,0.59.0,build_tgt.full_path()
 dep::get_configtool_variable,0.56.0,dep.get_variable()
 dep::get_pkgconfig_variable,0.56.0,dep.get_variable()
 external_program::path,0.55.0,external_program.full_path()
-@install_dir_gir,0.61.0,
-@install_dir_typelib,0.61.0,
 @languages,0.43.0,
 java_module::generate_native_header,0.62.0,java_module.generate_native_headers()
 java_module::generate_native_headers,1.0.0,java_module.native_headers()
