@@ -1,5 +1,9 @@
 # Security Policy
 
+## Scope
+Only code in `src/` is within the scope of this security policy, as it's the only code shipped to the user.
+For all other kinds of vulnerabilities - unless you can show that it could harm the user, simply open an issue or make a PR.
+
 ## Supported Versions
 The only supported version is the most recent version. No LTS releases or similar
 are provided/supported.
