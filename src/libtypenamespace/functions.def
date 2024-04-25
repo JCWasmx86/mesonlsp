@@ -1062,7 +1062,7 @@ dependency:
     - @default_options:
       - Optional: true
       - Types:
-        - dict(str)
+        - dict(bool|int|str|list(str))
         - list(str)
     - @disabler:
       - Optional: true
@@ -1453,7 +1453,7 @@ find_program:
     - @default_options:
       - Optional: true
       - Types:
-        - dict(str)
+        - dict(str|bool|int|list(str))
         - list(str)
     - @dirs:
       - Optional: true
@@ -2329,7 +2329,7 @@ project:
       - Optional: true
       - Types:
         - list(str)
-        - dict(str)
+        - dict(str|bool|int|list(str))
     - @license:
       - Optional: true
       - Types:
@@ -3271,7 +3271,7 @@ subproject:
     - @default_options:
       - Optional: true
       - Types:
-        - dict(str)
+        - dict(str|bool|int|list(str))
         - list(str)
     - @required:
       - Optional: true
