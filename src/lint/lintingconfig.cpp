@@ -102,14 +102,15 @@ void MesonLintConfig::load(const std::filesystem::path &path) {
   }
   if (result.contains("linting") &&
       result.get("linting")->type() == toml::v3::node_type::table) {
-    const auto *linting = result.get("linting")->as_table();
+    const auto *linting_table = result.get("linting")->as_table();
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define DESERIALIZE_ANALYSIS_OPTION(key)                                       \
-  if (linting->contains(TOSTRING(key)) &&                                      \
-      linting->get(TOSTRING(key))->type() == toml::v3::node_type::boolean) {   \
+  if (linting_table->contains(TOSTRING(key)) &&                                \
+      linting_table->get(TOSTRING(key))->type() ==                             \
+          toml::v3::node_type::boolean) {                                      \
     this->linting.options.key =                                                \
-        linting->get(TOSTRING(key))->as_boolean()->get();                      \
+        linting_table->get(TOSTRING(key))->as_boolean()->get();                \
   }
     DESERIALIZE_ANALYSIS_OPTION(disableNameLinting)
     DESERIALIZE_ANALYSIS_OPTION(disableAllIdLinting)
@@ -120,5 +121,6 @@ void MesonLintConfig::load(const std::filesystem::path &path) {
     DESERIALIZE_ANALYSIS_OPTION(disableOsFamilyLinting)
     DESERIALIZE_ANALYSIS_OPTION(disableUnusedVariableCheck)
     DESERIALIZE_ANALYSIS_OPTION(disableArgTypeChecking)
+    DESERIALIZE_ANALYSIS_OPTION(disableIterationVariableShadowingLint)
   }
 }

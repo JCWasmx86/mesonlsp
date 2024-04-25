@@ -78,6 +78,10 @@ private:
       this->analysisOptions.disableArgTypeChecking =
           linting.value("disableArgTypeChecking", false);
     }
+    if (linting.contains("disableIterationVariableShadowingLint")) {
+      this->analysisOptions.disableIterationVariableShadowingLint =
+          linting.value("disableIterationVariableShadowingLint", false);
+    }
   }
 
   void updateOthers(const nlohmann::json &others) {

@@ -1820,10 +1820,14 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
 
 void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
   node->expression->visit(this);
+  std::vector<std::string> ids;
+  std::vector<IdExpression *> idPtrs;
   for (const auto &itsId : node->ids) {
     itsId->visit(this);
     auto *itsIdExpr = dynamic_cast<IdExpression *>(itsId.get());
     if (itsIdExpr) [[likely]] {
+      ids.push_back(itsIdExpr->id);
+      idPtrs.push_back(itsIdExpr);
       this->metadata->registerIdentifier(itsIdExpr);
     }
   }
@@ -1832,15 +1836,35 @@ void TypeAnalyzer::visitIterationStatement(IterationStatement *node) {
     analyseIterationStatementSingleIdentifier(node);
   } else if (count == 2) {
     analyseIterationStatementTwoIdentifiers(node);
-  } else [[unlikely]] {
+  } else if (count > 2) [[unlikely]] {
     const auto *fNode = node->ids[0].get();
-    const auto *eNode = node->ids[1].get();
+    const auto *eNode = node->ids[count - 1].get();
     this->metadata->registerDiagnostic(
         fNode,
         Diagnostic(Severity::ERROR, fNode, eNode,
                    "Iteration statement expects only one or two identifiers"));
+  } else if (count == 0) {
+    this->metadata->registerDiagnostic(node->expression.get(),
+                                       Diagnostic(Severity::ERROR,
+                                                  node->expression.get(),
+                                                  "Expected id expression"));
   }
+  size_t idx = 0;
+  for (const auto &newId : ids) {
+    for (const auto &item : this->iteratorVars | std::views::reverse) {
+      if (!this->analysisOptions.disableIterationVariableShadowingLint &&
+          std::ranges::find(item, newId) != item.end()) {
+        this->metadata->registerDiagnostic(
+            idPtrs[idx], Diagnostic(Severity::WARNING, idPtrs[idx],
+                                    "Shadowing loop variable"));
+        break;
+      }
+    }
+    idx++;
+  }
+  this->iteratorVars.push_back(std::move(ids));
   this->visitChildren(node->stmts);
+  this->iteratorVars.pop_back();
 }
 
 void TypeAnalyzer::visitKeyValueItem(KeyValueItem *node) {

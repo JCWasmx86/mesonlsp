@@ -64,6 +64,7 @@ public:
 private:
   std::vector<Version> versionStack;
   std::set<std::string> mesonVersionVars;
+  std::vector<std::vector<std::string>> iteratorVars;
   std::vector<std::filesystem::path> sourceFileStack;
   std::vector<std::vector<IdExpression *>> variablesNeedingUse;
   std::vector<std::vector<std::string>> foundVariables;
