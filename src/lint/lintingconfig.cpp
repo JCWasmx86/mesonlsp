@@ -122,5 +122,6 @@ void MesonLintConfig::load(const std::filesystem::path &path) {
     DESERIALIZE_ANALYSIS_OPTION(disableUnusedVariableCheck)
     DESERIALIZE_ANALYSIS_OPTION(disableArgTypeChecking)
     DESERIALIZE_ANALYSIS_OPTION(disableIterationVariableShadowingLint)
+    DESERIALIZE_ANALYSIS_OPTION(enableIterationVariableLint)
   }
 }

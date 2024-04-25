@@ -484,6 +484,16 @@ void TypeAnalyzer::visitAssignmentStatement(AssignmentStatement *node) {
     this->extractVoidAssignment(node);
     return;
   }
+  if (analysisOptions.enableIterationVariableLint) {
+    for (const auto &item : this->iteratorVars | std::views::reverse) {
+      if (std::ranges::find(item, idExpr->id) != item.end()) {
+        this->metadata->registerDiagnostic(
+            idExpr,
+            Diagnostic(Severity::WARNING, idExpr, "Overwriting loop variable"));
+        break;
+      }
+    }
+  }
   this->evaluateFullAssignment(node, idExpr);
 }
 

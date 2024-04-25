@@ -82,6 +82,10 @@ private:
       this->analysisOptions.disableIterationVariableShadowingLint =
           linting.value("disableIterationVariableShadowingLint", false);
     }
+    if (linting.contains("enableIterationVariableLint")) {
+      this->analysisOptions.enableIterationVariableLint =
+          linting.value("enableIterationVariableLint", false);
+    }
   }
 
   void updateOthers(const nlohmann::json &others) {
