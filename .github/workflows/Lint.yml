@@ -16,7 +16,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - uses: JCWasmx86/clang-format-github-action@5c264f5422767c0bca85813b2e7f2cf6c3c33606 # master
         with:
           sources: "src/**/*.hpp,src/**/*.cpp,test/**/*.cpp"
@@ -29,7 +29,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - name: Lint using rome
         run: |
           sudo apt install -y make
@@ -52,7 +52,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - name: Lint using pylint
         run: |
           pip install pylint
@@ -65,7 +65,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - name: Lint using shellcheck
         run: |
           sudo apt install -y xz-utils tar
@@ -80,7 +80,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - name: Lint using shfmt
         run: |
           wget https://github.com/mvdan/sh/releases/download/v3.7.0/shfmt_v3.7.0_linux_amd64
