@@ -18,6 +18,7 @@ COPY scripts /app/scripts
 RUN git clone https://github.com/libunwind/libunwind
 RUN pip install --break-system-packages pygls lsprotocol
 WORKDIR /app/libunwind
+RUN git checkout 05afdabf38d3fa461b7a9de80c64a6513a564d81
 RUN autoreconf -i
 RUN ./configure --prefix=/usr --disable-tests --disable-cxx-exceptions --enable-shared=no --enable-static=yes --enable-minidebuginfo --enable-zlibdebuginfo --enable-debug-frame
 RUN make -j4 install

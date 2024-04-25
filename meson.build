@@ -43,9 +43,9 @@ if buildtype != 'plain'
     if host_machine.system() == 'linux'
         extra_flags += [
             '-fcf-protection=full',
-            '-mshstk',
             '-frecord-gcc-switches',
         ]
+        extra_flags += cc.get_supported_arguments('-mshstk')
     endif
 
     global_link_args = host_machine.system() == 'windows' ? [] : ['-rdynamic']
