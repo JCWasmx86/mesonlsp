@@ -52,7 +52,7 @@ jobs:
           rm mesonlsp mesonlint env.txt
           zip -d mesonlsp-x86_64-unknown-linux-musl.zip mesonlint
       - name: Upload to release
-        uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
+        uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
           file: mesonlsp-x86_64-unknown-linux-musl.zip
           verbose: true
@@ -60,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
       - name: Upload to release
-        uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
+        uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
           file: mesonlint-x86_64-unknown-linux-musl.zip
           verbose: true
@@ -113,7 +113,7 @@ jobs:
           cp 3rdparty.txt /d/Artifacts/COPYING
           zip -9jpr mesonlsp-x86_64-pc-windows-gnu.zip /d/Artifacts/*
       - name: Upload to release
-        uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
+        uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
           file: mesonlsp-x86_64-pc-windows-gnu.zip
           verbose: true
@@ -159,7 +159,7 @@ jobs:
           cp 3rdparty.txt ${{ github.workspace }}/Artifacts/COPYING
           zip -9jpr mesonlsp-${{ matrix.id.triple }}.zip ${{ github.workspace }}/Artifacts/*
       - name: Upload to release
-        uses: xresloader/upload-to-github-release@1cfc484a7ff6ef4c6087a78dc29f214c3814321b # main
+        uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
           file: mesonlsp-${{ matrix.id.triple }}.zip
           verbose: true
