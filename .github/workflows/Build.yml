@@ -92,11 +92,11 @@ jobs:
           sudo cp mesonlint /
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          name: mesonlsp-aarch64-unknown-linux-gnu
+          name: mesonlsp-aarch64-unknown-linux-musl
           path: /mesonlsp
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          name: mesonlint-aarch64-unknown-linux-gnu
+          name: mesonlint-aarch64-unknown-linux-musl
           path: /mesonlint
   windows:
     runs-on: windows-latest
