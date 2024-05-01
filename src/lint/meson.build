@@ -7,6 +7,7 @@ executable(
     'main.cpp',
     'lintingconfig.cpp',
     'linter.cpp',
+    version_h,
     link_args: extra_link_args,
     cpp_args: [
         '-DVERSION="' + version + '"',

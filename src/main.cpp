@@ -6,6 +6,7 @@
 #include "mesontree.hpp"
 #include "polyfill.hpp"
 #include "typenamespace.hpp"
+#include "vcs_version.h"
 
 #include <algorithm>
 #include <csignal>
@@ -85,7 +86,8 @@ void printHelp() {
 }
 
 void printVersion() {
-  std::cout << "mesonlsp version: " << VERSION << std::endl;
+  std::cout << "mesonlsp version: " << VERSION << " (" << VCS_VERSION << ")"
+            << std::endl;
   std::cout << "Using C compiler:       " << CC_VERSION << std::endl;
   std::cout << "Using C++ compiler:     " << CXX_VERSION << std::endl;
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
