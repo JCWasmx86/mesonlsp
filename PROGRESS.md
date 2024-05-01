@@ -125,12 +125,12 @@
   - [x] Foreach-Loops
   - [x] Selection-Statements
 - [x] Automatic update of vscode-meson
-- [ ] Improve heuristics for subdir etc.
+- [x] Improve heuristics for subdir etc.
 - [ ] More Codeactions
   - [ ] `''.format(x,y,z)` where the arguments are only identifiers, convert to format string
 - [ ] More tests
-  - [ ] LSP-Tests using pygls
-  - [ ] Other tests using XCTest
+  - [x] LSP-Tests using pygls
+  - [ ] Other tests using GTest
     - [ ] Find declaration
     - [ ] Find definition
     - [ ] Document symbols
