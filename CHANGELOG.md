@@ -7,6 +7,7 @@
 - Fix types of `default_options`
 - Make `mesonlsp` compile on `aarch64-unknown-linux-gnu`
 - Don't report warning about format identifiers in string for `vcs_tag::@replace_string@`
+- Show errors for nested ternaries, as they are forbidden.
 # 4.1.8 (Apr 01 2024)
 - Minor fix
 # 4.1.6 (Apr 01 2024)

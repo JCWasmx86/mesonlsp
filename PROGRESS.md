@@ -116,7 +116,7 @@
       - [x] zip
     - [x] Applying diffs works
 ## Version 4.0
-- [ ] Checking for nested ternaries
+- [x] Checking for nested ternaries
 - [ ] Semantic tokens
   - [x] Single-line strings
   - [ ] Multi-line strings

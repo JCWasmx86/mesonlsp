@@ -907,6 +907,21 @@ void TypeAnalyzer::visitConditionalExpression(ConditionalExpression *node) {
   types.insert(types.end(), node->ifFalse->types.begin(),
                node->ifFalse->types.end());
   node->types = dedup(this->ns, types);
+  const auto *parent = node->parent;
+  while (parent) {
+    if (parent->type == CONDITIONAL_EXPRESSION) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::ERROR, node,
+                           "Nested ternary operators are not allowed."));
+      break;
+    }
+    if (parent->type == BUILD_DEFINITION ||
+        parent->type == SELECTION_STATEMENT ||
+        parent->type == ITERATION_STATEMENT) {
+      break;
+    }
+    parent = parent->parent;
+  }
   for (const auto &type : node->condition->types) {
     if (type->tag == ANY || type->tag == BOOL || type->tag == DISABLER) {
       return;
