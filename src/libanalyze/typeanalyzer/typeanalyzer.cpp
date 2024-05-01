@@ -2522,7 +2522,13 @@ void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
         break;
       }
     }
-    if (reallyFound) {
+    const auto isKwargArg =
+        (node->parent != nullptr) && node->parent->type == KEYWORD_ITEM &&
+        static_cast<const KeywordItem *>(node->parent)->value->equals(node) &&
+        static_cast<const KeywordItem *>(node->parent)->name.has_value() &&
+        static_cast<const KeywordItem *>(node->parent)->name.value() ==
+            "replace_string";
+    if (reallyFound && !isKwargArg) {
       this->metadata->registerDiagnostic(
           node, Diagnostic(Severity::WARNING, node,
                            "Found format identifiers in string, but literal is "

@@ -6,6 +6,7 @@
 - Add option to emit warnings, if a loop variable is overwritten in the body. (Off by default, `enableIterationVariableLint`)
 - Fix types of `default_options`
 - Make `mesonlsp` compile on `aarch64-unknown-linux-gnu`
+- Don't report warning about format identifiers in string for `vcs_tag::@replace_string@`
 # 4.1.8 (Apr 01 2024)
 - Minor fix
 # 4.1.6 (Apr 01 2024)
