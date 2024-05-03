@@ -177,7 +177,8 @@ jobs:
           export LDFLAGS="-L$PWD/libs"
           export CPPFLAGS="-I$(brew --prefix)/opt/libarchive/include -I$(brew --prefix)/opt/zstd/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include -I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/expat/include -I$(brew --prefix)/opt/zlib/include"
           export PKG_CONFIG_PATH="$(brew --prefix)/opt/zstd/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig:$(brew --prefix)/opt/expat/lib/pkgconfig:$(brew --prefix)/opt/zlib/lib/pkgconfig"
-          sudo rm $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib || sudo rm /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib
+          mkdir ttttmp
+          sudo mv $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib ttttmp/ || sudo mv /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/*.dylib ttttmp/
           brew link --overwrite pkg-config
           export PATH="/opt/homebrew/opt/libarchive/bin:$PATH"
           meson setup _build --buildtype release -Db_lto=true --default-library=static --prefer-static
@@ -187,7 +188,8 @@ jobs:
           cp _build/src/mesonlsp ${{ github.workspace }}/Artifacts/mesonlsp
           brew list --versions -d >> ${{ github.workspace }}/Artifacts/env.txt
           cp COPYING ${{ github.workspace }}/Artifacts/COPYING
-          ./scripts/create_license_file.sh
+          sudo cp ttttmp/*.dylib $(brew --prefix)/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/ || sudo cp ttttmp/*.dylib /opt/homebrew/opt/{libarchive,zstd,zlib,expat,xz,lz4,libb2}/lib/ || true
+          ./scripts/create_license_file.sh || touch 3rdparty.txt
           cp 3rdparty.txt ${{ github.workspace }}/Artifacts/COPYING
           zip -9jpr mesonlsp-${{ matrix.id.triple }}.zip ${{ github.workspace }}/Artifacts/*
       - name: Upload to release
