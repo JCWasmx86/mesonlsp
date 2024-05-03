@@ -52,10 +52,10 @@ jobs:
           podman --version
           DOCKER_BUILDKIT=1 docker build --platform linux/arm64 --network=host --file Dockerfile --output out .
           sudo cp out/mesonlsp-alpine-static.zip mesonlsp-aarch64-unknown-linux-musl.zip
-          unzip -o mesonlsp-aarch64-unknown-linux-musl.zip
-          zip -9 mesonlint-aarch64-unknown-linux-musl.zip mesonlint env.txt COPYING
-          rm mesonlsp mesonlint env.txt
-          zip -d mesonlsp-aarch64-unknown-linux-musl.zip mesonlint
+          sudo unzip -o mesonlsp-aarch64-unknown-linux-musl.zip
+          sudo zip -9 mesonlint-aarch64-unknown-linux-musl.zip mesonlint env.txt COPYING
+          sudo rm mesonlsp mesonlint env.txt
+          sudo zip -d mesonlsp-aarch64-unknown-linux-musl.zip mesonlint
       - name: Upload to release
         uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
@@ -79,10 +79,10 @@ jobs:
           podman --version
           DOCKER_BUILDKIT=1 docker build --network=host --file Dockerfile --output out .
           sudo cp out/mesonlsp-alpine-static.zip mesonlsp-x86_64-unknown-linux-musl.zip
-          unzip -o mesonlsp-x86_64-unknown-linux-musl.zip
-          zip -9 mesonlint-x86_64-unknown-linux-musl.zip mesonlint env.txt COPYING
-          rm mesonlsp mesonlint env.txt
-          zip -d mesonlsp-x86_64-unknown-linux-musl.zip mesonlint
+          sudo unzip -o mesonlsp-x86_64-unknown-linux-musl.zip
+          sudo zip -9 mesonlint-x86_64-unknown-linux-musl.zip mesonlint env.txt COPYING
+          sudo rm mesonlsp mesonlint env.txt
+          sudo zip -d mesonlsp-x86_64-unknown-linux-musl.zip mesonlint
       - name: Upload to release
         uses: xresloader/upload-to-github-release@26f7cc1d7d924dc9b6d5008808be8278b7177811 # main
         with:
