@@ -253,6 +253,10 @@ both_libraries:
       - Optional: true
       - Types:
         - list(str)
+    - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:
@@ -262,6 +266,10 @@ both_libraries:
       - Types:
         - str
     - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
       - Optional: true
       - Types:
         - list(str)
@@ -2045,6 +2053,18 @@ library:
       - Optional: true
       - Types:
         - list(str)
+    - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:
@@ -2468,7 +2488,19 @@ shared_library:
       - Optional: true
       - Types:
         - str
+    - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_static_args:
       - Optional: true
       - Types:
         - list(str)
