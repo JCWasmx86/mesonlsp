@@ -241,6 +241,110 @@ both_libraries:
       - Optional: true
       - Types:
         - str
+    - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_shared_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_static_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @c_args:
       - Optional: true
       - Types:
@@ -249,14 +353,6 @@ both_libraries:
       - Optional: true
       - Types:
         - str
-    - @c_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:
@@ -265,14 +361,6 @@ both_libraries:
       - Optional: true
       - Types:
         - str
-    - @cpp_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @cpp_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
     - @cs_args:
       - Optional: true
       - Types:
@@ -525,6 +613,110 @@ build_target:
         - custom_idx
         - generated_list
         - build_tgt
+    - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_shared_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_static_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @build_by_default:
       - Optional: true
       - Types:
@@ -541,14 +733,6 @@ build_target:
       - Optional: true
       - Types:
         - str
-    - @c_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:
@@ -2029,6 +2213,110 @@ library:
         - generated_list
         - build_tgt
         - external_program
+    - @c_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_shared_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_shared_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @fortran_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objc_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_static_args:
+      - Optional: true
+      - Types:
+        - list(file|str)
+    - @cs_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @nasm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @masm_static_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @build_by_default:
       - Optional: true
       - Types:
@@ -2045,26 +2333,6 @@ library:
       - Optional: true
       - Types:
         - str
-    - @c_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @cpp_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @cpp_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:
@@ -2488,22 +2756,6 @@ shared_library:
       - Optional: true
       - Types:
         - str
-    - @cpp_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @cpp_shared_args:
-      - Optional: true
-      - Types:
-        - list(str)
-    - @c_static_args:
-      - Optional: true
-      - Types:
-        - list(str)
     - @cpp_args:
       - Optional: true
       - Types:

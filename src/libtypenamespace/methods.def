@@ -548,6 +548,11 @@ compiler::compiles:
       - Optional: true
       - Types:
         - bool
+    - @required:
+      - Optional: true
+      - Types:
+        - bool
+        - feature
   - returns:
     - bool
 compiler::compute_int:
@@ -1084,6 +1089,11 @@ compiler::links:
       - Optional: true
       - Types:
         - bool
+    - @required:
+      - Optional: true
+      - Types:
+        - bool
+        - feature
   - returns:
     - bool
 compiler::preprocess:
@@ -1155,6 +1165,11 @@ compiler::run:
       - Optional: true
       - Types:
         - bool
+    - @required:
+      - Optional: true
+      - Types:
+        - bool
+        - feature
   - returns:
     - runresult
 compiler::sizeof:
