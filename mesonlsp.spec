@@ -49,7 +49,7 @@ A meson language server
 %{_prefix}/lib/debug/usr/bin/mesonlsp-%{version}-0.1.x86_64.debug
 
 %changelog
-* Mon Apr 15 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.2.0-0.1
+* Fri May 03 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.2.0-0.1
 - Bump to v4.2.0
 * Mon Apr 01 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.1.8-0.1
 - Bump to v4.1.8

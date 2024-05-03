@@ -1,4 +1,4 @@
-# 4.2.0 (Apr 15 2024)
+# 4.2.0 (May 03 2024)
 - Add `mesonlint` tool that allows to lint a project and to check+fix the formatting. It's currently not integrated with the language server.
 - Fix a few deprecation informations (#70, by @ptomato)
 - Fix crash if there was an iteration statement without variables
@@ -8,6 +8,7 @@
 - Make `mesonlsp` compile on `aarch64-unknown-linux-gnu`
 - Don't report warning about format identifiers in string for `vcs_tag::@replace_string@`
 - Show errors for nested ternaries, as they are forbidden.
+- Add a few new kwargs from meson 1.4.0
 # 4.1.8 (Apr 01 2024)
 - Minor fix
 # 4.1.6 (Apr 01 2024)
