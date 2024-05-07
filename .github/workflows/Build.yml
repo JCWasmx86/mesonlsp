@@ -138,13 +138,13 @@ jobs:
           cat _build/meson-logs/testlog.txt
           _build/tests/libcxathrow/cxathrowtest.exe
           strings _build/src/mesonlsp.exe|grep \\.dll$
-          find /d/ | grep libarchive-13.dll
+          (find /d/ | grep "libarchive-13.dll") || true
           mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/
           mkdir -p /d/Artifacts
           cp _build/src/mesonlsp.exe /d/Artifacts
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
           ls /d/Artifacts
-          find /d/|grep mesonlsp.exe
+          (find /d/ | grep "mesonlsp.exe") || true
           ./scripts/create_license_file.sh
           cp 3rdparty.txt /d/Artifacts
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
