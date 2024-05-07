@@ -19,8 +19,7 @@ cd .. || exit
 git clone --depth=1 https://github.com/GNOME/gtk
 cd gtk || exit
 $LSPPATH
-# Undefined variables in dead code
-[ "$($LSPPATH |& grep 🔴 -c)" -eq "6" ] || exit 1
+[ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/GNOME/glib
 cd glib || exit
