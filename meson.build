@@ -153,7 +153,7 @@ gtest_dep = dependency('gtest', main: true, required: false)
 
 subdir('src')
 
-if not gtest_dep.found()
+if not gtest_dep.found() and get_option('tests')
     gtest_proj = subproject('gtest')
     gtest_dep = gtest_proj.get_variable('gtest_dep')
 endif
