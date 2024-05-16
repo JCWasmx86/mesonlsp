@@ -4800,6 +4800,10 @@ rust_module::bindgen:
       - Optional: false
       - Types:
         - str
+    - @output_inline_wrapper:
+      - Optional: true
+      - Types:
+        - str
   - returns:
     - custom_tgt
 simd_module::check:
