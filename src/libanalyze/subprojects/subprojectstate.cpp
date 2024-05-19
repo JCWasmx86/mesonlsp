@@ -24,9 +24,46 @@ static std::string normalizeURLToFilePath(const std::string &url);
 
 static std::string lookAhead(const std::string &line, size_t initialOffset);
 
-void SubprojectState::findSubprojects(bool downloadSubprojects) {
+static std::string getSubprojectBaseDir(MesonTree *&tree) {
+  std::string subprojectsBaseDir = "subprojects";
+  const auto &rootFile = tree->root / "meson.build";
+  if (!tree->asts.contains(rootFile)) {
+    return subprojectsBaseDir;
+  }
+  const auto &nodes = tree->asts.at(rootFile);
+  for (const auto &node : nodes) {
+    const auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+    const auto *fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
+    if (fe->functionName() != "project") {
+      continue;
+    }
+    const auto alNode = fe->args;
+    if (!alNode) {
+      break;
+    }
+    const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
+    if (!al) {
+      break;
+    }
+    const auto subprojectsBaseDirKwarg = al->getKwarg("subproject_dir");
+    if (!subprojectsBaseDirKwarg) {
+      break;
+    }
+    const auto *subprojectsDirSL =
+        dynamic_cast<StringLiteral *>(subprojectsBaseDirKwarg->get());
+    if (!subprojectsDirSL) {
+      break;
+    }
+    subprojectsBaseDir = subprojectsDirSL->id;
+  }
+  return subprojectsBaseDir;
+}
+
+void SubprojectState::findSubprojects(bool downloadSubprojects,
+                                      MesonTree *tree) {
+  const std::string subprojectsBaseDir = getSubprojectBaseDir(tree);
   const auto &subprojectsDir =
-      std::filesystem::absolute(this->root) / "subprojects";
+      std::filesystem::absolute(this->root) / subprojectsBaseDir;
   if (!std::filesystem::exists(subprojectsDir) ||
       !std::filesystem::is_directory(subprojectsDir)) {
     return;

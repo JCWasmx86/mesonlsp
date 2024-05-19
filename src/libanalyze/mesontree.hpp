@@ -45,6 +45,7 @@ public:
 
   void fullParse(AnalysisOptions analysisOptions, bool downloadSubprojects) {
     if (this->depth < MAX_TREE_DEPTH) {
+      this->parseRootFile();
       this->state.used = true;
       this->state.fullSetup(analysisOptions, depth + 1, this->identifier,
                             this->ns, downloadSubprojects,
@@ -82,6 +83,7 @@ public:
   MesonTree &operator=(const MesonTree &) = delete;
 
 private:
+  std::shared_ptr<Node> parseRootFile();
   OptionState parseFile(const std::filesystem::path &path,
                         MesonMetadata *originalMetadata);
   OptionState parseOptions(const std::filesystem::path &treeRoot,
