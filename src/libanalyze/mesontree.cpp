@@ -186,6 +186,19 @@ std::shared_ptr<Node> MesonTree::parseFile(const std::filesystem::path &path) {
   return rootNode;
 }
 
+std::shared_ptr<Node> MesonTree::parseRootFile() {
+  const auto &rootFile = this->root / "meson.build";
+  if (this->asts.contains(rootFile)) {
+    return this->asts.at(rootFile).back();
+  }
+  if (!std::filesystem::exists(rootFile)) {
+    LOG.warn(
+        std::format("No meson.build file in {}", this->root.generic_string()));
+    return nullptr;
+  }
+  return this->parseFile(rootFile);
+}
+
 void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   LOG.info(std::format("Parsing {} ({})", this->identifier,
                        this->root.generic_string()));
@@ -193,13 +206,10 @@ void MesonTree::partialParse(AnalysisOptions analysisOptions) {
   const auto &optState = parseOptions(this->root, &this->metadata);
   // Then fetch diagnostics for the options
   // Then parse the root meson.build file
-  const auto &rootFile = this->root / "meson.build";
-  if (!std::filesystem::exists(rootFile)) {
-    LOG.warn(
-        std::format("No meson.build file in {}", this->root.generic_string()));
+  const auto rootNode = this->parseRootFile();
+  if (!rootNode) {
     return;
   }
-  auto rootNode = this->parseFile(rootFile);
   this->scope.variables["meson"] = {this->ns.types.at("meson")};
   this->scope.variables["build_machine"] = {this->ns.types.at("build_machine")};
   this->scope.variables["host_machine"] = {this->ns.types.at("host_machine")};

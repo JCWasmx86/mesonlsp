@@ -20,7 +20,7 @@ public:
   explicit SubprojectState(std::filesystem::path root)
       : root(std::move(root)) {}
 
-  void findSubprojects(bool downloadSubprojects);
+  void findSubprojects(bool downloadSubprojects, MesonTree *tree);
   void initSubprojects();
   void updateSubprojects();
   void parseSubprojects(const AnalysisOptions &options, int depth,
@@ -54,7 +54,7 @@ public:
                  const std::string &parentIdentifier, const TypeNamespace &ns,
                  bool downloadSubprojects, bool useCustomParser,
                  MesonTree *tree) {
-    this->findSubprojects(downloadSubprojects);
+    this->findSubprojects(downloadSubprojects, tree);
     this->initSubprojects();
     this->updateSubprojects();
     this->parseSubprojects(options, depth, parentIdentifier, ns,
