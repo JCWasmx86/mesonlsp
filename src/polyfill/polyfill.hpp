@@ -1,9 +1,6 @@
 #pragma once
 
 #if defined(__APPLE__)
-#if __has_include(<format>) and !defined(__x86_64__)
-#include <format>
-#else
 #include <chrono>
 #include <fmt/core.h>
 
