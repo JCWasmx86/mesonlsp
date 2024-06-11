@@ -20,8 +20,9 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
     return fmt::format_to(ctx.out(), "{}", tp.time_since_epoch().count());
   }
 };
-#endif
-#ifdef _WIN32
+#elif defined(_WIN32)
+#include <format>
+
 template <> struct std::formatter<wchar_t *> {
   constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
 
@@ -30,5 +31,6 @@ template <> struct std::formatter<wchar_t *> {
     return std::format_to(ctx.out(), L"{}", str);
   }
 };
-
+#else
+#include <format>
 #endif
