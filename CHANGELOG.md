@@ -1,4 +1,5 @@
-- Add support for specifying custom subproject_dir (top level directory name that holds Meson subprojects)
+# Next (XXX XX 2024)
+- Add support for specifying custom `subproject_dir` (top level directory name that holds Meson subprojects)
 # 4.2.0 (May 03 2024)
 - Add `mesonlint` tool that allows to lint a project and to check+fix the formatting. It's currently not integrated with the language server.
 - Fix a few deprecation informations (#70, by @ptomato)
