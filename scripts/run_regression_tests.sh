@@ -2,6 +2,10 @@
 # This script will always clone from Github instead of e.g. GNOME Gitlab
 # in order to save resources of these projects
 export LSPPATH=$PWD/_clang/src/mesonlsp
+cd tests/integration/subproj || exit 1
+$LSPPATH
+[ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
+cd ../../.. || exit
 rm -rf __regressions
 mkdir __regressions
 cd __regressions || exit
