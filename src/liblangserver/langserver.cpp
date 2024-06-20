@@ -43,7 +43,7 @@ void printGreeting() {
   const auto nowTm = *std::localtime(&nowTimeT);
   const auto month = nowTm.tm_mon + 1;
   const auto day = nowTm.tm_mday;
-  if (false && month == 6) {
+  if (month == 6) {
     // For some reason the flag doesn't work, it ends up as white flag and a
     // rainbow :/
     LOG.info("🎉Happy Pride Month🎉");
