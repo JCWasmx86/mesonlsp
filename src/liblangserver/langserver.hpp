@@ -7,6 +7,8 @@
 #include "workspace.hpp"
 
 #include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -19,10 +21,15 @@
 #if __has_include(<sys/inotify.h>)
 #define HAS_INOTIFY
 #endif
+void printGreeting();
 
 class LanguageServer : public AbstractLanguageServer {
 public:
-  LanguageServer() { this->initPkgNames(); }
+  LanguageServer() {
+    srand(time(nullptr));
+    this->initPkgNames();
+    printGreeting();
+  }
 
   void initPkgNames();
   std::vector<std::shared_ptr<Workspace>> workspaces;

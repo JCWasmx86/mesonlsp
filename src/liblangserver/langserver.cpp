@@ -36,6 +36,70 @@ extern "C" {
 
 const static Logger LOG("LanguageServer"); // NOLINT
 
+void printGreeting() {
+  const auto now = std::chrono::system_clock::now();
+  const auto nowTimeT = std::chrono::system_clock::to_time_t(now);
+
+  const auto nowTm = *std::localtime(&nowTimeT);
+  const auto month = nowTm.tm_mon + 1;
+  const auto day = nowTm.tm_mday;
+  if (false && month == 6) {
+    // For some reason the flag doesn't work, it ends up as white flag and a
+    // rainbow :/
+    LOG.info("🎉Happy Pride Month🎉");
+    std::cerr << "🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥" << std::endl;
+    std::cerr << "🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧" << std::endl;
+    std::cerr << "🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨" << std::endl;
+    std::cerr << "🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩" << std::endl;
+    std::cerr << "🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦" << std::endl;
+    std::cerr << "🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪" << std::endl;
+    return;
+  }
+  if (month == 4 && day == 1) {
+    // April Fools
+    std::vector<std::string> messages = {
+        "Converting your meson project to CMake…",
+        "Converting your meson project to Autotools…",
+        "Converting your project to Rust…",
+        "Adding a new dependency: Microsoft Bob",
+        "Installing a new AI assistant: Clippy"};
+    const auto index = std::rand() % messages.size();
+    std::cerr << messages[index] << std::endl;
+    return;
+  }
+  if (month == 10 && day == 31) {
+    // Halloween
+    std::vector<std::string> messages = {"🎃 Happy Halloween",
+                                         "👻 Happy Halloween"};
+    const auto index = std::rand() % messages.size();
+    std::cerr << messages[index] << std::endl;
+    return;
+  }
+  if (month == 4 && day == 22) {
+    // Earth day
+    std::vector<std::string> messages = {
+        "Happy Earth Day! 🌍 ♻️",
+        "Happy Earth Day! 🌍 Have you checked out 🚆 or 🚴? - Those are nice."};
+    const auto index = std::rand() % messages.size();
+    std::cerr << messages[index] << std::endl;
+    return;
+  }
+  if (month == 12 && day == 10) {
+    // Universal Declaration of Human Rights
+    std::vector<std::string> messages = {
+        "All human beings are born free and equal in dignity and rights.",
+        "Everyone is entitled to all the rights and freedoms set forth in this "
+        "Declaration, without distinction of any kind, such as race, colour, "
+        "sex, language, religion, political or other opinion, national or "
+        "social origin, property, birth or other status.",
+        "Everyone has the right to life, liberty and the security of person."};
+    const auto index = std::rand() % messages.size();
+    std::cerr << "🎉Happy Birthday Human Rights🎉" << std::endl;
+    std::cerr << messages[index] << std::endl;
+    return;
+  }
+}
+
 std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
   const auto &name =
       std::format("muon-2-fmt-{}-{}", options.insertSpaces, options.tabSize);
