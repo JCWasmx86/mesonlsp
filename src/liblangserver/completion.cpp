@@ -122,9 +122,6 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
   ret.assign(deduped.begin(), deduped.end());
   std::ranges::sort(ret,
                     [](const auto &lhs, const auto &rhs) { return lhs < rhs; });
-  for (const auto &r : ret) {
-    std::cerr << r.toJson() << std::endl;
-  }
   return ret;
 }
 
