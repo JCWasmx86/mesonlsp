@@ -243,6 +243,10 @@ public:
     }
     return this->character < right.character;
   }
+
+  bool operator==(const LSPPosition &right) const {
+    return this->line == right.line && this->character == right.line;
+  }
 };
 
 class LSPRange : public BaseObject {
@@ -279,6 +283,10 @@ public:
 
   bool operator<(const LSPRange &right) const {
     return this->start < right.start;
+  }
+
+  bool operator==(const LSPRange &right) const {
+    return this->start == right.start && this->end == right.start;
   }
 };
 
@@ -477,6 +485,14 @@ public:
 
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"range", range.toJson()}, {"newText", newText}};
+  }
+
+  bool operator<(const TextEdit &other) const {
+    return this->range < other.range;
+  }
+
+  bool operator==(const TextEdit &other) const {
+    return this->range == other.range;
   }
 };
 
@@ -687,6 +703,15 @@ public:
         {"textEdit", textEdit.toJson()},
         {"insertTextFormat", 2},
     };
+  }
+
+  bool operator<(const CompletionItem &other) const {
+    return this->label < other.label;
+  }
+
+  bool operator==(const CompletionItem &other) const {
+    return this->kind == other.kind && this->textEdit == other.textEdit &&
+           this->label == other.label;
   }
 };
 

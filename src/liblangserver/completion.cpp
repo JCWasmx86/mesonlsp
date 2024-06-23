@@ -12,6 +12,7 @@
 #include "typeanalyzer.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdint>
@@ -40,6 +41,7 @@ static void specialStringLiteralAutoCompletion(
     const std::set<std::string> &pkgNames, std::vector<CompletionItem> &ret);
 static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
+                             const std::optional<IdExpression *> idExpr,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position);
 static void afterDotCompletion(std::vector<CompletionItem> &ret,
@@ -60,10 +62,12 @@ findUnusedKwargs(const ArgumentList *al, const std::shared_ptr<Function> &func);
 static void inCallCompletion(const MesonTree *tree,
                              const std::filesystem::path &path,
                              const LSPPosition &position,
+                             const std::optional<IdExpression *> idExpr,
                              std::vector<CompletionItem> &ret);
 static void inCallCompletionFunction(const MesonTree *tree,
                                      const std::filesystem::path &path,
                                      const LSPPosition &position,
+                                     const std::optional<IdExpression *> idExpr,
                                      std::vector<CompletionItem> &ret);
 static void
 specialStringLiteralAutoCompletion(const StringLiteral *literal,
@@ -104,7 +108,7 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
   const auto inCall = trimmedPrev.empty() || trimmedPrev == ")" ||
                       following.starts_with(",") || following.starts_with(")");
   if (inCall) {
-    inCallCompletion(tree, path, position, ret);
+    inCallCompletion(tree, path, position, idExprAtPos, ret);
   }
   const auto slAtPos = tree->metadata.findStringLiteralAt(path, position.line,
                                                           position.character);
@@ -112,12 +116,22 @@ std::vector<CompletionItem> complete(const std::filesystem::path &path,
     LOG.info("Found string literal");
     specialStringLiteralAutoCompletion(tree, slAtPos.value(), pkgNames, ret);
   }
+  std::set<CompletionItem> deduped;
+  deduped.insert(ret.begin(), ret.end());
+  ret.clear();
+  ret.assign(deduped.begin(), deduped.end());
+  std::ranges::sort(ret,
+                    [](const auto &lhs, const auto &rhs) { return lhs < rhs; });
+  for (const auto &r : ret) {
+    std::cerr << r.toJson() << std::endl;
+  }
   return ret;
 }
 
 static void inCallCompletionFunction(const MesonTree *tree,
                                      const std::filesystem::path &path,
                                      const LSPPosition &position,
+                                     const std::optional<IdExpression *> idExpr,
                                      std::vector<CompletionItem> &ret) {
   const auto &callOpt = tree->metadata.findFullFunctionExpressionAt(
       path, position.line, position.character);
@@ -129,27 +143,28 @@ static void inCallCompletionFunction(const MesonTree *tree,
     return;
   }
   const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-  inCallCompletion(al, callOpt.value()->function, ret, position);
+  inCallCompletion(al, callOpt.value()->function, idExpr, ret, position);
 }
 
 static void inCallCompletion(const MesonTree *tree,
                              const std::filesystem::path &path,
                              const LSPPosition &position,
+                             const std::optional<IdExpression *> idExpr,
                              std::vector<CompletionItem> &ret) {
   auto callOpt = tree->metadata.findFullMethodExpressionAt(path, position.line,
                                                            position.character);
   if (!callOpt.has_value()) {
-    inCallCompletionFunction(tree, path, position, ret);
+    inCallCompletionFunction(tree, path, position, idExpr, ret);
     return;
   }
   const auto &alNode = callOpt.value()->args;
   if (!alNode || !callOpt.value()->method) {
-    inCallCompletionFunction(tree, path, position, ret);
+    inCallCompletionFunction(tree, path, position, idExpr, ret);
     return;
   }
   const auto *al = dynamic_cast<ArgumentList *>(alNode.get());
-  inCallCompletion(al, callOpt.value()->method, ret, position);
-  inCallCompletionFunction(tree, path, position, ret);
+  inCallCompletion(al, callOpt.value()->method, idExpr, ret, position);
+  inCallCompletionFunction(tree, path, position, idExpr, ret);
 }
 
 static void emptyLineCompletion(const MesonTree *tree,
@@ -504,11 +519,13 @@ static void specialStringLiteralAutoCompletion(
 
 static void inCallCompletion(const ArgumentList *al,
                              const std::shared_ptr<Function> &func,
+                             const std::optional<IdExpression *> idExpr,
                              std::vector<CompletionItem> &ret,
                              const LSPPosition &position) {
   for (const auto &toAdd : findUnusedKwargs(al, func)) {
     ret.emplace_back(toAdd, CompletionItemKind::KEYWORD,
-                     TextEdit(LSPRange(position, position),
+                     TextEdit(idExpr.has_value() ? nodeToRange(idExpr.value())
+                                                 : LSPRange(position, position),
                               std::format("{}: ${{1:{}}}", toAdd, toAdd)));
   }
 }
