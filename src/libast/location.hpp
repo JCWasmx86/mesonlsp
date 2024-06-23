@@ -53,4 +53,8 @@ public:
     return std::format("[{}:{}]->[{}:{}]", this->startLine, this->startColumn,
                        this->endLine, this->endColumn);
   }
+
+  bool operator==(const Location &other) const {
+    return this->columns == other.columns && this->lines == other.lines;
+  }
 };

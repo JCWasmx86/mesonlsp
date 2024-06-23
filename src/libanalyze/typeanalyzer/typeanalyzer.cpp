@@ -1650,7 +1650,8 @@ err:
       goto err2;
     }
     const auto *key = static_cast<IdExpression *>(kwi->key.get());
-    if (key->hash == idExpr->hash && key->id == idExpr->id) {
+    if (key->hash == idExpr->hash && key->id == idExpr->id &&
+        key->location == idExpr->location) {
       return true;
     }
   }
