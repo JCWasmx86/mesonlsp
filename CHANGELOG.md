@@ -1,5 +1,6 @@
 # Next (XXX XX 2024)
 - Add support for specifying custom `subproject_dir` (top level directory name that holds Meson subprojects)
+- Fix code formatting duplicating the last line when meson.build has fewer lines (#101)
 # 4.2.0 (May 03 2024)
 - Add `mesonlint` tool that allows to lint a project and to check+fix the formatting. It's currently not integrated with the language server.
 - Fix a few deprecation informations (#70, by @ptomato)
