@@ -463,7 +463,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   // Editors don't care, if we tell them, that the file is
   // a lot longer than it really is, so we just guess some
   // number of lines.
-  auto guesstimatedLines = (toFormat.size() / 40) * 10;
+  auto guesstimatedLines = (toFormat.size() / 40) * 1000 + 50;
   auto edit = TextEdit(
       LSPRange(LSPPosition(0, 0), LSPPosition(guesstimatedLines, 2000)),
       std::string(asString));
