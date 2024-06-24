@@ -217,7 +217,7 @@ using enum TypeName;
 using enum NodeType;
 
 static std::vector<std::shared_ptr<Type>>
-dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types);
+dedup(const TypeNamespace &ns, const std::vector<std::shared_ptr<Type>> &types);
 static bool isSnakeCase(const std::string &str);
 static bool isShoutingSnakeCase(const std::string &str);
 static bool isType(const std::shared_ptr<Type> &type, TypeName tag);
@@ -2639,7 +2639,8 @@ void TypeAnalyzer::checkIfInLoop(Node *node, std::string str) const {
 }
 
 static std::vector<std::shared_ptr<Type>>
-dedup(const TypeNamespace &ns, std::vector<std::shared_ptr<Type>> types) {
+dedup(const TypeNamespace &ns,
+      const std::vector<std::shared_ptr<Type>> &types) {
   if (types.size() <= 1) {
     return types;
   }
