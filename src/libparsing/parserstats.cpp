@@ -57,6 +57,10 @@ private:
   uint64_t totalNumBlocks = 0;
   uint64_t totalNumConditions = 0;
   uint64_t totalNumStmtsInBlocks = 0;
+  uint64_t totalNumIdentifiers = 0;
+  uint64_t totalNumSLs = 0;
+  std::set<std::string> identifiers = {};
+  std::set<std::string> literals = {};
   std::vector<std::pair<size_t, size_t>> buildDefinitionSizes;
 };
 
@@ -111,6 +115,12 @@ void StatsExtractor::print() const {
   const auto &[slope, yIntercept] =
       computeLinearEquation(this->buildDefinitionSizes);
   std::cerr << std::format("f(fileSize) = {}x + {}", slope, yIntercept)
+            << std::endl;
+  std::cerr << std::format("Identifiers (total/num unique) {}/{}",
+                           this->totalNumIdentifiers, this->identifiers.size())
+            << std::endl;
+  std::cerr << std::format("String literals (total/num unique) {}/{}",
+                           this->totalNumSLs, this->literals.size())
             << std::endl;
 }
 
@@ -171,6 +181,8 @@ void StatsExtractor::visitFunctionExpression(FunctionExpression *node) {
 
 void StatsExtractor::visitIdExpression(IdExpression *node) {
   node->visitChildren(this);
+  this->totalNumIdentifiers++;
+  this->identifiers.insert(node->id);
 }
 
 void StatsExtractor::visitIntegerLiteral(IntegerLiteral *node) {
@@ -207,6 +219,8 @@ void StatsExtractor::visitSelectionStatement(SelectionStatement *node) {
 
 void StatsExtractor::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
+  this->totalNumSLs++;
+  this->literals.insert(node->id);
 }
 
 void StatsExtractor::visitSubscriptExpression(SubscriptExpression *node) {
