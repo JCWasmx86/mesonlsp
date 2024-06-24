@@ -33,8 +33,8 @@ void printHelp() {
 }
 
 void printVersion() {
-  std::cout << "mesonlint version: " << VERSION << " (" << VCS_VERSION << ")"
-            << std::endl;
+  std::cout << "mesonlint version:      " << VERSION << " (" << VCS_VERSION
+            << ")" << std::endl;
   std::cout << "Using C compiler:       " << CC_VERSION << std::endl;
   std::cout << "Using C++ compiler:     " << CXX_VERSION << std::endl;
   std::cout << "Linker:                 " << LINKER_ID << std::endl;
