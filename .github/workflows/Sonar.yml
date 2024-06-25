@@ -28,7 +28,7 @@ jobs:
           pip install meson pygls lsprotocol
           dnf clean all
       - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@e4882e1621ad2fb48dddfa48287411bed34789b1 # v2.0.2
+        uses: SonarSource/sonarcloud-github-c-cpp@e25edaefff1e076daf6517d462ed86f8c99fec70 # v3.0.0
       - name: Run build-wrapper
         run: |
           meson _build
