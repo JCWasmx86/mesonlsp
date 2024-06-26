@@ -40,7 +40,8 @@ static const std::set<std::string> COMPILER_IDS = /*NOLINT*/ {
     "nagfor",        "nvidia_hpc", "open64",     "pathscale", "pgi",
     "rustc",         "sun",        "c2000",      "ti",        "valac",
     "xc16",          "cython",     "nasm",       "yasm",      "ml",
-    "armasm",        "mwasmarm",   "mwasmeppc",
+    "armasm",        "mwasmarm",   "mwasmeppc",  "c6000",     "mwccarm",
+    "mwcceppc",      "nvcc",
 };
 
 static const std::set<std::string> ARGUMENT_SYNTAXES /*NOLINT*/ = {
@@ -49,7 +50,7 @@ static const std::set<std::string> LINKER_IDS /*NOLINT*/ = {
     "ld.bfd", "ld.gold",  "ld.lld",  "ld.mold",  "ld.solaris", "ld.wasm",
     "ld64",   "ld64.lld", "link",    "lld-link", "xilink",     "optlink",
     "rlink",  "xc16-ar",  "ar2000",  "ti-ar",    "armlink",    "pgi",
-    "nvlink", "ccomp",    "mwldarm", "mwldeppc",
+    "nvlink", "ccomp",    "mwldarm", "mwldeppc", "ar6000",
 };
 
 static const std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
@@ -58,7 +59,8 @@ static const std::set<std::string> CPU_FAMILIES /*NOLINT*/ = {
     "m68k",    "microblaze", "mips",   "mips32", "mips64",  "msp430",
     "parisc",  "pic24",      "ppc",    "ppc64",  "riscv32", "riscv64",
     "rl78",    "rx",         "s390",   "s390x",  "sh4",     "sparc",
-    "sparc64", "wasm32",     "wasm64", "x86",    "x86_64",
+    "sparc64", "wasm32",     "wasm64", "x86",    "x86_64",  "c6000",
+    "sw_64",
 };
 
 static const std::set<std::string> OS_NAMES /*NOLINT*/ = {
