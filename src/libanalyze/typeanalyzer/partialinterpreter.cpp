@@ -26,7 +26,8 @@ const static Logger LOG("typeanalyzer::partialinterpreter"); // NOLINT
 std::vector<std::shared_ptr<InterpretNode>> allAbstractStringCombinations(
     std::vector<std::vector<std::shared_ptr<InterpretNode>>> arrays);
 bool isValidMethod(const MethodExpression *me);
-std::string applyMethod(const std::string &deduced, const std::string &name);
+std::string applyMethod(const std::string &deduced, const std::string &name,
+                        const std::shared_ptr<Node> &args);
 bool isValidFunction(const FunctionExpression *fe);
 std::vector<std::string> splitString(const std::string &str);
 
@@ -427,7 +428,7 @@ PartialInterpreter::calculateExpression(const Node *parentExpr,
       std::vector<std::string> ret;
       ret.reserve(objStrs.size());
       for (const auto &objStr : objStrs) {
-        ret.emplace_back(applyMethod(objStr, meId->id));
+        ret.emplace_back(applyMethod(objStr, meId->id, me->args));
       }
       return ret;
     }
@@ -987,8 +988,8 @@ PartialInterpreter::abstractEvalMethod(const MethodExpression *me,
     }
     if (meid->id != "keys") {
       for (const auto &str : strValues) {
-        ret.emplace_back(
-            std::make_shared<ArtificialStringNode>(applyMethod(str, meid->id)));
+        ret.emplace_back(std::make_shared<ArtificialStringNode>(
+            applyMethod(str, meid->id, me->args)));
       }
     }
     const auto *dictionaryLiteral =
@@ -1367,11 +1368,12 @@ bool isValidMethod(const MethodExpression *me) {
     return false;
   }
   std::set<std::string> const names{"underscorify", "to_lower", "to_upper",
-                                    "strip", "keys"};
+                                    "strip",        "keys",     "replace"};
   return names.contains(meid->id);
 }
 
-std::string applyMethod(const std::string &deduced, const std::string &name) {
+std::string applyMethod(const std::string &deduced, const std::string &name,
+                        const std::shared_ptr<Node> &args) {
   if (name == "underscorify") {
     std::string ret;
     ret.reserve(deduced.size());
@@ -1388,6 +1390,29 @@ std::string applyMethod(const std::string &deduced, const std::string &name) {
     std::string data;
     std::ranges::transform(deduced, std::back_inserter(data),
                            [](unsigned char chr) { return std::tolower(chr); });
+    return data;
+  }
+  if (name == "replace") {
+    if (!args) {
+      return deduced;
+    }
+    if (args->type != NodeType::ARGUMENT_LIST) {
+      return deduced;
+    }
+    const auto &argList = static_cast<ArgumentList *>(args.get())->args;
+    if (argList.size() != 2) {
+      return deduced;
+    }
+    const auto &arg1 = argList[0];
+    const auto &arg2 = argList[1];
+    if (arg1->type != NodeType::STRING_LITERAL ||
+        arg2->type != NodeType::STRING_LITERAL) {
+      return deduced;
+    }
+    std::string data = deduced;
+    const auto &from = static_cast<StringLiteral *>(arg1.get())->id;
+    const auto &to = static_cast<StringLiteral *>(arg2.get())->id;
+    replace(data, from, to);
     return data;
   }
   if (name == "to_upper") {

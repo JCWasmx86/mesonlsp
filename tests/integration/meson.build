@@ -164,6 +164,10 @@ partial_interpreter_tests = [
         ['python_binding', 'cpp_binding', 'human_binding', 'lua___shim'],
         'imgui-options',
     ],
+    [
+        'replace',
+        ['bindir', 'store_dir'],
+    ],
 ]
 
 foreach test_data : partial_interpreter_tests
