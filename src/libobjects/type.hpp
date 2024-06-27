@@ -98,7 +98,7 @@ enum class TypeName : uint32_t {
   SOURCE_SET,
   SOURCE_CONFIGURATION,
   WAYLAND_MODULE,
-  WINDOWS_MODULE,
+  WINDOWS_MODULE, // Should be the last one
 };
 
 class Type {

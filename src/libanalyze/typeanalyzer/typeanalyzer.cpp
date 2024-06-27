@@ -1188,9 +1188,9 @@ void TypeAnalyzer::createDeprecationWarning(
 
 void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
                                const std::vector<std::shared_ptr<Node>> &args,
-                               Node *node) const {
-  std::vector<std::string> usedKwargs; // Should be flat_set
-  usedKwargs.reserve(args.size());
+                               Node *node) {
+  this->usedKwargs.clear();
+  this->usedKwargs.reserve(args.size());
   bool hasKwargArgument = false;
   for (const auto &arg : args) {
     if (arg->type != KEYWORD_ITEM) {
@@ -1201,7 +1201,7 @@ void TypeAnalyzer::checkKwargs(const std::shared_ptr<Function> &func,
       continue;
     }
     auto *kId = static_cast<IdExpression *>(kwi->key.get());
-    usedKwargs.push_back(kId->id);
+    this->usedKwargs.push_back(kId->id);
     auto iter = func->kwargs.find(kId->id);
     if (iter != func->kwargs.end()) {
       const auto &kwarg = iter->second;
@@ -2651,7 +2651,8 @@ dedup(const TypeNamespace &ns,
   auto hasBool = false;
   auto hasInt = false;
   auto hasStr = false;
-  std::map<TypeName, std::shared_ptr<Type>> objs;
+  std::array<std::shared_ptr<Type>, std::to_underlying(WINDOWS_MODULE) + 1>
+      objs;
   auto gotList = false;
   auto gotDict = false;
   auto gotSubproject = false;
@@ -2688,7 +2689,7 @@ dedup(const TypeNamespace &ns,
       continue;
     }
     if (asRaw->tag != SUBPROJECT) {
-      objs[type->tag] = type;
+      objs[std::to_underlying(type->tag)] = type;
       continue;
     }
     auto *asSubproject = static_cast<Subproject *>(asRaw);
@@ -2722,8 +2723,11 @@ dedup(const TypeNamespace &ns,
   if (hasStr) {
     ret.emplace_back(ns.strType);
   }
-  for (const auto &[_, typeRef] : objs) {
-    ret.emplace_back(typeRef);
+  for (const auto &ptr : objs) {
+    if (!ptr) {
+      continue;
+    }
+    ret.emplace_back(ptr);
   }
   return ret;
 }

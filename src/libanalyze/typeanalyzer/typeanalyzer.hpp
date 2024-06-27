@@ -74,6 +74,8 @@ private:
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>> stack;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
       overriddenVariables;
+  // Avoids allocation that vector for each argument list...
+  std::vector<std::string> usedKwargs;
   void checkProjectCall(BuildDefinition *node);
   void checkDeadNodes(const BuildDefinition *node);
   void applyDead(const std::shared_ptr<Node> &lastAlive,
@@ -139,8 +141,7 @@ private:
   void checkKwargsAfterPositionalArguments(
       const std::vector<std::shared_ptr<Node>> &args) const;
   void checkKwargs(const std::shared_ptr<Function> &func,
-                   const std::vector<std::shared_ptr<Node>> &args,
-                   Node *node) const;
+                   const std::vector<std::shared_ptr<Node>> &args, Node *node);
   void checkArgTypes(const std::shared_ptr<Function> &func,
                      const std::vector<std::shared_ptr<Node>> &args);
   void checkTypes(const std::shared_ptr<Node> &arg,
