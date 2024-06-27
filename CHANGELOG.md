@@ -5,6 +5,7 @@
 - Deduplicate completion list (#92)
 - Fix missing error, if an unknown variable is used as argument for a kwarg with the same name as the kwarg itself.
 - Add missing constants from reference tables (#103, by @blue42u)
+- Add partial support for `str.replace()` in the interpreter (Fixes parsing of [Lix](https://git.lix.systems/lix-project/lix))
 # 4.2.0 (May 03 2024)
 - Add `mesonlint` tool that allows to lint a project and to check+fix the formatting. It's currently not integrated with the language server.
 - Fix a few deprecation informations (#70, by @ptomato)
