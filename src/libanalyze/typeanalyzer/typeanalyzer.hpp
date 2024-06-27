@@ -67,7 +67,6 @@ private:
   std::vector<std::vector<std::string>> iteratorVars;
   std::vector<std::filesystem::path> sourceFileStack;
   std::vector<std::vector<IdExpression *>> variablesNeedingUse;
-  std::vector<std::vector<std::string>> foundVariables;
   std::vector<std::string> ignoreUnknownIdentifier;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Type>>>>
       selectionStatementStack;
