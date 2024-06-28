@@ -1,0 +1,26 @@
+# From Lix: https://git.lix.systems/lix-project/lix
+path_opts = [
+  # Meson built-ins.
+  'datadir',
+  'bindir',
+  'mandir',
+  'libdir',
+  'includedir',
+  'libexecdir',
+  # Homecooked Lix directories.
+  'store-dir',
+  'state-dir',
+  'log-dir',
+  'profile-dir',
+]
+# For your grepping pleasure, this loop sets the following variables that aren't mentioned
+# literally above:
+# store_dir
+# state_dir
+# log_dir
+# profile_dir
+foreach optname : path_opts
+  varname = optname.replace('-', '_')
+  path = get_option(optname)
+  set_variable(varname, path)
+endforeach
