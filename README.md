@@ -134,3 +134,4 @@ free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#meso
   - [HelenOS](http://www.helenos.org/)
   - [picolibc](https://github.com/picolibc/picolibc)
   - [DPDK](https://www.dpdk.org/)
+  - [EFL](https://git.enlightenment.org/enlightenment/efl)
