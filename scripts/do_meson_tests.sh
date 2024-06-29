@@ -28,7 +28,7 @@ export OUTPUTPATH=$PWD/failures.txt
 rm -rf meson "$OUTPUTPATH"
 git clone https://github.com/mesonbuild/meson.git || exit
 cd "meson/test cases" || exit
-git checkout 9e3b3db7054c7dedecd14db3e6061ff7e2227faf
+git checkout 7b43a2e19613f3702935872b21b1020f7d8c6a9b
 for i in *; do
 	echo "Entering testdir \"$i\""
 	cd "$i" || exit

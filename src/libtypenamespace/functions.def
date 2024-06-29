@@ -1668,6 +1668,10 @@ find_program:
       - Optional: true
       - Types:
         - str
+    - @version_argument:
+      - Optional: true
+      - Types:
+        - str
   - returns:
     - external_program
 generator:
