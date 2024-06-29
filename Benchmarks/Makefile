@@ -62,6 +62,8 @@ serve: FORCE
 	cat 4.1.0.json >> generated.js
 	echo "," >> generated.js
 	cat v4.2.2.json >> generated.js
+	echo "," >> generated.js
+	cat v4.3.0.json >> generated.js
 	echo "];" >> generated.js
 	./extract_git_data.sh >> generated.js
 	echo "COMMIT_STATS = " >> generated.js
