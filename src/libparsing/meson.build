@@ -36,3 +36,9 @@ executable(
     'parsingtool.cpp',
     dependencies: [parsing_dep] + extra_deps + extra_libs,
 )
+
+executable(
+    'parserbench',
+    'parserbench.cpp',
+    dependencies: [parsing_dep] + extra_deps + extra_libs,
+)
