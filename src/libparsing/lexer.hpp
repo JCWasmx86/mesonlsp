@@ -154,7 +154,9 @@ public:
   IdentifierData(std::string name, uint32_t hash)
       : name(std::move(name)), hash(hash) {}
 
+  IdentifierData(const IdentifierData &other) noexcept = default;
   IdentifierData(IdentifierData &&other) noexcept = default;
+  IdentifierData &operator=(const IdentifierData &other) noexcept = default;
 };
 
 struct StringData {
@@ -170,7 +172,9 @@ public:
       : format(format), multiline(multiline), hasEnoughAts(hasEnoughAts),
         doubleQuote(doubleQuote), str(std::move(str)) {}
 
+  StringData(const StringData &other) noexcept = default;
   StringData(StringData &&other) noexcept = default;
+  StringData &operator=(const StringData &other) noexcept = default;
 };
 
 struct NumberData {
@@ -181,7 +185,9 @@ public:
   NumberData(uint64_t asInt, std::string asString)
       : asInt(asInt), asString(std::move(asString)) {}
 
+  NumberData(const NumberData &other) noexcept = default;
   NumberData(NumberData &&other) noexcept = default;
+  NumberData &operator=(const NumberData &other) noexcept = default;
 };
 
 struct Token final {
