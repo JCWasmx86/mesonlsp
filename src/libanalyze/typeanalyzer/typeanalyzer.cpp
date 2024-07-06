@@ -2704,10 +2704,10 @@ dedup(const TypeNamespace &ns,
   }
   std::vector<std::shared_ptr<Type>> ret;
   if ((!listtypes.empty()) || gotList) {
-    ret.emplace_back(std::make_shared<List>(dedup(ns, std::move(listtypes))));
+    ret.emplace_back(std::make_shared<List>(dedup(ns, listtypes)));
   }
   if ((!dicttypes.empty()) || gotDict) {
-    ret.emplace_back(std::make_shared<Dict>(dedup(ns, std::move(dicttypes))));
+    ret.emplace_back(std::make_shared<Dict>(dedup(ns, dicttypes)));
   }
   if ((!subprojectNames.empty()) || gotSubproject) {
     ret.emplace_back(std::make_shared<Subproject>(std::vector<std::string>(
