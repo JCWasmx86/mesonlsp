@@ -153,6 +153,8 @@ public:
 
   IdentifierData(std::string name, uint32_t hash)
       : name(std::move(name)), hash(hash) {}
+
+  IdentifierData(IdentifierData &&other) noexcept = default;
 };
 
 struct StringData {
@@ -167,6 +169,8 @@ public:
              std::string str)
       : format(format), multiline(multiline), hasEnoughAts(hasEnoughAts),
         doubleQuote(doubleQuote), str(std::move(str)) {}
+
+  StringData(StringData &&other) noexcept = default;
 };
 
 struct NumberData {
@@ -176,6 +180,8 @@ public:
 
   NumberData(uint64_t asInt, std::string asString)
       : asInt(asInt), asString(std::move(asString)) {}
+
+  NumberData(NumberData &&other) noexcept = default;
 };
 
 struct Token final {
@@ -189,6 +195,10 @@ public:
 
   Token(uint32_t startLine, uint16_t startColumn)
       : startLine(startLine), startColumn(startColumn) {}
+
+  Token(const Token &other) noexcept = default;
+  Token(Token &&other) noexcept = default;
+  Token &operator=(const Token &other) noexcept = default;
 };
 
 struct LexError final {
