@@ -2519,7 +2519,7 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
 
 void TypeAnalyzer::visitStringLiteral(StringLiteral *node) {
   node->visitChildren(this);
-  node->types = {this->ns.strType};
+  node->types.emplace_back(this->ns.strType);
   this->metadata->registerStringLiteral(node);
   if (!node->hasEnoughAts) {
     return;
