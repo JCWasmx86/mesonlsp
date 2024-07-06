@@ -2656,6 +2656,7 @@ dedup(const TypeNamespace &ns,
   auto gotList = false;
   auto gotDict = false;
   auto gotSubproject = false;
+  auto hits = 0;
   for (const auto &type : types) {
     auto *asRaw = type.get();
     if (asRaw->tag == STR) {
@@ -2690,6 +2691,7 @@ dedup(const TypeNamespace &ns,
     }
     if (asRaw->tag != SUBPROJECT) {
       objs[std::to_underlying(type->tag)] = type;
+      hits++;
       continue;
     }
     auto *asSubproject = static_cast<Subproject *>(asRaw);
@@ -2723,6 +2725,7 @@ dedup(const TypeNamespace &ns,
   if (hasStr) {
     ret.emplace_back(ns.strType);
   }
+  ret.reserve(ret.size() + hits);
   for (const auto &ptr : objs) {
     if (!ptr) {
       continue;
