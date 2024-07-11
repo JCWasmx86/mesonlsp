@@ -1,4 +1,5 @@
 # Next (XXX XX 2024)
+- Fix crash for empty project/meson.build (#109)
 # 4.3.0 (Jun 30 2024)
 - Add support for specifying custom `subproject_dir` (top level directory name that holds Meson subprojects) (#88, by @fourdim)
 - Fix code formatting duplicating the last line when meson.build has fewer lines (#101)
