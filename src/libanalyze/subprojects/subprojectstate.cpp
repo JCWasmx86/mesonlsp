@@ -33,6 +33,9 @@ static std::string getSubprojectBaseDir(MesonTree *&tree) {
   const auto &nodes = tree->asts.at(rootFile);
   for (const auto &node : nodes) {
     const auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+    if (bd->stmts.empty()) {
+      break;
+    }
     const auto *fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
     if (fe->functionName() != "project") {
       continue;
