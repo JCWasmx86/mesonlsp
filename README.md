@@ -52,7 +52,7 @@ And now rewrote it in C++ for more performance, a better buildsystem and to addr
 ### Install the language server
 #### Easy way
 - For Fedora, a COPR is provided: https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/
-- For Arch, you can use the repo from [AUR](https://aur.archlinux.org/packages/mesonlsp)
+- For Arch, you can use package from the official [extra repository](https://archlinux.org/packages/extra/x86_64/mesonlsp/)
 - For Ubuntu 18.04,20.04,22.04 and Debian Bullseye, Bookworm, Sid you can use: https://github.com/JCWasmx86/swift-mesonlsp-apt-repo **NOTE: It's only for the Swift versions, not the C++-Versions, Maintainers needed**
 - For Ubuntu 22.04, MacOS 12, MacOS 13 and Windows, you can download binaries from the release section: https://github.com/JCWasmx86/Swift-MesonLSP/releases/latest
 
