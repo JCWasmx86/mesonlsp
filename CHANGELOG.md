@@ -1,5 +1,6 @@
 # X.X.X (XXX XX 2024)
 - Add basic support for f-strings in subproject/subdir/set_variable calls (#114)
+- Fix wrong directory being selected for subprojects
 # 4.3.1 (Jul 12 2024)
 - Fix crash for empty project/meson.build (#109)
 # 4.3.0 (Jun 30 2024)
