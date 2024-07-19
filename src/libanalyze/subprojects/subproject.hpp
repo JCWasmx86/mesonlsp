@@ -71,6 +71,9 @@ guessTargetDirectoryFromWrap(const std::filesystem::path &path) {
     std::ifstream file(path.c_str());
     std::string line;
     while (std::getline(file, line)) {
+      if (line.starts_with("patch")) {
+        continue;
+      }
       const auto pos = line.find("directory");
       if (pos == std::string::npos) {
         continue;
