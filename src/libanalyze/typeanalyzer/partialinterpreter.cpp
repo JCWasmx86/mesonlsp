@@ -18,6 +18,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -407,11 +408,39 @@ PartialInterpreter::calculateFunctionExpression(const FunctionExpression *fe,
 }
 
 std::vector<std::string>
+PartialInterpreter::evalFormatString(const std::string &str,
+                                     const Node *parentExpr) {
+  const auto &matches = extractTextBetweenAtSymbols(str);
+  if (matches.empty()) {
+    return std::vector<std::string>{str};
+  }
+  if (matches.size() > 1) {
+    return std::vector<std::string>{str};
+  }
+  const auto &match = matches[0];
+  const auto &tmpId = std::make_shared<IdExpression>(
+      parentExpr->file, match, djb2(match),
+      std::make_tuple<uint32_t, uint32_t>(0, 0),
+      std::make_tuple<uint32_t, uint32_t>(0, match.length()));
+  const auto &combos = this->calculateIdExpression(tmpId.get(), parentExpr);
+  std::vector<std::string> ret;
+  for (const auto &combo : combos) {
+    auto copy = std::string(str);
+    replace(copy, std::format("@{}@", match), combo);
+    ret.push_back(copy);
+  }
+  return ret;
+}
+
+std::vector<std::string>
 PartialInterpreter::calculateExpression(const Node *parentExpr,
                                         const Node *argExpression) {
   const auto *sl = dynamic_cast<const StringLiteral *>(argExpression);
   if (sl) {
-    return std::vector<std::string>{sl->id};
+    if (!sl->isFormat) {
+      return std::vector<std::string>{sl->id};
+    }
+    return this->evalFormatString(sl->id, parentExpr);
   }
   const auto *be = dynamic_cast<const BinaryExpression *>(argExpression);
   if (be) {

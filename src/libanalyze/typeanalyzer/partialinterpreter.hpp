@@ -154,6 +154,8 @@ private:
   abstractEvalSimpleSubscriptExpression(const SubscriptExpression *sse,
                                         const IdExpression *outerObj,
                                         const Node *parentStmt);
+  std::vector<std::string> evalFormatString(const std::string &str,
+                                            const Node *parentExpr);
   std::vector<std::shared_ptr<InterpretNode>>
   abstractEvalGetMethodCall(const MethodExpression *me,
                             const IdExpression *meobj, const ArgumentList *al,
