@@ -18,7 +18,6 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -420,8 +419,8 @@ PartialInterpreter::evalFormatString(const std::string &str,
   const auto &match = matches[0];
   const auto &tmpId = std::make_shared<IdExpression>(
       parentExpr->file, match, djb2(match),
-      std::make_tuple<uint32_t, uint32_t>(0, 0),
-      std::make_tuple<uint32_t, uint32_t>(0, match.length()));
+      std::make_pair<uint32_t, uint32_t>(0, 0),
+      std::make_pair<uint32_t, uint32_t>(0, match.length()));
   const auto &combos = this->calculateIdExpression(tmpId.get(), parentExpr);
   std::vector<std::string> ret;
   for (const auto &combo : combos) {
