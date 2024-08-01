@@ -4729,6 +4729,11 @@ rust_module::test:
       - Optional: true
       - Types:
         - list(build_tgt|custom_tgt|custom_idx)
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(dep)
+        - dep
     - @env:
       - Optional: true
       - Types:
