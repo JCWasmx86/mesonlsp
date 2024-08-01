@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fmt/core.h>
 
+#if 0
 namespace std {
 using fmt::format;
 }
@@ -20,6 +21,7 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
     return fmt::format_to(ctx.out(), "{}", tp.time_since_epoch().count());
   }
 };
+#endif
 #elif defined(_WIN32)
 #include <format>
 
