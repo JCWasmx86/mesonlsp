@@ -17,7 +17,7 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: JCWasmx86/clang-format-github-action@5c264f5422767c0bca85813b2e7f2cf6c3c33606 # master
+      - uses: JCWasmx86/clang-format-github-action@58b126116eef00bd99f9a41fdac8936b1d27ef6e # master
         with:
           sources: "src/**/*.hpp,src/**/*.cpp,test/**/*.cpp"
 
