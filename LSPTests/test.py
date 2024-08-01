@@ -81,6 +81,7 @@ async def main():
     )
     assert response is not None and len(response) == 1
     logging.info(f"Returned from formatting: {repr(response[0].new_text)}")
+    assert "\0" not in repr(response[0].new_text)
     await client.shutdown_async(None)
     client.exit(None)
     await asyncio.sleep(1)
