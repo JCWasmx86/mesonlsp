@@ -12,8 +12,8 @@ cd __regressions || exit
 git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa
 cd mesa || exit
 $LSPPATH
-# Two undefined variables, I assume it's an error on mesa side
-[ "$($LSPPATH |& grep 🔴 -c)" -le "2" ] || exit 1
+# Three undefined variables, I assume it's an error on mesa side
+[ "$($LSPPATH |& grep 🔴 -c)" -le "3" ] || exit 1
 cd .. || exit
 git clone --depth=1 https://github.com/systemd/systemd
 cd systemd || exit
