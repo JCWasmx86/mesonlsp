@@ -69,7 +69,7 @@ std::string formatFile(const std::filesystem::path &path,
                              formattedSize);
   free(formattedStr);
 #else
-  const auto asString = readFile(tmpPath);
+  auto asString = readFile(tmpPath);
   free(labelPath);
   while (!asString.empty() && asString.back() == '\0') {
     asString.pop_back();
