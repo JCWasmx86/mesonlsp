@@ -4,7 +4,7 @@
 #include <chrono>
 #include <fmt/core.h>
 
-#if 0
+#ifdef __x86_64__
 namespace std {
 using fmt::format;
 }
