@@ -1,6 +1,7 @@
-# X.X.X (XXX XX 2024)
+# 4.3.2 (Aug 04 2024)
 - Add basic support for f-strings in subproject/subdir/set_variable calls (#114)
 - Fix wrong directory being selected for subprojects
+- Fix NUL bytes appended to file when formatting on Windows (https://github.com/mesonbuild/vscode-meson/issues/253)
 # 4.3.1 (Jul 12 2024)
 - Fix crash for empty project/meson.build (#109)
 # 4.3.0 (Jun 30 2024)
