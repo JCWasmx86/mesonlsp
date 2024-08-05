@@ -249,7 +249,8 @@ InitializeResult LanguageServer::initialize(InitializeParams &params) {
               true, SemanticTokensLegend({"substitute", "substitute_bounds",
                                           "variable", "function", "method",
                                           "keyword", "string", "number"},
-                                         {"readonly", "defaultLibrary"}))),
+                                         {"readonly", "defaultLibrary"})),
+          WorkspaceCapabilities()),
       ServerInfo("c++-mesonlsp", VERSION)};
 }
 

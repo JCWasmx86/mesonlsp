@@ -98,6 +98,13 @@ public:
   }
 };
 
+class WorkspaceCapabilities : public BaseObject {
+public:
+  [[nodiscard]] nlohmann::json toJson() const {
+    return {{"workspaceFolders", {{"supported", true}}}};
+  }
+};
+
 class ServerCapabilities : public BaseObject {
 public:
   TextDocumentSyncOptions textDocumentSync;
@@ -113,6 +120,7 @@ public:
   bool inlayHintProvider;
   CompletionOptions completionProvider;
   SemanticTokensOptions semanticTokensProvider;
+  std::optional<WorkspaceCapabilities> workspace;
 
   // This is stupid
   ServerCapabilities(TextDocumentSyncOptions textDocumentSync,
@@ -122,7 +130,8 @@ public:
                      bool documentFormattingProvider, bool renameProvider,
                      bool foldingRangeProvider, bool inlayHintProvider,
                      CompletionOptions completionProvider,
-                     SemanticTokensOptions semanticTokensProvider)
+                     SemanticTokensOptions semanticTokensProvider,
+                     std::optional<WorkspaceCapabilities> workspace)
       : textDocumentSync(std::move(textDocumentSync)),
         hoverProvider(hoverProvider), declarationProvider(declarationProvider),
         definitionProvider(definitionProvider),
@@ -134,7 +143,8 @@ public:
         foldingRangeProvider(foldingRangeProvider),
         inlayHintProvider(inlayHintProvider),
         completionProvider(std::move(completionProvider)),
-        semanticTokensProvider(std::move(semanticTokensProvider)) {}
+        semanticTokensProvider(std::move(semanticTokensProvider)),
+        workspace(workspace) {}
 
   [[nodiscard]] nlohmann::json toJson() const {
     return {{"textDocumentSync", this->textDocumentSync.toJson()},
@@ -149,7 +159,8 @@ public:
             {"foldingRangeProvider", foldingRangeProvider},
             {"inlayHintProvider", inlayHintProvider},
             {"completionProvider", completionProvider.toJson()},
-            {"semanticTokensProvider", semanticTokensProvider.toJson()}};
+            {"semanticTokensProvider", semanticTokensProvider.toJson()},
+            {"workspace", workspace->toJson()}};
   }
 };
 
