@@ -1,5 +1,7 @@
 # X.X.X (Aug XX 2024)
 - Make it work in Helix
+- Propagate wrap setup errors to the editor (#126)
+- Fix bugs in the wrap file parser tree-sitter-ini (#126)
 # 4.3.2 (Aug 04 2024)
 - Add basic support for f-strings in subproject/subdir/set_variable calls (#114)
 - Fix wrong directory being selected for subprojects
