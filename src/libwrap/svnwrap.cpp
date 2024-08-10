@@ -14,11 +14,13 @@ bool SvnWrap::setupDirectory(const std::filesystem::path &path,
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
+    this->errors.emplace_back("Missing URL");
     return false;
   }
   auto rev = this->revision.empty() ? "HEAD" : this->revision;
   if (this->directory->empty()) {
     LOG.warn("Directory is empty");
+    this->errors.emplace_back("Missing directory");
     return false;
   }
   auto targetDirectory = this->directory.value();
@@ -30,6 +32,7 @@ bool SvnWrap::setupDirectory(const std::filesystem::path &path,
                                       "cn-mismatch,expired,not-yet-valid,other",
                                       "-r", rev, url, fullPath});
   if (!result) {
+    this->errors.emplace_back("Failed to do svn checkout");
     return false;
   }
   return this->postSetup(fullPath, packageFilesPath);

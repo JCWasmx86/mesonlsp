@@ -19,6 +19,7 @@ public:
   std::string name;
   std::filesystem::path realpath;
   std::shared_ptr<MesonTree> tree;
+  std::vector<std::string> errors;
 
   MesonSubproject(std::string name, std::filesystem::path path)
       : name(std::move(name)), realpath(std::move(path)) {}
@@ -107,11 +108,15 @@ public:
   void init() override {
     const auto ptr = parseWrap(this->wrapFile);
     if (!ptr || !ptr->serializedWrap) {
+      this->errors.emplace_back(std::format("Failed to parse wrap file {}",
+                                            this->wrapFile.filename().c_str()));
       return;
     }
     const auto result = ptr->serializedWrap->setupDirectory(
         this->realpath.parent_path(), this->packageFiles);
     if (!result) {
+      this->errors.emplace_back(
+          std::format("Failed to setup {}", this->wrapFile.filename().c_str()));
       return;
     }
     const auto setupFile = this->realpath.parent_path() / ".fullysetup";

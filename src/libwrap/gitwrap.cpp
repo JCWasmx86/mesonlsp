@@ -50,14 +50,17 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
   auto url = this->url;
   if (url.empty()) {
     LOG.warn("URL is empty");
+    this->errors.emplace_back("Missing url");
     return false;
   }
   if (this->revision.empty()) {
     LOG.warn("Revision is empty");
+    this->errors.emplace_back("Missing revision");
     return false;
   }
   if (!this->directory.has_value()) {
     LOG.warn("Directory is empty");
+    this->errors.emplace_back("Missing directory");
     return false;
   }
   auto rev = this->revision;
@@ -75,12 +78,14 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
                    "-c", "init.defaultBranch=mesonlsp-dummy-branch", "init",
                    fullPath.generic_string()});
     if (!result) {
+      this->errors.emplace_back("Failed to do git init");
       return false;
     }
     result = launchProcess(
         "git", std::vector<std::string>{"-C", fullPath.generic_string(),
                                         "remote", "add", "origin", this->url});
     if (!result) {
+      this->errors.emplace_back("Failed to do remote add origin");
       return false;
     }
     auto fetchOptions =
@@ -91,6 +96,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
     fetchOptions.push_back(rev);
     result = launchProcess("git", fetchOptions);
     if (!result) {
+      this->errors.emplace_back("Failed to do git fetch origin");
       return false;
     }
     result = launchProcess(
@@ -98,6 +104,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
                                         "advice.detachedHead=false", "checkout",
                                         rev, "--"});
     if (!result) {
+      this->errors.emplace_back("Failed to do git checkout");
       return false;
     }
   } else {
@@ -106,6 +113,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
           "git", std::vector<std::string>{"clone", this->url,
                                           fullPath.generic_string()});
       if (!result) {
+        this->errors.emplace_back("Failed to do git clone");
         return false;
       }
       if (!isHead(rev)) {
@@ -118,6 +126,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
               "git", std::vector<std::string>{"-C", fullPath.generic_string(),
                                               "fetch", this->url, rev});
           if (!result) {
+            this->errors.emplace_back("Failed to do git checkout/fetch");
             return false;
           }
           result = launchProcess(
@@ -125,6 +134,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
                                               "-c", "advice.detachedHead=false",
                                               "checkout", rev, "--"});
           if (!result) {
+            this->errors.emplace_back("Failed to do git checkout/checkout");
             return false;
           }
         }
@@ -140,6 +150,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
       args.push_back(fullPath.generic_string());
       auto result = launchProcess("git", args);
       if (!result) {
+        this->errors.emplace_back("Failed to do git clone with a branch");
         return false;
       }
     }
@@ -154,6 +165,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
                         depthOptions.end());
     auto result = launchProcess("git", cloneOptions);
     if (!result) {
+      this->errors.emplace_back("Failed to update git submodules");
       return false;
     }
   }
@@ -163,6 +175,7 @@ bool GitWrap::setupDirectory(const std::filesystem::path &path,
                                         "remote", "set-url", "--push", "origin",
                                         optPushUrl.value()});
     if (!result) {
+      this->errors.emplace_back("Failed to set push url");
       return false;
     }
   }

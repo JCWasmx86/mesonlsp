@@ -1050,10 +1050,21 @@ void TypeAnalyzer::setFunctionCallTypesSubproject(FunctionExpression *node) {
   }
   auto &subprojState = this->tree->state;
   if (subprojState.hasSubproject(*asSet.begin())) {
+    const auto &subproj = subprojState.findSubproject(*asSet.begin());
+    for (const auto &err : subproj->errors) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::ERROR, node, err));
+    }
     return;
   }
   if ((this->tree->parent != nullptr) &&
       this->tree->parent->state.hasSubproject(*asSet.begin())) {
+    const auto &subproj =
+        this->tree->parent->state.findSubproject(*asSet.begin());
+    for (const auto &err : subproj->errors) {
+      this->metadata->registerDiagnostic(
+          node, Diagnostic(Severity::ERROR, node, err));
+    }
     return;
   }
   this->metadata->registerDiagnostic(

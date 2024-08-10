@@ -21,6 +21,7 @@ public:
   std::vector<std::string> diffFiles;
   std::optional<std::string> method;
   bool successfullySetup = false;
+  std::vector<std::string> errors;
 
   virtual bool setupDirectory(const std::filesystem::path &path,
                               const std::filesystem::path &packageFilesPath) {

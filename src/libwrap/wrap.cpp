@@ -66,6 +66,8 @@ bool Wrap::applyPatch(const std::filesystem::path &path,
     if (!std::filesystem::exists(packagePath)) {
       LOG.warn(std::format("Patchdirectory {} does not exist",
                            packagePath.generic_string()));
+      this->errors.emplace_back(std::format("Patchdirectory {} does not exist",
+                                            packagePath.generic_string()));
       return false;
     }
     LOG.info(std::format("Merging {} into {}", packagePath.generic_string(),
@@ -89,6 +91,8 @@ bool Wrap::applyPatch(const std::filesystem::path &path,
       optPatchUrl.value(), optPatchHash.value(), this->patchFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
+    this->errors.emplace_back("Unable to continue setting up wrap due to patch "
+                              "URL not being available");
     return false;
   }
   return extractFile(archiveFileName.value(), path.parent_path());
@@ -111,7 +115,8 @@ bool Wrap::applyDiffFiles(const std::filesystem::path &path,
           std::vector<std::string>{"-d", path.generic_string(), "-l", "-f",
                                    "-p1", "-i", path.generic_string()});
       if (!result) {
-        LOG.warn("Won't continue setting up this wrap...");
+        this->errors.push_back(std::format(
+            "Neither git nor patch are capable of applying diff {}", diff));
         return false;
       }
     }
@@ -123,10 +128,12 @@ bool Wrap::postSetup(const std::filesystem::path &path,
                      const std::filesystem::path &packageFilesPath) {
   if (!this->applyPatch(path, packageFilesPath)) {
     LOG.warn("Failed during applying patches");
+    this->errors.emplace_back("Failed during applying patches");
     return false;
   }
   if (!this->applyDiffFiles(path, packageFilesPath)) {
     LOG.warn("Failed during applying diffs");
+    this->errors.emplace_back("Failed during applying diffs");
     return false;
   }
   this->successfullySetup = true;

@@ -5,6 +5,7 @@
 #include "wrap.hpp"
 
 #include <filesystem>
+#include <format>
 #include <string>
 
 const static Logger LOG("wrap::FileWrap"); // NOLINT
@@ -32,6 +33,7 @@ bool FileWrap::setupDirectory(const std::filesystem::path &path,
   auto sfn = this->sourceFilename;
   if (sfn->empty()) {
     LOG.warn("Sourcefilename is empty");
+    this->errors.push_back(std::format("Missing source_filename"));
     return false;
   }
   auto directory = this->directory;
@@ -66,21 +68,29 @@ bool FileWrap::setupDirectory(const std::filesystem::path &path,
       mergeDirectories(maybeDir, workdir / sfn.value());
       return this->postSetup(fullPath, packageFilesPath);
     }
+    this->errors.push_back(std::format("Missing source_url"));
     return false;
   }
   std::filesystem::create_directories(workdir);
   auto hash = this->sourceHash;
   if (hash->empty()) {
     LOG.warn("Hash is empty");
+    this->errors.push_back(std::format("Missing source_hash"));
     return false;
   }
   auto archiveFileName = downloadWithFallback(url, this->sourceHash.value(),
                                               this->sourceFallbackUrl);
   if (!archiveFileName.has_value()) {
     LOG.warn("Unable to continue with setting up this wrap...");
+    this->errors.push_back(
+        std::format("Failed to download {} (With fallback {})", url,
+                    this->sourceFallbackUrl.value_or("None")));
     return false;
   }
   if (!extractFile(archiveFileName.value(), workdir)) {
+    this->errors.emplace_back(std::format("Failed to extract {} to {}",
+                                          archiveFileName->c_str(),
+                                          workdir.c_str()));
     return false;
   }
   return this->postSetup(fullPath, packageFilesPath);
