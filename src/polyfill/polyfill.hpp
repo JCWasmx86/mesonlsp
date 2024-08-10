@@ -23,8 +23,8 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
 };
 #endif
 #elif defined(_WIN32)
-#include <format>
 #include <codecvt>
+#include <format>
 #include <locale>
 
 template <> struct std::formatter<wchar_t *> {
