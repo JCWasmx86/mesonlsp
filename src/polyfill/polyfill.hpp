@@ -24,6 +24,8 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
 #endif
 #elif defined(_WIN32)
 #include <format>
+#include <codecvt>
+#include <locale>
 
 template <> struct std::formatter<wchar_t *> {
   constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
