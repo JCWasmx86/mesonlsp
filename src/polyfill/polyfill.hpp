@@ -33,6 +33,18 @@ template <> struct std::formatter<wchar_t *> {
     return std::format_to(ctx.out(), L"{}", str);
   }
 };
+
+template <>
+struct std::formatter<const wchar_t *, char>
+    : std::formatter<std::string, char> {
+  template <typename FormatContext>
+  auto format(const wchar_t *value, FormatContext &ctx) const {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return std::formatter<std::string, char>::format(converter.to_bytes(value),
+                                                     ctx);
+  }
+};
+
 #else
 #include <format>
 #endif
