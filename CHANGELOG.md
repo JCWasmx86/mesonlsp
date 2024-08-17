@@ -1,4 +1,4 @@
-# X.X.X (Aug XX 2024)
+# 4.3.3 (Aug 17 2024)
 - Make it work in Helix
 - Propagate wrap setup errors to the editor (#126)
 - Fix bugs in the wrap file parser tree-sitter-ini (#126)
