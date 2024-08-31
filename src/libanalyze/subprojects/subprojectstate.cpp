@@ -3,6 +3,7 @@
 #include "analysisoptions.hpp"
 #include "log.hpp"
 #include "mesontree.hpp"
+#include "node.hpp"
 #include "polyfill.hpp"
 #include "subproject.hpp"
 #include "typenamespace.hpp"
@@ -33,7 +34,13 @@ static std::string getSubprojectBaseDir(MesonTree *&tree) {
   const auto &nodes = tree->asts.at(rootFile);
   for (const auto &node : nodes) {
     const auto *bd = dynamic_cast<BuildDefinition *>(node.get());
+    if (!bd) {
+      break;
+    }
     if (bd->stmts.empty()) {
+      break;
+    }
+    if (bd->stmts[0]->type != NodeType::FUNCTION_EXPRESSION) {
       break;
     }
     const auto *fe = dynamic_cast<FunctionExpression *>(bd->stmts[0].get());
