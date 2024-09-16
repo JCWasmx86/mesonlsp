@@ -17,10 +17,11 @@ struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
   // Format the time point
   template <typename FormatContext>
   auto format(const std::chrono::time_point<Clock, Duration> &tp,
-              FormatContext &ctx) {
+              FormatContext &ctx) const {
     return fmt::format_to(ctx.out(), "{}", tp.time_since_epoch().count());
   }
 };
+
 #endif
 #elif defined(_WIN32)
 #include <codecvt>
