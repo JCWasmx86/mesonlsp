@@ -444,6 +444,10 @@ Workspace::muonConfigFile(const std::filesystem::path &path) {
     if (std::filesystem::exists(iniFile)) {
       return iniFile;
     }
+    iniFile = treePath / "meson.format";
+    if (std::filesystem::exists(iniFile)) {
+      return iniFile;
+    }
     break;
   }
   return std::nullopt;
