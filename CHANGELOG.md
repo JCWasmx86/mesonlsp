@@ -1,3 +1,6 @@
+# 4.3.6 (XXX XX 2024)
+- Use `meson.format` for formatting
+
 # 4.3.4 (Sep 01 2024)
 - Fix crash if first statement of root meson.build is not a function call (#135)
 # 4.3.3 (Aug 17 2024)
