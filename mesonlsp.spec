@@ -2,9 +2,9 @@
 
 Name:           mesonlsp
 Version:        4.3.5
-Release:        0.1
+Release:        0.2
 Summary:        Meson language server
-ExclusiveArch:  x86_64
+ExclusiveArch:  x86_64,aarch64
 
 License:        GPL-3.0-or-later
 Source0:        https://github.com/JCWasmx86/mesonlsp/archive/v%{version}/%{name}-v%{version}.tar.gz
@@ -45,10 +45,12 @@ A meson language server
 %{_bindir}/mesonlsp
 %{_bindir}/mesonlint
 %{_bindir}/Swift-MesonLSP
-%{_prefix}/lib/debug/usr/bin/mesonlint-%{version}-0.1.x86_64.debug
-%{_prefix}/lib/debug/usr/bin/mesonlsp-%{version}-0.1.x86_64.debug
+%{_prefix}/lib/debug/usr/bin/mesonlint-%{version}-0.1.%{_target_cpu}.debug
+%{_prefix}/lib/debug/usr/bin/mesonlsp-%{version}-0.1.%{_target_cpu}.debug
 
 %changelog
+* Thu Sep 19 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.5-0.2
+- Fix AArch64
 * Thu Sep 19 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.5-0.1
 - Bump to v4.3.5
 * Sun Sep 01 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.4-0.1
