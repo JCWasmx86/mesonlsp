@@ -1,10 +1,9 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        4.3.6
+Version:        4.3.7
 Release:        0.1
 Summary:        Meson language server
-ExclusiveArch:  x86_64,aarch64
 
 License:        GPL-3.0-or-later
 Source0:        https://github.com/JCWasmx86/mesonlsp/archive/v%{version}/%{name}-v%{version}.tar.gz
@@ -49,6 +48,8 @@ A meson language server
 %{_prefix}/lib/debug/usr/bin/mesonlsp-%{version}-0.1.%{_target_cpu}.debug
 
 %changelog
+* Mon Sep 23 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.7-0.1
+- Bump to v4.3.7
 * Mon Sep 23 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.6-0.1
 - Bump to v4.3.6
 * Mon Sep 23 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.5-0.2
