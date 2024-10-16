@@ -3267,6 +3267,7 @@ static_library:
         - custom_idx
         - generated_list
         - build_tgt
+        - structured_src
     - @build_by_default:
       - Optional: true
       - Types:

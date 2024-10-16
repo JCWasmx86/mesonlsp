@@ -4792,7 +4792,7 @@ rust_module::bindgen:
     - @dependencies:
       - Optional: true
       - Types:
-        - list(build_tgt|custom_tgt|dep)
+        - list(build_tgt|custom_tgt|dep|file|str)
     - @include_directories:
       - Optional: true
       - Types:
@@ -4809,6 +4809,10 @@ rust_module::bindgen:
       - Optional: true
       - Types:
         - str
+    - @bindgen_version:
+      - Optional: true
+      - Types:
+        - list(str)
   - returns:
     - custom_tgt
 simd_module::check:
