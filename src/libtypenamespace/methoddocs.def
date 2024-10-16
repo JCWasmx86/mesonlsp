@@ -775,3 +775,7 @@ Returns a list of `custom_tgt` in the order source, client-side header, server-s
 This function requires one positional argument: the protocol base name. It returns a `file` that can be passed to `scan_xml`.
 @windows_module::compile_resources:
 Compiles Windows `rc` files specified in the positional arguments. Returns a list of `CustomTarget` objects that you put in the list of sources for the target you want to have the resources in.
+@dep::as_shared:
+Only for dependencies created with `declare_dependency()`, returns a copy of the dependency object that prefer the shared version of `both_libraries()`.
+@dep::as_static:
+Only for dependencies created with `declare_dependency()`, returns a copy of the dependency object that prefer the static version of `both_libraries()`.
