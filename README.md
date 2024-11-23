@@ -1,3 +1,8 @@
+# Maintainers needed
+
+I can't dedicate the time this project is deserving to it. Please reach out, if you want to maintain it.
+
+
 # MesonLSP
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/mesonlsp/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/jcwasmx86/Swift-MesonLSP/package/mesonlsp/)
 [![CodeFactor](https://www.codefactor.io/repository/github/jcwasmx86/mesonlsp/badge)](https://www.codefactor.io/repository/github/jcwasmx86/mesonlsp)
