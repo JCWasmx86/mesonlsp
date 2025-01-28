@@ -35,7 +35,7 @@ std::string formatFile(const std::filesystem::path &path,
   struct source src = {.label = labelPath,
                        .src = strdup(toFormat.data()),
                        .len = toFormat.size(),
-                       .reopen_type = source_reopen_type_none};
+                       .type = source_type_unknown};
 #ifndef _WIN32
   char *formattedStr;
   size_t formattedSize;

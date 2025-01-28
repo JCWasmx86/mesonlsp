@@ -102,7 +102,7 @@ void printGreeting() {
 
 std::filesystem::path writeMuonConfigFile(FormattingOptions options) {
   const auto &name =
-      std::format("muon-2-fmt-{}-{}", options.insertSpaces, options.tabSize);
+      std::format("muon-2-fmt-{}-{}-{}", options.insertSpaces, options.tabSize, options.insertFinalNewline);
   const auto &fullPath = cacheDir() / name;
   if (std::filesystem::exists(fullPath)) {
     return fullPath;

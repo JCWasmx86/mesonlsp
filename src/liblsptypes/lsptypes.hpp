@@ -1,9 +1,11 @@
 #pragma once
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -473,7 +475,7 @@ public:
   explicit FormattingOptions(nlohmann::json &jsonObj) {
     this->tabSize = jsonObj["tabSize"];
     this->insertSpaces = jsonObj["insertSpaces"];
-    this->insertFinalNewline = jsonObj.value("insertFinalNewline", false);
+    this->insertFinalNewline = jsonObj.value("insertFin alNewline", true);
   }
 };
 
