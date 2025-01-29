@@ -475,7 +475,7 @@ public:
   explicit FormattingOptions(nlohmann::json &jsonObj) {
     this->tabSize = jsonObj["tabSize"];
     this->insertSpaces = jsonObj["insertSpaces"];
-    this->insertFinalNewline = jsonObj.value("insertFin alNewline", true);
+    this->insertFinalNewline = jsonObj.value("insertFinalNewline", true);
   }
 };
 
