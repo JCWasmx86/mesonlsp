@@ -212,7 +212,8 @@ OptionState::OptionState() {
       "default_library", std::vector<std::string>{"shared", "static", "both"},
       "Default library type (Default: `shared`)", false));
   this->options.push_back(std::make_shared<ComboOption>(
-      "default_both_libraries", std::vector<std::string>{"shared", "static", "both"},
+      "default_both_libraries",
+      std::vector<std::string>{"shared", "static", "both"},
       "Default library type for both_libraries (Default: `shared`)", false));
   this->options.push_back(
       std::make_shared<IntOption>("install_umask",
