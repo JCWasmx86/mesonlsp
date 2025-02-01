@@ -132,8 +132,8 @@ jobs:
           pip install pygls lsprotocol
           meson setup _build -Doptimization=3 -Ddebug=true -Db_lto=true
           ninja -C _build
-          sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
-          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=sys.stderr/g" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
+          sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.12/site-packages/pygls/client.py
+          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=sys.stderr/g" /d/a/_temp/msys64/mingw64/lib/python3.12/site-packages/pygls/client.py
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           cat _build/meson-logs/testlog.txt
           _build/tests/libcxathrow/cxathrowtest.exe
