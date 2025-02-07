@@ -34,7 +34,7 @@ jobs:
           DOCKER_BUILDKIT=1 docker build --network=host --file docker/Dockerfile.debian${{ matrix.version }} --output out .
           unzip out/mesonlsp-debian-static.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-debian-${{ matrix.version }}-x86_64-unknown-linux-gnu
           path: /mesonlsp
@@ -60,11 +60,11 @@ jobs:
           yes | unzip out/mesonlsp-alpine-static.zip
           sudo cp mesonlsp /
           sudo cp mesonlint /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-x86_64-unknown-linux-musl
           path: /mesonlsp
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlint-x86_64-unknown-linux-musl
           path: /mesonlint
@@ -90,11 +90,11 @@ jobs:
           yes | unzip out/mesonlsp-alpine-static.zip
           sudo cp mesonlsp /
           sudo cp mesonlint /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-aarch64-unknown-linux-musl
           path: /mesonlsp
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlint-aarch64-unknown-linux-musl
           path: /mesonlint
@@ -147,7 +147,7 @@ jobs:
           (find /d/ | grep "mesonlsp.exe") || true
           ./scripts/create_license_file.sh
           cp 3rdparty.txt /d/Artifacts
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-x86_64-pc-windows-gnu
           path: D:/Artifacts
@@ -190,7 +190,7 @@ jobs:
           otool -L _build/src/mesonlsp
           cp _build/src/mesonlsp ${{ github.workspace }}/mesonlsp
           _build/tests/libcxathrow/cxathrowtest
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-${{ matrix.id.triple }}
           path: ${{ github.workspace }}/mesonlsp
@@ -247,7 +247,7 @@ jobs:
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }} -j$(nproc)
           unzip -o /Fedora${{ matrix.version }}.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-fedora-${{ matrix.version }}
           path: /mesonlsp
@@ -276,7 +276,7 @@ jobs:
           ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}-clang -j1
           unzip -o /Fedora${{ matrix.version }}-clang.zip
           sudo cp mesonlsp /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: mesonlsp-fedora-${{ matrix.version }}-clang
           path: /mesonlsp
