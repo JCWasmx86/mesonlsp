@@ -13,6 +13,8 @@ Returns a more specific CPU name, such as `i686`, `amd64`, etc.
 Returns the CPU family name. [This table](https://mesonbuild.com/Reference-tables.html#cpu-families) contains all known CPU families. These are guaranteed to continue working.
 @build_machine::endian:
 Returns `'big'` on big-endian systems and `'little'` on little-endian systems.
+@build_machine::kernel:
+Returns the native kernel name. [This table](https://mesonbuild.com/Reference-tables.html#kernel-names-since-120) lists all of the currently known Kernel names.
 @build_machine::system:
 Returns the operating system name. [This table](https://mesonbuild.com/Reference-tables.html#operating-system-names) lists all of the currently known Operating System names, these are guaranteed to continue working.
 @build_tgt::extract_all_objects:

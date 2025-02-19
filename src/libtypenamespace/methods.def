@@ -36,6 +36,10 @@ build_machine::endian:
   - args:
   - returns:
     - str
+build_machine::kernel:
+  - args:
+  - returns:
+    - str
 build_machine::system:
   - args:
   - returns:
@@ -1917,6 +1921,7 @@ generator::process:
         - custom_tgt
         - custom_idx
         - generated_list
+        - exe
     - @env:
       - Optional: true
       - Types:
