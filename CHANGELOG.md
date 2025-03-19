@@ -3,6 +3,7 @@
 - Update API level to Oct. 16 2024
 - Fix adding newline at the end for formatting
 - Fixed types of cmake_subprojectoptions::append_link_args
+- Fixed compilation under Musl
 
 # 4.3.4 (Sep 01 2024)
 - Fix crash if first statement of root meson.build is not a function call (#135)
