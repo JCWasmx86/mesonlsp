@@ -75,7 +75,6 @@ else
         default_options: ['default_library=static'],
     )
     tree_sitter_dep = tree_sitter_proj.get_variable('tree_sitter_dep')
-    meson.override_dependency('tree-sitter', tree_sitter_dep)
 endif
 
 tree_sitter_meson_proj = subproject(
@@ -139,7 +138,7 @@ else
     elif get_option('use_mimalloc')
         if get_option('use_mimalloc_wrap')
             mimalloc_proj = subproject('mimalloc')
-            extra_deps += mimalloc_proj.get_variable('mimalloc_dep')
+            extra_deps += mimalloc_proj.get_variable('mi_dep')
         else
             extra_deps += dependency('mimalloc', static: true)
         endif
