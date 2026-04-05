@@ -1,3 +1,7 @@
+# Update 5th of April 2026
+
+This project will be un-archived and revived (See #178). 
+
 # Maintainers needed
 
 I can't dedicate the time this project is deserving to it. Please reach out, if you want to maintain it.
