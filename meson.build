@@ -30,7 +30,6 @@ if buildtype != 'plain'
         '-g3',
         '-ftrivial-auto-var-init=zero',
         '-Wuninitialized',
-        '-Wno-keyword-macro',
     ]
 
     if cc.get_id() == 'gcc'
