@@ -156,8 +156,8 @@ jobs:
       matrix:
         id:
           [
-            { version: 13, triple: "x86_64-apple-darwin" },
-            { version: 14, triple: "aarch64-apple-darwin" },
+            { version: "26-intel", triple: "x86_64-apple-darwin" },
+            { version: "26", triple: "aarch64-apple-darwin" },
           ]
     runs-on: macos-${{ matrix.id.version }}
     steps:
@@ -201,7 +201,7 @@ jobs:
         sanitizer: ["address", "undefined", "leak", "address,undefined"]
     runs-on: ubuntu-latest
     container:
-      image: fedora:39
+      image: fedora:43
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
@@ -224,59 +224,3 @@ jobs:
           ./scripts/run_regression_tests.sh
           for i in $(find __regressions|grep meson.build$|shuf|head -n 90); do echo $i; ./_clang/src/libparsing/lexingtool $i 2>/dev/null || ./_clang/src/libparsing/lexingtool $i; done
           for i in $(find __regressions|grep meson.build$|shuf|head -n 90); do echo $i; ./_clang/src/libparsing/parsingtool $i 2>/dev/null || ./_clang/src/libparsing/parsingtool $i; done
-  fedora_in_container:
-    strategy:
-      matrix:
-        version: [39, 40]
-      fail-fast: false
-    runs-on: ubuntu-latest
-    container:
-      image: fedora:${{ matrix.version }}
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
-        with:
-          egress-policy: audit
-
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
-      - name: Build on Fedora ${{ matrix.version }}
-        run: |
-          sudo dnf install zip ninja-build gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
-          pip install meson pygls lsprotocol
-          sudo dnf clean all
-          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }} -j$(nproc)
-          unzip -o /Fedora${{ matrix.version }}.zip
-          sudo cp mesonlsp /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: mesonlsp-fedora-${{ matrix.version }}
-          path: /mesonlsp
-  fedora_in_container_clang:
-    strategy:
-      matrix:
-        version: [39, 40]
-      fail-fast: false
-    runs-on: ubuntu-latest
-    container:
-      image: fedora:${{ matrix.version }}
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
-        with:
-          egress-policy: audit
-
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
-      - name: Build on Fedora ${{ matrix.version }}
-        run: |
-          sudo dnf install zip ninja-build clang gcc g++ git pip libcurl-devel google-benchmark-devel glibc-static libarchive-devel gtest gtest-devel libpkgconf-devel libuuid-devel uuid python3-pip pkgconf-pkg-config mercurial subversion -y
-          pip install meson pygls lsprotocol
-          sudo dnf clean all
-          export CC=clang
-          export CXX=clang++
-          ./scripts/ci_create_zip.sh Fedora${{ matrix.version }}-clang -j1
-          unzip -o /Fedora${{ matrix.version }}-clang.zip
-          sudo cp mesonlsp /
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: mesonlsp-fedora-${{ matrix.version }}-clang
-          path: /mesonlsp
