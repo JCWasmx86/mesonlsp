@@ -1,3 +1,14 @@
-[wrap-git]
-url = https://github.com/JCWasmx86/mimalloc
-revision = HEAD
+[wrap-file]
+directory = mimalloc-3.2.7
+source_url = https://github.com/microsoft/mimalloc/archive/refs/tags/v3.2.7.tar.gz
+source_filename = mimalloc-3.2.7.tar.gz
+source_hash = 33621bea902711639b8f83128e64685ffc8224a65443625530747603a2d8726d
+source_fallback_url = https://wrapdb.mesonbuild.com/v2/mimalloc_3.2.7-1/get_source/mimalloc-3.2.7.tar.gz
+patch_filename = mimalloc_3.2.7-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/mimalloc_3.2.7-1/get_patch
+patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/mimalloc_3.2.7-1/mimalloc_3.2.7-1_patch.zip
+patch_hash = 887aa6fb636b6bf8f85f86cc577336afc50288d6af888fc9a396d3622f4a7429
+wrapdb_version = 3.2.7-1
+
+[provide]
+dependency_names = mimalloc
