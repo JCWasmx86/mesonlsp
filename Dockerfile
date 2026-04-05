@@ -3,7 +3,7 @@ FROM alpine:latest AS stage1
 RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     util-linux-static curl-dev libunistring-dev libunistring-static \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
-    acl-static zlib-static libidn2-static c-ares-static nghttp2-static brotli-static \
+    acl-static zlib-static libidn2-static nghttp2-static brotli-static \
     expat-static xz-static xz-dev zstd-static lz4-static bzip2-static zip jemalloc-dev jemalloc-static gtest-dev pkgconf-dev \
     git benchmark-dev mercurial subversion autoconf automake libtool make py3-pip bash curl m4 libpsl-dev libpsl-static
 
