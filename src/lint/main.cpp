@@ -16,6 +16,10 @@
 #include <jemalloc/jemalloc.h>
 #endif
 extern "C" {
+#include "arena.h"
+#include "lang/workspace.h"
+#include "platform/path.h"
+
 #include <log.h>
 #include <platform/init.h>
 }
@@ -47,11 +51,16 @@ void printVersion() {
 }
 
 int main(int argc, char **argv) {
-#ifndef _WIN32
-  platform_init();
-#endif
-  log_init();
-
+  struct arena arena;
+  struct arena a_scratch;
+  struct workspace wk;
+  struct ar_params arena_params = {.source_file = __FILE__,
+                                   .source_line = __LINE__};
+  ar_init(&arena, &arena_params);
+  ar_init(&a_scratch, &arena_params);
+  workspace_init_arena(&wk, &arena, &a_scratch);
+  workspace_init_bare(&wk, &arena, &a_scratch);
+  path_init(&wk);
 #ifndef _WIN32
   std::locale::global(std::locale(""));
 #else
@@ -128,7 +137,7 @@ int main(int argc, char **argv) {
               << std::endl;
     return EXIT_FAILURE;
   }
-  Linter linter{config, root};
+  Linter linter{config, root, &wk};
   auto result = linter.lint() ? EXIT_SUCCESS : EXIT_FAILURE;
   if (fix) {
     linter.fix();

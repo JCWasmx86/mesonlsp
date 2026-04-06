@@ -4,6 +4,7 @@
 #include "sourcefile.hpp"
 #include "utils.hpp"
 
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <string>

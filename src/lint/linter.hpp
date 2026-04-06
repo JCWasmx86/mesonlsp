@@ -14,11 +14,13 @@ class Linter {
   TypeNamespace ns;
   std::filesystem::path muonConfigFile;
   std::map<std::filesystem::path, std::string> unformattedFiles;
+  struct workspace *workspace;
 
 public:
-  Linter(MesonLintConfig cfg, std::filesystem::path root)
+  Linter(MesonLintConfig cfg, std::filesystem::path root,
+         struct workspace *workspace)
       : config(std::move(cfg)), root(std::move(root)),
-        tree(this->root, this->ns) {}
+        tree(this->root, this->ns), workspace(workspace) {}
 
   bool lint() {
     const auto passedCodeLinting = this->lintCode();

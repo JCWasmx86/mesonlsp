@@ -1,8 +1,9 @@
 #pragma once
 
 #include "polyfill.hpp"
-#include "sha-256.h"
-
+extern "C" {
+#include "sha_256.h"
+}
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -18,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#define SIZE_OF_SHA_256_HASH 32
 
 bool downloadFile(std::string url, const std::filesystem::path &output);
 bool extractFile(const std::filesystem::path &archivePath,

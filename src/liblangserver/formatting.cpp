@@ -6,6 +6,7 @@
 extern "C" {
 #define new fnew
 #include <lang/fmt.h>
+#include <lang/workspace.h>
 #include <log.h>
 #include <platform/filesystem.h>
 #include <platform/init.h>
@@ -21,7 +22,7 @@ extern "C" {
 #endif
 const static Logger LOG("formatting"); // NOLINT
 
-std::string formatFile(const std::filesystem::path &path,
+std::string formatFile(struct workspace *wk, const std::filesystem::path &path,
                        const std::string &toFormat,
                        const std::filesystem::path &configFile) {
 #ifndef _WIN32
@@ -49,8 +50,24 @@ std::string formatFile(const std::filesystem::path &path,
                  std::format("mesonlsp-muon-format-{}", dist(gen));
   auto *output = ::fopen(tmpPath.generic_string().data(), "wb");
 #endif
-  auto fmtRet =
-      fmt(&src, output, configFile.generic_string().c_str(), false, true);
+  struct fmt_range fmtRange = {.start = 0, .end = 0};
+  struct tstr outBuf = {0};
+  struct fmt_params params{
+      .a = wk->a,
+      .a_scratch = wk->a_scratch,
+      .src = &src,
+      .out_file = output,
+      .out_buf = &outBuf,
+      .cfg_path = configFile.c_str(),
+      .range = fmtRange,
+      .check_only = false,
+      .editorconfig = true,
+  };
+  workspace_scratch_begin(wk);
+  workspace_perm_begin(wk);
+  auto fmtRet = fmt(&params);
+  workspace_perm_end(wk);
+  workspace_scratch_end(wk);
   if (!fmtRet) {
     (void)fclose(output);
     free((void *)src.src);
@@ -64,6 +81,7 @@ std::string formatFile(const std::filesystem::path &path,
   }
   (void)fflush(output);
   (void)fclose(output);
+  free((void *)src.src);
 #ifndef _WIN32
   std::string const asString(static_cast<const char *>(formattedStr),
                              formattedSize);
@@ -75,6 +93,5 @@ std::string formatFile(const std::filesystem::path &path,
     asString.pop_back();
   }
 #endif
-  fs_source_destroy(&src);
   return asString;
 }
