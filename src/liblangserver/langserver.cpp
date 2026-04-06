@@ -223,10 +223,9 @@ void LanguageServer::onDidChangeConfiguration(
 }
 
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
-#ifndef _WIN32
   platform_init();
-#endif
-  log_init();
+  log_set_file(&wk, stdout);
+  log_set_lvl(log_info);
 
   this->options.update(params.initializationOptions);
   this->initPkgNames();
@@ -460,7 +459,7 @@ TextEdit LanguageServer::formatting(DocumentFormattingParams &params) {
   if (configFile.empty()) {
     configFile = writeMuonConfigFile(params.options);
   }
-  auto asString = formatFile(path, toFormat, configFile);
+  auto asString = formatFile(&wk, path, toFormat, configFile);
   // Editors don't care, if we tell them, that the file is
   // a lot longer than it really is, so we just guess some
   // number of lines.

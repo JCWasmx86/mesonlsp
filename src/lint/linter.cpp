@@ -124,8 +124,8 @@ void Linter::lintFormatting(const std::filesystem::path &path) {
   LOG.info(
       std::format("Checking formatting of file {}", path.generic_string()));
   const auto &contents = readFile(path);
-  const auto formatted = formatFile(std::filesystem::absolute(path), contents,
-                                    this->muonConfigFile);
+  const auto formatted = formatFile(workspace, std::filesystem::absolute(path),
+                                    contents, this->muonConfigFile);
   if (contents != formatted) {
     this->unformattedFiles[path] = formatted;
   }

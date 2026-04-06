@@ -17,6 +17,12 @@
 #include <set>
 #include <string>
 #include <vector>
+extern "C" {
+#include "arena.h"
+#include "lang/workspace.h"
+#include "platform/path.h"
+
+}
 
 #if __has_include(<sys/inotify.h>)
 #define HAS_INOTIFY
@@ -29,6 +35,13 @@ public:
     srand(time(nullptr));
     this->initPkgNames();
     printGreeting();
+    struct ar_params arena_params = {.source_file = __FILE__,
+                                     .source_line = __LINE__};
+    ar_init(&arena, &arena_params);
+    ar_init(&a_scratch, &arena_params);
+    workspace_init_arena(&wk, &arena, &a_scratch);
+    workspace_init_bare(&wk, &arena, &a_scratch);
+    path_init(&wk);
   }
 
   void initPkgNames();
@@ -75,6 +88,8 @@ public:
 #ifdef HAS_INOTIFY
     this->inotifyFd = -1;
     this->inotifyFuture.wait();
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
 #endif
   }
 #ifdef HAS_INOTIFY
@@ -87,4 +102,7 @@ private:
   std::map<std::string, std::string> descriptions;
   LanguageServerOptions options;
   std::binary_semaphore smph{1};
+  struct arena arena;
+  struct arena a_scratch;
+  struct workspace wk;
 };
