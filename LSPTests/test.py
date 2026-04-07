@@ -68,7 +68,7 @@ async def main():
         client.text_document_did_change(
             types.DidChangeTextDocumentParams(
                 types.VersionedTextDocumentIdentifier(version, main_meson),
-                [types.TextDocumentContentChangeEvent_Type2(full_context)],
+                [types.TextDocumentContentChangeWholeDocument(full_context)],
             )
         )
         full_context += "\n"
