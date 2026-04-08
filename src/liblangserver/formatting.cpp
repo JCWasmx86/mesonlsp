@@ -27,11 +27,18 @@ std::string formatFile(struct workspace *wk, const std::filesystem::path &path,
                        const std::filesystem::path &configFile) {
 #ifndef _WIN32
   const auto *labelPath = path.c_str();
+  const auto *configFilePath = configFile.c_str();
 #else
   const wchar_t *labelPathW = path.c_str();
   char *labelPath = (char *)calloc(path.generic_string().size() * 2, 1);
   // Should be use wcstombs_s?
   wcstombs(labelPath, labelPathW, path.generic_string().size() * 2);
+  const wchar_t *configFilePathW = configFile.c_str();
+  char *configFilePath =
+      (char *)calloc(configFile.generic_string().size() * 2, 1);
+  // Should be use wcstombs_s?
+  wcstombs(configFilePath, configFilePathW,
+           configFile.generic_string().size() * 2);
 #endif
   struct source src = {.label = labelPath,
                        .src = strdup(toFormat.data()),
@@ -58,7 +65,7 @@ std::string formatFile(struct workspace *wk, const std::filesystem::path &path,
       .src = &src,
       .out_file = output,
       .out_buf = &outBuf,
-      .cfg_path = configFile.c_str(),
+      .cfg_path = configFilePath,
       .range = fmtRange,
       .check_only = false,
       .editorconfig = true,
@@ -75,6 +82,7 @@ std::string formatFile(struct workspace *wk, const std::filesystem::path &path,
     free(formattedStr);
 #else
     free(labelPath);
+    free(configFilePath);
 #endif
     LOG.error("Failed to format");
     throw std::runtime_error("Failed to format");
@@ -89,6 +97,7 @@ std::string formatFile(struct workspace *wk, const std::filesystem::path &path,
 #else
   auto asString = readFile(tmpPath);
   free(labelPath);
+  free(configFilePath);
   while (!asString.empty() && asString.back() == '\0') {
     asString.pop_back();
   }
