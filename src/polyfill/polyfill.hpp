@@ -1,29 +1,5 @@
 #pragma once
-#if 0
-#if defined(__APPLE__)
-#include <chrono>
-#include <fmt/core.h>
-
-#ifdef __x86_64__
-namespace std {
-using fmt::format;
-}
-
-template <typename Clock, typename Duration>
-struct fmt::formatter<std::chrono::time_point<Clock, Duration>> {
-  // Presentation format: 'f' for full format
-  constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
-
-  // Format the time point
-  template <typename FormatContext>
-  auto format(const std::chrono::time_point<Clock, Duration> &tp,
-              FormatContext &ctx) const {
-    return fmt::format_to(ctx.out(), "{}", tp.time_since_epoch().count());
-  }
-};
-
-#endif
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #include <codecvt>
 #include <format>
 #include <locale>
@@ -51,5 +27,3 @@ struct std::formatter<const wchar_t *, char>
 #else
 #include <format>
 #endif
-#endif
-#include <format>
