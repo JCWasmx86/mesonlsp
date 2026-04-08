@@ -21,7 +21,6 @@ extern "C" {
 #include "arena.h"
 #include "lang/workspace.h"
 #include "platform/path.h"
-
 }
 
 #if __has_include(<sys/inotify.h>)
