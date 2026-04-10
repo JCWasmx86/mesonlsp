@@ -24,6 +24,14 @@ both_libs::get_static_lib:
   - args:
   - returns:
     - lib
+build_machine::subsystem:
+  - args:
+  - returns:
+    - str
+build_machine::kernel:
+  - args:
+  - returns:
+    - str
 build_machine::cpu:
   - args:
   - returns:
@@ -4666,6 +4674,79 @@ runresult::stdout:
   - args:
   - returns:
     - str
+rust_module::doctest:
+  - args:
+    - name:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+    - target:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - build_tgt
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(build_tgt|custom_tgt|dep)
+    - @link_with:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @link_whole:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @rust_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @args:
+      - Optional: true
+      - Types:
+        - list(custom_idx|file|str|tgt)
+    - @depends:
+      - Optional: true
+      - Types:
+        - list(build_tgt|custom_tgt|custom_idx)
+    - @env:
+      - Optional: true
+      - Types:
+        - str
+        - list(str)
+        - dict(str)
+        - env
+    - @is_parallel:
+      - Optional: true
+      - Types:
+        - bool
+    - @priority:
+      - Optional: true
+      - Types:
+        - int
+    - @should_fail:
+      - Optional: true
+      - Types:
+        - bool
+    - @suite:
+      - Optional: true
+      - Types:
+        - str
+        - list(str)
+    - @timeout:
+      - Optional: true
+      - Types:
+        - int
+    - @verbose:
+      - Optional: true
+      - Types:
+        - bool
+    - @workdir:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
 rust_module::proc_macro:
   - args:
     - target_name:
@@ -4842,6 +4923,10 @@ rust_module::bindgen:
       - Optional: true
       - Types:
         - list(str)
+    - @language:
+      - Optional: true
+      - Types:
+        - str
   - returns:
     - custom_tgt
 simd_module::check:

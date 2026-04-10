@@ -781,3 +781,20 @@ Compiles Windows `rc` files specified in the positional arguments. Returns a lis
 Only for dependencies created with `declare_dependency()`, returns a copy of the dependency object that prefer the shared version of `both_libraries()`.
 @dep::as_static:
 Only for dependencies created with `declare_dependency()`, returns a copy of the dependency object that prefer the static version of `both_libraries()`.
+@build_machine::subsystem:
+Returns the variant of the operating system, such as `ios` and `tvos`. These are more specific than system. If this cannot be detected (for the build machine), or is not set in the cross file (for the host machine when cross compiling), calling this method is fatal.
+@build_machine::kernel:
+Returns the name of the operating system kernel, such as `linux`, `xnu`, and `nt`. These are more specific than system. If this cannot be detected (for the build machine), or is not set in the cross file (for the host machine when cross compiling), calling this method is fatal.
+@rust_module::doctest:
+This function creates a new `test()` target from an existing rust based library target. The test will use `rustdoc` to extract and run the doctests that are included in target's sources.
+
+This function takes two positional arguments, the first is the name of the test and the second is the library or executable that is the rust based target. It also takes the following keyword arguments:
+
+- `dependencies`: a list of test-only Dependencies
+- `link_with`: a list of additional build Targets to link with
+- `link_whole`: a list of additional build Targets to link with in their entirety
+- `rust_args`: a list of extra arguments passed to the Rust compiler
+
+The target is linked automatically into the doctests.
+
+This function also accepts all of the keyword arguments accepted by the `test()` function except `protocol`, it will set that automatically. However, arguments are limited to strings that do not contain spaces due to limitations of rustdoc.
