@@ -132,6 +132,7 @@ jobs:
           pip install pygls lsprotocol
           meson setup _build -Doptimization=3 -Ddebug=true # -Db_lto=true
           ninja -C _build
+          timeout 10 _build/src/mesonlsp --lsp || true
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           cat _build/meson-logs/testlog.txt
           _build/tests/libcxathrow/cxathrowtest.exe
