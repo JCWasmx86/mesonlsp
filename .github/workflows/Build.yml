@@ -133,6 +133,7 @@ jobs:
           meson setup _build -Doptimization=3 -Ddebug=true # -Db_lto=true
           ninja -C _build
           timeout 10 _build/src/mesonlsp --lsp || true
+          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=None/g" /d/a/_temp/msys64/mingw64/lib/python3.14/site-packages/pygls/client.py
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           cat _build/meson-logs/testlog.txt
           _build/tests/libcxathrow/cxathrowtest.exe
