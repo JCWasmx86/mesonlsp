@@ -1779,6 +1779,7 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   std::vector<std::shared_ptr<Type>> res;
   auto errs = 0UL;
   auto foundDict = false;
+  auto foundAny = false;
   for (const auto &iterT : iterTypes) {
     if (iterT->tag == RANGE) {
       res.emplace_back(this->ns.intType);
@@ -1789,6 +1790,9 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
       res.insert(res.end(), asList->types.begin(), asList->types.end());
       continue;
     }
+    if (iterT->tag == ANY) {
+      foundAny = true;
+    }
     if (iterT->tag == DICT) {
       foundDict = true;
     }
@@ -1796,14 +1800,17 @@ void TypeAnalyzer::analyseIterationStatementSingleIdentifier(
   }
   if (errs != iterTypes.size()) {
     node->ids[0]->types = dedup(this->ns, res);
-  } else {
+  } else if (foundAny) {
     node->ids[0]->types = {};
     this->metadata->registerDiagnostic(
         node->expression.get(),
         Diagnostic(Severity::ERROR, node->expression.get(),
                    foundDict ? "Iterating over a dict requires two identifiers"
                              : "Expression yields no iterable result"));
+  } else {
+    node->ids[0]->types = {this->ns.types.at("any")};
   }
+
   auto *id0Expr = dynamic_cast<IdExpression *>(node->ids[0].get());
   if (!id0Expr) [[unlikely]] {
     return;
@@ -1820,18 +1827,26 @@ void TypeAnalyzer::analyseIterationStatementTwoIdentifiers(
   const auto &iterTypes = node->expression->types;
   node->ids[0]->types = {this->ns.strType};
   auto found = false;
+  auto foundAny = false;
   auto foundBad = false;
   for (const auto &iterT : iterTypes) {
     if (iterT->tag != DICT) {
       foundBad |= iterT->tag == LIST || iterT->tag == RANGE;
+      if (iterT->tag == ANY) {
+        foundAny = true;
+      }
       continue;
     }
     const auto *dict = static_cast<Dict *>(iterT.get());
-    node->ids[1]->types = dict->types;
+    if (!dict->types.empty()) {
+      node->ids[1]->types = dict->types;
+    } else {
+      node->ids[1]->types = {this->ns.types.at("any")};
+    }
     found = true;
     break;
   }
-  if (!found) {
+  if (!found && !foundAny) {
     this->metadata->registerDiagnostic(
         node->expression.get(),
         Diagnostic(Severity::ERROR, node->expression.get(),
