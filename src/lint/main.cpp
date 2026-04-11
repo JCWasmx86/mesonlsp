@@ -104,14 +104,20 @@ int main(int argc, char **argv) {
   }
   if (error || help) {
     printHelp();
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return error ? EXIT_FAILURE : EXIT_SUCCESS;
   }
   if (version) {
     printVersion();
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return EXIT_SUCCESS;
   }
   if (numPaths > 1) {
     std::cerr << "Too many paths given." << std::endl;
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return EXIT_FAILURE;
   }
   if (numPaths == 0) {
@@ -121,12 +127,16 @@ int main(int argc, char **argv) {
   if (!std::filesystem::exists(root)) {
     std::cerr << std::format("{} does not exist", root.generic_string())
               << std::endl;
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return EXIT_FAILURE;
   }
   if (!std::filesystem::exists(root / "meson.build")) {
     std::cerr << std::format("Failed to find meson.build file in {}",
                              root.generic_string())
               << std::endl;
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return EXIT_FAILURE;
   }
   MesonLintConfig config;
@@ -135,6 +145,8 @@ int main(int argc, char **argv) {
   } catch (const std::exception &exc) {
     std::cerr << std::format("Failed to load config: {}", exc.what())
               << std::endl;
+    ar_destroy(&arena);
+    ar_destroy(&a_scratch);
     return EXIT_FAILURE;
   }
   Linter linter{config, root, &wk};
@@ -142,5 +154,7 @@ int main(int argc, char **argv) {
   if (fix) {
     linter.fix();
   }
+  ar_destroy(&arena);
+  ar_destroy(&a_scratch);
   return result;
 }
