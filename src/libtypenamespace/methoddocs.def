@@ -798,3 +798,17 @@ This function takes two positional arguments, the first is the name of the test 
 The target is linked automatically into the doctests.
 
 This function also accepts all of the keyword arguments accepted by the `test()` function except `protocol`, it will set that automatically. However, arguments are limited to strings that do not contain spaces due to limitations of rustdoc.
+@dict::values:
+Returns an array of values in the dictionary, sorted by the corresponding keys in ascending order.
+@external_program::cmd_array:
+Returns an array containing the command(s) for the program.
+@fs_module::suffix:
+Returns the last dot-separated portion of the final component of the path including the dot, if any.
+@list::slice:
+Return a selection of the elements of the array starting at index `start` and continuing with `step` size jumps until `stop`.
+Negative indices count from the back of the array. The step size cannot be zero, but may be negative.
+If it is negative, `start` and `stop` default to the end and beginning of the array, respectively.
+If step is positive, `start` defaults to 0 and `stop` defaults to the length of the array.
+Either both or none of `start` and `stop` must be provided to prevent ambiguity.
+@list::flatten:
+Returns a flattened copy of the array, with all nested arrays removed.

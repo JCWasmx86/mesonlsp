@@ -191,6 +191,10 @@ benchmark:
       - Optional: true
       - Types:
         - int
+    - @expected_exitcode:
+      - Optional: true
+      - Types:
+        - int
     - @protocol:
       - Optional: true
       - Types:
@@ -594,6 +598,10 @@ both_libraries:
       - Optional: true
       - Types:
         - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
   - returns:
     - both_libs
 build_target:
@@ -621,6 +629,14 @@ build_target:
       - Optional: true
       - Types:
         - list(str)
+    - @android_exe_type:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @cuda_shared_args:
       - Optional: true
       - Types:
@@ -1012,6 +1028,10 @@ configure_file:
       - Optional: true
       - Types:
         - bool
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @command:
       - Optional: true
       - Types:
@@ -1108,6 +1128,10 @@ custom_target:
       - Optional: true
       - Types:
         - list(file|str)
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @depends:
       - Optional: true
       - Types:
@@ -1374,6 +1398,14 @@ executable:
         - generated_list
         - build_tgt
         - structured_src
+    - @android_exe_type:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @build_by_default:
       - Optional: true
       - Types:
@@ -1985,6 +2017,10 @@ jar:
       - Optional: true
       - Types:
         - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @cpp_args:
       - Optional: true
       - Types:
@@ -2261,6 +2297,10 @@ library:
       - Optional: true
       - Types:
         - list(str)
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @nasm_shared_args:
       - Optional: true
       - Types:
@@ -2675,6 +2715,10 @@ run_command:
         - file
         - external_program
         - compiler
+    - @console:
+      - Optional: true
+      - Types:
+        - bool
     - @capture:
       - Optional: true
       - Types:
@@ -2749,6 +2793,10 @@ shared_library:
       - Types:
         - bool
     - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
       - Optional: true
       - Types:
         - str
@@ -3079,6 +3127,10 @@ shared_module:
       - Optional: true
       - Types:
         - list(dep)
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @extra_files:
       - Optional: true
       - Types:
@@ -3304,6 +3356,10 @@ static_library:
       - Optional: true
       - Types:
         - list(str)
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @swift_args:
       - Optional: true
       - Types:
@@ -3622,6 +3678,10 @@ test:
         - tgt
         - custom_idx
         - custom_tgt
+    - @expected_exitcode:
+      - Optional: true
+      - Types:
+        - int
     - @args:
       - Optional: true
       - Types:
