@@ -302,8 +302,9 @@ cmake_subproject::include_directories:
       - Varargs: false
       - Types:
         - cmake_tgt
+        - str
   - returns:
-    - inc
+    - list(inc)
 cmake_subproject::target:
   - args:
     - tgt:
@@ -313,7 +314,7 @@ cmake_subproject::target:
         - cmake_tgt
         - str
   - returns:
-    - tgt
+    - build_tgt
 cmake_subproject::target_type:
   - args:
     - tgt:
@@ -1434,6 +1435,10 @@ dict::has_key:
         - str
   - returns:
     - bool
+dict::values:
+  - args:
+  - returns:
+    - list(any)
 dict::keys:
   - args:
   - returns:
@@ -1548,6 +1553,10 @@ env::unset:
       - Types:
         - str
   - returns:
+external_program::cmd_array:
+  - args:
+  - returns:
+    - list(str)
 external_program::found:
   - args:
   - returns:
@@ -1914,6 +1923,10 @@ fs_module::copyfile:
         - str
   - returns:
     - custom_tgt
+fs_module::suffix:
+  - args:
+  - returns:
+    - str
 generator::process:
   - args:
     - source:
@@ -3008,6 +3021,28 @@ keyval_module::load:
         - str
   - returns:
     - dict(str)
+list::slice:
+  - args:
+    - start:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - int
+    - stop:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - int
+    - @step:
+      - Optional: true
+      - Types:
+        - int
+  - returns:
+    - list(any)
+list::flatten:
+  - args:
+  - returns:
+    - list(any)
 list::contains:
   - args:
     - item:
@@ -3324,6 +3359,14 @@ pkgconfig_module::generate:
       - Types:
         - lib
         - build_tgt
+    - @license:
+      - Optional: true
+      - Types:
+        - str
+    - @cflags_private
+      - Optional: true
+      - Types:
+        - list(str)
     - @conflicts:
       - Optional: true
       - Types:
@@ -5207,7 +5250,7 @@ str::version_compare:
   - args:
     - compare_string:
       - Optional: false
-      - Varargs: false
+      - Varargs: true
       - Types:
         - str
   - returns:
