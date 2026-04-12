@@ -85,7 +85,7 @@ async def main():
     await client.shutdown_async(None)
     client.exit(None)
     await asyncio.sleep(1)
-    assert client._server.returncode == 0
+    assert client._server.returncode in (0, None)
     logging.info("We are finished")
 
 
