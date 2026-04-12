@@ -223,8 +223,7 @@ void LanguageServer::onDidChangeConfiguration(
 }
 
 InitializeResult LanguageServer::initialize(InitializeParams &params) {
-  platform_init();
-  log_set_file(&wk, stdout);
+  log_set_file(&wk, stderr);
   log_set_lvl(log_info);
 
   this->options.update(params.initializationOptions);
