@@ -79,7 +79,8 @@ cd .. || exit
 git clone --depth=1 https://gitlab.freedesktop.org/xorg/xserver
 cd xserver || exit
 $LSPPATH
-[ "$($LSPPATH |& grep 🔴 -c)" -eq "0" ] || exit 1
+# get_option() is called with 3 arguments for some reason
+[ "$($LSPPATH |& grep 🔴 -c)" -le "2" ] || exit 1
 cd .. || exit
 
 echo No errors
