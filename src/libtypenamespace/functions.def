@@ -195,6 +195,10 @@ benchmark:
       - Optional: true
       - Types:
         - int
+    - @expected_fail:
+      - Optional: true
+      - Types:
+        - bool
     - @protocol:
       - Optional: true
       - Types:
@@ -602,6 +606,16 @@ both_libraries:
       - Optional: true
       - Types:
         - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
   - returns:
     - both_libs
 build_target:
@@ -1011,6 +1025,16 @@ build_target:
       - Optional: true
       - Types:
         - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
   - returns:
     - build_tgt
 configuration_data:
@@ -1507,6 +1531,10 @@ executable:
       - Optional: true
       - Types:
         - list(inc|str)
+    - @swift_interoperability_mode:
+      - Optional: true
+      - Types:
+        - str
     - @install:
       - Optional: true
       - Types:
@@ -1649,6 +1677,16 @@ executable:
       - Optional: true
       - Types:
         - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
   - returns:
     - exe
 files:
@@ -2619,6 +2657,16 @@ library:
       - Optional: true
       - Types:
         - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
   - returns:
     - lib
     - both_libs
@@ -2882,6 +2930,16 @@ shared_library:
       - Optional: true
       - Types:
         - bool
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
     - @implicit_include_directories:
       - Optional: true
       - Types:
@@ -3142,6 +3200,16 @@ shared_module:
       - Optional: true
       - Types:
         - list(str)
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
     - @gnu_symbol_visibility:
       - Optional: true
       - Types:
@@ -3436,6 +3504,16 @@ static_library:
       - Optional: true
       - Types:
         - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
     - @java_args:
       - Optional: true
       - Types:
@@ -3678,6 +3756,10 @@ test:
         - tgt
         - custom_idx
         - custom_tgt
+    - @expected_fail:
+      - Optional: true
+      - Types:
+        - bool
     - @expected_exitcode:
       - Optional: true
       - Types:

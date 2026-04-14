@@ -52,6 +52,18 @@ build_machine::system:
   - args:
   - returns:
     - str
+build_tgt::vala_gir:
+  - args:
+  - returns:
+    - file
+build_tgt::vala_header:
+  - args:
+  - returns:
+    - file
+build_tgt::vala_header:
+  - args:
+  - returns:
+    - file
 build_tgt::extract_all_objects:
   - args:
     - @recursive:
@@ -2047,6 +2059,10 @@ gnome_module::generate_gir:
       - Optional: true
       - Types:
         - list(str)
+    - @doc_format:
+      - Optional: true
+      - Types:
+        - str
     - @identifier_prefix:
       - Optional: true
       - Types:
@@ -2354,6 +2370,14 @@ gnome_module::gdbus_codegen:
       - Optional: true
       - Types:
         - bool
+    - @rst:
+      - Optional: true
+      - Types:
+        - str
+    - @markdown:
+      - Optional: true
+      - Types:
+        - str
     - @sources:
       - Optional: true
       - Types:
@@ -2789,6 +2813,45 @@ hotdoc_target::config_path:
   - args:
   - returns:
     - str
+i18n_module::xgettext:
+  - args:
+    - name:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+    - sources:
+      - Optional: false
+      - Varargs: true
+      - Types:
+        - list(str|file|build_tgt|custom_tgt|custom_idx)
+        - str
+        - file
+        - build_tgt
+        - custom_tgt
+        - custom_idx
+    - @args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @recursive:
+      - Optional: true
+      - Types:
+        - bool
+    - @install:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - str
+    - @install_tag:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+    - custom_tgt
 i18n_module::gettext:
   - args:
     - packagename:
@@ -4303,6 +4366,11 @@ qt4_module::has_tools:
       - Optional: true
       - Types:
         - list(str)
+    - @version:
+      - Optional: true
+      - Types:
+        - str
+        - list(str)
   - returns:
     - bool
 qt5_module::compile_resources:
@@ -4500,6 +4568,11 @@ qt5_module::has_tools:
     - @tools:
       - Optional: true
       - Types:
+        - list(str)
+    - @version:
+      - Optional: true
+      - Types:
+        - str
         - list(str)
   - returns:
     - bool
@@ -4699,8 +4772,142 @@ qt6_module::has_tools:
       - Optional: true
       - Types:
         - list(str)
+    - @version:
+      - Optional: true
+      - Types:
+        - str
+        - list(str)
   - returns:
     - bool
+qt6_module::qml_module:
+  - args:
+    - resource_uri:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+    - @version:
+      - Optional: true
+      - Types:
+        - str
+    - @qml_sources:
+      - Optional: true
+      - Types:
+        - list(file|str|custom_tgt|custom_idx)
+        - file
+        - str
+        - custom_tgt
+        - custom_idx
+    - @qml_singletons:
+      - Optional: true
+      - Types:
+        - list(file|str|custom_tgt|custom_idx)
+        - file
+        - str
+        - custom_tgt
+        - custom_idx
+    - @qml_internals:
+      - Optional: true
+      - Types:
+        - list(file|str|custom_tgt|custom_idx)
+        - file
+        - str
+        - custom_tgt
+        - custom_idx
+    - @resources_prefix:
+      - Optional: true
+      - Types:
+        - str
+    - @imports:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @optional_imports:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @default_imports:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @depends_imports:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @designer_supported:
+      - Optional: true
+      - Types:
+        - bool
+    - @moc_headers:
+      - Optional: true
+      - Types:
+        - list(file|str|custom_tgt|custom_idx)
+        - file
+        - str
+        - custom_tgt
+        - custom_idx
+    - @namespace:
+      - Optional: true
+      - Types:
+        - str
+    - @typeinfo:
+      - Optional: true
+      - Types:
+        - str
+    - @rcc_extra_arguments:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @moc_extra_arguments:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @qmlcachegen_extra_arguments:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @qmltyperegistrar_extra_arguments:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @generate_qmldir:
+      - Optional: true
+      - Types:
+        - bool
+    - @generate_qmltype
+      - Optional: true
+      - Types:
+        - bool
+    - @cachegen:
+      - Optional: true
+      - Types:
+        - bool
+    - @method:
+      - Optional: true
+      - Types:
+        - str
+    - @preserve_paths:
+      - Optional: true
+      - Types:
+        - bool
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(build_tgt|custom_tgt|dep)
+    - @install:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - str
+    - @include_directories:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+  - returns:
+    - list(build_tgt|generated_list)
 runresult::compiled:
   - args:
   - returns:
@@ -4789,6 +4996,14 @@ rust_module::doctest:
       - Optional: true
       - Types:
         - str
+    - @protocol:
+      - Optional: true
+      - Types:
+        - str
+    - @expected_fail:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
 rust_module::proc_macro:
   - args:
@@ -5345,5 +5560,9 @@ windows_module::compile_resources:
       - Optional: true
       - Types:
         - list(inc|str)
+    - @implicit_include_directories:
+      - Optional: true
+      - Types:
+        - bool
   - returns:
     - list(custom_tgt)
