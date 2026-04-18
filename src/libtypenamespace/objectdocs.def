@@ -202,3 +202,9 @@ A `custom_target()` with the following extra method:
 - `config_path()`: Path to the generated hotdoc configuration file.
 @java_module:
 Provides functionality for generating JNI headers.
+@rust_workspace:
+Rust workspace object
+@rust_package:
+The package object returned by `workspace.subproject()` provides methods for working with individual packages in a Cargo workspace.
+@rust_subproject:
+The package object returned by `workspace.subproject()` provides methods for working with individual packages in a Cargo workspace.

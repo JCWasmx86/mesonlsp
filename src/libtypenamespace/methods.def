@@ -5129,6 +5129,10 @@ rust_module::test:
       - Optional: true
       - Types:
         - bool
+    - @expected_fail:
+      - Optional: true
+      - Types:
+        - bool
     - @suite:
       - Optional: true
       - Types:
@@ -5566,3 +5570,1246 @@ windows_module::compile_resources:
         - bool
   - returns:
     - list(custom_tgt)
+rust_module::workspace
+  - args:
+    - @default_features:
+      - Optional: true
+      - Types:
+        - bool
+    - @features:
+      - Optional: true
+      - Types:
+        - list(str)
+  - returns:
+    - rust_workspace
+rust_workspace::packages:
+  - args:
+  - returns:
+    - list(rust_package)
+rust_workspace::package:
+  - args:
+    - package_name:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+  - returns:
+    - rust_package
+rust_workspace::subproject:
+  - args:
+    - package_name:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+    - api:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+  - returns:
+    - rust_subproject
+rust_package::name:
+  - args:
+  - returns:
+    - str
+rust_package::version:
+  - args:
+  - returns:
+    - str
+rust_package::api:
+  - args:
+  - returns:
+    - str
+rust_package::features:
+  - args:
+  - returns:
+    - list(str)
+rust_package::all_features:
+  - args:
+  - returns:
+    - list(str)
+rust_subproject::name:
+  - args:
+  - returns:
+    - str
+rust_subproject::version:
+  - args:
+  - returns:
+    - str
+rust_subproject::api:
+  - args:
+  - returns:
+    - str
+rust_subproject::features:
+  - args:
+  - returns:
+    - list(str)
+rust_subproject::all_features:
+  - args:
+  - returns:
+    - list(str)
+rust_package::rust_args:
+  - args:
+  - returns:
+    - list(str)
+rust_package::env:
+  - args:
+  - returns:
+    - dict(str)
+rust_package::rust_dependency_map:
+  - args:
+  - returns:
+    -dict(str)
+rust_package::dependencies:
+  - args:
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - bool
+    - @dev_dependencies:
+      - Optional: true
+      - Types:
+        - bool
+    - @system_dependencies:
+      - Optional: true
+      - Types:
+        - bool
+  - returns:
+    - list(dep)
+rust_package::override_dependency:
+  - args:
+    - dep:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - dep
+    - @rust_abi:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+rust_package::executable:
+  - args:
+    - target_name:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+    - source:
+      - Optional: true
+      - Varargs: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+        - generated_list
+        - build_tgt
+        - structured_src
+    - @android_exe_type:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
+    - @build_by_default:
+      - Optional: true
+      - Types:
+        - bool
+    - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @c_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cs_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_debug:
+      - Optional: true
+      - Types:
+        - list(str)
+        - int
+    - @d_import_dirs:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @d_module_versions:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @d_unittest:
+      - Optional: true
+      - Types:
+        - bool
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(dep|external_program|file|str)
+    - @export_dynamic:
+      - Optional: true
+      - Types:
+        - bool
+    - @extra_files:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @fortran_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @gnu_symbol_visibility:
+      - Optional: true
+      - Types:
+        - str
+    - @gui_app:
+      - Optional: true
+      - Types:
+        - bool
+    - @implib:
+      - Optional: true
+      - Types:
+        - bool
+        - str
+    - @implicit_include_directories:
+      - Optional: true
+      - Types:
+        - bool
+    - @include_directories:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @swift_interoperability_mode:
+      - Optional: true
+      - Types:
+        - str
+    - @install:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - str
+    - @install_mode:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @install_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @install_tag:
+      - Optional: true
+      - Types:
+        - str
+    - @java_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_depends:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @link_language:
+      - Optional: true
+      - Types:
+        - str
+    - @link_whole:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @link_with:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib|tgt)
+    - @masm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @name_prefix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @name_suffix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @nasm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @native:
+      - Optional: true
+      - Types:
+        - bool
+    - @objc_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objects:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|extracted_obj|extracted_obj|file|generated_list|str)
+    - @override_options:
+      - Optional: true
+      - Types:
+        - list(str)
+        - dict(any)
+    - @pie:
+      - Optional: true
+      - Types:
+        - bool
+    - @resources:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @rust_crate_type:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_dependency_map:
+      - Optional: true
+      - Types:
+        - dict(str)
+    - @sources:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+        - generated_list
+        - structured_src
+    - @vala_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_gir:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_header:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+    - @vs_module_defs:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @win_subsystem:
+      - Optional: true
+      - Types:
+        - str
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+  - returns:
+    - exe
+rust_package::library:
+  - args:
+    - target_name:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+    - source:
+      - Optional: true
+      - Varargs: true
+      - Types:
+        - str
+        - structured_src
+    - @build_by_default:
+      - Optional: true
+      - Types:
+        - bool
+    - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
+    - @c_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cs_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_debug:
+      - Optional: true
+      - Types:
+        - list(str)
+        - int
+    - @d_import_dirs:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @d_module_versions:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @d_unittest:
+      - Optional: true
+      - Types:
+        - bool
+    - @darwin_versions:
+      - Optional: true
+      - Types:
+        - str
+        - int
+        - list(str)
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(dep)
+    - @extra_files:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @fortran_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @gnu_symbol_visibility:
+      - Optional: true
+      - Types:
+        - str
+    - @gui_app:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @implicit_include_directories:
+      - Optional: true
+      - Types:
+        - bool
+    - @include_directories:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @install:
+      - Optional: true
+      - Types:
+        - list(bool)
+        - str
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - list(bool)
+        - str
+    - @install_mode:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @install_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @install_tag:
+      - Optional: true
+      - Types:
+        - str
+    - @java_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_depends:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @link_language:
+      - Optional: true
+      - Types:
+        - str
+    - @link_whole:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @link_with:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @masm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @name_prefix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @name_suffix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @nasm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @native:
+      - Optional: true
+      - Types:
+        - bool
+    - @objc_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objects:
+      - Optional: true
+      - Types:
+        - list(extracted_obj|file|str)
+    - @override_options:
+      - Optional: true
+      - Types:
+        - list(str)
+        - dict(any)
+    - @resources:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_abi:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @rust_crate_type:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_dependency_map:
+      - Optional: true
+      - Types:
+        - dict(str)
+    - @sources:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+        - generated_list
+        - structured_src
+    - @soversion:
+      - Optional: true
+      - Types:
+        - str
+        - int
+    - @vala_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_gir:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_header:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+    - @version:
+      - Optional: true
+      - Types:
+        - str
+    - @vs_module_defs:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @win_subsystem:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+    - lib
+rust_package::shared_module:
+  - args:
+    - target_name:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+    - source:
+      - Optional: true
+      - Varargs: true
+      - Types:
+        - str
+        - structured_src
+    - @build_by_default:
+      - Optional: true
+      - Types:
+        - bool
+    - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @c_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cs_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_debug:
+      - Optional: true
+      - Types:
+        - list(str)
+        - int
+    - @d_import_dirs:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @d_module_versions:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @d_unittest:
+      - Optional: true
+      - Types:
+        - bool
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(dep)
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
+    - @extra_files:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @fortran_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @gnu_symbol_visibility:
+      - Optional: true
+      - Types:
+        - str
+    - @gui_app:
+      - Optional: true
+      - Types:
+        - bool
+    - @implicit_include_directories:
+      - Optional: true
+      - Types:
+        - bool
+    - @include_directories:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @install:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - str
+    - @install_mode:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @install_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @install_tag:
+      - Optional: true
+      - Types:
+        - str
+    - @java_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_depends:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @link_language:
+      - Optional: true
+      - Types:
+        - str
+    - @link_whole:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @link_with:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|exe|lib)
+    - @masm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @name_prefix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @name_suffix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @nasm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @native:
+      - Optional: true
+      - Types:
+        - bool
+    - @objc_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objects:
+      - Optional: true
+      - Types:
+        - list(extracted_obj|file|str)
+    - @override_options:
+      - Optional: true
+      - Types:
+        - list(str)
+        - dict(any)
+    - @resources:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_abi:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @rust_crate_type:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_dependency_map:
+      - Optional: true
+      - Types:
+        - dict(str)
+    - @sources:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+        - generated_list
+        - structured_src
+    - @vala_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_gir:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_header:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+    - @vs_module_defs:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @win_subsystem:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+    - build_tgt
+rust_package::proc_macro:
+  - args:
+    - target_name:
+      - Optional: true
+      - Varargs: false
+      - Types:
+        - str
+    - source:
+      - Optional: true
+      - Varargs: true
+      - Types:
+        - str
+        - structured_src
+    - @build_by_default:
+      - Optional: true
+      - Types:
+        - bool
+    - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
+    - @c_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @c_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cpp_pch:
+      - Optional: true
+      - Types:
+        - str
+    - @cs_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cuda_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @cython_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @swift_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @d_debug:
+      - Optional: true
+      - Types:
+        - list(str)
+        - int
+    - @d_import_dirs:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @d_module_versions:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @d_unittest:
+      - Optional: true
+      - Types:
+        - bool
+    - @darwin_versions:
+      - Optional: true
+      - Types:
+        - str
+        - int
+        - list(str)
+    - @dependencies:
+      - Optional: true
+      - Types:
+        - list(dep)
+    - @extra_files:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @fortran_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @gnu_symbol_visibility:
+      - Optional: true
+      - Types:
+        - str
+    - @gui_app:
+      - Optional: true
+      - Types:
+        - bool
+    - @install_vala_header:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @install_vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+        - bool
+    - @implicit_include_directories:
+      - Optional: true
+      - Types:
+        - bool
+    - @include_directories:
+      - Optional: true
+      - Types:
+        - list(inc|str)
+    - @install:
+      - Optional: true
+      - Types:
+        - list(bool)
+        - str
+    - @install_dir:
+      - Optional: true
+      - Types:
+        - list(bool)
+        - str
+    - @install_mode:
+      - Optional: true
+      - Types:
+        - list(int|str)
+    - @install_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @install_tag:
+      - Optional: true
+      - Types:
+        - str
+    - @java_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_depends:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @link_language:
+      - Optional: true
+      - Types:
+        - str
+    - @link_whole:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @link_with:
+      - Optional: true
+      - Types:
+        - list(custom_idx|custom_tgt|lib)
+    - @masm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @name_prefix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @name_suffix:
+      - Optional: true
+      - Types:
+        - str
+        - list()
+    - @nasm_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @native:
+      - Optional: true
+      - Types:
+        - bool
+    - @objc_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objcpp_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @objects:
+      - Optional: true
+      - Types:
+        - list(extracted_obj|file|str)
+    - @override_options:
+      - Optional: true
+      - Types:
+        - list(str)
+        - dict(any)
+    - @resources:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_abi:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @rust_crate_type:
+      - Optional: true
+      - Types:
+        - str
+    - @rust_dependency_map:
+      - Optional: true
+      - Types:
+        - dict(str)
+    - @sources:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+        - generated_list
+        - structured_src
+    - @soversion:
+      - Optional: true
+      - Types:
+        - str
+        - int
+    - @vala_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @vala_gir:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_header:
+      - Optional: true
+      - Types:
+        - str
+    - @vala_vapi:
+      - Optional: true
+      - Types:
+        - str
+    - @version:
+      - Optional: true
+      - Types:
+        - str
+    - @vs_module_defs:
+      - Optional: true
+      - Types:
+        - str
+        - file
+        - custom_tgt
+        - custom_idx
+    - @win_subsystem:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+    - lib
+rust_subproject::dependency:
+  - args:
+    - @rust_abi:
+      - Optional: true
+      - Types:
+        - str
+  - returns:
+    - dep
+rust_module::compiler_target:
+  - args:
+    - @native:
+      - Optional: true
+      - Types:
+        - bool
+  - returns:
+    - str

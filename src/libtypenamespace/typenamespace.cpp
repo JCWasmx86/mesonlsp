@@ -77,6 +77,9 @@ TypeNamespace::TypeNamespace() {
       {"simd_module", std::make_shared<SIMDModule>()},
       {"sourceset_module", std::make_shared<SourceSetModule>()},
       {"sourceset", std::make_shared<SourceSet>()},
+      {"rust_workspace", std::make_shared<RustWorkspace>()},
+      {"rust_package", std::make_shared<RustPackage>()},
+      {"rust_subproject", std::make_shared<RustSubproject>()},
       {"source_configuration", std::make_shared<SourceConfiguration>()}};
   this->initFunctions();
   this->initMethods();
