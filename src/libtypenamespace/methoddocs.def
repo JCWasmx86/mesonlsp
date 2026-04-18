@@ -874,3 +874,5 @@ Builds an executable target for a workspace package. The method requires that th
 Returns a dependency object for the subproject that can be used with other Meson targets.
 @rust_module::compiler_target:
 Returns the Rust target triple (e.g. `x86_64-unknown-linux-gnu`) for the Rust compiler. By default, or with `native: false`, this returns the target for the host machine. If `native: true` is passed, it returns the target for the build machine instead.
+@snippets_module::symbol_visibility_header:
+Generate a header file that defines macros to be used to mark all public APIs of a library. Depending on the platform, this will typically use `__declspec(dllexport)`, `__declspec(dllimport)` or `__attribute__((visibility("default")))`. It is compatible with C, C++, ObjC and ObjC++ languages. The content of the header is static regardless of the compiler used.

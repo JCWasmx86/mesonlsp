@@ -208,3 +208,5 @@ Rust workspace object
 The package object returned by `workspace.subproject()` provides methods for working with individual packages in a Cargo workspace.
 @rust_subproject:
 The package object returned by `workspace.subproject()` provides methods for working with individual packages in a Cargo workspace.
+@snippets_module:
+This module provides helpers to generate commonly useful code snippets.
