@@ -210,3 +210,9 @@ The package object returned by `workspace.subproject()` provides methods for wor
 The package object returned by `workspace.subproject()` provides methods for working with individual packages in a Cargo workspace.
 @snippets_module:
 This module provides helpers to generate commonly useful code snippets.
+@codegen_module:
+This module provides wrappers around common code generators, such as flex/lex and yacc/bison. This purpose of this is to make it easier and more pleasant to use common code generators in a mesonic way.
+@lex_generator:
+Object wrapping flex/lex
+@yacc_generator:
+Object wrapping yacc/bison
