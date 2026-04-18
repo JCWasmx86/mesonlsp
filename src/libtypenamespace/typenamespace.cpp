@@ -80,6 +80,7 @@ TypeNamespace::TypeNamespace() {
       {"rust_workspace", std::make_shared<RustWorkspace>()},
       {"rust_package", std::make_shared<RustPackage>()},
       {"rust_subproject", std::make_shared<RustSubproject>()},
+      {"snippets_module", std::make_shared<SnippetsModule>()},
       {"source_configuration", std::make_shared<SourceConfiguration>()}};
   this->initFunctions();
   this->initMethods();

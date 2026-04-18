@@ -211,6 +211,7 @@ static const std::map<std::string, std::string> MODULES /*NOLINT*/ = {
     {"wayland", "wayland_module"},
     {"unstable-wayland", "wayland_module"},
     {"windows", "windows_module"},
+    {"snippets", "snippets_module"},
 };
 
 using enum TypeName;

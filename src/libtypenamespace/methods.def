@@ -6813,3 +6813,32 @@ rust_module::compiler_target:
         - bool
   - returns:
     - str
+snippets_module::symbol_visibility_header:
+  - args:
+    - header_name:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+    - @namespace:
+      - Optional: true
+      - Types:
+        - str
+    - @api:
+      - Optional: true
+      - Types:
+        - str
+    - @compilation:
+      - Optional: true
+      - Types:
+        - str
+    - @static_compilation:
+      - Optional: true
+      - Types:
+        - str
+    - @static_only:
+      - Optional: true
+      - Types:
+        - bool
+  - returns:
+    - file
