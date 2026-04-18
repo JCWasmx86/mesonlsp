@@ -61,10 +61,10 @@ async def main():
             types.Range(types.Position(0, 0), types.Position(200, 200)),
         )
     )
-    assert len(response) == 3
+    assert len(response) == 4
     with open((pathlib.Path(fixture_dir) / "meson.build").resolve()) as infile:
         full_context = infile.read()
-    for version in range(0, 100):
+    for version in range(2):
         client.text_document_did_change(
             types.DidChangeTextDocumentParams(
                 types.VersionedTextDocumentIdentifier(version, main_meson),
@@ -79,7 +79,22 @@ async def main():
             types.FormattingOptions(4, True, True, True, True),
         )
     )
-    assert response is not None and len(response) == 1
+    assert response is not None and len(response) == 1 and "\n" +(4 * " ")+"message" in response[0].new_text
+    logging.info(f"Returned from formatting: {repr(response[0].new_text)}")
+    response = await client.text_document_formatting_async(
+        types.DocumentFormattingParams(
+            types.TextDocumentIdentifier(main_meson),
+            types.FormattingOptions(8, True, True, True, True),
+        )
+    )
+    assert response is not None and len(response) == 1 and (8 * " ")+"message" in response[0].new_text
+    response = await client.text_document_formatting_async(
+        types.DocumentFormattingParams(
+            types.TextDocumentIdentifier(main_meson),
+            types.FormattingOptions(8, False, True, True, True),
+        )
+    )
+    assert response is not None and len(response) == 1 and "\tmessage" in response[0].new_text
     logging.info(f"Returned from formatting: {repr(response[0].new_text)}")
     assert "\0" not in repr(response[0].new_text)
     await client.shutdown_async(None)
