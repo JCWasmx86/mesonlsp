@@ -98,6 +98,9 @@ enum class TypeName : uint32_t {
   SOURCE_SET,
   SOURCE_CONFIGURATION,
   WAYLAND_MODULE,
+  RUST_WORKSPACE,
+  RUST_PACKAGE,
+  RUST_SUBPROJECT,
   WINDOWS_MODULE, // Should be the last one
 };
 
@@ -317,6 +320,11 @@ MAKE_TYPE_WITH_PARENT(Qt5Module, "qt5_module", Module, QT5_MODULE)
 MAKE_TYPE_WITH_PARENT(Qt6Module, "qt6_module", Module, QT6_MODULE)
 // Rust Module
 MAKE_TYPE_WITH_PARENT(RustModule, "rust_module", Module, RUST_MODULE)
+MAKE_TYPE(RustWorkspace, "rust_workspace", RUST_WORKSPACE)
+MAKE_TYPE(RustPackage, "rust_package", RUST_PACKAGE)
+MAKE_TYPE(RustSubproject, "rust_subproject", RUST_SUBPROJECT)
+
+
 // SIMD Module
 MAKE_TYPE_WITH_PARENT(SIMDModule, "simd_module", Module, SIMD_MODULE)
 // SourceSet Module
