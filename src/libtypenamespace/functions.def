@@ -587,6 +587,10 @@ both_libraries:
       - Optional: true
       - Types:
         - str
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @version:
       - Optional: true
       - Types:
@@ -879,6 +883,10 @@ build_target:
       - Types:
         - structured_src
     - @link_args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @link_early_args:
       - Optional: true
       - Types:
         - list(str)
@@ -1491,6 +1499,10 @@ executable:
       - Optional: true
       - Types:
         - bool
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @dependencies:
       - Optional: true
       - Types:
@@ -2167,6 +2179,10 @@ jar:
       - Optional: true
       - Types:
         - list(str)
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @link_depends:
       - Optional: true
       - Types:
@@ -2537,6 +2553,10 @@ library:
       - Optional: true
       - Types:
         - str
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @link_whole:
       - Optional: true
       - Types:
@@ -2966,6 +2986,10 @@ shared_library:
       - Optional: true
       - Types:
         - str
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @install_tag:
       - Optional: true
       - Types:
@@ -3234,6 +3258,10 @@ shared_module:
       - Optional: true
       - Types:
         - str
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @install_mode:
       - Optional: true
       - Types:
@@ -3617,6 +3645,10 @@ static_library:
         - custom_idx
         - generated_list
         - structured_src
+    - @link_early_args:
+      - Optional: true
+      - Types:
+        - list(str)
     - @soversion:
       - Optional: true
       - Types:

@@ -1942,6 +1942,10 @@ fs_module::suffix:
       - Varargs: false
       - Types:
         - str
+        - exe
+        - build_tgt
+        - custom_tgt
+        - custom_idx
   - returns:
     - str
 generator::process:
