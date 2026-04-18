@@ -1937,6 +1937,11 @@ fs_module::copyfile:
     - custom_tgt
 fs_module::suffix:
   - args:
+    - path:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
   - returns:
     - str
 generator::process:
@@ -6842,3 +6847,145 @@ snippets_module::symbol_visibility_header:
         - bool
   - returns:
     - file
+codegen_module::lex:
+  - args:
+    - @implementations:
+      - Optional: false
+      - Types:
+        - list(str)
+    - @lex_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @flex_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @reflex_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @win_flex_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @required:
+      - Optional: true
+      - Types:
+        - bool
+        - feature
+    - @disabler:
+      - Optional: true
+      - Types:
+        - bool
+    - @native:
+      - Optional: true
+      - Types: bool
+  - returns:
+    - lex_generator
+codegen_module::yacc:
+  - args:
+    - @implementations:
+      - Optional: false
+      - Types:
+        - list(str)
+    - @yacc_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @byacc_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @bison_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @win_bison_version:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @required:
+      - Optional: true
+      - Types:
+        - bool
+        - feature
+    - @disabler:
+      - Optional: true
+      - Types:
+        - bool
+    - @native:
+      - Optional: true
+      - Types: bool
+  - returns:
+    - yacc_generator
+lex_generator::implementation:
+  - args:
+  - returns:
+    - str
+yacc_generator::implementation:
+  - args:
+  - returns:
+    - str
+lex_generator::generate:
+  - args:
+    - input_file:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+        - file
+        - generated_list
+        - custom_tgt
+        - custom_idx
+    - @args:
+      - Optional: true
+      - Types:
+        - list(str)
+    - @source:
+      - Optional: true
+      - Types:
+        - str
+    - @header:
+      - Optional: true
+      - Types:
+        - str
+    - @table:
+      - Optional: true
+      - Types:
+        - str
+    - @plainname:
+      - Optional: true
+      - Types:
+        - bool
+  - returns:
+    - custom_tgt
+yacc_generator::generate:
+  - args:
+    - input_file:
+      - Optional: false
+      - Varargs: false
+      - Types:
+        - str
+        - file
+        - generated_list
+        - custom_tgt
+        - custom_idx
+    - @source:
+      - Optional: true
+      - Types:
+        - str
+    - @header:
+      - Optional: true
+      - Types:
+        - str
+    - @locations:
+      - Optional: true
+      - Types:
+        - str
+    - @plainname:
+      - Optional: true
+      - Types:
+        - bool
+  - returns:
+    - custom_tgt

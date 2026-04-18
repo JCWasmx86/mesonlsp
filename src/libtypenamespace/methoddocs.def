@@ -876,3 +876,15 @@ Returns a dependency object for the subproject that can be used with other Meson
 Returns the Rust target triple (e.g. `x86_64-unknown-linux-gnu`) for the Rust compiler. By default, or with `native: false`, this returns the target for the host machine. If `native: true` is passed, it returns the target for the build machine instead.
 @snippets_module::symbol_visibility_header:
 Generate a header file that defines macros to be used to mark all public APIs of a library. Depending on the platform, this will typically use `__declspec(dllexport)`, `__declspec(dllimport)` or `__attribute__((visibility("default")))`. It is compatible with C, C++, ObjC and ObjC++ languages. The content of the header is static regardless of the compiler used.
+@codegen_module::lex:
+This function provides fine grained control over what implementation(s) and version(s) of lex are acceptable for a given project. It returns a new object, which can be used to generate code.
+@codegen_module::yacc:
+This function provides fine grained controls over which implementation(s) and version(s) of the parser generator to use.
+@lex_generator::implementation:
+Returns the string name of the lex implementation chosen.
+@yacc_generator::implementation:
+Returns the string name of the yacc implementation chosen.
+@lex_generator::generate:
+Executes the lex implementation
+@yacc_generator::generate:
+Executes the yacc implementation

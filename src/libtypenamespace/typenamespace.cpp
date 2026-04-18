@@ -81,6 +81,9 @@ TypeNamespace::TypeNamespace() {
       {"rust_package", std::make_shared<RustPackage>()},
       {"rust_subproject", std::make_shared<RustSubproject>()},
       {"snippets_module", std::make_shared<SnippetsModule>()},
+      {"codegen_module", std::make_shared<CodegenModule>()},
+      {"lex_generator", std::make_shared<LexGenerator>()},
+      {"yacc_generator", std::make_shared<YaccGenerator>()},
       {"source_configuration", std::make_shared<SourceConfiguration>()}};
   this->initFunctions();
   this->initMethods();

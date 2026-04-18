@@ -102,6 +102,9 @@ enum class TypeName : uint32_t {
   RUST_PACKAGE,
   RUST_SUBPROJECT,
   SNIPPETS_MODULE,
+  CODEGEN_MODULE,
+  LEX_GENERATOR,
+  YACC_GENERATOR,
   WINDOWS_MODULE, // Should be the last one
 };
 
@@ -337,5 +340,9 @@ MAKE_TYPE(SourceSet, "sourceset", SOURCE_SET)
 MAKE_TYPE(SourceConfiguration, "source_configuration", SOURCE_CONFIGURATION)
 // Wayland Module
 MAKE_TYPE_WITH_PARENT(WaylandModule, "wayland_module", Module, WAYLAND_MODULE)
+// Codegen Module
+MAKE_TYPE_WITH_PARENT(CodegenModule, "codegen_module", Module, CODEGEN_MODULE)
+MAKE_TYPE(LexGenerator, "lex_generator", LEX_GENERATOR)
+MAKE_TYPE(YaccGenerator, "yacc_generator", YACC_GENERATOR)
 // Windows Module
 MAKE_TYPE_WITH_PARENT(WindowsModule, "windows_module", Module, WINDOWS_MODULE)
