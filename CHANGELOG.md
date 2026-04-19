@@ -1,6 +1,8 @@
-# 4.3.8 (XXX XX 2024)
-- Use `meson.format` for formatting
-- Update API level to Oct. 16 2024
+- Modernize build
+- Update API level to April 2026.
+- Add codegen module
+- Add snippets module
+- Attempt to use `meson.format` for formatting
 - Fix adding newline at the end for formatting
 - Fixed types of cmake_subprojectoptions::append_link_args
 
