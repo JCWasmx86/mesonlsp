@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        5.0.0alpha09
+Version:        5.0.0alpha10
 Release:        0.1
 Summary:        Meson language server
 
@@ -25,6 +25,7 @@ BuildRequires:  pkgconfig(libcurl)
 BuildRequires:  pkgconfig(libpkgconf)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(uuid)
+BuildRequires:  pkgconfig(pkgconf)
 BuildRequires:  python3dist(lsprotocol)
 BuildRequires:  python3dist(pygls)
 
