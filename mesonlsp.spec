@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        4.3.7
+Version:        v5.0.0-alpha02
 Release:        0.1
 Summary:        Meson language server
 

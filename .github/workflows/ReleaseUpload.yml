@@ -128,9 +128,10 @@ jobs:
           pacman -S zip --noconfirm
           pip install pygls lsprotocol
           meson setup _build --buildtype release
-          timeout 10 _build/src/mesonlsp --lsp || true
+          ninja -C _build
           sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=None/g" /d/a/_temp/msys64/mingw64/lib/python3.14/site-packages/pygls/client.py
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
+          timeout 10 _build/src/mesonlsp --lsp || true
           _build/tests/libcxathrow/cxathrowtest.exe
           strings _build/src/mesonlsp.exe|grep \\.dll$
           mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/
