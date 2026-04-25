@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        5.0.0alpha06
+Version:        5.0.0alpha07
 Release:        0.1
 Summary:        Meson language server
 
@@ -34,7 +34,7 @@ A meson language server
 %autosetup
 
 %build
-%meson -Dmuon:tracy=disabled
+%meson -Dmuon:tracy=disabled -Dmuon:meson-docs=disabled -Dmuon:meson-tests=disabled
 %meson_build
 
 %install
