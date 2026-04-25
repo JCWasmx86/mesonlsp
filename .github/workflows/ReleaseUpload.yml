@@ -127,18 +127,17 @@ jobs:
         run: |
           pacman -S zip --noconfirm
           pip install pygls lsprotocol
-          meson setup _build --buildtype release -Db_lto=true
-          ninja -C _build
-          sed -i "1i import sys" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
-          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=sys.stderr/g" /d/a/_temp/msys64/mingw64/lib/python3.11/site-packages/pygls/client.py
+          meson setup _build --buildtype release
+          timeout 10 _build/src/mesonlsp --lsp || true
+          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=None/g" /d/a/_temp/msys64/mingw64/lib/python3.14/site-packages/pygls/client.py
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           _build/tests/libcxathrow/cxathrowtest.exe
           strings _build/src/mesonlsp.exe|grep \\.dll$
-          (find /d/ | grep "libarchive-13.dll") || true
           mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/
           mkdir -p /d/Artifacts
           cp _build/src/mesonlsp.exe /d/Artifacts
           cp $(mingw-ldd.exe _build/src/mesonlsp.exe --output-format per-dep-list --dll-lookup-dirs /d/a/_temp/msys64/mingw64/bin/ |& grep "=>"|sed s/.*=\>.//g|sort -u|grep -v not.found) /d/Artifacts
+          ls /d/Artifacts
           pacman -Q > /d/Artifacts/env.txt
           cp COPYING /d/Artifacts/COPYING
           ./scripts/create_license_file.sh
@@ -157,8 +156,8 @@ jobs:
       matrix:
         id:
           [
-            { version: 13, triple: "x86_64-apple-darwin" },
-            { version: 14, triple: "aarch64-apple-darwin" },
+            { version: "26-intel", triple: "x86_64-apple-darwin" },
+            { version: "26", triple: "aarch64-apple-darwin" },
           ]
     runs-on: macos-${{ matrix.id.version }}
     steps:
