@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        5.0.0alpha11
+Version:        5.0.0alpha12
 Release:        0.1
 Summary:        Meson language server
 
@@ -41,7 +41,7 @@ A meson language server
 
 %install
 %meson_install
-rm /usr/lib64/pkgconfig/tree-sitter.pc
+rm /builddir/build/BUILD/mesonlsp-*-build/BUILDROOT/usr/bin/Swift-MesonLSP
 
 %files
 %{_bindir}/mesonlsp
