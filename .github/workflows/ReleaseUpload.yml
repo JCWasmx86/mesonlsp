@@ -64,7 +64,7 @@ jobs:
           verbose: true
           update_latest_release: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   alpine:
     runs-on: ubuntu-22.04
     steps:
@@ -91,7 +91,7 @@ jobs:
           verbose: true
           update_latest_release: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload to release
         uses: xresloader/upload-to-github-release@e6ac9c2ff1018fca4464bf2480155faeb66f9bdb # main
         with:
@@ -99,7 +99,7 @@ jobs:
           verbose: true
           update_latest_release: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   windows:
     runs-on: windows-latest
     defaults:
@@ -151,7 +151,7 @@ jobs:
           verbose: true
           update_latest_release: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   macos:
     strategy:
       matrix:
@@ -200,4 +200,4 @@ jobs:
           verbose: true
           update_latest_release: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
