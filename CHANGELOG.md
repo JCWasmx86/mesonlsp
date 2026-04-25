@@ -1,3 +1,4 @@
+# 5.0.0 (Apr 25 2026)
 - Modernize build
 - Update API level to April 2026.
 - Add codegen module
@@ -5,7 +6,6 @@
 - Attempt to use `meson.format` for formatting
 - Fix adding newline at the end for formatting
 - Fixed types of cmake_subprojectoptions::append_link_args
-
 # 4.3.4 (Sep 01 2024)
 - Fix crash if first statement of root meson.build is not a function call (#135)
 # 4.3.3 (Aug 17 2024)
