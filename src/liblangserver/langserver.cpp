@@ -28,6 +28,7 @@
 #include <poll.h>
 #include <sys/inotify.h>
 #endif
+#include <unistd.h>
 #include <vector>
 extern "C" {
 #include <log.h>
