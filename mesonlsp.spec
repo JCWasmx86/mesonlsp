@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        5.0.0alpha07
+Version:        5.0.0alpha08
 Release:        0.1
 Summary:        Meson language server
 
@@ -17,6 +17,7 @@ BuildRequires:  ninja-build
 BuildRequires:  gcc
 BuildRequires:  g++
 BuildRequires:  git
+BuildRequires:  mandoc
 BuildRequires:  pkgconfig(benchmark)
 BuildRequires:  pkgconfig(gtest)
 BuildRequires:  pkgconfig(libarchive)
@@ -34,7 +35,7 @@ A meson language server
 %autosetup
 
 %build
-%meson -Dmuon:tracy=disabled -Dmuon:meson-docs=disabled -Dmuon:meson-tests=disabled
+%meson -Dmuon:tracy=disabled -Dmuon:meson-docs=disabled -Dmuon:meson-tests=disabled -Dmuon:man-pages=disabled -Dmuon:website=disabled
 %meson_build
 
 %install
