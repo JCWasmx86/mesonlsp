@@ -1,5 +1,5 @@
 FROM alpine:latest AS stage1
-
+ARG NUM_BUILD_JOBS=1
 RUN apk add --no-cache gcc g++ meson curl-static pkgconf util-linux-dev \
     util-linux-static curl-dev libunistring-dev libunistring-static nghttp2-static \
     libarchive-static openssl-libs-static libarchive-dev libarchive-static \
@@ -27,7 +27,7 @@ RUN meson setup _static --default-library=static --prefer-static \
     -Dc_link_args='-static-libgcc -static-libstdc++' \
     -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
     --buildtype=release -Db_lto=true --force-fallback-for=libpkgconf
-RUN ninja -C _static -j2
+RUN ninja -C _static -j${NUM_BUILD_JOBS}
 RUN meson test -C _static "mesonlsp:"
 RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir

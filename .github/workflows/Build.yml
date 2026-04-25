@@ -86,7 +86,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman qemu-user-static
           podman --version
-          DOCKER_BUILDKIT=1 docker build --platform linux/arm64 --network=host --file Dockerfile --output out .
+          DOCKER_BUILDKIT=1 docker build --build-arg NUM_BUILD_JOBS=1 --platform linux/arm64 --network=host --file Dockerfile --output out .
           yes | unzip out/mesonlsp-alpine-static.zip
           sudo cp mesonlsp /
           sudo cp mesonlint /

@@ -2,6 +2,7 @@ name: Release-Upload
 
 on:
   release:
+    types: [created]
   workflow_dispatch:
 
 jobs:
@@ -50,7 +51,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install podman qemu-user-static
           podman --version
-          DOCKER_BUILDKIT=1 docker build --platform linux/arm64 --network=host --file Dockerfile --output out .
+          DOCKER_BUILDKIT=1 docker build --build-arg NUM_BUILD_JOBS=1 --platform linux/arm64 --network=host --file Dockerfile --output out .
           sudo cp out/mesonlsp-alpine-static.zip mesonlsp-aarch64-unknown-linux-musl.zip
           sudo unzip -o mesonlsp-aarch64-unknown-linux-musl.zip
           sudo zip -9 mesonlint-aarch64-unknown-linux-musl.zip mesonlint env.txt COPYING
@@ -106,7 +107,7 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: msys2/setup-msys2@c52d1fa9c7492275e60fe763540fb601f5f232a1 # v2.25.0
+      - uses: msys2/setup-msys2@v2 # v2.25.0
         with:
           cache: true
           path-type: inherit
@@ -129,7 +130,6 @@ jobs:
           pip install pygls lsprotocol
           meson setup _build --buildtype release
           ninja -C _build
-          sed -i "s/stderr=asyncio.subprocess.PIPE/stderr=None/g" /d/a/_temp/msys64/mingw64/lib/python3.14/site-packages/pygls/client.py
           ninja -C _build test || (cat _build/meson-logs/testlog.txt && exit 1)
           timeout 10 _build/src/mesonlsp --lsp || true
           _build/tests/libcxathrow/cxathrowtest.exe
@@ -185,6 +185,7 @@ jobs:
           ninja -C _build
           ninja -C _build test
           mkdir -p ${{ github.workspace }}/Artifacts
+          otool -L _build/src/mesonlsp
           cp _build/src/mesonlsp ${{ github.workspace }}/Artifacts/mesonlsp
           brew list --versions -d >> ${{ github.workspace }}/Artifacts/env.txt
           cp COPYING ${{ github.workspace }}/Artifacts/COPYING
