@@ -28,6 +28,7 @@ RUN meson setup _static --default-library=static --prefer-static \
     -Dcpp_link_args='-static-libgcc -static-libstdc++' -Dstatic_build=true \
     --buildtype=release -Db_lto=true --force-fallback-for=libpkgconf
 RUN ninja -C _static -j${NUM_BUILD_JOBS}
+RUN echo '{"id":1,"method":"initialize","params":{"capabilities":{},"rootUri":null,"workspaceFolders":[]},"jsonrpc":"2.0"}' | _static/src/mesonlsp --lsp
 RUN meson test -C _static "mesonlsp:"
 RUN _static/tests/libcxathrow/cxathrowtest
 RUN mkdir /app/exportDir

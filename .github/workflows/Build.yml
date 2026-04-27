@@ -219,6 +219,7 @@ jobs:
           ninja
           meson test "mesonlsp:" || cat /__w/mesonlsp/mesonlsp/_clang/meson-logs/testlog.txt
           cd ..
+          echo '{"id":1,"method":"initialize","params":{"capabilities":{},"rootUri":null,"workspaceFolders":[]},"jsonrpc":"2.0"}' | _clang/src/mesonlsp --lsp
           ./_clang/src/mesonlsp --full
           ./_clang/src/lint/mesonlint --fix
           ./scripts/run_regression_tests.sh
