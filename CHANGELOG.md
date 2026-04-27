@@ -1,3 +1,5 @@
+# 5.0.2 (Apr 27 2026)
+- Fix server hanging in `initialize` on systems with many pkg-config packages
 # 5.0.1 (Apr 27 2026)
 - Fix crash on startup (#192)
 # 5.0.0 (Apr 25 2026)
