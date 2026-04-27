@@ -1,3 +1,5 @@
+- Fix crash on startup
+
 # 5.0.0 (Apr 25 2026)
 - Modernize build
 - Update API level to April 2026.
