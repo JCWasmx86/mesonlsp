@@ -90,9 +90,9 @@ public:
       this->inotifyFd = -1;
       this->inotifyFuture.wait();
     }
+#endif
     ar_destroy(&arena);
     ar_destroy(&a_scratch);
-#endif
   }
 #ifdef HAS_INOTIFY
   void setupInotify();
