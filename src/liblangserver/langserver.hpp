@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <filesystem>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
@@ -85,8 +86,10 @@ public:
 
   ~LanguageServer() override {
 #ifdef HAS_INOTIFY
-    this->inotifyFd = -1;
-    this->inotifyFuture.wait();
+    if (this->inotifyFd != -1) {
+      this->inotifyFd = -1;
+      this->inotifyFuture.wait();
+    }
     ar_destroy(&arena);
     ar_destroy(&a_scratch);
 #endif
