@@ -1,7 +1,7 @@
 %global __meson_wrap_mode default
 
 Name:           mesonlsp
-Version:        5.0.0
+Version:        5.0.1
 Release:        0.1
 Summary:        Meson language server
 
@@ -51,6 +51,8 @@ rm /builddir/build/BUILD/mesonlsp-*-build/BUILDROOT/usr/lib64/pkgconfig/tree-sit
 %{_prefix}/lib/debug/usr/bin/mesonlsp-%{version}-0.1.%{_target_cpu}.debug
 
 %changelog
+* Mon Apr 27 2026 JCWasmx86 <JCWasmx86@t-online.de> - 5.0.1-0.1
+- Bump to v5.0.1
 * Sat Apr 25 2026 JCWasmx86 <JCWasmx86@t-online.de> - 5.0.0-0.1
 - Bump to v5.0.0
 * Mon Sep 23 2024 JCWasmx86 <JCWasmx86@t-online.de> - 4.3.7-0.1

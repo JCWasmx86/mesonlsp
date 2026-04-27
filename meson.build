@@ -7,7 +7,7 @@ project(
         'cpp_std=gnu++23',
         'warning_level=3',
     ],
-    version: 'v5.0.0',
+    version: 'v5.0.1',
 )
 
 cc = meson.get_compiler('c')
