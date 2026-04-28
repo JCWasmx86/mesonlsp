@@ -20,6 +20,7 @@
 #include <fstream>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <thread>
 #ifndef _WIN32
 #include <pwd.h>
@@ -44,8 +45,22 @@ constexpr auto HTTP_OK = 200;
 constexpr auto FTP_OK = 226;
 constexpr auto LIBARCHIVE_BLOCKSIZE = ((size_t)1024 * 32);
 constexpr auto ERRNO_BUF_SIZE = 256;
+const std::set<std::string> ALT_CA_PATHS /*NOLINT*/ = {
+    "/etc/ssl/cert.pem", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+    "/etc/ssl/ca-bundle.pem"};
 
 const static Logger LOG("utils"); // NOLINT
+
+static void setupOptions(CURL *curl, const std::string &url, FILE *filep) {
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+  // Less than 100kB/s in the last 10s => Timeout
+  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10L);
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
+  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 100000L);
+}
 
 bool downloadFile(std::string url, const std::filesystem::path &output) {
   auto temporaryPath = std::filesystem::temp_directory_path() /
@@ -59,24 +74,35 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
     return false;
   }
   FILE *filep = fopen(temporaryPath.c_str(), MODE);
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, filep);
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-  // Less than 100kB/s in the last 10s => Timeout
-  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10L);
-  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
-  curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 100000L);
+  setupOptions(curl, url, filep);
   auto res = curl_easy_perform(curl);
   long httpCode = 0;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
   LOG.info(std::format("curl_easy_perform: {} {}", curl_easy_strerror(res),
                        httpCode));
+  (void)fclose(filep);
+  if (res == CURLE_SSL_CACERT_BADFILE) {
+    LOG.warn("CURL SSL CA cert bad file");
+    filep = nullptr;
+    for (const auto &caPath : ALT_CA_PATHS) {
+      LOG.info(std::format("Trying CA path: {}", caPath));
+      if (!std::filesystem::exists(caPath)) {
+        LOG.info(std::format("Alternative CA path {} does not exist", caPath));
+        continue;
+      }
+      filep = fopen(temporaryPath.c_str(), MODE);
+      curl_easy_setopt(curl, CURLOPT_CAINFO, caPath.c_str());
+      res = curl_easy_perform(curl);
+      curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+      (void)fclose(filep);
+      LOG.info(std::format("curl_easy_perform with CA path {}: {} {}", caPath,
+                           curl_easy_strerror(res), httpCode));
+    }
+  }
   auto goodFTP = url.starts_with("ftp://") && httpCode == FTP_OK;
   auto goodHTTP = httpCode == HTTP_OK;
   auto successful = res == CURLE_OK && (goodFTP || goodHTTP);
   curl_easy_cleanup(curl);
-  (void)fclose(filep);
   if (!successful) {
     (void)std::filesystem::remove(temporaryPath);
   } else {
