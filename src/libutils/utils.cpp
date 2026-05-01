@@ -97,6 +97,7 @@ bool downloadFile(std::string url, const std::filesystem::path &output) {
       (void)fclose(filep);
       LOG.info(std::format("curl_easy_perform with CA path {}: {} {}", caPath,
                            curl_easy_strerror(res), httpCode));
+      break;
     }
   }
   auto goodFTP = url.starts_with("ftp://") && httpCode == FTP_OK;
