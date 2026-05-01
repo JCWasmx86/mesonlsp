@@ -1,3 +1,5 @@
+- Fix file-wrap download on OpenSuse
+
 # 5.0.2 (Apr 27 2026)
 - Fix server hanging in `initialize` on systems with many pkg-config packages
 # 5.0.1 (Apr 27 2026)
