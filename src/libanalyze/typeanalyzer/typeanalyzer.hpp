@@ -182,4 +182,7 @@ private:
   bool checkConditionForVersionComparison(const Node *condition);
   void pushVersion(const std::string &version);
   const Version &matchingVersion() const;
+  std::optional<bool>
+  tryEvaluateStaticBoolCondition(const Node *node,
+                                 const std::filesystem::path &mesonDir) const;
 };
