@@ -1,0 +1,6 @@
+fs = import('fs')
+# Branch is provably false → inner assignment must not affect analysis
+after_false_if = 'outer'
+if fs.is_dir('__mesonlsp_fs_static_branch_absent__')
+  after_false_if = 1
+endif

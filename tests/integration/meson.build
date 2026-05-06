@@ -278,6 +278,12 @@ type_analyzer_tests = [
         ],
     ],
     [
+        'fs_static_if',
+        [
+            ['after_false_if', 'str'],
+        ],
+    ],
+    [
         'assignment',
         [
             ['someint', 'int'],

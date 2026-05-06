@@ -2476,23 +2476,128 @@ const Version &TypeAnalyzer::matchingVersion() const {
   return this->versionStack.back();
 }
 
+std::optional<bool> TypeAnalyzer::tryEvaluateStaticBoolCondition(
+    const Node *node, const std::filesystem::path &mesonDir) const {
+  // Only evaluate a narrow class of conditions (filesystem facts on string
+  // literals). Plain `true`/`false`/`1 == 1` intentionally stay unknown so
+  // type merging still considers all branches unless a branch is ruled out by
+  // fs.{is_dir,exists,...}(literal).
+  using enum BinaryOperator;
+  using enum NodeType;
+  using enum UnaryOperator;
+  switch (node->type) {
+  case UNARY_EXPRESSION: {
+    const auto *unary = static_cast<const UnaryExpression *>(node);
+    if (unary->op != NOT && unary->op != EXCLAMATION_MARK) {
+      return std::nullopt;
+    }
+    auto inner = this->tryEvaluateStaticBoolCondition(
+        unary->expression.get(), mesonDir);
+    if (!inner.has_value()) {
+      return std::nullopt;
+    }
+    return !inner.value();
+  }
+  case BINARY_EXPRESSION: {
+    const auto *be = static_cast<const BinaryExpression *>(node);
+    auto lhs = this->tryEvaluateStaticBoolCondition(be->lhs.get(), mesonDir);
+    auto rhs = this->tryEvaluateStaticBoolCondition(be->rhs.get(), mesonDir);
+    switch (be->op) {
+    case AND:
+      if (lhs == false || rhs == false) {
+        return false;
+      }
+      if (lhs == true && rhs == true) {
+        return true;
+      }
+      return std::nullopt;
+    case OR:
+      if (lhs == true || rhs == true) {
+        return true;
+      }
+      if (lhs == false && rhs == false) {
+        return false;
+      }
+      return std::nullopt;
+    default:
+      return std::nullopt;
+    }
+  }
+  case METHOD_EXPRESSION: {
+    const auto *me = static_cast<const MethodExpression *>(node);
+    if (me->method == nullptr || me->args == nullptr ||
+        me->args->type != ARGUMENT_LIST) {
+      return std::nullopt;
+    }
+    const auto *al = static_cast<const ArgumentList *>(me->args.get());
+    const Node *firstPositional = nullptr;
+    for (const auto &argNode : al->args) {
+      if (argNode->type != KEYWORD_ITEM) {
+        firstPositional = argNode.get();
+        break;
+      }
+    }
+    if (firstPositional == nullptr) {
+      return std::nullopt;
+    }
+    const auto *sl = dynamic_cast<const StringLiteral *>(firstPositional);
+    if (sl == nullptr) {
+      return std::nullopt;
+    }
+    std::filesystem::path path(sl->id);
+    if (!path.is_absolute()) {
+      path = mesonDir / path;
+    }
+    std::error_code errc;
+    const std::string &mid = me->method->id();
+    if (mid == "fs_module.is_dir") {
+      return std::filesystem::is_directory(path, errc);
+    }
+    if (mid == "fs_module.exists") {
+      return std::filesystem::exists(path, errc);
+    }
+    if (mid == "fs_module.is_file") {
+      return std::filesystem::is_regular_file(path, errc);
+    }
+    if (mid == "fs_module.is_symlink") {
+      return std::filesystem::is_symlink(path, errc);
+    }
+    return std::nullopt;
+  }
+  default:
+    return std::nullopt;
+  }
+}
+
 void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
   this->stack.emplace_back();
   this->overriddenVariables.emplace_back();
   this->selectionStatementStack.emplace_back();
   auto idx = 0UL;
   std::vector<IdExpression *> allLeft;
+  bool skipRestAfterProvablyTrue = false;
   for (const auto &block : node->blocks) {
+    if (skipRestAfterProvablyTrue) {
+      break;
+    }
     auto appended = false;
     auto appendedVersion = false;
+    std::optional<bool> staticTruth;
     if (idx < node->conditions.size()) {
       const auto &cond = node->conditions[idx];
       cond->visit(this);
+      staticTruth = this->tryEvaluateStaticBoolCondition(
+          cond.get(),
+          cond->file->file.parent_path());
       appended = this->checkCondition(cond.get());
       appendedVersion = this->checkConditionForVersionComparison(cond.get());
     }
+    const bool skipBlockBody =
+        staticTruth.has_value() && !staticTruth.value();
     this->variablesNeedingUse.emplace_back();
-    this->visitChildren(block);
+    if (!skipBlockBody) {
+      this->visitChildren(block);
+    }
     if (appended) {
       this->ignoreUnknownIdentifier.pop_back();
     }
@@ -2503,6 +2608,9 @@ void TypeAnalyzer::visitSelectionStatement(SelectionStatement *node) {
     allLeft.insert(allLeft.end(), lastNeedingUse.begin(), lastNeedingUse.end());
     this->variablesNeedingUse.pop_back();
     idx++;
+    if (staticTruth == true) {
+      skipRestAfterProvablyTrue = true;
+    }
   }
   std::set<std::string> dedupedUnusedAssignments;
   auto toInsert = this->variablesNeedingUse.back();
