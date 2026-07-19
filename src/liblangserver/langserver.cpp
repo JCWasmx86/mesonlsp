@@ -180,9 +180,15 @@ void LanguageServer::initPkgNames() {
   memset(&pkgClient, 0, sizeof(pkgClient));
   pkgconf_client_set_trace_handler(&pkgClient, nullptr, nullptr);
   pkgconf_client_set_sysroot_dir(&pkgClient, nullptr);
+#if defined(LIBPKGCONF_VERSION) && LIBPKGCONF_VERSION >= 30000
+  pkgconf_client_init(&pkgClient,
+                      (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr,
+                      personality, nullptr, nullptr);
+#else
   pkgconf_client_init(&pkgClient,
                       (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr,
                       personality);
+#endif
   pkgconf_client_set_trace_handler(
       &pkgClient, (pkgconf_error_handler_func_t)pkgconfLogHandler, nullptr);
   pkgconf_client_set_flags(&pkgClient, PKGCONF_PKG_PKGF_NONE);
