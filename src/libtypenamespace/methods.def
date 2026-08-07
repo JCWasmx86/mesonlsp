@@ -3553,6 +3553,10 @@ python3_module::extension_module:
       - Optional: true
       - Types:
         - str
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @c_args:
       - Optional: true
       - Types:
@@ -3790,6 +3794,10 @@ python_installation::extension_module:
       - Types:
         - bool
     - @build_rpath:
+      - Optional: true
+      - Types:
+        - str
+    - @build_subdir:
       - Optional: true
       - Types:
         - str

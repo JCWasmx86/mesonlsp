@@ -1144,6 +1144,10 @@ custom_target:
       - Optional: true
       - Types:
         - bool
+    - @build_subdir:
+      - Optional: true
+      - Types:
+        - str
     - @capture:
       - Optional: true
       - Types:
