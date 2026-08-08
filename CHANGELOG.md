@@ -1,3 +1,5 @@
+# Unreleased
+- Fix meson version comparison (https://github.com/JCWasmx86/mesonlsp/issues/218)
 # 5.0.3 (May 16 2026)
 - Fix file-wrap download on OpenSuse (https://github.com/mesonbuild/vscode-meson/issues/320)
 - Skip dead branches for static fs.* path conditions (Thanks, @lenik)

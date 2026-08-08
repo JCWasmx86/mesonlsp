@@ -2,21 +2,26 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
 #include <string>
 #include <utility>
-#include <vector>
 
 class Version {
 public:
   std::string versionString;
 
   explicit Version(std::string string) : versionString(std::move(string)) {
-    this->parts = split(this->versionString, ".");
+    const auto partsStr = split(this->versionString, ".");
+    try {
+        for(std::size_t i = 0; i < std::min(parts.size(), partsStr.size()); ++i) {
+        parts[i] = std::stoul(partsStr[i]);
+    }}
+    catch(const std::exception&) {}
   }
 
   bool after(const Version &other) {
-    for (unsigned long i = 0;
-         i < std::min(other.parts.size(), this->parts.size()); i++) {
+    for (std::size_t i = 0; i < 3; ++i) {
       const auto &thisPart = this->parts[i];
       const auto &otherPart = other.parts[i];
       if (thisPart > otherPart) {
@@ -26,12 +31,9 @@ public:
         return false;
       }
     }
-    if (this->parts.size() > other.parts.size() && this->parts.back() == "0") {
-      return false;
-    }
-    return this->parts.size() > other.parts.size();
+    return false;
   }
 
 private:
-  std::vector<std::string> parts;
+  std::array<unsigned long, 3> parts;
 };
