@@ -121,6 +121,11 @@ For coc.nvim, add this JSON to `:CocConfig`:
 }
 ```
 
+#### Zed
+
+Install Zed's [Meson extension](https://zed.dev/extensions/meson) through the "extensions" tab in the editor. 
+If you don't have MesonLSP in your PATH, it will install the latest version for you.
+
 ## Want to contribute?
 Take an item from the TODO list in [PROGRESS.md](PROGRESS.md) and work on it. Feel
 free to join the matrix channel [#mesonlsp:matrix.org](https://matrix.to/#/#mesonlsp:matrix.org)
